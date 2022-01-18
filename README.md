@@ -12,6 +12,7 @@ YAS is a pet project aim to practice building a typical microservice application
 - K8s
 - Github Action
 - SonarCloud
+- OpenTelemetry
 
 ## Components roadmap
 - [ ] Identity service
