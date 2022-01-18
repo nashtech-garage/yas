@@ -1,0 +1,124 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress 
+metadata:
+  name: yas-ingress
+spec:
+  ingressClassName: nginx  
+  defaultBackend:
+    service:
+      name: test
+      port:
+        number: 80
+  rules:
+  - host: yas.local
+    http:
+      paths:
+      - path: /test
+        pathType: Prefix
+        backend:
+          service:
+            name:  test
+            port: 
+              number: 80
+  - host: identity.yas.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak
+            port:
+              number: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: test
+
+spec:
+  selector: 
+    app: test
+  
+  ports:
+    - name: http
+      port: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+spec:
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: test
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: test
+        image: httpd
+
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: keycloak
+  type: LoadBalancer
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: default
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:16.1.0
+        env:
+        - name: KEYCLOAK_USER
+          value: "admin"
+        - name: KEYCLOAK_PASSWORD
+          value: "admin"
+        - name: PROXY_ADDRESS_FORWARDING
+          value: "true"
+        ports:
+        - name: http
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /auth/realms/master
+            port: 8080
+
+
