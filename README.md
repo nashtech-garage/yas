@@ -2,7 +2,7 @@
 
 YAS is a pet project aim to practice building a typical microservice application in Java
 
-Intended technologies and frameworks
+## Intended technologies and frameworks
 
 - Java 17
 - Spring boot 2.6
@@ -12,3 +12,11 @@ Intended technologies and frameworks
 - K8s
 - Github Action
 - SonarCloud
+
+## Components roadmap
+- [ ] Identity service
+- [ ] Product service
+- [ ] Pricing service
+- [ ] Cart service
+- [ ] Order service
+- [ ] Review service
