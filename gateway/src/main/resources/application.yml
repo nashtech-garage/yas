@@ -1,0 +1,30 @@
+server:
+  port: ${GATEWAY_PORT:8080}
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_SERVER:http://localhost:9080/auth/realms/sample/.well-known/openid-configuration}
+
+  cloud:
+    gateway:
+      routes:
+      - id: pricing
+        uri: ${PRICING_SERVICE:http://localhost:8081}
+        predicates:
+        - Path=/pricing/**
+        filters:
+          - RewritePath=/pricing/(?<path>.*), /$\{path}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+    
