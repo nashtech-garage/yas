@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres: # Service name 
+    image: postgres:latest
+    container_name: cloud_posgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
+
+  keycloak:
+    image: jboss/keycloak:latest
+    container_name: cloud_keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres # <<< This is the address, change it to your external db ip/domain
+      DB_DATABASE: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_SCHEMA: public
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KEYCLOAK_LOGLEVEL: DEBUG
+      ROOT_LOGLEVEL: DEBUG
+      KEYCLOAK_IMPORT: /tmp/realm-export.json
+    volumes:
+      - ./keyloak-config/realm-export.json:/tmp/realm-export.json      
+    ports:
+      - 9080:8080
+      - 9443:8443
+    depends_on:
+      - postgres
+
+  gateway:
+    build: ./gateway
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+
+  pricing:
+    build: ./pricing
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+

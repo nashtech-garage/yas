@@ -30,3 +30,31 @@ YAS is a pet project aim to practice building a typical microservice application
 - [ ] Cart service
 - [ ] Order service
 - [ ] Review service
+
+## Run on local with docker-compose
+1. rename .env.sample to .env
+1. update some information if need
+1. run 
+ ```bash
+ docker-compose up -d
+ ```
+4. access to keycloak to reset client secret
+1. run login to get jwt token
+ ```bash
+	curl --request POST \
+  --url http://localhost:9080/auth/realms/sample/protocol/openid-connect/token \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data client_id=gateway-client \
+  --data client_secret=<client_secret> \
+  --data grant_type=password \
+  --data 'scope=email roles profile' \
+  --data username=u \
+  --data password=1
+ ```
+6. Get data with token
+ ```bash
+	curl --request GET \
+  --url http://localhost:8080/pricing/prices/10 \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer <JWT Token>'
+ ```	

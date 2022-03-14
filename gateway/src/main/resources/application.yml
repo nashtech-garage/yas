@@ -16,6 +16,12 @@ spring:
         - Path=/pricing/**
         filters:
           - RewritePath=/pricing/(?<path>.*), /$\{path}
+      - id: product
+        uri: ${PRODUCT_SERVICE:http://localhost:8082}
+        predicates:
+          - Path=/product/**
+        filters:
+          - RewritePath=/product/(?<path>.*), /$\{path}
 
 management:
   endpoints:
