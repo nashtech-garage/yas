@@ -30,7 +30,16 @@ spec:
             name: keycloak
             port:
               number: 8080
-
+  - host: pgadmin.yas.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pgadmin
+            port:
+              number: 80
 ---
 
 apiVersion: v1
@@ -90,7 +99,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
-  namespace: default
   labels:
     app: keycloak
 spec:
@@ -113,6 +121,16 @@ spec:
           value: "admin"
         - name: PROXY_ADDRESS_FORWARDING
           value: "true"
+        - name: DB_VENDOR
+          value: "POSTGRES"
+        - name: DB_USER
+          value: "admin"
+        - name: DB_PASSWORD
+          value: "admin"
+        - name: DB_ADDR
+          value: "postgres"
+        - name: DB_DATABASE
+          value: "keycloak"
         ports:
         - name: http
           containerPort: 8080
@@ -121,4 +139,112 @@ spec:
             path: /auth/realms/master
             port: 8080
 
+---
 
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+      nodePort: 30007
+  selector:
+    app: postgres
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  labels:
+    app: pgadmin
+spec:
+  ports:
+  - name: http
+    port: 80
+  selector:
+    app: postgres
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+          - name: POSTGRES_USER
+            value: "admin"
+          - name: POSTGRES_PASSWORD
+            value: "admin"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+        - name: pgadmin
+          image: dpage/pgadmin4
+          ports:
+            - containerPort: 80
+          env:
+          - name: PGADMIN_DEFAULT_EMAIL
+            value: admin@yas.com
+          - name: PGADMIN_DEFAULT_PASSWORD
+            value: "admin"
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv-volume
+  labels:
+    type: local
+    app: postgres
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+  labels:
+    app: postgres
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

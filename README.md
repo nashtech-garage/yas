@@ -18,9 +18,11 @@ YAS is a pet project aim to practice building a typical microservice application
 
 1. Have your Docker desktop with Kubernetes enabled
 1. Install NGINX ingress controller `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml`
-1. Add `127.0.0.1 yas.local` and  `127.0.0.1 identity.yas.local` to your host file
+1. Add `127.0.0.1 yas.local`,   `127.0.0.1 identity.yas.local` and `127.0.0.1 pgadmin.yas.local` to your host file
 1. Run `kubectl apply yaslocal.yaml`
-1. Open your favorite browser and go to http://identity.yas.local
+1. Open your favorite browser and go to http://identity.yas.local. Admin account is: admin/admin
+1. Open another browser tab and go to: http://pgadmin.yas.local. Account login: admin@yas.com / admin
+1. The Postgresql server is also published to the host machine: localhost, username: admin, password: admin
 
 
 ## Components roadmap
