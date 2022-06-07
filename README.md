@@ -16,6 +16,7 @@ YAS is a pet project aim to practice building a typical microservice application
 
 ## Getting started
 
+1. Get the latest source code
 1. Have your Docker desktop with Kubernetes enabled
 1. Install NGINX ingress controller `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml`
 1. Add `127.0.0.1 yas.local`,   `127.0.0.1 identity.yas.local` and `127.0.0.1 pgadmin.yas.local` to your host file
