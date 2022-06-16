@@ -13,13 +13,54 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>product</name>
 	<description>YAS Product service</description>
+
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<springdoc.swagger-ui.enabled>true</springdoc.swagger-ui.enabled>
+				<springdoc.api-docs.enabled>true</springdoc.api-docs.enabled>
+				<spring.profiles.active>dev</spring.profiles.active>
+			</properties>
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<springdoc.swagger-ui.enabled>true</springdoc.swagger-ui.enabled>
+				<springdoc.api-docs.enabled>true</springdoc.api-docs.enabled>
+				<spring.profiles.active>test</spring.profiles.active>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<springdoc.swagger-ui.enabled>false</springdoc.swagger-ui.enabled>
+				<springdoc.api-docs.enabled>false</springdoc.api-docs.enabled>
+				<spring.profiles.active>prod</spring.profiles.active>
+			</properties>
+		</profile>
+	</profiles>
+
 	<properties>
 		<java.version>17</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+
+		<springdoc-openapi-ui.version>1.6.9</springdoc-openapi-ui.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>${springdoc-openapi-ui.version}</version>
 		</dependency>
 
 		<dependency>
