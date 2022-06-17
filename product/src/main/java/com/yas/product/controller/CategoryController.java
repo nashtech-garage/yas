@@ -48,7 +48,7 @@ public class CategoryController {
 
     @PostMapping("categories")
     @ApiResponses(value = {
-            @ApiResponse(responseCode  = "200",  description  = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Object> create(@RequestBody final CategoryPostVm categoryPostVm){
         Category category = new Category();
@@ -58,7 +58,7 @@ public class CategoryController {
         if(categoryPostVm.parentId() != null){
             Category parentCategory = categoryRepository.findById(categoryPostVm.parentId()).orElse(null);
             if(parentCategory == null){
-                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "parent category not exist"));
+                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "Parent category not exist"));
             }
             category.setParent(parentCategory);
         }
@@ -89,7 +89,7 @@ public class CategoryController {
         } else {
             Category parentCategory = categoryRepository.findById(categoryPostVm.parentId()).orElse(null);
             if(parentCategory == null){
-                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "parent category not exist"));
+                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "Parent category not exist"));
             }
             category.setParent(parentCategory);
         }
