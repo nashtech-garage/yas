@@ -5,7 +5,11 @@ import com.yas.product.repository.CategoryRepository;
 import com.yas.product.viewModel.CategoryGetDetailVm;
 import com.yas.product.viewModel.CategoryGetVm;
 import com.yas.product.viewModel.CategoryPostVm;
-import org.springframework.http.HttpStatus;
+import com.yas.product.viewModel.ErrorVm;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +33,7 @@ public class CategoryController {
 
     @GetMapping("categories/{id}")
     public ResponseEntity<CategoryGetDetailVm> get(@PathVariable Long id){
-        Category category = categoryRepository.getReferenceById(id);
+        Category category = categoryRepository.findById(id).orElse(null);
         if(category == null){
             return ResponseEntity.notFound().build();
         }
@@ -43,14 +47,18 @@ public class CategoryController {
     }
 
     @PostMapping("categories")
-    public ResponseEntity<CategoryGetDetailVm> create(@RequestBody final CategoryPostVm categoryPostVm){
+    @ApiResponses(value = {
+            @ApiResponse(responseCode  = "200",  description  = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Object> create(@RequestBody final CategoryPostVm categoryPostVm){
         Category category = new Category();
         category.setName(categoryPostVm.name());
         category.setDescription(categoryPostVm.description());
+
         if(categoryPostVm.parentId() != null){
-            Category parentCategory = categoryRepository.getReferenceById(categoryPostVm.parentId());
+            Category parentCategory = categoryRepository.findById(categoryPostVm.parentId()).orElse(null);
             if(parentCategory == null){
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "parent category not exist"));
             }
             category.setParent(parentCategory);
         }
@@ -63,5 +71,30 @@ public class CategoryController {
         );
 
         return  ResponseEntity.ok(categoryGetDetailVm);
+    }
+
+    @PutMapping("categories/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody final CategoryPostVm categoryPostVm){
+        Category category = categoryRepository.findById(id).orElse(null);
+        if(category == null){
+            return  ResponseEntity.notFound().build();
+        }
+        category.setName(categoryPostVm.name());
+        category.setDescription(categoryPostVm.description());
+        if(categoryPostVm.parentId() == null){
+            category.setParent(null);
+        } else {
+            Category parentCategory = categoryRepository.findById(categoryPostVm.parentId()).orElse(null);
+            if(parentCategory == null){
+                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "parent category not exist"));
+            }
+            category.setParent(parentCategory);
+        }
+
+        categoryRepository.saveAndFlush(category);
+        return ResponseEntity.noContent().build();
     }
 }
