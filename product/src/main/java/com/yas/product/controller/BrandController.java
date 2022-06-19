@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller for managing {@link com.yas.product.model.Brand}.
- *
  * @author toaitrano
  * @version 1.0
  * @since 2022/06/18
