@@ -14,12 +14,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -61,12 +63,13 @@ public class BrandController {
     return new BrandDto(brand.getId(), brand.getName(), brand.getSlug());
   }
 
+  @ResponseStatus(HttpStatus.CREATED)
   @PostMapping("/brands")
   @ApiResponses(
       value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Ok",
+            responseCode = "201",
+            description = "Created",
             content = @Content(schema = @Schema(implementation = BrandDto.class))),
         @ApiResponse(
             responseCode = "400",
