@@ -2,7 +2,7 @@ name: Product Service CI
 
 on:
   push:
-    branches: [ "main", "Setup-CI-using-GitHub-Action-infra" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -12,21 +12,23 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests
+        run: mvn clean install -DskipTests -f product
 
   Unit-Tests:
     needs: Build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/workflows/actions
       - name: Run Maven Test
-        run: mvn test
+        run: mvn test -f product
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Unit-Test-Results
-          path: "**/surefire-reports/*.xml"
+          path: "product/**/surefire-reports/*.xml"
           reporter: java-junit
