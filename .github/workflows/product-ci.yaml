@@ -1,8 +1,12 @@
-name: Product Service CI
+name: product service ci
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "product/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/product-ci.yaml"
   pull_request:
     branches: [ "main" ]
 
