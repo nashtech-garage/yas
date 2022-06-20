@@ -1,0 +1,38 @@
+name: pricing service ci
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "pricing/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/pricing-ci.yaml"
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Build Command
+        run: mvn clean install -DskipTests -f pricing
+
+  Unit-Tests:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Test
+        run: mvn test -f pricing
+      - name: Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit-Test-Results
+          path: "pricing/**/surefire-reports/*.xml"
+          reporter: java-junit
