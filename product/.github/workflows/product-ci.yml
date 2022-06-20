@@ -2,7 +2,7 @@ name: Product Service CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "Setup-CI-using-GitHub-Action-infra" ]
   pull_request:
     branches: [ "main" ]
 
