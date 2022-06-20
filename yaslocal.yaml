@@ -91,7 +91,6 @@ spec:
     targetPort: 8080
   selector:
     app: keycloak
-  type: LoadBalancer
 
 ---
 
@@ -199,7 +198,7 @@ spec:
           - name: POSTGRES_PASSWORD
             value: "admin"
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
+            - mountPath: "/var/lib/postgresql/data"
               name: postgredb
         - name: pgadmin
           image: dpage/pgadmin4
@@ -210,11 +209,16 @@ spec:
             value: admin@yas.com
           - name: PGADMIN_DEFAULT_PASSWORD
             value: "admin"
+          volumeMounts:
+            - mountPath: "/var/lib/pgadmin"
+              name: pgadmin
       volumes:
         - name: postgredb
           persistentVolumeClaim:
             claimName: postgres-pv-claim
-
+        - name: pgadmin
+          persistentVolumeClaim:
+            claimName: pgadmin-pv-claim
 ---
 
 apiVersion: v1
@@ -223,28 +227,80 @@ metadata:
   name: postgres-pv-volume
   labels:
     type: local
-    app: postgres
 spec:
-  storageClassName: manual
+  storageClassName: local-storage
+  volumeMode: Filesystem
   capacity:
     storage: 1Gi
   accessModes:
-    - ReadWriteMany
-  hostPath:
-    path: "/mnt/data"
+    - ReadWriteOnce
+  local:
+    path: "/run/desktop/mnt/host/c/k8s-yas-data/postgres"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - docker-desktop
+---
 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pgadmin-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: local-storage
+  volumeMode: Filesystem
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: "/run/desktop/mnt/host/c/k8s-yas-data/pgadmin"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - docker-desktop
 ---
 
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pv-claim
-  labels:
-    app: postgres
 spec:
-  storageClassName: manual
+  storageClassName: local-storage
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgadmin-pv-claim
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer

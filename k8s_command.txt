@@ -1,0 +1,10 @@
+kubectl delete all --all (delete all resource in default namespace) all refers to all resource types such as pods, deployments, services, etc. --all is used to delete every object of that resource type instead of specifying it using its name or label.
+
+kubectl get pvc
+kubectl delete pvc [nameof pvc]
+
+kubectl get pv
+kubectl delete pv [nameof pv]
+
+kubectl get pod
+kubectl describe pod [nameof pod] 
