@@ -2,9 +2,10 @@ FROM maven:3.8.6-eclipse-temurin-17-alpine as build
 RUN mkdir -p /build
 WORKDIR /build
 
-COPY ./ ./
+COPY src/ src/
+COPY pom.xml ./
 
-RUN mvn clean package -DskipTests=true
+RUN mvn -U clean package -DskipTests=true
 
 FROM openjdk:17-jdk-alpine
 
