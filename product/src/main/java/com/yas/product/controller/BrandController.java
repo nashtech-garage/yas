@@ -24,11 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author toaitrano
- * @version 1.0
- * @since 2022/06/18
- */
+
 @RestController
 @RequiredArgsConstructor
 public class BrandController {

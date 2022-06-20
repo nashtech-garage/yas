@@ -8,12 +8,6 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author toaitrano
- * @version 1.0
- * @since 2022/06/18
- */
-
 @Entity
 @Table(name = "brand")
 @Getter

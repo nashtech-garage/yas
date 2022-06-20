@@ -10,14 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-/**
- * This interface will map the properties between {@link com.thg.subscriptions.entity.Brand} class
- * and BrandDto.
- *
- * @author toaitrano
- * @version 1.0
- * @since 2022/06/18
- */
+
 @Mapper(componentModel = "spring",
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface BrandMapper {

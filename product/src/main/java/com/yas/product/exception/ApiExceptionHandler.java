@@ -10,11 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-/**
- * @author toaitrano
- * @version 1.0
- * @since 2022/06/18
- */
+
 @ControllerAdvice
 @RequiredArgsConstructor
 @Slf4j
