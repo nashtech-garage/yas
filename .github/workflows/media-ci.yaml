@@ -29,12 +29,13 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
         with:
-          registry: registry: ghcr.io
+          registry: ghcr.io
           context: ./media
           password: ${{ secrets.GITHUB_TOKEN }}
           dockerfile: ./media/Dockerfile
           repository: nashtech-garage/yas/media-service
           tags: latest
+          
   Unit-Tests:
     needs: Build
     runs-on: ubuntu-latest
