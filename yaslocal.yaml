@@ -3,23 +3,18 @@ kind: Ingress
 metadata:
   name: yas-ingress
 spec:
-  ingressClassName: nginx  
-  defaultBackend:
-    service:
-      name: test
-      port:
-        number: 80
+  ingressClassName: nginx
   rules:
   - host: yas.local
     http:
       paths:
-      - path: /test
+      - path: /media
         pathType: Prefix
         backend:
           service:
-            name:  test
+            name:  media
             port: 
-              number: 80
+              number: 8083
   - host: identity.yas.local
     http:
       paths:
@@ -40,42 +35,48 @@ spec:
             name: pgadmin
             port:
               number: 80
----
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: test
-
+  name: media
+  labels:
+    app: media
 spec:
   selector: 
-    app: test
+    app: media
   
   ports:
     - name: http
-      port: 80
-
+      port: 8083
 ---
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test
+  name: media
 spec:
   minReadySeconds: 30
   selector:
     matchLabels:
-      app: test
+      app: media
   replicas: 1
   template:
     metadata:
       labels:
-        app: test
+        app: media
     spec:
       containers:
-      - name: test
-        image: httpd
-
+      - name: media
+        image: ghcr.io/nashtech-garage/yas-media:latest
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres:5432/media"
+        - name: SERVER_SERVLET_CONTEXT_PATH # a hacky way to fix sub path behind nginx
+          value: /media
+        ports:
+        - name: http
+          containerPort: 8083
 --- 
 
 apiVersion: v1

@@ -8,3 +8,6 @@ kubectl delete pv [nameof pv]
 
 kubectl get pod
 kubectl describe pod [nameof pod] 
+
+
+https://kubernetes.github.io/ingress-nginx/examples/rewrite/
