@@ -26,7 +26,15 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=nashtech-garage_yas -f media
-
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3
+        with:
+          registry: registry: ghcr.io
+          context: ./media
+          password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: ./media/Dockerfile
+          repository: nashtech-garage/yas/media-service
+          tags: latest
   Unit-Tests:
     needs: Build
     runs-on: ubuntu-latest
