@@ -1,11 +1,9 @@
 package com.yas.product.controller;
 
+import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
-import com.yas.product.viewModel.CategoryGetDetailVm;
-import com.yas.product.viewModel.CategoryGetVm;
-import com.yas.product.viewModel.CategoryPostVm;
-import com.yas.product.viewModel.ErrorVm;
+import com.yas.product.viewmodel.*;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,22 +26,20 @@ public class CategoryController {
     @GetMapping("categories")
     public List<CategoryGetVm> list(){
         return categoryRepository.findAll().stream()
-                .map(item -> new CategoryGetVm(item.getId(), item.getName()))
+                .map(item -> CategoryGetVm.fromModel(item))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("categories/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CategoryGetDetailVm> get(@PathVariable Long id){
-        Category category = categoryRepository.findById(id).orElse(null);
-        if(category == null){
-            return ResponseEntity.notFound().build();
-        }
-        CategoryGetDetailVm categoryGetDetailVm = new CategoryGetDetailVm(
-                category.getId(),
-                category.getName(),
-                category.getDescription()
-        );
+        Category category = categoryRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
 
+        CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(category);
         return  ResponseEntity.ok(categoryGetDetailVm);
     }
 
@@ -50,9 +47,10 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Object> create(@RequestBody final CategoryPostVm categoryPostVm){
+    public ResponseEntity<Object> create(@RequestBody @Valid final CategoryPostVm categoryPostVm){
         Category category = new Category();
         category.setName(categoryPostVm.name());
+        category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
 
         if(categoryPostVm.parentId() != null){
@@ -64,25 +62,22 @@ public class CategoryController {
         }
         categoryRepository.saveAndFlush(category);
 
-        CategoryGetDetailVm categoryGetDetailVm = new CategoryGetDetailVm(
-                category.getId(),
-                category.getName(),
-                category.getDescription()
-        );
-
+        CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(category);
         return  ResponseEntity.ok(categoryGetDetailVm);
     }
 
     @PutMapping("categories/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody final CategoryPostVm categoryPostVm){
-        Category category = categoryRepository.findById(id).orElse(null);
-        if(category == null){
-            return  ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm){
+        Category category = categoryRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found")));
+
         category.setName(categoryPostVm.name());
+        category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
         if(categoryPostVm.parentId() == null){
             category.setParent(null);
