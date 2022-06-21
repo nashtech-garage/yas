@@ -1,7 +1,6 @@
 package com.yas.media.exception;
 
 import com.yas.media.viewmodel.ErrorVm;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +28,10 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .map(error -> error.getField() + " " + error.getDefaultMessage())
                 .collect(Collectors.toList());
 
-        ErrorVm errorVm = new ErrorVm("400", "Bad Request", "File uploaded media type is not supported", errors);
+        ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
 
         return new ResponseEntity<>(errorVm, HttpStatus.BAD_REQUEST);
     }
