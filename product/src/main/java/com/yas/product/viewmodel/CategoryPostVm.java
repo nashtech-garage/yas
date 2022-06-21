@@ -1,6 +1,6 @@
 package com.yas.product.viewmodel;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
-public record CategoryPostVm (@NotBlank String name, @NotBlank String slug, String description, Long parentId) {
+public record CategoryPostVm (@NotEmpty String name, @NotEmpty String slug, String description, Long parentId) {
 }

@@ -42,7 +42,7 @@ public class BrandController {
   @GetMapping("brands/{id}")
   @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = BrandVm.class))),
-        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
   public BrandVm getDetail(@PathVariable("id") Long id) {
     Brand brand = brandRepository
             .findById(id)
@@ -53,9 +53,9 @@ public class BrandController {
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping("/brands")
   @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = BrandVm.class))),
+        @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = BrandVm.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-  public ResponseEntity<Object> createBrand(@Valid @RequestBody BrandPostVm brandPostVm) {
+  public ResponseEntity<BrandVm> createBrand(@Valid @RequestBody BrandPostVm brandPostVm) {
     Brand brand = brandPostVm.toModel();
     brandRepository.save(brand);
     return ResponseEntity.ok(BrandVm.fromModel(brand));
@@ -66,7 +66,7 @@ public class BrandController {
         @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
         @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-  public ResponseEntity<Object> update(@PathVariable Long id, @Valid @RequestBody final BrandPostVm brandPostVm) {
+  public ResponseEntity<Void> update(@PathVariable Long id, @Valid @RequestBody final BrandPostVm brandPostVm) {
     Brand brand = brandRepository
             .findById(id)
             .orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", id)));

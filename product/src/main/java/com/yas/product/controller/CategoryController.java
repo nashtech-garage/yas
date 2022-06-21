@@ -1,5 +1,6 @@
 package com.yas.product.controller;
 
+import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
@@ -33,7 +34,7 @@ public class CategoryController {
     @GetMapping("categories/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
-            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CategoryGetDetailVm> get(@PathVariable Long id){
         Category category = categoryRepository
                 .findById(id)
@@ -47,17 +48,16 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Object> create(@RequestBody @Valid final CategoryPostVm categoryPostVm){
+    public ResponseEntity<CategoryGetDetailVm> create(@Valid @RequestBody CategoryPostVm categoryPostVm){
         Category category = new Category();
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
 
         if(categoryPostVm.parentId() != null){
-            Category parentCategory = categoryRepository.findById(categoryPostVm.parentId()).orElse(null);
-            if(parentCategory == null){
-                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "Parent category not exist"));
-            }
+            Category parentCategory = categoryRepository
+                    .findById(categoryPostVm.parentId())
+                    .orElseThrow(() -> new BadRequestException(String.format("Parent category %s is not found", categoryPostVm.parentId())));
             category.setParent(parentCategory);
         }
         categoryRepository.saveAndFlush(category);
@@ -71,7 +71,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "204", description = "No content"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm){
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm){
         Category category = categoryRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
@@ -82,10 +82,9 @@ public class CategoryController {
         if(categoryPostVm.parentId() == null){
             category.setParent(null);
         } else {
-            Category parentCategory = categoryRepository.findById(categoryPostVm.parentId()).orElse(null);
-            if(parentCategory == null){
-                return ResponseEntity.badRequest().body(new ErrorVm("400", "Bad Request", "Parent category not exist"));
-            }
+            Category parentCategory = categoryRepository
+                    .findById(categoryPostVm.parentId())
+                    .orElseThrow(() -> new BadRequestException(String.format("Parent category %s is not found", categoryPostVm.parentId())));
             category.setParent(parentCategory);
         }
 

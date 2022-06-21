@@ -30,6 +30,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity(errorVm, HttpStatus.NOT_FOUND);
   }
 
+  @ExceptionHandler(BadRequestException.class)
+  public ResponseEntity<ErrorVm> handleBadRequestException(BadRequestException ex, WebRequest request) {
+    String message = ex.getMessage();
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
+    return new ResponseEntity(errorVm, HttpStatus.BAD_REQUEST);
+  }
+
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                 HttpStatus status, WebRequest request) {
@@ -37,7 +44,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     List<String> errors = ex.getBindingResult()
             .getFieldErrors()
             .stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .map(error -> error.getField() + " " + error.getDefaultMessage())
             .collect(Collectors.toList());
 
     ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
