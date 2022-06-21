@@ -74,7 +74,7 @@ public class CategoryController {
     public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm){
         Category category = categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found")));
+                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
 
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
