@@ -29,12 +29,9 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
         with:
-          registry: ghcr.io
           context: ./media
           push: true
-          dockerfile: ./media/Dockerfile
-          repository: nashtech-garage/yas/media-service
-          tags: latest
+          tags: ghcr.io/nashtech-garage/yas-media:latest
           
   Unit-Tests:
     needs: Build
