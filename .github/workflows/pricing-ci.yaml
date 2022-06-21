@@ -9,7 +9,11 @@ on:
       - ".github/workflows/pricing-ci.yaml"
   pull_request:
     branches: [ "main" ]
-
+    paths:
+      - "pricing/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/pricing-ci.yaml"
+      
   workflow_dispatch:
 
 jobs:

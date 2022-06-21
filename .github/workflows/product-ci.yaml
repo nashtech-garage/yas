@@ -9,7 +9,11 @@ on:
       - ".github/workflows/product-ci.yaml"
   pull_request:
     branches: [ "main" ]
-
+    paths:
+      - "product/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/product-ci.yaml"
+      
   workflow_dispatch:
 
 jobs:

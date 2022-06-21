@@ -9,7 +9,11 @@ on:
       - ".github/workflows/media-ci.yaml"
   pull_request:
     branches: [ "main" ]
-
+    paths:
+      - "media/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/media-ci.yaml"
+      
   workflow_dispatch:
 
 jobs:
