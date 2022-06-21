@@ -1,6 +1,6 @@
 package com.yas.media.exception;
 
-import com.yas.media.viewModel.ErrorVm;
+import com.yas.media.viewmodel.ErrorVm;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

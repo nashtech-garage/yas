@@ -4,7 +4,7 @@ import com.yas.media.exception.MultipartFileContentException;
 import com.yas.media.exception.UnsupportedMediaTypeException;
 import com.yas.media.model.Media;
 import com.yas.media.repository.MediaRepository;
-import com.yas.media.viewModel.MediaPostVm;
+import com.yas.media.viewmodel.MediaPostVm;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 

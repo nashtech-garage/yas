@@ -1,4 +1,4 @@
-package com.yas.media.viewModel;
+package com.yas.media.viewmodel;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;

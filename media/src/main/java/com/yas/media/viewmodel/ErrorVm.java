@@ -1,4 +1,4 @@
-package com.yas.media.viewModel;
+package com.yas.media.viewmodel;
 
 import java.util.ArrayList;
 import java.util.List;
