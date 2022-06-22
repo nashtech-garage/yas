@@ -14,7 +14,14 @@ spec:
           service:
             name:  media
             port: 
-              number: 8083
+              number: 80
+      - path: /product
+        pathType: Prefix
+        backend:
+          service:
+            name:  product
+            port: 
+              number: 80
   - host: identity.yas.local
     http:
       paths:
@@ -35,6 +42,7 @@ spec:
             name: pgadmin
             port:
               number: 80
+---
 
 apiVersion: v1
 kind: Service
@@ -48,7 +56,22 @@ spec:
   
   ports:
     - name: http
-      port: 8083
+      port: 80
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product
+  labels:
+    app: product
+spec:
+  selector: 
+    app: product
+  
+  ports:
+    - name: http
+      port: 80
 ---
 
 apiVersion: apps/v1
@@ -73,11 +96,43 @@ spec:
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:postgresql://postgres:5432/media"
         - name: SERVER_SERVLET_CONTEXT_PATH # a hacky way to fix sub path behind nginx
-          value: /media
+          value: "/media" 
+        - name: SERVER_PORT
+          value: "80"
         ports:
         - name: http
-          containerPort: 8083
+          containerPort: 80
 --- 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product
+spec:
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: product
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+      - name: product
+        image: ghcr.io/nashtech-garage/yas-product:latest
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres:5432/product"
+        - name: SERVER_SERVLET_CONTEXT_PATH
+          value: "/product"
+        - name: SERVER_PORT
+          value: "80"
+        ports:
+        - name: http
+          containerPort: 80
+---
 
 apiVersion: v1
 kind: Service
@@ -92,7 +147,6 @@ spec:
     targetPort: 8080
   selector:
     app: keycloak
-
 ---
 
 apiVersion: apps/v1
@@ -138,7 +192,6 @@ spec:
           httpGet:
             path: /auth/realms/master
             port: 8080
-
 ---
 
 apiVersion: v1
@@ -154,7 +207,6 @@ spec:
       nodePort: 30007
   selector:
     app: postgres
-
 ---
 
 apiVersion: v1
@@ -169,7 +221,6 @@ spec:
     port: 80
   selector:
     app: postgres
-
 ---
 
 apiVersion: apps/v1
@@ -283,7 +334,6 @@ spec:
   resources:
     requests:
       storage: 1Gi
-
 ---
 
 apiVersion: v1
