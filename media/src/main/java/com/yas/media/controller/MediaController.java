@@ -32,7 +32,7 @@ public class MediaController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = NoFileMediaVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Object> create(@ModelAttribute @Valid MediaPostVm mediaPostVm) {
+    public ResponseEntity<Object> create(@Valid @ModelAttribute MediaPostVm mediaPostVm) {
         Media media = mediaService.saveMedia(mediaPostVm);
         NoFileMediaVm noFileMediaVm = new NoFileMediaVm(media.getId(), media.getCaption(), media.getFileName(), media.getMediaType());
         return ResponseEntity.ok().body(noFileMediaVm);
