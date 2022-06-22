@@ -5,7 +5,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: yas.local
+  - host: api.yas.local
     http:
       paths:
       - path: /media
