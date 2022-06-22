@@ -2,10 +2,10 @@
 
 YAS is a pet project aim to practice building a typical microservice application in Java
 
-## Intended technologies and frameworks
+## Tentative technologies and frameworks
 
 - Java 17
-- Spring boot 2.6
+- Spring boot 2.7
 - Next.js
 - Keycloak
 - Kafka
@@ -13,6 +13,10 @@ YAS is a pet project aim to practice building a typical microservice application
 - Github Action
 - SonarCloud
 - OpenTelemetry
+
+## Local development architecture
+
+![Yas - local development architecture](https://raw.githubusercontent.com/nashtech-garage/yas/main/yas_architecture_local.png)
 
 ## Getting started
 
