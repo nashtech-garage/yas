@@ -34,8 +34,8 @@ public class BrandController {
   @GetMapping("/brands")
   public ResponseEntity<List<BrandVm>> listBrands() {
     List<BrandVm> brandVms = brandRepository.findAll().stream()
-        .map(item -> BrandVm.fromModel(item))
-        .collect(Collectors.toList());
+        .map(BrandVm::fromModel)
+        .toList();
     return ResponseEntity.ok(brandVms);
   }
 

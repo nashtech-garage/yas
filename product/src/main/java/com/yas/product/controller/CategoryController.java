@@ -28,8 +28,8 @@ public class CategoryController {
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryGetVm>> listCategories(){
         List<CategoryGetVm> categoryGetVms = categoryRepository.findAll().stream()
-                .map(item -> CategoryGetVm.fromModel(item))
-                .collect(Collectors.toList());
+                .map(CategoryGetVm::fromModel)
+                .toList();
         return  ResponseEntity.ok(categoryGetVms);
     }
 
