@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -24,18 +25,19 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping("categories")
-    public List<CategoryGetVm> list(){
-        return categoryRepository.findAll().stream()
-                .map(item -> CategoryGetVm.fromModel(item))
-                .collect(Collectors.toList());
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryGetVm>> listCategories(){
+        List<CategoryGetVm> categoryGetVms = categoryRepository.findAll().stream()
+                .map(CategoryGetVm::fromModel)
+                .toList();
+        return  ResponseEntity.ok(categoryGetVms);
     }
 
-    @GetMapping("categories/{id}")
+    @GetMapping("/categories/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CategoryGetDetailVm> get(@PathVariable Long id){
+    public ResponseEntity<CategoryGetDetailVm> getCategory(@PathVariable Long id){
         Category category = categoryRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
@@ -44,11 +46,11 @@ public class CategoryController {
         return  ResponseEntity.ok(categoryGetDetailVm);
     }
 
-    @PostMapping("categories")
+    @PostMapping("/categories")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CategoryGetDetailVm> create(@Valid @RequestBody CategoryPostVm categoryPostVm){
+    public ResponseEntity<CategoryGetDetailVm> createCategory(@Valid @RequestBody CategoryPostVm categoryPostVm, UriComponentsBuilder uriComponentsBuilder){
         Category category = new Category();
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
@@ -63,15 +65,16 @@ public class CategoryController {
         categoryRepository.saveAndFlush(category);
 
         CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(category);
-        return  ResponseEntity.ok(categoryGetDetailVm);
+        return  ResponseEntity.created(uriComponentsBuilder.replacePath("/categories/{id}").buildAndExpand(category.getId()).toUri())
+                .body(categoryGetDetailVm);
     }
 
-    @PutMapping("categories/{id}")
+    @PutMapping("/categories/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No content"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm){
+    public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm){
         Category category = categoryRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
