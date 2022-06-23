@@ -10,9 +10,11 @@ YAS is a pet project aim to practice building a typical microservice application
 - Keycloak
 - Kafka
 - K8s
-- Github Action
+- Github Actions
 - SonarCloud
 - OpenTelemetry
+- Quarkus
+- GraalVM
 
 ## Local development architecture
 
