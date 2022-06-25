@@ -774,9 +774,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn",
       "redirectUris": [
-        "http://localhost:8080/*"
+        "http://localhost:8080/*", "http://storefront.yas.local/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -889,29 +889,6 @@
           }
         ],
         "policies": [
-          {
-            "id": "eaec8ca8-76b8-4555-b1e0-a1098b351eae",
-            "name": "Default Policy",
-            "description": "A policy that grants access only for users within this realm",
-            "type": "js",
-            "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
-            "config": {
-              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
-            }
-          },
-          {
-            "id": "94fe7a3c-1876-40c2-ad76-d4caa82e76e6",
-            "name": "Default Permission",
-            "description": "A permission that applies to the default resource type",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:storefront:resources:default",
-              "applyPolicies": "[\"Default Policy\"]"
-            }
-          }
         ],
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"

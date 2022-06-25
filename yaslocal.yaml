@@ -39,16 +39,16 @@ spec:
             name: storefront
             port:
               number: 80
-  - host: identity.yas.local
+  - host: identity
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: keycloak
+            name: identity
             port:
-              number: 8080
+              number: 80
   - host: pgadmin.yas.local
     http:
       paths:
@@ -239,13 +239,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: keycloak
+  name: identity
   labels:
-    app: keycloak
+    app: identity
 spec:
   ports:
   - name: http
-    port: 8080
+    port: 80
     targetPort: 8080
   selector:
     app: keycloak
