@@ -14,9 +14,4 @@ public class AuthenticationController {
         request.logout();
         return new RedirectView("/");
     }
-
-    @GetMapping(path = "/login")
-    public RedirectView login() {
-        return new RedirectView("/");
-    }
 }

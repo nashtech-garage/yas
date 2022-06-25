@@ -28,7 +28,7 @@
                     <a class="nav-link" th:href="@{/profile}">Hi, <span sec:authentication="name"></span></a>
                 </li>
                 <li sec:authorize="!isAuthenticated()" class="nav-item">
-                    <a class="nav-link" th:href="@{/login}">Login</a>
+                    <a class="nav-link" th:href="@{/sso/login}">Login</a>
                 </li>
                 <li sec:authorize="isAuthenticated()" class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">Logout</a>
