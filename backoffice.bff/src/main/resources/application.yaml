@@ -1,0 +1,32 @@
+server:
+  port: 8087
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: api
+          uri: http://api.yas.local
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - TokenRelay=
+        - id: nextjs
+          uri: http://localhost:3000
+          predicates:
+            - Path=/**
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://identity/auth/realms/Yas
+        registration:
+          api-client:
+            provider: keycloak
+            client-id: backoffice-bff
+            client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
+            scope:
+              - email
+              - profile
+              - roles
