@@ -58,9 +58,9 @@ YAS is a pet project aim to practice building a typical microservice application
     echo 'alias kubectl="minikube kubectl --"' >> ~/.bashrc
    source ~/.bashrc
    ```
-6. Install NGINX ingress controller 
+6. Enable the Ingress controller
     ```sh
-   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
+   minikube addons enable ingress
    ```
 7. Update yaslocal.yaml
 
