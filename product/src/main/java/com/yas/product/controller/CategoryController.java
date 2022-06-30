@@ -4,7 +4,10 @@ import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
-import com.yas.product.viewmodel.*;
+import com.yas.product.viewmodel.CategoryGetDetailVm;
+import com.yas.product.viewmodel.CategoryGetVm;
+import com.yas.product.viewmodel.CategoryPostVm;
+import com.yas.product.viewmodel.ErrorVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class CategoryController {
@@ -50,11 +53,13 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CategoryGetDetailVm> createCategory(@Valid @RequestBody CategoryPostVm categoryPostVm, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity<CategoryGetDetailVm> createCategory(@Valid @RequestBody CategoryPostVm categoryPostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal){
         Category category = new Category();
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
+        category.setCreatedBy(principal.getName());
+        category.setLastModifiedBy(principal.getName());
 
         if(categoryPostVm.parentId() != null){
             Category parentCategory = categoryRepository
