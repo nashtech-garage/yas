@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import type { Category } from '../../modules/catalog/models/Category'
@@ -26,7 +27,9 @@ const CategoryList: NextPage = () => {
         <h2>Categories</h2>
       </div> 
       <div className='col-md-4 text-right'>
-        <Button href="create-category">Create Category</Button> 
+        <Link href="create-category">
+          <Button>Create Category</Button>
+        </Link>
       </div>
     </div>
     <Table striped bordered hover>

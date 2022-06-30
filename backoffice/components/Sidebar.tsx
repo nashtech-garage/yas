@@ -1,4 +1,5 @@
 import '../styles/Sidebar.module.css'
+import Link from 'next/link'
 
 export default function Sidebar(){
   return (
@@ -12,10 +13,12 @@ export default function Sidebar(){
         </h6>
         <ul className="nav flex-column mb-2">
           <li className="nav-item">
-            <a className="nav-link" href="/catalog/categories">
-              <span data-feather="file-text" className="align-text-bottom"></span>
-              Categories
-            </a>
+            <Link href='/catalog/categories'>
+              <a className="nav-link">
+                <span data-feather="file-text" className="align-text-bottom"></span>
+                Categories
+              </a>
+            </Link>
           </li>
           <li className="nav-item">
             <a className="nav-link" href="#">
