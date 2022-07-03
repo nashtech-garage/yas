@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 ENV NODE_ENV development
-RUN npm ci --include=dev
+RUN npm install --include=dev
 
 # Rebuild the source code only when needed
 FROM node:16-alpine AS builder
