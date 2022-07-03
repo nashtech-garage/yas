@@ -1,4 +1,4 @@
-package com.yas.backoffice.bff.viewmodel;
+package com.yas.backofficebff.viewmodel;
 
 public record AuthenticatedUser(String username) {
 }

@@ -1,4 +1,4 @@
-package com.yas.backoffice.bff.config;
+package com.yas.backofficebff.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

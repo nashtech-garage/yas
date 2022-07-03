@@ -9,13 +9,15 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.yas</groupId>
-	<artifactId>backoffice.bff</artifactId>
+	<artifactId>backoffice-bff</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>backoffice.bff</name>
+	<name>backoffice-bff</name>
 	<description>Backend for backoffice</description>
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2021.0.3</spring-cloud.version>
+        <sonar.organization>nashtech-garage</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	<dependencies>
 		<dependency>

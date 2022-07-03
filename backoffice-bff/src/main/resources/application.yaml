@@ -5,7 +5,7 @@ spring:
     gateway:
       routes:
         - id: api
-          uri: http://api.yas.local
+          uri: http://localhost:8080
           predicates:
             - Path=/api/**
           filters:
@@ -25,7 +25,7 @@ spring:
           api-client:
             provider: keycloak
             client-id: backoffice-bff
-            client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
+            client-secret: cnzK70aLGuuWAdQOUgkdMTlYDCDv1T9V
             scope:
               - email
               - profile

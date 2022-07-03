@@ -1,4 +1,4 @@
-package com.yas.backoffice.bff;
+package com.yas.backofficebff;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
