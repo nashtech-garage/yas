@@ -235,7 +235,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF",
       "redirectUris": [
         "http://backoffice.yas.local/*",
         "http://localhost:3000/*",
@@ -435,7 +435,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn",
       "redirectUris": [
         "http://localhost:8080/*",
         "http://storefront.yas.local/*"
