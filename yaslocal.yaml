@@ -39,6 +39,16 @@ spec:
             name: storefront
             port:
               number: 80
+  - host: backoffice.yas.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backoffice
+            port:
+              number: 80
   - host: identity
     http:
       paths:
@@ -70,6 +80,22 @@ metadata:
 spec:
   selector: 
     app: storefront
+  
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backoffice
+  labels:
+    app: backoffice
+spec:
+  selector: 
+    app: backoffice
   
   ports:
     - name: http
@@ -147,6 +173,39 @@ spec:
         ports:
         - name: http
           containerPort: 80
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backoffice
+spec:
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: backoffice
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: backoffice
+    spec:
+      containers:
+      - name: backoffice-bff
+        image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
+        env:
+        - name: SERVER_PORT
+          value: "80"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        ports:
+        - name: http
+          containerPort: 80
+      - name: backoffice
+        image: ghcr.io/nashtech-garage/yas-backoffice:latest
+        ports:
+        - name: http
+          containerPort: 3000
 ---
 
 apiVersion: apps/v1
