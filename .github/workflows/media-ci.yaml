@@ -29,7 +29,7 @@ jobs:
       - name: Analyze with sonar cloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=yas-media -f media
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f media
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v2
