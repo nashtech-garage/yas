@@ -17,6 +17,7 @@
 		<java.version>17</java.version>
 		<sonar.organization>nashtech-garage</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.projectKey>nashtech-garage_yas-storefront</sonar.projectKey>
 	</properties>
 	<dependencies>
 		<dependency>
