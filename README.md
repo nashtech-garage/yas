@@ -36,6 +36,7 @@ YAS is a pet project aim to practice building a typical microservice application
 1. Open another browser tab and go to http://identity. Admin account is: admin/admin. Add Realm, choose Import, select file `/identity/realm-export.json`. If you already have the realm Yas, the go to that realm then Import
 1. The Postgresql server is also published to the host machine: servername: localhost, port: 30007, username: admin, password: admin
 
+## [Getting started with Minikube in Ubuntu](https://github.com/nashtech-garage/yas/wiki/Getting-started-with-Minikube-in-Ubuntu)
 
 ## Components roadmap
 - [ ] Identity service
