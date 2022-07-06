@@ -1,0 +1,60 @@
+server:
+  port: 8087
+spring:
+  profiles:
+    active: dev
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://identity/auth/realms/Yas
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: storefront-bff
+            client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
+            scope:
+              - email
+              - profile
+              - roles
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+  cloud:
+      gateway:
+        routes:
+        - id: api
+          uri: http://api.yas.local
+          predicates:
+              - Path=/api/**
+          filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+        - id: nextjs
+          uri: http://localhost:3000
+          predicates:
+              - Path=/**
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+  cloud:
+      gateway:
+        routes:
+          - id: api
+            uri: http://product
+            predicates:
+                - Path=/api/product/**
+            filters:
+                - RewritePath=/api/(?<segment>.*), /$\{segment}
+                - TokenRelay=
+          - id: nextjs
+            uri: http://localhost:3000
+            predicates:
+                - Path=/**
