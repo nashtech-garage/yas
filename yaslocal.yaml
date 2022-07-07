@@ -166,13 +166,20 @@ spec:
     spec:
       containers:
       - name: storefront
-        image: ghcr.io/nashtech-garage/yas-storefront:latest
+        image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
         env:
         - name: SERVER_PORT
           value: "80"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
         ports:
         - name: http
           containerPort: 80
+      - name: backoffice
+        image: ghcr.io/nashtech-garage/yas-storefront:latest
+        ports:
+        - name: http
+          containerPort: 3000
 ---
 
 apiVersion: apps/v1

@@ -430,14 +430,14 @@
     },
     {
       "id": "4f64c142-0545-44bb-9446-2a18b9c9effd",
-      "clientId": "storefront",
+      "clientId": "storefront-bff",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn",
       "redirectUris": [
-        "http://localhost:8080/*",
+        "http://localhost:8087/*",
         "http://storefront.yas.local/*"
       ],
       "webOrigins": [],
