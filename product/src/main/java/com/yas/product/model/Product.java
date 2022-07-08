@@ -9,18 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "product")
 @Getter
 @Setter
-@Table(name="category")
-public class Category extends AbstractAuditEntity {
-
+public class Product extends AbstractAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
+    private String shortDescription;
+
     private String description;
+
+    private String specification;
+
+    private String sku;
+
+    private String gtin;
 
     private String slug;
 
@@ -28,16 +35,13 @@ public class Category extends AbstractAuditEntity {
 
     private String metaDescription;
 
-    private Short displayOrder;
+    private Long thumbnailMediaId;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Category parent;
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
-    private List<Category> categories = new ArrayList<>();
-
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "product")
     private List<ProductCategory> productCategories = new ArrayList<>();
 
     @Override
@@ -45,10 +49,10 @@ public class Category extends AbstractAuditEntity {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Category)) {
+        if (!(o instanceof Product)) {
             return false;
         }
-        return id != null && id.equals(((Category) o).id);
+        return id != null && id.equals(((Product) o).id);
     }
 
     @Override
