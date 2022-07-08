@@ -35,7 +35,7 @@ public class Category {
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
-    private List<Category> categories = new ArrayList<Category>();
+    private List<Category> categories = new ArrayList<>();
 
     private ZonedDateTime createdOn = ZonedDateTime.now();
 
