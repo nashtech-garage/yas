@@ -1,4 +1,4 @@
-package com.yas.product.configurations;
+package com.yas.product.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
