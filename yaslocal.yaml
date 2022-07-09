@@ -69,6 +69,16 @@ spec:
             name: pgadmin
             port:
               number: 80
+  - host: jaeger
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jaeger
+            port:
+              number: 80
 ---
 
 apiVersion: v1
@@ -439,6 +449,64 @@ spec:
         - name: pgadmin
           persistentVolumeClaim:
             claimName: pgadmin-pv-claim
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    app: jaeger
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    port: 80
+    targetPort: 16686
+  - name: otlpcollectorgprc
+    port: 4317
+    nodePort: 30017
+  - name: otlpcollectorhttp
+    port: 4318
+    nodePort: 30018
+  selector:
+    app: jaeger
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+spec:
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: jaeger
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:1.36
+        env:
+        - name: COLLECTOR_ZIPKIN_HOST_PORT
+          value: "9411"
+        - name: COLLECTOR_OTLP_ENABLED
+          value: "true"
+        ports:
+        - containerPort: 6831
+        - containerPort: 6832
+        - containerPort: 5778
+        - containerPort: 16686
+        - containerPort: 4317
+        - containerPort: 4318
+        - containerPort: 14250
+        - containerPort: 14268
+        - containerPort: 14269
+        - containerPort: 9411
 ---
 
 apiVersion: v1

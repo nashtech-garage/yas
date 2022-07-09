@@ -1,6 +1,8 @@
 server:
   port: 8087
 spring:
+  application:
+    name: backoffice-bff
   profiles:
     active: dev
   security:
@@ -18,6 +20,13 @@ spring:
               - email
               - profile
               - roles
+  sleuth:
+    otel:
+      config:
+        trace-id-ratio-based: 1.0
+      exporter:
+        otlp:
+          endpoint: http://jaeger:30017
 ---
 
 spring:
