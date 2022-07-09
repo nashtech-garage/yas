@@ -17,6 +17,7 @@ YAS is a pet project aim to practice building a typical microservice application
 - Github Actions
 - SonarCloud
 - OpenTelemetry
+- Jaeger
 - Quarkus
 - GraalVM
 
@@ -31,7 +32,7 @@ YAS is a pet project aim to practice building a typical microservice application
 1. Install NGINX ingress controller `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml`
 1. In C: driver, create 2 folders `k8s-yas-data/postgres` and `k8s-yas-data/pgadmin`
 1. Run `kubectl apply -f yaslocal.yaml`
-1. Add `127.0.0.1 identity`, `127.0.0.1 api.yas.local`, `127.0.0.1 storefront.yas.local`, `127.0.0.1 backoffice.yas.local` and `127.0.0.1 pgadmin.yas.local` to your host file
+1. Add `127.0.0.1 identity`, `127.0.0.1 api.yas.local`, `127.0.0.1 storefront.yas.local`, `127.0.0.1 backoffice.yas.local`, `127.0.0.1 pgadmin.yas.local` and `127.0.0.1 jaeger` to your host file
 1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: localhost, port default, username admin, password admin. Then create a database name `keycloak`, `media`, `product`
 1. Open another browser tab and go to http://identity. Admin account is: admin/admin. Add Realm, choose Import, select file `/identity/realm-export.json`. If you already have the realm Yas, the go to that realm then Import
 1. The Postgresql server is also published to the host machine: servername: localhost, port: 30007, username: admin, password: admin
