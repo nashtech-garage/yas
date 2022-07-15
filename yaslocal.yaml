@@ -248,7 +248,11 @@ spec:
         - name: BASE_URL
           value: "/swagger-ui"
         - name: URLS
-          value: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' }]" 
+          value: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' }]"
+        - name: OAUTH_CLIENT_ID
+          value: "swagger-ui"
+        - name: OAUTH_USE_PKCE
+          value: "true"
         ports:
         - name: http
           containerPort: 8080
