@@ -1,5 +1,6 @@
 package com.yas.product.service;
 
+import com.yas.product.config.ServiceUrlConfig;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -14,13 +15,15 @@ import java.net.URI;
 @Service
 public class MediaService {
     private final WebClient webClient;
+    private final ServiceUrlConfig serviceUrlConfig;
 
-    public MediaService(WebClient webClient) {
+    public MediaService(WebClient webClient, ServiceUrlConfig serviceUrlConfig) {
         this.webClient = webClient;
+        this.serviceUrlConfig = serviceUrlConfig;
     }
 
     public NoFileMediaVm SaveFile(MultipartFile multipartFile, String caption, String fileNameOverride){
-        final URI url = UriComponentsBuilder.fromHttpUrl("http://api.yas.local/media/medias").build().toUri();
+        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.media()).path("/medias").build().toUri();
 
         final MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("multipartFile", multipartFile.getResource());

@@ -307,6 +307,8 @@ spec:
           value: "jdbc:postgresql://postgres:5432/product"
         - name: SERVER_SERVLET_CONTEXT_PATH
           value: "/product"
+        - name: YAS_SERVICES_MEDIA
+          value: "http://media/media"
         - name: SERVER_PORT
           value: "80"
         - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
