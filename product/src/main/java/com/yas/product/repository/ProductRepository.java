@@ -1,10 +1,9 @@
 package com.yas.product.repository;
 
-import com.yas.product.model.Category;
+import com.yas.product.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
-
+public interface ProductRepository extends JpaRepository<Product, Long> {
 }
