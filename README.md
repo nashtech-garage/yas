@@ -34,13 +34,14 @@ YAS is a pet project aim to practice building a typical microservice application
 1. Run `kubectl apply -f yaslocal.yaml`
 1. Add `127.0.0.1 identity`, `127.0.0.1 api.yas.local`, `127.0.0.1 storefront.yas.local`, `127.0.0.1 backoffice.yas.local`, `127.0.0.1 pgadmin.yas.local` and `127.0.0.1 jaeger` to your host file
 1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: localhost, port default, username admin, password admin. Then create a database name `keycloak`, `media`, `product`
-1. Open another browser tab and go to http://identity. Admin account is: admin/admin. Add Realm, choose Import, select file `/identity/realm-export.json`. If you already have the realm Yas, the go to that realm then Import
+1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
 1. The Postgresql server is also published to the host machine: servername: localhost, port: 30007, username: admin, password: admin
 
 ## [Getting started with Minikube in Ubuntu](https://github.com/nashtech-garage/yas/wiki/Getting-started-with-Minikube-in-Ubuntu)
 
 ## Components roadmap
-- [ ] Identity service
+- [x] Identity service
+- [x] Media service
 - [ ] Product service
 - [ ] Pricing service
 - [ ] Cart service

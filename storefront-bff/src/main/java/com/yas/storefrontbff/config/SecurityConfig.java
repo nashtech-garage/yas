@@ -18,8 +18,6 @@ public class SecurityConfig {
                 .pathMatchers("/profile/**").authenticated()
                 .anyExchange().permitAll()
                 .and()
-                .oauth2Client()
-                .and()
                 .oauth2Login()
                 .and()
                 .httpBasic().disable()

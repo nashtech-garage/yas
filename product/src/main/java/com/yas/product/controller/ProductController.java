@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,7 +25,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping(path = "/products", consumes =  { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(path = "/backoffice/products", consumes =  { MediaType.MULTIPART_FORM_DATA_VALUE })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})

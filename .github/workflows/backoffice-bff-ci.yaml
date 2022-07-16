@@ -44,19 +44,3 @@ jobs:
           context: ./backoffice-bff
           push: true
           tags: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-          
-  Unit-Tests:
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Test
-        run: mvn test -f backoffice-bff
-      - name: Unit Test Results
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Unit-Test-Results
-          path: "backoffice-bff/**/surefire-reports/*.xml"
-          reporter: java-junit
