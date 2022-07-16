@@ -16,10 +16,7 @@ spring:
             provider: keycloak
             client-id: backoffice-bff
             client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
-            scope:
-              - email
-              - profile
-              - roles
+            scope: openid, profile, email, roles
   sleuth:
     otel:
       config:

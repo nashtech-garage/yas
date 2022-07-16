@@ -1,27 +1,21 @@
 package com.yas.product.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.repository.BrandRepository;
-import com.yas.product.viewmodel.BrandVm;
 import com.yas.product.viewmodel.BrandPostVm;
+import com.yas.product.viewmodel.BrandVm;
 import com.yas.product.viewmodel.ErrorVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 public class BrandController {
@@ -31,7 +25,7 @@ public class BrandController {
     this.brandRepository = brandRepository;
   }
 
-  @GetMapping("/brands")
+  @RequestMapping(value = {"/backoffice/brands", "/storefront/brands"}, method = RequestMethod.GET)
   public ResponseEntity<List<BrandVm>> listBrands() {
     List<BrandVm> brandVms = brandRepository.findAll().stream()
         .map(BrandVm::fromModel)
@@ -39,7 +33,7 @@ public class BrandController {
     return ResponseEntity.ok(brandVms);
   }
 
-  @GetMapping("/brands/{id}")
+  @GetMapping("/backoffice/brands/{id}")
   @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = BrandVm.class))),
         @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
@@ -50,7 +44,7 @@ public class BrandController {
     return ResponseEntity.ok(BrandVm.fromModel(brand));
   }
 
-  @PostMapping("/brands")
+  @PostMapping("/backoffice/brands")
   @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = BrandVm.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
@@ -61,7 +55,7 @@ public class BrandController {
             .body(BrandVm.fromModel(brand));
   }
 
-  @PutMapping("/brands/{id}")
+  @PutMapping("/backoffice/brands/{id}")
   @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
         @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),

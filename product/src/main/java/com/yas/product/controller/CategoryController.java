@@ -28,7 +28,7 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping("/categories")
+    @GetMapping("/backoffice/categories")
     public ResponseEntity<List<CategoryGetVm>> listCategories(){
         List<CategoryGetVm> categoryGetVms = categoryRepository.findAll().stream()
                 .map(CategoryGetVm::fromModel)
@@ -36,7 +36,7 @@ public class CategoryController {
         return  ResponseEntity.ok(categoryGetVms);
     }
 
-    @GetMapping("/categories/{id}")
+    @GetMapping("/backoffice/categories/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
@@ -49,7 +49,7 @@ public class CategoryController {
         return  ResponseEntity.ok(categoryGetDetailVm);
     }
 
-    @PostMapping("/categories")
+    @PostMapping("/backoffice/categories")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
@@ -74,7 +74,7 @@ public class CategoryController {
                 .body(categoryGetDetailVm);
     }
 
-    @PutMapping("/categories/{id}")
+    @PutMapping("/backoffice/categories/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No content"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),

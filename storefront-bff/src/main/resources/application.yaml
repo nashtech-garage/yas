@@ -14,10 +14,7 @@ spring:
             provider: keycloak
             client-id: storefront-bff
             client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
-            scope:
-              - email
-              - profile
-              - roles
+            scope: openid, profile, email, roles
 ---
 
 spring:
