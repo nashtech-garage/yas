@@ -39,4 +39,13 @@ public class MediaService {
                 .block();
         return noFileMediaVm;
     }
+
+    public NoFileMediaVm getMedia(Long id){
+        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.media()).path("/medias/{id}").buildAndExpand(id).toUri();
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(NoFileMediaVm.class)
+                .block();
+    }
 }

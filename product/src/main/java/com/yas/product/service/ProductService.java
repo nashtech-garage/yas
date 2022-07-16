@@ -5,9 +5,14 @@ import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.ProductGetDetailVm;
 import com.yas.product.viewmodel.ProductPostVm;
+import com.yas.product.viewmodel.ProductThumbnailVm;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -40,5 +45,19 @@ public class ProductService {
 
         productRepository.saveAndFlush(product);
         return ProductGetDetailVm.fromModel(product);
+    }
+
+    public List<ProductThumbnailVm> getFeaturedProducts() {
+        List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
+        List<Product> products = productRepository.findAll();
+        for (Product product : products) {
+            productThumbnailVms.add(new ProductThumbnailVm(
+                    product.getId(),
+                    product.getName(),
+                    product.getSlug(),
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()
+            ));
+        }
+        return productThumbnailVms;
     }
 }
