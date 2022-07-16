@@ -37,8 +37,7 @@ public class SecurityConfig {
                 .csrf().disable();
         return http.build();
     }
-
-
+    
     @Bean
     public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak() {
         return authorities -> {
