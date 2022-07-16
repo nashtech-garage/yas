@@ -25,7 +25,7 @@ public class BrandController {
     this.brandRepository = brandRepository;
   }
 
-  @RequestMapping(value = {"/backoffice/brands", "/storefront/brands"}, method = RequestMethod.GET)
+  @GetMapping({"/backoffice/brands", "/storefront/brands"})
   public ResponseEntity<List<BrandVm>> listBrands() {
     List<BrandVm> brandVms = brandRepository.findAll().stream()
         .map(BrandVm::fromModel)
