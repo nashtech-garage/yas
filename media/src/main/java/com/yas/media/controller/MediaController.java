@@ -5,6 +5,7 @@ import com.yas.media.repository.MediaRepository;
 import com.yas.media.service.MediaService;
 import com.yas.media.viewmodel.ErrorVm;
 import com.yas.media.viewmodel.MediaPostVm;
+import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,9 +41,9 @@ public class MediaController {
 
     @GetMapping("/medias/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = NoFileMediaVm.class)))})
-    public ResponseEntity<Object> get(@PathVariable Long id) {
-        NoFileMediaVm media = mediaRepository.findByIdWithoutFileInReturn(id);
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = MediaVm.class)))})
+    public ResponseEntity<MediaVm> get(@PathVariable Long id) {
+        MediaVm media = mediaService.getMediaById(id);
         if(media == null){
             return ResponseEntity.notFound().build();
         }
