@@ -16,7 +16,7 @@ const Home = ({products}: Props) => {
     <h2>Featured products</h2>
     <Row xs={2} md={4} className="g-4">
       {products.map((product) => (
-        <Col>
+        <Col key={product.id}>
           <Card>
             <Card.Img variant="top" src={product.thumbnailUrl} />
             <Card.Body>
