@@ -29,7 +29,7 @@ spec:
             name:  product
             port: 
               number: 80
-  - host: storefront.yas.local
+  - host: storefront
     http:
       paths:
       - path: /

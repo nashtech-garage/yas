@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Layout from '../components/Layout'
+import Layout from '../common/components/Layout'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/globals.css'

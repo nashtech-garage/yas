@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import AuthenticationInfo from './AuthenticationInfo'
 import { Navbar } from 'react-bootstrap'
-import Sidebar from './Sidebar'
 
 type Props = {
     children: React.ReactNode
@@ -27,10 +26,7 @@ export default function Layout({ children } : Props) {
         </div>
       </Navbar>
       <div className="container-fluid">
-        <div className='row'>
-          <Sidebar />
-          <main className='col-md-9'>{children}</main>
-        </div>
+        <main className='col-md-9'>{children}</main>
         <footer className="footer">
             <a href="https://github.com/nashtech-garage/yas" target="_blank" rel="noopener noreferrer">
             Powered by {'Yas - 2022 '}
