@@ -37,7 +37,6 @@ const CategoryList: NextPage = () => {
         <tr>
           <th>#</th>
           <th>Name</th>
-          <th>Description</th>
         </tr>
       </thead>
       <tbody>
@@ -45,7 +44,6 @@ const CategoryList: NextPage = () => {
           <tr key={category.id}>
             <td>{category.id}</td>
             <td>{category.name}</td>
-            <td>{category.description}</td>
           </tr>
         ))}
         </tbody>

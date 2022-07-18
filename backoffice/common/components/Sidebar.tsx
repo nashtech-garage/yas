@@ -1,4 +1,4 @@
-import '../styles/Sidebar.module.css'
+import '../../styles/Sidebar.module.css'
 import Link from 'next/link'
 
 export default function Sidebar(){
@@ -21,7 +21,7 @@ export default function Sidebar(){
             </Link>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="#">
+            <a className="nav-link" href="/catalog/products">
               <span data-feather="file-text" className="align-text-bottom"></span>
               Products
             </a>

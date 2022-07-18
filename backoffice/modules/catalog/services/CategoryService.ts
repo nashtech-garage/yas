@@ -5,12 +5,12 @@ export async function getCategories(): Promise<Category[]> {
   return await response.json();
 }
 
-export async function getCategory(id: number){
+export async function getCategory(id: number): Promise<Category> {
   const response = await fetch('/api/product/backoffice/categories/' + id);
   return await response.json();
 }
 
-export async function createCategory(category: Category): Promise<Category>{
+export async function createCategory(category: Category): Promise<Category> {
   const response = await fetch('/api/product/backoffice/categories', {
     method: 'POST',
     body: JSON.stringify(category),
