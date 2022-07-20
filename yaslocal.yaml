@@ -175,17 +175,19 @@ spec:
         app: storefront
     spec:
       containers:
-      - name: storefront
+      - name: storefront-bff
         image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
         env:
         - name: SERVER_PORT
           value: "80"
         - name: SPRING_PROFILES_ACTIVE
           value: "prod"
+        - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
+          value: http://jaeger:4317        
         ports:
         - name: http
           containerPort: 80
-      - name: backoffice
+      - name: storefront
         image: ghcr.io/nashtech-garage/yas-storefront:latest
         ports:
         - name: http
@@ -283,6 +285,8 @@ spec:
           value: "/media" 
         - name: SERVER_PORT
           value: "80"
+        - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
+          value: http://jaeger:4317        
         ports:
         - name: http
           containerPort: 80
