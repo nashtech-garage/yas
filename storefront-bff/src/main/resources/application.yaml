@@ -1,6 +1,8 @@
 server:
   port: 8087
 spring:
+  application:
+    name: storefront-bff
   profiles:
     active: dev
   security:
@@ -15,6 +17,13 @@ spring:
             client-id: storefront-bff
             client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
             scope: openid, profile, email, roles
+  sleuth:
+    otel:
+      config:
+        trace-id-ratio-based: 1.0
+      exporter:
+        otlp:
+          endpoint: http://jaeger:30017
 ---
 
 spring:
