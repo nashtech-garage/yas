@@ -438,7 +438,7 @@
       "secret": "ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn",
       "redirectUris": [
         "http://localhost:8087/*",
-        "http://storefront.yas.local/*"
+        "http://storefront/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
