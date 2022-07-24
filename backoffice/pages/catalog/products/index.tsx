@@ -8,10 +8,10 @@ const ProductList: NextPage = () => {
       <>
       <div className='row mt-5'>
         <div className='col-md-8'>
-          <h2>Categories</h2>
+          <h2>Product</h2>
         </div> 
         <div className='col-md-4 text-right'>
-          <Link href="create-product">
+          <Link href="/catalog/products/create">
             <Button>Create Product</Button>
           </Link>
         </div>

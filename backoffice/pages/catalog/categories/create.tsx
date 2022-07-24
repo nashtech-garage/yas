@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
 import Router from 'next/router'
-import { Category } from '../../modules/catalog/models/Category';
-import { createCategory } from '../../modules/catalog/services/CategoryService';
+import { Category } from '../../../modules/catalog/models/Category';
+import { createCategory } from '../../../modules/catalog/services/CategoryService';
 
-const CreateCategory: NextPage = () => {
+const CategoryCreate: NextPage = () => {
   const handleSubmit = async (event:any) => {
     event.preventDefault()
 
@@ -40,4 +40,4 @@ const CreateCategory: NextPage = () => {
   )
 };
 
-export default CreateCategory
+export default CategoryCreate

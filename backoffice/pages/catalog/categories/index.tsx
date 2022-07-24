@@ -2,8 +2,8 @@ import type { NextPage } from 'next'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import type { Category } from '../../modules/catalog/models/Category'
-import { getCategories } from '../../modules/catalog/services/CategoryService'
+import type { Category } from '../../../modules/catalog/models/Category'
+import { getCategories } from '../../../modules/catalog/services/CategoryService'
 
 const CategoryList: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,7 +27,7 @@ const CategoryList: NextPage = () => {
         <h2>Categories</h2>
       </div> 
       <div className='col-md-4 text-right'>
-        <Link href="create-category">
+        <Link href="/catalog/categories/create">
           <Button>Create Category</Button>
         </Link>
       </div>
