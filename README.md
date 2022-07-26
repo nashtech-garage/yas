@@ -37,7 +37,7 @@ YAS is a pet project aim to practice building a typical microservice application
 1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
 1. The Postgresql server is also published to the host machine: servername: localhost, port: 30007, username: admin, password: admin
 
-## [Getting started with Minikube in Ubuntu](https://github.com/nashtech-garage/yas/wiki/Getting-started-with-Minikube-in-Ubuntu)
+[Getting started with Minikube in Ubuntu](https://github.com/nashtech-garage/yas/wiki/Getting-started-with-Minikube-in-Ubuntu)
 
 ## Components roadmap
 - [x] Identity service
@@ -47,3 +47,14 @@ YAS is a pet project aim to practice building a typical microservice application
 - [ ] Cart service
 - [ ] Order service
 - [ ] Review service
+
+## Contributing
+- Give us a star
+- Reporting a bug
+- Participate discussions
+- Propose new features
+- Submit pull requests. If you new to GitHub, consider to [learn how to contribute to a project through forking](https://docs.github.com/en/get-started/quickstart/contributing-to-projects)
+
+By contributing, you agree that your contributions will be licensed under MIT License. 
+
+Active contributors might be asked to join the core team
