@@ -1,6 +1,9 @@
 package com.yas.product.service;
 
+import com.yas.product.exception.NotFoundException;
+import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
+import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.ProductGetDetailVm;
@@ -18,10 +21,12 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
+    private final BrandRepository brandRepository;
 
-    public ProductService(ProductRepository productRepository, MediaService mediaService) {
+    public ProductService(ProductRepository productRepository, MediaService mediaService, BrandRepository brandRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
+        this.brandRepository = brandRepository;
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm){
@@ -50,6 +55,23 @@ public class ProductService {
     public List<ProductThumbnailVm> getFeaturedProducts() {
         List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
         List<Product> products = productRepository.findAll();
+        for (Product product : products) {
+            productThumbnailVms.add(new ProductThumbnailVm(
+                    product.getId(),
+                    product.getName(),
+                    product.getSlug(),
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()
+            ));
+        }
+        return productThumbnailVms;
+    }
+
+    public List<ProductThumbnailVm> getProductsByBrand(String brandSlug) {
+        List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
+        Brand brandFromDb = brandRepository
+                .findBySlug(brandSlug)
+                .orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", brandSlug)));
+        List<Product> products = productRepository.findAllByBrand(brandFromDb);
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailVm(
                     product.getId(),

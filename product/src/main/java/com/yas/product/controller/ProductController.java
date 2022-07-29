@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -41,5 +38,10 @@ public class ProductController {
     @GetMapping("/storefront/products/featured")
     public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProducts() {
         return ResponseEntity.ok(productService.getFeaturedProducts());
+    }
+
+    @GetMapping("/storefront/brand/{brandSlug}/products")
+    public ResponseEntity<List<ProductThumbnailVm>> getProductsByBrand(@PathVariable String brandSlug) {
+        return ResponseEntity.ok(productService.getProductsByBrand(brandSlug));
     }
 }
