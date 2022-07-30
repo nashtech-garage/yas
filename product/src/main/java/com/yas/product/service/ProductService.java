@@ -1,15 +1,19 @@
 package com.yas.product.service;
 
+import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
+import com.yas.product.model.Category;
 import com.yas.product.model.Product;
+import com.yas.product.model.ProductCategory;
 import com.yas.product.repository.BrandRepository;
+import com.yas.product.repository.CategoryRepository;
+import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.ProductGetDetailVm;
 import com.yas.product.viewmodel.ProductPostVm;
 import com.yas.product.viewmodel.ProductThumbnailVm;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,15 +26,46 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
     private final BrandRepository brandRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
-    public ProductService(ProductRepository productRepository, MediaService mediaService, BrandRepository brandRepository) {
+    public ProductService(ProductRepository productRepository, MediaService mediaService, BrandRepository brandRepository,
+                          ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
+        this.categoryRepository = categoryRepository;
+        this.productCategoryRepository = productCategoryRepository;
     }
 
-    public ProductGetDetailVm createProduct(ProductPostVm productPostVm){
+    public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
         Product product = new Product();
+        List<ProductCategory> productCategoryList = new ArrayList<>();
+
+        if (productPostVm.brandId() != null) {
+            Brand brandFromDb = brandRepository.findById(productPostVm.brandId()).
+                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
+            product.setBrand(brandFromDb);
+        }
+
+        if (productPostVm.categoryIds() != null) {
+            List<Category> categoryListFromDb = categoryRepository.findAllById(productPostVm.categoryIds());
+            if (categoryListFromDb.isEmpty()) {
+                throw new BadRequestException(String.format("Not found categories %s", productPostVm.categoryIds()));
+            } else if (categoryListFromDb.size() < productPostVm.categoryIds().size()) {
+                List<Long> categoryIdsNotFound = productPostVm.categoryIds();
+                categoryIdsNotFound.removeAll(categoryListFromDb.stream().map(Category::getId).toList());
+                throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
+            } else {
+                for (Category category : categoryListFromDb) {
+                    ProductCategory productCategory = new ProductCategory();
+                    productCategory.setProduct(product);
+                    productCategory.setCategory(category);
+                    productCategoryList.add(productCategory);
+                }
+            }
+        }
+
         product.setName(productPostVm.name());
         product.setSlug(productPostVm.slug());
         product.setDescription(productPostVm.description());
@@ -49,6 +84,7 @@ public class ProductService {
         product.setThumbnailMediaId(noFileMediaVm.id());
 
         productRepository.saveAndFlush(product);
+        productCategoryRepository.saveAllAndFlush(productCategoryList);
         return ProductGetDetailVm.fromModel(product);
     }
 

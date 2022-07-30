@@ -4,10 +4,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public record ProductPostVm(
         @NotEmpty String name,
         @NotEmpty String slug,
+        Long brandId,
+        List<Long> categoryIds,
         String shortDescription,
         String description,
         String specification,
