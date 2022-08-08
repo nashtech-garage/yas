@@ -14,6 +14,7 @@ import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.ProductGetDetailVm;
 import com.yas.product.viewmodel.ProductPostVm;
 import com.yas.product.viewmodel.ProductThumbnailVm;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,21 +44,21 @@ public class ProductService {
         List<ProductCategory> productCategoryList = new ArrayList<>();
 
         if (productPostVm.brandId() != null) {
-            Brand brandFromDb = brandRepository.findById(productPostVm.brandId()).
+            Brand brand = brandRepository.findById(productPostVm.brandId()).
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
-            product.setBrand(brandFromDb);
+            product.setBrand(brand);
         }
 
-        if (productPostVm.categoryIds() != null) {
-            List<Category> categoryListFromDb = categoryRepository.findAllById(productPostVm.categoryIds());
-            if (categoryListFromDb.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(productPostVm.categoryIds())) {
+            List<Category> categoryList = categoryRepository.findAllById(productPostVm.categoryIds());
+            if (categoryList.isEmpty()) {
                 throw new BadRequestException(String.format("Not found categories %s", productPostVm.categoryIds()));
-            } else if (categoryListFromDb.size() < productPostVm.categoryIds().size()) {
+            } else if (categoryList.size() < productPostVm.categoryIds().size()) {
                 List<Long> categoryIdsNotFound = productPostVm.categoryIds();
-                categoryIdsNotFound.removeAll(categoryListFromDb.stream().map(Category::getId).toList());
+                categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
                 throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
             } else {
-                for (Category category : categoryListFromDb) {
+                for (Category category : categoryList) {
                     ProductCategory productCategory = new ProductCategory();
                     productCategory.setProduct(product);
                     productCategory.setCategory(category);
@@ -104,10 +105,10 @@ public class ProductService {
 
     public List<ProductThumbnailVm> getProductsByBrand(String brandSlug) {
         List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
-        Brand brandFromDb = brandRepository
+        Brand brand = brandRepository
                 .findBySlug(brandSlug)
                 .orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", brandSlug)));
-        List<Product> products = productRepository.findAllByBrand(brandFromDb);
+        List<Product> products = productRepository.findAllByBrand(brand);
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailVm(
                     product.getId(),
