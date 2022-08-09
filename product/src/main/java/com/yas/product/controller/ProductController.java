@@ -48,4 +48,9 @@ public class ProductController {
     public ResponseEntity<List<ProductThumbnailVm>> getProductsByBrand(@PathVariable String brandSlug) {
         return ResponseEntity.ok(productService.getProductsByBrand(brandSlug));
     }
+
+    @GetMapping("/storefront/category/{categorySlug}/products")
+    public ResponseEntity<List<ProductThumbnailVm>> getProductsByCategory(@PathVariable String categorySlug) {
+        return ResponseEntity.ok(productService.getProductsByCategory(categorySlug));
+    }
 }
