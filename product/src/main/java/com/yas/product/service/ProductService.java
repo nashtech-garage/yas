@@ -119,4 +119,22 @@ public class ProductService {
         }
         return productThumbnailVms;
     }
+
+    public List<ProductThumbnailVm> getProductsByCategory(String categorySlug) {
+        List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
+        Category category = categoryRepository
+                .findBySlug(categorySlug)
+                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", categorySlug)));
+        List<Product> products = productCategoryRepository.findAllByCategory(category).stream()
+                .map(ProductCategory::getProduct).toList();
+        for (Product product : products) {
+            productThumbnailVms.add(new ProductThumbnailVm(
+                    product.getId(),
+                    product.getName(),
+                    product.getSlug(),
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()
+            ));
+        }
+        return productThumbnailVms;
+    }
 }
