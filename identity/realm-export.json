@@ -556,10 +556,12 @@
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "http://localhost:8080/*",
+        "http://localhost:8083/*",
 		"http://api.yas.local/*"
       ],
       "webOrigins": [
 		"http://localhost:8080",
+		"http://localhost:8083",
 		"http://api.yas.local"
 	  ],
       "notBefore": 0,

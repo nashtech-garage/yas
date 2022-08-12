@@ -282,7 +282,9 @@ spec:
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:postgresql://postgres:5432/media"
         - name: SERVER_SERVLET_CONTEXT_PATH # a hacky way to fix sub path behind nginx
-          value: "/media" 
+          value: "/media"
+        - name: YAS_PUBLICURL
+          value: "http://api.yas.local/media"
         - name: SERVER_PORT
           value: "80"
         - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
