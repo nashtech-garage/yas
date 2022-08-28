@@ -10,10 +10,7 @@ import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.repository.ProductRepository;
-import com.yas.product.viewmodel.NoFileMediaVm;
-import com.yas.product.viewmodel.ProductGetDetailVm;
-import com.yas.product.viewmodel.ProductPostVm;
-import com.yas.product.viewmodel.ProductThumbnailVm;
+import com.yas.product.viewmodel.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +34,12 @@ public class ProductService {
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.productCategoryRepository = productCategoryRepository;
+    }
+
+    public List<ProductListVm> getProducts() {
+        return productRepository.findAll().stream()
+                .map(ProductListVm::fromModel)
+                .toList();
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
