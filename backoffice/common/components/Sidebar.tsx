@@ -21,10 +21,12 @@ export default function Sidebar(){
             </Link>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="/catalog/products">
-              <span data-feather="file-text" className="align-text-bottom"></span>
-              Products
-            </a>
+            <Link href="/catalog/products">
+              <a className="nav-link">
+                <span data-feather="file-text" className="align-text-bottom"></span>
+                Products
+              </a>         
+            </Link>
           </li>
         </ul>
       </div>

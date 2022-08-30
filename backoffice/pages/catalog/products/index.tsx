@@ -36,6 +36,7 @@ const ProductList: NextPage = () => {
           <tr>
             <th>#</th>
             <th>Name</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -43,6 +44,7 @@ const ProductList: NextPage = () => {
           <tr key={product.id}>
             <td>{product.id}</td>
             <td>{product.name}</td>
+            <td><Link href={`/catalog/products/${product.id}/edit`}><a>Edit</a></Link></td>
           </tr>
         ))}
         </tbody>
