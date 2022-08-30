@@ -1,10 +1,7 @@
 package com.yas.product.controller;
 
 import com.yas.product.service.ProductService;
-import com.yas.product.viewmodel.ErrorVm;
-import com.yas.product.viewmodel.ProductGetDetailVm;
-import com.yas.product.viewmodel.ProductPostVm;
-import com.yas.product.viewmodel.ProductThumbnailVm;
+import com.yas.product.viewmodel.*;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,6 +24,11 @@ public class ProductController {
 
     public ProductController(ProductService productService) {
         this.productService = productService;
+    }
+
+    @GetMapping("/backoffice/products")
+    public ResponseEntity<List<ProductListVm>> listProduct() {
+        return ResponseEntity.ok(productService.getProducts());
     }
 
     @PostMapping(path = "/backoffice/products", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
