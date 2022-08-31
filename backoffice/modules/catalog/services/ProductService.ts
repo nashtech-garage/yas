@@ -10,11 +10,16 @@ export async function getProduct(id: number): Promise<Product> {
   return await response.json();
 }
 
-export async function createProduct(category: Product): Promise<Product> {
+export async function createProduct(product: Product, thumbnail: File): Promise<Product> {
+  const body = new FormData()
+  body.append('name', product.name);
+  body.append('slug', product.slug);
+  body.append('description', product.description);
+  body.append('thumbnail', thumbnail);
+
   const response = await fetch('/api/product/backoffice/products', {
     method: 'POST',
-    body: JSON.stringify(category),
-    headers: {"Content-type": "application/json; charset=UTF-8"}
+    body: body
   })
   return await response.json();
 }
