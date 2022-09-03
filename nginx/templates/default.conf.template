@@ -1,0 +1,31 @@
+server {
+  server_name api.yas.local;
+  location /media/ {
+	proxy_pass http://media;
+  }
+}
+
+server {
+  server_name pgadmin.yas.local;
+  location / {
+	proxy_pass http://pgadmin;
+  }
+}
+
+server {
+  server_name identity;
+  location / {
+	proxy_pass http://keycloak:8080;
+	proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+
+server {
+  server_name jaeger;
+  location / {
+	proxy_pass http://jaeger:16686;
+  }
+}
