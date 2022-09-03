@@ -37,6 +37,24 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
   backoffice-nextjs:
     image: ghcr.io/nashtech-garage/yas-backoffice:latest
+  storefront:
+    image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=90", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
+    environment:
+      SERVER_PORT: "80"
+      SPRING_PROFILES_ACTIVE: prod
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/auth/realms/Yas
+      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: api
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://nginx
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path= /api/**
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[0]: RewritePath=/api/(?<segment>.*), /$$\{segment}
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[1]: TokenRelay=
+      SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: nextjs
+      SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://storefront-nextjs:3000
+      SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
+  storefront-nextjs:
+    image: ghcr.io/nashtech-garage/yas-storefront:latest
   media:
     image: ghcr.io/nashtech-garage/yas-media:latest
     environment:
