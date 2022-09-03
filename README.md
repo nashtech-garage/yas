@@ -50,7 +50,7 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 jaeger
 `
 1. Open terminal of your choice, go to 'yas' directory and run `docker compose up`
-1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: localhost, port default, username admin, password admin. Then create a database name `keycloak`, `media`, `product
+1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: postgres, port 5432, username admin, password admin. Then create a database name `keycloak`, `media`, `product
 1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
 
 ## Getting started with Minikube in Ubuntu
