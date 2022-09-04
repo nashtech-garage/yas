@@ -39,7 +39,7 @@ spec:
             name: storefront
             port:
               number: 80
-  - host: backoffice.yas.local
+  - host: backoffice
     http:
       paths:
       - path: /

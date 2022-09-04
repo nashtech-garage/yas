@@ -237,7 +237,7 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF",
       "redirectUris": [
-        "http://backoffice.yas.local/*",
+        "http://backoffice/*",
         "http://localhost:3000/*",
         "http://localhost:8087/*"
       ],
