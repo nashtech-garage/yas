@@ -83,6 +83,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
       - postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: admin
