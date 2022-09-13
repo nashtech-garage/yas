@@ -5,19 +5,19 @@ export default function AuthenticationInfo(){
     username : string
   }
 
-  const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser>({username:''});
+  const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser>({username:'Me'});
 
-  async function getAuthenticatedUser() {
-    const res = await fetch(`/authentication/user`);
-    return await res.json();
-  }
+  // async function getAuthenticatedUser() {
+  //   const res = await fetch(`/authentication/user`);
+  //   return await res.json();
+  // }
 
-  useEffect(() => {
-    getAuthenticatedUser()
-      .then((data) => {
-        setAuthenticatedUser(data);
-      });
-  }, []);
+  // useEffect(() => {
+  //   getAuthenticatedUser()
+  //     .then((data) => {
+  //       setAuthenticatedUser(data);
+  //     });
+  // }, []);
 
   return(
   <>

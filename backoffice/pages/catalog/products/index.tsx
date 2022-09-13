@@ -8,17 +8,17 @@ import { getProducts } from '../../../modules/catalog/services/ProductService'
 const ProductList: NextPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setLoading] = useState(false);
-  useEffect(() => {
-    setLoading(true);
-    getProducts()
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      });
-  }, []);
+  // useEffect(() => {
+    // setLoading(true);
+    // getProducts()
+      // .then((data) => {
+  //       setProducts([]);
+  //       setLoading(false);
+  //     // });
+  // }, []);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (!products) return <p>No product</p>;
+  // if (isLoading) return <p>Loading...</p>;
+  // if (!products) return <p>No product</p>;
     return (
       <>
       <div className='row mt-5'>
