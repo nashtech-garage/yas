@@ -8,11 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -39,6 +35,16 @@ public class ProductController {
         ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/products/{id}").buildAndExpand(productGetDetailVm.id()).toUri())
                 .body(productGetDetailVm);
+    }
+
+    @PutMapping(path = "/backoffice/products/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Updated"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> updateProduct(@PathVariable Long id, @Valid @ModelAttribute ProductPostVm productPostVm) {
+        productService.updateProduct(id, productPostVm);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/storefront/products/featured")

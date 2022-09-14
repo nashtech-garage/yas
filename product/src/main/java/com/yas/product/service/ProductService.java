@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +84,55 @@ public class ProductService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
+
+        NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPostVm.thumbnail(), "", "");
+        product.setThumbnailMediaId(noFileMediaVm.id());
+
+        productRepository.saveAndFlush(product);
+        productCategoryRepository.saveAllAndFlush(productCategoryList);
+        return ProductGetDetailVm.fromModel(product);
+    }
+    public ProductGetDetailVm updateProduct(Long productId, ProductPostVm productPostVm) {
+        Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
+        List<ProductCategory> productCategoryList = new ArrayList<>();
+
+        if (productPostVm.brandId() != null) {
+            Brand brand = brandRepository.findById(productPostVm.brandId()).
+                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
+            product.setBrand(brand);
+        }
+
+        if (CollectionUtils.isNotEmpty(productPostVm.categoryIds())) {
+            List<Category> categoryList = categoryRepository.findAllById(productPostVm.categoryIds());
+            if (categoryList.isEmpty()) {
+                throw new BadRequestException(String.format("Not found categories %s", productPostVm.categoryIds()));
+            } else if (categoryList.size() < productPostVm.categoryIds().size()) {
+                List<Long> categoryIdsNotFound = productPostVm.categoryIds();
+                categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
+                throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
+            } else {
+                for (Category category : categoryList) {
+                    ProductCategory productCategory = new ProductCategory();
+                    productCategory.setProduct(product);
+                    productCategory.setCategory(category);
+                    productCategoryList.add(productCategory);
+                }
+            }
+        }
+
+        product.setName(productPostVm.name());
+        product.setSlug(productPostVm.slug());
+        product.setDescription(productPostVm.description());
+        product.setShortDescription(productPostVm.shortDescription());
+        product.setSpecification(productPostVm.specification());
+        product.setSku(productPostVm.sku());
+        product.setGtin(productPostVm.gtin());
+        product.setMetaKeyword(productPostVm.metaKeyword());
+        product.setMetaDescription(productPostVm.metaDescription());
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        product.setLastModifiedBy(auth.getName());
+        product.setLastModifiedOn(ZonedDateTime.now());
 
         NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPostVm.thumbnail(), "", "");
         product.setThumbnailMediaId(noFileMediaVm.id());
