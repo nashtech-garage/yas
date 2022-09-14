@@ -557,12 +557,14 @@
       "redirectUris": [
         "http://localhost:8080/*",
         "http://localhost:8083/*",
-		"http://api.yas.local/*"
+		    "http://api.yas.local/*",
+        "http://localhost:8084/*"
       ],
       "webOrigins": [
-		"http://localhost:8080",
-		"http://localhost:8083",
-		"http://api.yas.local"
+        "http://localhost:8080",
+        "http://localhost:8083",
+        "http://api.yas.local",
+        "http://localhost:8084"
 	  ],
       "notBefore": 0,
       "bearerOnly": false,
