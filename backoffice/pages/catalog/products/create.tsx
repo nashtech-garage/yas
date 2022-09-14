@@ -5,41 +5,39 @@ import { createProduct } from "../../../modules/catalog/services/ProductService"
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
-/**
- * TODO: Get all branch/if not, create new branch
- * TODO: Get all category/if not, create new category
- * TODO: handle enter multi specification 
- */
-
-/**
- * !ERROR: validate file upload not work correctly
- */
+import slugify from "slugify";
 
 const schema = yup
   .object({
     name: yup.string().required("Product name is required"),
-    slug: yup.string().required(),
     description: yup.string().required("Description is required"),
-    shortDescription: yup.string().required("Description is required"),
-    specification: yup.string().required("Fill at least one specification"),
+    shortDescription: yup.string().required("Short description is required"),
+    specification: yup.string().required("Specification is required"),
     price: yup
       .number()
       .typeError("Price must me a number")
       .default(0.0)
       .positive("Price must be positive number")
-      .required("Product price is required"), 
-    thumbnail: yup.mixed().test("required","Thumbnail is required", (value) => {
-      return  value && value.size;
-    }),
-    brand: yup.string().required("Product brand is required"),
-    category: yup.array().required("Fill at least one category"),
+      .required("Product price is required"),
+    brand: yup.number().min(1, "Select Branch").required("Select Brand"),
   })
   .required();
+
+const BRAND = [
+  { id: 1, name: "Apple" },
+  { id: 2, name: "Samsung" },
+  { id: 3, name: "Nokia" },
+  { id: 4, name: "XOR" },
+];
+
+const CATEGORY = ["Phone", "Tablet", "Laptop"];
 
 const ProductCreate: NextPage = () => {
   const [thumbnailURL, setThumbnailURL] = useState<string>();
   const [productImageURL, setProductImageURL] = useState<string[]>();
+  const [generateSlug, setGenerateSlug] = useState<string>();
+  const [categories, setCategories] = useState<string[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -70,22 +68,35 @@ const ProductCreate: NextPage = () => {
     }
   };
 
-  const onSubmit: SubmitHandler<Product> = (data) => {
+  const onSubmitForm: SubmitHandler<Product> = (data) => {
+    data.category = categories;
     console.log(data);
   };
+
+  const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setGenerateSlug(slugify(event.target.value));
+  };
+
+  const onCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    let category = event.target.value;
+    if (categories.indexOf(category) === -1) {
+      setCategories([category, ...categories]);
+    }
+  };
+
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
           <h2>Create product</h2>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmitForm)}>
             <div className="mb-3">
               <label className="form-label" htmlFor="name">
                 Name
               </label>
               <input
                 className={`form-control ${errors.name ? "border-danger" : ""}`}
-                {...register("name")}
+                {...register("name", { onChange: onNameChange })}
               />
               <sup className="text-danger fst-italic">
                 {errors.name?.message}
@@ -96,14 +107,74 @@ const ProductCreate: NextPage = () => {
                 Slug
               </label>
               <input
-                className={`form-control ${errors.slug ? "border-danger" : ""}`}
+                className={`form-control`}
                 id="slug"
+                value={generateSlug}
+                disabled
                 {...register("slug")}
               />
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="brand">
+                Brand
+              </label>
+              <select
+                className={`form-select ${errors.brand ? "border-danger" : ""}`}
+                id="brand"
+                {...register("brand")}
+                defaultValue={0}
+              >
+                <option disabled hidden value={0}>
+                  Select Brand
+                </option>
+                {BRAND.map((brand) => (
+                  <option value={brand.id} key={brand.id}>
+                    {brand.name}
+                  </option>
+                ))}
+              </select>
               <sup className="text-danger fst-italic">
-                {errors.slug?.message}
+                {errors.brand?.message}
               </sup>
             </div>
+
+            <div className="mb-3">
+              <label className="form-label" htmlFor="category">
+                Category
+              </label>
+              <select
+                className={`form-select ${
+                  errors.category ? "border-danger" : ""
+                }`}
+                id="category"
+                {...register("category")}
+                onChange={onCategoryChange}
+                defaultValue={0}
+              >
+                <option disabled hidden value={0}>
+                  Select Category
+                </option>
+                {CATEGORY.map((category) => (
+                  <option value={category} key={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              <sup className="text-danger fst-italic">
+                {errors.category?.message}
+              </sup>
+              <div className="d-flex flex-start mt-2">
+                {categories.map((category, index) => (
+                  <span
+                    className="border border-primary rounded fst-italic px-2"
+                    key={index}
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <div className="mb-3">
               <label className="form-label" htmlFor="short-description">
                 Short Description
@@ -219,15 +290,12 @@ const ProductCreate: NextPage = () => {
                 Thumbnail
               </label>
               <input
-                className={`form-control ${errors.thumbnail ? "border-danger" : ""}`}
+                className={`form-control`}
                 type="file"
                 id="thumbnail"
                 {...register("thumbnail")}
                 onChange={onThumbnailSelected}
               />
-              <sup className="text-danger fst-italic">
-                {errors.thumbnail?.message}
-              </sup>
 
               <img style={{ width: "150px" }} src={thumbnailURL} />
             </div>
@@ -252,7 +320,11 @@ const ProductCreate: NextPage = () => {
                 />
               ))}
             </div>
-            <button className="btn btn-primary" type="submit">
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={thumbnailURL == null}
+            >
               Submit
             </button>
           </form>

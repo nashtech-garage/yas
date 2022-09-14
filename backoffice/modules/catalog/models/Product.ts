@@ -13,6 +13,6 @@ export type Product = {
   isAllowedToOrder:boolean;
   isPublished:boolean;
   isFeatured:boolean;
-  brand:string;
+  brand:number;
   category:string[];
 };
