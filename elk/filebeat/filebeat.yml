@@ -1,0 +1,27 @@
+output:
+  logstash:
+    enabled: true
+    hosts: "elk:5044"
+    timeout: 15
+    ssl:
+      certificate_authorities:
+      - /etc/pki/tls/certs/logstash-beats.crt
+
+filebeat:
+  inputs:
+    - document_type: syslog
+      paths:
+        - /var/log/syslog
+        - /var/log/auth.log
+    - type: log
+      paths:
+        - '/var/log/messages'
+        - '/var/log/*.log'
+    - paths:
+        - "/var/log/nginx/*.log"
+      fields_under_root: true
+      fields:
+        type: nginx-access
+    - type: container
+      paths:
+        - '/var/lib/docker/containers/*/*.log'

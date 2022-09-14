@@ -101,6 +101,27 @@ services:
       - "4317:4317"
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
+  elk:
+    image: sebp/elk
+    ports:
+      - "5601:5601" # Kibana web interface
+      - "9200:9200" # Elasticsearch JSON interface
+      - "5044:5044" # Logstash Beats interface
+    restart: on-failure
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.4.1
+    user: root
+    entrypoint: "filebeat -e -strict.perms=false"
+    volumes:
+      - ./elk/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./elk/filebeat/logstash-beats.crt:/etc/pki/tls/certs/logstash-beats.crt:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - filebeat:/usr/share/filebeat/data:rw
+    restart: on-failure
+    depends_on:
+      - elk
 volumes:
   postgres:
   pgadmin:
+  filebeat:
