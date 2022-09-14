@@ -60,7 +60,9 @@ public class CategoryController {
         category.setDescription(categoryPostVm.description());
         category.setCreatedBy(principal.getName());
         category.setLastModifiedBy(principal.getName());
-
+        category.setDisplayOrder(categoryPostVm.displayOrder());
+        category.setMetaDescription(categoryPostVm.metaDescription());
+        category.setMetaKeyword(categoryPostVm.metaKeywords());
         if(categoryPostVm.parentId() != null){
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
