@@ -1,16 +1,20 @@
 import type { NextPage } from "next";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Product } from "../../../modules/catalog/models/Product";
 import { createProduct } from "../../../modules/catalog/services/ProductService";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import slugify from "slugify";
+import { Category } from "../../../modules/catalog/models/Category";
+import { Brand } from "../../../modules/catalog/models/Brand";
+import { getCategories } from "../../../modules/catalog/services/CategoryService";
+import { getBrands } from "../../../modules/catalog/services/BrandService";
 
 const schema = yup
   .object({
     name: yup.string().required("Product name is required"),
-    slug:yup.string().required("Slug is required"),
+    slug: yup.string().required("Slug is required"),
     description: yup.string().required("Description is required"),
     shortDescription: yup.string().required("Short description is required"),
     specification: yup.string().required("Specification is required"),
@@ -24,26 +28,34 @@ const schema = yup
   })
   .required();
 
-const BRAND = [
-  { id: 1, name: "Apple" },
-  { id: 2, name: "Samsung" },
-  { id: 3, name: "Nokia" },
-  { id: 4, name: "XOR" },
-];
-
-const CATEGORY = ["Phone", "Tablet", "Laptop"];
-
 const ProductCreate: NextPage = () => {
   const [thumbnailURL, setThumbnailURL] = useState<string>();
   const [productImageURL, setProductImageURL] = useState<string[]>();
   const [generateSlug, setGenerateSlug] = useState<string>();
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categoriesId, setCategoriesId] = useState<number[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Product>({ resolver: yupResolver(schema) });
+
+  useEffect(() => {
+    getCategories()
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch((err) => console.log(err));
+
+    getBrands()
+      .then((data) => {
+        setBrands(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -69,9 +81,10 @@ const ProductCreate: NextPage = () => {
     }
   };
 
-  const onSubmitForm: SubmitHandler<Product> = (data) => {
-    data.category = categories;
-    console.log(data)
+  const onSubmitForm: SubmitHandler<Product> = async (data) => {
+    data.categoriesId = categoriesId;
+    await createProduct(data);
+    // location.replace("/catalog/products");
   };
 
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +93,12 @@ const ProductCreate: NextPage = () => {
 
   const onCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     let category = event.target.value;
-    if (categories.indexOf(category) === -1) {
-      setCategories([category, ...categories]);
+    if (selectedCategories.indexOf(category) === -1) {
+      let id = categories.find((item) => item.name === category)?.id;
+      if (id) {
+        setCategoriesId([...categoriesId, id]);
+      }
+      setSelectedCategories([category, ...selectedCategories]);
     }
   };
 
@@ -108,12 +125,19 @@ const ProductCreate: NextPage = () => {
                 Slug
               </label>
               <input
-                className={`form-control ${errors.slug ? "border-danger" : ""} `}
+                className={`form-control ${
+                  errors.slug ? "border-danger" : ""
+                } `}
                 id="slug"
                 value={generateSlug}
-                {...register("slug", {onChange:(e) => setGenerateSlug(e.target.value), onBlur:(e) => setGenerateSlug(slugify(e.target.value))})}
+                {...register("slug", {
+                  onChange: (e) => setGenerateSlug(e.target.value),
+                  onBlur: (e) => setGenerateSlug(slugify(e.target.value)),
+                })}
               />
-              <sup className="text-danger fst-italic" >{errors.slug?.message}</sup>
+              <sup className="text-danger fst-italic">
+                {errors.slug?.message}
+              </sup>
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="brand">
@@ -128,7 +152,7 @@ const ProductCreate: NextPage = () => {
                 <option disabled hidden value={0}>
                   Select Brand
                 </option>
-                {BRAND.map((brand) => (
+                {brands.map((brand) => (
                   <option value={brand.id} key={brand.id}>
                     {brand.name}
                   </option>
@@ -145,27 +169,27 @@ const ProductCreate: NextPage = () => {
               </label>
               <select
                 className={`form-select ${
-                  errors.category ? "border-danger" : ""
+                  errors.categoriesId ? "border-danger" : ""
                 }`}
                 id="category"
-                {...register("category")}
+                {...register("categoriesId")}
                 onChange={onCategoryChange}
                 defaultValue={0}
               >
                 <option disabled hidden value={0}>
                   Select Category
                 </option>
-                {CATEGORY.map((category) => (
-                  <option value={category} key={category}>
-                    {category}
+                {categories.map((category) => (
+                  <option value={category?.name} key={category?.id}>
+                    {category?.name}
                   </option>
                 ))}
               </select>
               <sup className="text-danger fst-italic">
-                {errors.category?.message}
+                {errors.categoriesId?.message}
               </sup>
               <div className="d-flex flex-start mt-2">
-                {categories.map((category, index) => (
+                {selectedCategories.map((category, index) => (
                   <span
                     className="border border-primary rounded fst-italic px-2"
                     key={index}

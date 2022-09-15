@@ -5,23 +5,23 @@ export default function AuthenticationInfo(){
     username : string
   }
 
-  const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser>({username:'Me'});
+  const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser>();
 
-  // async function getAuthenticatedUser() {
-  //   const res = await fetch(`/authentication/user`);
-  //   return await res.json();
-  // }
+  async function getAuthenticatedUser() {
+    const res = await fetch(`/authentication/user`);
+    return await res.json();
+  }
 
-  // useEffect(() => {
-  //   getAuthenticatedUser()
-  //     .then((data) => {
-  //       setAuthenticatedUser(data);
-  //     });
-  // }, []);
+  useEffect(() => {
+    getAuthenticatedUser()
+      .then((data) => {
+        setAuthenticatedUser(data);
+      });
+  }, []);
 
   return(
   <>
-   Signed in as: <a href="#">{authenticatedUser.username}</a> <a href="#">Logout</a>
+   Signed in as: <a href="#">{authenticatedUser?.username}</a> <a href="#">Logout</a>
   </>
   );
 }
