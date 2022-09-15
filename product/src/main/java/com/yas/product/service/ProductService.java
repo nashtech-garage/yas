@@ -92,7 +92,7 @@ public class ProductService {
         productCategoryRepository.saveAllAndFlush(productCategoryList);
         return ProductGetDetailVm.fromModel(product);
     }
-    public ProductGetDetailVm updateProduct(Long productId, ProductPostVm productPostVm) {
+    public ProductGetDetailVm updateProduct(long productId, ProductPostVm productPostVm) {
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
         List<ProductCategory> productCategoryList = new ArrayList<>();
 
@@ -140,6 +140,19 @@ public class ProductService {
         productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
         return ProductGetDetailVm.fromModel(product);
+    }
+    public ProductThumbnailVm getProduct(long productId) {
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(()->
+                        new NotFoundException(String.format("Product %s is not found", productId))
+                );
+        ProductThumbnailVm productThumbnailVm = new ProductThumbnailVm(
+                product.getId(),
+                product.getName(),
+                product.getSlug(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url());
+        return productThumbnailVm;
     }
 
     public List<ProductThumbnailVm> getFeaturedProducts() {
