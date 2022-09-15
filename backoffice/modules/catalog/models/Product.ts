@@ -4,7 +4,7 @@ export type Product = {
   slug: string;
   description: string;
   shortDescription: string;
-  specification:string[];
+  specification:string;
   sku:string;
   gtin:string;
   price:number;
@@ -14,5 +14,5 @@ export type Product = {
   isPublished:boolean;
   isFeatured:boolean;
   brand:number;
-  category:string[];
+  categoriesId:number[];
 };
