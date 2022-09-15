@@ -30,11 +30,19 @@ public class Product extends AbstractAuditEntity {
 
     private String slug;
 
+    private Double price;
+
     private String metaKeyword;
 
     private String metaDescription;
 
     private Long thumbnailMediaId;
+
+    private Boolean isAllowedToOrder;
+
+    private Boolean isPublished;
+
+    private Boolean isFeatured;
 
     @ManyToOne
     @JoinColumn(name = "brand_id")
@@ -42,6 +50,9 @@ public class Product extends AbstractAuditEntity {
 
     @OneToMany(mappedBy = "product")
     private List<ProductCategory> productCategories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductImage> productImages = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
