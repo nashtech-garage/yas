@@ -1,13 +1,17 @@
 import type { NextPage } from 'next'
 import Document from 'next/document';
+import { useEffect, useState } from 'react';
+import { useAccordionButton } from 'react-bootstrap';
+import { isNull } from 'util';
 import { Category } from '../../../modules/catalog/models/Category';
-import { createCategory } from '../../../modules/catalog/services/CategoryService';
+import { createCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 
 const CategoryCreate: NextPage = () => {
   var slugify = require('slugify')
+  const [categories, setCategories] = useState<Category[]>([]);
   const handleSubmit = async (event:any) => {
     event.preventDefault()
-
+    if(event.target.parentCategory.value==0) event.target.parentCategory.value=null;
     let category : Category = {
       id: 0,
       name: event.target.name.value,
@@ -18,11 +22,17 @@ const CategoryCreate: NextPage = () => {
       metaDescription: event.target.metaDescription.value,
       displayOrder: event.target.displayOrder.value,
     }
+    
     console.log(category)
     category = await createCategory(category);
     location.replace("/catalog/categories");
   }
-
+ useEffect(()=>{
+  getCategories()
+      .then((data) => {
+        setCategories(data);
+      });
+ })
   return (
     <>
     <div className='row mt-5'>
@@ -33,7 +43,7 @@ const CategoryCreate: NextPage = () => {
           <label className='form-label' htmlFor="name">Name</label>
           <input className="form-control" type="text" id="name" name="name" required 
           onChange={(e)=>{
-            var slug = document.getElementById("slug")
+            let slug = document.getElementById("slug")
             slug?.setAttribute('value', slugify(e.target.value, {
               replacement: '-',  // replace spaces with replacement character, defaults to `-`
               remove: undefined, // remove characters that match regex, defaults to `undefined`
@@ -59,8 +69,14 @@ const CategoryCreate: NextPage = () => {
         <div className="mb-3">
           <label className='form-label' htmlFor="parentCategory">Parent category</label>
           <select className="form-control" id="parentCategory" name="parentCategory">
-            <option value='1'>hihi</option>
-            <option value='2'>hihs</option>
+            <option value={0}>
+                    Top
+                  </option>
+                  {categories.map((category) => (
+                    <option value={category.id} key={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
           </select>
         </div>
         <div className="mb-3">
