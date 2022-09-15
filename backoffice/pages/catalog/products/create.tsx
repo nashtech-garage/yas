@@ -10,6 +10,7 @@ import slugify from "slugify";
 const schema = yup
   .object({
     name: yup.string().required("Product name is required"),
+    slug:yup.string().required("Slug is required"),
     description: yup.string().required("Description is required"),
     shortDescription: yup.string().required("Short description is required"),
     specification: yup.string().required("Specification is required"),
@@ -70,7 +71,7 @@ const ProductCreate: NextPage = () => {
 
   const onSubmitForm: SubmitHandler<Product> = (data) => {
     data.category = categories;
-    console.log(data);
+    console.log(data)
   };
 
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,12 +108,12 @@ const ProductCreate: NextPage = () => {
                 Slug
               </label>
               <input
-                className={`form-control`}
+                className={`form-control ${errors.slug ? "border-danger" : ""} `}
                 id="slug"
                 value={generateSlug}
-                disabled
-                {...register("slug")}
+                {...register("slug", {onChange:(e) => setGenerateSlug(e.target.value), onBlur:(e) => setGenerateSlug(slugify(e.target.value))})}
               />
+              <sup className="text-danger fst-italic" >{errors.slug?.message}</sup>
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="brand">
