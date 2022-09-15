@@ -2,11 +2,11 @@ export type Product = {
     id : number;
     name: string;
     slug: string;
-    shortDescription: string;
+    // shortDescription: string;
     description: string;
-    specification: string;
-    sku: string;
-    gtin: string;
-    metaKeyword: string;
-    descriptionMetaKeyword: string;
+    // specification: string;
+    // sku: string;
+    // gtin: string;
+    // metaKeyword: string;
+    // descriptionMetaKeyword: string;
   };

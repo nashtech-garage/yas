@@ -29,7 +29,13 @@ export async function updateProduct(id: number, product: Product, thumbnail: Fil
   const body = new FormData()
   body.append('name', product.name);
   body.append('slug', product.slug);
+  // body.append('shortDescription', product.shortDescription);
   body.append('description', product.description);
+  // body.append('specification', product.specification);
+  // body.append('sku', product.sku);
+  // body.append('gtin', product.gtin);
+  // body.append('metaKeyword', product.metaKeyword);
+  // body.append('descriptionMetaKeyword', product.descriptionMetaKeyword);
   body.append('thumbnail', thumbnail);
   const res = await fetch('/api/product/backoffice/products/'+id, {
     method: 'PUT',
