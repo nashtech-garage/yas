@@ -24,7 +24,7 @@ public class MediaService {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
-    public NoFileMediaVm SaveFile(MultipartFile multipartFile, String caption, String fileNameOverride){
+    public NoFileMediaVm saveFile(MultipartFile multipartFile, String caption, String fileNameOverride) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.media()).path("/medias").build().toUri();
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
 
