@@ -24,7 +24,7 @@
         <spring-cloud-sleuth-otel.version>1.1.0-M6</spring-cloud-sleuth-otel.version>
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-product</sonar.projectKey>
+        <sonar.projectKey>nashtech-garage_yas-customer</sonar.projectKey>
     </properties>
 
     <dependencies>
