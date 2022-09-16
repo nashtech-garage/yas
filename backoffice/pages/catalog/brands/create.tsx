@@ -40,7 +40,7 @@ const BrandCreate: NextPage = () => {
                     <form onSubmit={handleSubmit(handleSubmitBrand)}>
                         <div className="mb-3">
                             <div className="mb-3">
-                                <label className='form-label' htmlFor="slug">Slug</label>
+                                <label className='form-label' htmlFor="slug">Name</label>
                                 <input className="form-control"
                                        {...register('name', { required : true })}
                                        type="text"
