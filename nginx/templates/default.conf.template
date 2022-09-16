@@ -9,6 +9,9 @@ server {
   location /product/ {
 	proxy_pass http://product;
   }
+  location /customer/ {
+	proxy_pass http://customer;
+  }
 }
 
 server {
@@ -34,6 +37,7 @@ server {
 
 server {
   server_name identity;
+  large_client_header_buffers 8 32k;
   location / {
     proxy_pass http://identity;
     proxy_set_header Host $host;
