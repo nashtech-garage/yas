@@ -44,7 +44,6 @@ const BrandCreate: NextPage = () => {
     const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setGenerateSlug((event.target.value));
     };
-
     return (
         <>
             <div className='row mt-5'>
