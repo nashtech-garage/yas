@@ -71,11 +71,18 @@ services:
       YAS_SERVICES_MEDIA: http://media/media
       SERVER_PORT: "80"
       SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+  customer:
+    image: ghcr.io/nashtech-garage/yas-customer:latest
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: /customer
+      SERVER_PORT: "80"
+      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
   swagger-ui:
     image: swaggerapi/swagger-ui
     environment:
       BASE_URL: /swagger-ui
-      URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' }]"
+      URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
+      { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:

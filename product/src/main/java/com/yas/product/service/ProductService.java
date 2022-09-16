@@ -87,9 +87,9 @@ public class ProductService {
         NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPostVm.thumbnail(), "", "");
         product.setThumbnailMediaId(noFileMediaVm.id());
 
-        productRepository.saveAndFlush(product);
+        Product savedProduct = productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
-        return ProductGetDetailVm.fromModel(product);
+        return ProductGetDetailVm.fromModel(savedProduct);
     }
 
     public List<ProductThumbnailVm> getFeaturedProducts() {
