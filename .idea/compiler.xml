@@ -3,43 +3,6 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="storefront-bff" />
-        <module name="media" />
-        <module name="backoffice-bff" />
-        <module name="pricing" />
-      </profile>
-      <profile name="Annotation profile for product" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.4.1.Final/mapstruct-processor-1.4.1.Final.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.4.1.Final/mapstruct-1.4.1.Final.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
-        </processorPath>
-        <module name="product" />
-      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="backoffice-bff" target="17" />
-      <module name="media" target="17" />
-      <module name="pricing" target="17" />
-      <module name="product" target="17" />
-      <module name="storefront-bff" target="17" />
-    </bytecodeTargetLevel>
-  </component>
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="backoffice-bff" options="-parameters" />
-      <module name="media" options="-parameters" />
-      <module name="pricing" options="-parameters" />
-      <module name="product" options="-parameters" />
-      <module name="storefront-bff" options="-parameters" />
-    </option>
   </component>
 </project>
