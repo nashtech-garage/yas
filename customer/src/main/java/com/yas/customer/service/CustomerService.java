@@ -26,8 +26,8 @@ public class CustomerService {
             return keycloak.realm(keycloakPropsConfig.getRealm()).users().list().stream()
                     .map(CustomerVm::fromUserRepresentation)
                     .toList();
-        } catch (ForbiddenException Exception) {
-            throw new AccessDeniedException(Exception.getMessage() + String.format(": Client %s don't have access right for this resource", keycloakPropsConfig.getResource()));
+        } catch (ForbiddenException exception) {
+            throw new AccessDeniedException(exception.getMessage() + String.format(": Client %s don't have access right for this resource", keycloakPropsConfig.getResource()));
         }
     }
 }
