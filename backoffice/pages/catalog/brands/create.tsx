@@ -3,20 +3,9 @@ import { Brand } from '../../../modules/catalog/models/Brand';
 import { createBrand } from '../../../modules/catalog/services/BrandService';
 import React, {useState} from "react";
 import { useForm } from 'react-hook-form'
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-
 
 const BrandCreate: NextPage = () => {
-    const validationSchema = Yup.object().shape({
-        name: Yup.string()
-            .required('Title is required'),
-        slug: Yup.string()
-            .required('First Name is required'),
-
-    });
-    const formOptions = { resolver: yupResolver(validationSchema) };
-    const { register, handleSubmit, reset, formState } = useForm();
+    const { register, handleSubmit, formState } = useForm();
     const { errors } = formState;
 
     const [generateSlug, setGenerateSlug] = useState<string>();
@@ -26,7 +15,6 @@ const BrandCreate: NextPage = () => {
         console.log("submit")
 
     }
-
     const handleSubmitBrand = async (event:any) => {
         let brand : Brand = {
             id: 0,
@@ -35,7 +23,7 @@ const BrandCreate: NextPage = () => {
         }
         console.log(brand)
         brand = await createBrand(brand);
-        // location.replace("/catalog/brands");
+        location.replace("/catalog/brands");
     }
     const slug = require('slug');
     const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
