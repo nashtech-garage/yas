@@ -1,7 +1,6 @@
 package com.yas.product.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -9,8 +8,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "product")
-@Getter
-@Setter
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product extends AbstractAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +42,7 @@ public class Product extends AbstractAuditEntity {
 
     @OneToMany(mappedBy = "product")
     private List<ProductCategory> productCategories = new ArrayList<>();
+
 
     @Override
     public boolean equals(Object o) {

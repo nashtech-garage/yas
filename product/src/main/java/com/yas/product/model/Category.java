@@ -1,6 +1,8 @@
 package com.yas.product.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,6 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name="category")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Category extends AbstractAuditEntity {
 
     @Id
