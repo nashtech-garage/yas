@@ -47,7 +47,6 @@ const ProductEdit: NextPage = () => {
     }
   };
   const onSubmit = (data: any) => {
-    console.log(data);
     let product: Product = {
       id: 0,
       name: data.name.replace(/(^\s+|\s+$)/g, ''),
@@ -70,7 +69,6 @@ const ProductEdit: NextPage = () => {
       }
     }
   }
-  console.log(product?.thumbnailUrl);
 
   if (isLoading) return <p>Loading...</p>;
   if (!product) { return <p>No product</p>; }
