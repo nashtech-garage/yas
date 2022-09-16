@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { Product } from '../../../../modules/catalog/models/Product'
 import { ProductThumbnail } from '../../../../modules/catalog/models/ProductThumbnail'
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService'
+import { useForm } from "react-hook-form";
+import slugify from "slugify";
 
 const ProductEdit: NextPage = () => {
   //Get ID
@@ -12,9 +14,14 @@ const ProductEdit: NextPage = () => {
   //Variables
   const [thumbnail, setThumbnail] = useState<File>();
   const [thumbnailURL, setThumbnailURL] = useState<string>();
+  const [generateSlug, setGenerateSlug] = useState<string>();
+
   //Get product detail
   const [product, setProduct] = useState<ProductThumbnail>();
   const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState();
+  //Form validate
+  const { register, formState: { errors }, handleSubmit } = useForm();
 
   useEffect(() => {
     setLoading(true);
@@ -28,6 +35,10 @@ const ProductEdit: NextPage = () => {
   }, []);
 
   //Handle
+  const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setGenerateSlug(slugify(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase()));
+  };
+
   const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
@@ -35,25 +46,22 @@ const ProductEdit: NextPage = () => {
       setThumbnailURL(URL.createObjectURL(i));
     }
   };
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
+  const onSubmit = (data: any) => {
+    console.log(data);
     let product: Product = {
       id: 0,
-      name: event.target.name.value.replace(/(^\s+|\s+$)/g, ''),
-      slug: event.target.slug.value.replace(/(^\s+|\s+$)/g, ''),
-      description: event.target.description.value.replace(/(^\s+|\s+$)/g, ''),
-      // shortDescription: event.target.shortDescription.value.replace(/(^\s+|\s+$)/g, ''),
-      // specification: event.target.specification.value.replace(/(^\s+|\s+$)/g, ''),
-      // sku: event.target.sku.value.replace(/(^\s+|\s+$)/g, ''),
-      // gtin: event.target.gtin.value.replace(/(^\s+|\s+$)/g, ''),
-      // metaKeyword: event.target.metaKeyword.value.replace(/(^\s+|\s+$)/g, ''),
-      // descriptionMetaKeyword: event.target.descriptionMetaKeyword.value.replace(/(^\s+|\s+$)/g, ''),
+      name: data.name.replace(/(^\s+|\s+$)/g, ''),
+      slug: data.slug.replace(/(^\s+|\s+$)/g, ''),
+      description: data.description?.replace(/(^\s+|\s+$)/g, ''),
+      shortDescription: data.shortDescription.replace(/(^\s+|\s+$)/g, ''),
+      specification: data.specification.replace(/(^\s+|\s+$)/g, ''),
+      sku: data.sku.replace(/(^\s+|\s+$)/g, ''),
+      gtin: data.gtin.replace(/(^\s+|\s+$)/g, ''),
+      metaKeyword: data.metaKeyword.replace(/(^\s+|\s+$)/g, ''),
+      metaDescription: data.metaDescription?.replace(/(^\s+|\s+$)/g, ''),
     }
     if (!thumbnail) {
-      if (id) {
-        updateProduct(+id, product, null);
-        location.replace("/catalog/products");
-      }
+      alert("A thumbnail is required.")
     }
     else {
       if (id) {
@@ -62,62 +70,96 @@ const ProductEdit: NextPage = () => {
       }
     }
   }
+  console.log(product?.thumbnailUrl);
 
   if (isLoading) return <p>Loading...</p>;
-  if (!product) return <p>No product</p>;
-  return (
-    <>
-      <div className='row mt-5'>
-        <div className='col-md-8'>
-          <h2>Update product</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className='form-label' htmlFor="name">Name <span style={{ 'color': 'red' }}>*</span></label>
-              <input defaultValue={product.name} className="form-control" type="text" id="name" name="name" required />
-            </div>
-            <div className="mb-3">
-              <label className='form-label' htmlFor="slug">Slug <span style={{ 'color': 'red' }}>*</span></label>
-              <input defaultValue={product.slug} className="form-control" type="text" id="slug" name="slug" required />
-            </div>
-            {/* <div className="mb-3">
-              <label className='form-label' htmlFor="short-description">Short Description <span style={{'color': 'red'}}>*</span></label>
-              <input defaultValue={product.shortDescription} type="text" className="form-control" id="short-description" name="shortDescription" required/>
-            </div> */}
-            <div className="mb-3">
-              <label className='form-label' htmlFor="description">Description</label>
-              <textarea defaultValue={product.description} className="form-control" id="description" name="description" />
-            </div>
-            {/* <div className="mb-3">
-              <label className='form-label' htmlFor="specification">Specification <span style={{'color': 'red'}}>*</span></label>
-              <input defaultValue={product.specification} type="text" className="form-control" id="specification" name="specification" required/>
-            </div>
-            <div className="mb-3">
-              <label className='form-label' htmlFor="sku">SKU <span style={{'color': 'red'}}>*</span></label>
-              <input defaultValue={product.sku} type="text" className="form-control" id="sku" name="sku" required/>
-            </div>
-            <div className="mb-3">
-              <label className='form-label' htmlFor="gtin">GTIN <span style={{'color': 'red'}}>*</span></label>
-              <input defaultValue={product.gtin} type="text" className="form-control" id="gtin" name="gtin" required/>
-            </div>
-            <div className="mb-3">
-              <label className='form-label' htmlFor="meta-keyword">Meta Keyword <span style={{'color': 'red'}}>*</span></label>
-              <input defaultValue={product.metaKeyword} type="text" className="form-control" id="meta-keyword" name="metaKeyword" required/>
-            </div>
-            <div className="mb-3">
-              <label className='form-label' htmlFor="meta-keyword-description">Meta Keyword Description</label>
-              <input defaultValue={product.descriptionMetaKeyword} type="text" className="form-control" id="meta-keyword-description" name="descriptionMetaKeyword" />
-            </div> */}
-            <div className='mb-3'>
-              <label className='form-label' htmlFor="thumbnail">Thumbnail <span style={{ 'color': 'red' }}>*</span></label>
-              <input className="form-control" type="file" name="thumbnail" onChange={onThumbnailSelected} />
-              <img style={{ width: '150px' }} src={thumbnailURL ? thumbnailURL : product.thumbnailUrl} />
-            </div>
-            <button className="btn btn-primary" type="submit">Submit</button>
-          </form>
+  if (!product) { return <p>No product</p>; }
+  else {
+    return (
+      <>
+        <div className='row mt-5'>
+          <div className='col-md-8'>
+            <h2>Update product: #{product.id}</h2>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="name">Name <span style={{ 'color': 'red' }}>*</span></label>
+                <input
+                  defaultValue={product.name}
+                  {...register("name", { required: "Name is required", onChange: onNameChange })}
+                  className={`form-control ${errors.name ? "border-danger" : ""}`}
+                  type="text" id="name" name="name"
+                />
+                <p className='error-field'><>{errors.name?.message}</></p>
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="slug">Slug <span style={{ 'color': 'red' }}>*</span></label>
+                <input
+                  value={generateSlug ? generateSlug : product.slug}
+                  {...register("slug", { required: "Slug is required" })}
+                  className={`form-control ${errors.slug ? "border-danger" : ""}`}
+                  type="text" id="slug" name="slug"
+                />
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="short-description">Short Description <span style={{ 'color': 'red' }}>*</span></label>
+                <input
+                  defaultValue={product.shortDescription}
+                  {...register("shortDescription", { required: "Short Description is required" })}
+                  className={`form-control ${errors.shortDescription ? "border-danger" : ""}`}
+                  type="text" id="short-description" name="shortDescription" />
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="description">Description</label>
+                <textarea defaultValue={product.description} className="form-control" id="description" name="description" />
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="specification">Specification <span style={{ 'color': 'red' }}>*</span></label>
+                <textarea
+                  defaultValue={product.specification}
+                  {...register("specification", { required: "Specification is required" })}
+                  className={`form-control ${errors.specification ? "border-danger" : ""}`}
+                  id="specification" name="specification" />
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="sku">SKU <span style={{ 'color': 'red' }}>*</span></label>
+                <input
+                  defaultValue={product.sku}
+                  {...register("sku", { required: "SKU is required" })}
+                  className={`form-control ${errors.sku ? "border-danger" : ""}`}
+                  type="text" id="sku" name="sku" />
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="gtin">GTIN <span style={{ 'color': 'red' }}>*</span></label>
+                <input
+                  defaultValue={product.gtin}
+                  {...register("gtin", { required: "GTIN is required" })}
+                  className={`form-control ${errors.gtin ? "border-danger" : ""}`}
+                  type="text" id="gtin" name="gtin" />
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="meta-keyword">Meta Keyword <span style={{ 'color': 'red' }}>*</span></label>
+                <input
+                  defaultValue={product.metaKeyword}
+                  {...register("metaKeyword", { required: "Meta Keyword is required" })}
+                  className={`form-control ${errors.metaKeyword ? "border-danger" : ""}`}
+                  type="text" id="meta-keyword" name="metaKeyword" />
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="meta-description">Meta Description</label>
+                <input defaultValue={product.descriptionMetaKeyword} type="text" className="form-control" id="meta-description" name="metaDescription" />
+              </div>
+              <div className='mb-3'>
+                <label className='form-label' htmlFor="thumbnail">Thumbnail <span style={{ 'color': 'red' }}>*</span></label>
+                <input className="form-control" type="file" name="thumbnail" onChange={onThumbnailSelected} />
+                <img style={{ width: '150px' }} src={thumbnailURL ? thumbnailURL : product.thumbnailUrl} />
+              </div>
+              <button className="btn btn-primary" type="submit">Submit</button>
+            </form>
+          </div>
         </div>
-      </div>
-    </>
-  )
+      </>
+    )
+  }
 }
 
 export default ProductEdit

@@ -90,24 +90,29 @@ public class ProductService {
 
         productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
-        return ProductGetDetailVm.fromModel(product);
+        return ProductGetDetailVm.fromModel(product, mediaService.getMedia(product.getThumbnailMediaId()).url());
     }
-    public ProductGetDetailVm updateProduct(long productId, ProductPostVm productPostVm) {
+    public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
         List<ProductCategory> productCategoryList = new ArrayList<>();
 
-        if (productPostVm.brandId() != null) {
-            Brand brand = brandRepository.findById(productPostVm.brandId()).
-                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
+        if(!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()){
+            System.out.println(productRepository.findBySlug(productPutVm.slug()));
+            throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
+        }
+
+        if (productPutVm.brandId() != null) {
+            Brand brand = brandRepository.findById(productPutVm.brandId()).
+                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
         }
 
-        if (CollectionUtils.isNotEmpty(productPostVm.categoryIds())) {
-            List<Category> categoryList = categoryRepository.findAllById(productPostVm.categoryIds());
+        if (CollectionUtils.isNotEmpty(productPutVm.categoryIds())) {
+            List<Category> categoryList = categoryRepository.findAllById(productPutVm.categoryIds());
             if (categoryList.isEmpty()) {
-                throw new BadRequestException(String.format("Not found categories %s", productPostVm.categoryIds()));
-            } else if (categoryList.size() < productPostVm.categoryIds().size()) {
-                List<Long> categoryIdsNotFound = productPostVm.categoryIds();
+                throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
+            } else if (categoryList.size() < productPutVm.categoryIds().size()) {
+                List<Long> categoryIdsNotFound = productPutVm.categoryIds();
                 categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
                 throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
             } else {
@@ -120,39 +125,35 @@ public class ProductService {
             }
         }
 
-        product.setName(productPostVm.name());
-        product.setSlug(productPostVm.slug());
-        product.setDescription(productPostVm.description());
-        product.setShortDescription(productPostVm.shortDescription());
-        product.setSpecification(productPostVm.specification());
-        product.setSku(productPostVm.sku());
-        product.setGtin(productPostVm.gtin());
-        product.setMetaKeyword(productPostVm.metaKeyword());
-        product.setMetaDescription(productPostVm.metaDescription());
+        product.setName(productPutVm.name());
+        product.setSlug(productPutVm.slug());
+        product.setDescription(productPutVm.description());
+        product.setShortDescription(productPutVm.shortDescription());
+        product.setSpecification(productPutVm.specification());
+        product.setSku(productPutVm.sku());
+        product.setGtin(productPutVm.gtin());
+        product.setMetaKeyword(productPutVm.metaKeyword());
+        product.setMetaDescription(productPutVm.metaDescription());
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         product.setLastModifiedBy(auth.getName());
         product.setLastModifiedOn(ZonedDateTime.now());
 
-        NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPostVm.thumbnail(), "", "");
-        product.setThumbnailMediaId(noFileMediaVm.id());
-
+        if(null != productPutVm.thumbnail()){
+            NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPutVm.thumbnail(), "", "");
+            product.setThumbnailMediaId(noFileMediaVm.id());
+        }
         productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
-        return ProductGetDetailVm.fromModel(product);
+        return ProductGetDetailVm.fromModel(product, mediaService.getMedia(product.getThumbnailMediaId()).url());
     }
-    public ProductThumbnailVm getProduct(long productId) {
+    public ProductGetDetailVm getProduct(long productId) {
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(()->
                         new NotFoundException(String.format("Product %s is not found", productId))
                 );
-        ProductThumbnailVm productThumbnailVm = new ProductThumbnailVm(
-                product.getId(),
-                product.getName(),
-                product.getSlug(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url());
-        return productThumbnailVm;
+        return ProductGetDetailVm.fromModel(product, mediaService.getMedia(product.getThumbnailMediaId()).url());
     }
 
     public List<ProductThumbnailVm> getFeaturedProducts() {

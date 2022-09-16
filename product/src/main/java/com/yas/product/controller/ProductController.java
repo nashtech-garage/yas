@@ -1,6 +1,5 @@
 package com.yas.product.controller;
 
-import com.yas.product.repository.ProductRepository;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.*;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,8 +42,8 @@ public class ProductController {
             @ApiResponse(responseCode = "204", description = "Updated"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @ModelAttribute ProductPostVm productPostVm) {
-        productService.updateProduct(id, productPostVm);
+    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @ModelAttribute ProductPutVm productPutVm) {
+        productService.updateProduct(id, productPutVm);
         return ResponseEntity.noContent().build();
     }
 
@@ -64,7 +63,7 @@ public class ProductController {
     }
 
     @GetMapping("/backoffice/products/{productId}")
-    public ResponseEntity<ProductThumbnailVm> getProduct(@PathVariable long productId) {
+    public ResponseEntity<ProductGetDetailVm> getProduct(@PathVariable long productId) {
         return ResponseEntity.ok(productService.getProduct(productId));
     }
 }
