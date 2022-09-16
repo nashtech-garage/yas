@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.nimbusds:oauth2-oidc-sdk:9.35">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/nimbusds/oauth2-oidc-sdk/9.35/oauth2-oidc-sdk-9.35.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/nimbusds/oauth2-oidc-sdk/9.35/oauth2-oidc-sdk-9.35-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/nimbusds/oauth2-oidc-sdk/9.35/oauth2-oidc-sdk-9.35-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

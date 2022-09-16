@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: io.netty.incubator:netty-incubator-codec-native-quic:linux-x86_64:0.0.25.Final">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/netty/incubator/netty-incubator-codec-native-quic/0.0.25.Final/netty-incubator-codec-native-quic-0.0.25.Final-linux-x86_64.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/io/netty/incubator/netty-incubator-codec-native-quic/0.0.25.Final/netty-incubator-codec-native-quic-0.0.25.Final-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/netty/incubator/netty-incubator-codec-native-quic/0.0.25.Final/netty-incubator-codec-native-quic-0.0.25.Final-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

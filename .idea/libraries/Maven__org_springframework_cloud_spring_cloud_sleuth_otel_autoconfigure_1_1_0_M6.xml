@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure:1.1.0-M6">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/cloud/spring-cloud-sleuth-otel-autoconfigure/1.1.0-M6/spring-cloud-sleuth-otel-autoconfigure-1.1.0-M6.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/cloud/spring-cloud-sleuth-otel-autoconfigure/1.1.0-M6/spring-cloud-sleuth-otel-autoconfigure-1.1.0-M6-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/cloud/spring-cloud-sleuth-otel-autoconfigure/1.1.0-M6/spring-cloud-sleuth-otel-autoconfigure-1.1.0-M6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

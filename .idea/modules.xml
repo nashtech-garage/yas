@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/backoffice-bff/backoffice-bff.iml" filepath="$PROJECT_DIR$/backoffice-bff/backoffice-bff.iml" />
+      <module fileurl="file://$PROJECT_DIR$/media/media.iml" filepath="$PROJECT_DIR$/media/media.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pricing/pricing.iml" filepath="$PROJECT_DIR$/pricing/pricing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/product/product.iml" filepath="$PROJECT_DIR$/product/product.iml" />
+      <module fileurl="file://$PROJECT_DIR$/storefront-bff/storefront-bff.iml" filepath="$PROJECT_DIR$/storefront-bff/storefront-bff.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/yas.iml" filepath="$PROJECT_DIR$/.idea/yas.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: io.projectreactor.addons:reactor-extra:3.4.8">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/projectreactor/addons/reactor-extra/3.4.8/reactor-extra-3.4.8.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/io/projectreactor/addons/reactor-extra/3.4.8/reactor-extra-3.4.8-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/projectreactor/addons/reactor-extra/3.4.8/reactor-extra-3.4.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

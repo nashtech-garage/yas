@@ -1,84 +1,84 @@
 apiVersion: networking.k8s.io/v1
-kind: Ingress 
+kind: Ingress
 metadata:
   name: yas-ingress
 spec:
   ingressClassName: nginx
   rules:
-  - host: api.yas.local
-    http:
-      paths:
-      - path: /swagger-ui
-        pathType: Prefix
-        backend:
-          service:
-            name: swagger-ui
-            port: 
-              number: 80
-      - path: /media
-        pathType: Prefix
-        backend:
-          service:
-            name:  media
-            port: 
-              number: 80
-      - path: /product
-        pathType: Prefix
-        backend:
-          service:
-            name:  product
-            port: 
-              number: 80
-  - host: storefront
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: storefront
-            port:
-              number: 80
-  - host: backoffice
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: backoffice
-            port:
-              number: 80
-  - host: identity
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: identity
-            port:
-              number: 80
-  - host: pgadmin.yas.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: pgadmin
-            port:
-              number: 80
-  - host: jaeger
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: jaeger
-            port:
-              number: 80
+    - host: api.yas.local
+      http:
+        paths:
+          - path: /swagger-ui
+            pathType: Prefix
+            backend:
+              service:
+                name: swagger-ui
+                port:
+                  number: 80
+          - path: /media
+            pathType: Prefix
+            backend:
+              service:
+                name:  media
+                port:
+                  number: 80
+          - path: /product
+            pathType: Prefix
+            backend:
+              service:
+                name:  product
+                port:
+                  number: 80
+    - host: storefront
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: storefront
+                port:
+                  number: 80
+    - host: backoffice
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backoffice
+                port:
+                  number: 80
+    - host: identity
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: identity
+                port:
+                  number: 80
+    - host: pgadmin.yas.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pgadmin
+                port:
+                  number: 80
+    - host: jaeger
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jaeger
+                port:
+                  number: 80
 ---
 
 apiVersion: v1
@@ -88,7 +88,7 @@ metadata:
   labels:
     app: storefront
 spec:
-  selector: 
+  selector:
     app: storefront
   
   ports:
@@ -104,7 +104,7 @@ metadata:
   labels:
     app: backoffice
 spec:
-  selector: 
+  selector:
     app: backoffice
   
   ports:
@@ -120,7 +120,7 @@ metadata:
   labels:
     app: swagger-ui
 spec:
-  selector: 
+  selector:
     app: swagger-ui
   
   ports:
@@ -136,7 +136,7 @@ metadata:
   labels:
     app: media
 spec:
-  selector: 
+  selector:
     app: media
   
   ports:
@@ -151,7 +151,7 @@ metadata:
   labels:
     app: product
 spec:
-  selector: 
+  selector:
     app: product
   
   ports:
@@ -175,23 +175,23 @@ spec:
         app: storefront
     spec:
       containers:
-      - name: storefront-bff
-        image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
-        env:
-        - name: SERVER_PORT
-          value: "80"
-        - name: SPRING_PROFILES_ACTIVE
-          value: "prod"
-        - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
-          value: http://jaeger:4317        
-        ports:
-        - name: http
-          containerPort: 80
-      - name: storefront
-        image: ghcr.io/nashtech-garage/yas-storefront:latest
-        ports:
-        - name: http
-          containerPort: 3000
+        - name: storefront-bff
+          image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
+          env:
+            - name: SERVER_PORT
+              value: "80"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://jaeger:4317
+          ports:
+            - name: http
+              containerPort: 80
+        - name: storefront
+          image: ghcr.io/nashtech-garage/yas-storefront:latest
+          ports:
+            - name: http
+              containerPort: 3000
 ---
 
 apiVersion: apps/v1
@@ -210,23 +210,23 @@ spec:
         app: backoffice
     spec:
       containers:
-      - name: backoffice-bff
-        image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-        env:
-        - name: SERVER_PORT
-          value: "80"
-        - name: SPRING_PROFILES_ACTIVE
-          value: "prod"
-        - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
-          value: http://jaeger:4317        
-        ports:
-        - name: http
-          containerPort: 80
-      - name: backoffice
-        image: ghcr.io/nashtech-garage/yas-backoffice:latest
-        ports:
-        - name: http
-          containerPort: 3000
+        - name: backoffice-bff
+          image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
+          env:
+            - name: SERVER_PORT
+              value: "80"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://jaeger:4317
+          ports:
+            - name: http
+              containerPort: 80
+        - name: backoffice
+          image: ghcr.io/nashtech-garage/yas-backoffice:latest
+          ports:
+            - name: http
+              containerPort: 3000
 ---
 
 apiVersion: apps/v1
@@ -244,21 +244,21 @@ spec:
         app: swagger-ui
     spec:
       containers:
-      - name: swagger-ui
-        image: swaggerapi/swagger-ui
-        env:
-        - name: BASE_URL
-          value: "/swagger-ui"
-        - name: URLS
-          value: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' }]"
-        - name: OAUTH_CLIENT_ID
-          value: "swagger-ui"
-        - name: OAUTH_USE_PKCE
-          value: "true"
-        ports:
-        - name: http
-          containerPort: 8080
---- 
+        - name: swagger-ui
+          image: swaggerapi/swagger-ui
+          env:
+            - name: BASE_URL
+              value: "/swagger-ui"
+            - name: URLS
+              value: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' }]"
+            - name: OAUTH_CLIENT_ID
+              value: "swagger-ui"
+            - name: OAUTH_USE_PKCE
+              value: "true"
+          ports:
+            - name: http
+              containerPort: 8080
+---
 
 apiVersion: apps/v1
 kind: Deployment
@@ -276,23 +276,23 @@ spec:
         app: media
     spec:
       containers:
-      - name: media
-        image: ghcr.io/nashtech-garage/yas-media:latest
-        env:
-        - name: SPRING_DATASOURCE_URL
-          value: "jdbc:postgresql://postgres:5432/media"
-        - name: SERVER_SERVLET_CONTEXT_PATH # a hacky way to fix sub path behind nginx
-          value: "/media"
-        - name: YAS_PUBLICURL
-          value: "http://api.yas.local/media"
-        - name: SERVER_PORT
-          value: "80"
-        - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
-          value: http://jaeger:4317        
-        ports:
-        - name: http
-          containerPort: 80
---- 
+        - name: media
+          image: ghcr.io/nashtech-garage/yas-media:latest
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/media"
+            - name: SERVER_SERVLET_CONTEXT_PATH # a hacky way to fix sub path behind nginx
+              value: "/media"
+            - name: YAS_PUBLICURL
+              value: "http://api.yas.local/media"
+            - name: SERVER_PORT
+              value: "80"
+            - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://jaeger:4317
+          ports:
+            - name: http
+              containerPort: 80
+---
 
 apiVersion: apps/v1
 kind: Deployment
@@ -310,22 +310,22 @@ spec:
         app: product
     spec:
       containers:
-      - name: product
-        image: ghcr.io/nashtech-garage/yas-product:latest
-        env:
-        - name: SPRING_DATASOURCE_URL
-          value: "jdbc:postgresql://postgres:5432/product"
-        - name: SERVER_SERVLET_CONTEXT_PATH
-          value: "/product"
-        - name: YAS_SERVICES_MEDIA
-          value: "http://media/media"
-        - name: SERVER_PORT
-          value: "80"
-        - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
-          value: http://jaeger:4317    
-        ports:
-        - name: http
-          containerPort: 80
+        - name: product
+          image: ghcr.io/nashtech-garage/yas-product:latest
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/product"
+            - name: SERVER_SERVLET_CONTEXT_PATH
+              value: "/product"
+            - name: YAS_SERVICES_MEDIA
+              value: "http://media/media"
+            - name: SERVER_PORT
+              value: "80"
+            - name: SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://jaeger:4317
+          ports:
+            - name: http
+              containerPort: 80
 ---
 
 apiVersion: v1
@@ -336,9 +336,9 @@ metadata:
     app: identity
 spec:
   ports:
-  - name: http
-    port: 80
-    targetPort: 8080
+    - name: http
+      port: 80
+      targetPort: 8080
   selector:
     app: keycloak
 ---
@@ -360,32 +360,32 @@ spec:
         app: keycloak
     spec:
       containers:
-      - name: keycloak
-        image: quay.io/keycloak/keycloak:16.1.0
-        env:
-        - name: KEYCLOAK_USER
-          value: "admin"
-        - name: KEYCLOAK_PASSWORD
-          value: "admin"
-        - name: PROXY_ADDRESS_FORWARDING
-          value: "true"
-        - name: DB_VENDOR
-          value: "POSTGRES"
-        - name: DB_USER
-          value: "admin"
-        - name: DB_PASSWORD
-          value: "admin"
-        - name: DB_ADDR
-          value: "postgres"
-        - name: DB_DATABASE
-          value: "keycloak"
-        ports:
-        - name: http
-          containerPort: 8080
-        readinessProbe:
-          httpGet:
-            path: /auth/realms/master
-            port: 8080
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:16.1.0
+          env:
+            - name: KEYCLOAK_USER
+              value: "admin"
+            - name: KEYCLOAK_PASSWORD
+              value: "admin"
+            - name: PROXY_ADDRESS_FORWARDING
+              value: "true"
+            - name: DB_VENDOR
+              value: "POSTGRES"
+            - name: DB_USER
+              value: "admin"
+            - name: DB_PASSWORD
+              value: "admin"
+            - name: DB_ADDR
+              value: "postgres"
+            - name: DB_DATABASE
+              value: "keycloak"
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /auth/realms/master
+              port: 8080
 ---
 
 apiVersion: v1
@@ -411,8 +411,8 @@ metadata:
     app: pgadmin
 spec:
   ports:
-  - name: http
-    port: 80
+    - name: http
+      port: 80
   selector:
     app: postgres
 ---
@@ -439,22 +439,22 @@ spec:
           ports:
             - containerPort: 5432
           env:
-          - name: POSTGRES_USER
-            value: "admin"
-          - name: POSTGRES_PASSWORD
-            value: "admin"
+            - name: POSTGRES_USER
+              value: "admin"
+            - name: POSTGRES_PASSWORD
+              value: "admin"
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
               name: postgredb
-        - name: pgadmin
+        - name: pgadminpostgresql
           image: dpage/pgadmin4
           ports:
             - containerPort: 80
           env:
-          - name: PGADMIN_DEFAULT_EMAIL
-            value: admin@yas.com
-          - name: PGADMIN_DEFAULT_PASSWORD
-            value: "admin"
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: admin@yas.com
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: "admin"
           volumeMounts:
             - mountPath: "/var/lib/pgadmin"
               name: pgadmin
@@ -476,15 +476,15 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - name: web
-    port: 80
-    targetPort: 16686
-  - name: otlpcollectorgprc
-    port: 4317
-    nodePort: 30017
-  - name: otlpcollectorhttp
-    port: 4318
-    nodePort: 30018
+    - name: web
+      port: 80
+      targetPort: 16686
+    - name: otlpcollectorgprc
+      port: 4317
+      nodePort: 30017
+    - name: otlpcollectorhttp
+      port: 4318
+      nodePort: 30018
   selector:
     app: jaeger
 ---
@@ -505,24 +505,24 @@ spec:
         app: jaeger
     spec:
       containers:
-      - name: jaeger
-        image: jaegertracing/all-in-one:1.36
-        env:
-        - name: COLLECTOR_ZIPKIN_HOST_PORT
-          value: "9411"
-        - name: COLLECTOR_OTLP_ENABLED
-          value: "true"
-        ports:
-        - containerPort: 6831
-        - containerPort: 6832
-        - containerPort: 5778
-        - containerPort: 16686
-        - containerPort: 4317
-        - containerPort: 4318
-        - containerPort: 14250
-        - containerPort: 14268
-        - containerPort: 14269
-        - containerPort: 9411
+        - name: jaeger
+          image: jaegertracing/all-in-one:1.36
+          env:
+            - name: COLLECTOR_ZIPKIN_HOST_PORT
+              value: "9411"
+            - name: COLLECTOR_OTLP_ENABLED
+              value: "true"
+          ports:
+            - containerPort: 6831
+            - containerPort: 6832
+            - containerPort: 5778
+            - containerPort: 16686
+            - containerPort: 4317
+            - containerPort: 4318
+            - containerPort: 14250
+            - containerPort: 14268
+            - containerPort: 14269
+            - containerPort: 9411
 ---
 
 apiVersion: v1
@@ -543,11 +543,11 @@ spec:
   nodeAffinity:
     required:
       nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - docker-desktop
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - docker-desktop
 ---
 
 apiVersion: v1
@@ -568,11 +568,11 @@ spec:
   nodeAffinity:
     required:
       nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - docker-desktop
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - docker-desktop
 ---
 
 apiVersion: v1

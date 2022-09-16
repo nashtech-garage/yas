@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: io.opentelemetry.instrumentation:opentelemetry-instrumentation-api:1.14.0-alpha">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/opentelemetry/instrumentation/opentelemetry-instrumentation-api/1.14.0-alpha/opentelemetry-instrumentation-api-1.14.0-alpha.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/io/opentelemetry/instrumentation/opentelemetry-instrumentation-api/1.14.0-alpha/opentelemetry-instrumentation-api-1.14.0-alpha-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/opentelemetry/instrumentation/opentelemetry-instrumentation-api/1.14.0-alpha/opentelemetry-instrumentation-api-1.14.0-alpha-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
