@@ -33,7 +33,6 @@ const ProductEdit: NextPage = () => {
         });
     }
   }, []);
-
   //Handle
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(slugify(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase()));
@@ -111,7 +110,11 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="description">Description</label>
-                <textarea defaultValue={product.description} className="form-control" id="description" name="description" />
+                <textarea
+                  defaultValue={product.description}
+                  {...register("description")}
+                  className="form-control"
+                  id="description" name="description" />
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="specification">Specification <span style={{ 'color': 'red' }}>*</span></label>
@@ -147,7 +150,10 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="meta-description">Meta Description</label>
-                <input defaultValue={product.descriptionMetaKeyword} type="text" className="form-control" id="meta-description" name="metaDescription" />
+                <input
+                  defaultValue={product.metaDescription}
+                  {...register("metaDescription")}
+                  type="text" className="form-control" id="meta-description" name="metaDescription" />
               </div>
               <div className='mb-3'>
                 <label className='form-label' htmlFor="thumbnail">Thumbnail <span style={{ 'color': 'red' }}>*</span></label>

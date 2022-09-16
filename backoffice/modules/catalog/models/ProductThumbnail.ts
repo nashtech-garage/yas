@@ -8,6 +8,6 @@ export type ProductThumbnail = {
     sku: string;
     gtin: string;
     metaKeyword: string;
-    descriptionMetaKeyword: string;
+    metaDescription: string;
     thumbnailUrl: string;
   };
