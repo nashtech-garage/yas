@@ -38,6 +38,9 @@ const ProductEdit: NextPage = () => {
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(slugify(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase()));
   };
+  const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setGenerateSlug(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase());
+  };
 
   const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -47,10 +50,11 @@ const ProductEdit: NextPage = () => {
     }
   };
   const onSubmit = (data: any) => {
+    const slug = generateSlug ? generateSlug : data.slug;
     let product: Product = {
       id: 0,
       name: data.name.replace(/(^\s+|\s+$)/g, ''),
-      slug: data.slug.replace(/(^\s+|\s+$)/g, ''),
+      slug: slug.replace(/(^\s+|\s+$)/g, ''),
       description: data.description?.replace(/(^\s+|\s+$)/g, ''),
       shortDescription: data.shortDescription.replace(/(^\s+|\s+$)/g, ''),
       specification: data.specification.replace(/(^\s+|\s+$)/g, ''),
@@ -69,7 +73,6 @@ const ProductEdit: NextPage = () => {
       }
     }
   }
-
   if (isLoading) return <p>Loading...</p>;
   if (!product) { return <p>No product</p>; }
   else {
@@ -93,7 +96,7 @@ const ProductEdit: NextPage = () => {
                 <label className='form-label' htmlFor="slug">Slug <span style={{ 'color': 'red' }}>*</span></label>
                 <input
                   value={generateSlug ? generateSlug : product.slug}
-                  {...register("slug", { required: "Slug is required" })}
+                  {...register("slug", { required: "Slug is required", onChange: onSlugChange })}
                   className={`form-control ${errors.slug ? "border-danger" : ""}`}
                   type="text" id="slug" name="slug"
                 />
