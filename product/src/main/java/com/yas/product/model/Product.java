@@ -1,5 +1,6 @@
 package com.yas.product.model;
 
+import com.yas.product.model.attribute.ProductAttributeValue;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,6 +43,9 @@ public class Product extends AbstractAuditEntity {
 
     @OneToMany(mappedBy = "product")
     private List<ProductCategory> productCategories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductAttributeValue> attributeValues = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
