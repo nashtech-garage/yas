@@ -86,10 +86,11 @@ const ProductCreate: NextPage = () => {
     console.log(data)
 
     await createProduct(data).then((res) => {
-      console.log(res)
+      location.replace("/catalog/products");
     }).catch((err) => {
+      alert("Cannot Create Product. Try Later!")
       console.log(err)
-    })  // location.replace("/catalog/products");
+    })  
   };
 
   const onCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
