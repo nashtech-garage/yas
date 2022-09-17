@@ -63,7 +63,7 @@ public class ProductController {
     }
 
     @GetMapping("/backoffice/products/{productId}")
-    public ResponseEntity<ProductGetDetailVmV2> getProduct(@PathVariable long productId) {
+    public ResponseEntity<ProductGetDetailVm> getProduct(@PathVariable long productId) {
         return ResponseEntity.ok(productService.getProduct(productId));
     }
 }

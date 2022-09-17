@@ -134,6 +134,7 @@ class ProductServiceTest {
         when(mediaService.SaveFile(productPostVm.thumbnail(), "", "")).thenReturn(noFileMediaVm);
         Product savedProduct = mock(Product.class);
         when(productRepository.saveAndFlush(productCaptor.capture())).thenReturn(savedProduct);
+        Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
 
         //when
         ProductGetDetailVm actualResponse = productService.createProduct(productPostVm);
