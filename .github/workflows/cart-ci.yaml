@@ -1,18 +1,18 @@
-name: backoffice-bff service ci
+name: cart service ci
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - "backoffice-bff/**"
+      - "cart/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/backoffice-bff-ci.yaml"
+      - ".github/workflows/cart-ci.yaml"
   pull_request:
     branches: [ "main" ]
     paths:
-      - "backoffice-bff/**"
+      - "cart/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/backoffice-bff-ci.yaml"
+      - ".github/workflows/cart-ci.yaml"
       
   workflow_dispatch:
 
@@ -25,12 +25,12 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f backoffice-bff
+        run: mvn clean install -DskipTests -f cart
       - name: Analyze with sonar cloud
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f backoffice-bff
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f cart
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v2
@@ -42,6 +42,22 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v3
         with:
-          context: ./backoffice-bff
+          context: ./cart
           push: true
-          tags: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
+          tags: ghcr.io/nashtech-garage/yas-cart:latest
+
+  Unit-Tests:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Test
+        run: mvn test -f cart
+      - name: Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit-Test-Results
+          path: "cart/**/surefire-reports/*.xml"
+          reporter: java-junit
