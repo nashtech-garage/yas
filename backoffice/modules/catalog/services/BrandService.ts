@@ -1,6 +1,6 @@
 import {} from '../models/Brand'
 
 export async function getBrands() {
-    const response = await fetch("/api/brand//backoffice/brands");
+    const response = await fetch("/api/product/backoffice/brands");
     return await response.json();
 }

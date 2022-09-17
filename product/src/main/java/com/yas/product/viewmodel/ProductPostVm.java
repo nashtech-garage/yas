@@ -21,7 +21,5 @@ public record ProductPostVm(
         Boolean isPublished,
         Boolean isFeatured,
         String metaKeyword,
-        String metaDescription,
-        @NotNull MultipartFile thumbnail,
-        List<MultipartFile> productImages) {
+        String metaDescription) {
 }

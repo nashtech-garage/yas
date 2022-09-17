@@ -31,8 +31,10 @@ public class ProductService {
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductImageRepository productImageRepository;
 
-    public ProductService(ProductRepository productRepository, MediaService mediaService, BrandRepository brandRepository,
-                          ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository, ProductImageRepository productImageRepository) {
+    public ProductService(ProductRepository productRepository, MediaService mediaService,
+            BrandRepository brandRepository,
+            ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository,
+            ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
@@ -47,14 +49,14 @@ public class ProductService {
                 .toList();
     }
 
-    public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
+    public ProductGetDetailVm createProduct(ProductPostVm productPostVm, List<MultipartFile> files) {
         Product product = new Product();
         List<ProductCategory> productCategoryList = new ArrayList<>();
         List<ProductImage> productImageList = new ArrayList<>();
 
         if (productPostVm.brandId() != null) {
-            Brand brand = brandRepository.findById(productPostVm.brandId()).
-                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
+            Brand brand = brandRepository.findById(productPostVm.brandId()).orElseThrow(
+                    () -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
             product.setBrand(brand);
         }
 
@@ -76,13 +78,13 @@ public class ProductService {
             }
         }
 
-        for(MultipartFile file: productPostVm.productImages() ){
-            NoFileMediaVm noFileMediaVm = mediaService.saveFile(file, "", "");
+        for (int i = 1; i < files.size(); i++) {
+            NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(i), "", "");
             ProductImage productImage = new ProductImage();
             productImage.setImageId(noFileMediaVm.id());
             productImage.setProduct(product);
+            productImageList.add(productImage);
         }
-
 
         product.setName(productPostVm.name());
         product.setSlug(productPostVm.slug());
@@ -102,7 +104,7 @@ public class ProductService {
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
 
-        NoFileMediaVm noFileMediaVm = mediaService.saveFile(productPostVm.thumbnail(), "", "");
+        NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
         product.setThumbnailMediaId(noFileMediaVm.id());
 
         productRepository.saveAndFlush(product);
@@ -120,8 +122,7 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()
-            ));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
         }
         return productThumbnailVms;
     }
@@ -137,8 +138,7 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()
-            ));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
         }
         return productThumbnailVms;
     }
@@ -155,8 +155,7 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()
-            ));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
         }
         return productThumbnailVms;
     }

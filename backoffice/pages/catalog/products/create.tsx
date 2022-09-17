@@ -24,14 +24,13 @@ const schema = yup
       .default(0.0)
       .positive("Price must be positive number")
       .required("Product price is required"),
-    brand: yup.number().min(1, "Select Branch").required("Select Brand"),
+    // brand: yup.number().min(1, "Select Branch").required("Select Brand"),
   })
   .required();
 
 const ProductCreate: NextPage = () => {
   const [thumbnailURL, setThumbnailURL] = useState<string>();
   const [productImageURL, setProductImageURL] = useState<string[]>();
-  const [generateSlug, setGenerateSlug] = useState<string>();
   const [categoriesId, setCategoriesId] = useState<number[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -40,6 +39,7 @@ const ProductCreate: NextPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<Product>({ resolver: yupResolver(schema) });
 
@@ -83,12 +83,13 @@ const ProductCreate: NextPage = () => {
 
   const onSubmitForm: SubmitHandler<Product> = async (data) => {
     data.categoriesId = categoriesId;
-    await createProduct(data);
-    // location.replace("/catalog/products");
-  };
+    console.log(data)
 
-  const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setGenerateSlug(slugify(event.target.value));
+    await createProduct(data).then((res) => {
+      console.log(res)
+    }).catch((err) => {
+      console.log(err)
+    })  // location.replace("/catalog/products");
   };
 
   const onCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -114,7 +115,10 @@ const ProductCreate: NextPage = () => {
               </label>
               <input
                 className={`form-control ${errors.name ? "border-danger" : ""}`}
-                {...register("name", { onChange: onNameChange })}
+                {...register("name", {
+                  onChange: (event) =>
+                    setValue("slug", slugify(event.target.value)),
+                })}
               />
               <sup className="text-danger fst-italic">
                 {errors.name?.message}
@@ -129,10 +133,9 @@ const ProductCreate: NextPage = () => {
                   errors.slug ? "border-danger" : ""
                 } `}
                 id="slug"
-                value={generateSlug}
                 {...register("slug", {
-                  onChange: (e) => setGenerateSlug(e.target.value),
-                  onBlur: (e) => setGenerateSlug(slugify(e.target.value)),
+                  onChange: (e) => setValue("slug", e.target.value),
+                  onBlur: (e) => setValue("slug", slugify(e.target.value)),
                 })}
               />
               <sup className="text-danger fst-italic">
@@ -152,7 +155,7 @@ const ProductCreate: NextPage = () => {
                 <option disabled hidden value={0}>
                   Select Brand
                 </option>
-                {brands.map((brand) => (
+                {Array.from(brands).map((brand) => (
                   <option value={brand.id} key={brand.id}>
                     {brand.name}
                   </option>
@@ -179,7 +182,7 @@ const ProductCreate: NextPage = () => {
                 <option disabled hidden value={0}>
                   Select Category
                 </option>
-                {categories.map((category) => (
+                {Array.from(categories).map((category) => (
                   <option value={category?.name} key={category?.id}>
                     {category?.name}
                   </option>
@@ -234,7 +237,7 @@ const ProductCreate: NextPage = () => {
               <label className="form-label" htmlFor="specification">
                 Specification
               </label>
-              <input
+              <textarea
                 className={`form-control ${
                   errors.specification ? "border-danger" : ""
                 }`}
@@ -247,13 +250,13 @@ const ProductCreate: NextPage = () => {
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="sku">
-                Sku
+                SKU
               </label>
               <input className="form-control" id="sku" {...register("sku")} />
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="gtin">
-                Gtin
+                GTIN
               </label>
               <input className="form-control" id="gtin" {...register("gtin")} />
             </div>
@@ -318,8 +321,7 @@ const ProductCreate: NextPage = () => {
                 className={`form-control`}
                 type="file"
                 id="thumbnail"
-                {...register("thumbnail")}
-                onChange={onThumbnailSelected}
+                {...register("thumbnail", {onChange: onThumbnailSelected})}
               />
 
               <img style={{ width: "150px" }} src={thumbnailURL} />

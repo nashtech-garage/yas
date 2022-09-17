@@ -53,9 +53,9 @@ public class Product extends AbstractAuditEntity {
     private List<ProductCategory> productCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-
     private List<ProductImage> productImages = new ArrayList<>();
     
+    @OneToMany(mappedBy = "product")
     private List<ProductAttributeValue> attributeValues = new ArrayList<>();
 
 

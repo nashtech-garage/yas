@@ -10,10 +10,40 @@ export async function getProduct(id: number): Promise<Product> {
   return await response.json();
 }
 
-export async function createProduct(product:any): Promise<Product> {
-  const response = await fetch('/api/product/backoffice/products', {
-    method: 'POST',
-    body: product
-  })
-  return await response.json();
+export async function createProduct(product: Product): Promise<Product> {
+  const payload = new FormData();
+  const productDetails = {
+    name: product.name,
+    slug: product.slug,
+    brandId: product.brand == 0 ? null : product.brand,
+    categoryIds: product.categoriesId,
+    shortDescription: product.shortDescription, 
+    description: product.description,
+    specification: product.specification,
+    sku: product.sku,
+    gtin: product.gtin,
+    price: product.price,
+    isAllowedToOrder: product.isAllowedToOrder,
+    isPublished: product.isPublished,
+    isFeature: product.isFeatured,
+    metaKeyword: "",
+    metaDescription: "",
+  };
+
+  payload.append(
+    "productDetails",
+    new Blob([JSON.stringify(productDetails)], { type: "application/json" })
+  );
+  
+  const files = [product.thumbnail[0], ...product.productImages];
+  console.log(files)
+  Array.from(files).forEach((file) =>
+    payload.append("files", file)
+  );
+
+  const response = await fetch("/api/product/backoffice/products", {
+    method: "POST",
+    body: payload,
+  });
+  return response.json();
 }
