@@ -27,7 +27,7 @@ jobs:
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -f media
       - name: Analyze with sonar cloud
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main }}
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f media
