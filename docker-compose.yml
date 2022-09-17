@@ -103,6 +103,8 @@ services:
       COLLECTOR_OTLP_ENABLED: "true"
   elk:
     image: sebp/elk
+    volumes:
+      - ./elk/logstash/config:/etc/logstash/conf.d:rw
     ports:
       - "5601:5601" # Kibana web interface
       - "9200:9200" # Elasticsearch JSON interface
