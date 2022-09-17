@@ -27,7 +27,9 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
+        working-directory: backoffice
       - run: npm run build
+        working-directory: backoffice
       - name: SonarCloud Scan
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
         uses: SonarSource/sonarcloud-github-action@master
