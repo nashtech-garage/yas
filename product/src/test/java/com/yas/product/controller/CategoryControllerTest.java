@@ -1,5 +1,6 @@
 package com.yas.product.controller;
 
+import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
@@ -12,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
@@ -54,16 +56,6 @@ class CategoryControllerTest {
         category.setDisplayOrder((short) 0);
         categories.add(category);
         when(principal.getName()).thenReturn("user");
-        categoryPostVm = new CategoryPostVm(
-                "name",
-                "slug",
-                "description",
-                null,
-                "",
-                "",
-                (short) 0
-        );
-
     }
 
     @Test
@@ -94,6 +86,88 @@ class CategoryControllerTest {
 
     @Test
     void createCategory_ValidCategoryWithOutParentId_Success() {
+        categoryPostVm = new CategoryPostVm(
+                "name",
+                "slug",
+                "description",
+                null,
+                "",
+                "",
+                (short) 0
+        );
+        // create captor data when we send it to save method
+        var categoryCaptor = ArgumentCaptor.forClass(Category.class);
+        // mock category to receive result when save
+        Category savedCategory = mock(Category.class);
+        // when save with captor will return
+        when(categoryRepository.saveAndFlush(categoryCaptor.capture())).thenReturn(savedCategory);
+        // mock uriComponentBuilder
+        UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
+        // mock uriComponent
+        UriComponents uriComponents = mock(UriComponents.class);
+        // when replace -> ....
+        when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
+        // when build and expand -> ....
+        when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
+
+        // call controller
+        ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
+                , uriComponentsBuilder, principal);
+
+        // verify method save
+        verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
+        // get value of captor
+        Category categoryValue = categoryCaptor.getValue();
+        // check it with value we send it to controller
+        assertThat(categoryValue.getName()).isEqualTo(categoryPostVm.name());
+    }
+
+    @Test
+    void createCategory_ValidCategoryWithParentId_Success() {
+        categoryPostVm = new CategoryPostVm(
+                "name",
+                "slug",
+                "description",
+                1L,
+                "",
+                "",
+                (short) 0
+        );
+        var categoryCaptor = ArgumentCaptor.forClass(Category.class);
+        Category savedCategory = mock(Category.class);
+        when(categoryRepository.findById(categoryPostVm.parentId())).thenReturn(Optional.of(category));
+        when(categoryRepository.saveAndFlush(categoryCaptor.capture())).thenReturn(savedCategory);
+        UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
+        UriComponents uriComponents = mock(UriComponents.class);
+        when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
+        when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
+
+
+        ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
+                , uriComponentsBuilder, principal);
+
+
+        verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
+        Category categoryValue = categoryCaptor.getValue();
+        assertThat(categoryValue.getName()).isEqualTo(categoryPostVm.name());
+    }
+
+    @Test
+    void createCategory_ValidCategoryWithNotFoundParentId_ThrowNotFoundException() {
+        categoryPostVm = new CategoryPostVm(
+                "name",
+                "slug",
+                "description",
+                2L,
+                "",
+                "",
+                (short) 0
+        );
+        when(categoryRepository.findById(categoryPostVm.parentId())).thenThrow(BadRequestException.class);
+
+        assertThrows(BadRequestException.class, () -> categoryController.createCategory(categoryPostVm
+                , uriComponentsBuilder, principal));
+
     }
 
     @Test
