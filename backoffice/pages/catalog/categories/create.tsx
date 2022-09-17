@@ -1,5 +1,4 @@
 import type { NextPage } from 'next'
-import Document from 'next/document';
 import { useEffect, useState } from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 import { isNull } from 'util';
