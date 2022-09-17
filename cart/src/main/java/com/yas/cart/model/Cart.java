@@ -17,7 +17,7 @@ public class Cart extends AbstractAuditEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String customerID;
+    private String customerId;
 
     @OneToMany(mappedBy = "cart")
     private List<CartDetail> cartDetails = new ArrayList<>();

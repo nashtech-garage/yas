@@ -9,6 +9,6 @@ import com.yas.cart.model.Cart;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
-    Optional<Cart> findByCustomerID(String customerID);
+    Optional<Cart> findByCustomerId(String customerId);
 
 }

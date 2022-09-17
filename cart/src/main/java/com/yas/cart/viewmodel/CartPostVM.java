@@ -6,6 +6,6 @@ import javax.validation.constraints.NotEmpty;
 
 public record CartPostVM(
         @NotEmpty Long id,
-        @NotEmpty String customerID,
+        @NotEmpty String customerId,
         List<CartDetailListVM> cartDetailListVMs) {
 }

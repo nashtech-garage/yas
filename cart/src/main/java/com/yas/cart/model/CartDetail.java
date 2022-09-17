@@ -18,7 +18,7 @@ public class CartDetail {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    private Long productID;
+    private Long productId;
 
     private int Quantity;
 

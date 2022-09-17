@@ -27,11 +27,11 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCarts());
     }
     
-    @GetMapping("/storefront/carts/{customerID}")
-    public ResponseEntity<List<CartGetDetailVM>> listCartDetailByCustomerID(@PathVariable String customerID, Principal principal, HttpServletRequest request) {
+    @GetMapping("/storefront/carts/{customerId}")
+    public ResponseEntity<List<CartGetDetailVM>> listCartDetailByCustomerId(@PathVariable String customerId, Principal principal, HttpServletRequest request) {
         // Only admin or the owner of the cart can access.
-        if(principal != null && (principal.getName().equals(customerID) || request.isUserInRole("ADMIN")))
-            return ResponseEntity.ok(cartService.getCartDetailByCustomerID(customerID));
+        if(principal != null && (principal.getName().equals(customerId) || request.isUserInRole("ADMIN")))
+            return ResponseEntity.ok(cartService.getCartDetailByCustomerId(customerId));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 }

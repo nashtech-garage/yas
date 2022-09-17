@@ -24,8 +24,8 @@ public class CartService {
                 .toList();
     }
     
-    public List<CartGetDetailVM> getCartDetailByCustomerID(String customerID) {
-        return cartRepository.findByCustomerID(customerID)
+    public List<CartGetDetailVM> getCartDetailByCustomerId(String customerId) {
+        return cartRepository.findByCustomerId(customerId)
                 .stream().map(CartGetDetailVM::fromModel)
                 .toList();
     }
