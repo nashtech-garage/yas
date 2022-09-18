@@ -10,5 +10,5 @@ export async function getFeaturedProducts(): Promise<ProductThumbnail[]> {
 
 export async function getProduct(id: number): Promise<Product> {
   const response = await fetch("/api/product/storefront/products/" + id);
-  return await response.json();
+  return response.json();
 }

@@ -59,7 +59,6 @@ public class ProductService {
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
                 mediaService.getMedia(product.getThumbnailMediaId()).url());
-//        return productDetail;
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
