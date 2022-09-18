@@ -48,7 +48,7 @@ public class ProductService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", id)));
 
-        ProductDetailVm productDetail = new ProductDetailVm(product.getId(),
+        return new ProductDetailVm(product.getId(),
                 product.getName(),
                 product.getShortDescription(),
                 product.getDescription(),
@@ -59,7 +59,7 @@ public class ProductService {
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
                 mediaService.getMedia(product.getThumbnailMediaId()).url());
-        return productDetail;
+//        return productDetail;
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {

@@ -31,14 +31,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProducts());
     }
 
-    @GetMapping("/backoffice/products/{id}")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = ProductDetailVm.class))),
-            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductDetailVm> getProduct(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProduct(id));
-    }
-
     @PostMapping(path = "/backoffice/products", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
@@ -62,5 +54,13 @@ public class ProductController {
     @GetMapping("/storefront/category/{categorySlug}/products")
     public ResponseEntity<List<ProductThumbnailVm>> getProductsByCategory(@PathVariable String categorySlug) {
         return ResponseEntity.ok(productService.getProductsByCategory(categorySlug));
+    }
+
+    @GetMapping("/storefront/products/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = ProductDetailVm.class))),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<ProductDetailVm> getProduct(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProduct(id));
     }
 }

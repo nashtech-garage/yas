@@ -1,7 +1,8 @@
-import type { NextPage } from "next";
+import { NextPage } from "next";
+import { useState } from "react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import { Product } from "../../../../modules/catalog/models/Product";
+import { useEffect } from "react";
 import { getProduct } from "../../../../modules/catalog/services/ProductService";
 
 const ProductDetails: NextPage = () => {
@@ -19,7 +20,7 @@ const ProductDetails: NextPage = () => {
   }, []);
 
   if (isLoading) return <p>Loading...</p>;
-  if (!product) return <p>No product</p>;
+  if (!product) return <p>Request Fail</p>;
   return (
     <>
       <div className="row mt-5">
@@ -28,7 +29,7 @@ const ProductDetails: NextPage = () => {
         </div>
       </div>
 
-      <div className="d-flex flex-row mt-5 gap-5">
+      <div className="d-flex flex-row justify-content-center mt-5 gap-5">
         <div className="d-flex flex-column gap-3">
           <img
             src={product.thumbnailMediaUrl}
@@ -68,35 +69,37 @@ const ProductDetails: NextPage = () => {
               Category: Zelo
             </button>
           </div>
-          <p className="mb-4 text-muted">Description: {product.description}</p>
-          <p className="mb-4 fw-bold fst-italic">Specification: {product.specification}</p>
+          <p className="mb-4 text-muted">Description: {!product.description ? "No Slug": product.description}</p>
+          <p className="mb-4 fw-bold fst-italic">
+            Specification: {!product.specification ? "No Slug": product.specification}
+          </p>
           <div className="d-flex flex-column gap-1">
             <div
               className="alert alert-primary d-flex justify-content-between"
               role="alert"
             >
-              {product.sku}
+              {!product.sku ? "No Slug": product.sku}
               <span className="badge bg-primary text-uppercase">sku</span>
             </div>
             <div
               className="alert alert-secondary d-flex justify-content-between"
               role="alert"
             >
-              {product.gtin}
+              {!product.gtin ? "No Slug": product.gtin}
               <span className="badge bg-secondary text-uppercase">gtin</span>
             </div>
             <div
               className="alert alert-success d-flex justify-content-between"
               role="alert"
             >
-              {product.slug}
+              {!product.slug ? "No Slug": product.slug}
               <span className="badge bg-success text-uppercase">slug</span>
             </div>
             <div
               className="alert alert-danger d-flex justify-content-between"
               role="alert"
             >
-              {product.metaKeyword}
+              {!product.metaKeyword ? "No Slug": product.metaKeyword}
               <span className="badge bg-danger text-uppercase">
                 metaKeyword
               </span>
@@ -105,7 +108,7 @@ const ProductDetails: NextPage = () => {
               className="alert alert-warning d-flex justify-content-between"
               role="alert"
             >
-              {product.metaDescription}
+                            {!product.metaDescription ? "No Slug": product.metaDescription}
               <span className="badge bg-warning text-uppercase">
                 metaDescription
               </span>
