@@ -3,6 +3,7 @@ import { Brand } from '../../../modules/catalog/models/Brand';
 import { createBrand } from '../../../modules/catalog/services/BrandService';
 import React, {useState} from "react";
 import { useForm } from 'react-hook-form'
+import Link from "next/link";
 
 const BrandCreate: NextPage = () => {
     const { register, handleSubmit, formState } = useForm();
@@ -10,11 +11,6 @@ const BrandCreate: NextPage = () => {
 
     const [generateSlug, setGenerateSlug] = useState<string>();
 
-
-    function submitButton(event:any){
-        console.log("submit")
-
-    }
     const handleSubmitBrand = async (event:any) => {
         let brand : Brand = {
             id: 0,
@@ -62,8 +58,10 @@ const BrandCreate: NextPage = () => {
                                    onChange={onSlugChange}
                             />
                         </div>
-                        <button className="btn btn-primary" type="submit" onClick={submitButton}>Submit</button>
-                        <a className="btn btn-primary" href="/catalog/brands" style={{background:"red", marginLeft:"30px"}}>Cancel</a>
+                        <button className="btn btn-primary" type="submit" >Save</button>
+                        <Link href="/catalog/brands">
+                            <button className="btn btn-primary" style={{background:"red", marginLeft:"30px"}}>Cancel</button>
+                        </Link>
                     </form>
                 </div>
             </div>
