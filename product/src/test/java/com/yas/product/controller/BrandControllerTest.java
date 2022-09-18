@@ -22,11 +22,11 @@ public class BrandControllerTest {
     private BrandRepository brandRepository;
     private BrandController brandController;
 
-    private Brand brand1 = new Brand();
+    private final Brand brand1 = new Brand();
 
 
     @BeforeEach
-    public void init(){
+    void init(){
         brandRepository = mock(BrandRepository.class);
         brandController = new BrandController(brandRepository);
         brand1.setId(1L);
@@ -35,7 +35,7 @@ public class BrandControllerTest {
     }
 
     @Test
-    public void listBrands_ReturnList_Success() {
+    void listBrands_ReturnList_Success() {
         Brand brand2 = new Brand();
         brand2.setId(2L);
         brand2.setName("ao quan");
@@ -44,7 +44,7 @@ public class BrandControllerTest {
         when(brandRepository.findAll()).thenReturn(brands);
         ResponseEntity<List<BrandVm>> result = brandController.listBrands();
         assertThat(result.getStatusCode(),is(HttpStatus.OK));
-        assertEquals(result.getBody().size(), brands.size());
+        assertEquals(Objects.requireNonNull(result.getBody()).size(), brands.size());
         for(int i=0;i<brands.size();i++){
             assertEquals(result.getBody().get(i).slug(), brands.get(i).getSlug());
             assertEquals(result.getBody().get(i).name(), brands.get(i).getName());
@@ -52,28 +52,28 @@ public class BrandControllerTest {
     }
 
     @Test
-    public void getBrand_FindIdBrand_ThrowException(){
+    void getBrand_FindIdBrand_ThrowException(){
         when(brandRepository.findById(1L)).thenReturn(Optional.empty());
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
                 () -> brandController.getBrand(1L));
         assertThat(exception.getMessage(),is("Brand 1 is not found"));
     }
     @Test
-    public void getBrand_FindIdBrand_Success(){
+    void getBrand_FindIdBrand_Success(){
         when(brandRepository.findById(1L)).thenReturn(Optional.of(brand1));
         ResponseEntity<BrandVm> result = brandController.getBrand(1L);
-        assertEquals(result.getBody().name(), brand1.getName());
+        assertEquals(Objects.requireNonNull(result.getBody()).name(), brand1.getName());
         assertEquals(result.getBody().slug(), brand1.getSlug());
     }
     @Test
-    public void createBrand_SaveBrandPostVm_Success(){
+    void createBrand_SaveBrandPostVm_Success(){
         BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
         ResponseEntity<BrandVm> result = brandController.createBrand(brandPostVm, UriComponentsBuilder.fromPath("/brands/{id}"));
-        assertEquals(result.getBody().name(), brandPostVm.name());
+        assertEquals(Objects.requireNonNull(result.getBody()).name(), brandPostVm.name());
         assertEquals(result.getBody().slug(), brandPostVm.slug());
     }
     @Test
-    public void updateBrand_FindIdBrandUpdate_ThrowException(){
+    void updateBrand_FindIdBrandUpdate_ThrowException(){
         BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
         when(brandRepository.findById(1L)).thenReturn(Optional.empty());
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
@@ -82,7 +82,7 @@ public class BrandControllerTest {
     }
 
     @Test
-    public void updateBrand_UpdateBrand_Success(){
+    void updateBrand_UpdateBrand_Success(){
         BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
         when(brandRepository.findById(1L)).thenReturn(Optional.of(brand1));
         brandRepository.findById(1L).get().setSlug(brandPostVm.slug());
