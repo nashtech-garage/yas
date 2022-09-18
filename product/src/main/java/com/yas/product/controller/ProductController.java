@@ -56,11 +56,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByCategory(categorySlug));
     }
 
-    @GetMapping("/storefront/products/{id}")
+    @GetMapping("/storefront/products/{slug}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = ProductDetailVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductDetailVm> getProduct(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProduct(id));
+    public ResponseEntity<ProductDetailVm> getProduct(@PathVariable String slug) {
+        return ResponseEntity.ok(productService.getProduct(slug));
     }
 }

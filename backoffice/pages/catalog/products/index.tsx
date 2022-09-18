@@ -48,11 +48,6 @@ const ProductList: NextPage = () => {
                   <Link href={`/catalog/products/${product.id}/edit`}>
                     <a>Edit</a>
                   </Link>
-                  <Button variant="outline-info">
-                    <Link href={`/catalog/products/${product.id}/details`}>
-                      <a>Detail</a>
-                    </Link>
-                  </Button>
                 </Stack>
               </td>
             </tr>

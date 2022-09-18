@@ -43,10 +43,10 @@ public class ProductService {
                 .toList();
     }
 
-    public ProductDetailVm getProduct(Long id) {
+    public ProductDetailVm getProduct(String slug) {
         Product product = productRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", id)));
+                .findBySlug(slug)
+                .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", slug)));
 
         return new ProductDetailVm(product.getId(),
                 product.getName(),

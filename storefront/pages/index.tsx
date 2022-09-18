@@ -29,7 +29,7 @@ const Home = ({ products }: Props) => {
                 <Card.Title>{product.name}</Card.Title>
                 <Card.Text>Price: $0.0</Card.Text>
                 <Button variant="primary" className="">
-                  <Link href={`/catalog/products/${product.id}/details`}>
+                  <Link href={`/products/${product.slug}`}>
                     More detail
                   </Link>
                 </Button>

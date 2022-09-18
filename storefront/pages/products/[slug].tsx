@@ -1,34 +1,19 @@
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { Product } from "../../../../modules/catalog/models/Product";
-import { getProduct } from "../../../../modules/catalog/services/ProductService";
+import { GetServerSideProps } from "next";
+import { Product } from "../../modules/catalog/models/Product";
+import { getProduct } from "../../modules/catalog/services/ProductService";
 
-const ProductDetails: NextPage = () => {
-  const router = useRouter();
-  const { id } = router.query;
-  const [product, setProduct] = useState<Product>();
-  const [isLoading, setLoading] = useState(false);
+type Props = {product: Product}
 
-  useEffect(() => {
-    setLoading(true);
-    getProduct(Number(id)).then((data) => {
-      setProduct(data);
-      setLoading(false);
-    });
-  }, []);
+export const getServerSideProps: GetServerSideProps = async (context: any) => {
+  const { slug } = context.query;
+  let product = await getProduct(slug);
+  return { props: { product }};
+};
 
-  if (isLoading) return <p>Loading...</p>;
-  if (!product) return <p>No product</p>;
+const ProductDetails = ({product} : Props) => {
   return (
     <>
-      <div className="row mt-5">
-        <div className="col-md-8 text-center">
-          <h2>Product details {id}</h2>
-        </div>
-      </div>
-
-      <div className="d-flex flex-row mt-5 gap-5">
+      <div className="d-flex flex-row justify-content-center mt-5 gap-5">
         <div className="d-flex flex-column gap-3">
           <img
             src={product.thumbnailMediaUrl}
@@ -68,35 +53,41 @@ const ProductDetails: NextPage = () => {
               Category: Zelo
             </button>
           </div>
-          <p className="mb-4 text-muted">Description: {product.description}</p>
-          <p className="mb-4 fw-bold fst-italic">Specification: {product.specification}</p>
+          <p className="mb-4 text-muted">
+            Description:{" "}
+            {!product.description ? "No Description" : product.description}
+          </p>
+          <p className="mb-4 fw-bold fst-italic">
+            Specification:{" "}
+            {!product.specification ? "No Specification" : product.specification}
+          </p>
           <div className="d-flex flex-column gap-1">
             <div
               className="alert alert-primary d-flex justify-content-between"
               role="alert"
             >
-              {product.sku}
+              {!product.sku ? "No Sku" : product.sku}
               <span className="badge bg-primary text-uppercase">sku</span>
             </div>
             <div
               className="alert alert-secondary d-flex justify-content-between"
               role="alert"
             >
-              {product.gtin}
+              {!product.gtin ? "No Gtin" : product.gtin}
               <span className="badge bg-secondary text-uppercase">gtin</span>
             </div>
             <div
               className="alert alert-success d-flex justify-content-between"
               role="alert"
             >
-              {product.slug}
+              {!product.slug ? "No Slug" : product.slug}
               <span className="badge bg-success text-uppercase">slug</span>
             </div>
             <div
               className="alert alert-danger d-flex justify-content-between"
               role="alert"
             >
-              {product.metaKeyword}
+              {!product.metaKeyword ? "No Meta Keyword" : product.metaKeyword}
               <span className="badge bg-danger text-uppercase">
                 metaKeyword
               </span>
@@ -105,7 +96,7 @@ const ProductDetails: NextPage = () => {
               className="alert alert-warning d-flex justify-content-between"
               role="alert"
             >
-              {product.metaDescription}
+              {!product.metaDescription ? "No Meta Description" : product.metaDescription}
               <span className="badge bg-warning text-uppercase">
                 metaDescription
               </span>
