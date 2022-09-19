@@ -18,7 +18,6 @@ const ProductEdit: NextPage = () => {
   //Get product detail
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState();
   //Form validate
   const { register, formState: { errors }, handleSubmit } = useForm();
 
