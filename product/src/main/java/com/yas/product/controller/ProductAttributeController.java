@@ -64,9 +64,9 @@ public class ProductAttributeController {
                    .orElseThrow(() -> new BadRequestException(String.format("Product attribute group %s is not found", productAttributePostVm.productAttributeGroupId())));
            productAttribute.setProductAttributeGroup(productAttributeGroup);
        }
-       productAttributeRepository.save(productAttribute);
-       ProductAttributeGetVm productAttributeGetVm = ProductAttributeGetVm.fromModel(productAttribute);
-       return  ResponseEntity.created(uriComponentsBuilder.replacePath("/product-attribute/{id}").buildAndExpand(productAttribute.getId()).toUri())
+       ProductAttribute savedProductAttribute = productAttributeRepository.saveAndFlush(productAttribute);
+       ProductAttributeGetVm productAttributeGetVm = ProductAttributeGetVm.fromModel(savedProductAttribute);
+       return  ResponseEntity.created(uriComponentsBuilder.replacePath("/product-attribute/{id}").buildAndExpand(savedProductAttribute.getId()).toUri())
                .body(productAttributeGetVm);
     }
 
@@ -86,7 +86,7 @@ public class ProductAttributeController {
                     .orElseThrow(() -> new BadRequestException(String.format("Product attribute group %s is not found", productAttributePostVm.productAttributeGroupId())));
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
-        productAttributeRepository.save(productAttribute);
+        productAttributeRepository.saveAndFlush(productAttribute);
         return ResponseEntity.noContent().build();
     }
 }
