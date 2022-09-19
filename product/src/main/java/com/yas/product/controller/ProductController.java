@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.ErrorVm;
+import com.yas.product.viewmodel.ProductDetailVm;
 import com.yas.product.viewmodel.ProductGetDetailVm;
 import com.yas.product.viewmodel.ProductListVm;
 import com.yas.product.viewmodel.ProductPostVm;
