@@ -78,18 +78,21 @@ const ProductCreate: NextPage = () => {
         urls.push(URL.createObjectURL(file));
       }
       setProductImageURL([...urls]);
+    }
   };
 
   const onSubmitForm: SubmitHandler<Product> = async (data) => {
     data.categoriesId = categoriesId;
-    console.log(data)
+    console.log(data);
 
-    await createProduct(data).then((res) => {
-      location.replace("/catalog/products");
-    }).catch((err) => {
-      alert("Cannot Create Product. Try Later!")
-      console.log(err)
-    })  
+    await createProduct(data)
+      .then((res) => {
+        location.replace("/catalog/products");
+      })
+      .catch((err) => {
+        alert("Cannot Create Product. Try Later!");
+        console.log(err);
+      });
   };
 
   const onCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -321,7 +324,7 @@ const ProductCreate: NextPage = () => {
                 className={`form-control`}
                 type="file"
                 id="thumbnail"
-                {...register("thumbnail", {onChange: onThumbnailSelected})}
+                {...register("thumbnail", { onChange: onThumbnailSelected })}
               />
 
               <img style={{ width: "150px" }} src={thumbnailURL} />
