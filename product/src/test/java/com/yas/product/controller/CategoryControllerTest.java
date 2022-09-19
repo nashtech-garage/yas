@@ -11,31 +11,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import static org.mockito.Mockito.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
 
 class CategoryControllerTest {
-
     CategoryRepository categoryRepository;
-
     CategoryController categoryController;
-
     List<Category> categories;
     Category category;
-
     Principal principal;
     CategoryPostVm categoryPostVm;
     UriComponentsBuilder uriComponentsBuilder;
@@ -63,7 +54,6 @@ class CategoryControllerTest {
         List<CategoryGetVm> expect = List.of(
                 new CategoryGetVm(1L, "hô hô", "ho-ho")
         );
-
         when(categoryRepository.findAll()).thenReturn(categories);
         ResponseEntity<List<CategoryGetVm>> actual = categoryController.listCategories();
         assertThat(Objects.requireNonNull(actual.getBody()).size()).isEqualTo(expect.size());
@@ -102,10 +92,8 @@ class CategoryControllerTest {
         UriComponents uriComponents = mock(UriComponents.class);
         when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
         when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
-
         ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal);
-
         verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
         Category categoryValue = categoryCaptor.getValue();
         assertThat(categoryValue.getName()).isEqualTo(categoryPostVm.name());
@@ -130,10 +118,8 @@ class CategoryControllerTest {
         UriComponents uriComponents = mock(UriComponents.class);
         when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
         when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
-
         ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal);
-
         verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
         Category categoryValue = categoryCaptor.getValue();
         assertThat(categoryValue.getName()).isEqualTo(categoryPostVm.name());
@@ -150,9 +136,7 @@ class CategoryControllerTest {
                 "",
                 (short) 0
         );
-
         when(categoryRepository.findById(categoryPostVm.parentId())).thenThrow(BadRequestException.class);
-
         assertThrows(BadRequestException.class, () -> categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal));
     }
