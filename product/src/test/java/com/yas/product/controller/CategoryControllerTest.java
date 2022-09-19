@@ -95,30 +95,19 @@ class CategoryControllerTest {
                 "",
                 (short) 0
         );
-        // create captor data when we send it to save method
         var categoryCaptor = ArgumentCaptor.forClass(Category.class);
-        // mock category to receive result when save
         Category savedCategory = mock(Category.class);
-        // when save with captor will return
         when(categoryRepository.saveAndFlush(categoryCaptor.capture())).thenReturn(savedCategory);
-        // mock uriComponentBuilder
         UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
-        // mock uriComponent
         UriComponents uriComponents = mock(UriComponents.class);
-        // when replace -> ....
         when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
-        // when build and expand -> ....
         when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
 
-        // call controller
         ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal);
 
-        // verify method save
         verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
-        // get value of captor
         Category categoryValue = categoryCaptor.getValue();
-        // check it with value we send it to controller
         assertThat(categoryValue.getName()).isEqualTo(categoryPostVm.name());
     }
 
@@ -142,10 +131,8 @@ class CategoryControllerTest {
         when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
         when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
 
-
         ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal);
-
 
         verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
         Category categoryValue = categoryCaptor.getValue();
@@ -163,14 +150,10 @@ class CategoryControllerTest {
                 "",
                 (short) 0
         );
+
         when(categoryRepository.findById(categoryPostVm.parentId())).thenThrow(BadRequestException.class);
 
         assertThrows(BadRequestException.class, () -> categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal));
-
-    }
-
-    @Test
-    void updateCategory() {
     }
 }
