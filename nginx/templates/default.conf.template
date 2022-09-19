@@ -12,6 +12,9 @@ server {
   location /customer/ {
 	proxy_pass http://customer;
   }
+  location /cart/ {
+	proxy_pass http://cart;
+  }
 }
 
 server {
