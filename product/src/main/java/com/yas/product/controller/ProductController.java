@@ -55,4 +55,12 @@ public class ProductController {
     public ResponseEntity<List<ProductThumbnailVm>> getProductsByCategory(@PathVariable String categorySlug) {
         return ResponseEntity.ok(productService.getProductsByCategory(categorySlug));
     }
+
+    @GetMapping("/storefront/products/{slug}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = ProductDetailVm.class))),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<ProductDetailVm> getProduct(@PathVariable String slug) {
+        return ResponseEntity.ok(productService.getProduct(slug));
+    }
 }
