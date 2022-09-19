@@ -26,7 +26,7 @@ export default function Layout({ children } : Props) {
         </div>
       </Navbar>
       <div className="container-fluid">
-        <main className='col-md-9'>{children}</main>
+        <main className='col-md-12'>{children}</main>
         <footer className="footer">
             <a href="https://github.com/nashtech-garage/yas" target="_blank" rel="noopener noreferrer">
             Powered by {'Yas - 2022 '}
