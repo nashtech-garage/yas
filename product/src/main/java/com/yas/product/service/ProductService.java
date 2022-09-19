@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,6 +136,78 @@ public ProductGetDetailVm createProduct(ProductPostVm productPostVm, List<Multip
         productImageRepository.saveAllAndFlush(productImageList);
 
         return ProductGetDetailVm.fromModel(savedProduct);
+    }
+    public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
+        Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
+        List<ProductCategory> productCategoryList = new ArrayList<>();
+
+        if(!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()){
+            throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
+        }
+
+        if (productPutVm.brandId() != null) {
+            Brand brand = brandRepository.findById(productPutVm.brandId()).
+                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
+            product.setBrand(brand);
+        }
+
+        if (CollectionUtils.isNotEmpty(productPutVm.categoryIds())) {
+            List<Category> categoryList = categoryRepository.findAllById(productPutVm.categoryIds());
+            if (categoryList.isEmpty()) {
+                throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
+            } else if (categoryList.size() < productPutVm.categoryIds().size()) {
+                List<Long> categoryIdsNotFound = productPutVm.categoryIds();
+                categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
+                throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
+            } else {
+                for (Category category : categoryList) {
+                    ProductCategory productCategory = new ProductCategory();
+                    productCategory.setProduct(product);
+                    productCategory.setCategory(category);
+                    productCategoryList.add(productCategory);
+                }
+            }
+        }
+
+        product.setName(productPutVm.name());
+        product.setSlug(productPutVm.slug());
+        product.setDescription(productPutVm.description());
+        product.setShortDescription(productPutVm.shortDescription());
+        product.setSpecification(productPutVm.specification());
+        product.setSku(productPutVm.sku());
+        product.setGtin(productPutVm.gtin());
+        product.setMetaKeyword(productPutVm.metaKeyword());
+        product.setMetaDescription(productPutVm.metaDescription());
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        product.setLastModifiedBy(auth.getName());
+        product.setLastModifiedOn(ZonedDateTime.now());
+
+        if(null != productPutVm.thumbnail()){
+            NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPutVm.thumbnail(), "", "");
+            product.setThumbnailMediaId(noFileMediaVm.id());
+        }
+        productRepository.saveAndFlush(product);
+        productCategoryRepository.saveAllAndFlush(productCategoryList);
+        return ProductGetDetailVm.fromModel(product);
+    }
+    public ProductDetailVm getProductById(long productId) {
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(()->
+                        new NotFoundException(String.format("Product %s is not found", productId))
+                );
+        return new ProductDetailVm(product.getId(),
+                product.getName(),
+                product.getShortDescription(),
+                product.getDescription(),
+                product.getSpecification(),
+                product.getSku(),
+                product.getGtin(),
+                product.getSlug(),
+                product.getMetaKeyword(),
+                product.getMetaDescription(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url());
     }
 
     public List<ProductThumbnailVm> getFeaturedProducts() {

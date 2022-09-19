@@ -78,7 +78,6 @@ const ProductCreate: NextPage = () => {
         urls.push(URL.createObjectURL(file));
       }
       setProductImageURL([...urls]);
-    }
   };
 
   const onSubmitForm: SubmitHandler<Product> = async (data) => {

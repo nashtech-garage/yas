@@ -69,10 +69,10 @@ public class CategoryController {
                     .orElseThrow(() -> new BadRequestException(String.format("Parent category %s is not found", categoryPostVm.parentId())));
             category.setParent(parentCategory);
         }
-        categoryRepository.saveAndFlush(category);
+        Category savedCategory = categoryRepository.saveAndFlush(category);
 
-        CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(category);
-        return  ResponseEntity.created(uriComponentsBuilder.replacePath("/categories/{id}").buildAndExpand(category.getId()).toUri())
+        CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(savedCategory);
+        return  ResponseEntity.created(uriComponentsBuilder.replacePath("/categories/{id}").buildAndExpand(savedCategory.getId()).toUri())
                 .body(categoryGetDetailVm);
     }
 

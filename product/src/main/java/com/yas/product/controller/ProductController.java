@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.yas.product.service.ProductService;
@@ -48,6 +49,16 @@ public class ProductController {
                 .body(productGetDetailVm);
     }
 
+    @PutMapping(path = "/backoffice/products/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Updated"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @ModelAttribute ProductPutVm productPutVm) {
+        productService.updateProduct(id, productPutVm);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/storefront/products/featured")
     public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProducts() {
         return ResponseEntity.ok(productService.getFeaturedProducts());
@@ -61,6 +72,11 @@ public class ProductController {
     @GetMapping("/storefront/category/{categorySlug}/products")
     public ResponseEntity<List<ProductThumbnailVm>> getProductsByCategory(@PathVariable String categorySlug) {
         return ResponseEntity.ok(productService.getProductsByCategory(categorySlug));
+    }
+
+    @GetMapping("/backoffice/products/{productId}")
+    public ResponseEntity<ProductDetailVm> getProductById(@PathVariable long productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
     }
 
     @GetMapping("/storefront/products/{slug}")
