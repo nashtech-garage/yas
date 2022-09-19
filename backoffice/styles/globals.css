@@ -48,3 +48,6 @@ a {
   align-items: center;
   flex-grow: 1;
 }
+.error-field {
+  color: red;
+}

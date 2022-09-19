@@ -23,7 +23,13 @@ const ProductCreate: NextPage = () => {
       id: 0,
       name: event.target.name.value,
       slug: event.target.slug.value,
-      description: event.target.description.value
+      description: event.target.description.value,
+      shortDescription: '',
+      specification: '',
+      sku: '',
+      gtin: '',
+      metaKeyword: '',
+      metaDescription: ''
     }
     if(!thumbnail){
       alert("A thumbnail is required.")
