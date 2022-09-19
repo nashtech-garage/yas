@@ -35,6 +35,7 @@ public class ProductService {
             BrandRepository brandRepository,
             ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository,
             ProductImageRepository productImageRepository) {
+            
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
@@ -49,7 +50,29 @@ public class ProductService {
                 .toList();
     }
 
-    public ProductGetDetailVm createProduct(ProductPostVm productPostVm, List<MultipartFile> files) {
+
+    
+
+    public ProductDetailVm getProduct(String slug) {
+        Product product = productRepository
+                .findBySlug(slug)
+                .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", slug)));
+
+        return new ProductDetailVm(product.getId(),
+                product.getName(),
+                product.getShortDescription(),
+                product.getDescription(),
+                product.getSpecification(),
+                product.getSku(),
+                product.getGtin(),
+                product.getSlug(),
+                product.getMetaKeyword(),
+                product.getMetaDescription(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url());
+    }
+
+    
+public ProductGetDetailVm createProduct(ProductPostVm productPostVm, List<MultipartFile> files) {
         Product product = new Product();
         List<ProductCategory> productCategoryList = new ArrayList<>();
         List<ProductImage> productImageList = new ArrayList<>();
@@ -107,11 +130,11 @@ public class ProductService {
         NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
         product.setThumbnailMediaId(noFileMediaVm.id());
 
-        productRepository.saveAndFlush(product);
+        Product savedProduct = productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
         productImageRepository.saveAllAndFlush(productImageList);
 
-        return ProductGetDetailVm.fromModel(product);
+        return ProductGetDetailVm.fromModel(savedProduct);
     }
 
     public List<ProductThumbnailVm> getFeaturedProducts() {

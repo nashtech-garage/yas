@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { Button, Table } from "react-bootstrap";
+import { Button, Stack, Table } from "react-bootstrap";
 import type { Product } from "../../../modules/catalog/models/Product";
 import { getProducts } from "../../../modules/catalog/services/ProductService";
 
@@ -11,7 +11,7 @@ const ProductList: NextPage = () => {
   useEffect(() => {
     setLoading(true);
     getProducts().then((data) => {
-      setProducts([]);
+      setProducts(data);
       setLoading(false);
     });
   }, []);
@@ -44,9 +44,11 @@ const ProductList: NextPage = () => {
               <td>{product.id}</td>
               <td>{product.name}</td>
               <td>
-                <Link href={`/catalog/products/${product.id}/edit`}>
-                  <a>Edit</a>
-                </Link>
+                <Stack direction="horizontal" gap={3}>
+                  <Link href={`/catalog/products/${product.id}/edit`}>
+                    <a>Edit</a>
+                  </Link>
+                </Stack>
               </td>
             </tr>
           ))}
