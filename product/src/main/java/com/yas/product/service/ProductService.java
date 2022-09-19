@@ -229,4 +229,16 @@ public class ProductService {
         }
         return productThumbnailVms;
     }
+
+    public ProductThumbnailVm getFeaturedProductsById(Long productId) {
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", productId)));
+        ProductThumbnailVm productThumbnailVm = new ProductThumbnailVm(
+                product.getId(),
+                product.getName(),
+                product.getSlug(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url());
+        return productThumbnailVm;
+    }
 }
