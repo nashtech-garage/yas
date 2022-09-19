@@ -74,4 +74,9 @@ public class ProductController {
     public ResponseEntity<ProductDetailVm> getProduct(@PathVariable String slug) {
         return ResponseEntity.ok(productService.getProduct(slug));
     }
+
+    @GetMapping("/storefront/products/featured/{productId}")
+    public ResponseEntity<ProductThumbnailVm> getFeaturedProductsById(@PathVariable long productId) {
+        return ResponseEntity.ok(productService.getFeaturedProductsById(productId));
+    }
 }
