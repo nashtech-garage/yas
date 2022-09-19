@@ -2,6 +2,8 @@ package com.yas.product.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import com.yas.product.viewmodel.ProductDetailVm;
 import com.yas.product.viewmodel.ProductGetDetailVm;
 import com.yas.product.viewmodel.ProductListVm;
 import com.yas.product.viewmodel.ProductPostVm;
+import com.yas.product.viewmodel.ProductPutVm;
 import com.yas.product.viewmodel.ProductThumbnailVm;
 
 import io.swagger.v3.oas.annotations.media.Content;

@@ -15,4 +15,6 @@ export type Product = {
   isFeatured: boolean;
   brand: number;
   categoriesId: number[];
+  metaKeyword: string,
+  metaDescription: string
 };

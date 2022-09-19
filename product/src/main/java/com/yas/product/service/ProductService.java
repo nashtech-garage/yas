@@ -184,7 +184,7 @@ public ProductGetDetailVm createProduct(ProductPostVm productPostVm, List<Multip
         product.setLastModifiedOn(ZonedDateTime.now());
 
         if(null != productPutVm.thumbnail()){
-            NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPutVm.thumbnail(), "", "");
+            NoFileMediaVm noFileMediaVm = mediaService.saveFile(productPutVm.thumbnail(), "", "");
             product.setThumbnailMediaId(noFileMediaVm.id());
         }
         productRepository.saveAndFlush(product);
