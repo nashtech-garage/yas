@@ -109,14 +109,13 @@ public class ProductService {
 
         Product savedProduct = productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
-        return ProductGetDetailVm.fromModel(savedProduct, mediaService.getMedia(product.getThumbnailMediaId()).url());
+        return ProductGetDetailVm.fromModel(savedProduct);
     }
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
         List<ProductCategory> productCategoryList = new ArrayList<>();
 
         if(!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()){
-            System.out.println(productRepository.findBySlug(productPutVm.slug()));
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
 
@@ -164,15 +163,25 @@ public class ProductService {
         }
         productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
-        return ProductGetDetailVm.fromModel(product, mediaService.getMedia(product.getThumbnailMediaId()).url());
+        return ProductGetDetailVm.fromModel(product);
     }
-    public ProductGetDetailVm getProduct(long productId) {
+    public ProductDetailVm getProductById(long productId) {
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(()->
                         new NotFoundException(String.format("Product %s is not found", productId))
                 );
-        return ProductGetDetailVm.fromModel(product, mediaService.getMedia(product.getThumbnailMediaId()).url());
+        return new ProductDetailVm(product.getId(),
+                product.getName(),
+                product.getShortDescription(),
+                product.getDescription(),
+                product.getSpecification(),
+                product.getSku(),
+                product.getGtin(),
+                product.getSlug(),
+                product.getMetaKeyword(),
+                product.getMetaDescription(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url());
     }
 
     public List<ProductThumbnailVm> getFeaturedProducts() {

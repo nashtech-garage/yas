@@ -2,7 +2,6 @@ import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Product } from '../../../../modules/catalog/models/Product'
-import { ProductThumbnail } from '../../../../modules/catalog/models/ProductThumbnail'
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService'
 import { useForm } from "react-hook-form";
 import slugify from "slugify";
@@ -17,7 +16,7 @@ const ProductEdit: NextPage = () => {
   const [generateSlug, setGenerateSlug] = useState<string>();
 
   //Get product detail
-  const [product, setProduct] = useState<ProductThumbnail>();
+  const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
   //Form validate
@@ -99,6 +98,7 @@ const ProductEdit: NextPage = () => {
                   className={`form-control ${errors.slug ? "border-danger" : ""}`}
                   type="text" id="slug" name="slug"
                 />
+                <p className='error-field'><>{errors.slug?.message}</></p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="short-description">Short Description <span style={{ 'color': 'red' }}>*</span></label>
@@ -107,6 +107,7 @@ const ProductEdit: NextPage = () => {
                   {...register("shortDescription", { required: "Short Description is required" })}
                   className={`form-control ${errors.shortDescription ? "border-danger" : ""}`}
                   type="text" id="short-description" name="shortDescription" />
+                <p className='error-field'><>{errors.shortDescription?.message}</></p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="description">Description</label>
@@ -115,6 +116,7 @@ const ProductEdit: NextPage = () => {
                   {...register("description")}
                   className="form-control"
                   id="description" name="description" />
+                <p className='error-field'><>{errors.description?.message}</></p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="specification">Specification <span style={{ 'color': 'red' }}>*</span></label>
@@ -123,6 +125,7 @@ const ProductEdit: NextPage = () => {
                   {...register("specification", { required: "Specification is required" })}
                   className={`form-control ${errors.specification ? "border-danger" : ""}`}
                   id="specification" name="specification" />
+                <p className='error-field'><>{errors.specification?.message}</></p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="sku">SKU <span style={{ 'color': 'red' }}>*</span></label>
@@ -131,6 +134,7 @@ const ProductEdit: NextPage = () => {
                   {...register("sku", { required: "SKU is required" })}
                   className={`form-control ${errors.sku ? "border-danger" : ""}`}
                   type="text" id="sku" name="sku" />
+                <p className='error-field'><>{errors.sku?.message}</></p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="gtin">GTIN <span style={{ 'color': 'red' }}>*</span></label>
@@ -139,6 +143,7 @@ const ProductEdit: NextPage = () => {
                   {...register("gtin", { required: "GTIN is required" })}
                   className={`form-control ${errors.gtin ? "border-danger" : ""}`}
                   type="text" id="gtin" name="gtin" />
+                <p className='error-field'><>{errors.gtin?.message}</></p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="meta-keyword">Meta Keyword <span style={{ 'color': 'red' }}>*</span></label>
@@ -147,6 +152,7 @@ const ProductEdit: NextPage = () => {
                   {...register("metaKeyword", { required: "Meta Keyword is required" })}
                   className={`form-control ${errors.metaKeyword ? "border-danger" : ""}`}
                   type="text" id="meta-keyword" name="metaKeyword" />
+                <p className='error-field'><>{errors.metaKeyword?.message}</></p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="meta-description">Meta Description</label>
@@ -154,11 +160,12 @@ const ProductEdit: NextPage = () => {
                   defaultValue={product.metaDescription}
                   {...register("metaDescription")}
                   type="text" className="form-control" id="meta-description" name="metaDescription" />
+                <p className='error-field'><>{errors.metaDescription?.message}</></p>
               </div>
               <div className='mb-3'>
                 <label className='form-label' htmlFor="thumbnail">Thumbnail <span style={{ 'color': 'red' }}>*</span></label>
                 <input className="form-control" type="file" name="thumbnail" onChange={onThumbnailSelected} />
-                <img style={{ width: '150px' }} src={thumbnailURL ? thumbnailURL : product.thumbnailUrl} />
+                <img style={{ width: '150px' }} src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl} />
               </div>
               <button className="btn btn-primary" type="submit">Submit</button>
             </form>

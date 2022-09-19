@@ -63,8 +63,10 @@ public class ProductController {
     }
 
     @GetMapping("/backoffice/products/{productId}")
-    public ResponseEntity<ProductGetDetailVm> getProduct(@PathVariable long productId) {
-        return ResponseEntity.ok(productService.getProduct(productId));
+    public ResponseEntity<ProductDetailVm> getProductById(@PathVariable long productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
+    }
+
     @GetMapping("/storefront/products/{slug}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = ProductDetailVm.class))),

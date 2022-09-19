@@ -41,6 +41,5 @@ export async function updateProduct(id: number, product: Product, thumbnail?: Fi
     method: 'PUT',
     body: body
   })
-  console.log(res);
   return res.status;
 }

@@ -499,4 +499,33 @@ class ProductServiceTest {
         assertThat(productPutVm.name(), is(productService.updateProduct(id, productPutVm).name()));
     }
 
+    @Test
+    void getProduct_whenProductIdInvalid_shouldThrowException() {
+        //Initial variables
+        Long id = Long.valueOf(1);
+
+        //Stub
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.ofNullable(null));
+
+        //Test
+        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
+                    productService.updateProduct(id,null);
+                }
+        );
+        //Assert
+        assertThat(notFoundException.getMessage(), is(String.format("Product %s is not found", id)));
+    }
+    @Test
+    void getProduct_whenProductIdValid_shouldSuccess() {
+        //Initial variables
+        Long id = Long.valueOf(1);
+        Product product = mock(Product.class);
+
+        //Stub
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
+        Mockito.when(product.getName()).thenReturn("name");
+
+        assertThat(product.getName(), is(productService.getProductById(id).name()));
+    }
 }
