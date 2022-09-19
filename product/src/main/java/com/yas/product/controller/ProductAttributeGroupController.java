@@ -1,4 +1,4 @@
-package com.yas.product.controller.attribute;
+package com.yas.product.controller;
 
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttributeGroup;

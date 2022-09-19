@@ -1,4 +1,4 @@
-package com.yas.product.controller.attribute;
+package com.yas.product.controller;
 
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
@@ -37,7 +37,7 @@ public class ProductAttributeController {
                 .toList();
         return ResponseEntity.ok(productAttributeGetVms);
     }
-    @GetMapping({"/backoffice/product-attribute/{id}" , "/storefront/product-attribute/{id}"})
+    @GetMapping("/backoffice/product-attribute/{id}" )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200" , description = "OK" , content = @Content(schema = @Schema(implementation =  ProductAttributeGetVm.class))),
             @ApiResponse(responseCode = "404" , description = "Not found" , content = @Content(schema = @Schema(implementation = ErrorVm.class))),
