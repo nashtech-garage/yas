@@ -1,6 +1,8 @@
 package com.yas.cart.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,6 +11,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Table(name = "cart_detail")
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
