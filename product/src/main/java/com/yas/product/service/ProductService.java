@@ -27,8 +27,9 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
 
-    public ProductService(ProductRepository productRepository, MediaService mediaService, BrandRepository brandRepository,
-                          ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository, MediaService mediaService,
+            BrandRepository brandRepository,
+            ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
@@ -42,13 +43,31 @@ public class ProductService {
                 .toList();
     }
 
+    public ProductDetailVm getProduct(String slug) {
+        Product product = productRepository
+                .findBySlug(slug)
+                .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", slug)));
+
+        return new ProductDetailVm(product.getId(),
+                product.getName(),
+                product.getShortDescription(),
+                product.getDescription(),
+                product.getSpecification(),
+                product.getSku(),
+                product.getGtin(),
+                product.getSlug(),
+                product.getMetaKeyword(),
+                product.getMetaDescription(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url());
+    }
+
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
         Product product = new Product();
         List<ProductCategory> productCategoryList = new ArrayList<>();
 
         if (productPostVm.brandId() != null) {
-            Brand brand = brandRepository.findById(productPostVm.brandId()).
-                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
+            Brand brand = brandRepository.findById(productPostVm.brandId()).orElseThrow(
+                    () -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
             product.setBrand(brand);
         }
 
@@ -100,8 +119,7 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()
-            ));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
         }
         return productThumbnailVms;
     }
@@ -117,8 +135,7 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()
-            ));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
         }
         return productThumbnailVms;
     }
@@ -135,8 +152,7 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()
-            ));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
         }
         return productThumbnailVms;
     }
