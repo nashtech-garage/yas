@@ -1,4 +1,4 @@
-package com.yas.product.controller.attribute;
+package com.yas.product.controller;
 
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
@@ -75,14 +75,14 @@ class ProductAttributeGroupControllerTest {
 
     @Test
     void getProductAttributeGroup_ProductAttributeGroupIdIsInvalid_ThrowsNotFoundException() {
-        ErrorVm ErrorVmExpected = new ErrorVm(HttpStatus.NOT_FOUND.toString(), "NotFound",
+        ErrorVm errorVmExpected = new ErrorVm(HttpStatus.NOT_FOUND.toString(), "NotFound",
                 String.format("Product attribute group %s is not found", invalidId));
 
         webTestClient.get()
                 .uri("/backoffice/product-attribute-groups/{id}", invalidId)
                 .exchange()
                 .expectStatus().isNotFound()
-                .expectBody(ErrorVm.class).isEqualTo(ErrorVmExpected);
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
     @Test
@@ -102,7 +102,7 @@ class ProductAttributeGroupControllerTest {
     void createProductAttributeGroup_NameIsEmpty_ThrowsMethodArgumentNotValidException() {
         List<String> fieldErrors = new ArrayList<>();
         fieldErrors.add("name must not be empty");
-        ErrorVm ErrorVmExpected = new ErrorVm("400", "Bad Request", "Request information is not valid", fieldErrors);
+        ErrorVm errorVmExpected = new ErrorVm("400", "Bad Request", "Request information is not valid", fieldErrors);
 
         webTestClient.post()
                 .uri("/backoffice/product-attribute-groups")
@@ -110,7 +110,7 @@ class ProductAttributeGroupControllerTest {
                 .body(BodyInserters.fromValue(productAttributeGroupPostVmInvalid))
                 .exchange()
                 .expectStatus().isBadRequest()
-                .expectBody(ErrorVm.class).isEqualTo(ErrorVmExpected);
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
     @Test
@@ -125,7 +125,7 @@ class ProductAttributeGroupControllerTest {
 
     @Test
     void updateProductAttributeGroup_ProductAttributeGroupIdIsInvalid_ThrowsNotFoundException() {
-        ErrorVm ErrorVmExpected = new ErrorVm(HttpStatus.NOT_FOUND.toString(), "NotFound", String.format("Product attribute group %s is not found", invalidId));
+        ErrorVm errorVmExpected = new ErrorVm(HttpStatus.NOT_FOUND.toString(), "NotFound", String.format("Product attribute group %s is not found", invalidId));
 
         webTestClient.put()
                 .uri("/backoffice/product-attribute-groups/{id}", invalidId)
@@ -133,14 +133,14 @@ class ProductAttributeGroupControllerTest {
                 .body(BodyInserters.fromValue(productAttributeGroupPostVmValid))
                 .exchange()
                 .expectStatus().isNotFound()
-                .expectBody(ErrorVm.class).isEqualTo(ErrorVmExpected);
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
     @Test
     void updateProductAttributeGroup_ProductAttributeGroupNamIsEmpty_ThrowsMethodArgumentNotValidException() {
         List<String> fieldErrors = new ArrayList<>();
         fieldErrors.add("name must not be empty");
-        ErrorVm ErrorVmExpected = new ErrorVm("400", "Bad Request", "Request information is not valid", fieldErrors);
+        ErrorVm errorVmExpected = new ErrorVm("400", "Bad Request", "Request information is not valid", fieldErrors);
 
         webTestClient.put()
                 .uri("/backoffice/product-attribute-groups/{id}", validId)
@@ -148,6 +148,6 @@ class ProductAttributeGroupControllerTest {
                 .body(BodyInserters.fromValue(productAttributeGroupPostVmInvalid))
                 .exchange()
                 .expectStatus().isBadRequest()
-                .expectBody(ErrorVm.class).isEqualTo(ErrorVmExpected);
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 }
