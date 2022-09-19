@@ -18,12 +18,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BrandControllerTest {
-
     private BrandRepository brandRepository;
     private BrandController brandController;
-
     private final Brand brand1 = new Brand();
-
 
     @BeforeEach
     void init(){
@@ -58,6 +55,7 @@ public class BrandControllerTest {
                 () -> brandController.getBrand(1L));
         assertThat(exception.getMessage(),is("Brand 1 is not found"));
     }
+
     @Test
     void getBrand_FindIdBrand_Success(){
         when(brandRepository.findById(1L)).thenReturn(Optional.of(brand1));
@@ -65,6 +63,7 @@ public class BrandControllerTest {
         assertEquals(Objects.requireNonNull(result.getBody()).name(), brand1.getName());
         assertEquals(result.getBody().slug(), brand1.getSlug());
     }
+
     @Test
     void createBrand_SaveBrandPostVm_Success(){
         BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
@@ -72,6 +71,7 @@ public class BrandControllerTest {
         assertEquals(Objects.requireNonNull(result.getBody()).name(), brandPostVm.name());
         assertEquals(result.getBody().slug(), brandPostVm.slug());
     }
+
     @Test
     void updateBrand_FindIdBrandUpdate_ThrowException(){
         BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
@@ -93,6 +93,4 @@ public class BrandControllerTest {
         ResponseEntity<Void> result = brandController.updateBrand(1L,brandPostVm);
         assertThat(result.getStatusCode(),is(HttpStatus.NO_CONTENT));
     }
-
-
 }
