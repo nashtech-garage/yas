@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -27,12 +28,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProducts());
     }
 
-    @PostMapping(path = "/backoffice/products", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/backoffice/products", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            MediaType.MULTIPART_FORM_DATA_VALUE })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductGetDetailVm> createProduct(@Valid @ModelAttribute ProductPostVm productPostVm, UriComponentsBuilder uriComponentsBuilder) {
-        ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm);
+    public ResponseEntity<ProductGetDetailVm> createProduct(@RequestPart("productDetails") ProductPostVm productPostVm,
+            @RequestPart("files") List<MultipartFile> files, UriComponentsBuilder uriComponentsBuilder) {
+        ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm, files);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/products/{id}").buildAndExpand(productGetDetailVm.id()).toUri())
                 .body(productGetDetailVm);
     }

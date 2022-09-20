@@ -35,6 +35,14 @@ public class Product extends AbstractAuditEntity {
 
     private String slug;
 
+    private Double price;
+
+    private Boolean isAllowedToOrder;
+
+    private Boolean isPublished;
+
+    private Boolean isFeatured;
+
     private String metaKeyword;
 
     private String metaDescription;
@@ -50,6 +58,9 @@ public class Product extends AbstractAuditEntity {
 
     @OneToMany(mappedBy = "product")
     private List<ProductAttributeValue> attributeValues = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductImage> productImages = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
