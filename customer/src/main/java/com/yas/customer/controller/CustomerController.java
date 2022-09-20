@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +39,6 @@ public class CustomerController {
             @ApiResponse(responseCode = "403", description = "Access Denied", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CustomerAdminVm> getCustomerByEmail(@PathVariable String email) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(customerService.getCustomerByEmail(email));
     }
 
@@ -49,7 +47,6 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CustomerVm.class))),
             @ApiResponse(responseCode = "403", description = "Access Denied", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CustomerVm> getCustomerProfile() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return ResponseEntity.ok(customerService.getCustomerProfile(auth.getName()));
+        return ResponseEntity.ok(customerService.getCustomerProfile(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 }

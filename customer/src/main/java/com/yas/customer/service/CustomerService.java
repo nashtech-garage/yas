@@ -19,8 +19,7 @@ public class CustomerService {
     private final Keycloak keycloak;
 
     private final KeycloakPropsConfig keycloakPropsConfig;
-    private final String regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
-            + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+    private static final String ERROR_FORMAT = "%s: Client %s don't have access right for this resource";
 
     public CustomerService(Keycloak keycloak, KeycloakPropsConfig keycloakPropsConfig) {
         this.keycloak = keycloak;
@@ -33,13 +32,12 @@ public class CustomerService {
                     .map(CustomerAdminVm::fromUserRepresentation)
                     .toList();
         } catch (ForbiddenException exception) {
-            throw new AccessDeniedException(exception.getMessage() + String.format(": Client %s don't have access right for this resource", keycloakPropsConfig.getResource()));
+            throw new AccessDeniedException(String.format(ERROR_FORMAT, exception.getMessage(), keycloakPropsConfig.getResource()));
         }
     }
 
     public CustomerAdminVm getCustomerByEmail(String email) {
         try {
-            System.out.println(EmailValidator.getInstance().isValid(email));
             if (EmailValidator.getInstance().isValid(email)) {
                 if (keycloak.realm(keycloakPropsConfig.getRealm()).users().search(email).isEmpty()) {
                     throw new NotFoundException(String.format("User with email %s not found", email));
@@ -49,7 +47,7 @@ public class CustomerService {
                 throw new WrongEmailFormatException(String.format("Wrong email format for %s", email));
             }
         } catch (ForbiddenException exception) {
-            throw new AccessDeniedException(exception.getMessage() + String.format(": Client %s don't have access right for this resource", keycloakPropsConfig.getResource()));
+            throw new AccessDeniedException(String.format(ERROR_FORMAT, exception.getMessage(), keycloakPropsConfig.getResource()));
         }
     }
 
@@ -58,7 +56,7 @@ public class CustomerService {
             return CustomerVm.fromUserRepresentation(keycloak.realm(keycloakPropsConfig.getRealm()).users().get(userId).toRepresentation());
 
         } catch (ForbiddenException exception) {
-            throw new AccessDeniedException(exception.getMessage() + String.format(": Client %s don't have access right for this resource", keycloakPropsConfig.getResource()));
+            throw new AccessDeniedException(String.format(ERROR_FORMAT, exception.getMessage(), keycloakPropsConfig.getResource()));
         }
     }
 }
