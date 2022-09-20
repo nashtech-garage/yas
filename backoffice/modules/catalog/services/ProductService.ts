@@ -1,6 +1,5 @@
 import { ProductPost } from "./../models/ProductPost";
 import { Product } from "../models/Product";
-import asFormData from "json-form-data";
 
 export async function getProducts(): Promise<Product[]> {
   const response = await fetch("/api/product/backoffice/products");
