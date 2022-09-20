@@ -34,7 +34,7 @@ spring:
       gateway:
         routes:
         - id: api
-          #uri: http://localhost:8080
+#          uri: http://localhost:8080
           uri: http://api.yas.local
           predicates:
               - Path=/api/**
