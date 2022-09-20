@@ -6,15 +6,18 @@ import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
+import com.yas.product.model.ProductImage;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
+import com.yas.product.repository.ProductImageRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -27,15 +30,17 @@ public class ProductService {
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
-
+    private final ProductImageRepository productImageRepository;
     public ProductService(ProductRepository productRepository, MediaService mediaService,
             BrandRepository brandRepository,
-            ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository) {
+            ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository,
+            ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.productCategoryRepository = productCategoryRepository;
+        this.productImageRepository = productImageRepository;
     }
 
     public List<ProductListVm> getProducts() {
@@ -62,9 +67,10 @@ public class ProductService {
                 mediaService.getMedia(product.getThumbnailMediaId()).url());
     }
 
-    public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
+    public ProductGetDetailVm createProduct(ProductPostVm productPostVm, List<MultipartFile> files) {
         Product product = new Product();
         List<ProductCategory> productCategoryList = new ArrayList<>();
+        List<ProductImage> productImages = new ArrayList<>();
 
         if (productPostVm.brandId() != null) {
             Brand brand = brandRepository.findById(productPostVm.brandId()).orElseThrow(
@@ -90,6 +96,14 @@ public class ProductService {
             }
         }
 
+        for (int index = 1; index < files.size(); index++) {
+            ProductImage productImage = new ProductImage();
+            NoFileMediaVm noFileMediaVm = mediaService.SaveFile(files.get(index), "", "");
+            productImage.setImageId(noFileMediaVm.id());
+            productImage.setProduct(product);
+            productImages.add(productImage);
+        }
+
         product.setName(productPostVm.name());
         product.setSlug(productPostVm.slug());
         product.setDescription(productPostVm.description());
@@ -97,6 +111,10 @@ public class ProductService {
         product.setSpecification(productPostVm.specification());
         product.setSku(productPostVm.sku());
         product.setGtin(productPostVm.gtin());
+        product.setPrice(productPostVm.price());
+        product.setIsAllowedToOrder(productPostVm.isAllowedToOrder());
+        product.setIsFeatured(productPostVm.isFeatured());
+        product.setIsPublished(productPostVm.isPublished());
         product.setMetaKeyword(productPostVm.metaKeyword());
         product.setMetaDescription(productPostVm.metaDescription());
 
@@ -104,11 +122,12 @@ public class ProductService {
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
 
-        NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPostVm.thumbnail(), "", "");
+        NoFileMediaVm noFileMediaVm = mediaService.SaveFile(files.get(0), "", "");
         product.setThumbnailMediaId(noFileMediaVm.id());
 
         Product savedProduct = productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
+        productImageRepository.saveAllAndFlush(productImages);
         return ProductGetDetailVm.fromModel(savedProduct);
     }
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
