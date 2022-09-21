@@ -13,6 +13,7 @@ interface ProductAttributeId  {
     name: string
     productAttributeGroupId: string
 }
+
 const ProductAttributeEdit: NextPage = () => {
     const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup[]>([]);
     const [getProductAttributeVm, setGetProductAttributeVm] = useState<ProductAttribute>();
@@ -30,7 +31,7 @@ const ProductAttributeEdit: NextPage = () => {
             }
             await updateProductAttribute(parseInt(id), productAttributeId)
         }
-        location.replace("/catalog/productAttributes")
+        location.replace("/catalog/product-attributes")
 
     }
 
@@ -91,7 +92,7 @@ const ProductAttributeEdit: NextPage = () => {
                             </select>
                         </div>
                         <button className="btn btn-primary" type="submit" >Save</button>
-                        <Link href="/catalog/productAttributes">
+                        <Link href="/catalog/product-attributes">
                             <button className="btn btn-primary" style={{  marginLeft:"30px"}}>Cancel</button>
                         </Link>
                     </form>

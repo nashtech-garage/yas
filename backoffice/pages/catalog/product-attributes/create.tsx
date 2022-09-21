@@ -7,6 +7,10 @@ import {getProductAttributeGroups} from "../../../modules/catalog/services/Produ
 import {ProductAttributeGroup} from "../../../modules/catalog/models/ProductAttributeGroup";
 import {createProductAttribute} from "../../../modules/catalog/services/ProductAttributeService";
 
+interface ProductAttributeId  {
+    name: string
+    productAttributeGroupId: string
+}
 const ProductAttributeCreate: NextPage = () => {
     const { formState , register, handleSubmit } = useForm();
     const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup[]>([]);
@@ -21,13 +25,13 @@ const ProductAttributeCreate: NextPage = () => {
     }, [])
     const handleSubmitProductAttribute = async (event:any) => {
         if(idGroup === "0") setIdGroup("")
-        let productAttribute : ProductAttribute = {
-            id: 0,
+        let productAttribute : ProductAttributeId = {
             name: event.name,
-            productAttributeGroup: idGroup,
+            productAttributeGroupId: idGroup,
         }
-        productAttribute = await createProductAttribute(productAttribute);
-        location.replace("/catalog/productAttributes");
+        console.log(productAttribute)
+        await createProductAttribute(productAttribute);
+        location.replace("/catalog/product-attributes");
     }
     return (
         <>
@@ -64,7 +68,7 @@ const ProductAttributeCreate: NextPage = () => {
                             </select>
                         </div>
                         <button className="btn btn-primary" type="submit" >Save</button>
-                        <Link href="/catalog/productAttributes">
+                        <Link href="/catalog/product-attributes">
                             <button className="btn btn-primary" style={{  marginLeft:"30px"}}>Cancel</button>
                         </Link>
                     </form>

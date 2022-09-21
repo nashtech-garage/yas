@@ -37,7 +37,7 @@ export default function Sidebar(){
             </Link>
           </li>
           <li className="nav-item">
-            <Link href="/catalog/productAttributes">
+            <Link href="/catalog/product-attributes">
               <a className="nav-link">
                 <span data-feather="file-text" className="align-text-bottom"></span>
                 Product Attributes
