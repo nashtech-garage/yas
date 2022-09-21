@@ -18,6 +18,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -577,5 +580,40 @@ class ProductServiceTest {
         });
         // Assert
         assertThat(notFoundException.getMessage(), is(String.format("Product %s is not found", id)));
+    }
+
+    @Test
+    void getAllProducts_WhenRequestIsValid_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        when(productRepository.findByOrderByIdAsc(pageableCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getAllProducts(pageNo, pageSize);
+
+        //then
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
     }
 }

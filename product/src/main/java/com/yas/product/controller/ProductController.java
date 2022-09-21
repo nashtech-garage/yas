@@ -24,9 +24,13 @@ public class ProductController {
     }
 
     @GetMapping("/backoffice/products")
-    public ResponseEntity<List<ProductListVm>> listProduct() {
-        return ResponseEntity.ok(productService.getProducts());
+    public ResponseEntity<ProductListGetVm> listProduct(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize
+    ) {
+        return ResponseEntity.ok(productService.getAllProducts(pageNo, pageSize));
     }
+
 
     @PostMapping(path = "/backoffice/products", consumes = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.MULTIPART_FORM_DATA_VALUE })

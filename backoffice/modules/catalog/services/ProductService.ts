@@ -1,8 +1,11 @@
 import { ProductPost } from "./../models/ProductPost";
 import { Product } from "../models/Product";
+import { Products } from '../models/Products'
 
-export async function getProducts(): Promise<Product[]> {
-  const response = await fetch("/api/product/backoffice/products");
+
+export async function getProducts(pageNo:number): Promise<Products> {
+  const url = `/api/product/backoffice/products?pageNo=${pageNo}`
+  const response = await fetch(url);
   return await response.json();
 }
 
