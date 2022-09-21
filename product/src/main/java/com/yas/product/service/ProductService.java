@@ -14,6 +14,9 @@ import com.yas.product.repository.ProductImageRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -47,6 +50,24 @@ public class ProductService {
         return productRepository.findAll().stream()
                 .map(ProductListVm::fromModel)
                 .toList();
+    }
+
+    public ProductListGetVm getAllProducts(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Product> productPage = productRepository.findByOrderByIdAsc(pageable);
+        List<Product> productList = productPage.getContent();
+        List<ProductListVm> productListVmList = productList.stream()
+                .map(ProductListVm::fromModel)
+                .toList();
+
+        return new ProductListGetVm(
+                productListVmList,
+                productPage.getNumber(),
+                productPage.getSize(),
+                (int) productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
+        );
     }
 
     public ProductDetailVm getProduct(String slug) {
