@@ -25,6 +25,7 @@ public class CartServiceTest {
     CartRepository cartRepository;
     CartDetailRepository cartDetailRepository;
     CartService cartService;
+    ProductService productService;
 
     CartGetDetailVM cartGetDetailVM;
     Cart cart1;
@@ -37,9 +38,11 @@ public class CartServiceTest {
     void setUp() {
         cartRepository = mock(CartRepository.class);
         cartDetailRepository = mock(CartDetailRepository.class);
+        productService = mock(ProductService.class);
         cartService = new CartService(
                 cartRepository,
-                cartDetailRepository);
+                cartDetailRepository,
+                productService);
 
         cartGetDetailVM = new CartGetDetailVM(1L, "customerId", null);
         
