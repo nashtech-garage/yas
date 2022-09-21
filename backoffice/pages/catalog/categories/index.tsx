@@ -20,9 +20,9 @@ const CategoryList: NextPage = () => {
   if (!categories) return <p>No category</p>;
 
   const renderCategoriesHierarchy: Function = (
-    id: Number,
+    id: number,
     list: Array<Category>,
-    parentHierarchy: String
+    parentHierarchy: string
   ) => {
     const renderArr = list.filter((e) => e.parentId == id);
     const newArr = list.filter((e) => e.parentId != id);
