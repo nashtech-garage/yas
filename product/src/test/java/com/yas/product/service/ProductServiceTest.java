@@ -9,6 +9,7 @@ import com.yas.product.model.ProductCategory;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
+import com.yas.product.repository.ProductImageRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.*;
 import org.junit.jupiter.api.Assertions;
@@ -17,9 +18,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,12 +48,15 @@ class ProductServiceTest {
     CategoryRepository categoryRepository;
     ProductCategoryRepository productCategoryRepository;
     ProductService productService;
+    ProductImageRepository productImageRepository;
 
     ProductPostVm productPostVm;
     List<Category> categoryList;
     Category category1;
     Category category2;
     List<Product> products;
+    List<MultipartFile> files;
+    MockMultipartFile thumbnail;
 
     private Authentication authentication;
     @BeforeEach
@@ -58,12 +67,13 @@ class ProductServiceTest {
         productRepository = mock(ProductRepository.class);
         categoryRepository = mock(CategoryRepository.class);
         productCategoryRepository = mock(ProductCategoryRepository.class);
+        productImageRepository = mock(ProductImageRepository.class);
         productService = new ProductService(
                 productRepository,
                 mediaService,
                 brandRepository,
                 productCategoryRepository,
-                categoryRepository);
+                categoryRepository, productImageRepository);
 
         productPostVm = new ProductPostVm(
                 "name",
@@ -75,18 +85,25 @@ class ProductServiceTest {
                 "specification",
                 "sku",
                 "gtin",
+                123.5,
+                true,
+                true,
+                true,
                 "meta keyword",
-                "meta desciption",
-                null
+                "meta desciption"
         );
 
         category1 = new Category(1L, null, null, "null", null, null, null, null, null, null);
         category2 = new Category(2L, null, null, "null", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", null, null, 1L, null, null, null),
-                new Product(2L, "product2", null, null, null, null, null, "slug", null, null, 2L, null, null, null)
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, null, null,
+                        1L, null, null, null, null),
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, null, null,
+                        1L, null, null, null, null)
         );
+
+        files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
         //        Product product = new Product()
         //Security config
         authentication = mock(Authentication.class);
@@ -131,13 +148,13 @@ class ProductServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         when(authentication.getName()).thenReturn(username);
-        when(mediaService.SaveFile(productPostVm.thumbnail(), "", "")).thenReturn(noFileMediaVm);
+        when(mediaService.SaveFile(files.get(0), "", "")).thenReturn(noFileMediaVm);
         Product savedProduct = mock(Product.class);
         when(productRepository.saveAndFlush(productCaptor.capture())).thenReturn(savedProduct);
         Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
 
         //when
-        ProductGetDetailVm actualResponse = productService.createProduct(productPostVm);
+        ProductGetDetailVm actualResponse = productService.createProduct(productPostVm, files);
 
         //then
         verify(productRepository).saveAndFlush(productCaptor.capture());
@@ -188,9 +205,12 @@ class ProductServiceTest {
                 "specification",
                 "sku",
                 "gtin",
+                123.5,
+                true,
+                true,
+                true,
                 "meta keyword",
-                "meta desciption",
-                null
+                "meta desciption"
         );
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
@@ -198,7 +218,8 @@ class ProductServiceTest {
         List<Long> categoryIdsNotFound = productPostVm.categoryIds();
 
         //when
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> productService.createProduct(productPostVm));
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> productService.createProduct(productPostVm, files));
 
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Not found categories %s", categoryIdsNotFound));
@@ -215,7 +236,8 @@ class ProductServiceTest {
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(emptyCategoryList);
 
         //when
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> productService.createProduct(productPostVm));
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> productService.createProduct(productPostVm, files));
 
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Not found categories %s", productPostVm.categoryIds()));
@@ -229,7 +251,8 @@ class ProductServiceTest {
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.empty());
 
         //when
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> productService.createProduct(productPostVm));
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> productService.createProduct(productPostVm, files));
 
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Brand %s is not found", productPostVm.brandId()));
@@ -557,5 +580,40 @@ class ProductServiceTest {
         });
         // Assert
         assertThat(notFoundException.getMessage(), is(String.format("Product %s is not found", id)));
+    }
+
+    @Test
+    void getAllProducts_WhenRequestIsValid_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        when(productRepository.findByOrderByIdAsc(pageableCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getAllProducts(pageNo, pageSize);
+
+        //then
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
     }
 }

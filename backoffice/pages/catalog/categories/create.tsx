@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 import { isNull } from 'util';
@@ -30,7 +31,7 @@ const CategoryCreate: NextPage = () => {
       .then((data) => {
         setCategories(data);
       });
- })
+ },[])
   return (
     <>
     <div className='row mt-5'>
@@ -85,7 +86,11 @@ const CategoryCreate: NextPage = () => {
           <label className='form-label' htmlFor="displayOrder">Display Order</label>
           <input className="form-control" type="number" defaultValue={0} id="displayOrder" name="displayOrder" />
         </div>
-          <button className="btn btn-primary" type="submit">Submit</button>
+        <button className="btn btn-primary" type="submit">Save</button>
+          &emsp;
+          <Link href="/catalog/categories">
+          <button className="btn btn-outline-secondary" type="button">Cancel</button>
+          </Link>
         </form>
       </div>
     </div>
