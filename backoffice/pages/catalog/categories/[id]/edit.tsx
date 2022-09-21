@@ -3,12 +3,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Category } from '../../../../modules/catalog/models/Category'
-import { createCategory, getCategories, getCategory, updateCategory } from '../../../../modules/catalog/services/CategoryService'
+import { getCategories, getCategory, updateCategory } from '../../../../modules/catalog/services/CategoryService'
 
 const CategoryEdit: NextPage = () => {
   const router = useRouter()
   const { id } = router.query
-  var slugify = require('slugify')
+  var slugify = require('slugify') 
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState<Category>();
   const [slug, setSlug] = useState<string>();
@@ -55,7 +55,7 @@ const CategoryEdit: NextPage = () => {
         setSlug(data.slug)
       })
    },[id])
-   
+
    useEffect(()=>{
     getCategories()
         .then((data) => {
@@ -102,22 +102,24 @@ const CategoryEdit: NextPage = () => {
             <option value={0}>
                     Top
                   </option>
-                  {categories.map((c) => (
-                      id?
-                      +id == c.id ?
-                      <></>
-                      :
-                      c.id == category?.parentId ?
-                      <option selected value={c.id} key={c.id}>
-                      {c.name}
-                    </option>
-                      :
-                      <option value={c.id} key={c.id}>
-                      {c.name}
-                    </option>
-                    :
-                    <></>
-                  ))}
+                  {categories.map((c) => {
+                        if(id && +id == c.id){
+                            return(<></>)
+                        }
+                        else{
+                            if(c.id == category?.parentId){
+                                return(<option selected value={c.id} key={c.id}>
+                                {c.name}
+                                </option>)
+                            }
+                            else{
+                                return(<option value={c.id} key={c.id}>
+                                {c.name}
+                              </option>)
+                            }
+                        }
+                  }
+                  )}
           </select>
         </div>
         <div className="mb-3">
