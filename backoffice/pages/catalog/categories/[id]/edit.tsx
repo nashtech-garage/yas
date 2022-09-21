@@ -12,18 +12,18 @@ const CategoryEdit: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState<Category>();
   const [slug, setSlug] = useState<string>();
-  const handleSubmit = async (event:any) => {
+  const handleSubmitEdit = async (event:any) => {
     event.preventDefault()
-    if(event.target.parentCategory.value==0) event.target.parentCategory.value=null;
+    if(event.target.parentCategory.value==0) event.target.parentCategory.value = null;
     let category : Category = {
       id: 0,
       name: event.target.name.value,
       slug: event.target.slug.value,
-      description: event.target.description.value,
-      parentId: event.target.parentCategory.value,
       metaKeywords: event.target.metaKeywords.value,
       metaDescription: event.target.metaDescription.value,
+      parentId: event.target.parentCategory.value,
       displayOrder: event.target.displayOrder.value,
+      description: event.target.description.value,
     }
     
     if(id){
@@ -67,7 +67,7 @@ const CategoryEdit: NextPage = () => {
       <div className='row mt-5'>
         <div className='col-md-8'>
           <h2>Edit Category</h2>
-          <form onSubmit={handleSubmit} name='form'>
+          <form onSubmit={handleSubmitEdit} name='form'>
         <div className="mb-3">
           <label className='form-label' htmlFor="name">Name</label>
           <input className="form-control" type="text" id="name" name="name" defaultValue={category?.name} required 
@@ -103,21 +103,16 @@ const CategoryEdit: NextPage = () => {
                     Top
                   </option>
                   {categories.map((c) => {
-                        if(id && +id == c.id){
-                            return(<></>)
-                        }
-                        else{
-                            if(c.id == category?.parentId){
-                                return(<option selected value={c.id} key={c.id}>
+                    if(c.id == category?.parentId){
+                        return(<option selected value={c.id} key={c.id}>
                                 {c.name}
                                 </option>)
-                            }
-                            else{
-                                return(<option value={c.id} key={c.id}>
+                    }
+                    else{
+                        return(<option value={c.id} key={c.id}>
                                 {c.name}
-                              </option>)
-                            }
-                        }
+                                </option>)
+                    }
                   }
                   )}
           </select>
