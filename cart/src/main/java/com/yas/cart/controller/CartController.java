@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -45,13 +46,20 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 
-    @PostMapping(path = "/storefront/carts", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/storefront/carts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CartGetDetailVM.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CartGetDetailVM> createCart(@Valid @ModelAttribute CartPostVM cartPostVM, UriComponentsBuilder uriComponentsBuilder) {
-        CartGetDetailVM cartGetDetailVM = cartService.createCart(cartPostVM);
-        return ResponseEntity.created(uriComponentsBuilder.replacePath("/carts/{customerId}").buildAndExpand(cartGetDetailVM.customerId()).toUri())
-                .body(cartGetDetailVM);
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class))) })
+    public ResponseEntity<CartGetDetailVM> createCart(@Valid @RequestBody CartPostVM cartPostVM,
+                UriComponentsBuilder uriComponentsBuilder,
+                Principal principal, HttpServletRequest request) {
+        if (principal != null && (principal.getName().equals(cartPostVM.customerId()) || request.isUserInRole("ADMIN"))) {
+            CartGetDetailVM cartGetDetailVM = cartService.createCart(cartPostVM);
+            return ResponseEntity
+                    .created(uriComponentsBuilder.replacePath("/carts/{customerId}")
+                            .buildAndExpand(cartGetDetailVM.customerId()).toUri())
+                    .body(cartGetDetailVM);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 }
