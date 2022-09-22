@@ -34,6 +34,13 @@ const CategoryList: NextPage = () => {
             <tr>
               <td>{category.id}</td>
               <td>{parentHierarchy}{category.name}</td>
+              <td>
+              <Link href={`/catalog/categories/${category.id}/edit`}>
+              <button className="btn btn-outline-primary" type="button">Edit</button>
+              </Link>
+              &emsp;
+              <button className="btn btn-outline-danger" >Delete</button>
+            </td>
             </tr>
             {renderCategoriesHierarchy(
               category.id,
@@ -62,6 +69,7 @@ const CategoryList: NextPage = () => {
           <tr>
             <th>#</th>
             <th>Name</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
