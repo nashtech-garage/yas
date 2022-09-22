@@ -42,7 +42,6 @@ const ProductEdit: NextPage = () => {
     getCategories().then((data) => {
       setCategories(data);
     });
-
     getBrands().then((data) => {
       setBrands(data);
     });
@@ -281,15 +280,12 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.gtin?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className="form-label" htmlFor="price">
-                  Price
-                </label>
+                <label className="form-label" htmlFor="price">Price <span style={{ 'color': 'red' }}>*</span></label>
                 <input
                   defaultValue={product.price}
-                  className={`form-control ${errors.price ? "border-danger" : ""}`}
-                  id="price"
-                  type="number"
                   {...register("price", { required: "Price is required", min: 0 })}
+                  className={`form-control ${errors.price ? "border-danger" : ""}`}
+                  type="number" id="price"
                 />
                 {errors.price && errors.price.type === "min" ?
                   (
@@ -302,40 +298,28 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="d-flex justify-content-between">
                 <div className="mb-3">
-                  <label
-                    className="form-label me-3"
-                    htmlFor="is-allowed-to-order"
-                  >
-                    Is Allowed To Order
-                  </label>
+                  <label className="form-label me-3" htmlFor="is-allowed-to-order">Is Allowed To Order</label>
                   <input
                     defaultChecked={product.isAllowedToOrder}
-                    id="is-allowed-to-order"
-                    type="checkbox"
                     {...register("isAllowedToOrder")}
+                    type="checkbox" id="is-allowed-to-order"
                   />
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label me-3" htmlFor="is-published">
-                    Is Published
-                  </label>
+                  <label className="form-label me-3" htmlFor="is-published">Is Published</label>
                   <input
                     defaultChecked={product.isPublished}
-                    type="checkbox"
-                    id="is-published"
                     {...register("isPublished")}
+                    type="checkbox" id="is-published"
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label me-3" htmlFor="is-featured">
-                    Is Featured
-                  </label>
+                  <label className="form-label me-3" htmlFor="is-featured">Is Featured</label>
                   <input
                     defaultChecked={product.isFeatured}
-                    id="is-featured"
-                    type="checkbox"
                     {...register("isFeatured")}
+                    type="checkbox" id="is-featured"
                   />
                 </div>
               </div>
@@ -367,25 +351,15 @@ const ProductEdit: NextPage = () => {
                 <input
                   className="form-control"
                   type="file"
-                  id="product-image"
+                  id="product-images"
                   onChange={onProductImageSelected}
                   multiple
                 />
-                {productImageMediaUrls ? productImageMediaUrls.map((productImageMediaUrls, index) => (
-                  <img
-                    style={{ width: "150px" }}
-                    src={productImageMediaUrls}
-                    key={index}
-                    alt="Image"
-                  />
+                {productImageMediaUrls ? productImageMediaUrls.map((imageUrl, index) => (
+                    <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image"/>
                 )) : (
-                  product.productImageMediaUrls.map((productImageMediaUrls, index) => (
-                    <img
-                      style={{ width: "150px" }}
-                      src={productImageMediaUrls}
-                      key={index}
-                      alt="Image"
-                    />
+                  product.productImageMediaUrls.map((imageUrl, index) => (
+                    <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image"/>
                   ))
                 )}
               </div>
