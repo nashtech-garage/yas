@@ -1,5 +1,6 @@
 package com.yas.product.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,7 @@ public class Category extends AbstractAuditEntity {
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
+    @JsonIgnore
     private List<ProductCategory> productCategories = new ArrayList<>();
 
     @Override

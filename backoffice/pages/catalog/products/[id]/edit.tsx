@@ -5,7 +5,11 @@ import { Product } from '../../../../modules/catalog/models/Product'
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService'
 import { useForm } from "react-hook-form";
 import slugify from "slugify";
-
+import { ProductPut } from '../../../../modules/catalog/models/ProductPut'
+import { Category } from "../../../../modules/catalog/models/Category";
+import { Brand } from "../../../../modules/catalog/models/Brand";
+import { getCategories } from '../../../../modules/catalog/services/CategoryService'
+import { getBrands } from '../../../../modules/catalog/services/BrandService'
 const ProductEdit: NextPage = () => {
   //Get ID
   const router = useRouter()
@@ -14,7 +18,12 @@ const ProductEdit: NextPage = () => {
   const [thumbnail, setThumbnail] = useState<File>();
   const [thumbnailURL, setThumbnailURL] = useState<string>();
   const [generateSlug, setGenerateSlug] = useState<string>();
-
+  const [productImages, setProductImages] = useState<FileList>();
+  const [productImageMediaUrls, setproductImageMediaUrls] = useState<string[]>();
+  const [categoryIds, setCategoryIds] = useState<number[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   //Get product detail
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
@@ -30,11 +39,19 @@ const ProductEdit: NextPage = () => {
           setLoading(false);
         });
     }
+    getCategories().then((data) => {
+      setCategories(data);
+    });
+
+    getBrands().then((data) => {
+      setBrands(data);
+    });
   }, []);
   //Handle
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(slugify(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase()));
   };
+
   const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase());
   };
@@ -46,12 +63,51 @@ const ProductEdit: NextPage = () => {
       setThumbnailURL(URL.createObjectURL(i));
     }
   };
+
+  const onProductImageSelected = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.files) {
+      const files = event.target.files;
+      setProductImages(files);
+      let length = files.length;
+
+      let urls: string[] = [];
+
+      for (let i = 0; i < length; i++) {
+        const file = files[i];
+        urls.push(URL.createObjectURL(file));
+      }
+      setproductImageMediaUrls([...urls]);
+    }
+  };
+
+  const onCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    let category = event.target.value;
+    if (selectedCategories.indexOf(category) === -1) {
+      let id = categories.find((item) => item.name === category)?.id;
+      if (id) {
+        setCategoryIds([...categoryIds, id]);
+      }
+      setSelectedCategories([category, ...selectedCategories]);
+    }
+  };
+
   const onSubmit = (data: any) => {
     const slug = generateSlug ? generateSlug : data.slug;
-    let product: Product = {
-      id: 0,
+    let defaultCategoryIds: number[] = [];
+    if(product){
+      Array.from(product.categories).forEach((category) => {
+        defaultCategoryIds = [...defaultCategoryIds, category.id]
+      })
+    }
+    let productPut: ProductPut = {
       name: data.name.replace(/(^\s+|\s+$)/g, ''),
       slug: slug.replace(/(^\s+|\s+$)/g, ''),
+      price: data.price,
+      isAllowedToOrder: data.isAllowedToOrder,
+      isPublished: data.isPublished,
+      isFeatured: data.isFeatured,
       description: data.description?.replace(/(^\s+|\s+$)/g, ''),
       shortDescription: data.shortDescription.replace(/(^\s+|\s+$)/g, ''),
       specification: data.specification.replace(/(^\s+|\s+$)/g, ''),
@@ -59,15 +115,28 @@ const ProductEdit: NextPage = () => {
       gtin: data.gtin.replace(/(^\s+|\s+$)/g, ''),
       metaKeyword: data.metaKeyword.replace(/(^\s+|\s+$)/g, ''),
       metaDescription: data.metaDescription?.replace(/(^\s+|\s+$)/g, ''),
+      brandId: data.brandId,
+      categoryIds: categoryIds.length > 0 ? categoryIds : defaultCategoryIds
     }
-    if (!thumbnail) {
-      alert("A thumbnail is required.")
+    if (id) {
+      if (thumbnail && productImages) {
+        updateProduct(+id, productPut, thumbnail, productImages).then((res) => {
+          if(res === 204){
+          location.replace("/catalog/products");
+          }
+          else if(res === 400){
+            alert("Please fill out again! Bad Request!");
+          }
+        }).catch((error) => {
+          alert("Cannot update product. Try later!");
+        })
+      }
+      else {
+        alert("Thumbnail and Product Images is required!");
+      }
     }
     else {
-      if (id) {
-        updateProduct(+id, product, thumbnail);
-        location.replace("/catalog/products");
-      }
+      alert("Please try later!");
     }
   }
   if (isLoading) return <p>Loading...</p>;
@@ -99,6 +168,73 @@ const ProductEdit: NextPage = () => {
                 />
                 <p className='error-field'><>{errors.slug?.message}</></p>
               </div>
+              <div className="mb-3">
+              <label className="form-label" htmlFor="brand">
+                Brand <span style={{ 'color': 'red' }}>*</span>
+              </label>
+              <select
+                className={`form-select ${
+                  errors.brandId ? "border-danger" : ""
+                }`}
+                id="brand"
+                {...register("brandId")}
+                defaultValue={product.brandId}
+              >
+                <option disabled hidden value={0}>
+                  Select Brand
+                </option>
+                {Array.from(brands).map((brand) => (
+                  <option value={brand.id} key={brand.id}>
+                    {brand.name}
+                  </option>
+                ))}
+              </select>
+              <p className='error-field'><>{errors.brandId?.message}</></p>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label" htmlFor="category">
+                Category <span style={{ 'color': 'red' }}>*</span>
+              </label>
+              <select
+                className={`form-select ${
+                  errors.categoryIds ? "border-danger" : ""
+                }`}
+                id="category"
+                {...register("categoryIds")}
+                onChange={onCategoryChange}
+                defaultValue={0}
+              >
+                <option disabled hidden value={0}>
+                  Select Category
+                </option>
+                {Array.from(categories).map((category) => (
+                  <option value={category?.name} key={category?.id}>
+                    {category?.name}
+                  </option>
+                ))}
+              </select>
+              <p className='error-field'><>{errors.categoryIds?.message}</></p>
+              <div className="d-flex flex-start mt-2">
+                {selectedCategories.length > 0 ? selectedCategories.map((category, index) => (
+                  <span
+                    className="border border-primary rounded fst-italic px-2"
+                    key={index}
+                  >
+                    {category}
+                  </span>
+                )) : (
+                  product.categories.map((category, index) => (
+                    <span
+                      className="border border-primary rounded fst-italic px-2"
+                      key={index}
+                    >
+                      {category.name}
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="short-description">Short Description <span style={{ 'color': 'red' }}>*</span></label>
                 <input
@@ -145,6 +281,65 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.gtin?.message}</></p>
               </div>
               <div className="mb-3">
+                <label className="form-label" htmlFor="price">
+                  Price
+                </label>
+                <input
+                  defaultValue={product.price}
+                  className={`form-control ${errors.price ? "border-danger" : ""}`}
+                  id="price"
+                  type="number"
+                  {...register("price", { required: "Price is required", min: 0 })}
+                />
+                {errors.price && errors.price.type === "min" ?
+                  (
+                    <p className='error-field'>Price must be at least 0</p>
+                  ) :
+                  (
+                    <p className='error-field'><>{errors.price?.message}</></p>
+                  )
+                }
+              </div>
+              <div className="d-flex justify-content-between">
+                <div className="mb-3">
+                  <label
+                    className="form-label me-3"
+                    htmlFor="is-allowed-to-order"
+                  >
+                    Is Allowed To Order
+                  </label>
+                  <input
+                    defaultChecked={product.isAllowedToOrder}
+                    id="is-allowed-to-order"
+                    type="checkbox"
+                    {...register("isAllowedToOrder")}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label me-3" htmlFor="is-published">
+                    Is Published
+                  </label>
+                  <input
+                    defaultChecked={product.isPublished}
+                    type="checkbox"
+                    id="is-published"
+                    {...register("isPublished")}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label me-3" htmlFor="is-featured">
+                    Is Featured
+                  </label>
+                  <input
+                    defaultChecked={product.isFeatured}
+                    id="is-featured"
+                    type="checkbox"
+                    {...register("isFeatured")}
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
                 <label className='form-label' htmlFor="meta-keyword">Meta Keyword <span style={{ 'color': 'red' }}>*</span></label>
                 <input
                   defaultValue={product.metaKeyword}
@@ -165,6 +360,34 @@ const ProductEdit: NextPage = () => {
                 <label className='form-label' htmlFor="thumbnail">Thumbnail <span style={{ 'color': 'red' }}>*</span></label>
                 <input className="form-control" type="file" name="thumbnail" onChange={onThumbnailSelected} />
                 <img style={{ width: '150px' }} src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl} />
+              </div>
+              <div className="mb-3">
+                <label className="form-label" htmlFor="product-image">Product Images <span style={{ 'color': 'red' }}>*</span>
+                </label>
+                <input
+                  className="form-control"
+                  type="file"
+                  id="product-image"
+                  onChange={onProductImageSelected}
+                  multiple
+                />
+                {productImageMediaUrls ? productImageMediaUrls.map((productImageMediaUrls, index) => (
+                  <img
+                    style={{ width: "150px" }}
+                    src={productImageMediaUrls}
+                    key={index}
+                    alt="Image"
+                  />
+                )) : (
+                  product.productImageMediaUrls.map((productImageMediaUrls, index) => (
+                    <img
+                      style={{ width: "150px" }}
+                      src={productImageMediaUrls}
+                      key={index}
+                      alt="Image"
+                    />
+                  ))
+                )}
               </div>
               <button className="btn btn-primary" type="submit">Submit</button>
             </form>

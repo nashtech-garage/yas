@@ -1,5 +1,6 @@
 import { ProductPost } from "./../models/ProductPost";
 import { Product } from "../models/Product";
+import { ProductPut } from "../models/ProductPut";
 
 export async function getProducts(): Promise<Product[]> {
   const response = await fetch("/api/product/backoffice/products");
@@ -14,7 +15,7 @@ export async function getProduct(id: number): Promise<Product> {
 export async function createProduct(product: ProductPost, thumbnail?: File, productImage?: FileList): Promise<Product> {
   let body = new FormData();
 
-  body.append("productDetails", new Blob([JSON.stringify(product)], {type: "application/json"}));
+  body.append("productDetails", new Blob([JSON.stringify(product)], { type: "application/json" }));
   thumbnail && body.append("files", thumbnail);
   productImage && Array.from(productImage).forEach((file) => body.append("files", file))
 
@@ -27,24 +28,31 @@ export async function createProduct(product: ProductPost, thumbnail?: File, prod
 
 export async function updateProduct(
   id: number,
-  product: Product,
-  thumbnail?: File
+  product: ProductPut,
+  thumbnail: File,
+  productImages: FileList
 ): Promise<Number> {
   const body = new FormData();
   body.append("name", product.name);
   body.append("slug", product.slug);
+  body.append("price", product.price+"");
   body.append("shortDescription", product.shortDescription);
   product.description && body.append("description", product.description);
   body.append("specification", product.specification);
   body.append("sku", product.sku);
   body.append("gtin", product.gtin);
   body.append("metaKeyword", product.metaKeyword);
-  product.metaDescription &&
-    body.append("metaDescription", product.metaDescription);
-  thumbnail && body.append("thumbnail", thumbnail);
+  product.metaDescription && body.append("metaDescription", product.metaDescription);
+  product.isAllowedToOrder && body.append("isAllowedToOrder", product.isAllowedToOrder+"");
+  product.isFeatured && body.append("isFeatured", product.isFeatured+"");
+  product.isPublished && body.append("isPublished", product.isPublished+"");
+  body.append("thumbnail", thumbnail);
+  Array.from(productImages).forEach((image) => body.append("productImages", image))
+  body.append("brandId", product.brandId+"");
+  Array.from(product.categoryIds).forEach((category) => body.append("categoryIds", category+""))
   const res = await fetch("/api/product/backoffice/products/" + id, {
     method: "PUT",
-    body: body,
+    body: body
   });
   return res.status;
 }
