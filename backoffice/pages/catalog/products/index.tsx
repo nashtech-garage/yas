@@ -2,19 +2,28 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button, Stack, Table } from "react-bootstrap";
+import ReactPaginate from "react-paginate";
 import type { Product } from "../../../modules/catalog/models/Product";
 import { getProducts } from "../../../modules/catalog/services/ProductService";
 
 const ProductList: NextPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setLoading] = useState(false);
+  const [pageNo, setPageNo] = useState<number>(0)
+  const [totalPage, setTotalPage] = useState<number>(1)
+
   useEffect(() => {
     setLoading(true);
-    getProducts().then((data) => {
-      setProducts(data);
+    getProducts(pageNo).then((data) => {
+      setTotalPage(data.totalPages)
+      setProducts(data.productContent)
       setLoading(false);
     });
-  }, []);
+  }, [pageNo]);
+
+  const changePage = ({ selected }: any) => {
+    setPageNo(selected)
+  }
 
   if (isLoading) return <p>Loading...</p>;
   if (!products) return <p>No product</p>;
@@ -33,7 +42,7 @@ const ProductList: NextPage = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>#</th>
+            <th>ID</th>
             <th>Name</th>
             <th>Actions</th>
           </tr>
@@ -54,6 +63,19 @@ const ProductList: NextPage = () => {
           ))}
         </tbody>
       </Table>
+      <ReactPaginate
+        forcePage={pageNo}
+        previousLabel={"Previous"}
+        nextLabel={"Next"}
+        pageCount={totalPage}
+        onPageChange={changePage}
+        containerClassName={"paginationBtns"}
+        previousLinkClassName={"previousBtn"}
+        nextClassName={"nextBtn"}
+        disabledClassName={"paginationDisabled"}
+        activeClassName={"paginationActive"}
+
+      />
     </>
   );
 };
