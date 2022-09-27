@@ -39,6 +39,7 @@ public class Category extends AbstractAuditEntity {
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+    @JsonIgnore
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
