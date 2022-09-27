@@ -2,8 +2,8 @@ package com.yas.cart.viewmodel;
 
 import com.yas.cart.model.Cart;
 
-public record CartListVM(Long id, String customerId) {
-    public static CartListVM fromModel(Cart cart) {
-        return new CartListVM(cart.getId(), cart.getCustomerId());
+public record CartListVm(Long id, String customerId) {
+    public static CartListVm fromModel(Cart cart) {
+        return new CartListVm(cart.getId(), cart.getCustomerId());
     }
 }

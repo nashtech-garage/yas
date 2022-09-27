@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotEmpty;
 
-public record CartPostVM(
+public record CartPostVm(
         @NotEmpty String customerId,
-        List<CartDetailPostVM> CartDetailPostVMs) {
+        List<CartItemVm> cartItemVm) {
 }

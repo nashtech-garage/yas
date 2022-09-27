@@ -28,38 +28,38 @@ public class CartService {
         this.productService = productService;
     }
 
-    public List<CartListVM> getCarts() {
+    public List<CartListVm> getCarts() {
         return cartRepository.findAll()
-                .stream().map(CartListVM::fromModel)
+                .stream().map(CartListVm::fromModel)
                 .toList();
     }
     
-    public List<CartGetDetailVM> getCartDetailByCustomerId(String customerId) {
+    public List<CartGetDetailVm> getCartDetailByCustomerId(String customerId) {
         return cartRepository.findByCustomerId(customerId)
-                .stream().map(CartGetDetailVM::fromModel)
+                .stream().map(CartGetDetailVm::fromModel)
                 .toList();
     }
 
-    public CartGetDetailVM createCart(CartPostVM cartPostVM) {
+    public CartGetDetailVm createCart(CartPostVm cartPostVm) {
         Cart cart = new Cart();
         List<CartDetail> cartDetailList = new ArrayList<>();
 
-        cart.setCustomerId(cartPostVM.customerId());
-        if (CollectionUtils.isNotEmpty(cartPostVM.CartDetailPostVMs())) {
-            for (CartDetailPostVM cartDetailPostVM : cartPostVM.CartDetailPostVMs()) {
-                try {
-                    productService.getProduct(cartDetailPostVM.productId());
-                } catch (Exception e) {
-                    throw new BadRequestException(String.format("Not found product %d", cartDetailPostVM.productId()));
-                }
-                
-                if(cartDetailPostVM.quantity() <= 0) 
+        cart.setCustomerId(cartPostVm.customerId());
+        if (CollectionUtils.isNotEmpty(cartPostVm.cartItemVm())) {
+            for (CartItemVm cartItemVm : cartPostVm.cartItemVm()) {
+                if(cartItemVm.quantity() <= 0) 
                     throw new BadRequestException(("Quantity cannot be negative"));
+                
+                try {
+                    productService.getProduct(cartItemVm.productId());
+                } catch (Exception e) {
+                    throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
+                }
                 
                 CartDetail cartDetail = new CartDetail();
                 cartDetail.setCart(cart);
-                cartDetail.setProductId(cartDetailPostVM.productId());
-                cartDetail.setQuantity(cartDetailPostVM.quantity());
+                cartDetail.setProductId(cartItemVm.productId());
+                cartDetail.setQuantity(cartItemVm.quantity());
                 cartDetailList.add(cartDetail);
             }
             cart.setCartDetails(cartDetailList);
@@ -70,7 +70,7 @@ public class CartService {
 
             Cart savedCart = cartRepository.saveAndFlush(cart);
             cartDetailRepository.saveAllAndFlush(cartDetailList);
-            return CartGetDetailVM.fromModel(savedCart);
+            return CartGetDetailVm.fromModel(savedCart);
         } else
             throw new BadRequestException("Cart's detail can't be null");
     }

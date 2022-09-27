@@ -17,8 +17,8 @@ import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartDetail;
 import com.yas.cart.repository.CartDetailRepository;
 import com.yas.cart.repository.CartRepository;
-import com.yas.cart.viewmodel.CartGetDetailVM;
-import com.yas.cart.viewmodel.CartListVM;
+import com.yas.cart.viewmodel.CartGetDetailVm;
+import com.yas.cart.viewmodel.CartListVm;
 
 public class CartServiceTest {
     
@@ -27,7 +27,7 @@ public class CartServiceTest {
     CartService cartService;
     ProductService productService;
 
-    CartGetDetailVM cartGetDetailVM;
+    CartGetDetailVm cartGetDetailVm;
     Cart cart1;
     Cart cart2;
     List<Cart> carts;
@@ -44,7 +44,7 @@ public class CartServiceTest {
                 cartDetailRepository,
                 productService);
 
-        cartGetDetailVM = new CartGetDetailVM(1L, "customerId", null);
+        cartGetDetailVm = new CartGetDetailVm(1L, "customerId", null);
         
         List<CartDetail> cartDetailList = List.of(
             new CartDetail(1L, null, 1L, 1),
@@ -63,19 +63,19 @@ public class CartServiceTest {
     @Test
     void getCarts_ExistProductsInDatabase_Sucsess() {
         //given
-        List<CartListVM> cartListVMExpected = List.of(
-                new CartListVM(1L, "customer-1"),
-                new CartListVM(2L, "customer-2")
+        List<CartListVm> cartListVmExpected = List.of(
+                new CartListVm(1L, "customer-1"),
+                new CartListVm(2L, "customer-2")
         );
         when(cartRepository.findAll()).thenReturn(carts);
 
         //when
-        List<CartListVM> cartListVmActual = cartService.getCarts();
+        List<CartListVm> cartListVmActual = cartService.getCarts();
 
         //then
-        assertThat(cartListVmActual).hasSameSizeAs(cartListVMExpected);
-        assertThat(cartListVmActual.get(0)).isEqualTo(cartListVMExpected.get(0));
-        assertThat(cartListVmActual.get(1)).isEqualTo(cartListVMExpected.get(1));
+        assertThat(cartListVmActual).hasSameSizeAs(cartListVmExpected);
+        assertThat(cartListVmActual.get(0)).isEqualTo(cartListVmExpected.get(0));
+        assertThat(cartListVmActual.get(1)).isEqualTo(cartListVmExpected.get(1));
 
     }
 }

@@ -34,12 +34,12 @@ public class CartController {
     }
 
     @GetMapping("/backoffice/carts")
-    public ResponseEntity<List<CartListVM>> listCarts() {
+    public ResponseEntity<List<CartListVm>> listCarts() {
         return ResponseEntity.ok(cartService.getCarts());
     }
     
     @GetMapping("/storefront/carts/{customerId}")
-    public ResponseEntity<List<CartGetDetailVM>> listCartDetailByCustomerId(@PathVariable String customerId, Principal principal, HttpServletRequest request) {
+    public ResponseEntity<List<CartGetDetailVm>> listCartDetailByCustomerId(@PathVariable String customerId, Principal principal, HttpServletRequest request) {
         // Only admin or the owner of the cart can access.
         if(principal != null && (principal.getName().equals(customerId) || request.isUserInRole("ADMIN")))
             return ResponseEntity.ok(cartService.getCartDetailByCustomerId(customerId));
@@ -48,17 +48,17 @@ public class CartController {
 
     @PostMapping(path = "/storefront/carts")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CartGetDetailVM.class))),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CartGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class))) })
-    public ResponseEntity<CartGetDetailVM> createCart(@Valid @RequestBody CartPostVM cartPostVM,
+    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody CartPostVm cartPostVm,
                 UriComponentsBuilder uriComponentsBuilder,
-                Principal principal, HttpServletRequest request) {
-        if (principal != null && (principal.getName().equals(cartPostVM.customerId()) || request.isUserInRole("ADMIN"))) {
-            CartGetDetailVM cartGetDetailVM = cartService.createCart(cartPostVM);
+                Principal principal) {
+        if (principal != null && principal.getName().equals(cartPostVm.customerId())) {
+            CartGetDetailVm cartGetDetailVm = cartService.createCart(cartPostVm);
             return ResponseEntity
                     .created(uriComponentsBuilder.replacePath("/carts/{customerId}")
-                            .buildAndExpand(cartGetDetailVM.customerId()).toUri())
-                    .body(cartGetDetailVM);
+                            .buildAndExpand(cartGetDetailVm.customerId()).toUri())
+                    .body(cartGetDetailVm);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
