@@ -74,7 +74,18 @@ public class ProductService {
         Product product = productRepository
                 .findBySlug(slug)
                 .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", slug)));
-
+        List<String> productImageMediaUrls = new ArrayList<>();
+        if(null != product.getProductImages() && product.getProductImages().size() > 0){
+            for (ProductImage image: product.getProductImages()){
+                productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
+            }
+        }
+        List<Category> categories = new ArrayList<>();
+        if(null != product.getProductCategories()){
+            for (ProductCategory category: product.getProductCategories()){
+                categories.add(category.getCategory());
+            }
+        }
         return new ProductDetailVm(product.getId(),
                 product.getName(),
                 product.getShortDescription(),
@@ -83,9 +94,17 @@ public class ProductService {
                 product.getSku(),
                 product.getGtin(),
                 product.getSlug(),
+                product.getIsAllowedToOrder(),
+                product.getIsPublished(),
+                product.getIsFeatured(),
+                product.getPrice(),
+                product.getBrand().getId(),
+                categories,
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url());
+                mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                productImageMediaUrls
+        );
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm, List<MultipartFile> files) {
@@ -154,7 +173,7 @@ public class ProductService {
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
         List<ProductCategory> productCategoryList = new ArrayList<>();
-
+        List<ProductImage> productImages = new ArrayList<>();
         if(!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()){
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
@@ -166,6 +185,8 @@ public class ProductService {
         }
 
         if (CollectionUtils.isNotEmpty(productPutVm.categoryIds())) {
+            productCategoryRepository.deleteAll(product.getProductCategories());
+            product.setProductCategories(null);
             List<Category> categoryList = categoryRepository.findAllById(productPutVm.categoryIds());
             if (categoryList.isEmpty()) {
                 throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
@@ -182,7 +203,10 @@ public class ProductService {
                 }
             }
         }
-
+        product.setIsAllowedToOrder(productPutVm.isAllowedToOrder());
+        product.setIsPublished(productPutVm.isPublished());
+        product.setIsFeatured(productPutVm.isFeatured());
+        product.setPrice(productPutVm.price());
         product.setName(productPutVm.name());
         product.setSlug(productPutVm.slug());
         product.setDescription(productPutVm.description());
@@ -201,8 +225,22 @@ public class ProductService {
             NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPutVm.thumbnail(), "", "");
             product.setThumbnailMediaId(noFileMediaVm.id());
         }
+
+        if(null != productPutVm.productImages()){
+            productImageRepository.deleteAll(product.getProductImages());
+            product.setProductImages(null);
+            for (int index = 0; index < productPutVm.productImages().size(); index++) {
+                ProductImage productImage = new ProductImage();
+                NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPutVm.productImages().get(index), "", "");
+                productImage.setImageId(noFileMediaVm.id());
+                productImage.setProduct(product);
+                productImages.add(productImage);
+            }
+        }
+
         productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
+        productImageRepository.saveAllAndFlush(productImages);
         return ProductGetDetailVm.fromModel(product);
     }
     public ProductDetailVm getProductById(long productId) {
@@ -211,6 +249,18 @@ public class ProductService {
                 .orElseThrow(()->
                         new NotFoundException(String.format("Product %s is not found", productId))
                 );
+        List<String> productImageMediaUrls = new ArrayList<>();
+        if(null != product.getProductImages()){
+            for (ProductImage image: product.getProductImages()){
+                productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
+            }
+        }
+        List<Category> categories = new ArrayList<>();
+        if(null != product.getProductCategories()){
+            for (ProductCategory category: product.getProductCategories()){
+                categories.add(category.getCategory());
+            }
+        }
         return new ProductDetailVm(product.getId(),
                 product.getName(),
                 product.getShortDescription(),
@@ -219,9 +269,17 @@ public class ProductService {
                 product.getSku(),
                 product.getGtin(),
                 product.getSlug(),
+                product.getIsAllowedToOrder(),
+                product.getIsPublished(),
+                product.getIsFeatured(),
+                product.getPrice(),
+                product.getBrand().getId(),
+                categories,
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url());
+                mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                productImageMediaUrls
+                );
     }
 
     public List<ProductThumbnailVm> getFeaturedProducts() {
