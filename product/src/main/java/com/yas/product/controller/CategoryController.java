@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -81,24 +82,37 @@ public class CategoryController {
             @ApiResponse(responseCode = "204", description = "No content"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm){
+    public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm, Principal principal){
         Category category = categoryRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
-
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
+        category.setLastModifiedBy(principal.getName());
+        category.setLastModifiedOn(ZonedDateTime.now());
+        category.setDisplayOrder(categoryPostVm.displayOrder());
+        category.setMetaDescription(categoryPostVm.metaDescription());
+        category.setMetaKeyword(categoryPostVm.metaKeywords());
         if(categoryPostVm.parentId() == null){
             category.setParent(null);
         } else {
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
                     .orElseThrow(() -> new BadRequestException(String.format("Parent category %s is not found", categoryPostVm.parentId())));
+
+            if(!checkParent(category.getId(), parentCategory)){
+                throw new BadRequestException("Parent category cannot be itself children");
+            }
             category.setParent(parentCategory);
         }
-
         categoryRepository.saveAndFlush(category);
         return ResponseEntity.noContent().build();
+    }
+    boolean checkParent(Long id, Category category){
+        if(id == category.getId()) return false;
+        if(category.getParent()!=null)
+            return checkParent(id, category.getParent());
+        else return true;
     }
 }
