@@ -223,7 +223,7 @@ const ProductEdit: NextPage = () => {
                     {category}
                   </span>
                 )) : (
-                  product.categories.map((category, index) => (
+                  product.categories && product.categories.map((category, index) => (
                     <span
                       className="border border-primary rounded fst-italic px-2"
                       key={index}
@@ -358,7 +358,7 @@ const ProductEdit: NextPage = () => {
                 {productImageMediaUrls ? productImageMediaUrls.map((imageUrl, index) => (
                     <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image"/>
                 )) : (
-                  product.productImageMediaUrls.map((imageUrl, index) => (
+                  product.productImageMediaUrls && product.productImageMediaUrls.map((imageUrl, index) => (
                     <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image"/>
                   ))
                 )}
