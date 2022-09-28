@@ -265,7 +265,7 @@ const ProductEdit: NextPage = () => {
                 <div className="mb-3">
                   <label className='form-label' htmlFor="specification">Product Attributes <span style={{ 'color': 'red' }}>*</span></label>
                   <Link href={`/catalog/products/${product.id}/productAttributes`}>
-                    <button className="btn btn-primary" style={{  marginLeft:"30px" }}>Product Attributes</button>
+                    <button className="btn btn-primary" style={{  marginLeft:"35px" }}>Product Attributes</button>
                   </Link>
                 </div>
                 <div className="mb-3">
