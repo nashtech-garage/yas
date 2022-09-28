@@ -158,4 +158,12 @@ public class ProductAttributeValueControllerTest {
         assertThat(result.getStatusCode(),is(HttpStatus.NO_CONTENT));
         assertEquals(ProductAttributeValueCaptor.getValue().getValue(), productAttributeValuePostVm.value());
     }
+
+    @Test
+    void deleteProductAttributeValueById_ProductAttributeValueIdIsInValid_Success(){
+        when(productAttributeValueRepository.findById(1L)).thenReturn(Optional.empty());
+        NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
+                () -> productAttributeValueController.deleteProductAttributeValueById(1L));
+        assertThat(exception.getMessage(), is("Product attribute value 1 is not found"));
+    }
 }
