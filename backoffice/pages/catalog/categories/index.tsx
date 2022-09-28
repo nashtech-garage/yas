@@ -36,10 +36,10 @@ const CategoryList: NextPage = () => {
               <td>{parentHierarchy}{category.name}</td>
               <td>
               <Link href={`/catalog/categories/${category.id}/edit`}>
-              <button className="btn btn-outline-primary" type="button">Edit</button>
+              <button className="btn btn-outline-primary btn-sm" type="button">Edit</button>
               </Link>
               &emsp;
-              <button className="btn btn-outline-danger" >Delete</button>
+              <button className="btn btn-outline-danger btn-sm" >Delete</button>
             </td>
             </tr>
             {renderCategoriesHierarchy(

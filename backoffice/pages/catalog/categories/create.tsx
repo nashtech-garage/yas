@@ -58,14 +58,6 @@ const CategoryCreate: NextPage = () => {
           <input className="form-control" type="text" id="slug" name="slug" required />
         </div>
         <div className="mb-3">
-          <label className='form-label' htmlFor="metaKeywords">Meta Keywords</label>
-          <input className="form-control" type="text" id="metaKeywords" name="metaKeywords"  />
-        </div>
-        <div className="mb-3">
-          <label className='form-label' htmlFor="metaDescription">Meta Description</label>
-          <textarea className="form-control" id="metaDescription" name="metaDescription" />
-        </div>
-        <div className="mb-3">
           <label className='form-label' htmlFor="parentCategory">Parent category</label>
           <select className="form-control" id="parentCategory" name="parentCategory">
             <option value={0}>
@@ -81,6 +73,14 @@ const CategoryCreate: NextPage = () => {
         <div className="mb-3">
           <label className='form-label' htmlFor="description">Description</label>
           <textarea className="form-control" id="description" name="description" />
+        </div>
+        <div className="mb-3">
+          <label className='form-label' htmlFor="metaKeywords">Meta Keywords</label>
+          <input className="form-control" type="text" id="metaKeywords" name="metaKeywords"  />
+        </div>
+        <div className="mb-3">
+          <label className='form-label' htmlFor="metaDescription">Meta Description</label>
+          <textarea className="form-control" id="metaDescription" name="metaDescription" />
         </div>
         <div className="mb-3">
           <label className='form-label' htmlFor="displayOrder">Display Order</label>
