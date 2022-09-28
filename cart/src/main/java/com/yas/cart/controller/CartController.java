@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,17 +51,12 @@ public class CartController {
     @PostMapping(path = "/storefront/carts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CartGetDetailVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class))) })
-    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody CartPostVm cartPostVm,
-                UriComponentsBuilder uriComponentsBuilder,
-                Principal principal) {
-        if (principal != null && principal.getName().equals(cartPostVm.customerId())) {
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody CartPostVm cartPostVm, UriComponentsBuilder uriComponentsBuilder)  {
             CartGetDetailVm cartGetDetailVm = cartService.createCart(cartPostVm);
             return ResponseEntity
                     .created(uriComponentsBuilder.replacePath("/carts/{customerId}")
                             .buildAndExpand(cartGetDetailVm.customerId()).toUri())
                     .body(cartGetDetailVm);
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 }

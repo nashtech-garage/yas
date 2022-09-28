@@ -43,13 +43,14 @@ public class CartService {
     public CartGetDetailVm createCart(CartPostVm cartPostVm) {
         Cart cart = new Cart();
         List<CartDetail> cartDetailList = new ArrayList<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        cart.setCustomerId(cartPostVm.customerId());
+        cart.setCustomerId(auth.getName());
         if (CollectionUtils.isNotEmpty(cartPostVm.cartItemVm())) {
             for (CartItemVm cartItemVm : cartPostVm.cartItemVm()) {
                 if(cartItemVm.quantity() <= 0) 
                     throw new BadRequestException(("Quantity cannot be negative"));
-                
+
                 try {
                     productService.getProduct(cartItemVm.productId());
                 } catch (Exception e) {
@@ -63,8 +64,6 @@ public class CartService {
                 cartDetailList.add(cartDetail);
             }
             cart.setCartDetails(cartDetailList);
-
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             cart.setCreatedBy(auth.getName());
             cart.setCreatedOn(ZonedDateTime.now());
 
@@ -72,6 +71,6 @@ public class CartService {
             cartDetailRepository.saveAllAndFlush(cartDetailList);
             return CartGetDetailVm.fromModel(savedCart);
         } else
-            throw new BadRequestException("Cart's detail can't be null");
+            throw new BadRequestException("Cart's item can't be null");
     }
 }
