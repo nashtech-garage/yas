@@ -34,11 +34,10 @@ const ProductAttributes: NextPage = () => {
     const [listUpdateProductAttributeId, setListUpdateProductAttributeId] = useState<string[]>([])
     const [listCreateProductAttributeId, setListCreateProductAttributeId] = useState<string[]>([])
 
-    const [arrayDeleteProductAttributeId] = useState<string[]>([])
-    const [arrayUpdateProductAttributeId] = useState<string[]>([])
-    const [arrayCreateProductAttributeId] = useState<string[]>([])
+    let [arrayDeleteProductAttributeId] = useState<string[]>([])
+    let [arrayUpdateProductAttributeId] = useState<string[]>([])
+    let [arrayCreateProductAttributeId] = useState<string[]>([])
     let [arrayAttributeOfProducts] = useState<ProductAttributeValue[]>([]);
-
 
     let checkProductAttributeIdValid: boolean;
 
@@ -92,8 +91,12 @@ const ProductAttributes: NextPage = () => {
             nameProductAttribute: nameAttribute,
             value: "",
         }
-        arrayCreateProductAttributeId.push(productAttributeId)
+        arrayCreateProductAttributeId = listCreateProductAttributeId
+        arrayCreateProductAttributeId.push(productAttributeId.toString())
         setListCreateProductAttributeId(arrayCreateProductAttributeId);
+        setListDeleteProductAttributeId( listDeleteProductAttributeId.filter((item) =>
+                item.valueOf().toString() !== productAttributeId.toString()
+        ));
         setProductAttributes( productAttributes.filter(item =>item.name !== nameAttribute));
         setAttributeOfProducts([ ...attributeOfProducts,productAttributeValue]);
         setNameAttribute("")
@@ -105,8 +108,12 @@ const ProductAttributes: NextPage = () => {
             name: attributeName,
             productAttributeGroup: ""
         }
-        arrayDeleteProductAttributeId.push(editProductAttributeId)
+        arrayDeleteProductAttributeId = listDeleteProductAttributeId
+        arrayDeleteProductAttributeId.push(editProductAttributeId.toString())
         setListDeleteProductAttributeId(arrayDeleteProductAttributeId);
+        setListCreateProductAttributeId( listCreateProductAttributeId.filter((item) =>
+                item.valueOf().toString() !== editProductAttributeId.toString()
+        ));
         setAttributeOfProducts( attributeOfProducts.filter(item =>item.nameProductAttribute !== attributeName ));
         setProductAttributes([ ...productAttributes,productAttribute]);
     };
@@ -114,37 +121,16 @@ const ProductAttributes: NextPage = () => {
         event.preventDefault()
         checkProductAttributeIdValid = true;
         for (const productAttributes1 of attributeOfProducts) {
-            attributeOfCurrentProducts.forEach((currentAttributes)=>{
-                if( parseInt(productAttributes1.id) === parseInt(currentAttributes.id)){
-                    checkProductAttributeIdValid = false;
-                    return;
-                }
-            })
-            if(checkProductAttributeIdValid){
-                if (id) {
-                    let productAttributeValuePost: ProductAttributeValuePost = {
-                        ProductId: (+id).toString(),
-                        productAttributeId: productAttributes1.id,
-                        value: productAttributes1.value
-                    }
-                    await createProductAttributeValueOfProduct(productAttributeValuePost);
-                }
-            }
-            checkProductAttributeIdValid=true;
-        }
-        for (const currentAttributes of attributeOfCurrentProducts) {
-            for (const list of listDeleteProductAttributeId) {
-                if( parseInt(list.valueOf()) === parseInt(currentAttributes.id)){
-                    for (const listCreate of listCreateProductAttributeId) {
-                        if(parseInt(currentAttributes.id) === parseInt(listCreate.valueOf()) ){
-                            checkProductAttributeIdValid = false;
-                            break;
+            for (const createProductAttribute of listCreateProductAttributeId){
+                if( parseInt(productAttributes1.id) === parseInt(createProductAttribute.valueOf())){
+                    if (id) {
+                        let productAttributeValuePost: ProductAttributeValuePost = {
+                            ProductId: (+id).toString(),
+                            productAttributeId: productAttributes1.id,
+                            value: productAttributes1.value
                         }
+                        await createProductAttributeValueOfProduct(productAttributeValuePost);
                     }
-                    if(checkProductAttributeIdValid) {
-                        await deleteProductAttributeValueOfProductById(parseInt(currentAttributes.id));
-                    }
-                    checkProductAttributeIdValid = true;
                 }
             }
         }
@@ -159,6 +145,13 @@ const ProductAttributes: NextPage = () => {
                         }
                         await updateProductAttributeValueOfProduct(parseInt(productAttributes1.id),productAttributeValuePost);
                     }
+                }
+            }
+        }
+        for (const currentAttributes of attributeOfCurrentProducts) {
+            for (const list of listDeleteProductAttributeId) {
+                if( parseInt(list.valueOf()) === parseInt(currentAttributes.id)){
+                        await deleteProductAttributeValueOfProductById(parseInt(currentAttributes.id));
                 }
             }
         }
