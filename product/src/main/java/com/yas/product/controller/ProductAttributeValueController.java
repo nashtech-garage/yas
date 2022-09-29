@@ -87,4 +87,16 @@ public class ProductAttributeValueController {
         return  ResponseEntity.created(uriComponentsBuilder.replacePath("/product-attribute-value/{id}").buildAndExpand(savedProductAttributeValue.getId()).toUri())
                 .body(productAttributeValueGetVm);
     }
+    @DeleteMapping("/backoffice/product-attribute-value/{id}")
+    @ApiResponses(value ={
+            @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> deleteProductAttributeValueById(@PathVariable Long id) {
+        productAttributeValueRepository
+                .findById(id)
+                .orElseThrow(()-> new NotFoundException(String.format("Product attribute value %s is not found", id)));
+        productAttributeValueRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
