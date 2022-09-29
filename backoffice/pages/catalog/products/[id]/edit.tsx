@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Product } from '../../../../modules/catalog/models/Product'
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService'
 import { useForm } from "react-hook-form";
