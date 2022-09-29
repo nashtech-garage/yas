@@ -3,7 +3,7 @@ import {ProductAttributeValuePost} from "../models/ProductAttributeValuePost";
 
 export async function getAttributeValueOfProduct(productId: number): Promise<ProductAttributeValue[]> {
     const response = await fetch('/api/product/backoffice/product-attribute-value/' + productId);
-    return await response.json();
+    return response.json();
 }
 
 export async function createProductAttributeValueOfProduct(productAttributeValuePost: ProductAttributeValuePost): Promise<ProductAttributeValuePost> {
@@ -12,10 +12,10 @@ export async function createProductAttributeValueOfProduct(productAttributeValue
         body: JSON.stringify(productAttributeValuePost),
         headers: {"Content-type": "application/json; charset=UTF-8"}
     })
-    return await response.json();
+    return response.json();
 }
 
-export async function updateProductAttributeValueOfProduct(id: number,productAttributeValuePost: ProductAttributeValuePost): Promise<Number> {
+export async function updateProductAttributeValueOfProduct(id: number,productAttributeValuePost: ProductAttributeValuePost): Promise<number> {
     const res = await fetch('/api/product/backoffice/product-attribute-value/' + id, {
         method: "PUT",
         body : JSON.stringify(productAttributeValuePost),
@@ -24,7 +24,7 @@ export async function updateProductAttributeValueOfProduct(id: number,productAtt
     return res.status;
 }
 
-export async function deleteProductAttributeValueOfProductById(id: number): Promise<Number> {
+export async function deleteProductAttributeValueOfProductById(id: number): Promise<number> {
     const res = await fetch('/api/product/backoffice/product-attribute-value/' + id, {
         method: "DELETE",
     });

@@ -30,21 +30,21 @@ const ProductAttributes: NextPage = () => {
     const [productAttributeId, setProductAttributeId] = useState(String);
     const [attributeName, setAttributeName] = useState(String);
 
-    const [listDeleteProductAttributeId, setListDeleteProductAttributeId] = useState<String[]>([])
-    const [listUpdateProductAttributeId, setListUpdateProductAttributeId] = useState<String[]>([])
-    const [listCreateProductAttributeId, setListCreateProductAttributeId] = useState<String[]>([])
+    const [listDeleteProductAttributeId, setListDeleteProductAttributeId] = useState<string[]>([])
+    const [listUpdateProductAttributeId, setListUpdateProductAttributeId] = useState<string[]>([])
+    const [listCreateProductAttributeId, setListCreateProductAttributeId] = useState<string[]>([])
 
-    const [arrayDeleteProductAttributeId] = useState<String[]>([])
-    const [arrayUpdateProductAttributeId] = useState<String[]>([])
-    const [arrayCreateProductAttributeId] = useState<String[]>([])
+    const [arrayDeleteProductAttributeId] = useState<string[]>([])
+    const [arrayUpdateProductAttributeId] = useState<string[]>([])
+    const [arrayCreateProductAttributeId] = useState<string[]>([])
     let [arrayAttributeOfProducts] = useState<ProductAttributeValue[]>([]);
 
 
-    let checkProductAttributeIdValid: Boolean;
+    let checkProductAttributeIdValid: boolean;
 
     useEffect(() =>{
         if (id) {
-            let checkIdValid: Boolean
+            let checkIdValid: boolean
             getAttributeValueOfProduct(+id)
                 .then((data) => {
                     setAttributeOfProducts(data);
