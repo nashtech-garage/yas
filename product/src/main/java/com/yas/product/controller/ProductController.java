@@ -22,13 +22,14 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-
     @GetMapping("/backoffice/products")
-    public ResponseEntity<ProductListGetVm> listProduct(
+    public ResponseEntity<ProductListGetVm> listProduct2(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize
+            @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,
+            @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
+            @RequestParam(value = "brand-name", defaultValue = "", required = false) String brandName
     ) {
-        return ResponseEntity.ok(productService.getAllProducts(pageNo, pageSize));
+        return ResponseEntity.ok(productService.getProductsByBrandOrName(pageNo, pageSize, productName, brandName));
     }
 
 

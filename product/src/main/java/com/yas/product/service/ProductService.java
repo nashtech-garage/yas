@@ -46,15 +46,12 @@ public class ProductService {
         this.productImageRepository = productImageRepository;
     }
 
-    public List<ProductListVm> getProducts() {
-        return productRepository.findAll().stream()
-                .map(ProductListVm::fromModel)
-                .toList();
-    }
-
-    public ProductListGetVm getAllProducts(int pageNo, int pageSize) {
+    public ProductListGetVm getProductsByBrandOrName(int pageNo, int pageSize, String productName, String brandName) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Product> productPage = productRepository.findByOrderByIdAsc(pageable);
+        Page<Product> productPage = productRepository.findProductsByFilterOrSearching(
+                productName.trim().toLowerCase(),
+                brandName.trim().toLowerCase(),
+                pageable);
         List<Product> productList = productPage.getContent();
         List<ProductListVm> productListVmList = productList.stream()
                 .map(ProductListVm::fromModel)
