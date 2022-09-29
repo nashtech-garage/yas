@@ -93,7 +93,7 @@ public class ProductAttributeValueController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteProductAttributeValueById(@PathVariable Long id) {
-        ProductAttributeValue productAttributeValue =productAttributeValueRepository
+        productAttributeValueRepository
                 .findById(id)
                 .orElseThrow(()-> new NotFoundException(String.format("Product attribute value %s is not found", id)));
         productAttributeValueRepository.deleteById(id);
