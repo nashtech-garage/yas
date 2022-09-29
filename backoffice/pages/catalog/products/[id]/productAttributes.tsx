@@ -21,6 +21,7 @@ const ProductAttributes: NextPage = () => {
 
     const [attributeOfCurrentProducts, setAttributeOfCurrentProducts] = useState<ProductAttributeValue[]>([]);
     const [attributeOfProducts, setAttributeOfProducts] = useState<ProductAttributeValue[]>([]);
+
     const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>([]);
     const [array] = useState<ProductAttribute[]>([]);
 
@@ -36,6 +37,8 @@ const ProductAttributes: NextPage = () => {
     const [arrayDeleteProductAttributeId] = useState<String[]>([])
     const [arrayUpdateProductAttributeId] = useState<String[]>([])
     const [arrayCreateProductAttributeId] = useState<String[]>([])
+    let [arrayAttributeOfProducts] = useState<ProductAttributeValue[]>([]);
+
 
     let checkProductAttributeIdValid: Boolean;
 
@@ -69,7 +72,8 @@ const ProductAttributes: NextPage = () => {
 
     const editValueAttribute = (event:any) =>{
         event.preventDefault()
-        attributeOfProducts.forEach((obj)=>{
+        arrayAttributeOfProducts = attributeOfProducts;
+        arrayAttributeOfProducts.forEach((obj)=>{
             if(obj.id.toString() === editProductAttributeId.toString()){
                 obj.value = event.target.value
             }
@@ -79,7 +83,7 @@ const ProductAttributes: NextPage = () => {
                 arrayUpdateProductAttributeId.push(obj.id.toString())
         })
         setListUpdateProductAttributeId(arrayUpdateProductAttributeId)
-        setAttributeOfProducts(attributeOfProducts);
+        setAttributeOfProducts(arrayAttributeOfProducts);
     }
     const addNewAttributeOfProduct = (event:any) => {
         event.preventDefault()
