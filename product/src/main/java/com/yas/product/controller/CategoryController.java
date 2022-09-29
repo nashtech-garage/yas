@@ -109,6 +109,23 @@ public class CategoryController {
         categoryRepository.saveAndFlush(category);
         return ResponseEntity.noContent().build();
     }
+    @DeleteMapping("/backoffice/categories/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException(String.format("Category %s is not found", id)));
+        if(category.getCategories().size()>0){
+            throw new BadRequestException("Please make sure this category contains no children");
+        }
+        if(category.getProductCategories().size()>0){
+            throw new BadRequestException("Please make sure this category contains no product");
+        }
+        categoryRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
     boolean checkParent(Long id, Category category){
         if(id == category.getId()) return false;
         if(category.getParent()!=null)
