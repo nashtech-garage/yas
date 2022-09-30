@@ -8,4 +8,6 @@ public interface MediaService {
     Media saveMedia(MediaPostVm mediaPostVm);
 
     MediaVm getMediaById(Long id);
+    
+    Boolean removeMedia(Long id);
 }
