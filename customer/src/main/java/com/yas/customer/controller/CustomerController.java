@@ -53,6 +53,6 @@ public class CustomerController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     @GetMapping("/storefront/customer/guest-user")
     public GuestUserVm createGuestUser() {
-        return  customerService.createGuestUser();
+        return customerService.createGuestUser();
     }
 }

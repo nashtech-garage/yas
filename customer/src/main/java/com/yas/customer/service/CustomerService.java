@@ -10,13 +10,17 @@ import com.yas.customer.viewmodel.CustomerAdminVm;
 import com.yas.customer.viewmodel.CustomerVm;
 import com.yas.customer.viewmodel.GuestUserVm;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Collections;
@@ -73,22 +77,33 @@ public class CustomerService {
 
     public GuestUserVm createGuestUser() {
         try {
-            UsersResource resource = keycloakClientConfig.getAdminKeyCloak().realm(keycloakPropsConfig.getRealm()).users();
+            // Get realm
+            RealmResource realmResource = keycloakClientConfig
+                    .getAdminKeyCloak()
+                    .realm(keycloakPropsConfig.getRealm());
             String randomGuestName = generateSafeString();
             String guestUserEmail = randomGuestName + "_guest@yas.com";
             CredentialRepresentation credential = createPasswordCredentials("GUEST");
 
+            // Define user
             UserRepresentation user = new UserRepresentation();
             user.setUsername(guestUserEmail);
             user.setFirstName("GUEST");
             user.setLastName(randomGuestName);
             user.setEmail(guestUserEmail);
             user.setCredentials(Collections.singletonList(credential));
-            user.setRealmRoles(List.of("GUEST"));
             user.setEnabled(true);
+            Response response = realmResource.users().create(user);
 
-            resource.create(user);
-            return new GuestUserVm(guestUserEmail, "GUEST");
+            // get new user
+            String userId = CreatedResponseUtil.getCreatedId(response);
+            UserResource userResource = realmResource.users().get(userId);
+            RoleRepresentation guestRealmRole = realmResource.roles().get("GUEST").toRepresentation();
+
+            // Assign realm role GUEST to user
+            userResource.roles().realmLevel().add(Collections.singletonList(guestRealmRole));
+
+            return new GuestUserVm(userId, guestUserEmail, "GUEST");
         } catch (InternalError exception) {
             throw new InternalErrorException(exception.getMessage());
         }
