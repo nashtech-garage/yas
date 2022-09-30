@@ -3,6 +3,7 @@ package com.yas.customer.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,9 +21,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
+        http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/storefront/customer/guest-user").permitAll()
+                .antMatchers(HttpMethod.POST, "/storefront/customer/guest-user").permitAll()
                 .antMatchers("/backoffice/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()

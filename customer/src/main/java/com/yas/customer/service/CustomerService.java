@@ -3,7 +3,7 @@ package com.yas.customer.service;
 import com.yas.customer.config.KeycloakClientConfig;
 import com.yas.customer.config.KeycloakPropsConfig;
 import com.yas.customer.exception.AccessDeniedException;
-import com.yas.customer.exception.InternalErrorException;
+import com.yas.customer.exception.CreateGuestUserException;
 import com.yas.customer.exception.NotFoundException;
 import com.yas.customer.exception.WrongEmailFormatException;
 import com.yas.customer.viewmodel.CustomerAdminVm;
@@ -78,9 +78,10 @@ public class CustomerService {
     public GuestUserVm createGuestUser() {
         try {
             // Get realm
-            RealmResource realmResource = keycloakClientConfig
-                    .getAdminKeyCloak()
-                    .realm(keycloakPropsConfig.getRealm());
+//            RealmResource realmResource = keycloakClientConfig
+//                    .getAdminKeyCloak()
+//                    .realm(keycloakPropsConfig.getRealm());
+            RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
             String randomGuestName = generateSafeString();
             String guestUserEmail = randomGuestName + "_guest@yas.com";
             CredentialRepresentation credential = createPasswordCredentials("GUEST");
@@ -105,7 +106,7 @@ public class CustomerService {
 
             return new GuestUserVm(userId, guestUserEmail, "GUEST");
         } catch (InternalError exception) {
-            throw new InternalErrorException(exception.getMessage());
+            throw new CreateGuestUserException(exception.getMessage());
         }
     }
 

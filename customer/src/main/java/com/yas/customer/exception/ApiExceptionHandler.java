@@ -42,10 +42,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(errorVm);
     }
 
-    @ExceptionHandler(InternalErrorException.class)
-    public ResponseEntity<ErrorVm> InternalErrorException(InternalErrorException ex, WebRequest request) {
+    @ExceptionHandler(CreateGuestUserException.class)
+    public ResponseEntity<ErrorVm> CreateGuestUserException(CreateGuestUserException ex, WebRequest request) {
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(), "Internal Server Error", message);
+        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
         log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 500, message);
         log.debug(ex.toString());
         return ResponseEntity.badRequest().body(errorVm);
