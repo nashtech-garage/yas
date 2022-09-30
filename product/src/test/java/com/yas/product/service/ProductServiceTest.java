@@ -11,7 +11,6 @@ import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.repository.ProductImageRepository;
 import com.yas.product.repository.ProductRepository;
-import com.yas.product.viewmodel.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -609,7 +608,7 @@ class ProductServiceTest {
         var productNameCaptor = ArgumentCaptor.forClass(String.class);
         var brandNameCaptor = ArgumentCaptor.forClass(String.class);
 
-        when(productRepository.findProductsByFilterOrSearching(anyString(), anyString(), any(Pageable.class))).thenReturn(productPage);
+        when(productRepository.getProductsWithFilter(anyString(), anyString(), any(Pageable.class))).thenReturn(productPage);
         when(productPage.getContent()).thenReturn(products);
         when(productPage.getNumber()).thenReturn(pageNo);
         when(productPage.getTotalElements()).thenReturn((long) totalElement);
@@ -617,10 +616,10 @@ class ProductServiceTest {
         when(productPage.isLast()).thenReturn(false);
 
         //when
-        ProductListGetVm actualReponse = productService.getProductsByBrandOrName(pageNo, pageSize, productName, brandName);
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
 
         //then
-        verify(productRepository).findProductsByFilterOrSearching(
+        verify(productRepository).getProductsWithFilter(
                 productNameCaptor.capture(),
                 brandNameCaptor.capture(),
                 pageableCaptor.capture());

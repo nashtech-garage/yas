@@ -21,7 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "and " +
             "(lower(p.brand.name) like concat('%', :brandName, '%')) " +
             "order by p.id asc")
-    Page<Product> findProductsByFilterOrSearching(@Param("productName") String productName,
-                                                  @Param("brandName") String brandName,
-                                                  Pageable pageable);
+    Page<Product> getProductsWithFilter(@Param("productName") String productName,
+                                        @Param("brandName") String brandName,
+                                        Pageable pageable);
 }

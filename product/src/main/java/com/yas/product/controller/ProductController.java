@@ -29,7 +29,7 @@ public class ProductController {
             @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
             @RequestParam(value = "brand-name", defaultValue = "", required = false) String brandName
     ) {
-        return ResponseEntity.ok(productService.getProductsByBrandOrName(pageNo, pageSize, productName, brandName));
+        return ResponseEntity.ok(productService.getProductsWithFilter(pageNo, pageSize, productName, brandName));
     }
 
 

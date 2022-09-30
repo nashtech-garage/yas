@@ -46,9 +46,9 @@ public class ProductService {
         this.productImageRepository = productImageRepository;
     }
 
-    public ProductListGetVm getProductsByBrandOrName(int pageNo, int pageSize, String productName, String brandName) {
+    public ProductListGetVm getProductsWithFilter(int pageNo, int pageSize, String productName, String brandName) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Product> productPage = productRepository.findProductsByFilterOrSearching(
+        Page<Product> productPage = productRepository.getProductsWithFilter(
                 productName.trim().toLowerCase(),
                 brandName.trim().toLowerCase(),
                 pageable);
