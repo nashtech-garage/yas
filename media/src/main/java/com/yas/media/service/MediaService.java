@@ -9,5 +9,5 @@ public interface MediaService {
 
     MediaVm getMediaById(Long id);
     
-    Boolean removeMedia(Long id);
+    void removeMedia(Long id);
 }

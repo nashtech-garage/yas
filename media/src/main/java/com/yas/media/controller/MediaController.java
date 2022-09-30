@@ -45,9 +45,7 @@ public class MediaController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if(mediaService.removeMedia(id)){
-            return ResponseEntity.noContent().build();
-        }
+        mediaService.removeMedia(id);
         return ResponseEntity.notFound().build();
     }
 

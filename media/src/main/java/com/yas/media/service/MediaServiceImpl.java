@@ -2,6 +2,7 @@ package com.yas.media.service;
 
 import com.yas.media.config.YasConfig;
 import com.yas.media.exception.MultipartFileContentException;
+import com.yas.media.exception.NotFoundException;
 import com.yas.media.exception.UnsupportedMediaTypeException;
 import com.yas.media.model.Media;
 import com.yas.media.repository.MediaRepository;
@@ -52,13 +53,12 @@ public class MediaServiceImpl implements MediaService {
     }
     
     @Override
-    public Boolean removeMedia(Long id) {
+    public void removeMedia(Long id) {
         NoFileMediaVm noFileMediaVm = mediaRepository.findByIdWithoutFileInReturn(id);
         if(noFileMediaVm == null){
-            return false;
+            throw new NotFoundException(String.format("Media %s is not found", id));
         }
         mediaRepository.deleteById(id);
-        return true;
     }
 
     @Override
