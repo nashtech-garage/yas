@@ -22,6 +22,7 @@ public class SecurityConfig {
 
         http
                 .authorizeRequests()
+                .antMatchers("/storefront/customer/guest-user").permitAll()
                 .antMatchers("/backoffice/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()

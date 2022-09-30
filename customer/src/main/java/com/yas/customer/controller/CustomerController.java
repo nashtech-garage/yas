@@ -1,9 +1,7 @@
 package com.yas.customer.controller;
 
 import com.yas.customer.service.CustomerService;
-import com.yas.customer.viewmodel.CustomerAdminVm;
-import com.yas.customer.viewmodel.CustomerVm;
-import com.yas.customer.viewmodel.ErrorVm;
+import com.yas.customer.viewmodel.*;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,5 +46,13 @@ public class CustomerController {
             @ApiResponse(responseCode = "403", description = "Access Denied", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CustomerVm> getCustomerProfile() {
         return ResponseEntity.ok(customerService.getCustomerProfile(SecurityContextHolder.getContext().getAuthentication().getName()));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = GuestUserVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    @GetMapping("/storefront/customer/guest-user")
+    public GuestUserVm createGuestUser() {
+        return  customerService.createGuestUser();
     }
 }
