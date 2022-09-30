@@ -1,6 +1,5 @@
 package com.yas.customer.service;
 
-import com.yas.customer.config.KeycloakClientConfig;
 import com.yas.customer.config.KeycloakPropsConfig;
 import com.yas.customer.exception.AccessDeniedException;
 import com.yas.customer.exception.CreateGuestUserException;
@@ -30,14 +29,12 @@ import java.util.List;
 public class CustomerService {
 
     private final Keycloak keycloak;
-    private  final KeycloakClientConfig keycloakClientConfig;
     private final KeycloakPropsConfig keycloakPropsConfig;
     private static final String ERROR_FORMAT = "%s: Client %s don't have access right for this resource";
 
-    public CustomerService(Keycloak keycloak, KeycloakPropsConfig keycloakPropsConfig, KeycloakClientConfig keycloakClientConfig) {
+    public CustomerService(Keycloak keycloak, KeycloakPropsConfig keycloakPropsConfig) {
         this.keycloak = keycloak;
         this.keycloakPropsConfig = keycloakPropsConfig;
-        this.keycloakClientConfig = keycloakClientConfig;
     }
 
     public List<CustomerAdminVm> getCustomers() {
@@ -78,9 +75,6 @@ public class CustomerService {
     public GuestUserVm createGuestUser() {
         try {
             // Get realm
-//            RealmResource realmResource = keycloakClientConfig
-//                    .getAdminKeyCloak()
-//                    .realm(keycloakPropsConfig.getRealm());
             RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
             String randomGuestName = generateSafeString();
             String guestUserEmail = randomGuestName + "_guest@yas.com";
