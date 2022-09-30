@@ -50,6 +50,7 @@ public class MediaServiceImpl implements MediaService {
         mediaRepository.saveAndFlush(media);
         return media;
     }
+    
     @Override
     public Boolean removeMedia(Long id) {
         NoFileMediaVm noFileMediaVm = mediaRepository.findByIdWithoutFileInReturn(id);
@@ -59,6 +60,7 @@ public class MediaServiceImpl implements MediaService {
         mediaRepository.deleteById(id);
         return true;
     }
+
     @Override
     public MediaVm getMediaById(Long id) {
         NoFileMediaVm noFileMediaVm = mediaRepository.findByIdWithoutFileInReturn(id);
