@@ -75,8 +75,9 @@ const ProductList: NextPage = () => {
               }}>
               <option value={''} selected={brandName == ''}>All</option>
               {brands.map(brand => (<option key={brand.id} value={brand.name}
-                selected={brandName === brand.name}
-              >{brand.name}</option>))}
+                selected={brandName === brand.name}>
+                {brand.name}
+              </option>))}
             </Form.Select>
           </div>
 
@@ -91,8 +92,8 @@ const ProductList: NextPage = () => {
                     autoFocus
                     onChange={(e) => {
                       if (e.target.value.replaceAll(' ', '') == '') setProductName('')
-                    }}
-                  ></Form.Control>
+                    }}>
+                  </Form.Control>
                   <button className="btn btn-primary" onClick={searchingHandler}>Search</button>
                 </div>
               </div>

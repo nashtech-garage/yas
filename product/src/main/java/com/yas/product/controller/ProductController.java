@@ -23,7 +23,7 @@ public class ProductController {
         this.productService = productService;
     }
     @GetMapping("/backoffice/products")
-    public ResponseEntity<ProductListGetVm> listProduct2(
+    public ResponseEntity<ProductListGetVm> listProducts(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,
             @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
