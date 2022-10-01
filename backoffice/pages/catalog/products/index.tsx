@@ -55,7 +55,7 @@ const ProductList: NextPage = () => {
               <td>
                 <Stack direction="horizontal" gap={3}>
                   <Link href={`/catalog/products/${product.id}/edit`}>
-                    <a>Edit</a>
+                    <button className="btn btn-outline-primary btn-sm" type="button">Edit</button>
                   </Link>
                 </Stack>
               </td>

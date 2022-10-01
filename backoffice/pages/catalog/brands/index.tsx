@@ -46,12 +46,9 @@ const BrandList: NextPage = () => {
                         <td>{brand.name}</td>
                         <td>{brand.slug}</td>
                         <td>
-                            <a href="#" className="btn btn-info btn-lg" style={{fontSize:"10px" , marginRight:"5px" , background:"red"}}>Edit
-                                <span className=""></span>
-                            </a>
-                            <a href="#" className="btn btn-info btn-lg" style={{fontSize:"10px"}}>Delete
-                                <span className=""></span>
-                            </a>
+                            <button className="btn btn-outline-primary btn-sm" type="button">Edit</button>
+                            &nbsp;
+                            <button className="btn btn-outline-danger btn-sm" type="button">Delete</button>
                         </td>
                     </tr>
                 ))}

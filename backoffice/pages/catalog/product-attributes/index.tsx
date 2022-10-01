@@ -50,8 +50,9 @@ const ProductAttributeList: NextPage = () =>{
                         <td>{obj.name}</td>
                         <td>{obj.productAttributeGroup}</td>
                         <td>
-                            <a href={`/catalog/product-attributes/${obj.id}/edit`} className="btn btn-info btn-lg" style={{fontSize:"10px" , marginRight:"5px" , background:"#AFEEEE"}}>Edit
-                            </a>
+                          <Link href={`/catalog/product-attributes/${obj.id}/edit`}>
+                            <button className="btn btn-outline-primary btn-sm" type="button">Edit</button>
+                          </Link>
                         </td>
                     </tr>
                 ))}
