@@ -1,9 +1,7 @@
 package com.yas.customer.controller;
 
 import com.yas.customer.service.CustomerService;
-import com.yas.customer.viewmodel.CustomerAdminVm;
-import com.yas.customer.viewmodel.CustomerVm;
-import com.yas.customer.viewmodel.ErrorVm;
+import com.yas.customer.viewmodel.*;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -48,5 +47,13 @@ public class CustomerController {
             @ApiResponse(responseCode = "403", description = "Access Denied", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CustomerVm> getCustomerProfile() {
         return ResponseEntity.ok(customerService.getCustomerProfile(SecurityContextHolder.getContext().getAuthentication().getName()));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = GuestUserVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    @PostMapping("/storefront/customer/guest-user")
+    public GuestUserVm createGuestUser() {
+        return customerService.createGuestUser();
     }
 }

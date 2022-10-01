@@ -9,7 +9,6 @@ import static org.keycloak.OAuth2Constants.CLIENT_CREDENTIALS;
 
 @Configuration
 public class KeycloakClientConfig {
-
     private final KeycloakPropsConfig keycloakPropsConfig;
 
     public KeycloakClientConfig(KeycloakPropsConfig keycloakPropsConfig) {
