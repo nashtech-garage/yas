@@ -24,7 +24,7 @@ public class CartDetail {
 
     private Long productId;
 
-    private Long parentProductId
+    private Long parentProductId;
 
     private int Quantity;
 

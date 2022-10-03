@@ -47,8 +47,8 @@ public class CartServiceTest {
         cartGetDetailVm = new CartGetDetailVm(1L, "customerId", null);
         
         List<CartDetail> cartDetailList = List.of(
-            new CartDetail(1L, null, 1L, 1),
-            new CartDetail(2L, null, 2L, 2)
+            new CartDetail(1L, null, 1L, null, 1),
+            new CartDetail(2L, null, 2L, null, 2)
         );
         cart1 = new Cart(1L, "customer-1", cartDetailList);
         cart2 = new Cart(2L, "customer-2", null);
