@@ -45,6 +45,32 @@ const ProductCreate: NextPage = () => {
     formState: { errors },
   } = useForm<ProductPost>({ resolver: yupResolver(schema) });
 
+  const renderCategoriesHierarchy: Function = (
+    id: number,
+    list: Array<Category>,
+    parentHierarchy: string
+  ) => {
+    const renderArr = list.filter((e) => e.parentId == id);
+    const newArr = list.filter((e) => e.parentId != id);
+    return renderArr
+      .sort((a: Category, b: Category) => a.name.localeCompare(b.name))
+      .map((category: Category) => {
+        return (
+          <React.Fragment key={category.id}>
+            <option value={category.name}>
+              {parentHierarchy}
+              {category.name}
+            </option>
+            {renderCategoriesHierarchy(
+              category.id,
+              newArr,
+              parentHierarchy + category.name + " >> "
+            )}
+          </React.Fragment>
+        );
+      });
+  };
+
   useEffect(() => {
     getCategories().then((data) => {
       setCategories(data);
@@ -98,6 +124,7 @@ const ProductCreate: NextPage = () => {
     let category = event.target.value;
     if (selectedCategories.indexOf(category) === -1) {
       let id = categories.find((item) => item.name === category)?.id;
+      // let category =categories.find((item) => item.name === category)?.name;
       if (id) {
         setCategoriesId([...categoriesId, id]);
       }
@@ -186,11 +213,7 @@ const ProductCreate: NextPage = () => {
                 <option disabled hidden value={0}>
                   Select Category
                 </option>
-                {Array.from(categories).map((category) => (
-                  <option value={category?.name} key={category?.id}>
-                    {category?.name}
-                  </option>
-                ))}
+                {renderCategoriesHierarchy(-1, categories, "")}
               </select>
               <sup className="text-danger fst-italic">
                 {errors.categoryIds?.message}
