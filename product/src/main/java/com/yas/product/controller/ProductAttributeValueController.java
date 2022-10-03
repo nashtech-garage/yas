@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class ProductAttributeValueController {
@@ -86,5 +87,17 @@ public class ProductAttributeValueController {
         ProductAttributeValueGetVm productAttributeValueGetVm = ProductAttributeValueGetVm.fromModel(savedProductAttributeValue);
         return  ResponseEntity.created(uriComponentsBuilder.replacePath("/product-attribute-value/{id}").buildAndExpand(savedProductAttributeValue.getId()).toUri())
                 .body(productAttributeValueGetVm);
+    }
+    @DeleteMapping("/backoffice/product-attribute-value/{id}")
+    @ApiResponses(value ={
+            @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> deleteProductAttributeValueById(@PathVariable Long id) {
+        Optional<ProductAttributeValue> productAttributeValue = productAttributeValueRepository.findById(id);
+        if(productAttributeValue.isEmpty())
+            throw new  NotFoundException(String.format("Product attribute value %s is not found", id));
+        productAttributeValueRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

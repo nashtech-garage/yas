@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Product } from '../../../../modules/catalog/models/Product'
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService'
 import { useForm } from "react-hook-form";
@@ -10,6 +10,7 @@ import { Category } from "../../../../modules/catalog/models/Category";
 import { Brand } from "../../../../modules/catalog/models/Brand";
 import { getCategories } from '../../../../modules/catalog/services/CategoryService'
 import { getBrands } from '../../../../modules/catalog/services/BrandService'
+import Link from 'next/link'
 const ProductEdit: NextPage = () => {
   //Get ID
   const router = useRouter()
@@ -260,6 +261,12 @@ const ProductEdit: NextPage = () => {
                   className={`form-control ${errors.specification ? "border-danger" : ""}`}
                   id="specification" name="specification" />
                 <p className='error-field'><>{errors.specification?.message}</></p>
+              </div>
+              <div className="mb-3">
+                <label className='form-label' htmlFor="specification">Product Attributes <span style={{ 'color': 'red' }}>*</span></label>
+                <Link href={`/catalog/products/${product.id}/productAttributes`}>
+                  <button className="btn btn-primary" style={{  marginLeft:"35px" }}>Product Attributes</button>
+                </Link>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="sku">SKU <span style={{ 'color': 'red' }}>*</span></label>

@@ -1,13 +1,39 @@
 import type { NextPage } from "next";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { Button, Table } from "react-bootstrap";
+import { Button, Modal, Table } from "react-bootstrap";
 import type { Category } from "../../../modules/catalog/models/Category";
-import { getCategories } from "../../../modules/catalog/services/CategoryService";
+import { deleteCategory, getCategories } from "../../../modules/catalog/services/CategoryService";
 
 const CategoryList: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setLoading] = useState(false);
+  let categoryId = 0;
+  const [categoryName, setCategoryName]= useState('') ;
+  const [showModalDelete, setShowModalDelete] = useState(false);
+  const handleClose = () => setShowModalDelete(false);
+  const handleDelete = () => {
+    if(categoryId){
+      deleteCategory(+categoryId)
+      .then((response)=>{
+        if(response.status===204){
+          alert("Delete successfully")
+          location.replace("/catalog/categories");
+        }
+        else if(response.title==='Not found'){
+          alert(response.detail)
+          location.replace("/catalog/categories");
+        }
+        else if(response.title==='Bad request'){
+          alert(response.detail)
+        }
+        else{
+          alert("Delete failed")
+          location.replace("/catalog/categories");
+        }
+      })
+      }
+  }
   useEffect(() => {
     setLoading(true);
     getCategories().then((data) => {
@@ -38,8 +64,11 @@ const CategoryList: NextPage = () => {
               <Link href={`/catalog/categories/${category.id}/edit`}>
               <button className="btn btn-outline-primary btn-sm" type="button">Edit</button>
               </Link>
-              &emsp;
-              <button className="btn btn-outline-danger btn-sm" >Delete</button>
+              &nbsp;
+              <button className="btn btn-outline-danger btn-sm" onClick={()=> {
+                categoryId = category.id;
+                setCategoryName(category.name)
+                setShowModalDelete(true)}}>Delete</button>
             </td>
             </tr>
             {renderCategoriesHierarchy(
@@ -76,6 +105,17 @@ const CategoryList: NextPage = () => {
           {renderCategoriesHierarchy(-1, categories, "")}
         </tbody>
       </Table>
+      <Modal show={showModalDelete} onHide={handleClose}>
+        <Modal.Body>{'Are you sure you want to delete this '+ categoryName +" ?"}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

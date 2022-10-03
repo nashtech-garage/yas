@@ -27,3 +27,11 @@ export async function updateCategory(id: number, category: Category){
   if(response.status ===204) return await response;
   else return await response.json();
 }
+export async function deleteCategory(id: number) {
+  const response = await fetch('/api/product/backoffice/categories/'+id, {
+    method: 'DELETE',
+    headers: {"Content-type": "application/json; charset=UTF-8"}
+  })
+  if(response.status === 204) return await response;
+  else return await response.json();
+}

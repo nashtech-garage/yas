@@ -1,5 +1,6 @@
 package com.yas.product.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yas.product.model.attribute.ProductAttributeValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,6 +44,8 @@ public class Product extends AbstractAuditEntity {
 
     private Boolean isFeatured;
 
+    private Boolean isVisibleIndividually;
+
     private String metaKeyword;
 
     private String metaDescription;
@@ -61,6 +64,14 @@ public class Product extends AbstractAuditEntity {
 
     @OneToMany(mappedBy = "product")
     private List<ProductImage> productImages = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Product parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private List<Product> products = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

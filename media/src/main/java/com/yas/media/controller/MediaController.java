@@ -39,6 +39,16 @@ public class MediaController {
         return ResponseEntity.ok().body(noFileMediaVm);
     }
 
+    @DeleteMapping("/medias/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Deleted", content = @Content(schema = @Schema(implementation = MediaVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+    })
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        mediaService.removeMedia(id);
+        return ResponseEntity.notFound().build();
+    }
+
     @GetMapping("/medias/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = MediaVm.class)))})
