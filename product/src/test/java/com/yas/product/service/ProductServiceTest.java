@@ -11,6 +11,7 @@ import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.repository.ProductImageRepository;
 import com.yas.product.repository.ProductRepository;
+import com.yas.product.viewmodel.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -591,7 +592,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void getProductsByBrandOrName_WhenRequestIsValid_ThenSuccess() {
+    void getProductsWithFilter_WhenFilterByBrandNameAndProductName_ThenSuccess() {
         //given
         Page<Product> productPage = mock(Page.class);
         List<ProductListVm> productListVmList = List.of(
@@ -623,10 +624,123 @@ class ProductServiceTest {
                 productNameCaptor.capture(),
                 brandNameCaptor.capture(),
                 pageableCaptor.capture());
-        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim().toLowerCase());
-        assertThat(brandNameCaptor.getValue()).isEqualTo(brandName.trim().toLowerCase());
+        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim());
+        assertThat(brandNameCaptor.getValue()).isEqualTo(brandName.trim());
         assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
 
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+    }
+
+    @Test
+    void getProductsWithFilter_WhenFilterByBrandName_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        String productName = " ";
+        String brandName = " Xiaomi ";
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        var brandNameCaptor = ArgumentCaptor.forClass(String.class);
+
+        when(productRepository.findByBrandName(pageableCaptor.capture(), brandNameCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
+
+        //then
+        assertThat(brandNameCaptor.getValue()).isEqualTo(brandName.trim());
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+    }
+
+    @Test
+    void getProductsWithFilter_WhenFilterByProductName_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        String productName = " Xiaomi 12";
+        String brandName = "  ";
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        var productNameCaptor = ArgumentCaptor.forClass(String.class);
+
+        when(productRepository.findByName(pageableCaptor.capture(), productNameCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
+
+        //then
+        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim());
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+    }
+
+
+    @Test
+    void getProductsWithFilter_WhenFindAll_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        String productName = "";
+        String brandName = "";
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        when(productRepository.findAll(pageableCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
+
+        //then
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
         assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
         assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
         assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());

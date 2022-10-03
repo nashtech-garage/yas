@@ -16,12 +16,11 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByBrand(Brand brand);
     Optional<Product> findBySlug(String slug);
-    @Query(value = "from Product p where " +
-            "(lower(p.name) like concat('%', :productName, '%')) " +
-            "and " +
-            "(lower(p.brand.name) like concat('%', :brandName, '%')) " +
-            "order by p.id asc")
+    @Query(value = "from Product p where p.name = :productName and p.brand.name = :brandName ")
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
+
+    Page<Product> findByName(Pageable pageable, String productName);
+    Page<Product> findByBrandName(Pageable pageable, String brandName);
 }
