@@ -90,17 +90,17 @@ class ProductServiceTest {
                 true,
                 true,
                 "meta keyword",
-                "meta desciption"
+                "meta description"
         );
 
         category1 = new Category(1L, null, null, "null", null, null, null, null, null, null);
         category2 = new Category(2L, null, null, "null", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, null, null,
-                        1L, null, null, null, null),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, null, null,
-                        1L, null, null, null, null)
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,
+                        1L, null, null, null, null, null, null),
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,
+                        1L, null, null, null, null, null, null)
         );
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
