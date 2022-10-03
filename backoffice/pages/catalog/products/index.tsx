@@ -5,21 +5,46 @@ import { Button, Stack, Table } from "react-bootstrap";
 import ReactPaginate from "react-paginate";
 import type { Product } from "../../../modules/catalog/models/Product";
 import { getProducts } from "../../../modules/catalog/services/ProductService";
+import Form from 'react-bootstrap/Form';
+import type { Brand } from '../../../modules/catalog/models/Brand'
+import { getBrands } from '../../../modules/catalog/services/BrandService'
 
 const ProductList: NextPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setLoading] = useState(false);
   const [pageNo, setPageNo] = useState<number>(0)
   const [totalPage, setTotalPage] = useState<number>(1)
+  const [brands, setBrands] = useState<Brand[]>([])
+  const [brandName, setBrandName] = useState<string>('')
+  const [productName, setProductName] = useState<string>('')
 
   useEffect(() => {
     setLoading(true);
-    getProducts(pageNo).then((data) => {
+
+    getProducts(pageNo, productName, brandName).then((data) => {
       setTotalPage(data.totalPages)
       setProducts(data.productContent)
       setLoading(false);
     });
-  }, [pageNo]);
+  }, [pageNo, brandName, productName]);
+
+  useEffect(() => {
+    setLoading(true);
+    getBrands()
+      .then((data) => {
+        setBrands(data);
+        setLoading(false);
+      });
+  }, []);
+
+  console.log(brandName);
+
+  //searching handler
+  const searchingHandler = () => {
+    let inputValue = (document.getElementById('product-name') as HTMLInputElement).value;
+    setProductName(inputValue)
+    setPageNo(0)
+  }
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected)
@@ -38,6 +63,44 @@ const ProductList: NextPage = () => {
             <Button>Create Product</Button>
           </Link>
         </div>
+        <br />
+        <div className="row" >
+          <div className="col ">
+            <Form.Label htmlFor="brand-filter">Brand: </Form.Label>
+            <Form.Select style={{ "width": "300px", "marginBottom": "20px", "height": "50px" }}
+              id="brand-filter"
+              onChange={(e) => {
+                setPageNo(0)
+                setBrandName(e.target.value)
+              }}>
+              <option value={''} selected={brandName == ''}>All</option>
+              {brands.map(brand => (<option key={brand.id} value={brand.name}
+                selected={brandName === brand.name}>
+                {brand.name}
+              </option>))}
+            </Form.Select>
+          </div>
+
+          <div className="search-container">
+            <Form.Label htmlFor="brand-filter">Search: </Form.Label>
+            <div className="row height d-flex justify-content-center align-items-center" >
+              <div className="col" style={{ "padding": "0" }}>
+                <div className="search" >
+                  <i className="fa fa-search"></i>
+                  <Form.Control className="form-control" id="product-name"
+                    defaultValue={productName}
+                    autoFocus
+                    onChange={(e) => {
+                      if (e.target.value.replaceAll(' ', '') == '') setProductName('')
+                    }}>
+                  </Form.Control>
+                  <button className="btn btn-primary" onClick={searchingHandler}>Search</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
       <Table striped bordered hover>
         <thead>

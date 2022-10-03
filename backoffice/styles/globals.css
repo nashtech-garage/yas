@@ -48,6 +48,7 @@ a {
   align-items: center;
   flex-grow: 1;
 }
+
 .error-field {
   color: red;
 }
@@ -91,4 +92,36 @@ a {
   background-color: white;
   /* pointer-events: none; */
   cursor: not-allowed;
+}
+
+.search-container {
+  width: 30%
+}
+
+.search {
+  position: relative;
+  box-shadow: 0 0 40px rgba(51, 51, 51, .1);
+}
+
+.search input {
+  height: 50px;
+  text-indent: 25px;
+  border: 2px solid #d6d4d4;
+}
+
+.search .fa-search {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+}
+
+.search button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 40px;
+  width: 70px;
+  background: blue;
+  border-color: aqua;
+
 }
