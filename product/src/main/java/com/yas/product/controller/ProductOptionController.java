@@ -48,6 +48,7 @@ public class ProductOptionController {
     @PostMapping("/backoffice/product-options")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema( implementation = ProductOptionGetVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
     public ResponseEntity<ProductOptionGetVm> createProductOption(@Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal, UriComponentsBuilder uriComponentsBuilder) {
         ProductOption productOption = new ProductOption();
@@ -62,6 +63,7 @@ public class ProductOptionController {
     @PutMapping("/backoffice/product-options/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
     })
     public ResponseEntity<Void> updateProductOption(@PathVariable Long id, @Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal){
