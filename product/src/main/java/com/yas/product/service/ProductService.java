@@ -46,15 +46,21 @@ public class ProductService {
         this.productImageRepository = productImageRepository;
     }
 
-    public List<ProductListVm> getProducts() {
-        return productRepository.findAll().stream()
-                .map(ProductListVm::fromModel)
-                .toList();
-    }
-
-    public ProductListGetVm getAllProducts(int pageNo, int pageSize) {
+    public ProductListGetVm getProductsWithFilter(int pageNo, int pageSize, String productName, String brandName) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Product> productPage = productRepository.findByOrderByIdAsc(pageable);
+        Page<Product> productPage;
+        if(brandName.isBlank() && productName.isBlank()) {
+            productPage= productRepository.findAll(pageable);
+        }
+        else if(brandName.isBlank() && !productName.isBlank()) {
+            productPage= productRepository.findByName(pageable, productName.trim());
+        }
+        else if(!brandName.isBlank() && !productName.isBlank()){
+            productPage = productRepository.getProductsWithFilter( productName.trim(), brandName.trim(), pageable);
+        }
+        else {
+            productPage = productRepository.findByBrandName(pageable, brandName.trim());
+        }
         List<Product> productList = productPage.getContent();
         List<ProductListVm> productListVmList = productList.stream()
                 .map(ProductListVm::fromModel)

@@ -40,6 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+
 class ProductServiceTest {
 
     ProductRepository productRepository;
@@ -59,6 +60,7 @@ class ProductServiceTest {
     MockMultipartFile thumbnail;
 
     private Authentication authentication;
+
     @BeforeEach
     void setUp() {
         productRepository = mock(ProductRepository.class);
@@ -113,24 +115,25 @@ class ProductServiceTest {
     }
 
 
-    @Test
-    void getProducts_ExistProductsInDatabase_Sucsess() {
-        //given
-        List<ProductListVm> productListVmExpected = List.of(
-                new ProductListVm(1L, "product1", "slug"),
-                new ProductListVm(2L, "product2", "slug")
-        );
-        when(productRepository.findAll()).thenReturn(products);
-
-        //when
-        List<ProductListVm> productListVmActual = productService.getProducts();
-
-        //then
-        assertThat(productListVmActual).hasSameSizeAs(productListVmExpected);
-        assertThat(productListVmActual.get(0)).isEqualTo(productListVmExpected.get(0));
-        assertThat(productListVmActual.get(1)).isEqualTo(productListVmExpected.get(1));
-
-    }
+//    @Test
+//    void getProductsByBrandOrName_ExistProductsInDatabase_Sucsess() {
+//        //given
+//        List<ProductListVm> productListVmExpected = List.of(
+//                new ProductListVm(1L, "product1", "slug"),
+//                new ProductListVm(2L, "product2", "slug")
+//        );
+//        int page
+//        when(productRepository.findAll()).thenReturn(products);
+//
+//        //when
+//        List<ProductListVm> productListVmActual = productService.getProducts();
+//
+//        //then
+//        assertThat(productListVmActual).hasSameSizeAs(productListVmExpected);
+//        assertThat(productListVmActual.get(0)).isEqualTo(productListVmExpected.get(0));
+//        assertThat(productListVmActual.get(1)).isEqualTo(productListVmExpected.get(1));
+//
+//    }
 
     @Test
     void createProduct_TheRequestIsValid_Success() {
@@ -189,7 +192,7 @@ class ProductServiceTest {
         List<Category> categoryList = new ArrayList<>();
         categoryList.add(new Category(1L, null, null, "null", null, null, null, null, null, null));
 
-        List<Long> categoryIds= new ArrayList<>();
+        List<Long> categoryIds = new ArrayList<>();
         categoryIds.add(1L);
         categoryIds.add(2L);
         categoryIds.add(3L);
@@ -373,6 +376,7 @@ class ProductServiceTest {
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categorySlug));
     }
+
     @Test
     void updateProduct_whenProductIdInvalid_shouldThrowException() {
         //Initial variables
@@ -383,7 +387,7 @@ class ProductServiceTest {
 
         //Test
         NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
-                    productService.updateProduct(id,null);
+                    productService.updateProduct(id, null);
                 }
         );
         //Assert
@@ -402,12 +406,13 @@ class ProductServiceTest {
 
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
-                    productService.updateProduct(id,productPutVm);
+                    productService.updateProduct(id, productPutVm);
                 }
         );
         //Assert
         assertThat(badRequestException.getMessage(), is(String.format("Slug %s is duplicated", productPutVm.slug())));
     }
+
     @Test
     void updateProduct_whenBrandIdInvalid_shouldThrowException() {
         //Initial variables
@@ -421,7 +426,7 @@ class ProductServiceTest {
 
         //Test
         NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
-                    productService.updateProduct(id,productPutVm);
+                    productService.updateProduct(id, productPutVm);
                 }
         );
         //Assert
@@ -444,7 +449,7 @@ class ProductServiceTest {
 
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
-                    productService.updateProduct(id,productPutVm);
+                    productService.updateProduct(id, productPutVm);
                 }
         );
         //Assert
@@ -475,7 +480,7 @@ class ProductServiceTest {
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
-                    productService.updateProduct(id,productPutVm);
+                    productService.updateProduct(id, productPutVm);
                 }
         );
         //Assert
@@ -532,18 +537,19 @@ class ProductServiceTest {
 
         //Test
         NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
-                    productService.updateProduct(id,null);
+                    productService.updateProduct(id, null);
                 }
         );
         //Assert
         assertThat(notFoundException.getMessage(), is(String.format("Product %s is not found", id)));
     }
+
     @Test
     void getProduct_whenProductIdValid_shouldSuccess() {
         //Initial variables
         Long id = Long.valueOf(1);
         Product product = mock(Product.class);
-        Brand brand= new Brand();
+        Brand brand = new Brand();
         brand.setId(1L);
 
         //Stub
@@ -586,7 +592,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void getAllProducts_WhenRequestIsValid_ThenSuccess() {
+    void getProductsWithFilter_WhenFilterByBrandNameAndProductName_ThenSuccess() {
         //given
         Page<Product> productPage = mock(Page.class);
         List<ProductListVm> productListVmList = List.of(
@@ -597,9 +603,13 @@ class ProductServiceTest {
         int pageSize = 10;
         int totalElement = 20;
         int totalPages = 4;
+        String productName = " Xiaomi ";
+        String brandName = " Xiaomi ";
         var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        var productNameCaptor = ArgumentCaptor.forClass(String.class);
+        var brandNameCaptor = ArgumentCaptor.forClass(String.class);
 
-        when(productRepository.findByOrderByIdAsc(pageableCaptor.capture())).thenReturn(productPage);
+        when(productRepository.getProductsWithFilter(anyString(), anyString(), any(Pageable.class))).thenReturn(productPage);
         when(productPage.getContent()).thenReturn(products);
         when(productPage.getNumber()).thenReturn(pageNo);
         when(productPage.getTotalElements()).thenReturn((long) totalElement);
@@ -607,11 +617,130 @@ class ProductServiceTest {
         when(productPage.isLast()).thenReturn(false);
 
         //when
-        ProductListGetVm actualReponse = productService.getAllProducts(pageNo, pageSize);
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
+
+        //then
+        verify(productRepository).getProductsWithFilter(
+                productNameCaptor.capture(),
+                brandNameCaptor.capture(),
+                pageableCaptor.capture());
+        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim());
+        assertThat(brandNameCaptor.getValue()).isEqualTo(brandName.trim());
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+    }
+
+    @Test
+    void getProductsWithFilter_WhenFilterByBrandName_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        String productName = " ";
+        String brandName = " Xiaomi ";
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        var brandNameCaptor = ArgumentCaptor.forClass(String.class);
+
+        when(productRepository.findByBrandName(pageableCaptor.capture(), brandNameCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
+
+        //then
+        assertThat(brandNameCaptor.getValue()).isEqualTo(brandName.trim());
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+    }
+
+    @Test
+    void getProductsWithFilter_WhenFilterByProductName_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        String productName = " Xiaomi 12";
+        String brandName = "  ";
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        var productNameCaptor = ArgumentCaptor.forClass(String.class);
+
+        when(productRepository.findByName(pageableCaptor.capture(), productNameCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
+
+        //then
+        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim());
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
+        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+    }
+
+
+    @Test
+    void getProductsWithFilter_WhenFindAll_ThenSuccess() {
+        //given
+        Page<Product> productPage = mock(Page.class);
+        List<ProductListVm> productListVmList = List.of(
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+        );
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        String productName = "";
+        String brandName = "";
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        when(productRepository.findAll(pageableCaptor.capture())).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(products);
+        when(productPage.getNumber()).thenReturn(pageNo);
+        when(productPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productPage.getTotalPages()).thenReturn(totalPages);
+        when(productPage.isLast()).thenReturn(false);
+
+        //when
+        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
 
         //then
         assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
-
         assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
         assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
         assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());

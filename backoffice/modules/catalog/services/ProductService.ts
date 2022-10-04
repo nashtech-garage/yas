@@ -4,9 +4,9 @@ import { ProductPut } from "../models/ProductPut";
 import { Products } from '../models/Products'
 
 
-export async function getProducts(pageNo:number): Promise<Products> {
-  const url = `/api/product/backoffice/products?pageNo=${pageNo}`
-  const response = await fetch(url);
+export async function getProducts(pageNo:number, productName:string, brandName: string): Promise<Products> {
+  const url = `/api/product/backoffice/products?pageNo=${pageNo}&product-name=${productName}&brand-name=${brandName}`
+  const response = await fetch(url);  
   return await response.json();
 }
 
