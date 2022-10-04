@@ -317,12 +317,21 @@ public class ProductService {
         return productThumbnailVms;
     }
 
-    public List<ProductThumbnailVm> getProductsByCategory(String categorySlug) {
+    public ProductListGetFromCategoryVm getProductsFromCategoryWithFilter(int pageNo, int pageSize, String productName, String categorySlug) {
         List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<ProductCategory> productCategoryPage;
         Category category = categoryRepository
                 .findBySlug(categorySlug)
                 .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", categorySlug)));
-        List<Product> products = productCategoryRepository.findAllByCategory(category).stream()
+
+        if(productName.isBlank()) {
+            productCategoryPage = productCategoryRepository.findAllByCategory(pageable,category);
+        }else{
+            productCategoryPage = productCategoryRepository.getProductsFromCategoryWithFilter(productName,pageable,category);
+        }
+        List<ProductCategory> productList = productCategoryPage.getContent();
+        List<Product> products = productList.stream()
                 .map(ProductCategory::getProduct).toList();
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailVm(
@@ -331,7 +340,14 @@ public class ProductService {
                     product.getSlug(),
                     mediaService.getMedia(product.getThumbnailMediaId()).url()));
         }
-        return productThumbnailVms;
+        return new ProductListGetFromCategoryVm(
+                productThumbnailVms,
+                productCategoryPage.getNumber(),
+                productCategoryPage.getSize(),
+                (int) productCategoryPage.getTotalElements(),
+                productCategoryPage.getTotalPages(),
+                productCategoryPage.isLast()
+        );
     }
 
     public ProductThumbnailVm getFeaturedProductsById(Long productId) {
