@@ -184,15 +184,15 @@ public class ProductService {
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
 
-        product.setBrand(null);
         if (productPutVm.brandId() != null) {
             Brand brand = brandRepository.findById(productPutVm.brandId()).
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
         }
-        productCategoryRepository.deleteAll(product.getProductCategories());
-        product.setProductCategories(null);
+        
         if (CollectionUtils.isNotEmpty(productPutVm.categoryIds())) {
+            productCategoryRepository.deleteAll(product.getProductCategories());
+            product.setProductCategories(null);
             List<Category> categoryList = categoryRepository.findAllById(productPutVm.categoryIds());
             if (categoryList.isEmpty()) {
                 throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
