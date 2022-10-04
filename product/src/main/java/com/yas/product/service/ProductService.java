@@ -144,7 +144,7 @@ public class ProductService {
 
         for (int index = 1; index < files.size(); index++) {
             ProductImage productImage = new ProductImage();
-            NoFileMediaVm noFileMediaVm = mediaService.SaveFile(files.get(index), "", "");
+            NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(index), "", "");
             productImage.setImageId(noFileMediaVm.id());
             productImage.setProduct(product);
             productImages.add(productImage);
@@ -168,7 +168,7 @@ public class ProductService {
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
 
-        NoFileMediaVm noFileMediaVm = mediaService.SaveFile(files.get(0), "", "");
+        NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
         product.setThumbnailMediaId(noFileMediaVm.id());
 
         Product savedProduct = productRepository.saveAndFlush(product);
@@ -184,15 +184,15 @@ public class ProductService {
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
 
+        product.setBrand(null);
         if (productPutVm.brandId() != null) {
             Brand brand = brandRepository.findById(productPutVm.brandId()).
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
         }
-
+        productCategoryRepository.deleteAll(product.getProductCategories());
+        product.setProductCategories(null);
         if (CollectionUtils.isNotEmpty(productPutVm.categoryIds())) {
-            productCategoryRepository.deleteAll(product.getProductCategories());
-            product.setProductCategories(null);
             List<Category> categoryList = categoryRepository.findAllById(productPutVm.categoryIds());
             if (categoryList.isEmpty()) {
                 throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
@@ -227,18 +227,20 @@ public class ProductService {
         product.setLastModifiedBy(auth.getName());
         product.setLastModifiedOn(ZonedDateTime.now());
 
-        if(null != productPutVm.thumbnail()){
-            NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPutVm.thumbnail(), "", "");
-            product.setThumbnailMediaId(noFileMediaVm.id());
+        if(null != productPutVm.thumbnailMediaId()){
+            mediaService.removeMedia(product.getThumbnailMediaId());
+            product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         }
 
-        if(null != productPutVm.productImages()){
+        if(null != productPutVm.productImageIds() && !productPutVm.productImageIds().isEmpty()){
             productImageRepository.deleteAll(product.getProductImages());
+            for(int i  = 0; i < product.getProductImages().size(); i++){
+                mediaService.removeMedia(product.getProductImages().get(i).getImageId());
+            }
             product.setProductImages(null);
-            for (int index = 0; index < productPutVm.productImages().size(); index++) {
+            for (int i = 0; i < productPutVm.productImageIds().size(); i++) {
                 ProductImage productImage = new ProductImage();
-                NoFileMediaVm noFileMediaVm = mediaService.SaveFile(productPutVm.productImages().get(index), "", "");
-                productImage.setImageId(noFileMediaVm.id());
+                productImage.setImageId(productPutVm.productImageIds().get(i));
                 productImage.setProduct(product);
                 productImages.add(productImage);
             }

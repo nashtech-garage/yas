@@ -151,7 +151,7 @@ class ProductServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         when(authentication.getName()).thenReturn(username);
-        when(mediaService.SaveFile(files.get(0), "", "")).thenReturn(noFileMediaVm);
+        when(mediaService.saveFile(files.get(0), "", "")).thenReturn(noFileMediaVm);
         Product savedProduct = mock(Product.class);
         when(productRepository.saveAndFlush(productCaptor.capture())).thenReturn(savedProduct);
         Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
@@ -516,7 +516,6 @@ class ProductServiceTest {
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
-        Mockito.when(mediaService.SaveFile(productPutVm.thumbnail(), "", "")).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
         Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
 
         Mockito.when(productRepository.saveAndFlush(product)).thenReturn(product);
