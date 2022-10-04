@@ -83,13 +83,13 @@ const ProductEdit: NextPage = () => {
   //Handle
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(
-      slugify(event.target.value.replace(/(^\s+|\s+$)/g, "").toLowerCase())
+      slugify(event.target.value.toLowerCase())
     );
   };
 
   const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(
-      event.target.value.replace(/(^\s+|\s+$)/g, "").toLowerCase()
+      event.target.value.toLowerCase()
     );
   };
 
@@ -139,19 +139,19 @@ const ProductEdit: NextPage = () => {
       });
     }
     let productPut: ProductPut = {
-      name: data.name.replace(/(^\s+|\s+$)/g, ""),
-      slug: slug.replace(/(^\s+|\s+$)/g, ""),
+      name: data.name,
+      slug: slug,
       price: data.price,
       isAllowedToOrder: data.isAllowedToOrder,
       isPublished: data.isPublished,
       isFeatured: data.isFeatured,
-      description: data.description?.replace(/(^\s+|\s+$)/g, ""),
-      shortDescription: data.shortDescription.replace(/(^\s+|\s+$)/g, ""),
-      specification: data.specification.replace(/(^\s+|\s+$)/g, ""),
-      sku: data.sku.replace(/(^\s+|\s+$)/g, ""),
-      gtin: data.gtin.replace(/(^\s+|\s+$)/g, ""),
-      metaKeyword: data.metaKeyword.replace(/(^\s+|\s+$)/g, ""),
-      metaDescription: data.metaDescription?.replace(/(^\s+|\s+$)/g, ""),
+      description: data.description,
+      shortDescription: data.shortDescription,
+      specification: data.specification,
+      sku: data.sku,
+      gtin: data.gtin,
+      metaKeyword: data.metaKeyword,
+      metaDescription: data.metaDescription,
       brandId: data.brandId,
       categoryIds: categoryIds.length > 0 ? categoryIds : defaultCategoryIds,
     };
