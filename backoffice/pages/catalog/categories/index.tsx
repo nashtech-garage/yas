@@ -101,9 +101,7 @@ const CategoryList: NextPage = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {renderCategoriesHierarchy(-1, categories, "")}
-        </tbody>
+        <tbody>{renderCategoriesHierarchy(-1, categories, "")}</tbody>
       </Table>
       <Modal show={showModalDelete} onHide={handleClose}>
         <Modal.Body>{'Are you sure you want to delete this '+ categoryName +" ?"}</Modal.Body>

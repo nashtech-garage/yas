@@ -20,7 +20,6 @@ const CategoryCreate: NextPage = () => {
       slug: event.target.slug.value,
       description: event.target.description.value,
       parentId: event.target.parentCategory.value,
-      parentName: "",
       metaKeywords: event.target.metaKeywords.value,
       metaDescription: event.target.metaDescription.value,
       displayOrder: event.target.displayOrder.value,

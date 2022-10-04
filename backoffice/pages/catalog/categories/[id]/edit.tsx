@@ -27,7 +27,6 @@ const CategoryEdit: NextPage = () => {
       metaKeywords: event.target.metaKeywords.value,
       metaDescription: event.target.metaDescription.value,
       parentId: event.target.parentCategory.value,
-      parentName: "",
       displayOrder: event.target.displayOrder.value,
       description: event.target.description.value,
     };
@@ -132,7 +131,6 @@ const CategoryEdit: NextPage = () => {
                     trim: true,
                   });
                   setSlug(generate);
-                  console.log(slug);
                 }}
               />
             </div>

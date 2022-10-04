@@ -1,6 +1,8 @@
 package com.yas.product.controller;
+import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
+import com.yas.product.model.Product;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.viewmodel.BrandPostVm;
 import com.yas.product.viewmodel.BrandVm;
@@ -14,6 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +32,7 @@ public class BrandControllerTest {
         brand1.setId(1L);
         brand1.setName("dien thoai");
         brand1.setSlug("dien-thoai");
+        brand1.setProducts(List.of());
     }
 
     @Test
@@ -92,5 +96,25 @@ public class BrandControllerTest {
         assertThat(brand1.getSlug(), is(brandPostVm.slug()));
         ResponseEntity<Void> result = brandController.updateBrand(1L,brandPostVm);
         assertThat(result.getStatusCode(),is(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    void deleteBrand_ValidBrand_Success(){
+        when(brandRepository.findById(1L)).thenReturn(Optional.of(brand1));
+        ResponseEntity<Void> result = brandController.deleteBrand(1L);
+        assertThat(result.getStatusCode(),is(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    void deleteBrand_NotFoundBrand_ThrowNotFoundException(){
+        when(brandRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> brandController.deleteBrand(2L));
+    }
+
+    @Test
+    void deleteBrand_BrandHaveProductList_ThrowBadRequestException(){
+        brand1.setProducts(List.of(new Product()));
+        when(brandRepository.findById(1L)).thenReturn(Optional.of(brand1));
+        assertThrows(BadRequestException.class, () -> brandController.deleteBrand(1L));
     }
 }

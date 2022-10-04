@@ -52,7 +52,7 @@ class CategoryControllerTest {
     @Test
     void ListCategories_ValidListCategoryGetVM_Success() {
         List<CategoryGetVm> expect = List.of(
-                new CategoryGetVm(1L, "hô hô", "ho-ho", null, -1)
+                new CategoryGetVm(1L, "hô hô", "ho-ho",  -1)
         );
         when(categoryRepository.findAll()).thenReturn(categories);
         ResponseEntity<List<CategoryGetVm>> actual = categoryController.listCategories();
