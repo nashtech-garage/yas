@@ -18,24 +18,10 @@ YAS is a pet project aim to practice building a typical microservice application
 - SonarCloud
 - OpenTelemetry
 - Jaeger
-- Quarkus
-- GraalVM
 
 ## Local development architecture
 
 ![Yas - local development architecture](https://raw.githubusercontent.com/nashtech-garage/yas/main/yas_architecture_local.png)
-
-## Getting started with Kubernetes in Docker Desktop
-
-1. Get the latest source code
-1. Have your Docker desktop with Kubernetes enabled
-1. Install NGINX ingress controller `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml`
-1. In C: driver, create 2 folders `k8s-yas-data/postgres` and `k8s-yas-data/pgadmin`
-1. Run `kubectl apply -f yaslocal.yaml`
-1. Add `127.0.0.1 identity`, `127.0.0.1 storefront`, `127.0.0.1 api.yas.local`, `127.0.0.1 backoffice`, `127.0.0.1 pgadmin.yas.local` and `127.0.0.1 jaeger` to your host file
-1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: localhost, port default, username admin, password admin. Then create a database name `keycloak`, `media`, `product`
-1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
-1. The Postgresql server is also published to the host machine: servername: localhost, port: 30007, username: admin, password: admin
 
 ## Getting started with Docker Compose
 
@@ -50,8 +36,21 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 jaeger
 `
 1. Open terminal of your choice, go to 'yas' directory and run `docker compose up`
-1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: postgres, port 5432, username admin, password admin. Then create a database name `keycloak`, `media`, `product
+1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: postgres, port 5432, username admin, password admin. Then create a database name `keycloak`, `media`, `product`, `cart`
 1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
+1. The Postgresql server is also published to the host machine: servername: localhost, port: 5432, username: admin, password: admin
+
+## Getting started with Kubernetes in Docker Desktop
+
+1. Get the latest source code
+1. Have your Docker desktop with Kubernetes enabled
+1. Install NGINX ingress controller `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml`
+1. In C: driver, create 2 folders `k8s-yas-data/postgres` and `k8s-yas-data/pgadmin`
+1. Run `kubectl apply -f yaslocal.yaml`
+1. Add `127.0.0.1 identity`, `127.0.0.1 storefront`, `127.0.0.1 api.yas.local`, `127.0.0.1 backoffice`, `127.0.0.1 pgadmin.yas.local` and `127.0.0.1 jaeger` to your host file
+1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: localhost, port default, username admin, password admin. Then create a database name `keycloak`, `media`, `product`, `cart`
+1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
+1. The Postgresql server is also published to the host machine: servername: localhost, port: 30007, username: admin, password: admin
 
 ## Getting started with Minikube in Ubuntu
 [Please see it in the wiki](https://github.com/nashtech-garage/yas/wiki/Getting-started-with-Minikube-in-Ubuntu)
