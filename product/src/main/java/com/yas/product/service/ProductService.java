@@ -184,28 +184,32 @@ public class ProductService {
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
 
-        if (productPutVm.brandId() != null) {
+        if (productPutVm.brandId() != null && productPutVm.brandId() != product.getBrand().getId()) {
             Brand brand = brandRepository.findById(productPutVm.brandId()).
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
         }
         
         if (CollectionUtils.isNotEmpty(productPutVm.categoryIds())) {
-            productCategoryRepository.deleteAll(product.getProductCategories());
-            product.setProductCategories(null);
-            List<Category> categoryList = categoryRepository.findAllById(productPutVm.categoryIds());
-            if (categoryList.isEmpty()) {
-                throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
-            } else if (categoryList.size() < productPutVm.categoryIds().size()) {
-                List<Long> categoryIdsNotFound = productPutVm.categoryIds();
-                categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
-                throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
-            } else {
-                for (Category category : categoryList) {
-                    ProductCategory productCategory = new ProductCategory();
-                    productCategory.setProduct(product);
-                    productCategory.setCategory(category);
-                    productCategoryList.add(productCategory);
+            List<Category> categories =product.getProductCategories().stream().map(ProductCategory::getCategory).toList();
+            List<Long> categoryIds =categories.stream().map(Category::getId).toList();
+            if(!categoryIds.equals(productPutVm.categoryIds().stream().sorted().toList())) {
+                List<Category> categoryList = categoryRepository.findAllById(productPutVm.categoryIds());
+                productCategoryRepository.deleteAll(product.getProductCategories());
+                product.setProductCategories(null);
+                if (categoryList.isEmpty()) {
+                    throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
+                } else if (categoryList.size() < productPutVm.categoryIds().size()) {
+                    List<Long> categoryIdsNotFound = productPutVm.categoryIds();
+                    categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
+                    throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
+                } else {
+                    for (Category category : categoryList) {
+                        ProductCategory productCategory = new ProductCategory();
+                        productCategory.setProduct(product);
+                        productCategory.setCategory(category);
+                        productCategoryList.add(productCategory);
+                    }
                 }
             }
         }
