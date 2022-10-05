@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 import { isNull } from 'util';
 import { Category } from '../../../modules/catalog/models/Category';
@@ -32,31 +32,6 @@ const CategoryCreate: NextPage = () => {
         setCategories(data);
       });
  },[])
- const renderCategoriesHierarchy: Function = (
-   id: number,
-   list: Array<Category>,
-   parentHierarchy: string
- ) => {
-   let renderArr = list.filter((e) => e.parentId == id);
-   const newArr = list.filter((e) => e.parentId != id);
-   renderArr = renderArr.sort((a: Category, b: Category) =>
-     a.name.localeCompare(b.name)
-   );
-   return renderArr.map((category: Category) => {
-     return (
-       <React.Fragment key={category.id}>
-         <option value={category.id} key={category.id}>
-           {parentHierarchy + category.name}
-         </option>
-         {renderCategoriesHierarchy(
-           category.id,
-           newArr,
-           parentHierarchy + category.name + " >> "
-         )}
-       </React.Fragment>
-     );
-   });
- };
   return (
     <>
     <div className='row mt-5'>
@@ -88,7 +63,11 @@ const CategoryCreate: NextPage = () => {
             <option value={0}>
                     Top
                   </option>
-                  {renderCategoriesHierarchy(-1, categories, "")}
+                  {categories.map((category) => (
+                    <option value={category.id} key={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
           </select>
         </div>
         <div className="mb-3">
