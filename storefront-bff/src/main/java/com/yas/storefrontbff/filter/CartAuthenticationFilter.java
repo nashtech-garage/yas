@@ -33,6 +33,7 @@ public class CartAuthenticationFilter implements WebFilter {
     private final WebClient webClient;
     private final ServiceUrlConfig serviceUrlConfig;
     private final ReactiveClientRegistrationRepository clientRegistrationRepository;
+    private static final String GRANT_TYPE = "grant_type";
 
     public CartAuthenticationFilter(WebClient webClient,
                                     ServiceUrlConfig serviceUrlConfig,
@@ -54,31 +55,27 @@ public class CartAuthenticationFilter implements WebFilter {
             return ReactiveSecurityContextHolder.getContext()
                     .map(SecurityContext::getAuthentication)
                     .map(Authentication::getPrincipal)
-                    .doOnNext(principal -> {
-                        isAuthenticated.set(true);
-                    })
+                    .doOnNext(principal -> isAuthenticated.set(true))
                     .doOnError(Throwable::printStackTrace)
                     .then(Mono.defer(() -> {
                         if (!isAuthenticated.get()) {
                             MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
                             ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId("keycloak").block();
-                            formData.add("grant_type", "client_credentials");
+                            formData.add(GRANT_TYPE, "client_credentials");
                             formData.add("client_id", clientRegistration.getClientId());
                             formData.add("client_secret", clientRegistration.getClientSecret());
 
                             return getToken(formData).map(clientToken -> createGuestUser(clientToken.access_token())
                                     .map(createdUserVm -> {
-                                        formData.remove("grant_type");
-                                        formData.add("grant_type", "password");
+                                        formData.remove(GRANT_TYPE);
+                                        formData.add(GRANT_TYPE, "password");
                                         formData.add("username", createdUserVm.email());
                                         formData.add("password", createdUserVm.password());
-                                        return getToken(formData).doOnNext(userToken -> {
-                                            exchange
-                                                    .getRequest()
-                                                    .mutate()
-                                                    .headers(h -> h.setBearerAuth(userToken.access_token()))
-                                                    .build();
-                                        }).thenReturn(exchange);
+                                        return getToken(formData).doOnNext(userToken -> exchange
+                                                .getRequest()
+                                                .mutate()
+                                                .headers(h -> h.setBearerAuth(userToken.access_token()))
+                                                .build()).thenReturn(exchange);
                                     })).flatMap(monox3Void -> monox3Void.flatMap(monox2Void -> monox2Void.flatMap(chain::filter)));
                         }
                         return chain.filter(exchange);
