@@ -4,6 +4,8 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Category } from '../../../../modules/catalog/models/Category'
 import { getCategories, getCategory, updateCategory } from '../../../../modules/catalog/services/CategoryService'
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryEdit: NextPage = () => {
   const router = useRouter()
@@ -31,18 +33,18 @@ const CategoryEdit: NextPage = () => {
     updateCategory(+id, category)
     .then((response)=>{
       if(response.status===204){
-        alert("Update successfully")
+        toast.success("Update successfully")
         location.replace("/catalog/categories");
       }
       else if(response.title==='Not found'){
-        alert(response.detail)
+        toast.error(response.detail)
         location.replace("/catalog/categories");
       }
       else if(response.title==='Bad request'){
-        alert(response.detail)
+        toast.error(response.detail)
       }
       else{
-        alert("Update failed")
+        toast.error("Update failed")
         location.replace("/catalog/categories");
       }
     })
