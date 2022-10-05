@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Category } from '../../../../modules/catalog/models/Category'
 import { getCategories, getCategory, updateCategory } from '../../../../modules/catalog/services/CategoryService'
 
@@ -22,7 +22,6 @@ const CategoryEdit: NextPage = () => {
       metaKeywords: event.target.metaKeywords.value,
       metaDescription: event.target.metaDescription.value,
       parentId: event.target.parentCategory.value,
-      parentName: "",
       displayOrder: event.target.displayOrder.value,
       description: event.target.description.value,
     }
@@ -48,6 +47,49 @@ const CategoryEdit: NextPage = () => {
     })
     }
   }
+  const renderSeletedCategory: Function = (
+    category: Category,
+    currentCategory: Category,
+    parentHierarchy: string
+  ) => {
+    if(category.id === currentCategory?.parentId){
+      return (
+        <option selected value={category.id} key={category.id}>
+          {parentHierarchy + category.name}
+        </option>
+      );
+    }
+    return (
+      <option value={category.id} key={category.id}>
+        {parentHierarchy + category.name}
+      </option>
+    );
+  };
+  const renderCategoriesHierarchy: Function = (
+    id: number,
+    list: Array<Category>,
+    parentHierarchy: string,
+    currentCategory: Category
+  ) => {
+    let renderArr = list.filter((e) => e.parentId == id);
+    const newArr = list.filter((e) => e.parentId != id);
+    renderArr = renderArr.sort((a: Category, b: Category) => a.name.localeCompare(b.name));
+    return renderArr
+      .map((category: Category) => {
+        return (
+          <React.Fragment key={category.id}>
+            {renderSeletedCategory(category, currentCategory, parentHierarchy)}
+            {renderCategoriesHierarchy(
+              category.id,
+              newArr,
+              parentHierarchy + category.name + " >> ",
+              currentCategory
+            )}
+          </React.Fragment>
+        );
+      });
+  };
+
   useEffect(()=>{
     if(id)
       getCategory(+id)
@@ -82,7 +124,6 @@ const CategoryEdit: NextPage = () => {
               trim: true    
             }))
             setSlug(generate);
-            console.log(slug)
           }}/>
         </div>
         <div className="mb-3">
@@ -91,23 +132,11 @@ const CategoryEdit: NextPage = () => {
         </div>
         <div className="mb-3">
           <label className='form-label' htmlFor="parentCategory">Parent category</label>
-          <select className="form-control" id="parentCategory" name="parentCategory" >
+          <select className="form-control" id="parentCategory" name="parentCategory">
             <option value={0}>
                     Top
                   </option>
-                  {categories.map((c) => {
-                    if(c.id == category?.parentId){
-                        return(<option selected value={c.id} key={c.id}>
-                                {c.name}
-                                </option>)
-                    }
-                    else{
-                        return(<option value={c.id} key={c.id}>
-                                {c.name}
-                                </option>)
-                    }
-                  }
-                  )}
+                  {renderCategoriesHierarchy(-1, categories, "", category)}
           </select>
         </div>
         <div className="mb-3">
