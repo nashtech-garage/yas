@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal, Table } from "react-bootstrap";
 import type { Category } from "../../../modules/catalog/models/Category";
 import { deleteCategory, getCategories } from "../../../modules/catalog/services/CategoryService";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryList: NextPage = () => {
@@ -118,18 +118,7 @@ const CategoryList: NextPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        />
+      
     </>
   );
 };

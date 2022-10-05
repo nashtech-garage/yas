@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Category } from '../../../../modules/catalog/models/Category'
 import { getCategories, getCategory, updateCategory } from '../../../../modules/catalog/services/CategoryService'
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryEdit: NextPage = () => {
@@ -136,18 +136,6 @@ const CategoryEdit: NextPage = () => {
         </form>
         </div>
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        />
       </>
     )
   }

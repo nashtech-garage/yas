@@ -2,6 +2,7 @@ import Head from 'next/head'
 import AuthenticationInfo from './AuthenticationInfo'
 import { Navbar } from 'react-bootstrap'
 import Sidebar from './Sidebar'
+import { ToastContainer } from 'react-toastify'
 
 type Props = {
   children: React.ReactNode
@@ -40,6 +41,18 @@ export default function Layout({ children }: Props) {
           </a>
         </footer>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        />
     </>
   );
 }
