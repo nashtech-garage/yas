@@ -11,10 +11,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, Long> {
-//    List<ProductCategory> findAllByCategory(Category category);
-    @Query(value = "from ProductCategory pc where pc.product.name = :productName and pc.category =:category")
-    Page<ProductCategory> getProductCategoryWithSearch(@Param("productName") String productName,
-                                                       Pageable pageable , Category category);
     Page<ProductCategory> findAllByCategory(Pageable pageable,Category category);
-
 }

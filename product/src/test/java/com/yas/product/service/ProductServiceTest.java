@@ -676,7 +676,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void getProductsFromCategoryWithSearch_WhenFilterByProductName_ThenSuccess() {
+    void getProductsFromCategory_WhenFindAllByCategory_ThenSuccess() {
         //given
         Page<ProductCategory> productCategoryPage = mock(Page.class);
         List<ProductCategory> productCategoryList = List.of(
@@ -691,48 +691,6 @@ class ProductServiceTest {
         int pageSize = 10;
         int totalElement = 20;
         int totalPages = 4;
-        String productName = "product1";
-        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        var productNameCaptor = ArgumentCaptor.forClass(String.class);
-        when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.of(existingCategory));
-        when(productCategoryRepository.getProductCategoryWithSearch(productNameCaptor.capture(),pageableCaptor.capture(),eq(existingCategory))).thenReturn(productCategoryPage);
-
-        when(productCategoryPage.getContent()).thenReturn(productCategoryList);
-        when(productCategoryPage.getNumber()).thenReturn(pageNo);
-        when(productCategoryPage.getTotalElements()).thenReturn((long) totalElement);
-        when(productCategoryPage.getTotalPages()).thenReturn(totalPages);
-        when(productCategoryPage.isLast()).thenReturn(false);
-        when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
-        when(noFileMediaVm.url()).thenReturn(url);
-
-        //when
-        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName, categorySlug);
-
-        //then
-        assertThat(actualResponse.productContent()).hasSize(2);
-        assertThat(actualResponse.pageNo()).isEqualTo(productCategoryPage.getNumber());
-        assertThat(actualResponse.pageSize()).isEqualTo(productCategoryPage.getSize());
-        assertThat(actualResponse.totalElements()).isEqualTo(productCategoryPage.getTotalElements());
-        assertThat(actualResponse.totalPages()).isEqualTo(productCategoryPage.getTotalPages());
-        assertThat(actualResponse.isLast()).isEqualTo(productCategoryPage.isLast());
-    }
-    @Test
-    void getProductsFromCategoryWithSearch_WhenFindAllByCategory_ThenSuccess() {
-        //given
-        Page<ProductCategory> productCategoryPage = mock(Page.class);
-        List<ProductCategory> productCategoryList = List.of(
-                new ProductCategory(1L, products.get(0), null, 1, true),
-                new ProductCategory(2L, products.get(1), null, 2, true)
-        );
-        String categorySlug = "laptop-macbook";
-        String url = "sample-url";
-        var existingCategory = mock(Category.class);
-        NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
-        int pageNo = 1;
-        int pageSize = 10;
-        int totalElement = 20;
-        int totalPages = 4;
-        String productName = "";
         var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.of(existingCategory));
         when(productCategoryRepository.findAllByCategory(pageableCaptor.capture(),eq(existingCategory))).thenReturn(productCategoryPage);
@@ -746,7 +704,7 @@ class ProductServiceTest {
         when(noFileMediaVm.url()).thenReturn(url);
 
         //when
-        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName, categorySlug);
+        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategory(pageNo, pageSize, categorySlug);
 
         //then
         assertThat(actualResponse.productContent()).hasSize(2);
@@ -757,7 +715,7 @@ class ProductServiceTest {
         assertThat(actualResponse.isLast()).isEqualTo(productCategoryPage.isLast());
     }
     @Test
-    void getProductsFromCategoryWithFilter_CategoryIsNonExist_ThrowsNotFoundException() {
+    void getProductsFromCategory_CategoryIsNonExist_ThrowsNotFoundException() {
         //given
         String categorySlug = "laptop-macbook";
         when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.empty());
@@ -766,7 +724,7 @@ class ProductServiceTest {
         int pageSize = 10;
         String productName = "";
         //when
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName, categorySlug));
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->productService.getProductsFromCategory(pageNo, pageSize, categorySlug));
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categorySlug));
     }

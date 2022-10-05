@@ -69,10 +69,9 @@ public class ProductController {
     public ResponseEntity<ProductListGetFromCategoryVm> getProductsByCategory(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,
-            @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
             @PathVariable String categorySlug
     ) {
-        return ResponseEntity.ok(productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName,categorySlug));
+        return ResponseEntity.ok(productService.getProductsFromCategory(pageNo, pageSize,categorySlug));
     }
 
     @GetMapping("/backoffice/products/{productId}")

@@ -319,19 +319,14 @@ public class ProductService {
         return productThumbnailVms;
     }
 
-    public ProductListGetFromCategoryVm getProductsFromCategoryWithSearch(int pageNo, int pageSize, String productName, String categorySlug) {
+    public ProductListGetFromCategoryVm getProductsFromCategory(int pageNo, int pageSize, String categorySlug) {
         List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<ProductCategory> productCategoryPage;
         Category category = categoryRepository
                 .findBySlug(categorySlug)
                 .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", categorySlug)));
-
-        if(productName.isBlank()) {
-            productCategoryPage = productCategoryRepository.findAllByCategory(pageable,category);
-        }else{
-            productCategoryPage = productCategoryRepository.getProductCategoryWithSearch(productName,pageable,category);
-        }
+        productCategoryPage = productCategoryRepository.findAllByCategory(pageable,category);
         List<ProductCategory> productList = productCategoryPage.getContent();
         List<Product> products = productList.stream()
                 .map(ProductCategory::getProduct).toList();
