@@ -676,7 +676,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void getProductsFromCategoryWithFilter_WhenFilterByProductName_ThenSuccess() {
+    void getProductsFromCategoryWithSearch_WhenFilterByProductName_ThenSuccess() {
         //given
         Page<ProductCategory> productCategoryPage = mock(Page.class);
         List<ProductCategory> productCategoryList = List.of(
@@ -695,7 +695,7 @@ class ProductServiceTest {
         var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         var productNameCaptor = ArgumentCaptor.forClass(String.class);
         when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.of(existingCategory));
-        when(productCategoryRepository.getProductsFromCategoryWithFilter(productNameCaptor.capture(),pageableCaptor.capture(),eq(existingCategory))).thenReturn(productCategoryPage);
+        when(productCategoryRepository.getProductCategoryWithSearch(productNameCaptor.capture(),pageableCaptor.capture(),eq(existingCategory))).thenReturn(productCategoryPage);
 
         when(productCategoryPage.getContent()).thenReturn(productCategoryList);
         when(productCategoryPage.getNumber()).thenReturn(pageNo);
@@ -706,7 +706,7 @@ class ProductServiceTest {
         when(noFileMediaVm.url()).thenReturn(url);
 
         //when
-        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategoryWithFilter(pageNo, pageSize, productName, categorySlug);
+        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName, categorySlug);
 
         //then
         assertThat(actualResponse.productContent()).hasSize(2);
@@ -717,7 +717,7 @@ class ProductServiceTest {
         assertThat(actualResponse.isLast()).isEqualTo(productCategoryPage.isLast());
     }
     @Test
-    void getProductsFromCategoryWithFilter_WhenFindAllByCategory_ThenSuccess() {
+    void getProductsFromCategoryWithSearch_WhenFindAllByCategory_ThenSuccess() {
         //given
         Page<ProductCategory> productCategoryPage = mock(Page.class);
         List<ProductCategory> productCategoryList = List.of(
@@ -746,7 +746,7 @@ class ProductServiceTest {
         when(noFileMediaVm.url()).thenReturn(url);
 
         //when
-        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategoryWithFilter(pageNo, pageSize, productName, categorySlug);
+        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName, categorySlug);
 
         //then
         assertThat(actualResponse.productContent()).hasSize(2);
@@ -766,7 +766,7 @@ class ProductServiceTest {
         int pageSize = 10;
         String productName = "";
         //when
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->productService.getProductsFromCategoryWithFilter(pageNo, pageSize, productName, categorySlug));
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName, categorySlug));
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categorySlug));
     }

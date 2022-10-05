@@ -319,7 +319,7 @@ public class ProductService {
         return productThumbnailVms;
     }
 
-    public ProductListGetFromCategoryVm getProductsFromCategoryWithFilter(int pageNo, int pageSize, String productName, String categorySlug) {
+    public ProductListGetFromCategoryVm getProductsFromCategoryWithSearch(int pageNo, int pageSize, String productName, String categorySlug) {
         List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<ProductCategory> productCategoryPage;
@@ -330,7 +330,7 @@ public class ProductService {
         if(productName.isBlank()) {
             productCategoryPage = productCategoryRepository.findAllByCategory(pageable,category);
         }else{
-            productCategoryPage = productCategoryRepository.getProductsFromCategoryWithFilter(productName,pageable,category);
+            productCategoryPage = productCategoryRepository.getProductCategoryWithSearch(productName,pageable,category);
         }
         List<ProductCategory> productList = productCategoryPage.getContent();
         List<Product> products = productList.stream()

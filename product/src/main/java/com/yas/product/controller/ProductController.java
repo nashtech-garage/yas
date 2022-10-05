@@ -72,7 +72,7 @@ public class ProductController {
             @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
             @PathVariable String categorySlug
     ) {
-        return ResponseEntity.ok(productService.getProductsFromCategoryWithFilter(pageNo, pageSize, productName,categorySlug));
+        return ResponseEntity.ok(productService.getProductsFromCategoryWithSearch(pageNo, pageSize, productName,categorySlug));
     }
 
     @GetMapping("/backoffice/products/{productId}")
