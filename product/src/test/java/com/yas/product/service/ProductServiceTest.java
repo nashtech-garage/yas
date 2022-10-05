@@ -418,11 +418,14 @@ class ProductServiceTest {
         //Initial variables
         Long id = Long.valueOf(1);
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, null, null, null, null, null, null, null, null, null, null);
-
+        Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
         //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.ofNullable(null));
+        Mockito.when(product.getBrand()).thenReturn(brand);
 
         //Test
         NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
@@ -440,12 +443,15 @@ class ProductServiceTest {
         List<Long> categoryIds = new ArrayList<>();
         categoryIds.add(1L);
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null);
-
+        Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
         //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(new ArrayList<>());
+        Mockito.when(product.getBrand()).thenReturn(brand);
 
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
@@ -473,11 +479,16 @@ class ProductServiceTest {
         categoryList.add(category);
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null);
 
+        Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
         //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
+        Mockito.when(product.getBrand()).thenReturn(brand);
+
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
                     productService.updateProduct(id, productPutVm);
@@ -502,6 +513,8 @@ class ProductServiceTest {
         categoryList.add(category);
 
         Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
 
         List<ProductCategory> productCategories = new ArrayList<>();
         ProductCategory productCategory = new ProductCategory();
@@ -521,6 +534,7 @@ class ProductServiceTest {
         Mockito.when(productRepository.saveAndFlush(product)).thenReturn(product);
         Mockito.when(productCategoryRepository.saveAllAndFlush(productCategories)).thenReturn(productCategories);
         Mockito.when(product.getName()).thenReturn("Test");
+        Mockito.when(product.getBrand()).thenReturn(brand);
 
         //Assert
         assertThat(productPutVm.name(), is(productService.updateProduct(id, productPutVm).name()));
