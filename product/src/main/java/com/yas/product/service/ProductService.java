@@ -189,7 +189,7 @@ public class ProductService {
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
         }
-
+        
         if (CollectionUtils.isNotEmpty(productPutVm.categoryIds())) {
             List<Category> categories =product.getProductCategories().stream().map(ProductCategory::getCategory).toList();
             List<Long> categoryIds =categories.stream().map(Category::getId).toList();
