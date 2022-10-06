@@ -3,8 +3,13 @@
 YAS is a pet project aim to practice building a typical microservice application in Java
 
 [![storefront-ci](https://github.com/nashtech-garage/yas/actions/workflows/storefront-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/storefront-ci.yaml)
+[![storefront-bff-ci](https://github.com/nashtech-garage/yas/actions/workflows/storefront-bff-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/storefront-bff-ci.yaml)
+[![backoffice-ci](https://github.com/nashtech-garage/yas/actions/workflows/backoffice-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/backoffice-ci.yaml)
+[![backoffice-bff-ci](https://github.com/nashtech-garage/yas/actions/workflows/backoffice-bff-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/backoffice-bff-ci.yaml)
 [![product-ci](https://github.com/nashtech-garage/yas/actions/workflows/product-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/product-ci.yaml)
 [![media-ci](https://github.com/nashtech-garage/yas/actions/workflows/media-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/media-ci.yaml)
+[![cart-ci](https://github.com/nashtech-garage/yas/actions/workflows/cart-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/cart-ci.yaml)
+[![customer-ci](https://github.com/nashtech-garage/yas/actions/workflows/customer-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/customer-ci.yaml)
 
 ## Tentative technologies and frameworks
 
@@ -36,7 +41,7 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 jaeger
 `
 1. Open terminal of your choice, go to 'yas' directory and run `docker compose up`
-1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: postgres, port 5432, username admin, password admin. Then create a database name `keycloak`, `media`, `product`, `cart`
+1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: postgres, port 5432, username admin, password admin
 1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
 1. The Postgresql server is also published to the host machine: servername: localhost, port: 5432, username: admin, password: admin
 
