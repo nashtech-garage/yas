@@ -1,5 +1,6 @@
 package com.yas.product.controller;
 
+import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.repository.BrandRepository;
@@ -67,6 +68,20 @@ public class BrandController {
     brand.setSlug(brandPostVm.slug());
     brand.setName(brandPostVm.name());
     brandRepository.save(brand);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/backoffice/brands/{id}")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
+          @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+  public ResponseEntity<Void> deleteBrand(@PathVariable long id){
+    Brand brand = brandRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", id)));
+    if(brand.getProducts().size() > 0){
+      throw new BadRequestException("Please make sure this brand don't contains any product");
+    }
+    brandRepository.deleteById(id);
     return ResponseEntity.noContent().build();
   }
 }
