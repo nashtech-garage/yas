@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Modal, Table } from 'react-bootstrap';
 import type { Brand } from '../../../modules/catalog/models/Brand'
 import { deleteBrand, getBrands } from '../../../modules/catalog/services/BrandService'
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const BrandList: NextPage = () => {
     const [brandIdWantToDelete, setBrandIdWantToDelete] = useState<number>(-1);
@@ -17,27 +19,31 @@ const BrandList: NextPage = () => {
         return;
       }
       deleteBrand(brandIdWantToDelete).then((response) => {
-        if (response.status === 204) {
-          alert("Delete successfully");
-          location.replace("/catalog/brands");
-        } else if (response.title === "Not found") {
-          alert(response.detail);
-          location.replace("/catalog/brands");
-        } else if (response.title === "Bad request") {
-          alert(response.detail);
-        } else {
-          alert("Delete failed");
-          location.replace("/catalog/brands");
-        }
+        if(response.status===204){
+            toast.success(brandNameWantToDelete + ' have been deleted');
+          }
+          else if(response.title==='Not found'){
+            toast.error(response.detail);
+          }
+          else if(response.title==='Bad request'){
+            toast.error(response.detail);
+          }
+          else{
+            toast.error('Delete failed');
+          }
+            getListBrand();
       });
     };
-    useEffect(() => {
-        setLoading(true);
+    const getListBrand = () => {
         getBrands()
             .then((data) => {
                 setBrands(data);
                 setLoading(false);
             });
+    }
+    useEffect(() => {
+        setLoading(true);
+        getListBrand();
     }, []);
     if (isLoading) return <p>Loading...</p>;
     if (!brands) return <p>No brand</p>;
