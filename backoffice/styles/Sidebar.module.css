@@ -53,3 +53,16 @@
 .sidebar-heading {
   font-size: .75rem;
 }
+
+.drawer {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  bottom: 0;
+  width: 340px;
+  z-index: 100;
+  transition: all 0.3s;
+  box-shadow: var(--box-shadow);
+  background-color: #343a3f;
+  overflow-y: scroll;
+}

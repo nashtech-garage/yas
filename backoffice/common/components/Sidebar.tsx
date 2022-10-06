@@ -1,51 +1,57 @@
-import '../../styles/Sidebar.module.css'
-import Link from 'next/link'
+import '../../styles/Sidebar.module.css';
+import Link from 'next/link';
+import { Button } from 'react-bootstrap';
+import styles from '../../styles/Sidebar.module.css';
+import ListGroup from './ListGroup';
+import { FaMicrosoft, FaMobileAlt, FaTasks } from 'react-icons/fa';
+import { SiBrandfolder } from 'react-icons/si';
 
-export default function Sidebar(){
+let menu_admin_item_data: any = [
+  {
+    id: 1,
+    name: 'Categories',
+    active: true,
+    link: '/catalog/categories',
+    icon: <FaMicrosoft />,
+  },
+  {
+    id: 2,
+    name: 'Products',
+    active: false,
+    link: '/catalog/products',
+    icon: <FaMobileAlt />,
+  },
+  {
+    id: 3,
+    name: 'Brands',
+    active: false,
+    link: '/catalog/brands',
+    icon: <SiBrandfolder />,
+  },
+  {
+    id: 4,
+    name: 'Product Attributes',
+    active: false,
+    link: '/catalog/product-attributes',
+    icon: <FaTasks />,
+  },
+];
+
+export default function Sidebar() {
   return (
-    <nav id="sidebarMenu" className='col-md-3 col-lg-2 d-md-block bg-light sidebar collapse'>
-      <div className="position-sticky pt-3">
-        <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-          <span>Catalog</span>
-          <a className="link-secondary" href="#" aria-label="Add a new report">
-            <span data-feather="plus-circle" className="align-text-bottom"></span>
-          </a>
-        </h6>
-        <ul className="nav flex-column mb-2">
-          <li className="nav-item">
-            <Link href='/catalog/categories'>
-              <a className="nav-link">
-                <span data-feather="file-text" className="align-text-bottom"></span>
-                Categories
-              </a>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link href="/catalog/products">
-              <a className="nav-link">
-                <span data-feather="file-text" className="align-text-bottom"></span>
-                Products
-              </a>         
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link href="/catalog/brands">
-              <a className="nav-link">
-                <span data-feather="file-text" className="align-text-bottom"></span>
-                Brands
-              </a>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link href="/catalog/product-attributes">
-              <a className="nav-link">
-                <span data-feather="file-text" className="align-text-bottom"></span>
-                Product Attributes
-              </a>
-            </Link>
-          </li>
-        </ul>
+    <aside id="drawer" className={styles.drawer}>
+      <div className="p-3">
+        <h5 className="font-weight-black text-center text-white mt-4">
+          {/* <FaUsers /> */}
+          Catalog
+        </h5>
+        <div className="py-5">
+          <ListGroup data={menu_admin_item_data} />
+        </div>
+        <div className="d-flex justify-content-center ">
+          <Button className="btn-danger">Logout</Button>
+        </div>
       </div>
-    </nav>
+    </aside>
   );
 }
