@@ -1,10 +1,8 @@
-import '../../styles/Sidebar.module.css';
-import Link from 'next/link';
 import { Button } from 'react-bootstrap';
-import styles from '../../styles/Sidebar.module.css';
-import ListGroup from './ListGroup';
 import { FaMicrosoft, FaMobileAlt, FaTasks, FaUsers } from 'react-icons/fa';
 import { SiBrandfolder } from 'react-icons/si';
+import styles from '../../styles/Sidebar.module.css';
+import ListGroup from './ListGroup';
 
 let menu_admin_item_data: any = [
   {

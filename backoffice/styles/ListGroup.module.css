@@ -9,19 +9,14 @@ ul#listGroup .listGroupItem:hover {
 
 ul#listGroup a .listGroupItem {
   background-color: var(--bs-gray-100);
-}
-
-ul#listGroup a .listGroupItem {
   border-radius: var(--6px);
+  border: none;
 }
 
 ul#listGroup a:not(:last-child) {
   margin-bottom: var(--6px);
 }
 
-ul#listGroup a .listGroupItem {
-  border: none;
-}
 .appActiveLink {
   background-color: var(--bs-danger);
   border-radius: var(--6px);
