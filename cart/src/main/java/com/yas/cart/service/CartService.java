@@ -73,4 +73,11 @@ public class CartService {
         } else
             throw new BadRequestException("Cart's item can't be null");
     }
+
+    public CartGetDetailVm getLastCart() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return cartRepository.findByCustomerId(auth.getName())
+                .stream().reduce((first, second) -> second)
+                .map(CartGetDetailVm::fromModel).get();
+    }
 }
