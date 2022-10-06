@@ -37,8 +37,6 @@ const ProductList: NextPage = () => {
       });
   }, []);
 
-  console.log(brandName);
-
   //searching handler
   const searchingHandler = () => {
     let inputValue = (document.getElementById('product-name') as HTMLInputElement).value;

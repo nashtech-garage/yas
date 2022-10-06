@@ -4,42 +4,44 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal, Table } from "react-bootstrap";
 import type { Category } from "../../../modules/catalog/models/Category";
 import { deleteCategory, getCategories } from "../../../modules/catalog/services/CategoryService";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryList: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setLoading] = useState(false);
-  let categoryId = 0;
+  const [categoryId, setCategoryId] = useState(0);
   const [categoryName, setCategoryName]= useState('') ;
   const [showModalDelete, setShowModalDelete] = useState(false);
   const handleClose = () => setShowModalDelete(false);
   const handleDelete = () => {
-    if(categoryId){
-      deleteCategory(+categoryId)
-      .then((response)=>{
-        if(response.status===204){
-          alert("Delete successfully")
-          location.replace("/catalog/categories");
-        }
-        else if(response.title==='Not found'){
-          alert(response.detail)
-          location.replace("/catalog/categories");
-        }
-        else if(response.title==='Bad request'){
-          alert(response.detail)
-        }
-        else{
-          alert("Delete failed")
-          location.replace("/catalog/categories");
-        }
-      })
+    setShowModalDelete(false)
+    deleteCategory(+categoryId)
+    .then((response)=>{
+      if(response.status===204){
+        toast.success(categoryName + ' have been deleted');
       }
+      else if(response.title==='Not found'){
+        toast.error(response.detail);
+      }
+      else if(response.title==='Bad request'){
+        toast.error(response.detail);
+      }
+      else{
+        toast.error('Delete failed');
+      }
+      getListCategory();
+    })
   }
-  useEffect(() => {
-    setLoading(true);
+  function getListCategory(): void{
     getCategories().then((data) => {
       setCategories(data);
       setLoading(false);
     });
+  }
+  useEffect(() => {
+    setLoading(true);
+    getListCategory();
   }, []);
 
   if (isLoading) return <p>Loading...</p>;
@@ -66,7 +68,7 @@ const CategoryList: NextPage = () => {
               </Link>
               &nbsp;
               <button className="btn btn-outline-danger btn-sm" onClick={()=> {
-                categoryId = category.id;
+                setCategoryId(category.id);
                 setCategoryName(category.name)
                 setShowModalDelete(true)}}>Delete</button>
             </td>
@@ -116,6 +118,7 @@ const CategoryList: NextPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      
     </>
   );
 };

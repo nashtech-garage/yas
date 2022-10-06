@@ -27,12 +27,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -113,28 +111,6 @@ class ProductServiceTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
     }
-
-
-//    @Test
-//    void getProductsByBrandOrName_ExistProductsInDatabase_Sucsess() {
-//        //given
-//        List<ProductListVm> productListVmExpected = List.of(
-//                new ProductListVm(1L, "product1", "slug"),
-//                new ProductListVm(2L, "product2", "slug")
-//        );
-//        int page
-//        when(productRepository.findAll()).thenReturn(products);
-//
-//        //when
-//        List<ProductListVm> productListVmActual = productService.getProducts();
-//
-//        //then
-//        assertThat(productListVmActual).hasSameSizeAs(productListVmExpected);
-//        assertThat(productListVmActual.get(0)).isEqualTo(productListVmExpected.get(0));
-//        assertThat(productListVmActual.get(1)).isEqualTo(productListVmExpected.get(1));
-//
-//    }
-
     @Test
     void createProduct_TheRequestIsValid_Success() {
         //given
@@ -328,55 +304,6 @@ class ProductServiceTest {
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Brand %s is not found", brandSlug));
     }
-
-
-    @DisplayName("Get products by category when exist with the slug then success")
-    @Test
-    void getProductsByCategory_CategorySlugIsValid_Success() {
-        //given
-        String categorySlug = "laptop-macbook";
-        String url = "sample-url";
-        Category existingCategory = mock(Category.class);
-        NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
-
-        List<ProductCategory> productCategoryList = List.of(
-                new ProductCategory(1L, products.get(0), null, 1, true),
-                new ProductCategory(2L, products.get(1), null, 2, true)
-        );
-
-        when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.of(existingCategory));
-        when(productCategoryRepository.findAllByCategory(existingCategory)).thenReturn(productCategoryList);
-        when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
-        when(noFileMediaVm.url()).thenReturn(url);
-
-        //when
-        List<ProductThumbnailVm> actualResponse = productService.getProductsByCategory(categorySlug);
-
-        //then
-        assertThat(actualResponse).hasSize(2);
-        for (int i = 0; i < actualResponse.size(); i++) {
-            Product product = products.get(i);
-            assertThat(actualResponse.get(i).id()).isEqualTo(product.getId());
-            assertThat(actualResponse.get(i).name()).isEqualTo(product.getName());
-            assertThat(actualResponse.get(i).slug()).isEqualTo(product.getSlug());
-            assertThat(actualResponse.get(i).thumbnailUrl()).isEqualTo(mediaService.getMedia(product.getThumbnailMediaId()).url());
-        }
-    }
-
-    @DisplayName("Get products by category when category is non exist then throws exception")
-    @Test
-    void getProductsByCategory_CategoryIsNonExist_ThrowsNotFoundException() {
-        //given
-        String categorySlug = "laptop-macbook";
-        when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.empty());
-
-        //when
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> productService.getProductsByCategory(categorySlug));
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categorySlug));
-    }
-
     @Test
     void updateProduct_whenProductIdInvalid_shouldThrowException() {
         //Initial variables
@@ -418,11 +345,14 @@ class ProductServiceTest {
         //Initial variables
         Long id = Long.valueOf(1);
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, null, null, null, null, null, null, null, null, null, null);
-
+        Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
         //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.ofNullable(null));
+        Mockito.when(product.getBrand()).thenReturn(brand);
 
         //Test
         NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
@@ -440,12 +370,15 @@ class ProductServiceTest {
         List<Long> categoryIds = new ArrayList<>();
         categoryIds.add(1L);
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null);
-
+        Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
         //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(new ArrayList<>());
+        Mockito.when(product.getBrand()).thenReturn(brand);
 
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
@@ -473,11 +406,16 @@ class ProductServiceTest {
         categoryList.add(category);
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null);
 
+        Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
         //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
+        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
+        Mockito.when(product.getBrand()).thenReturn(brand);
+
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
                     productService.updateProduct(id, productPutVm);
@@ -502,6 +440,8 @@ class ProductServiceTest {
         categoryList.add(category);
 
         Product product = mock(Product.class);
+        Brand brand = new Brand();
+        brand.setId(id+1);
 
         List<ProductCategory> productCategories = new ArrayList<>();
         ProductCategory productCategory = new ProductCategory();
@@ -521,6 +461,7 @@ class ProductServiceTest {
         Mockito.when(productRepository.saveAndFlush(product)).thenReturn(product);
         Mockito.when(productCategoryRepository.saveAllAndFlush(productCategories)).thenReturn(productCategories);
         Mockito.when(product.getName()).thenReturn("Test");
+        Mockito.when(product.getBrand()).thenReturn(brand);
 
         //Assert
         assertThat(productPutVm.name(), is(productService.updateProduct(id, productPutVm).name()));
@@ -746,5 +687,59 @@ class ProductServiceTest {
         assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
         assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
         assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+    }
+
+    @Test
+    void getProductsFromCategory_WhenFindAllByCategory_ThenSuccess() {
+        //given
+        Page<ProductCategory> productCategoryPage = mock(Page.class);
+        List<ProductCategory> productCategoryList = List.of(
+                new ProductCategory(1L, products.get(0), null, 1, true),
+                new ProductCategory(2L, products.get(1), null, 2, true)
+        );
+        String categorySlug = "laptop-macbook";
+        String url = "sample-url";
+        var existingCategory = mock(Category.class);
+        NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
+        int pageNo = 1;
+        int pageSize = 10;
+        int totalElement = 20;
+        int totalPages = 4;
+        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.of(existingCategory));
+        when(productCategoryRepository.findAllByCategory(pageableCaptor.capture(),eq(existingCategory))).thenReturn(productCategoryPage);
+
+        when(productCategoryPage.getContent()).thenReturn(productCategoryList);
+        when(productCategoryPage.getNumber()).thenReturn(pageNo);
+        when(productCategoryPage.getTotalElements()).thenReturn((long) totalElement);
+        when(productCategoryPage.getTotalPages()).thenReturn(totalPages);
+        when(productCategoryPage.isLast()).thenReturn(false);
+        when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
+        when(noFileMediaVm.url()).thenReturn(url);
+
+        //when
+        ProductListGetFromCategoryVm actualResponse = productService.getProductsFromCategory(pageNo, pageSize, categorySlug);
+
+        //then
+        assertThat(actualResponse.productContent()).hasSize(2);
+        assertThat(actualResponse.pageNo()).isEqualTo(productCategoryPage.getNumber());
+        assertThat(actualResponse.pageSize()).isEqualTo(productCategoryPage.getSize());
+        assertThat(actualResponse.totalElements()).isEqualTo(productCategoryPage.getTotalElements());
+        assertThat(actualResponse.totalPages()).isEqualTo(productCategoryPage.getTotalPages());
+        assertThat(actualResponse.isLast()).isEqualTo(productCategoryPage.isLast());
+    }
+    @Test
+    void getProductsFromCategory_CategoryIsNonExist_ThrowsNotFoundException() {
+        //given
+        String categorySlug = "laptop-macbook";
+        when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.empty());
+        NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
+        int pageNo = 1;
+        int pageSize = 10;
+        String productName = "";
+        //when
+        NotFoundException exception = assertThrows(NotFoundException.class, () ->productService.getProductsFromCategory(pageNo, pageSize, categorySlug));
+        //then
+        assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categorySlug));
     }
 }
