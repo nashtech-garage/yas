@@ -1,19 +1,24 @@
 package com.yas.customer.controller;
 
-import com.yas.customer.service.CustomerService;
-import com.yas.customer.viewmodel.*;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.yas.customer.service.CustomerService;
+import com.yas.customer.viewmodel.CustomerAdminVm;
+import com.yas.customer.viewmodel.CustomerListVm;
+import com.yas.customer.viewmodel.CustomerVm;
+import com.yas.customer.viewmodel.ErrorVm;
+import com.yas.customer.viewmodel.GuestUserVm;
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 public class CustomerController {
@@ -27,8 +32,8 @@ public class CustomerController {
     @GetMapping("/backoffice/customers")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "403", description = "Access Denied", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<List<CustomerAdminVm>> getCustomers() {
-        return ResponseEntity.ok(customerService.getCustomers());
+    public ResponseEntity<CustomerListVm> getCustomers(@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo) {
+        return ResponseEntity.ok(customerService.getCustomers(pageNo));
     }
 
     @GetMapping("/backoffice/customers/{email}")

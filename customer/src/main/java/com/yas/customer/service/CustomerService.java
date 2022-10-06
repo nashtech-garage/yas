@@ -6,6 +6,7 @@ import com.yas.customer.exception.CreateGuestUserException;
 import com.yas.customer.exception.NotFoundException;
 import com.yas.customer.exception.WrongEmailFormatException;
 import com.yas.customer.viewmodel.CustomerAdminVm;
+import com.yas.customer.viewmodel.CustomerListVm;
 import com.yas.customer.viewmodel.CustomerVm;
 import com.yas.customer.viewmodel.GuestUserVm;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -31,17 +32,22 @@ public class CustomerService {
     private final Keycloak keycloak;
     private final KeycloakPropsConfig keycloakPropsConfig;
     private static final String ERROR_FORMAT = "%s: Client %s don't have access right for this resource";
+    private static final int USER_PER_PAGE = 2;
 
     public CustomerService(Keycloak keycloak, KeycloakPropsConfig keycloakPropsConfig) {
         this.keycloak = keycloak;
         this.keycloakPropsConfig = keycloakPropsConfig;
     }
 
-    public List<CustomerAdminVm> getCustomers() {
+    public CustomerListVm getCustomers(int pageNo) {
         try {
-            return keycloak.realm(keycloakPropsConfig.getRealm()).users().list().stream()
+            List<CustomerAdminVm> result = keycloak.realm(keycloakPropsConfig.getRealm()).users()
+                    .search(null, pageNo * USER_PER_PAGE, USER_PER_PAGE).stream()
                     .map(CustomerAdminVm::fromUserRepresentation)
                     .toList();
+            int totalUser = keycloak.realm(keycloakPropsConfig.getRealm()).users().count();
+
+            return new CustomerListVm(totalUser, result, totalUser / USER_PER_PAGE);
         } catch (ForbiddenException exception) {
             throw new AccessDeniedException(String.format(ERROR_FORMAT, exception.getMessage(), keycloakPropsConfig.getResource()));
         }
