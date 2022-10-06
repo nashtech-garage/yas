@@ -3,10 +3,10 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button, Stack, Table, Form } from "react-bootstrap";
 import ReactPaginate from "react-paginate";
-import { getCustomers } from "../../modules/catalog/services/CustomerService";
+import { getCustomers } from "../../modules/customer/services/CustomerService";
 import moment from "moment";
 import { toast } from "react-toastify";
-import { Customer } from "../../modules/catalog/models/Customer";
+import { Customer } from "../../modules/customer/models/Customer";
 import "react-toastify/dist/ReactToastify.css";
 
 const Customers: NextPage = () => {
