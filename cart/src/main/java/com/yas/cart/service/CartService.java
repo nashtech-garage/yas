@@ -78,6 +78,6 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return cartRepository.findByCustomerId(auth.getName())
                 .stream().reduce((first, second) -> second)
-                .map(CartGetDetailVm::fromModel).get();
+                .map(CartGetDetailVm::fromModel).orElse(null);
     }
 }
