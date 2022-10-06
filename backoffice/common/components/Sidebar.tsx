@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Button } from 'react-bootstrap';
 import styles from '../../styles/Sidebar.module.css';
 import ListGroup from './ListGroup';
-import { FaMicrosoft, FaMobileAlt, FaTasks } from 'react-icons/fa';
+import { FaMicrosoft, FaMobileAlt, FaTasks, FaUsers } from 'react-icons/fa';
 import { SiBrandfolder } from 'react-icons/si';
 
 let menu_admin_item_data: any = [
@@ -34,6 +34,13 @@ let menu_admin_item_data: any = [
     active: false,
     link: '/catalog/product-attributes',
     icon: <FaTasks />,
+  },
+  {
+    id: 5,
+    name: 'Customers',
+    active: false,
+    link: '/customers',
+    icon: <FaUsers />,
   },
 ];
 

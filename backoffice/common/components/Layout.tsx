@@ -1,8 +1,9 @@
 import Head from 'next/head';
-import AuthenticationInfo from './AuthenticationInfo';
 import { Navbar } from 'react-bootstrap';
-import Sidebar from './Sidebar';
+import { ToastContainer } from 'react-toastify';
 import styles from '../../styles/Layout.module.css';
+import AuthenticationInfo from './AuthenticationInfo';
+import Sidebar from './Sidebar';
 
 type Props = {
   children: React.ReactNode;
@@ -36,7 +37,7 @@ export default function Layout({ children }: Props) {
       <div className="container-fluid">
         <Sidebar />
         <div>
-          <main className="col-md-9 py-5" id={styles.main}>
+          <main className="col-md-9 py-5 container-fluid" id={styles.main}>
             {children}
           </main>
           <footer className={styles.footer}>
@@ -50,6 +51,18 @@ export default function Layout({ children }: Props) {
           </footer>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        />
     </>
   );
 }

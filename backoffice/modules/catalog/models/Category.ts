@@ -4,7 +4,6 @@ export type Category = {
   description: string;
   slug: string;
   parentId: number;
-  parentName: string;
   metaKeywords: string;
   metaDescription: string;
   displayOrder: number;

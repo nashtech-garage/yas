@@ -15,6 +15,7 @@
   margin-left: 340px;
   transition: all 0.3s;
   min-height: calc(100vh - 60px - 70px);
+  padding-left: 3rem;
 }
 
 .footer {

@@ -13,11 +13,13 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
@@ -52,7 +54,7 @@ class CategoryControllerTest {
     @Test
     void ListCategories_ValidListCategoryGetVM_Success() {
         List<CategoryGetVm> expect = List.of(
-                new CategoryGetVm(1L, "hô hô", "ho-ho", null, -1)
+                new CategoryGetVm(1L, "hô hô", "ho-ho", -1)
         );
         when(categoryRepository.findAll()).thenReturn(categories);
         ResponseEntity<List<CategoryGetVm>> actual = categoryController.listCategories();

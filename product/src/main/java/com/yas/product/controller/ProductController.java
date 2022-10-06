@@ -25,7 +25,7 @@ public class ProductController {
     @GetMapping("/backoffice/products")
     public ResponseEntity<ProductListGetVm> listProducts(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,
+            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize,
             @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
             @RequestParam(value = "brand-name", defaultValue = "", required = false) String brandName
     ) {
@@ -66,8 +66,12 @@ public class ProductController {
     }
 
     @GetMapping("/storefront/category/{categorySlug}/products")
-    public ResponseEntity<List<ProductThumbnailVm>> getProductsByCategory(@PathVariable String categorySlug) {
-        return ResponseEntity.ok(productService.getProductsByCategory(categorySlug));
+    public ResponseEntity<ProductListGetFromCategoryVm> getProductsByCategory(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,
+            @PathVariable String categorySlug
+    ) {
+        return ResponseEntity.ok(productService.getProductsFromCategory(pageNo, pageSize,categorySlug));
     }
 
     @GetMapping("/backoffice/products/{productId}")
