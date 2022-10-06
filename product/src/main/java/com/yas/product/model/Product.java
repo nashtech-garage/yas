@@ -60,6 +60,7 @@ public class Product extends AbstractAuditEntity {
     private List<ProductCategory> productCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
+    @JsonIgnore
     private List<ProductAttributeValue> attributeValues = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
