@@ -3,14 +3,15 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button, Stack, Table, Form } from "react-bootstrap";
 import ReactPaginate from "react-paginate";
-import { CustomerAdmin } from "../../../modules/catalog/models/CustomerAdmin";
-import { getCustomers } from "../../../modules/catalog/services/CustomerService";
+import { getCustomers } from "../../modules/catalog/services/CustomerService";
 import moment from "moment";
 import { toast } from "react-toastify";
+import { Customer } from "../../modules/catalog/models/Customer";
+import "react-toastify/dist/ReactToastify.css";
 
 const Customers: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [customers, setCustomers] = useState<CustomerAdmin[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(0);
   const [totalUser, setTotalUser] = useState<number>(0);
@@ -43,7 +44,7 @@ const Customers: NextPage = () => {
         </div>
 
         <div className="col-md-4 text-right">
-          <Link href="/catalog/customer/create">
+          <Link href="/customer/create">
             <Button>Create Customer</Button>
           </Link>
         </div>
@@ -64,7 +65,7 @@ const Customers: NextPage = () => {
           {(customers || []).map((customer) => (
             <tr key={customer.id}>
               <td>
-                <Link href={`/catalog/customer/${customer.id}/view`}>
+                <Link href={`/customer/${customer.id}/view`}>
                   {customer.id}
                 </Link>
               </td>
@@ -79,7 +80,7 @@ const Customers: NextPage = () => {
               </td>
               <td>
                 <Stack direction="horizontal" gap={3}>
-                  <Link href={`/catalog/customer/${customer.id}/edit`}>
+                  <Link href={`/customer/${customer.id}/edit`}>
                     <button
                       className="btn btn-outline-primary btn-sm"
                       type="button"
@@ -87,7 +88,7 @@ const Customers: NextPage = () => {
                       Edit
                     </button>
                   </Link>
-                  <Link href={`/catalog/customer/${customer.id}/delete`}>
+                  <Link href={`/customer/${customer.id}/delete`}>
                     <button
                       className="btn btn-outline-primary btn-sm"
                       type="button"

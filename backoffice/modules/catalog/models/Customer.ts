@@ -1,4 +1,4 @@
-export type CustomerAdmin = {
+export type Customer = {
     id: string,
     email: string,
     username: string,

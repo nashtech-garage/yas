@@ -1,6 +1,7 @@
-import { CustomerAdmin } from "./CustomerAdmin";
+import { Customer } from './Customer';
+
 export type Customers = {
-  customers: CustomerAdmin[];
+  customers: Customer[]
   totalPage: number;
   totalUser: number;
 };
