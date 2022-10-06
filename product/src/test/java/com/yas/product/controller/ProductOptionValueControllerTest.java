@@ -28,7 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-public class ProductOptionValueControllerTest {
+class ProductOptionValueControllerTest {
     ProductOptionValueRepository productOptionValueRepository;
     ProductRepository productRepository;
     ProductOptionRepository productOptionRepository;
@@ -91,8 +91,10 @@ public class ProductOptionValueControllerTest {
     void createProductOptionValue_ProductIdIsValid_ThrowNotFoundException(){
         ProductOptionValuePostVm productOptionValuePostVm = new ProductOptionValuePostVm(1L , 1L , "Text",2,"Yellow");
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
+        UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
+        when(uriComponentsBuilder.replacePath("/product-option-values/{id}")).thenReturn(newUriComponentsBuilder);
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                ()->productOptionValueController.createProductOptionValue(productOptionValuePostVm, UriComponentsBuilder.fromPath("/product-option-values/{id}")));
+                ()->productOptionValueController.createProductOptionValue(productOptionValuePostVm, uriComponentsBuilder));
         assertThat(exception.getMessage(), Matchers.is("Product 1 is not found"));
     }
     @Test
@@ -100,8 +102,10 @@ public class ProductOptionValueControllerTest {
         ProductOptionValuePostVm productOptionValuePostVm = new ProductOptionValuePostVm(1L , 1L , "Text",2,"Yellow");
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productOptionRepository.findById(1L)).thenReturn(Optional.empty());
+        UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
+        when(uriComponentsBuilder.replacePath("/product-option-values/{id}")).thenReturn(newUriComponentsBuilder);
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                ()->productOptionValueController.createProductOptionValue(productOptionValuePostVm, UriComponentsBuilder.fromPath("/product-option-values/{id}")));
+                ()->productOptionValueController.createProductOptionValue(productOptionValuePostVm, uriComponentsBuilder));
         assertThat(exception.getMessage(), Matchers.is("Product option 1 is not found"));
     }
     @Test
