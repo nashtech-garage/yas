@@ -9,7 +9,7 @@ import type { Brand } from '../../../modules/catalog/models/Brand';
 import type { Product } from '../../../modules/catalog/models/Product';
 import { getBrands } from '../../../modules/catalog/services/BrandService';
 import { getProducts } from '../../../modules/catalog/services/ProductService';
-import styles from '../../../styles/Filter.module.css'
+import styles from '../../../styles/Filter.module.css';
 
 const ProductList: NextPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -99,11 +99,7 @@ const ProductList: NextPage = () => {
                     if (e.target.value.replaceAll(' ', '') == '') setProductName('');
                   }}
                 />
-                <Button
-                  id="seach-category"
-                  variant="danger"
-                  onClick={searchingHandler}
-                >
+                <Button id="seach-category" variant="danger" onClick={searchingHandler}>
                   <FaSearch />
                 </Button>
               </InputGroup>

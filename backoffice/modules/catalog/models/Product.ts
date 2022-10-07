@@ -1,4 +1,4 @@
-import { Category } from "./Category";
+import { Category } from './Category';
 
 export type Product = {
   id: number;
@@ -18,5 +18,5 @@ export type Product = {
   brandId: number;
   categories: Category[];
   thumbnailMediaUrl: string;
-  productImageMediaUrls : string[]
+  productImageMediaUrls: string[];
 };

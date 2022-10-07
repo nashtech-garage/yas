@@ -1,11 +1,10 @@
-import Head from "next/head";
-import Layout from '../common/components/Layout'
+import Head from 'next/head';
+import Layout from '../common/components/Layout';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/globals.css'
+import '../styles/globals.css';
 
-
-import type { AppProps } from 'next/app'
+import type { AppProps } from 'next/app';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -16,7 +15,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
-    </>)
+    </>
+  );
 }
 
-export default MyApp
+export default MyApp;

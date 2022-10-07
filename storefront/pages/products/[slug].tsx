@@ -1,28 +1,22 @@
-import { GetServerSideProps } from "next";
-import { Product } from "../../modules/catalog/models/Product";
-import { getProduct } from "../../modules/catalog/services/ProductService";
+import { GetServerSideProps } from 'next';
+import { Product } from '../../modules/catalog/models/Product';
+import { getProduct } from '../../modules/catalog/services/ProductService';
 
-type Props = {product: Product}
+type Props = { product: Product };
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
   const { slug } = context.query;
   let product = await getProduct(slug);
-  return { props: { product }};
+  return { props: { product } };
 };
 
-const ProductDetails = ({product} : Props) => {
+const ProductDetails = ({ product }: Props) => {
   return (
     <>
       <div className="row justify-content-center">
         <div className="product-item col-5">
-          <img
-            src={product.thumbnailMediaUrl}
-            className="img-thumbnail"
-            alt="photo"
-          />
-          <span className="caption">
-            {product.shortDescription}
-          </span>
+          <img src={product.thumbnailMediaUrl} className="img-thumbnail" alt="photo" />
+          <span className="caption">{product.shortDescription}</span>
         </div>
 
         <div className="col-7">
@@ -53,56 +47,35 @@ const ProductDetails = ({product} : Props) => {
             </button>
           </div>
           <p className="mb-4 text-muted">
-            Description:{" "}
-            {!product.description ? "No Description" : product.description}
+            Description: {!product.description ? 'No Description' : product.description}
           </p>
           <p className="mb-4 fw-bold fst-italic">
-            Specification:{" "}
-            {!product.specification ? "No Specification" : product.specification}
+            Specification: {!product.specification ? 'No Specification' : product.specification}
           </p>
           <div className="d-flex flex-column gap-1">
-            <div
-              className="alert alert-primary d-flex justify-content-between"
-              role="alert"
-            >
-              {!product.sku ? "No Sku" : product.sku}
+            <div className="alert alert-primary d-flex justify-content-between" role="alert">
+              {!product.sku ? 'No Sku' : product.sku}
               <span className="badge bg-primary text-uppercase">sku</span>
             </div>
-            <div
-              className="alert alert-secondary d-flex justify-content-between"
-              role="alert"
-            >
-              {!product.gtin ? "No Gtin" : product.gtin}
+            <div className="alert alert-secondary d-flex justify-content-between" role="alert">
+              {!product.gtin ? 'No Gtin' : product.gtin}
               <span className="badge bg-secondary text-uppercase">gtin</span>
             </div>
-            <div
-              className="alert alert-success d-flex justify-content-between"
-              role="alert"
-            >
-              {!product.slug ? "No Slug" : product.slug}
+            <div className="alert alert-success d-flex justify-content-between" role="alert">
+              {!product.slug ? 'No Slug' : product.slug}
               <span className="badge bg-success text-uppercase">slug</span>
             </div>
-            <div
-              className="alert alert-danger d-flex justify-content-between"
-              role="alert"
-            >
-              {!product.metaKeyword ? "No Meta Keyword" : product.metaKeyword}
-              <span className="badge bg-danger text-uppercase">
-                metaKeyword
-              </span>
+            <div className="alert alert-danger d-flex justify-content-between" role="alert">
+              {!product.metaKeyword ? 'No Meta Keyword' : product.metaKeyword}
+              <span className="badge bg-danger text-uppercase">metaKeyword</span>
             </div>
-            <div
-              className="alert alert-warning d-flex justify-content-between"
-              role="alert"
-            >
-              {!product.metaDescription ? "No Meta Description" : product.metaDescription}
-              <span className="badge bg-warning text-uppercase">
-                metaDescription
-              </span>
+            <div className="alert alert-warning d-flex justify-content-between" role="alert">
+              {!product.metaDescription ? 'No Meta Description' : product.metaDescription}
+              <span className="badge bg-warning text-uppercase">metaDescription</span>
             </div>
             <div className="d-flex justify-content-between">
               <button type="button" className="btn btn-danger">
-                {" "}
+                {' '}
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -118,7 +91,7 @@ const ProductDetails = ({product} : Props) => {
                 Add to favourite
               </button>
               <button type="button" className="btn btn-primary">
-                {" "}
+                {' '}
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

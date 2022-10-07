@@ -3,10 +3,9 @@ import { Dropdown, Form } from 'react-bootstrap';
 import { Filter } from '../../modules/catalog/models/Filter';
 import styles from '../../styles/Filter.module.css';
 
-type Props = {filter:Filter};
+type Props = { filter: Filter };
 
-const Filter = ({filter}: Props) => {
-
+const Filter = ({ filter }: Props) => {
   return (
     <Dropdown>
       <Dropdown.Toggle
@@ -14,9 +13,7 @@ const Filter = ({filter}: Props) => {
         className={`btn-danger d-flex align-items-center justity-content-center mr-2 ${styles.filterButton}`}
       >
         <p className="flex-grow-1 font-weight-bold">{filter.name}</p>
-        <div className={styles.fbIcon}>
-          {filter.icon}
-        </div>
+        <div className={styles.fbIcon}>{filter.icon}</div>
       </Dropdown.Toggle>
       <Dropdown.Menu className={`${styles.categoryTypeFilterMenu} ${styles.dropdownMenu}`}>
         <Form>
