@@ -33,6 +33,15 @@ spring:
   cloud:
       gateway:
         routes:
+        - id: media-api
+          #uri: http://localhost:8083
+          uri: http://api.yas.local
+          predicates:
+              - Path=/api/media/**
+          filters:
+              - RewritePath=/api/media/(?<segment>.*), /media/$\{segment}
+#             - RewritePath=/api/media/(?<segment>.*), /$\{segment}
+              - TokenRelay=
         - id: api
           #uri: http://localhost:8080
           uri: http://api.yas.local
@@ -54,6 +63,13 @@ spring:
   cloud:
       gateway:
         routes:
+          - id: media-api
+            uri: http://media
+            predicates:
+                - Path=/api/media/**
+            filters:
+                - RewritePath=/api/media/(?<segment>.*), /$\{segment}
+                - TokenRelay=
           - id: api
             uri: http://product
             predicates:
