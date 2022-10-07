@@ -14,7 +14,7 @@ const ProductDetails = ({product} : Props) => {
   return (
     <>
       <div className="row justify-content-center">
-        <div className="product-item col-4">
+        <div className="product-item col-5">
           <img
             src={product.thumbnailMediaUrl}
             className="img-thumbnail"
@@ -25,7 +25,7 @@ const ProductDetails = ({product} : Props) => {
           </span>
         </div>
 
-        <div className="col-8">
+        <div className="col-7">
           <div className="d-flex justify-content-between align-items-center">
             <h2 className="mb-2">{product.name}</h2>
             <span className="text-danger">
