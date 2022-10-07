@@ -13,20 +13,19 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 const ProductDetails = ({product} : Props) => {
   return (
     <>
-      <div className="d-flex flex-row justify-content-center mt-5 gap-5">
-        <div className="d-flex flex-column gap-3">
+      <div className="row justify-content-center">
+        <div className="product-item col-4">
           <img
             src={product.thumbnailMediaUrl}
             className="img-thumbnail"
             alt="photo"
-            style={{ width: "500px", height: "500px" }}
           />
-          <span className="text-center fst-italic">
+          <span className="caption">
             {product.shortDescription}
           </span>
         </div>
 
-        <div>
+        <div className="col-8">
           <div className="d-flex justify-content-between align-items-center">
             <h2 className="mb-2">{product.name}</h2>
             <span className="text-danger">
