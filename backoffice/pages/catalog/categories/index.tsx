@@ -87,7 +87,7 @@ const CategoryList: NextPage = () => {
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2>Categories</h2>
+          <h2 className="text-danger font-weight-bold mb-3">Categories</h2>
         </div>
         <div className="col-md-4 text-right">
           <Link href="/catalog/categories/create">
@@ -103,12 +103,10 @@ const CategoryList: NextPage = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {renderCategoriesHierarchy(-1, categories, "")}
-        </tbody>
+        <tbody>{renderCategoriesHierarchy(-1, categories, '')}</tbody>
       </Table>
       <Modal show={showModalDelete} onHide={handleClose}>
-        <Modal.Body>{'Are you sure you want to delete this '+ categoryName +" ?"}</Modal.Body>
+        <Modal.Body>{'Are you sure you want to delete this ' + categoryName + ' ?'}</Modal.Body>
         <Modal.Footer>
           <Button variant="outline-secondary" onClick={handleClose}>
             Close
@@ -118,7 +116,6 @@ const CategoryList: NextPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      
     </>
   );
 };

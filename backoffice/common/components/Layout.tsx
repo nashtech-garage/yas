@@ -3,6 +3,7 @@ import { Navbar } from 'react-bootstrap';
 import { ToastContainer } from 'react-toastify';
 import styles from '../../styles/Layout.module.css';
 import AuthenticationInfo from './AuthenticationInfo';
+import { useRef, useState } from 'react';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -10,6 +11,9 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
+  const [open, setOpen] = useState(false)
+  const node = useRef()
+
   return (
     <>
       <Head>
@@ -36,7 +40,7 @@ export default function Layout({ children }: Props) {
       </Navbar>
       <div className="container-fluid">
         <Sidebar />
-        <div>
+        <div id={styles.rightBody}>
           <main className="col-md-9 py-5 container-fluid" id={styles.main}>
             {children}
           </main>
@@ -62,7 +66,7 @@ export default function Layout({ children }: Props) {
         draggable
         pauseOnHover
         theme="colored"
-        />
+      />
     </>
   );
 }

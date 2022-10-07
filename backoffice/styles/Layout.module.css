@@ -11,20 +11,21 @@
   padding-left: 2rem;
   padding-right: 2rem;
 }
+
 #main {
-  margin-left: 340px;
   transition: all 0.3s;
-  min-height: calc(100vh - 60px - 70px);
+  min-height: calc(100vh - 60px - 10rem);
   padding-left: 3rem;
 }
 
 .footer {
   display: flex;
   flex: 1;
-  padding: 2rem 0;
+  padding: 1rem 0;
   border-top: 1px solid #eaeaea;
   justify-content: center;
   align-items: center;
+  height: 70px;
 }
 
 .footer a {
