@@ -16,10 +16,7 @@ export default function ListGroup({ data }: Props) {
     <ListGroupBootstrap id={styles.listGroup} as="ul">
       {data.map((e: any, index: number) => (
         <>
-          <Link
-            href={e.link}
-            key={e.id.toString()}
-          >
+          <Link href={e.link} key={e.id.toString()}>
             <a
               className={router.pathname === e.link ? styles.appActiveLink : ' app-not-active-link'}
               key={e.id.toString()}
@@ -27,6 +24,7 @@ export default function ListGroup({ data }: Props) {
               <ListGroupBootstrap.Item
                 className={`py-3 d-flex align-items-center ${styles.listGroupItem}`}
                 as="li"
+                key={e.id}
               >
                 <h5>{e.icon}</h5>
                 <h5 className="font-weight-bold ms-3">{e.name}</h5>

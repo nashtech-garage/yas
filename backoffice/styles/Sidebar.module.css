@@ -85,3 +85,7 @@
   color: var(--bs-danger);
   cursor: pointer;
 }
+
+.rotateButton180{
+  transform: rotate(180deg);
+}

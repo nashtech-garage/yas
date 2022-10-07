@@ -1,14 +1,15 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Button, Stack, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
-import type { Product } from '../../../modules/catalog/models/Product';
-import { getProducts } from '../../../modules/catalog/services/ProductService';
+import { Button, InputGroup, Stack, Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+import { FaSearch } from 'react-icons/fa';
+import ReactPaginate from 'react-paginate';
 import type { Brand } from '../../../modules/catalog/models/Brand';
+import type { Product } from '../../../modules/catalog/models/Product';
 import { getBrands } from '../../../modules/catalog/services/BrandService';
-import Filter from './../../../common/items/Filter';
+import { getProducts } from '../../../modules/catalog/services/ProductService';
+import styles from '../../../styles/Filter.module.css'
 
 const ProductList: NextPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -62,20 +63,19 @@ const ProductList: NextPage = () => {
           </Link>
         </div>
         <br />
-        
-        {/* Filter */}
-        <Filter />
 
-        <div className="row">
+        {/* Filter */}
+
+        <div className="row mb-3">
           <div className="col ">
-            <Form.Label htmlFor="brand-filter">Brand: </Form.Label>
+            {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
             <Form.Select
-              style={{ width: '300px', marginBottom: '20px', height: '50px' }}
               id="brand-filter"
               onChange={(e) => {
                 setPageNo(0);
                 setBrandName(e.target.value);
               }}
+              className={styles.filterButton}
             >
               <option value={''} selected={brandName == ''}>
                 All
@@ -89,7 +89,27 @@ const ProductList: NextPage = () => {
           </div>
 
           <div className="search-container">
-            <Form.Label htmlFor="brand-filter">Search: </Form.Label>
+            <Form>
+              <InputGroup>
+                <Form.Control
+                  id="product-name"
+                  placeholder="Search name ..."
+                  defaultValue={productName}
+                  onChange={(e) => {
+                    if (e.target.value.replaceAll(' ', '') == '') setProductName('');
+                  }}
+                />
+                <Button
+                  id="seach-category"
+                  variant="danger"
+                  onClick={searchingHandler}
+                >
+                  <FaSearch />
+                </Button>
+              </InputGroup>
+            </Form>
+
+            {/* <Form.Label htmlFor="brand-filter">Search: </Form.Label>
             <div className="row height d-flex justify-content-center align-items-center">
               <div className="col" style={{ padding: '0' }}>
                 <div className="search">
@@ -108,7 +128,7 @@ const ProductList: NextPage = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

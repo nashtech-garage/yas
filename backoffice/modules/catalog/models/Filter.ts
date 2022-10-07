@@ -1,5 +1,4 @@
 export type Filter = {
   name: string;
-  icon?: any;
-  
+  icon?: any;  
 }

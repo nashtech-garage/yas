@@ -76,23 +76,29 @@ const Menu = ({ open, setOpen }: Props) => {
           {/* Catalog */}
           <h5 className="font-weight-black text-center text-white mt-5">
             <span>Catalog</span>
-            <span id={styles.burgerButton}  onClick={()=>{setShowCatalog(!showCatalog)}}>
-              <RiArrowDropDownLine style={{transform: `${!showCatalog ? 'rotate(180deg)' : ''}`}}/>
+            <span
+              id={styles.burgerButton}
+              onClick={() => {
+                setShowCatalog(!showCatalog);
+              }}
+            >
+              <RiArrowDropDownLine className={`${!showCatalog ? styles.rotateButton180 : ''}`} />
             </span>
-          </h5>         
-          <div className="py-4">
-            {showCatalog && <ListGroup data={menu_catalog_item_data} />} 
-          </div>
+          </h5>
+          <div className="py-4">{showCatalog && <ListGroup data={menu_catalog_item_data} />}</div>
           {/* Customer */}
           <h5 className="font-weight-black text-center text-white">
             <span>Customer</span>
-            <span id={styles.burgerButton}  onClick={()=>{setShowCustomer(!showCustomer)}}>
-              <RiArrowDropDownLine style={{transform: `${!showCustomer ? 'rotate(180deg)' : ''}`}}/>
+            <span
+              id={styles.burgerButton}
+              onClick={() => {
+                setShowCustomer(!showCustomer);
+              }}
+            >
+              <RiArrowDropDownLine className={`${!showCatalog ? styles.rotateButton180 : ''}`} />
             </span>
-          </h5>         
-          <div className="py-4">
-            {showCustomer && <ListGroup data={menu_customer_item_data} />} 
-          </div>
+          </h5>
+          <div className="py-4">{showCustomer && <ListGroup data={menu_customer_item_data} />}</div>
 
           {/* Logout */}
           <div className="d-flex justify-content-center ">

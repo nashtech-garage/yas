@@ -1,0 +1,49 @@
+.filterButton {
+  width: 126px;
+}
+
+.filterButton,
+.filterButton:hover,
+button.filterButton:focus {
+  border: var(--2px) solid #ced4da;
+  background-color: var(--bs-white);
+  color: var(--bs-black);
+}
+
+.filterButton .fbIcon {
+  border-left: 2px solid #ced4da;
+  padding-left: var(--6px);
+}
+
+#filterButton::after {
+  content: none;
+}
+
+button.filterButton ~ .dropdownMenu.show {
+  border-width: 2px;
+  min-width: auto;
+}
+
+button.filterButton ~ .dropdownMenu.show .dropdownItem {
+  padding: 0;
+}
+
+button.filterButton ~ .dropdownMenu.show .dropdownItem:focus,
+button.filterButton ~ .dropdownMenu.show .dropdownItem:hover,
+button.filterButton ~ .dropdownItem.show .dropdownItem:active {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+#dropdownItem:active {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.categoryTypeFilterMenu {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+.categoryTypeFilterMenuItem {
+  cursor: pointer;
+}
