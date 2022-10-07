@@ -61,7 +61,6 @@
   bottom: 0;
   width: 340px;
   z-index: 100;
-  transition: all 0.3s;
   box-shadow: var(--box-shadow);
   background-color: #343a3f;
   overflow-y: scroll;
