@@ -53,3 +53,38 @@
 .sidebar-heading {
   font-size: .75rem;
 }
+
+.drawer {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  bottom: 0;
+  width: 340px;
+  z-index: 100;
+  box-shadow: var(--box-shadow);
+  background-color: #343a3f;
+  overflow-y: scroll;
+  transform: translateX(0);
+  transition: all 0.3s linear;
+}
+
+.drawerHidden{
+  transform: translateX(-100%);
+}
+
+#burgerButton{
+  font-size: 2rem;
+  margin-left: 1rem;
+  cursor: pointer;
+}
+#closeButton{
+  font-size: 2rem;
+  float: right;
+  margin-right: 1rem;
+  color: var(--bs-danger);
+  cursor: pointer;
+}
+
+.rotateButton180{
+  transform: rotate(180deg);
+}

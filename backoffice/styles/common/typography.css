@@ -1,0 +1,93 @@
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  line-height: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+.font-weight-extra-light {
+  font-weight: var(--font-weight-extra-light);
+}
+
+.font-weight-light {
+  font-weight: var(--font-weight-light);
+}
+
+.font-weight-regular {
+  font-weight: var(--font-weight-regular);
+}
+
+.font-weight-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-weight-semi {
+  font-weight: var(--font-weight-semi-bold);
+}
+
+.font-weight-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+.font-weight-extra-bold {
+  font-weight: var(--font-weight-extra-bold);
+}
+
+.font-weight-black {
+  font-weight: var(--font-weight-black);
+}
+
+.font-12px {
+  font-size: var(--12px);
+}
+
+.font-14px {
+  font-size: var(--14px);
+}
+
+.font-16px {
+  font-size: var(--16px);
+}
+
+.font-18px {
+  font-size: var(--18px);
+}
+
+.font-20px {
+  font-size: var(--20px);
+}
+.font-30px {
+  font-size: 1.9rem;
+}
+.text-justify {
+  text-align: justify;
+}
+
+.padding-left-12px {
+  padding-left: var(--12px);
+}
+
+.margin-left-12px {
+  margin-left: var(--12px);
+}
+
+.margin-left-100px {
+  margin-left: 10%;
+}
+.margin-right-10px {
+  margin-right: 1%;
+}
+.margin-right-100px {
+  margin-right: 10%;
+}
+.pagination {
+  justify-content: center;
+}
