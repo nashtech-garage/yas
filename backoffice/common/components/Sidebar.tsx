@@ -41,7 +41,7 @@ let menu_catalog_item_data: any = [
     active: false,
     link: '/catalog/product-attributes',
     icon: <FaTasks />,
-  }
+  },
 ];
 
 let menu_customer_item_data: any = [
@@ -52,7 +52,7 @@ let menu_customer_item_data: any = [
     link: '/customers',
     icon: <FaUsers />,
   },
-]
+];
 
 const Burger = ({ open, setOpen }: Props) => {
   return (
@@ -95,7 +95,7 @@ const Menu = ({ open, setOpen }: Props) => {
                 setShowCustomer(!showCustomer);
               }}
             >
-              <RiArrowDropDownLine className={`${!showCatalog ? styles.rotateButton180 : ''}`} />
+              <RiArrowDropDownLine className={`${!showCustomer ? styles.rotateButton180 : ''}`} />
             </span>
           </h5>
           <div className="py-4">{showCustomer && <ListGroup data={menu_customer_item_data} />}</div>
