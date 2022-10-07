@@ -1,5 +1,7 @@
 package com.yas.product.controller;
 
+import com.yas.product.exception.NotFoundException;
+import com.yas.product.model.Product;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.*;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -90,5 +92,20 @@ public class ProductController {
     @GetMapping("/storefront/products/featured/{productId}")
     public ResponseEntity<ProductThumbnailVm> getFeaturedProductsById(@PathVariable long productId) {
         return ResponseEntity.ok(productService.getFeaturedProductsById(productId));
+    }
+
+    @PostMapping("/backoffice/product-option-variations/{productId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema( implementation = ProductDetailVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+    })
+    public ResponseEntity<ProductDetailVm> createProductVariationsOfProduct(
+            @PathVariable("productId") Long productId,
+            @Valid @RequestBody ProductVariationPostVm productVariationPostVm,
+            UriComponentsBuilder uriComponentsBuilder
+    ){
+        ProductDetailVm productDetailVm = productService.createProductVariation(productVariationPostVm, productId);
+        return ResponseEntity.created(uriComponentsBuilder.replacePath("/products/{id}").buildAndExpand(productDetailVm.id()).toUri())
+                .body(productDetailVm);
     }
 }

@@ -362,4 +362,65 @@ public class ProductService {
                 mediaService.getMedia(product.getThumbnailMediaId()).url());
         return productThumbnailVm;
     }
+    public ProductDetailVm createProductVariation( ProductVariationPostVm productVariationPostVm, Long productId) {
+        Product productParent = productRepository
+                .findById(productId)
+                .orElseThrow(()-> new NotFoundException(String.format("Product %s is not found" ,productId)));
+        Product productVariation = new Product();
+        List<String> productImageMediaUrls = new ArrayList<>();
+        if(null != productParent.getProductImages()){
+            for (ProductImage image: productParent.getProductImages()){
+                productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
+            }
+        }
+        List<Category> categories = new ArrayList<>();
+        if(null != productParent.getProductCategories()){
+            for (ProductCategory category: productParent.getProductCategories()){
+                categories.add(category.getCategory());
+            }
+        }
+        productVariation.setName(productVariationPostVm.NameOptionCombinations());
+        productVariation.setSlug(productParent.getSlug());
+        productVariation.setDescription(productParent.getDescription());
+        productVariation.setShortDescription(productParent.getShortDescription());
+        productVariation.setSpecification(productParent.getSpecification());
+        productVariation.setSku(productVariationPostVm.Sku());
+        productVariation.setGtin(productVariationPostVm.Gtin());
+        productVariation.setPrice(productVariationPostVm.price());
+        productVariation.setIsAllowedToOrder(productParent.getIsAllowedToOrder());
+        productVariation.setIsFeatured(productParent.getIsFeatured());
+        productVariation.setIsPublished(productParent.getIsPublished());
+        productVariation.setMetaKeyword(productParent.getMetaKeyword());
+        productVariation.setMetaDescription(productParent.getMetaDescription());
+        productVariation.setParent(productParent);
+        productVariation.setBrand(productParent.getBrand());
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        productVariation.setCreatedBy(auth.getName());
+        productVariation.setLastModifiedBy(auth.getName());
+        productVariation.setThumbnailMediaId(productParent.getThumbnailMediaId());
+
+        Product savedProduct = productRepository.saveAndFlush(productVariation);
+        productRepository.saveAndFlush(savedProduct);
+
+        return new ProductDetailVm(productVariation.getId(),
+                productVariation.getName(),
+                productVariation.getShortDescription(),
+                productVariation.getDescription(),
+                productVariation.getSpecification(),
+                productVariation.getSku(),
+                productVariation.getGtin(),
+                productVariation.getSlug(),
+                productVariation.getIsAllowedToOrder(),
+                productVariation.getIsPublished(),
+                productVariation.getIsFeatured(),
+                productVariation.getPrice(),
+                productVariation.getBrand().getId(),
+                categories,
+                productVariation.getMetaKeyword(),
+                productVariation.getMetaDescription(),
+                mediaService.getMedia(productVariation.getThumbnailMediaId()).url(),
+                productImageMediaUrls
+        );
+    }
 }
