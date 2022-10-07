@@ -1,12 +1,12 @@
-import Head from 'next/head'
-import AuthenticationInfo from './AuthenticationInfo'
-import { Navbar } from 'react-bootstrap'
+import Head from 'next/head';
+import AuthenticationInfo from './AuthenticationInfo';
+import { Navbar } from 'react-bootstrap';
 
 type Props = {
-    children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-export default function Layout({ children } : Props) {
+export default function Layout({ children }: Props) {
   return (
     <>
       <Head>
@@ -15,18 +15,18 @@ export default function Layout({ children } : Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar collapseOnSelect bg="dark" variant="dark">
-        <div className='container'>
+        <div className="container">
           <Navbar.Brand href="/">Yas - Storefront</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
-             <AuthenticationInfo />
+              <AuthenticationInfo />
             </Navbar.Text>
           </Navbar.Collapse>
         </div>
       </Navbar>
       <div className="container container-fluid">
-        <main className='col-md-12'>{children}</main>
+        <main className="col-md-12">{children}</main>
       </div>
       <footer className="footer">
         <a href="https://github.com/nashtech-garage/yas" target="_blank" rel="noopener noreferrer">

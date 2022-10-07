@@ -1,7 +1,7 @@
 import { Customer } from './Customer';
 
 export type Customers = {
-  customers: Customer[]
+  customers: Customer[];
   totalPage: number;
   totalUser: number;
 };

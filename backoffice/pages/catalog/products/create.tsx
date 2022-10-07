@@ -1,29 +1,29 @@
-import type { NextPage } from "next";
-import React, { useEffect, useState } from "react";
-import { createProduct } from "../../../modules/catalog/services/ProductService";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import slugify from "slugify";
-import { Category } from "../../../modules/catalog/models/Category";
-import { Brand } from "../../../modules/catalog/models/Brand";
-import { getCategories } from "../../../modules/catalog/services/CategoryService";
-import { getBrands } from "../../../modules/catalog/services/BrandService";
-import { ProductPost } from "../../../modules/catalog/models/ProductPost";
+import type { NextPage } from 'next';
+import React, { useEffect, useState } from 'react';
+import { createProduct } from '../../../modules/catalog/services/ProductService';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import slugify from 'slugify';
+import { Category } from '../../../modules/catalog/models/Category';
+import { Brand } from '../../../modules/catalog/models/Brand';
+import { getCategories } from '../../../modules/catalog/services/CategoryService';
+import { getBrands } from '../../../modules/catalog/services/BrandService';
+import { ProductPost } from '../../../modules/catalog/models/ProductPost';
 
 const schema = yup
   .object({
-    name: yup.string().required("Product name is required"),
-    slug: yup.string().required("Slug is required"),
-    description: yup.string().required("Description is required"),
-    shortDescription: yup.string().required("Short description is required"),
-    specification: yup.string().required("Specification is required"),
+    name: yup.string().required('Product name is required'),
+    slug: yup.string().required('Slug is required'),
+    description: yup.string().required('Description is required'),
+    shortDescription: yup.string().required('Short description is required'),
+    specification: yup.string().required('Specification is required'),
     price: yup
       .number()
-      .typeError("Price must me a number")
+      .typeError('Price must me a number')
       .default(0.0)
-      .positive("Price must be positive number")
-      .required("Product price is required"),
+      .positive('Price must be positive number')
+      .required('Product price is required'),
     // brand: yup.number().min(1, "Select Branch").required("Select Brand"),
   })
   .required();
@@ -63,9 +63,7 @@ const ProductCreate: NextPage = () => {
     }
   };
 
-  const onProductImageSelected = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const onProductImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = event.target.files;
       setProductImages(files);
@@ -87,10 +85,10 @@ const ProductCreate: NextPage = () => {
 
     await createProduct(data, thumbnail, productImages)
       .then((res) => {
-        location.replace("/catalog/products");
+        location.replace('/catalog/products');
       })
       .catch((err) => {
-        alert("Cannot Create Product. Try Later!");
+        alert('Cannot Create Product. Try Later!');
       });
   };
 
@@ -116,44 +114,35 @@ const ProductCreate: NextPage = () => {
                 Name
               </label>
               <input
-                className={`form-control ${errors.name ? "border-danger" : ""}`}
-                {...register("name", {
-                  onChange: (event) =>
-                    setValue("slug", slugify(event.target.value)),
+                className={`form-control ${errors.name ? 'border-danger' : ''}`}
+                {...register('name', {
+                  onChange: (event) => setValue('slug', slugify(event.target.value)),
                 })}
               />
-              <sup className="text-danger fst-italic">
-                {errors.name?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.name?.message}</sup>
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="slug">
                 Slug
               </label>
               <input
-                className={`form-control ${
-                  errors.slug ? "border-danger" : ""
-                } `}
+                className={`form-control ${errors.slug ? 'border-danger' : ''} `}
                 id="slug"
-                {...register("slug", {
-                  onChange: (e) => setValue("slug", e.target.value),
-                  onBlur: (e) => setValue("slug", slugify(e.target.value)),
+                {...register('slug', {
+                  onChange: (e) => setValue('slug', e.target.value),
+                  onBlur: (e) => setValue('slug', slugify(e.target.value)),
                 })}
               />
-              <sup className="text-danger fst-italic">
-                {errors.slug?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.slug?.message}</sup>
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="brand">
                 Brand
               </label>
               <select
-                className={`form-select ${
-                  errors.brandId ? "border-danger" : ""
-                }`}
+                className={`form-select ${errors.brandId ? 'border-danger' : ''}`}
                 id="brand"
-                {...register("brandId")}
+                {...register('brandId')}
                 defaultValue={0}
               >
                 <option disabled hidden value={0}>
@@ -165,9 +154,7 @@ const ProductCreate: NextPage = () => {
                   </option>
                 ))}
               </select>
-              <sup className="text-danger fst-italic">
-                {errors.brandId?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.brandId?.message}</sup>
             </div>
 
             <div className="mb-3">
@@ -175,11 +162,9 @@ const ProductCreate: NextPage = () => {
                 Category
               </label>
               <select
-                className={`form-select ${
-                  errors.categoryIds ? "border-danger" : ""
-                }`}
+                className={`form-select ${errors.categoryIds ? 'border-danger' : ''}`}
                 id="category"
-                {...register("categoryIds")}
+                {...register('categoryIds')}
                 onChange={onCategoryChange}
                 defaultValue={0}
               >
@@ -192,15 +177,10 @@ const ProductCreate: NextPage = () => {
                   </option>
                 ))}
               </select>
-              <sup className="text-danger fst-italic">
-                {errors.categoryIds?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.categoryIds?.message}</sup>
               <div className="d-flex flex-start mt-2">
                 {selectedCategories.map((category, index) => (
-                  <span
-                    className="border border-primary rounded fst-italic px-2"
-                    key={index}
-                  >
+                  <span className="border border-primary rounded fst-italic px-2" key={index}>
                     {category}
                   </span>
                 ))}
@@ -212,108 +192,77 @@ const ProductCreate: NextPage = () => {
                 Short Description
               </label>
               <textarea
-                className={`form-control ${
-                  errors.shortDescription ? "border-danger" : ""
-                }`}
+                className={`form-control ${errors.shortDescription ? 'border-danger' : ''}`}
                 id="short-description"
-                {...register("shortDescription")}
+                {...register('shortDescription')}
               />
-              <sup className="text-danger fst-italic">
-                {errors.shortDescription?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.shortDescription?.message}</sup>
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="description">
                 Description
               </label>
               <textarea
-                className={`form-control ${
-                  errors.description ? "border-danger" : ""
-                }`}
+                className={`form-control ${errors.description ? 'border-danger' : ''}`}
                 id="description"
-                {...register("description")}
+                {...register('description')}
               />
-              <sup className="text-danger fst-italic">
-                {errors.description?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.description?.message}</sup>
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="specification">
                 Specification
               </label>
               <textarea
-                className={`form-control ${
-                  errors.specification ? "border-danger" : ""
-                }`}
+                className={`form-control ${errors.specification ? 'border-danger' : ''}`}
                 id="specification"
-                {...register("specification")}
+                {...register('specification')}
               />
-              <sup className="text-danger fst-italic">
-                {errors.specification?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.specification?.message}</sup>
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="sku">
                 SKU
               </label>
-              <input className="form-control" id="sku" {...register("sku")} />
+              <input className="form-control" id="sku" {...register('sku')} />
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="gtin">
                 GTIN
               </label>
-              <input className="form-control" id="gtin" {...register("gtin")} />
+              <input className="form-control" id="gtin" {...register('gtin')} />
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="price">
                 Price
               </label>
               <input
-                className={`form-control ${
-                  errors.price ? "border-danger" : ""
-                }`}
+                className={`form-control ${errors.price ? 'border-danger' : ''}`}
                 id="price"
                 type="number"
-                {...register("price")}
+                {...register('price')}
               />
-              <sup className="text-danger fst-italic">
-                {errors.price?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.price?.message}</sup>
             </div>
             <div className="d-flex justify-content-between">
               <div className="mb-3">
-                <label
-                  className="form-label me-3"
-                  htmlFor="is-allowed-to-order"
-                >
+                <label className="form-label me-3" htmlFor="is-allowed-to-order">
                   Is Allowed To Order
                 </label>
-                <input
-                  id="is-allowed-to-order"
-                  type="checkbox"
-                  {...register("isAllowedToOrder")}
-                />
+                <input id="is-allowed-to-order" type="checkbox" {...register('isAllowedToOrder')} />
               </div>
 
               <div className="mb-3">
                 <label className="form-label me-3" htmlFor="is-published">
                   Is Published
                 </label>
-                <input
-                  type="checkbox"
-                  id="is-published"
-                  {...register("isPublished")}
-                />
+                <input type="checkbox" id="is-published" {...register('isPublished')} />
               </div>
               <div className="mb-3">
                 <label className="form-label me-3" htmlFor="is-featured">
                   Is Featured
                 </label>
-                <input
-                  id="is-featured"
-                  type="checkbox"
-                  {...register("isFeatured")}
-                />
+                <input id="is-featured" type="checkbox" {...register('isFeatured')} />
               </div>
             </div>
 
@@ -328,7 +277,7 @@ const ProductCreate: NextPage = () => {
                 onChange={onThumbnailSelected}
               />
 
-              <img style={{ width: "150px" }} src={thumbnailURL} />
+              <img style={{ width: '150px' }} src={thumbnailURL} />
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="product-image">
@@ -342,44 +291,27 @@ const ProductCreate: NextPage = () => {
                 multiple
               />
               {productImageURL?.map((productImageUrl, index) => (
-                <img
-                  style={{ width: "150px" }}
-                  src={productImageUrl}
-                  key={index}
-                  alt="Image"
-                />
+                <img style={{ width: '150px' }} src={productImageUrl} key={index} alt="Image" />
               ))}
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="meta-keyword">
                 Meta Keyword
               </label>
-              <textarea
-                className={`form-control`}
-                id="meta-keyword"
-                {...register("metaKeyword")}
-              />
+              <textarea className={`form-control`} id="meta-keyword" {...register('metaKeyword')} />
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="meta-description">
                 Meta Description
               </label>
               <textarea
-                className={`form-control ${
-                  errors.shortDescription ? "border-danger" : ""
-                }`}
+                className={`form-control ${errors.shortDescription ? 'border-danger' : ''}`}
                 id="meta-description"
-                {...register("metaDescription")}
+                {...register('metaDescription')}
               />
-              <sup className="text-danger fst-italic">
-                {errors.shortDescription?.message}
-              </sup>
+              <sup className="text-danger fst-italic">{errors.shortDescription?.message}</sup>
             </div>
-            <button
-              className="btn btn-primary"
-              type="submit"
-              disabled={thumbnailURL == null}
-            >
+            <button className="btn btn-primary" type="submit" disabled={thumbnailURL == null}>
               Submit
             </button>
           </form>

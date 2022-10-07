@@ -11,8 +11,8 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  const [open, setOpen] = useState(false)
-  const node = useRef()
+  const [open, setOpen] = useState(false);
+  const node = useRef();
 
   return (
     <>

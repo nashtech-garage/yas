@@ -9,8 +9,7 @@ type Props = {
 };
 
 export default function ListGroup({ data }: Props) {
-  const router = useRouter(); 
-
+  const router = useRouter();
 
   return (
     <ListGroupBootstrap id={styles.listGroup} as="ul">

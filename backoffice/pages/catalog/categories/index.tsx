@@ -1,39 +1,35 @@
-import type { NextPage } from "next";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Table } from "react-bootstrap";
-import type { Category } from "../../../modules/catalog/models/Category";
-import { deleteCategory, getCategories } from "../../../modules/catalog/services/CategoryService";
-import { toast } from "react-toastify";
+import type { NextPage } from 'next';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import { Button, Modal, Table } from 'react-bootstrap';
+import type { Category } from '../../../modules/catalog/models/Category';
+import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryList: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
-  const [categoryName, setCategoryName]= useState('') ;
+  const [categoryName, setCategoryName] = useState('');
   const [showModalDelete, setShowModalDelete] = useState(false);
   const handleClose = () => setShowModalDelete(false);
   const handleDelete = () => {
-    setShowModalDelete(false)
-    deleteCategory(+categoryId)
-    .then((response)=>{
-      if(response.status===204){
+    setShowModalDelete(false);
+    deleteCategory(+categoryId).then((response) => {
+      if (response.status === 204) {
         toast.success(categoryName + ' have been deleted');
-      }
-      else if(response.title==='Not found'){
+      } else if (response.title === 'Not found') {
         toast.error(response.detail);
-      }
-      else if(response.title==='Bad request'){
+      } else if (response.title === 'Bad request') {
         toast.error(response.detail);
-      }
-      else{
+      } else {
         toast.error('Delete failed');
       }
       getListCategory();
-    })
-  }
-  function getListCategory(): void{
+    });
+  };
+  function getListCategory(): void {
     getCategories().then((data) => {
       setCategories(data);
       setLoading(false);
@@ -61,22 +57,33 @@ const CategoryList: NextPage = () => {
           <React.Fragment key={category.id}>
             <tr>
               <td>{category.id}</td>
-              <td>{parentHierarchy}{category.name}</td>
               <td>
-              <Link href={`/catalog/categories/${category.id}/edit`}>
-              <button className="btn btn-outline-primary btn-sm" type="button">Edit</button>
-              </Link>
-              &nbsp;
-              <button className="btn btn-outline-danger btn-sm" onClick={()=> {
-                setCategoryId(category.id);
-                setCategoryName(category.name)
-                setShowModalDelete(true)}}>Delete</button>
-            </td>
+                {parentHierarchy}
+                {category.name}
+              </td>
+              <td>
+                <Link href={`/catalog/categories/${category.id}/edit`}>
+                  <button className="btn btn-outline-primary btn-sm" type="button">
+                    Edit
+                  </button>
+                </Link>
+                &nbsp;
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={() => {
+                    setCategoryId(category.id);
+                    setCategoryName(category.name);
+                    setShowModalDelete(true);
+                  }}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
             {renderCategoriesHierarchy(
               category.id,
               newArr,
-              parentHierarchy + category.name + " >> "
+              parentHierarchy + category.name + ' >> '
             )}
           </React.Fragment>
         );
