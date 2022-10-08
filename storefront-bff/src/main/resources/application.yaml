@@ -65,3 +65,9 @@ spring:
             uri: http://localhost:3000
             predicates:
                 - Path=/**
+---
+
+yas:
+  services:
+    customer: http://api.yas.local/customer
+    token-identity: http://identity/auth/realms/Yas/protocol/openid-connect/token
