@@ -23,7 +23,7 @@ export default function ListGroup({ data }: Props) {
               <ListGroupBootstrap.Item
                 className={`py-3 d-flex align-items-center ${styles.listGroupItem}`}
                 as="li"
-                key={e.id}
+                key={e.id.toString()}
               >
                 <h5>{e.icon}</h5>
                 <h5 className="font-weight-bold ms-3">{e.name}</h5>
