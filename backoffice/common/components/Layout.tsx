@@ -20,10 +20,6 @@ export default function Layout({ children }: Props) {
         <title>Yas - Backoffice</title>
         <meta name="description" content="Yet another shop backoffice" />
         <link rel="icon" href="/favicon.ico" />
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
-        ></link>
       </Head>
       <Navbar collapseOnSelect bg="dark" variant="dark" className={styles.header}>
         {/* <div className="container-fluid"> */}
