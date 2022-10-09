@@ -79,7 +79,6 @@ public class CustomerService {
     }
 
     public GuestUserVm createGuestUser() {
-        try {
             // Get realm
             RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
             String randomGuestName = generateSafeString();
@@ -105,9 +104,6 @@ public class CustomerService {
             userResource.roles().realmLevel().add(Collections.singletonList(guestRealmRole));
 
             return new GuestUserVm(userId, guestUserEmail, "GUEST");
-        } catch (InternalError exception) {
-            throw new CreateGuestUserException(exception.getMessage());
-        }
     }
 
     public static CredentialRepresentation createPasswordCredentials(String password) {

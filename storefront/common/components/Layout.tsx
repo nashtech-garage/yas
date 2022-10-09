@@ -11,7 +11,7 @@ export default function Layout({ children }: Props) {
     <>
       <Head>
         <title>Yas - Storefront</title>
-        <meta name="description" content="Yet another shop backoffice" />
+        <meta name="description" content="Yet another shop storefront" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar collapseOnSelect bg="dark" variant="dark">

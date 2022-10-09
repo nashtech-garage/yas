@@ -10,12 +10,12 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name = "cart_detail")
+@Table(name = "cart_item")
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartDetail {
+public class CartItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne
@@ -33,10 +33,10 @@ public class CartDetail {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof CartDetail)) {
+        if (!(o instanceof CartItem)) {
             return false;
         }
-        return id != null && id.equals(((CartDetail) o).id);
+        return id != null && id.equals(((CartItem) o).id);
     }
 
     @Override

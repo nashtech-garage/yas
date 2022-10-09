@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @Slf4j
-public class CartAuthenticationFilter implements WebFilter {
+public class GuestAuthenticationFilter implements WebFilter {
     private final WebClient webClient;
     private final ServiceUrlConfig serviceUrlConfig;
     private final ReactiveClientRegistrationRepository clientRegistrationRepository;
@@ -38,9 +38,9 @@ public class CartAuthenticationFilter implements WebFilter {
     private static final String URL_API_POST_CART = "/api/cart/storefront/carts";
     private static final String GUEST_INFO_KEY = "GUEST_INFOMATION";
 
-    public CartAuthenticationFilter(WebClient webClient,
-                                    ServiceUrlConfig serviceUrlConfig,
-                                    ReactiveClientRegistrationRepository clientRegistrationRepository) {
+    public GuestAuthenticationFilter(WebClient webClient,
+                                     ServiceUrlConfig serviceUrlConfig,
+                                     ReactiveClientRegistrationRepository clientRegistrationRepository) {
         this.webClient = webClient;
         this.serviceUrlConfig = serviceUrlConfig;
         this.clientRegistrationRepository = clientRegistrationRepository;
