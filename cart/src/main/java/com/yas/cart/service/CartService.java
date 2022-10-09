@@ -53,6 +53,7 @@ public class CartService {
             cart = new Cart(null, customerId, new HashSet<>());
             cart.setCreatedBy(auth.getName());
             cart.setCreatedOn(ZonedDateTime.now());
+            cartRepository.save(cart);
         }
 
         for (CartItemVm cartItemVm : cartItemVms) {
