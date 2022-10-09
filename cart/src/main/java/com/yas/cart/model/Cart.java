@@ -8,7 +8,9 @@ import lombok.Setter;
 import javax.persistence.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -18,13 +20,13 @@ import java.util.List;
 @AllArgsConstructor
 public class Cart extends AbstractAuditEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String customerId;
 
-    @OneToMany(mappedBy = "cart")
-    private List<CartDetail> cartDetails = new ArrayList<>();
+    @OneToMany(mappedBy = "cart",  fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private Set<CartItem> cartItems = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
