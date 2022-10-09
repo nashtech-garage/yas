@@ -43,6 +43,26 @@
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
   "failureFactor": 30,
+  "roles": {
+    "realm": [
+	  {
+        "id": "eadee165-c7b4-4508-bf60-937580c5d987",
+        "name": "ADMIN",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "Yas",
+        "attributes": {}
+      },
+      {
+        "id": "7cdd5ed7-4a2b-4b71-aa7a-f4b1085dd507",
+        "name": "GUEST",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "Yas",
+        "attributes": {}
+      }
+	]
+  },
   "defaultRole": {
     "id": "f2da71cd-654f-4beb-8ec8-fa78d6fc1219",
     "name": "default-roles-yas",
@@ -104,7 +124,9 @@
       ],
       "clientRoles": {
         "realm-management": [
-          "view-users"
+          "view-users",
+		  "manage-users",
+		  "manage-realm"
         ],
         "customer-management": [
           "uma_protection"
