@@ -3,7 +3,10 @@ import { useRouter } from 'next/router';
 import { Table } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { ProductThumbnail } from '../../../../modules/catalog/models/ProductThumbnail';
-import { getProductsByCategory ,getCategory } from '../../../../modules/catalog/services/CategoryService';
+import {
+  getProductsByCategory,
+  getCategory,
+} from '../../../../modules/catalog/services/CategoryService';
 import ReactPaginate from 'react-paginate';
 
 const GetProductsByCategory: NextPage = () => {
