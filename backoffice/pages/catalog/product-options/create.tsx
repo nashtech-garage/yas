@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { createProductOption } from '../../../modules/catalog/services/ProductOptionService';
 import { ProductOption } from '../../../modules/catalog/models/ProductOption';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 
 const ProductOptionCreate: NextPage = () => {
+  const router = useRouter();
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
   const handleSubmitOption = async (event: any) => {

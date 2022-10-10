@@ -7,10 +7,11 @@ import {
   getProductOption,
   updateProductOption,
 } from '../../../../modules/catalog/services/ProductOptionService';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const ProductOptionEdit: NextPage = () => {
+  const router = useRouter();
   const { id } = router.query;
   const [productOption, setProductOption] = useState<ProductOption>();
   const { register, handleSubmit, formState, setValue } = useForm();
@@ -41,8 +42,8 @@ const ProductOptionEdit: NextPage = () => {
     if (id) {
       getProductOption(+id).then((data) => {
         setProductOption(data);
+        setValue('name', data.name);
       });
-      setValue('name', productOption?.name);
     }
   }, [id]);
   return (
