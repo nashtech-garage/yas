@@ -1,10 +1,10 @@
-import { ProductThumbnail } from "./ProductThumbnail";
+import { ProductThumbnail } from './ProductThumbnail';
 
 export type ProductThumbnails = {
-    productContent: ProductThumbnail[];
-    pageNo: number;
-    pageSize: number;
-    totalElements: number;
-    totalPages: number;
-    isLast: boolean;
-}
+  productContent: ProductThumbnail[];
+  pageNo: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  isLast: boolean;
+};
