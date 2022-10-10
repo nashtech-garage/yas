@@ -41,8 +41,8 @@ const ProductOptionEdit: NextPage = () => {
     if (id) {
       getProductOption(+id).then((data) => {
         setProductOption(data);
-        setValue('name', data.name);
       });
+      setValue('name', productOption?.name);
     }
   }, [id]);
   return (
