@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Stack ,Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { ProductThumbnail } from '../../../../modules/catalog/models/ProductThumbnail';
 import { getProductsByCategory} from '../../../../modules/catalog/services/CategoryService';
