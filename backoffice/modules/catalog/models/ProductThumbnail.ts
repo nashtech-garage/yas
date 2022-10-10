@@ -1,6 +1,6 @@
 export type ProductThumbnail = {
   id: number;
-  name: String;
-  slug: String;
-  thumbnailUrl: String;
+  name: string;
+  slug: string;
+  thumbnailUrl: string;
 };

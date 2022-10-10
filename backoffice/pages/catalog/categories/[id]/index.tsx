@@ -1,13 +1,10 @@
 import type { NextPage } from 'next';
-import Link from 'next/link';
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 import { Tab, Tabs } from 'react-bootstrap';
 import Editcategory from '../[id]/edit';
 import ListProduct from '../[id]/listProduct';
 const CategoryGetById: NextPage = () => {
   const [tabKey, setTabKey] = useState('one');
-  const router = useRouter();
   return (
     <>
       <div className="row mt-5">
