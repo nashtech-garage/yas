@@ -62,7 +62,7 @@ const CategoryList: NextPage = () => {
                 {category.name}
               </td>
               <td>
-                <Link href={`/catalog/categories/${category.id}/edit`}>
+                <Link href={`/catalog/categories/${category.id}`}>
                   <button className="btn btn-outline-primary btn-sm" type="button">
                     Edit
                   </button>

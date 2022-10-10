@@ -108,7 +108,6 @@ const CategoryEdit: NextPage = () => {
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2>Edit Category</h2>
           <form onSubmit={handleSubmitEdit} name="form">
             <div className="mb-3">
               <label className="form-label" htmlFor="name">
