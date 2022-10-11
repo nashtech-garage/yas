@@ -11,42 +11,8 @@ import { toast } from 'react-toastify';
 import { getCategories } from '../../../modules/catalog/services/CategoryService';
 import { getBrands } from '../../../modules/catalog/services/BrandService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
-import { Category } from '../../../modules/catalog/models/Category';
 import { Brand } from '../../../modules/catalog/models/Brand';
 import { CategoryGet } from '../../../modules/catalog/models/CategoryGet';
-
-const test = [
-  {
-    id: 1,
-    name: 'Cate 1',
-    slug: 'Slug-1',
-    parentId: null,
-  },
-  {
-    id: 2,
-    name: 'Cate 1',
-    slug: 'Slug-1',
-    parentId: null,
-  },
-  {
-    id: 3,
-    name: 'Cate 1',
-    slug: 'Slug-1',
-    parentId: null,
-  },
-  {
-    id: 4,
-    name: 'Cate 1',
-    slug: 'Slug-1',
-    parentId: null,
-  },
-  {
-    id: 5,
-    name: 'Cate 1',
-    slug: 'Slug-1',
-    parentId: null,
-  },
-];
 
 const ProductCreate: NextPage = () => {
   const [thumbnailURL, setThumbnailURL] = useState<string>();
@@ -200,7 +166,7 @@ const ProductCreate: NextPage = () => {
             needs to be completed
           </Tab>
           <Tab eventKey={'category'} title="Category Mapping">
-            {(test || []).map((cate) => (
+            {(categories || []).map((cate) => (
               <div className="mb-3" key={cate.id}>
                 <input
                   type="checkbox"
@@ -225,7 +191,7 @@ const ProductCreate: NextPage = () => {
             <Text label="metaDescription" register={register} />
           </Tab>
         </Tabs>
-        <div>
+        <div className="text-center">
           <button className="btn btn-primary" type="submit">
             Create
           </button>
