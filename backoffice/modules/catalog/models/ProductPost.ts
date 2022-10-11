@@ -11,9 +11,12 @@ export type ProductPost = {
   isPublished: boolean;
   isFeatured: boolean;
   brandId?: number;
-  categoryIds: number[];
-  metaKeyword: string;
-  metaDescription: string;
   thumbnail?: File;
   productImages?: FileList;
+  metaTitle: string;
+  metaKeyword: string;
+  metaDescription: string;
+  relateProduct: number[]; // product id
+  crossSell: number[]; // product id
+  categoryIds: number[]; // category id
 };
