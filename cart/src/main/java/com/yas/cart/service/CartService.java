@@ -67,8 +67,8 @@ public class CartService {
                 throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
             }
 
-            if (getCartItemByProductId(existedCartItems, cartItemVm.productId()) != null) {
-                CartItem existedCartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
+            CartItem existedCartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
+            if (existedCartItem.getId() != null) {
                 existedCartItem.setQuantity(existedCartItem.getQuantity() + cartItemVm.quantity());
                 cartItemRepository.save(existedCartItem);
             } else {
@@ -97,6 +97,6 @@ public class CartService {
             if (cartItem.getProductId().equals(productId))
                 return cartItem;
         }
-        return null;
+        return new CartItem();
     }
 }
