@@ -144,7 +144,7 @@ const ProductList: NextPage = () => {
               <td>{product.name}</td>
               <td>
                 <Stack direction="horizontal" gap={3}>
-                  <Link href={`/catalog/products/${product.id}/edit`}>
+                  <Link href={`/catalog/products/${product.id}`}>
                     <button className="btn btn-outline-primary btn-sm" type="button">
                       Edit
                     </button>

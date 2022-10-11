@@ -170,17 +170,9 @@ const ProductAttributes: NextPage = () => {
   return (
     <>
       <div className="row mt-5">
-        <div className="col-md-8">
-          <h2>Update product: #{id}</h2>
-        </div>
+        <div className="col-md-8"></div>
       </div>
       <div className="mb-3">
-        <div className="mb-3">
-          <label className="form-label" htmlFor="available-attributes">
-            Available Attributes
-          </label>
-        </div>
-
         <form onSubmit={addNewAttributeOfProduct}>
           <div className="mb-3">
             <label className="form-label" htmlFor="productAG">

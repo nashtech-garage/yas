@@ -43,5 +43,5 @@ export async function getProductsByCategory(
 ): Promise<ProductThumbnails> {
   const url = `/api/product/storefront/category/${categorySlug}/products?pageNo=${pageNo}`;
   const response = await fetch(url);
-  return await response.json();
+  return response.json();
 }
