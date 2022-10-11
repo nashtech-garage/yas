@@ -20,10 +20,15 @@ export default function AuthenticationInfo() {
     return await res.json();
   }
 
+  async function moveCart() {
+    await fetch(`/move-cart`);
+  }
+
   useEffect(() => {
     getAuthenticationInfo().then((data) => {
       setAuthenticatedInfoVm(data);
     });
+    moveCart();
   }, []);
 
   return (
