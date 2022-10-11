@@ -34,7 +34,7 @@ public class CartService {
                 .stream().map(CartListVm::fromModel)
                 .toList();
     }
-    
+
     public List<CartGetDetailVm> getCartDetailByCustomerId(String customerId) {
         return cartRepository.findByCustomerId(customerId)
                 .stream().map(CartGetDetailVm::fromModel)
@@ -67,12 +67,11 @@ public class CartService {
                 throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
             }
 
-            CartItem existedCartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
-            if (existedCartItem.getId() != null) {
-                existedCartItem.setQuantity(existedCartItem.getQuantity() + cartItemVm.quantity());
-                cartItemRepository.save(existedCartItem);
+            CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
+            if (cartItem.getId() != null) {
+                cartItem.setQuantity(cartItem.getQuantity() + cartItemVm.quantity());
+                cartItemRepository.save(cartItem);
             } else {
-                CartItem cartItem = new CartItem();
                 cartItem.setCart(cart);
                 cartItem.setProductId(cartItemVm.productId());
                 cartItem.setQuantity(cartItemVm.quantity());
