@@ -54,6 +54,7 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://storefront-nextjs:3000
       SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
       YAS_SERVICES_CUSTOMER: http://customer/customer
+      YAS_SERVICES_CART: http://cart/cart
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
   media:
