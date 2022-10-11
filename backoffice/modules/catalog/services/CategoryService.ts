@@ -1,4 +1,5 @@
 import { Category } from '../models/Category';
+import { ProductThumbnails } from '../models/ProductThumbnails';
 
 export async function getCategories(): Promise<Category[]> {
   const response = await fetch('/api/product/backoffice/categories');
@@ -34,4 +35,13 @@ export async function deleteCategory(id: number) {
   });
   if (response.status === 204) return await response;
   else return await response.json();
+}
+
+export async function getProductsByCategory(
+  pageNo: number,
+  categorySlug: string
+): Promise<ProductThumbnails> {
+  const url = `/api/product/storefront/category/${categorySlug}/products?pageNo=${pageNo}`;
+  const response = await fetch(url);
+  return await response.json();
 }
