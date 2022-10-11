@@ -1,14 +1,12 @@
 package com.yas.storefrontbff.controller;
 
 import com.yas.storefrontbff.service.CartService;
-import com.yas.storefrontbff.viewmodel.CartGetDetailVm;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
@@ -37,9 +35,7 @@ public class CartController {
                     .map(OAuth2AuthorizedClient::getAccessToken)
                     .map(OAuth2AccessToken::getTokenValue)
                     .flatMap(userToken -> cartService.moveGuestCartToUserCart(userToken, guestInfoFromCookie.get("accessToken")))
-                    .doOnSuccess(s -> {
-                        session.getAttributes().remove(GUEST_INFO_KEY);
-                    });
+                    .doOnSuccess(s -> session.getAttributes().remove(GUEST_INFO_KEY));
         }
         return Mono.empty();
     }
