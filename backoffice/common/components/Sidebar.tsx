@@ -1,6 +1,6 @@
 import { Button } from 'react-bootstrap';
 import { FaMicrosoft, FaMobileAlt, FaTasks, FaUsers } from 'react-icons/fa';
-import { SiBrandfolder } from 'react-icons/si';
+import { SiBrandfolder, SiAnydesk } from 'react-icons/si';
 import styles from '../../styles/Sidebar.module.css';
 import ListGroup from '../items/ListGroup';
 import { useRef, useState } from 'react';
@@ -41,6 +41,13 @@ let menu_catalog_item_data: any = [
     active: false,
     link: '/catalog/product-attributes',
     icon: <FaTasks />,
+  },
+  {
+    id: 5,
+    name: 'Product Options',
+    active: false,
+    link: '/catalog/product-options',
+    icon: <SiAnydesk />,
   },
 ];
 
