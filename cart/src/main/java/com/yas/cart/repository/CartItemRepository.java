@@ -11,4 +11,6 @@ import com.yas.cart.model.CartItem;
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     Optional<CartItem> findAllByCart(Cart cart);
+
+    Optional<CartItem> findByCartAndProductId(Cart cart, Long productId);
 }

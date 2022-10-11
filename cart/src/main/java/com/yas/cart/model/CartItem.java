@@ -1,5 +1,6 @@
 package com.yas.cart.model;
 
+import com.yas.cart.viewmodel.CartItemVm;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,5 +44,9 @@ public class CartItem {
     public int hashCode() {
         // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
+    }
+
+    public static CartItem fromVm(CartItemVm cartItemVm, Cart cart) {
+        return new CartItem(null, cart, cartItemVm.productId(), null, cartItemVm.quantity());
     }
 }

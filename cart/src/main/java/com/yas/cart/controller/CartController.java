@@ -8,11 +8,7 @@ import javax.validation.Valid;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.yas.cart.service.CartService;
@@ -59,5 +55,20 @@ public class CartController {
                     .created(uriComponentsBuilder.replacePath("/carts/{customerId}")
                             .buildAndExpand(cartGetDetailVm.customerId()).toUri())
                     .body(cartGetDetailVm);
+    }
+
+    @DeleteMapping("cart-item/{productId}")
+    public void removeCartItemFromCart(@PathVariable("productId") Long productId) {
+        cartService.removeCartItem(productId);
+    }
+
+    @GetMapping("backoffice/user/current-cart")
+    public CartGetDetailVm getUserCurrentCart() {
+        return cartService.getLastCart();
+    }
+
+    @PutMapping("cart-item")
+    public void updateCart(@RequestBody CartItemListVm CartItemListVm) {
+        cartService.updateCartItems(CartItemListVm);
     }
 }
