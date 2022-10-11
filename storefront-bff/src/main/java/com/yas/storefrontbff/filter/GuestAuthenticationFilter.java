@@ -36,6 +36,7 @@ public class GuestAuthenticationFilter implements WebFilter {
     private final ReactiveClientRegistrationRepository clientRegistrationRepository;
     private static final String GRANT_TYPE = "grant_type";
     private static final String URL_API_POST_CART = "/api/cart/storefront/carts";
+    private static final String URL_API_GET_CART = "/api/cart/storefront/cart";
     private static final String GUEST_INFO_KEY = "GUEST_INFOMATION";
 
     public GuestAuthenticationFilter(WebClient webClient,
@@ -51,8 +52,8 @@ public class GuestAuthenticationFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
         ServerHttpRequest request = exchange.getRequest();
-        if (request.getPath().toString().contains(URL_API_POST_CART)
-                && Objects.equals(request.getMethod(), HttpMethod.POST)) {
+        if ((request.getPath().toString().contains(URL_API_POST_CART) && Objects.equals(request.getMethod(), HttpMethod.POST)) ||
+                (request.getPath().toString().contains(URL_API_GET_CART) && Objects.equals(request.getMethod(), HttpMethod.GET))) {
             AtomicBoolean isAuthenticated = new AtomicBoolean(false);
             AtomicBoolean isAuthenticatedAsGuest = new AtomicBoolean(false);
             HashMap<String, String> guestInfoFromCookie = new LinkedHashMap<>();
