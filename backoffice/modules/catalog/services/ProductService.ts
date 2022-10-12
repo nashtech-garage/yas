@@ -14,7 +14,7 @@ export async function getProducts(
 }
 
 export async function getProduct(id: number) {
-  const response = await fetch("/api/product/backoffice/products/" + id);
+  const response = await fetch('/api/product/backoffice/products/' + id);
   return await response.json();
 }
 
@@ -36,14 +36,11 @@ export async function createProduct(
   return await response.json();
 }
 
-export async function updateProduct(
-  id: number,
-  product: ProductPut
-) {
-  const response = await fetch("/api/product/backoffice/products/" + id, {
-    method: "PUT",
+export async function updateProduct(id: number, product: ProductPut) {
+  const response = await fetch('/api/product/backoffice/products/' + id, {
+    method: 'PUT',
     body: JSON.stringify(product),
-    headers: { "Content-Type": "application/json" }
+    headers: { 'Content-Type': 'application/json' },
   });
   return response;
 }

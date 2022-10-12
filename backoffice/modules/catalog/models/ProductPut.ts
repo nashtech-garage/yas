@@ -15,5 +15,5 @@ export type ProductPut = {
   metaKeyword?: string;
   metaDescription?: string;
   thumbnailMediaId?: number;
-  productImageIds? : number[];
+  productImageIds?: number[];
 };
