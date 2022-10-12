@@ -3,28 +3,33 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Product } from '../../../../modules/catalog/models/Product'
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService'
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import slugify from "slugify";
 import { ProductPut } from '../../../../modules/catalog/models/ProductPut'
 import { Category } from "../../../../modules/catalog/models/Category";
 import { Brand } from "../../../../modules/catalog/models/Brand";
 import { getCategories } from '../../../../modules/catalog/services/CategoryService'
 import { getBrands } from '../../../../modules/catalog/services/BrandService'
+import { uploadMedia } from '../../../../modules/catalog/services/MediaService'
 import Link from 'next/link'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+
 const ProductEdit: NextPage = () => {
   //Get ID
   const router = useRouter()
   const { id } = router.query;
   //Variables
-  const [thumbnail, setThumbnail] = useState<File>();
   const [thumbnailURL, setThumbnailURL] = useState<string>();
+  const [thumbnailMediaId, setThumbnailMediaId] = useState<number>();
   const [generateSlug, setGenerateSlug] = useState<string>();
-  const [productImages, setProductImages] = useState<FileList>();
   const [productImageMediaUrls, setproductImageMediaUrls] = useState<string[]>();
+  const [productImageMediaIds, setProductImageMediaIds] = useState<number[]>();
   const [categoryIds, setCategoryIds] = useState<number[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  //
   //Get product detail
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
@@ -36,9 +41,16 @@ const ProductEdit: NextPage = () => {
     if (id) {
       getProduct(+id)
         .then((data) => {
-          setProduct(data);
-          setLoading(false);
-        });
+          if (data.id) {
+            setProduct(data);
+            setLoading(false);
+          }
+          else {
+            //Show error
+            toast(data.detail);
+            location.replace("/catalog/products");
+          }
+        })
     }
     getCategories().then((data) => {
       setCategories(data);
@@ -46,21 +58,25 @@ const ProductEdit: NextPage = () => {
     getBrands().then((data) => {
       setBrands(data);
     });
-  }, []);
+  }, [id]);
   //Handle
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setGenerateSlug(slugify(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase()));
+    setGenerateSlug(slugify(event.target.value.toLowerCase()));
   };
 
   const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setGenerateSlug(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase());
+    setGenerateSlug(event.target.value.toLowerCase());
   };
 
   const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
-      setThumbnail(i);
       setThumbnailURL(URL.createObjectURL(i));
+      uploadMedia(i).then((res) => {
+        setThumbnailMediaId(res.id)
+      }).catch(() => {
+        toast("Upload failed. Please try again!");
+      })
     }
   };
 
@@ -69,14 +85,18 @@ const ProductEdit: NextPage = () => {
   ) => {
     if (event.target.files) {
       const files = event.target.files;
-      setProductImages(files);
       let length = files.length;
-
       let urls: string[] = [];
-
+      let ids: number[] = [];
       for (let i = 0; i < length; i++) {
         const file = files[i];
         urls.push(URL.createObjectURL(file));
+        uploadMedia(file).then((res) => {
+          ids = [...ids, res.id];
+          setProductImageMediaIds(ids);
+        }).catch(() => {
+          toast("Upload failed. Please try again!");
+        })
       }
       setproductImageMediaUrls([...urls]);
     }
@@ -93,50 +113,33 @@ const ProductEdit: NextPage = () => {
     }
   };
 
-  const onSubmit = (data: any) => {
-    const slug = generateSlug ? generateSlug : data.slug;
+  const onSubmit: SubmitHandler<ProductPut> = (data) => {
+    if(generateSlug){
+      data.slug = generateSlug;
+    }
+
     let defaultCategoryIds: number[] = [];
-    if(product){
+    if (product) {
       Array.from(product.categories).forEach((category) => {
         defaultCategoryIds = [...defaultCategoryIds, category.id]
       })
     }
-    let productPut: ProductPut = {
-      name: data.name.replace(/(^\s+|\s+$)/g, ''),
-      slug: slug.replace(/(^\s+|\s+$)/g, ''),
-      price: data.price,
-      isAllowedToOrder: data.isAllowedToOrder,
-      isPublished: data.isPublished,
-      isFeatured: data.isFeatured,
-      description: data.description?.replace(/(^\s+|\s+$)/g, ''),
-      shortDescription: data.shortDescription.replace(/(^\s+|\s+$)/g, ''),
-      specification: data.specification.replace(/(^\s+|\s+$)/g, ''),
-      sku: data.sku.replace(/(^\s+|\s+$)/g, ''),
-      gtin: data.gtin.replace(/(^\s+|\s+$)/g, ''),
-      metaKeyword: data.metaKeyword.replace(/(^\s+|\s+$)/g, ''),
-      metaDescription: data.metaDescription?.replace(/(^\s+|\s+$)/g, ''),
-      brandId: data.brandId,
-      categoryIds: categoryIds.length > 0 ? categoryIds : defaultCategoryIds
-    }
+    data.categoryIds = categoryIds.length > 0 ? categoryIds : defaultCategoryIds;
+
+    data.thumbnailMediaId = thumbnailMediaId;
+    data.productImageIds = productImageMediaIds;
+
     if (id) {
-      if (thumbnail && productImages) {
-        updateProduct(+id, productPut, thumbnail, productImages).then((res) => {
-          if(res === 204){
+      updateProduct(+id, data).then(async (res) => {
+        if(res.ok){
           location.replace("/catalog/products");
-          }
-          else if(res === 400){
-            alert("Please fill out again! Bad Request!");
-          }
-        }).catch((error) => {
-          alert("Cannot update product. Try later!");
-        })
-      }
-      else {
-        alert("Thumbnail and Product Images is required!");
-      }
-    }
-    else {
-      alert("Please try later!");
+        }
+        else {
+          res.json().then((error) => {
+            toast(error.detail);
+          })
+        }
+      });
     }
   }
   if (isLoading) return <p>Loading...</p>;
@@ -149,7 +152,7 @@ const ProductEdit: NextPage = () => {
             <h2>Update product: #{product.id}</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-3">
-                <label className='form-label' htmlFor="name">Name <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="name">Name</label>
                 <input
                   defaultValue={product.name}
                   {...register("name", { required: "Name is required", onChange: onNameChange })}
@@ -159,7 +162,7 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.name?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="slug">Slug <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="slug">Slug</label>
                 <input
                   value={generateSlug ? generateSlug : product.slug}
                   {...register("slug", { required: "Slug is required", onChange: onSlugChange })}
@@ -169,77 +172,75 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.slug?.message}</></p>
               </div>
               <div className="mb-3">
-              <label className="form-label" htmlFor="brand">
-                Brand <span style={{ 'color': 'red' }}>*</span>
-              </label>
-              <select
-                className={`form-select ${
-                  errors.brandId ? "border-danger" : ""
-                }`}
-                id="brand"
-                {...register("brandId")}
-                defaultValue={product.brandId}
-              >
-                <option disabled hidden value={0}>
-                  Select Brand
-                </option>
-                {Array.from(brands).map((brand) => (
-                  <option value={brand.id} key={brand.id}>
-                    {brand.name}
+                <label className="form-label" htmlFor="brand">
+                  Brand
+                </label>
+                <select
+                  className={`form-select ${errors.brandId ? "border-danger" : ""
+                    }`}
+                  id="brand"
+                  {...register("brandId")}
+                  defaultValue={product.brandId}
+                >
+                  <option disabled hidden value={0}>
+                    Select Brand
                   </option>
-                ))}
-              </select>
-              <p className='error-field'><>{errors.brandId?.message}</></p>
-            </div>
+                  {Array.from(brands).map((brand) => (
+                    <option value={brand.id} key={brand.id}>
+                      {brand.name}
+                    </option>
+                  ))}
+                </select>
+                <p className='error-field'><>{errors.brandId?.message}</></p>
+              </div>
 
-            <div className="mb-3">
-              <label className="form-label" htmlFor="category">
-                Category <span style={{ 'color': 'red' }}>*</span>
-              </label>
-              <select
-                className={`form-select ${
-                  errors.categoryIds ? "border-danger" : ""
-                }`}
-                id="category"
-                {...register("categoryIds")}
-                onChange={onCategoryChange}
-                defaultValue={0}
-              >
-                <option disabled hidden value={0}>
-                  Select Category
-                </option>
-                {Array.from(categories).map((category) => (
-                  <option value={category?.name} key={category?.id}>
-                    {category?.name}
+              <div className="mb-3">
+                <label className="form-label" htmlFor="category">
+                  Category
+                </label>
+                <select
+                  className={`form-select ${errors.categoryIds ? "border-danger" : ""
+                    }`}
+                  id="category"
+                  {...register("categoryIds")}
+                  onChange={onCategoryChange}
+                  defaultValue={0}
+                >
+                  <option disabled hidden value={0}>
+                    Select Category
                   </option>
-                ))}
-              </select>
-              <p className='error-field'><>{errors.categoryIds?.message}</></p>
-              <div className="d-flex flex-start mt-2">
-                {selectedCategories.length > 0 ? selectedCategories.map((category, index) => (
-                  <span
-                    className="border border-primary rounded fst-italic px-2"
-                    key={index}
-                  >
-                    {category}
-                  </span>
-                )) : (
-                  product.categories && product.categories.map((category, index) => (
+                  {Array.from(categories).map((category) => (
+                    <option value={category?.name} key={category?.id}>
+                      {category?.name}
+                    </option>
+                  ))}
+                </select>
+                <p className='error-field'><>{errors.categoryIds?.message}</></p>
+                <div className="d-flex flex-start mt-2">
+                  {selectedCategories.length > 0 ? selectedCategories.map((category, index) => (
                     <span
                       className="border border-primary rounded fst-italic px-2"
                       key={index}
                     >
-                      {category.name}
+                      {category}
                     </span>
-                  ))
-                )}
+                  )) : (
+                    product.categories && product.categories.map((category, index) => (
+                      <span
+                        className="border border-primary rounded fst-italic px-2"
+                        key={index}
+                      >
+                        {category.name}
+                      </span>
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="short-description">Short Description <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="short-description">Short Description</label>
                 <input
                   defaultValue={product.shortDescription}
-                  {...register("shortDescription", { required: "Short Description is required" })}
+                  {...register("shortDescription")}
                   className={`form-control ${errors.shortDescription ? "border-danger" : ""}`}
                   type="text" id="short-description" name="shortDescription" />
                 <p className='error-field'><>{errors.shortDescription?.message}</></p>
@@ -254,43 +255,43 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.description?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="specification">Specification <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="specification">Specification</label>
                 <textarea
                   defaultValue={product.specification}
-                  {...register("specification", { required: "Specification is required" })}
+                  {...register("specification")}
                   className={`form-control ${errors.specification ? "border-danger" : ""}`}
                   id="specification" name="specification" />
                 <p className='error-field'><>{errors.specification?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="specification">Product Attributes <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="specification">Product Attributes</label>
                 <Link href={`/catalog/products/${product.id}/productAttributes`}>
-                  <button className="btn btn-primary" style={{  marginLeft:"35px" }}>Product Attributes</button>
+                  <button className="btn btn-primary" style={{ marginLeft: "35px" }}>Product Attributes</button>
                 </Link>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="sku">SKU <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="sku">SKU</label>
                 <input
                   defaultValue={product.sku}
-                  {...register("sku", { required: "SKU is required" })}
+                  {...register("sku")}
                   className={`form-control ${errors.sku ? "border-danger" : ""}`}
                   type="text" id="sku" name="sku" />
                 <p className='error-field'><>{errors.sku?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="gtin">GTIN <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="gtin">GTIN</label>
                 <input
                   defaultValue={product.gtin}
-                  {...register("gtin", { required: "GTIN is required" })}
+                  {...register("gtin")}
                   className={`form-control ${errors.gtin ? "border-danger" : ""}`}
                   type="text" id="gtin" name="gtin" />
                 <p className='error-field'><>{errors.gtin?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className="form-label" htmlFor="price">Price <span style={{ 'color': 'red' }}>*</span></label>
+                <label className="form-label" htmlFor="price">Price</label>
                 <input
                   defaultValue={product.price}
-                  {...register("price", { required: "Price is required", min: 0 })}
+                  {...register("price", { min: 0 })}
                   className={`form-control ${errors.price ? "border-danger" : ""}`}
                   type="number" id="price"
                 />
@@ -331,10 +332,10 @@ const ProductEdit: NextPage = () => {
                 </div>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="meta-keyword">Meta Keyword <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="meta-keyword">Meta Keyword</label>
                 <input
                   defaultValue={product.metaKeyword}
-                  {...register("metaKeyword", { required: "Meta Keyword is required" })}
+                  {...register("metaKeyword")}
                   className={`form-control ${errors.metaKeyword ? "border-danger" : ""}`}
                   type="text" id="meta-keyword" name="metaKeyword" />
                 <p className='error-field'><>{errors.metaKeyword?.message}</></p>
@@ -348,12 +349,12 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.metaDescription?.message}</></p>
               </div>
               <div className='mb-3'>
-                <label className='form-label' htmlFor="thumbnail">Thumbnail <span style={{ 'color': 'red' }}>*</span></label>
+                <label className='form-label' htmlFor="thumbnail">Thumbnail</label>
                 <input className="form-control" type="file" name="thumbnail" onChange={onThumbnailSelected} />
                 <img style={{ width: '150px' }} src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl} />
               </div>
               <div className="mb-3">
-                <label className="form-label" htmlFor="product-image">Product Images <span style={{ 'color': 'red' }}>*</span>
+                <label className="form-label" htmlFor="product-image">Product Images
                 </label>
                 <input
                   className="form-control"
@@ -363,10 +364,10 @@ const ProductEdit: NextPage = () => {
                   multiple
                 />
                 {productImageMediaUrls ? productImageMediaUrls.map((imageUrl, index) => (
-                    <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image"/>
+                  <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image" />
                 )) : (
                   product.productImageMediaUrls && product.productImageMediaUrls.map((imageUrl, index) => (
-                    <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image"/>
+                    <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image" />
                   ))
                 )}
               </div>
