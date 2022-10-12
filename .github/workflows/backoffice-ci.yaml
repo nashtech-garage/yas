@@ -32,6 +32,8 @@ jobs:
         working-directory: backoffice
       - run: npm run lint
         working-directory: backoffice
+      - run: npx prettier --check .
+        working-directory: backoffice
       - name: SonarCloud Scan
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
         uses: SonarSource/sonarcloud-github-action@master

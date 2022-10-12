@@ -65,7 +65,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByBrand(brandSlug));
     }
 
-    @GetMapping("/storefront/category/{categorySlug}/products")
+    @GetMapping({"/storefront/category/{categorySlug}/products" , "/backoffice/category/{categorySlug}/products"})
     public ResponseEntity<ProductListGetFromCategoryVm> getProductsByCategory(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,

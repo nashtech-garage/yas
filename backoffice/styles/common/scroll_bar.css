@@ -1,0 +1,23 @@
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: var(--bs-white);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--bs-danger);
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html .app-overlay .app-overlay-scope {
+  overflow: hidden;
+}

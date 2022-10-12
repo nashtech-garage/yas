@@ -2,6 +2,7 @@ package com.yas.cart.service;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -11,20 +12,20 @@ import org.springframework.stereotype.Service;
 
 import com.yas.cart.exception.BadRequestException;
 import com.yas.cart.model.Cart;
-import com.yas.cart.model.CartDetail;
-import com.yas.cart.repository.CartDetailRepository;
+import com.yas.cart.model.CartItem;
+import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.viewmodel.*;
 
 @Service
 public class CartService {
     private final CartRepository cartRepository;
-    private final CartDetailRepository cartDetailRepository;
+    private final CartItemRepository cartItemRepository;
     private final ProductService productService;
 
-    public CartService(CartRepository cartRepository, CartDetailRepository cartDetailRepository, ProductService productService) {
+    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductService productService) {
         this.cartRepository = cartRepository;
-        this.cartDetailRepository = cartDetailRepository;
+        this.cartItemRepository = cartItemRepository;
         this.productService = productService;
     }
 
@@ -40,38 +41,41 @@ public class CartService {
                 .toList();
     }
 
-    public CartGetDetailVm createCart(CartPostVm cartPostVm) {
-        Cart cart = new Cart();
-        List<CartDetail> cartDetailList = new ArrayList<>();
+    public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
+        if(CollectionUtils.isEmpty(cartItemVms)){
+            throw new BadRequestException("Cart's item can't be null");
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String customerId = auth.getName();
 
-        cart.setCustomerId(auth.getName());
-        if (CollectionUtils.isNotEmpty(cartPostVm.cartItemVm())) {
-            for (CartItemVm cartItemVm : cartPostVm.cartItemVm()) {
-                if(cartItemVm.quantity() <= 0) 
-                    throw new BadRequestException(("Quantity cannot be negative"));
-
-                try {
-                    productService.getProduct(cartItemVm.productId());
-                } catch (Exception e) {
-                    throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
-                }
-                
-                CartDetail cartDetail = new CartDetail();
-                cartDetail.setCart(cart);
-                cartDetail.setProductId(cartItemVm.productId());
-                cartDetail.setQuantity(cartItemVm.quantity());
-                cartDetailList.add(cartDetail);
-            }
-            cart.setCartDetails(cartDetailList);
+        Cart cart = cartRepository.findByCustomerId(customerId).stream().findFirst().orElse(null);
+        if(cart == null){
+            cart = new Cart(null, customerId, new HashSet<>());
             cart.setCreatedBy(auth.getName());
             cart.setCreatedOn(ZonedDateTime.now());
+            cartRepository.save(cart);
+        }
 
-            Cart savedCart = cartRepository.saveAndFlush(cart);
-            cartDetailRepository.saveAllAndFlush(cartDetailList);
-            return CartGetDetailVm.fromModel(savedCart);
-        } else
-            throw new BadRequestException("Cart's item can't be null");
+        for (CartItemVm cartItemVm : cartItemVms) {
+            if(cartItemVm.quantity() <= 0)
+                throw new BadRequestException(("Quantity cannot be negative"));
+
+            try {
+                productService.getProduct(cartItemVm.productId());
+            } catch (Exception e) {
+                throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
+            }
+
+            CartItem cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setProductId(cartItemVm.productId());
+            cartItem.setQuantity(cartItemVm.quantity());
+            cart.getCartItems().add(cartItem);
+            cartItemRepository.save(cartItem);
+        }
+
+        cartRepository.saveAndFlush(cart);
+        return CartGetDetailVm.fromModel(cart);
     }
 
     public CartGetDetailVm getLastCart() {

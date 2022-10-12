@@ -1,39 +1,35 @@
-import type { NextPage } from "next";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Table } from "react-bootstrap";
-import type { Category } from "../../../modules/catalog/models/Category";
-import { deleteCategory, getCategories } from "../../../modules/catalog/services/CategoryService";
-import { toast } from "react-toastify";
+import type { NextPage } from 'next';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import { Button, Modal, Table } from 'react-bootstrap';
+import type { Category } from '../../../modules/catalog/models/Category';
+import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryList: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
-  const [categoryName, setCategoryName]= useState('') ;
+  const [categoryName, setCategoryName] = useState('');
   const [showModalDelete, setShowModalDelete] = useState(false);
   const handleClose = () => setShowModalDelete(false);
   const handleDelete = () => {
-    setShowModalDelete(false)
-    deleteCategory(+categoryId)
-    .then((response)=>{
-      if(response.status===204){
+    setShowModalDelete(false);
+    deleteCategory(+categoryId).then((response) => {
+      if (response.status === 204) {
         toast.success(categoryName + ' have been deleted');
-      }
-      else if(response.title==='Not found'){
+      } else if (response.title === 'Not found') {
         toast.error(response.detail);
-      }
-      else if(response.title==='Bad request'){
+      } else if (response.title === 'Bad request') {
         toast.error(response.detail);
-      }
-      else{
+      } else {
         toast.error('Delete failed');
       }
       getListCategory();
-    })
-  }
-  function getListCategory(): void{
+    });
+  };
+  function getListCategory(): void {
     getCategories().then((data) => {
       setCategories(data);
       setLoading(false);
@@ -61,22 +57,33 @@ const CategoryList: NextPage = () => {
           <React.Fragment key={category.id}>
             <tr>
               <td>{category.id}</td>
-              <td>{parentHierarchy}{category.name}</td>
               <td>
-              <Link href={`/catalog/categories/${category.id}/edit`}>
-              <button className="btn btn-outline-primary btn-sm" type="button">Edit</button>
-              </Link>
-              &nbsp;
-              <button className="btn btn-outline-danger btn-sm" onClick={()=> {
-                setCategoryId(category.id);
-                setCategoryName(category.name)
-                setShowModalDelete(true)}}>Delete</button>
-            </td>
+                {parentHierarchy}
+                {category.name}
+              </td>
+              <td>
+                <Link href={`/catalog/categories/${category.id}`}>
+                  <button className="btn btn-outline-primary btn-sm" type="button">
+                    Edit
+                  </button>
+                </Link>
+                &nbsp;
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={() => {
+                    setCategoryId(category.id);
+                    setCategoryName(category.name);
+                    setShowModalDelete(true);
+                  }}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
             {renderCategoriesHierarchy(
               category.id,
               newArr,
-              parentHierarchy + category.name + " >> "
+              parentHierarchy + category.name + ' >> '
             )}
           </React.Fragment>
         );
@@ -87,7 +94,7 @@ const CategoryList: NextPage = () => {
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2>Categories</h2>
+          <h2 className="text-danger font-weight-bold mb-3">Categories</h2>
         </div>
         <div className="col-md-4 text-right">
           <Link href="/catalog/categories/create">
@@ -103,12 +110,10 @@ const CategoryList: NextPage = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {renderCategoriesHierarchy(-1, categories, "")}
-        </tbody>
+        <tbody>{renderCategoriesHierarchy(-1, categories, '')}</tbody>
       </Table>
       <Modal show={showModalDelete} onHide={handleClose}>
-        <Modal.Body>{'Are you sure you want to delete this '+ categoryName +" ?"}</Modal.Body>
+        <Modal.Body>{'Are you sure you want to delete this ' + categoryName + ' ?'}</Modal.Body>
         <Modal.Footer>
           <Button variant="outline-secondary" onClick={handleClose}>
             Close
@@ -118,7 +123,6 @@ const CategoryList: NextPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      
     </>
   );
 };

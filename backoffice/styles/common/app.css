@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font), sans-serif;
+  font-weight: var(--font-weight-regular);
+  color: var(--app-black);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  background-color: var(--bs-gray-200);
+}
+
+.w-fit-content {
+  width: fit-content;
+}
+
+.br-6px {
+  border-radius: var(--6px);
+}
+
+.w-48px {
+  width: var(--48px);
+}
+
+.h-48px {
+  height: var(--48px);
+}
+
+.border-none {
+  border: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-no-drop {
+  cursor: no-drop !important;
+}
+
+.word-break {
+  word-break: break-word;
+}

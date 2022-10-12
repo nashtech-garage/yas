@@ -3,6 +3,7 @@ package com.yas.cart.service;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.yas.cart.model.Cart;
-import com.yas.cart.model.CartDetail;
-import com.yas.cart.repository.CartDetailRepository;
+import com.yas.cart.model.CartItem;
+import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.viewmodel.CartGetDetailVm;
 import com.yas.cart.viewmodel.CartListVm;
@@ -23,7 +24,7 @@ import com.yas.cart.viewmodel.CartListVm;
 public class CartServiceTest {
     
     CartRepository cartRepository;
-    CartDetailRepository cartDetailRepository;
+    CartItemRepository cartItemRepository;
     CartService cartService;
     ProductService productService;
 
@@ -37,20 +38,19 @@ public class CartServiceTest {
     @BeforeEach
     void setUp() {
         cartRepository = mock(CartRepository.class);
-        cartDetailRepository = mock(CartDetailRepository.class);
+        cartItemRepository = mock(CartItemRepository.class);
         productService = mock(ProductService.class);
         cartService = new CartService(
                 cartRepository,
-                cartDetailRepository,
+                cartItemRepository,
                 productService);
 
         cartGetDetailVm = new CartGetDetailVm(1L, "customerId", null);
         
-        List<CartDetail> cartDetailList = List.of(
-            new CartDetail(1L, null, 1L, null, 1),
-            new CartDetail(2L, null, 2L, null, 2)
-        );
-        cart1 = new Cart(1L, "customer-1", cartDetailList);
+        HashSet<CartItem> cartItemList = new HashSet<>();
+        cartItemList.add(new CartItem(1L, null, 1L, null, 1));
+        cartItemList.add(new CartItem(2L, null, 2L, null, 2));
+        cart1 = new Cart(1L, "customer-1", cartItemList);
         cart2 = new Cart(2L, "customer-2", null);
         carts = List.of(cart1, cart2);
        

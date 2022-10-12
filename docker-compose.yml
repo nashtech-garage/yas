@@ -53,6 +53,7 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: nextjs
       SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://storefront-nextjs:3000
       SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
+      YAS_SERVICES_CUSTOMER: http://customer/customer
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
   media:

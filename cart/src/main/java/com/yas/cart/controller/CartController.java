@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,11 +49,12 @@ public class CartController {
     }
 
     @PostMapping(path = "/storefront/carts")
+    @Operation(summary = "Add product to shopping cart. When no cart exists, this will create a new cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CartGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody CartPostVm cartPostVm, UriComponentsBuilder uriComponentsBuilder)  {
-            CartGetDetailVm cartGetDetailVm = cartService.createCart(cartPostVm);
+    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody List<CartItemVm> cartItemVms, UriComponentsBuilder uriComponentsBuilder)  {
+            CartGetDetailVm cartGetDetailVm = cartService.addToCart(cartItemVms);
             return ResponseEntity
                     .created(uriComponentsBuilder.replacePath("/carts/{customerId}")
                             .buildAndExpand(cartGetDetailVm.customerId()).toUri())

@@ -17,7 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const ProductEdit: NextPage = () => {
   //Get ID
-  const router = useRouter()
+  const router = useRouter();
   const { id } = router.query;
   //Variables
   const [thumbnailURL, setThumbnailURL] = useState<string>();
@@ -34,7 +34,11 @@ const ProductEdit: NextPage = () => {
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
   //Form validate
-  const { register, formState: { errors }, handleSubmit } = useForm();
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
 
   useEffect(() => {
     setLoading(true);
@@ -80,9 +84,7 @@ const ProductEdit: NextPage = () => {
     }
   };
 
-  const onProductImageSelected = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const onProductImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = event.target.files;
       let length = files.length;
@@ -114,15 +116,15 @@ const ProductEdit: NextPage = () => {
   };
 
   const onSubmit: SubmitHandler<ProductPut> = (data) => {
-    if(generateSlug){
+    if (generateSlug) {
       data.slug = generateSlug;
     }
 
     let defaultCategoryIds: number[] = [];
     if (product) {
       Array.from(product.categories).forEach((category) => {
-        defaultCategoryIds = [...defaultCategoryIds, category.id]
-      })
+        defaultCategoryIds = [...defaultCategoryIds, category.id];
+      });
     }
     data.categoryIds = categoryIds.length > 0 ? categoryIds : defaultCategoryIds;
 
@@ -131,7 +133,7 @@ const ProductEdit: NextPage = () => {
 
     if (id) {
       updateProduct(+id, data).then(async (res) => {
-        if(res.ok){
+        if (res.ok) {
           location.replace("/catalog/products");
         }
         else {
@@ -143,33 +145,44 @@ const ProductEdit: NextPage = () => {
     }
   }
   if (isLoading) return <p>Loading...</p>;
-  if (!product) { return <p>No product</p>; }
-  else {
+  if (!product) {
+    return <p>No product</p>;
+  } else {
     return (
       <>
-        <div className='row mt-5'>
-          <div className='col-md-8'>
+        <div className="row mt-5">
+          <div className="col-md-8">
             <h2>Update product: #{product.id}</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-3">
-                <label className='form-label' htmlFor="name">Name</label>
+                <label className="form-label" htmlFor="name">
+                  Name <span style={{ color: 'red' }}>*</span>
+                </label>
                 <input
                   defaultValue={product.name}
-                  {...register("name", { required: "Name is required", onChange: onNameChange })}
-                  className={`form-control ${errors.name ? "border-danger" : ""}`}
-                  type="text" id="name" name="name"
+                  {...register('name', { required: 'Name is required', onChange: onNameChange })}
+                  className={`form-control ${errors.name ? 'border-danger' : ''}`}
+                  type="text"
+                  id="name"
+                  name="name"
                 />
-                <p className='error-field'><>{errors.name?.message}</></p>
+                <p className="error-field">
+                  <>{errors.name?.message}</>
+                </p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="slug">Slug</label>
                 <input
                   value={generateSlug ? generateSlug : product.slug}
-                  {...register("slug", { required: "Slug is required", onChange: onSlugChange })}
-                  className={`form-control ${errors.slug ? "border-danger" : ""}`}
-                  type="text" id="slug" name="slug"
+                  {...register('slug', { required: 'Slug is required', onChange: onSlugChange })}
+                  className={`form-control ${errors.slug ? 'border-danger' : ''}`}
+                  type="text"
+                  id="slug"
+                  name="slug"
                 />
-                <p className='error-field'><>{errors.slug?.message}</></p>
+                <p className="error-field">
+                  <>{errors.slug?.message}</>
+                </p>
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="brand">
@@ -191,7 +204,9 @@ const ProductEdit: NextPage = () => {
                     </option>
                   ))}
                 </select>
-                <p className='error-field'><>{errors.brandId?.message}</></p>
+                <p className="error-field">
+                  <>{errors.brandId?.message}</>
+                </p>
               </div>
 
               <div className="mb-3">
@@ -246,13 +261,19 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.shortDescription?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="description">Description</label>
+                <label className="form-label" htmlFor="description">
+                  Description
+                </label>
                 <textarea
                   defaultValue={product.description}
-                  {...register("description")}
+                  {...register('description')}
                   className="form-control"
-                  id="description" name="description" />
-                <p className='error-field'><>{errors.description?.message}</></p>
+                  id="description"
+                  name="description"
+                />
+                <p className="error-field">
+                  <>{errors.description?.message}</>
+                </p>
               </div>
               <div className="mb-3">
                 <label className='form-label' htmlFor="specification">Specification</label>
@@ -295,39 +316,47 @@ const ProductEdit: NextPage = () => {
                   className={`form-control ${errors.price ? "border-danger" : ""}`}
                   type="number" id="price"
                 />
-                {errors.price && errors.price.type === "min" ?
-                  (
-                    <p className='error-field'>Price must be at least 0</p>
-                  ) :
-                  (
-                    <p className='error-field'><>{errors.price?.message}</></p>
-                  )
-                }
+                {errors.price && errors.price.type === 'min' ? (
+                  <p className="error-field">Price must be at least 0</p>
+                ) : (
+                  <p className="error-field">
+                    <>{errors.price?.message}</>
+                  </p>
+                )}
               </div>
               <div className="d-flex justify-content-between">
                 <div className="mb-3">
-                  <label className="form-label me-3" htmlFor="is-allowed-to-order">Is Allowed To Order</label>
+                  <label className="form-label me-3" htmlFor="is-allowed-to-order">
+                    Is Allowed To Order
+                  </label>
                   <input
                     defaultChecked={product.isAllowedToOrder}
-                    {...register("isAllowedToOrder")}
-                    type="checkbox" id="is-allowed-to-order"
+                    {...register('isAllowedToOrder')}
+                    type="checkbox"
+                    id="is-allowed-to-order"
                   />
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label me-3" htmlFor="is-published">Is Published</label>
+                  <label className="form-label me-3" htmlFor="is-published">
+                    Is Published
+                  </label>
                   <input
                     defaultChecked={product.isPublished}
-                    {...register("isPublished")}
-                    type="checkbox" id="is-published"
+                    {...register('isPublished')}
+                    type="checkbox"
+                    id="is-published"
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label me-3" htmlFor="is-featured">Is Featured</label>
+                  <label className="form-label me-3" htmlFor="is-featured">
+                    Is Featured
+                  </label>
                   <input
                     defaultChecked={product.isFeatured}
-                    {...register("isFeatured")}
-                    type="checkbox" id="is-featured"
+                    {...register('isFeatured')}
+                    type="checkbox"
+                    id="is-featured"
                   />
                 </div>
               </div>
@@ -341,20 +370,39 @@ const ProductEdit: NextPage = () => {
                 <p className='error-field'><>{errors.metaKeyword?.message}</></p>
               </div>
               <div className="mb-3">
-                <label className='form-label' htmlFor="meta-description">Meta Description</label>
+                <label className="form-label" htmlFor="meta-description">
+                  Meta Description
+                </label>
                 <input
                   defaultValue={product.metaDescription}
-                  {...register("metaDescription")}
-                  type="text" className="form-control" id="meta-description" name="metaDescription" />
-                <p className='error-field'><>{errors.metaDescription?.message}</></p>
-              </div>
-              <div className='mb-3'>
-                <label className='form-label' htmlFor="thumbnail">Thumbnail</label>
-                <input className="form-control" type="file" name="thumbnail" onChange={onThumbnailSelected} />
-                <img style={{ width: '150px' }} src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl} />
+                  {...register('metaDescription')}
+                  type="text"
+                  className="form-control"
+                  id="meta-description"
+                  name="metaDescription"
+                />
+                <p className="error-field">
+                  <>{errors.metaDescription?.message}</>
+                </p>
               </div>
               <div className="mb-3">
-                <label className="form-label" htmlFor="product-image">Product Images
+                <label className="form-label" htmlFor="thumbnail">
+                  Thumbnail <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  className="form-control"
+                  type="file"
+                  name="thumbnail"
+                  onChange={onThumbnailSelected}
+                />
+                <img
+                  style={{ width: '150px' }}
+                  src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label" htmlFor="product-image">
+                  Product Images <span style={{ color: 'red' }}>*</span>
                 </label>
                 <input
                   className="form-control"
@@ -363,21 +411,34 @@ const ProductEdit: NextPage = () => {
                   onChange={onProductImageSelected}
                   multiple
                 />
-                {productImageMediaUrls ? productImageMediaUrls.map((imageUrl, index) => (
-                  <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image" />
-                )) : (
-                  product.productImageMediaUrls && product.productImageMediaUrls.map((imageUrl, index) => (
-                    <img style={{ width: "150px" }} src={imageUrl} key={index} alt="Product Image" />
+                {productImageMediaUrls
+                  ? productImageMediaUrls.map((imageUrl, index) => (
+                    <img
+                      style={{ width: '150px' }}
+                      src={imageUrl}
+                      key={index}
+                      alt="Product Image"
+                    />
                   ))
-                )}
+                  : product.productImageMediaUrls &&
+                  product.productImageMediaUrls.map((imageUrl, index) => (
+                    <img
+                      style={{ width: '150px' }}
+                      src={imageUrl}
+                      key={index}
+                      alt="Product Image"
+                    />
+                  ))}
               </div>
-              <button className="btn btn-primary" type="submit">Submit</button>
+              <button className="btn btn-primary" type="submit">
+                Submit
+              </button>
             </form>
           </div>
         </div>
       </>
-    )
+    );
   }
-}
+};
 
-export default ProductEdit
+export default ProductEdit;

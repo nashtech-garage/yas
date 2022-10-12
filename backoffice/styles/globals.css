@@ -2,8 +2,8 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,
+    Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 a {
@@ -67,11 +67,9 @@ a {
   padding: 10px;
   border: 1px solid rgb(188, 183, 183);
   color: red;
-
 }
 
 .paginationBtns a:hover {
-
   color: white;
   background-color: red;
 }
@@ -95,12 +93,12 @@ a {
 }
 
 .search-container {
-  width: 30%
+  width: 30%;
 }
 
 .search {
   position: relative;
-  box-shadow: 0 0 40px rgba(51, 51, 51, .1);
+  box-shadow: 0 0 40px rgba(51, 51, 51, 0.1);
 }
 
 .search input {
@@ -123,5 +121,4 @@ a {
   width: 70px;
   background: blue;
   border-color: aqua;
-
 }
