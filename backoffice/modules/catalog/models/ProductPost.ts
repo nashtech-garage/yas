@@ -1,3 +1,4 @@
+import { Product } from './Product';
 export type ProductPost = {
   name: string;
   slug: string;
@@ -19,4 +20,5 @@ export type ProductPost = {
   relateProduct: number[]; // product id
   crossSell: number[]; // product id
   categoryIds: number[]; // category id
+  product:Product
 };
