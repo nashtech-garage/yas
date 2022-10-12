@@ -37,6 +37,11 @@ public class GuestAuthenticationFilter implements WebFilter {
     private static final String GRANT_TYPE = "grant_type";
     private static final String URL_API_POST_CART = "/api/cart/storefront/carts";
     private static final String GUEST_INFO_KEY = "GUEST_INFOMATION";
+    private static final String ACCESS_TOKEN_KEY = "accessToken";
+    private static final String PASSWORD_KEY = "password";
+    private static final String USERNAME_KEY = "username";
+    private static final String USER_ID_KEY = "userId";
+    private static final String EMAIL_KEY = "email";
 
     public GuestAuthenticationFilter(WebClient webClient,
                                      ServiceUrlConfig serviceUrlConfig,
@@ -75,7 +80,7 @@ public class GuestAuthenticationFilter implements WebFilter {
                         } else if (isAuthenticatedAsGuest.get()) {
                             exchange.getRequest()
                                     .mutate()
-                                    .headers(h -> h.setBearerAuth(guestInfoFromCookie.get("accessToken")))
+                                    .headers(h -> h.setBearerAuth(guestInfoFromCookie.get(ACCESS_TOKEN_KEY)))
                                     .build();
                             return chain.filter(exchange);
                         } else {
@@ -112,20 +117,20 @@ public class GuestAuthenticationFilter implements WebFilter {
 
     private MultiValueMap<String, String> createFormDataGetGuestToken(MultiValueMap<String, String> formData,
                                                                       GuestUserVm createdUserVm, HashMap<String, String> guestInfoCookie) {
-        guestInfoCookie.put("userId", createdUserVm.userId());
-        guestInfoCookie.put("email", createdUserVm.email());
-        guestInfoCookie.put("password", createdUserVm.password());
+        guestInfoCookie.put(USER_ID_KEY, createdUserVm.userId());
+        guestInfoCookie.put(EMAIL_KEY, createdUserVm.email());
+        guestInfoCookie.put(PASSWORD_KEY, createdUserVm.password());
 
         formData.remove(GRANT_TYPE);
-        formData.add(GRANT_TYPE, "password");
-        formData.add("username", createdUserVm.email());
-        formData.add("password", createdUserVm.password());
+        formData.add(GRANT_TYPE, PASSWORD_KEY);
+        formData.add(USERNAME_KEY, createdUserVm.email());
+        formData.add(PASSWORD_KEY, createdUserVm.password());
 
         return formData;
     }
 
     private HashMap<String, String> addGuestTokenToGuestInfoCookie(String guestToken, HashMap<String, String> guestInfoCookie) {
-        guestInfoCookie.put("accessToken", guestToken);
+        guestInfoCookie.put(ACCESS_TOKEN_KEY, guestToken);
         return guestInfoCookie;
     }
 
@@ -133,7 +138,7 @@ public class GuestAuthenticationFilter implements WebFilter {
                                             HashMap<String, String> guestInfo) {
         return exchange.getSession().flatMap(session -> {
             session.getAttributes().put(GUEST_INFO_KEY, guestInfo);
-            exchange.getRequest().mutate().headers(h -> h.setBearerAuth(guestInfo.get("accessToken"))).build();
+            exchange.getRequest().mutate().headers(h -> h.setBearerAuth(guestInfo.get(ACCESS_TOKEN_KEY))).build();
             return chain.filter(exchange);
         }).then();
     }
