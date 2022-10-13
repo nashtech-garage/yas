@@ -23,9 +23,9 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
 
-    private final String CART_ITEM_UPDATED_MSG = "Updated";
+    private static final String CART_ITEM_UPDATED_MSG = "Updated";
 
-    private final String CART_ITEM_DELETED_MSG = "Deleted";
+    private static final String CART_ITEM_DELETED_MSG = "Deleted";
 
     public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductService productService) {
         this.cartRepository = cartRepository;
