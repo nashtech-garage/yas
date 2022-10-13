@@ -129,7 +129,9 @@ const ProductEdit: NextPage = () => {
       });
     }
     data.categoryIds = categoryIds.length > 0 ? categoryIds : defaultCategoryIds;
-
+    if (data.brandId && +data.brandId === 0) {
+      data.brandId = undefined;
+    }
     data.thumbnailMediaId = thumbnailMediaId;
     data.productImageIds = productImageMediaIds;
 
@@ -177,7 +179,7 @@ const ProductEdit: NextPage = () => {
                 </label>
                 <input
                   value={generateSlug ? generateSlug : product.slug}
-                  {...register('slug', { required: 'Slug is required', onChange: onSlugChange })}
+                  {...register('slug', { onChange: onSlugChange })}
                   className={`form-control ${errors.slug ? 'border-danger' : ''}`}
                   type="text"
                   id="slug"
@@ -195,7 +197,7 @@ const ProductEdit: NextPage = () => {
                   className={`form-select ${errors.brandId ? 'border-danger' : ''}`}
                   id="brand"
                   {...register('brandId')}
-                  defaultValue={product.brandId}
+                  defaultValue={product.brandId ? product.brandId : 0}
                 >
                   <option disabled hidden value={0}>
                     Select Brand
@@ -426,7 +428,7 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="thumbnail">
-                  Thumbnail <span style={{ color: 'red' }}>*</span>
+                  Thumbnail
                 </label>
                 <input
                   className="form-control"
@@ -441,7 +443,7 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="product-image">
-                  Product Images <span style={{ color: 'red' }}>*</span>
+                  Product Images
                 </label>
                 <input
                   className="form-control"

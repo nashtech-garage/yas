@@ -184,7 +184,7 @@ public class ProductService {
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
 
-        if (productPutVm.brandId() != null && productPutVm.brandId() != product.getBrand().getId()) {
+        if (productPutVm.brandId() != null && (product.getBrand() == null || (productPutVm.brandId() != product.getBrand().getId()))) {
             Brand brand = brandRepository.findById(productPutVm.brandId()).
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
@@ -267,11 +267,19 @@ public class ProductService {
                 productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
             }
         }
+        String thumbnailMediaId = "";
+        if(null != product.getThumbnailMediaId()) {
+            thumbnailMediaId = mediaService.getMedia(product.getThumbnailMediaId()).url();
+        }
         List<Category> categories = new ArrayList<>();
         if(null != product.getProductCategories()){
             for (ProductCategory category: product.getProductCategories()){
                 categories.add(category.getCategory());
             }
+        }
+        Long brandId = null;
+        if(null != product.getBrand()) {
+            brandId = product.getBrand().getId();
         }
         return new ProductDetailVm(product.getId(),
                 product.getName(),
@@ -285,11 +293,11 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getPrice(),
-                product.getBrand().getId(),
+                brandId,
                 categories,
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                thumbnailMediaId,
                 productImageMediaUrls
                 );
     }
