@@ -3,7 +3,6 @@ import Link from 'next/link';
 import Router from 'next/router';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 import slugify from 'slugify';
 import {
   CrossSellProduct,

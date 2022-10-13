@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
+import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { UseFormGetValues, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { ProductOption } from '../models/ProductOption';
 import { ProductPost } from '../models/ProductPost';
 import { ProductVariation } from '../models/ProductVariation';
-import { ProductOption } from '../models/ProductOption';
 import { getProductOptions } from '../services/ProductOptionService';
 
 const headers = ['Option Combinations', 'SKU', 'GTIN', 'Price', 'Thumbnail', 'Images', 'Action'];
@@ -14,7 +14,7 @@ type Props = {
   setValue: UseFormSetValue<ProductPost>;
 };
 
-const ProductVariation = ({ getValue, setValue }: Props) => {
+const ProductVariations = ({ getValue, setValue }: Props) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [optionCombines, setOptionCombines] = useState<string[]>([]);
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
@@ -122,6 +122,7 @@ const ProductVariation = ({ getValue, setValue }: Props) => {
           if (event.target.files) {
             item.optionImages = event.target.files;
           }
+          break;
         default:
           break;
       }
@@ -246,4 +247,4 @@ const ProductVariation = ({ getValue, setValue }: Props) => {
   );
 };
 
-export default ProductVariation;
+export default ProductVariations;

@@ -1,4 +1,3 @@
-import { ProductPost } from './../models/ProductPost';
 import { Product } from '../models/Product';
 import { ProductPut } from '../models/ProductPut';
 import { Products } from '../models/Products';

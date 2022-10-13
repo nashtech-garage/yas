@@ -1,6 +1,5 @@
-import { Path, UseFormRegister, FieldErrorsImpl } from 'react-hook-form';
+import { Path, UseFormRegister } from 'react-hook-form';
 import { ProductPost } from '../../modules/catalog/models/ProductPost';
-import React from 'react';
 
 type InputProps = {
   labelText: string;

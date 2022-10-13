@@ -3,7 +3,7 @@ import ProductAttributes from './ProductAttribute';
 import ProductGeneralInformation from './ProductGeneralInformation';
 import ProductImage from './ProductImage';
 import ProductSEO from './ProductSEO';
-import ProductVariation from './ProductVariation';
+import ProductVariations from './ProductVariation';
 import RelatedProduct from './RelatedProduct';
 import ProductCategoryMapping from './CategoryMapping';
 export {
@@ -12,7 +12,7 @@ export {
   ProductGeneralInformation,
   ProductImage,
   ProductSEO,
-  ProductVariation,
+  ProductVariations as ProductVariation,
   RelatedProduct,
   ProductCategoryMapping,
 };
