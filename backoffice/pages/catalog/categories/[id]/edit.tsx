@@ -2,21 +2,20 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Category } from '../../../../modules/catalog/models/Category';
 import {
   getCategories,
   getCategory,
   updateCategory,
 } from '../../../../modules/catalog/services/CategoryService';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { CategoryGet } from '../../../../modules/catalog/models/CategoryGet';
 
 const CategoryEdit: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
   var slugify = require('slugify');
-  const [categories, setCategories] = useState<CategoryGet[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState<Category>();
   const [slug, setSlug] = useState<string>();
   const handleSubmitEdit = async (event: any) => {

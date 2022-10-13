@@ -1,8 +1,7 @@
 import { Category } from '../models/Category';
-import { CategoryGet } from '../models/CategoryGet';
 import { ProductThumbnails } from '../models/ProductThumbnails';
 
-export async function getCategories(): Promise<CategoryGet[]> {
+export async function getCategories(): Promise<Category[]> {
   const response = await fetch('/api/product/backoffice/categories');
   return await response.json();
 }
