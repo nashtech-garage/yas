@@ -26,6 +26,12 @@ export default function AuthenticationInfo() {
     });
   }, []);
 
+  useEffect(() => {
+    if (authenticatedInfoVm.isAuthenticated) {
+      fetch(`/move-cart`);
+    }
+  }, [authenticatedInfoVm.isAuthenticated]);
+
   return (
     <>
       {authenticatedInfoVm.isAuthenticated ? (
