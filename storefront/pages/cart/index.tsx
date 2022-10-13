@@ -4,6 +4,50 @@ import { Button } from "react-bootstrap";
 
 
 const Cart:NextPage = () => {    
+    const products = [
+        {
+            id: 2,
+            name: "iphone 14",
+            price: 1500,
+            url: "https://www.duchuymobile.com/images/variant_image/47/iphone-13-pro-max-den.jpeg" ,
+            quantity: 1
+            
+        },
+        {
+            id: 3,
+            name: "iphone 13",
+            price: 1000,
+            url: "https://www.duchuymobile.com/images/variant_image/47/iphone-13-pro-max-den.jpeg" ,
+            quantity: 2
+            
+        },
+        {
+            id: 1,
+            name: "iphone 12",
+            price: 500,
+            url: "https://www.duchuymobile.com/images/variant_image/47/iphone-13-pro-max-den.jpeg" ,
+            quantity: 3
+            
+        }       
+    ]
+
+    const handleMinus = (e:any) => {
+            console.log(e.target.id.slice(-1));
+            let productId = e.target.id.slice(-1);
+            const input = document.getElementById(`quantity-${productId}`) as HTMLInputElement | null;
+            const oldValue:number = Number(input?.value)          
+            if(input != null)  input.value = String(oldValue -1) ;
+            if (input != null && oldValue != null && oldValue == 0) input.value = String(0)
+    }
+
+    const handlePlus = (e:any) => {
+        console.log(e.target.id.slice(-1));
+        let productId = e.target.id.slice(-1);
+        const input = document.getElementById(`quantity-${productId}`) as HTMLInputElement | null;
+        const oldValue:number = Number(input?.value)          
+        if(input != null)  input.value = String(oldValue + 1) ;
+}
+
     return (
             <section className="shop-cart spad">
                 <div className="container">
@@ -21,27 +65,34 @@ const Cart:NextPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td className="cart__product__item">
-                                                <img src="https://www.duchuymobile.com/images/variant_image/47/iphone-13-pro-max-den.jpeg" alt=""
-                                                    style={{ "width": "85px", "height": "85px" }} />
-                                                <div className="cart__product__item__title">
-                                                    <h6>Chain bucket bag</h6>
-                                                </div>
-                                            </td>
-                                            <td className="cart__price">$ 150.0</td>
-                                            <td className="cart__quantity">
-                                                <div className="pro-qty">
-                                                    <div className="quantity buttons_added">
-                                                        <input type="button" value="-" className="minus" />
-                                                        <input type="number" step="1" min="1" max="" name="quantity" value="1" title="Qty" className="input-text qty text"  />
-                                                        <input type="button" value="+" className="plus" />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="cart__total">$ 300.0</td>
-                                            <td className="cart__close"> <button className="remove_product"><i className="bi bi-x-lg"></i></button> </td>
-                                        </tr>
+                                        {
+                                            products.map(product => 
+                                                (
+                                                    <tr key={product.id}>
+                                                    <td className="cart__product__item">
+                                                        <img src={product.url} alt="img" style={{ "width": "85px", "height": "85px" }} />
+                                                        <div className="cart__product__item__title">
+                                                            <h6>{product.name}</h6>
+                                                        </div>
+                                                    </td>
+                                                    <td className="cart__price">{product.price}</td>
+                                                    <td className="cart__quantity">
+                                                        <div className="pro-qty">
+                                                            <div className="quantity buttons_added">                                                                
+                                                                <input id={`minus-${product.id}`} type="button" value="-" className="minus" 
+                                                                onClick={(e) => handleMinus(e)} />
+                                                                <input id = {`quantity-${product.id}`} type="number" step="1" min="1" max="" name="quantity" defaultValue={product.quantity} title="Qty" className="input-text qty text"/>
+                                                                <input id={`plus-${product.id}`} type="button" value="+" className="plus"
+                                                                onClick={(e) => handlePlus(e)} />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="cart__total">{product.price * product.quantity} </td>
+                                                    <td className="cart__close"> <button className="remove_product"><i className="bi bi-x-lg"></i></button> </td>
+                                                </tr>
+                                                ))
+                                        }
+                                       
 
                                     </tbody>
                                 </table>
