@@ -20,16 +20,17 @@ export default function AuthenticationInfo() {
     return await res.json();
   }
 
-  async function moveCart() {
-    await fetch(`/move-cart`);
-  }
-
   useEffect(() => {
     getAuthenticationInfo().then((data) => {
       setAuthenticatedInfoVm(data);
     });
-    moveCart();
   }, []);
+
+  useEffect(() => {
+    if (authenticatedInfoVm.isAuthenticated) {
+      fetch(`/move-cart`);
+    }
+  }, [authenticatedInfoVm.isAuthenticated]);
 
   return (
     <>
