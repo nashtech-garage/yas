@@ -10,12 +10,13 @@ import {
 } from '../../../../modules/catalog/services/CategoryService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { CategoryGet } from '../../../../modules/catalog/models/CategoryGet';
 
 const CategoryEdit: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
   var slugify = require('slugify');
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryGet[]>([]);
   const [category, setCategory] = useState<Category>();
   const [slug, setSlug] = useState<string>();
   const handleSubmitEdit = async (event: any) => {
