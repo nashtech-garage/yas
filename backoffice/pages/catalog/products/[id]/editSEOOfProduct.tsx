@@ -9,37 +9,33 @@ import { ProductPut } from '../../../../modules/catalog/models/ProductPut';
 import { Product } from '../../../../modules/catalog/models/Product';
 
 const EditSEOOfProduct: NextPage = () => {
-  const [isLoading, setLoading] = useState(false);
   const [product, setProduct] = useState<Product>();
   const [metaKeyword, setMetaKeyword] = useState<string>();
   const [metaDescription, setMetaDescription] = useState<string>();
-
   const router = useRouter();
   const { id } = router.query;
-
   const {
-    register,
     formState: { errors },
     handleSubmit,
   } = useForm();
 
-  useEffect(() => {
-    setLoading(true);
-    if (id) {
-      getProduct(+id).then((data) => {
-        setProduct(data);
-        setMetaKeyword(data.metaKeyword);
-        setMetaDescription(data.metaDescription);
-        setLoading(false);
-      });
-    }
-  }, []);
   const onMetaKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMetaKeyword(event.target.value);
   };
   const onMetaDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMetaDescription(event.target.value);
   };
+
+  useEffect(() => {
+    if (id) {
+      getProduct(+id).then((data) => {
+        setProduct(data);
+        setMetaKeyword(data.metaKeyword);
+        setMetaDescription(data.metaDescription);
+      });
+    }
+  }, []);
+
   const onSubmit: SubmitHandler<ProductPut> = (data) => {
     let defaultCategoryIds: number[] = [];
     if (product) {
@@ -47,15 +43,15 @@ const EditSEOOfProduct: NextPage = () => {
         defaultCategoryIds = [...defaultCategoryIds, category.id];
       });
     }
+    data.sku = product?.sku;
+    data.gtin = product?.gtin;
+    data.price = product?.price;
+    data.isAllowedToOrder = product?.isAllowedToOrder;
     data.name = product?.name;
     data.slug = product?.slug;
     data.shortDescription = product?.shortDescription;
     data.description = product?.description;
     data.specification = product?.specification;
-    data.sku = product?.sku;
-    data.gtin = product?.gtin;
-    data.price = product?.price;
-    data.isAllowedToOrder = product?.isAllowedToOrder;
     data.isPublished = product?.isPublished;
     data.isFeatured = product?.isFeatured;
     data.brandId = product?.brandId;
@@ -77,10 +73,7 @@ const EditSEOOfProduct: NextPage = () => {
       });
     }
   };
-
-  if (isLoading) return <p>Loading...</p>;
   if (!product) return <p>No Product</p>;
-
   return (
     <>
       <div className="choice-SEO" style={{ marginTop: '50px' }}>
@@ -91,16 +84,12 @@ const EditSEOOfProduct: NextPage = () => {
             </label>
             <input
               defaultValue={product.metaKeyword}
-              {...register('metaKeyword')}
               onChange={onMetaKeywordChange}
               className="form-control"
               type="text"
               id="meta-keyword"
               name="metaKeyword"
             />
-            <p className="error-field">
-              <>{errors.metaKeyword?.message}</>
-            </p>
           </div>
           <div className="mb-3">
             <label className="form-label" htmlFor="meta-description">
@@ -108,16 +97,12 @@ const EditSEOOfProduct: NextPage = () => {
             </label>
             <input
               defaultValue={product.metaDescription}
-              {...register('metaDescription')}
               type="text"
               onChange={onMetaDescriptionChange}
               className="form-control"
               id="meta-description"
               name="metaDescription"
             />
-            <p className="error-field">
-              <>{errors.metaDescription?.message}</>
-            </p>
           </div>
           {metaDescription === '' || metaKeyword === '' ? (
             <button className="btn btn-primary" type="submit" disabled>
