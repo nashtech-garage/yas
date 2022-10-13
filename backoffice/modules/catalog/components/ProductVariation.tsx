@@ -1,28 +1,21 @@
 import React, { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { UseFormGetValues } from 'react-hook-form';
+import { UseFormGetValues, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { ProductPost } from '../models/ProductPost';
+import { ProductVariation } from '../models/ProductVariation';
 
 const options = ['Color', 'Size', 'SSD', 'Chip'];
 const headers = ['Option Combinations', 'SKU', 'GTIN', 'Price', 'Thumbnail', 'Images', 'Action'];
 
-interface IProductVariation {
-  name: string;
-  sku?: string;
-  gtin?: string;
-  price?: number;
-  thumbnail?: File;
-  images?: FileList;
-}
-
 type Props = {
   getValue: UseFormGetValues<ProductPost>;
+  setValue: UseFormSetValue<ProductPost>;
 };
 
-const ProductVariation = ({ getValue }: Props) => {
+const ProductVariation = ({ getValue, setValue }: Props) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [productVariations, setProductVariations] = useState<IProductVariation[]>([]);
+  const [optionCombines, setOptionCombines] = useState<string[]>([]);
 
   const onAddOption = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -42,7 +35,7 @@ const ProductVariation = ({ getValue }: Props) => {
 
   const onDeleteOption = (event: React.MouseEvent<HTMLElement>, option: string) => {
     event.preventDefault();
-    setProductVariations([]);
+    setOptionCombines([]);
     let result = selectedOptions.filter((_option) => _option !== option);
     setSelectedOptions([...result]);
   };
@@ -67,18 +60,63 @@ const ProductVariation = ({ getValue }: Props) => {
         }
       }
     });
-    let productVariation: IProductVariation[] = [];
+    let options: string[] = [];
+    let productVar: ProductVariation[] = [];
     result.forEach((item) => {
-      productVariation.push({ name: item, sku: '', price: 0, gtin: '' });
+      options.push(item);
+      productVar.push({
+        optionName: getValue('name').concat(" ",item),
+        optionGTin: getValue('gtin'),
+        optionSku: getValue('sku'),
+        optionPrice: getValue('price'),
+      });
     });
-    setProductVariations(productVariation);
+    setOptionCombines(options);
+    setValue('productVariations', productVar);
   };
 
-  const onDeleteVariation = (event: React.MouseEvent<HTMLElement>, index: number) => {
+  const onDeleteVariation = (event: React.MouseEvent<HTMLElement>, optionName: string) => {
     event.preventDefault();
-    let item = productVariations.at(index);
-    const result = productVariations.filter((pro) => pro !== item);
-    setProductVariations(result);
+    const result = optionCombines.filter((_optionName) => _optionName !== optionName);
+    setOptionCombines(result);
+
+    let productVar = getValue('productVariations') || [];
+    productVar = productVar.filter((item) => item.optionName !== optionName);
+    setValue('productVariations', productVar);
+  };
+
+  const onChangeVariationValue = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    optionName: string
+  ) => {
+    let value = event.target.value;
+    let productVar = getValue('productVariations') || [];
+    let item = productVar.find((item) => item.optionName === optionName);
+    if (item) {
+      switch (event.target.name) {
+        case 'optionSku':
+          item.optionSku = value;
+          break;
+        case 'optionGTin':
+          item.optionGTin = value;
+          break;
+        case 'optionPrice':
+          item.optionPrice = +value;
+          break;
+        case 'optionThumbnail':
+          if (event.target.files) {
+            item.optionThumbnail = event.target.files[0];
+          }
+          break;
+        case 'optionImages':
+          if (event.target.files) {
+            item.optionImages = event.target.files;
+          }
+        default:
+          break;
+      }
+      setValue('productVariations', productVar);
+    }
   };
 
   return (
@@ -123,7 +161,7 @@ const ProductVariation = ({ getValue }: Props) => {
         </div>
       </div>
 
-      {productVariations.length > 0 && (
+      {optionCombines.length > 0 && (
         <div className="mb-3">
           <h5>Product Variations</h5>
           <Table>
@@ -133,28 +171,52 @@ const ProductVariation = ({ getValue }: Props) => {
               ))}
             </thead>
             <tbody>
-              {(productVariations || []).map((ele, index) => (
-                <tr key={ele.name}>
-                  <th>{getValue('name').concat(' ', ele.name)}</th>
+              {(optionCombines || []).map((ele) => (
+                <tr key={ele}>
+                  <th>{getValue('name').concat(' ', ele)}</th>
                   <th>
-                    <input type="text" className="w-50" />
+                    <input
+                      type="text"
+                      className="w-50"
+                      name="optionSku"
+                      onChange={(e) => onChangeVariationValue(e, ele)}
+                    />
                   </th>
                   <th>
-                    <input type="text" className="w-50" />
+                    <input
+                      type="text"
+                      className="w-50"
+                      name="optionGTin"
+                      onChange={(e) => onChangeVariationValue(e, ele)}
+                    />
                   </th>
                   <th>
-                    <input type="number" className="w-50" placeholder={ele.price?.toString()} />
+                    <input
+                      type="number"
+                      className="w-50"
+                      name="optionPrice"
+                      onChange={(e) => onChangeVariationValue(e, ele)}
+                    />
                   </th>
                   <th>
-                    <input type="file" />
+                    <input
+                      type="file"
+                      name="optionThumbnail"
+                      onChange={(e) => onChangeVariationValue(e, ele)}
+                    />
                   </th>
                   <th>
-                    <input type="file" multiple />
+                    <input
+                      type="file"
+                      multiple
+                      name="optionImages"
+                      onChange={(e) => onChangeVariationValue(e, ele)}
+                    />
                   </th>
                   <th>
                     <button
                       className="btn btn-danger"
-                      onClick={(event) => onDeleteVariation(event, index)}
+                      onClick={(event) => onDeleteVariation(event, ele)}
                     >
                       <i className="bi bi-x"></i>
                     </button>

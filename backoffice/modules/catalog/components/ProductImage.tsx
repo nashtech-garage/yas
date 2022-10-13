@@ -1,24 +1,25 @@
 import { useState } from 'react';
+import { UseFormSetValue } from 'react-hook-form';
+import { ProductPost } from '../models/ProductPost';
 
-// TODO: Give this component a `setValues` or register field
-const ProductImage = () => {
+type Props = {
+  setValue: UseFormSetValue<ProductPost>;
+};
+
+const ProductImage = ({ setValue }: Props) => {
   const [thumbnailURL, setThumbnailURL] = useState<string>();
   const [productImageURL, setProductImageURL] = useState<string[]>();
-  const [thumbnail, setThumbnail] = useState<File>();
-  const [productImages, setProductImages] = useState<FileList>();
 
   const onProductImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = event.target.files;
-      setProductImages(files);
       let length = files.length;
-
       let urls: string[] = [];
-
       for (let i = 0; i < length; i++) {
         const file = files[i];
         urls.push(URL.createObjectURL(file));
       }
+      setValue('productImages', files);
       setProductImageURL([...urls]);
     }
   };
@@ -26,7 +27,7 @@ const ProductImage = () => {
   const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
-      setThumbnail(i);
+      setValue('thumbnail', i);
       setThumbnailURL(URL.createObjectURL(i));
     }
   };

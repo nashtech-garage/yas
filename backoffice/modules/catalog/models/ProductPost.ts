@@ -1,3 +1,6 @@
+import { ProductVariation } from './ProductVariation';
+import { ProductAttributeValue } from './ProductAttributeValue';
+import { ProductAttribute } from './ProductAttribute';
 import { Product } from './Product';
 export type ProductPost = {
   name: string;
@@ -20,5 +23,6 @@ export type ProductPost = {
   relateProduct: number[]; // product id
   crossSell: number[]; // product id
   categoryIds: number[]; // category id
-  product:Product
+  productAttributes: ProductAttributeValue[];
+  productVariations: ProductVariation[];
 };
