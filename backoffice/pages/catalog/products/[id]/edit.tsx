@@ -129,7 +129,7 @@ const ProductEdit: NextPage = () => {
       });
     }
     data.categoryIds = categoryIds.length > 0 ? categoryIds : defaultCategoryIds;
-    if(data.brandId && +data.brandId === 0){
+    if (data.brandId && +data.brandId === 0) {
       data.brandId = undefined;
     }
     data.thumbnailMediaId = thumbnailMediaId;
