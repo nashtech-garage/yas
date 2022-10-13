@@ -25,9 +25,11 @@ export default function Layout({ children }: Props) {
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Brand>
               <Link href={"/cart"}>
-              <i className="bi bi-cart4" type = "button" ></i>
+                <button style={{ "backgroundColor": "transparent", "border": 0 }}>
+                  <i className="bi bi-cart4" style={{ "color": "white" }}  ></i>
+                </button>
               </Link>
-              </Navbar.Brand> &nbsp;
+            </Navbar.Brand> &nbsp;
             <Navbar.Text>
               <AuthenticationInfo />
             </Navbar.Text>
