@@ -6,7 +6,7 @@ import java.util.List;
 
 public record ProductPutVm(
         @NotEmpty String name,
-        @NotEmpty String slug,
+        String slug,
         Double price,
         Boolean isAllowedToOrder,
         Boolean isPublished,

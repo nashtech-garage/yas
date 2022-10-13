@@ -9,3 +9,10 @@ export async function addToCart(addToCart: AddToCartModel[]): Promise<Cart> {
   });
   return await response.json();
 }
+
+export async function getCart(): Promise<Cart> {
+  const response = await fetch('/api/cart/storefront/cart', {
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  });
+  return await response.json();
+}

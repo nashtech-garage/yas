@@ -60,6 +60,7 @@ public class CartService {
             cartRepository.save(cart);
         }
 
+        List<CartItem> existedCartItems = cartItemRepository.findAllByCart(cart);
         for (CartItemVm cartItemVm : cartItemVms) {
             if (cartItemVm.quantity() <= 0)
                 throw new BadRequestException(("Quantity cannot be negative"));
@@ -70,15 +71,20 @@ public class CartService {
                 throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
             }
 
-            CartItem cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setProductId(cartItemVm.productId());
-            cartItem.setQuantity(cartItemVm.quantity());
-            cart.getCartItems().add(cartItem);
-            cartItemRepository.save(cartItem);
+            CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
+            if (cartItem.getId() != null) {
+                cartItem.setQuantity(cartItem.getQuantity() + cartItemVm.quantity());
+                cartItemRepository.save(cartItem);
+            } else {
+                cartItem.setCart(cart);
+                cartItem.setProductId(cartItemVm.productId());
+                cartItem.setQuantity(cartItemVm.quantity());
+                cart.getCartItems().add(cartItem);
+                cartItemRepository.save(cartItem);
+                cartRepository.saveAndFlush(cart);
+            }
         }
 
-        cartRepository.saveAndFlush(cart);
         return CartGetDetailVm.fromModel(cart);
     }
 
@@ -124,6 +130,14 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return cartRepository.findByCustomerId(auth.getName())
                 .stream().reduce((first, second) -> second)
-                .map(CartGetDetailVm::fromModel).orElse(null);
+                .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
+    }
+
+    private CartItem getCartItemByProductId(List<CartItem> cartItems, Long productId) {
+        for (CartItem cartItem : cartItems) {
+            if (cartItem.getProductId().equals(productId))
+                return cartItem;
+        }
+        return new CartItem();
     }
 }

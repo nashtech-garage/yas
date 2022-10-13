@@ -3,28 +3,33 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Product } from '../../../../modules/catalog/models/Product';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import slugify from 'slugify';
 import { ProductPut } from '../../../../modules/catalog/models/ProductPut';
 import { Category } from '../../../../modules/catalog/models/Category';
 import { Brand } from '../../../../modules/catalog/models/Brand';
 import { getCategories } from '../../../../modules/catalog/services/CategoryService';
 import { getBrands } from '../../../../modules/catalog/services/BrandService';
+import { uploadMedia } from '../../../../modules/catalog/services/MediaService';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const ProductEdit: NextPage = () => {
   //Get ID
   const router = useRouter();
   const { id } = router.query;
   //Variables
-  const [thumbnail, setThumbnail] = useState<File>();
   const [thumbnailURL, setThumbnailURL] = useState<string>();
+  const [thumbnailMediaId, setThumbnailMediaId] = useState<number>();
   const [generateSlug, setGenerateSlug] = useState<string>();
-  const [productImages, setProductImages] = useState<FileList>();
   const [productImageMediaUrls, setproductImageMediaUrls] = useState<string[]>();
+  const [productImageMediaIds, setProductImageMediaIds] = useState<number[]>();
   const [categoryIds, setCategoryIds] = useState<number[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  //
   //Get product detail
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
@@ -39,8 +44,14 @@ const ProductEdit: NextPage = () => {
     setLoading(true);
     if (id) {
       getProduct(+id).then((data) => {
-        setProduct(data);
-        setLoading(false);
+        if (data.id) {
+          setProduct(data);
+          setLoading(false);
+        } else {
+          //Show error
+          toast(data.detail);
+          location.replace('/catalog/products');
+        }
       });
     }
     getCategories().then((data) => {
@@ -49,35 +60,47 @@ const ProductEdit: NextPage = () => {
     getBrands().then((data) => {
       setBrands(data);
     });
-  }, []);
+  }, [id]);
   //Handle
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setGenerateSlug(slugify(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase()));
+    setGenerateSlug(slugify(event.target.value.toLowerCase()));
   };
 
   const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setGenerateSlug(event.target.value.replace(/(^\s+|\s+$)/g, '').toLowerCase());
+    setGenerateSlug(event.target.value.toLowerCase());
   };
 
   const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
-      setThumbnail(i);
       setThumbnailURL(URL.createObjectURL(i));
+      uploadMedia(i)
+        .then((res) => {
+          setThumbnailMediaId(res.id);
+        })
+        .catch(() => {
+          toast('Upload failed. Please try again!');
+        });
     }
   };
 
   const onProductImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = event.target.files;
-      setProductImages(files);
       let length = files.length;
-
       let urls: string[] = [];
-
+      let ids: number[] = [];
       for (let i = 0; i < length; i++) {
         const file = files[i];
         urls.push(URL.createObjectURL(file));
+        uploadMedia(file)
+          .then((res) => {
+            ids = [...ids, res.id];
+            setProductImageMediaIds(ids);
+          })
+          .catch(() => {
+            toast('Upload failed. Please try again!');
+          });
       }
       setproductImageMediaUrls([...urls]);
     }
@@ -94,49 +117,32 @@ const ProductEdit: NextPage = () => {
     }
   };
 
-  const onSubmit = (data: any) => {
-    const slug = generateSlug ? generateSlug : data.slug;
+  const onSubmit: SubmitHandler<ProductPut> = (data) => {
+    if (generateSlug) {
+      data.slug = generateSlug;
+    }
+
     let defaultCategoryIds: number[] = [];
     if (product) {
       Array.from(product.categories).forEach((category) => {
         defaultCategoryIds = [...defaultCategoryIds, category.id];
       });
     }
-    let productPut: ProductPut = {
-      name: data.name.replace(/(^\s+|\s+$)/g, ''),
-      slug: slug.replace(/(^\s+|\s+$)/g, ''),
-      price: data.price,
-      isAllowedToOrder: data.isAllowedToOrder,
-      isPublished: data.isPublished,
-      isFeatured: data.isFeatured,
-      description: data.description?.replace(/(^\s+|\s+$)/g, ''),
-      shortDescription: data.shortDescription.replace(/(^\s+|\s+$)/g, ''),
-      specification: data.specification.replace(/(^\s+|\s+$)/g, ''),
-      sku: data.sku.replace(/(^\s+|\s+$)/g, ''),
-      gtin: data.gtin.replace(/(^\s+|\s+$)/g, ''),
-      metaKeyword: data.metaKeyword.replace(/(^\s+|\s+$)/g, ''),
-      metaDescription: data.metaDescription?.replace(/(^\s+|\s+$)/g, ''),
-      brandId: data.brandId,
-      categoryIds: categoryIds.length > 0 ? categoryIds : defaultCategoryIds,
-    };
+    data.categoryIds = categoryIds.length > 0 ? categoryIds : defaultCategoryIds;
+
+    data.thumbnailMediaId = thumbnailMediaId;
+    data.productImageIds = productImageMediaIds;
+
     if (id) {
-      if (thumbnail && productImages) {
-        updateProduct(+id, productPut, thumbnail, productImages)
-          .then((res) => {
-            if (res === 204) {
-              location.replace('/catalog/products');
-            } else if (res === 400) {
-              alert('Please fill out again! Bad Request!');
-            }
-          })
-          .catch((error) => {
-            alert('Cannot update product. Try later!');
+      updateProduct(+id, data).then(async (res) => {
+        if (res.ok) {
+          location.replace('/catalog/products');
+        } else {
+          res.json().then((error) => {
+            toast(error.detail);
           });
-      } else {
-        alert('Thumbnail and Product Images is required!');
-      }
-    } else {
-      alert('Please try later!');
+        }
+      });
     }
   };
   if (isLoading) return <p>Loading...</p>;
@@ -167,7 +173,7 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="slug">
-                  Slug <span style={{ color: 'red' }}>*</span>
+                  Slug
                 </label>
                 <input
                   value={generateSlug ? generateSlug : product.slug}
@@ -183,7 +189,7 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="brand">
-                  Brand <span style={{ color: 'red' }}>*</span>
+                  Brand
                 </label>
                 <select
                   className={`form-select ${errors.brandId ? 'border-danger' : ''}`}
@@ -207,7 +213,7 @@ const ProductEdit: NextPage = () => {
 
               <div className="mb-3">
                 <label className="form-label" htmlFor="category">
-                  Category <span style={{ color: 'red' }}>*</span>
+                  Category
                 </label>
                 <select
                   className={`form-select ${errors.categoryIds ? 'border-danger' : ''}`}
@@ -245,11 +251,11 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="short-description">
-                  Short Description <span style={{ color: 'red' }}>*</span>
+                  Short Description
                 </label>
                 <input
                   defaultValue={product.shortDescription}
-                  {...register('shortDescription', { required: 'Short Description is required' })}
+                  {...register('shortDescription')}
                   className={`form-control ${errors.shortDescription ? 'border-danger' : ''}`}
                   type="text"
                   id="short-description"
@@ -276,11 +282,11 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="specification">
-                  Specification <span style={{ color: 'red' }}>*</span>
+                  Specification
                 </label>
                 <textarea
                   defaultValue={product.specification}
-                  {...register('specification', { required: 'Specification is required' })}
+                  {...register('specification')}
                   className={`form-control ${errors.specification ? 'border-danger' : ''}`}
                   id="specification"
                   name="specification"
@@ -291,7 +297,7 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="specification">
-                  Product Attributes <span style={{ color: 'red' }}>*</span>
+                  Product Attributes
                 </label>
                 <Link href={`/catalog/products/${product.id}/productAttributes`}>
                   <button className="btn btn-primary" style={{ marginLeft: '35px' }}>
@@ -301,11 +307,11 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="sku">
-                  SKU <span style={{ color: 'red' }}>*</span>
+                  SKU
                 </label>
                 <input
                   defaultValue={product.sku}
-                  {...register('sku', { required: 'SKU is required' })}
+                  {...register('sku')}
                   className={`form-control ${errors.sku ? 'border-danger' : ''}`}
                   type="text"
                   id="sku"
@@ -317,11 +323,11 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="gtin">
-                  GTIN <span style={{ color: 'red' }}>*</span>
+                  GTIN
                 </label>
                 <input
                   defaultValue={product.gtin}
-                  {...register('gtin', { required: 'GTIN is required' })}
+                  {...register('gtin')}
                   className={`form-control ${errors.gtin ? 'border-danger' : ''}`}
                   type="text"
                   id="gtin"
@@ -333,11 +339,11 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="price">
-                  Price <span style={{ color: 'red' }}>*</span>
+                  Price
                 </label>
                 <input
                   defaultValue={product.price}
-                  {...register('price', { required: 'Price is required', min: 0 })}
+                  {...register('price', { min: 0 })}
                   className={`form-control ${errors.price ? 'border-danger' : ''}`}
                   type="number"
                   id="price"
@@ -388,11 +394,11 @@ const ProductEdit: NextPage = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label" htmlFor="meta-keyword">
-                  Meta Keyword <span style={{ color: 'red' }}>*</span>
+                  Meta Keyword
                 </label>
                 <input
                   defaultValue={product.metaKeyword}
-                  {...register('metaKeyword', { required: 'Meta Keyword is required' })}
+                  {...register('metaKeyword')}
                   className={`form-control ${errors.metaKeyword ? 'border-danger' : ''}`}
                   type="text"
                   id="meta-keyword"

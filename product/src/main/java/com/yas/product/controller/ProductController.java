@@ -45,12 +45,12 @@ public class ProductController {
                 .body(productGetDetailVm);
     }
 
-    @PutMapping(path = "/backoffice/products/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PutMapping(path = "/backoffice/products/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Updated"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @ModelAttribute ProductPutVm productPutVm) {
+    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @RequestBody ProductPutVm productPutVm) {
         productService.updateProduct(id, productPutVm);
         return ResponseEntity.noContent().build();
     }
@@ -65,7 +65,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByBrand(brandSlug));
     }
 
-    @GetMapping("/storefront/category/{categorySlug}/products")
+    @GetMapping({"/storefront/category/{categorySlug}/products" , "/backoffice/category/{categorySlug}/products"})
     public ResponseEntity<ProductListGetFromCategoryVm> getProductsByCategory(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,
