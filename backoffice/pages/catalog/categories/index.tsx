@@ -6,9 +6,10 @@ import type { Category } from '../../../modules/catalog/models/Category';
 import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { CategoryGet } from '../../../modules/catalog/models/CategoryGet';
 
 const CategoryList: NextPage = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryGet[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
   const [categoryName, setCategoryName] = useState('');
