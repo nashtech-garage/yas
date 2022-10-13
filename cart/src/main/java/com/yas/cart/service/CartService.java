@@ -2,10 +2,7 @@ package com.yas.cart.service;
 
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-import com.yas.cart.exception.ApiExceptionHandler;
 import com.yas.cart.exception.NotFoundException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.Authentication;
@@ -19,13 +16,16 @@ import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.viewmodel.*;
 
-import static java.util.stream.Collectors.toList;
 
 @Service
 public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
+
+    private final String CART_ITEM_UPDATED_MSG = "Updated";
+
+    private final String CART_ITEM_DELETED_MSG = "Deleted";
 
     public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductService productService) {
         this.cartRepository = cartRepository;
@@ -82,74 +82,42 @@ public class CartService {
         return CartGetDetailVm.fromModel(cart);
     }
 
-    public void updateCartItems(CartItemListVm cartItemListVm) {
-//        List<Long> productIds = cartItemListVm.cartItemVmList().stream()
-//                .map(cartItemVm -> cartItemVm.productId())
-//                .toList();
+    public CartItemPutVm updateCartItems(CartItemVm cartItemVm) {
+        CartGetDetailVm currentCart = getLastCart();
 
-        CartGetDetailVm cartGetDetailVm = getLastCart();
-        List<CartDetailListVm> cartDetailListVm = cartGetDetailVm.cartDetails();
-        Cart cart = cartRepository.findById(cartGetDetailVm.id())
-                .orElseThrow(() -> new RuntimeException("Server error: There is no cart with ID: " + cartGetDetailVm.id()));
-
-        if (cartDetailListVm.isEmpty()) {
-            List<CartItem> cartItems = cartItemListVm.cartItemVmList()
-                    .stream()
-                    .map(item -> CartItem.fromVm(item, cart))
-                    .toList();
-
-            cartItemRepository.saveAllAndFlush(cartItems);
-        } else {
-            Set<CartItem> cartItemSet = cart.getCartItems();
-
-            Map<Long, Integer> cartItemMap = cartItemListVm.cartItemVmList()
-                    .stream()
-                    .collect(Collectors.toMap(CartItemListVm::getProductId, CartItemListVm::getproductQuantity));
-            System.out.println(cartItemMap);
-
-            Map<Long, Integer> newCartItemMap = cartItemMap;
-
-            for (CartItem cartItem : cartItemSet) {
-                if (cartItemMap.containsKey(cartItem.getProductId())) {
-                    cartItem.setQuantity(cartItemMap.get(cartItem.getProductId()));
-                    newCartItemMap.remove(cartItem.getProductId());
-                }
-            }
-
-            newCartItemMap.forEach((k, v) -> {
-                System.out.println(k + "\t" + v);
-            });
-
-            cart.setCartItems(cartItemSet);
-            cartRepository.saveAndFlush(cart);
+        if(currentCart.cartDetails().isEmpty()) {
+            throw new BadRequestException("There is no cart item in current cart to update !");
         }
+
+        List<CartDetailListVm> cartDetailListVmList = currentCart.cartDetails();
+        boolean itemExist = cartDetailListVmList.stream().anyMatch(item -> item.productId().equals(cartItemVm.productId()));
+        if (!itemExist) {
+            throw new NotFoundException(String.format("There is no product with ID: %s in the current cart", cartItemVm.productId()));
+        }
+
+        Long cartId = currentCart.id();
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, cartItemVm.productId())
+                .orElseThrow(() -> new NotFoundException("Non exist cart item with ID: " + cartId));
+        cartItem.setQuantity(cartItemVm.quantity());
+        CartItem savedCartItem = cartItemRepository.saveAndFlush(cartItem);
+        return CartItemPutVm.fromModel(savedCartItem, CART_ITEM_UPDATED_MSG);
     }
 
-    public void removeCartItem(Long productId) {
-        try {
-            productService.getProduct(productId);
-        } catch (Exception e) {
-            throw new NotFoundException(String.format("Product %s is not exist", productId));
-        }
+    public CartItemDeleteVm removeCartItem(Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new NotFoundException("Non exist cart item with ID: " + cartItemId));
 
-        CartGetDetailVm cartGetDetailVm = getLastCart();
-        Cart cart = cartRepository.findById(cartGetDetailVm.id())
-                .orElseThrow(() -> new RuntimeException("Server error: There is no cart with ID: " + cartGetDetailVm.id()));
-
-        List<CartDetailListVm> cartDetailListVmList = cartGetDetailVm.cartDetails();
+        CartGetDetailVm currentCart = getLastCart();
+        List<CartDetailListVm> cartDetailListVmList = currentCart.cartDetails();
         if (cartDetailListVmList.isEmpty()) {
-            throw new NotFoundException("There is no cart item in cart: " + cartGetDetailVm.id());
+            throw new NotFoundException("There is no cart item in cart: " + cartItemId);
         }
-
-        boolean itemExist = cartDetailListVmList.stream().anyMatch(item -> item.productId().equals(productId));
+        boolean itemExist = cartDetailListVmList.stream().anyMatch(item -> item.id().equals(cartItemId));
         if (!itemExist) {
-            throw new NotFoundException(String.format("There is no product with ID: %s in the current cart", productId));
+            throw new NotFoundException(String.format("There is no cart item with ID: %s in the current cart", cartItemId));
         }
-
-        CartItem cartItem = cartItemRepository.findByCartAndProductId(cart, productId)
-                .orElseThrow(() -> new NotFoundException(String.format("No cart item matching with product id %s and cart id %s", productId, cart.getId())));
-
         cartItemRepository.delete(cartItem);
+        return CartItemDeleteVm.fromModel(cartItem, CART_ITEM_DELETED_MSG);
     }
 
     public CartGetDetailVm getLastCart() {

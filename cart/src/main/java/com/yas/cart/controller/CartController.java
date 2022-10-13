@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -57,18 +58,12 @@ public class CartController {
                     .body(cartGetDetailVm);
     }
 
-    @DeleteMapping("cart-item/{productId}")
-    public void removeCartItemFromCart(@PathVariable("productId") Long productId) {
-        cartService.removeCartItem(productId);
+    @DeleteMapping("cart-item/{cartItemId}")
+    public ResponseEntity<CartItemDeleteVm> removeCartItemFromCart(@PathVariable("cartItemId") Long cartItemId) {
+        return new ResponseEntity<>(cartService.removeCartItem(cartItemId), HttpStatus.OK);
     }
-
-    @GetMapping("backoffice/user/current-cart")
-    public CartGetDetailVm getUserCurrentCart() {
-        return cartService.getLastCart();
-    }
-
     @PutMapping("cart-item")
-    public void updateCart(@RequestBody CartItemListVm CartItemListVm) {
-        cartService.updateCartItems(CartItemListVm);
+    public ResponseEntity<CartItemPutVm> updateCart(@RequestBody CartItemVm cartItemVm) {
+        return new ResponseEntity<>(cartService.updateCartItems(cartItemVm), HttpStatus.OK);
     }
 }
