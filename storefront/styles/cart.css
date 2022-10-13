@@ -131,18 +131,8 @@
 	text-align: right;
 }
 
-/* 
-.cart__btn a {
-	font-size: 14px;
-	color: #111111;
-	font-weight: 600;
-	text-transform: uppercase;
-	display: inline-block;
-	padding: 14px 30px 12px;
-	background: #f5f5f5;
-    /* background-color: #ca1515; */
-/* } */
-*/ .cart__btn a span {
+
+.cart__btn a span {
 	color: #ca1515;
 	font-size: 14px;
 	margin-right: 5px;
@@ -536,8 +526,6 @@
 	border: 0;
 	background-color: transparent;
 }
-
-/* -- quantity box -- */
 
 .quantity {
 	display: inline-block;
