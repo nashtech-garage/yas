@@ -184,7 +184,7 @@ public class ProductService {
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
 
-        if (productPutVm.brandId() != null && productPutVm.brandId() != product.getBrand().getId()) {
+        if (productPutVm.brandId() != null && (product.getBrand() == null || (productPutVm.brandId() != product.getBrand().getId()))) {
             Brand brand = brandRepository.findById(productPutVm.brandId()).
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
