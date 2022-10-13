@@ -14,13 +14,13 @@ const EditCategoryOfProduct: NextPage = () => {
   const [isLoading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   let [checkCategory, setCheckCategory] = useState<string[]>([]);
+  let [listCheckCategory] = useState<string[]>([]);
   let [childrenOfCategoryId] = useState<string[]>([]);
-  const [categoryIds, setCategoryIds] = useState<number[]>([]);
-  const [product, setProduct] = useState<Product>();
+  let [categoryIds] = useState<number[]>([]);
 
+  const [product, setProduct] = useState<Product>();
   const router = useRouter();
   const { id } = router.query;
-
   const { handleSubmit } = useForm();
 
   function findChildrenOfCategoryId(id: number) {
@@ -52,15 +52,15 @@ const EditCategoryOfProduct: NextPage = () => {
         }
       }
     } else {
-      let id = e.target.value;
+      listCheckCategory = [];
       checkCategory = checkCategory.filter((item) => item !== e.target.value);
       childrenOfCategoryId = [];
       findChildrenOfCategoryId(Number(e.target.value));
       for (let i = 0; i < childrenOfCategoryId.length; i++) {
         checkCategory = checkCategory.filter((item) => item !== childrenOfCategoryId[i]);
       }
-      checkCategory = Array.from(new Set(checkCategory));
-      setCheckCategory(checkCategory);
+      listCheckCategory = Array.from(new Set(checkCategory));
+      setCheckCategory(listCheckCategory);
     }
   };
   function checkedTrue(id: number) {
@@ -92,11 +92,12 @@ const EditCategoryOfProduct: NextPage = () => {
     if (id) {
       getProduct(+id).then((data) => {
         setProduct(data);
+        listCheckCategory = [];
         if (checkCategory.length === 0) {
           data.categories.map((item: any) => {
-            checkCategory.push(item.id.toString());
-            setCheckCategory(checkCategory);
+            listCheckCategory.push(item.id.toString());
           });
+          setCheckCategory(listCheckCategory);
         }
       });
     }
@@ -108,7 +109,6 @@ const EditCategoryOfProduct: NextPage = () => {
 
   const onSubmit: SubmitHandler<ProductPut> = (data) => {
     checkCategory = Array.from(new Set(checkCategory));
-    setCheckCategory(checkCategory);
     for (let i = 0; i < checkCategory.length; i++) {
       categoryIds.push(Number(checkCategory[i]));
     }
@@ -118,7 +118,6 @@ const EditCategoryOfProduct: NextPage = () => {
         defaultCategoryIds = [...defaultCategoryIds, category.id];
       });
     }
-    setCategoryIds(categoryIds);
     data.name = product?.name;
     data.slug = product?.slug;
     data.shortDescription = product?.shortDescription;
