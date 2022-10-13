@@ -1,10 +1,10 @@
 package com.yas.cart.service;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import com.yas.cart.exception.NotFoundException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +22,8 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
+
+    private static final String CART_ITEM_UPDATED_MSG = "PRODUCT %s";
 
     public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductService productService) {
         this.cartRepository = cartRepository;
@@ -97,5 +99,35 @@ public class CartService {
                 return cartItem;
         }
         return new CartItem();
+    }
+
+    public CartItemPutVm updateCartItems(CartItemVm cartItemVm) {
+        CartGetDetailVm currentCart = getLastCart();
+
+        if(currentCart.cartDetails().isEmpty()) {
+            throw new BadRequestException("There is no cart item in current cart to update !");
+        }
+
+        List<CartDetailListVm> cartDetailListVmList = currentCart.cartDetails();
+        boolean itemExist = cartDetailListVmList.stream().anyMatch(item -> item.productId().equals(cartItemVm.productId()));
+        if (!itemExist) {
+            throw new NotFoundException(String.format("There is no product with ID: %s in the current cart", cartItemVm.productId()));
+        }
+
+        Long cartId = currentCart.id();
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, cartItemVm.productId())
+                .orElseThrow(() -> new NotFoundException("Non exist cart item with ID: " + cartId));
+
+        int newQuantity = cartItemVm.quantity();
+        cartItem.setQuantity(newQuantity);
+        if(newQuantity == 0) {
+            cartItemRepository.delete(cartItem);
+            return CartItemPutVm.fromModel(cartItem, String.format(CART_ITEM_UPDATED_MSG, "DELETED"));
+        }
+        else {
+            CartItem savedCartItem = cartItemRepository.saveAndFlush(cartItem);
+            cartItem.setQuantity(newQuantity);
+            return CartItemPutVm.fromModel(savedCartItem, String.format(CART_ITEM_UPDATED_MSG, "UPDATED"));
+        }
     }
 }
