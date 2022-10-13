@@ -38,7 +38,7 @@ const BrandCreate: NextPage = () => {
                 </label>
                 <input
                   className="form-control"
-                  {...register('name', { required: true, onChange: onNameChange  })}
+                  {...register('name', { required: true, onChange: onNameChange })}
                   type="text"
                   id="name"
                   name="name"
