@@ -13,21 +13,21 @@ type Props = {
 
 const RelatedProduct = ({ setValue, getValue }: Props) => {
   const [modalShow, setModalShow] = useState<boolean>(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product[]>([]);
+  const [selectedRelatedProduct, setSelectedRelatedProduct] = useState<Product[]>([]);
 
   const onProductSelected = (event: React.MouseEvent<HTMLElement>, product: Product) => {
     event.preventDefault();
-    let temp = getValue('relateProduct') || [];
-    let index = temp.indexOf(product.id);
+    let relatedProduct = getValue('relateProduct') || [];
+    let index = relatedProduct.indexOf(product.id);
     if (index === -1) {
-      temp.push(product.id);
-      setSelectedProduct([...selectedProduct, product]);
+      relatedProduct.push(product.id);
+      setSelectedRelatedProduct([...selectedRelatedProduct, product]);
     } else {
-      temp = temp.filter((item) => item !== product.id);
-      let filterProduct = selectedProduct.filter((_product) => _product.id !== product.id);
-      setSelectedProduct([...filterProduct]);
+      relatedProduct = relatedProduct.filter((item) => item !== product.id);
+      let filterRelated = selectedRelatedProduct.filter((_product) => _product.id !== product.id);
+      setSelectedRelatedProduct([...filterRelated]);
     }
-    setValue('relateProduct', temp);
+    setValue('relateProduct', relatedProduct);
   };
   return (
     <>
@@ -41,14 +41,14 @@ const RelatedProduct = ({ setValue, getValue }: Props) => {
         label="Add Related Product"
         onSelected={onProductSelected}
       />
-      {selectedProduct.length > 0 && (
+      {selectedRelatedProduct.length > 0 && (
         <Table>
           <thead>
             <th>Selected</th>
             <th>Product Name</th>
           </thead>
           <tbody>
-            {(selectedProduct || []).map((product) => (
+            {(selectedRelatedProduct || []).map((product) => (
               <tr className="mb-3" key={product.id}>
                 <th>{product.id}</th>
                 <th>{product.name}</th>
