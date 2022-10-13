@@ -38,6 +38,11 @@ public class GuestAuthenticationFilter implements WebFilter {
     private static final String URL_API_POST_CART = "/api/cart/storefront/carts";
     private static final String URL_API_GET_CART = "/api/cart/storefront/cart";
     private static final String GUEST_INFO_KEY = "GUEST_INFOMATION";
+    private static final String ACCESS_TOKEN_KEY = "accessToken";
+    private static final String PASSWORD_KEY = "password";
+    private static final String USERNAME_KEY = "username";
+    private static final String USER_ID_KEY = "userId";
+    private static final String EMAIL_KEY = "email";
 
     public GuestAuthenticationFilter(WebClient webClient,
                                      ServiceUrlConfig serviceUrlConfig,
@@ -76,43 +81,67 @@ public class GuestAuthenticationFilter implements WebFilter {
                         } else if (isAuthenticatedAsGuest.get()) {
                             exchange.getRequest()
                                     .mutate()
-                                    .headers(h -> h.setBearerAuth(guestInfoFromCookie.get("accessToken")))
+                                    .headers(h -> h.setBearerAuth(guestInfoFromCookie.get(ACCESS_TOKEN_KEY)))
                                     .build();
                             return chain.filter(exchange);
                         } else {
-                            MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-                            formData.add(GRANT_TYPE, "client_credentials");
-                            clientRegistrationRepository.findByRegistrationId("keycloak").subscribe(clientRegistration -> {
-                                formData.add("client_id", clientRegistration.getClientId());
-                                formData.add("client_secret", clientRegistration.getClientSecret());
-                            });
-
-                            return getToken(formData).map(clientToken -> createGuestUser(clientToken.access_token())
-                                    .map(createdUserVm -> {
-                                        formData.remove(GRANT_TYPE);
-                                        formData.add(GRANT_TYPE, "password");
-                                        formData.add("username", createdUserVm.email());
-                                        formData.add("password", createdUserVm.password());
-
-                                        return getToken(formData).map(userToken -> {
-                                            HashMap<String, String> guestInfo = new LinkedHashMap<>();
-                                            guestInfo.put("accessToken", userToken.access_token());
-                                            guestInfo.put("userId", createdUserVm.userId());
-                                            guestInfo.put("email", createdUserVm.email());
-                                            guestInfo.put("password", createdUserVm.password());
-
-                                            return exchange.getSession().map(session -> {
-                                                session.getAttributes().put(GUEST_INFO_KEY, guestInfo);
-                                                request.mutate().headers(h -> h.setBearerAuth(userToken.access_token())).build();
-
-                                                return exchange.mutate().request(request).build();
-                                            });
-                                        });
-                                    })).flatMap(monox4Void -> monox4Void.flatMap(monox3Void -> monox3Void.flatMap(monox2Void -> monox2Void.flatMap(chain::filter))));
+                            return mutateServerWebExchange(exchange, chain);
                         }
                     }));
         }
         return chain.filter(exchange);
+    }
+
+    private Mono<Void> mutateServerWebExchange(ServerWebExchange exchange, WebFilterChain chain) {
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        HashMap<String, String> guestInfoCookie = new LinkedHashMap<>();
+
+        return createFormDataGetClientToken(formData)
+                .flatMap(this::getToken)
+                .map(TokenResponseVm::access_token)
+                .flatMap(this::createGuestUser)
+                .map(createdUserVm -> createFormDataGetGuestToken(formData, createdUserVm, guestInfoCookie))
+                .flatMap(this::getToken)
+                .map(TokenResponseVm::access_token)
+                .map(guestToken -> addGuestTokenToGuestInfoCookie(guestToken, guestInfoCookie))
+                .flatMap(guestInfo -> addGuestInfoToCookie(exchange, chain, guestInfo));
+    }
+
+    private Mono<MultiValueMap<String, String>> createFormDataGetClientToken(MultiValueMap<String, String> formData) {
+        formData.add(GRANT_TYPE, "client_credentials");
+        return clientRegistrationRepository.findByRegistrationId("keycloak").map(clientRegistration -> {
+            formData.add("client_id", clientRegistration.getClientId());
+            formData.add("client_secret", clientRegistration.getClientSecret());
+            return formData;
+        });
+    }
+
+    private MultiValueMap<String, String> createFormDataGetGuestToken(MultiValueMap<String, String> formData,
+                                                                      GuestUserVm createdUserVm, HashMap<String, String> guestInfoCookie) {
+        guestInfoCookie.put(USER_ID_KEY, createdUserVm.userId());
+        guestInfoCookie.put(EMAIL_KEY, createdUserVm.email());
+        guestInfoCookie.put(PASSWORD_KEY, createdUserVm.password());
+
+        formData.remove(GRANT_TYPE);
+        formData.add(GRANT_TYPE, PASSWORD_KEY);
+        formData.add(USERNAME_KEY, createdUserVm.email());
+        formData.add(PASSWORD_KEY, createdUserVm.password());
+
+        return formData;
+    }
+
+    private HashMap<String, String> addGuestTokenToGuestInfoCookie(String guestToken, HashMap<String, String> guestInfoCookie) {
+        guestInfoCookie.put(ACCESS_TOKEN_KEY, guestToken);
+        return guestInfoCookie;
+    }
+
+    private Mono<Void> addGuestInfoToCookie(ServerWebExchange exchange, WebFilterChain chain,
+                                            HashMap<String, String> guestInfo) {
+        return exchange.getSession().flatMap(session -> {
+            session.getAttributes().put(GUEST_INFO_KEY, guestInfo);
+            exchange.getRequest().mutate().headers(h -> h.setBearerAuth(guestInfo.get(ACCESS_TOKEN_KEY))).build();
+            return chain.filter(exchange);
+        }).then();
     }
 
     private Mono<GuestUserVm> createGuestUser(String bearerToken) {
