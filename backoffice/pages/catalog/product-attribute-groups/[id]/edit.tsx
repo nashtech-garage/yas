@@ -25,16 +25,14 @@ const ProductAttributeGroupEdit: NextPage = () => {
       updateProductAttributeGroup(+id, productAttributeGroup).then((response) => {
         if (response.status === 204) {
           toast.success('Update successfully');
-          router.replace('/catalog/product-attribute-groups');
         } else if (response.title === 'Not found') {
           toast.error(response.detail);
-          router.replace('/catalog/product-attribute-groups');
         } else if (response.title === 'Bad request') {
           toast.error(response.detail);
         } else {
           toast.error('Update failed');
-          router.replace('/catalog/product-attribute-groups');
         }
+        router.replace('/catalog/product-attribute-groups');
       });
     }
   };
