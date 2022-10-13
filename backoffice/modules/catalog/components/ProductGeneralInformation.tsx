@@ -82,7 +82,11 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
       <Check labelText="Is Allowed To Order" field="isAllowedToOrder" register={register} />
       <Check labelText="Is Published" field="isPublished" register={register} />
       <Check labelText="Is Featured" field="isFeatured" register={register} />
-      <Check labelText="Is Visible Individually" field="isVisibleIndividually" register={register} />
+      <Check
+        labelText="Is Visible Individually"
+        field="isVisibleIndividually"
+        register={register}
+      />
     </>
   );
 };

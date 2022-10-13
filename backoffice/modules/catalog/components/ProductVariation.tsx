@@ -69,7 +69,7 @@ const ProductVariation = ({ getValue, setValue }: Props) => {
         }
       }
     });
-    setValue("productOptions", productOp)
+    setValue('productOptions', productOp);
     let options: string[] = [];
     let productVar: ProductVariation[] = [];
     result.forEach((item) => {
