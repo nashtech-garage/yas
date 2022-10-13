@@ -34,7 +34,7 @@ public class CartService {
                 .stream().map(CartListVm::fromModel)
                 .toList();
     }
-    
+
     public List<CartGetDetailVm> getCartDetailByCustomerId(String customerId) {
         return cartRepository.findByCustomerId(customerId)
                 .stream().map(CartGetDetailVm::fromModel)
@@ -42,22 +42,23 @@ public class CartService {
     }
 
     public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
-        if(CollectionUtils.isEmpty(cartItemVms)){
+        if (CollectionUtils.isEmpty(cartItemVms)) {
             throw new BadRequestException("Cart's item can't be null");
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String customerId = auth.getName();
 
         Cart cart = cartRepository.findByCustomerId(customerId).stream().findFirst().orElse(null);
-        if(cart == null){
+        if (cart == null) {
             cart = new Cart(null, customerId, new HashSet<>());
             cart.setCreatedBy(auth.getName());
             cart.setCreatedOn(ZonedDateTime.now());
             cartRepository.save(cart);
         }
 
+        List<CartItem> existedCartItems = cartItemRepository.findAllByCart(cart);
         for (CartItemVm cartItemVm : cartItemVms) {
-            if(cartItemVm.quantity() <= 0)
+            if (cartItemVm.quantity() <= 0)
                 throw new BadRequestException(("Quantity cannot be negative"));
 
             try {
@@ -66,15 +67,20 @@ public class CartService {
                 throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
             }
 
-            CartItem cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setProductId(cartItemVm.productId());
-            cartItem.setQuantity(cartItemVm.quantity());
-            cart.getCartItems().add(cartItem);
-            cartItemRepository.save(cartItem);
+            CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
+            if (cartItem.getId() != null) {
+                cartItem.setQuantity(cartItem.getQuantity() + cartItemVm.quantity());
+                cartItemRepository.save(cartItem);
+            } else {
+                cartItem.setCart(cart);
+                cartItem.setProductId(cartItemVm.productId());
+                cartItem.setQuantity(cartItemVm.quantity());
+                cart.getCartItems().add(cartItem);
+                cartItemRepository.save(cartItem);
+                cartRepository.saveAndFlush(cart);
+            }
         }
 
-        cartRepository.saveAndFlush(cart);
         return CartGetDetailVm.fromModel(cart);
     }
 
@@ -83,5 +89,13 @@ public class CartService {
         return cartRepository.findByCustomerId(auth.getName())
                 .stream().reduce((first, second) -> second)
                 .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
+    }
+
+    private CartItem getCartItemByProductId(List<CartItem> cartItems, Long productId) {
+        for (CartItem cartItem : cartItems) {
+            if (cartItem.getProductId().equals(productId))
+                return cartItem;
+        }
+        return new CartItem();
     }
 }
