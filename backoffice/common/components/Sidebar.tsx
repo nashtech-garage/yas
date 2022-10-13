@@ -118,7 +118,7 @@ const Menu = ({ open, setOpen }: Props) => {
 };
 
 export default function Sidebar() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
