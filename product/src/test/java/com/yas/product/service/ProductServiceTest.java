@@ -124,6 +124,8 @@ class ProductServiceTest {
         SecurityContext securityContext = mock(SecurityContext.class);
         String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
+        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                        1L, null, null, null, null, null, null );
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
@@ -134,6 +136,7 @@ class ProductServiceTest {
         Product savedProduct = mock(Product.class);
         when(productRepository.saveAndFlush(productCaptor.capture())).thenReturn(savedProduct);
         Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
+        when(productRepository.findById(productPostVm.parentId())).thenReturn(Optional.of(parentProduct));
 
         //when
         ProductGetDetailVm actualResponse = productService.createProduct(productPostVm, files);

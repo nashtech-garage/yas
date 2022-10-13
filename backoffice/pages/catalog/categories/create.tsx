@@ -1,14 +1,13 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { useAccordionButton } from 'react-bootstrap';
-import { isNull } from 'util';
 import { Category } from '../../../modules/catalog/models/Category';
+import { CategoryGet } from '../../../modules/catalog/models/CategoryGet';
 import { createCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 
 const CategoryCreate: NextPage = () => {
   var slugify = require('slugify');
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryGet[]>([]);
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     if (event.target.parentCategory.value == 0) event.target.parentCategory.value = null;
