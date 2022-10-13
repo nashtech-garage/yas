@@ -30,13 +30,16 @@ const ProductAttributes = ({ setValue, getValue }: Props) => {
 
       if (selectedAttributes.indexOf(attName) === -1) {
         setSelectedAttributes([...selectedAttributes, attName]);
-        let newAttr: ProductAttributeValue = {
-          id: '',
-          nameProductAttribute: attName,
-          value: '',
-        };
-        productAtt.push(newAttr);
-        setValue('productAttributes', productAtt);
+        let att = productAttributes.find((att) => att.name === attName);
+        if (att) {
+          let newAttr: ProductAttributeValue = {
+            id: att.id,
+            nameProductAttribute: attName,
+            value: '',
+          };
+          productAtt.push(newAttr);
+          setValue('productAttributes', productAtt);
+        }
       } else {
         toast.info(`${attName} is selected`);
       }
@@ -63,7 +66,7 @@ const ProductAttributes = ({ setValue, getValue }: Props) => {
     <>
       <div className="mb-3 d-flex justify-content-evenly">
         <label className="form-label" htmlFor="brand">
-          Available Options
+          Available Attribute
         </label>
         <select className="form-control w-50" id="attribute" defaultValue="0">
           <option value="0" disabled hidden>

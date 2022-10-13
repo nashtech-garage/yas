@@ -1,22 +1,24 @@
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import Router from 'next/router';
 import { Tab, Tabs } from 'react-bootstrap';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import slugify from 'slugify';
 import {
   CrossSellProduct,
   ProductAttributes,
+  ProductCategoryMapping,
   ProductGeneralInformation,
   ProductImage,
   ProductSEO,
   ProductVariation,
   RelatedProduct,
-  ProductCategoryMapping,
 } from '../../../modules/catalog/components';
-import { CategoryGet } from '../../../modules/catalog/models/CategoryGet';
+import { ProductAttributeValuePost } from '../../../modules/catalog/models/ProductAttributeValuePost';
 import { ProductPost } from '../../../modules/catalog/models/ProductPost.js';
-import { getCategories } from '../../../modules/catalog/services/CategoryService';
+import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
+import { createProductOptionValue } from '../../../modules/catalog/services/ProductOptionValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 
 const ProductCreate: NextPage = () => {
@@ -30,14 +32,59 @@ const ProductCreate: NextPage = () => {
 
   const onSubmitForm: SubmitHandler<ProductPost> = async (data) => {
     data.brandId = data.brandId == 0 ? undefined : data.brandId;
-    // await createProduct(data, getValues('thumbnail'), getValues('productImages'))
-    //   .then((res) => {
-    //     location.replace('/catalog/products');
-    //   })
-    //   .catch((err) => {
-    //     toast.info('Cannot Create Product. Try Later!');
-    //   });
-    console.log(data);
+    const product = {
+      name: data.name,
+      slug: data.sku,
+      brandId: data.brandId,
+      categoryIds: data.categoryIds,
+      shortDescription: data.shortDescription,
+      description: data.description,
+      specification: data.specification,
+      sku: data.sku,
+      gtin: data.gtin,
+      price: data.price,
+      isAllowedToOrder: data.isAllowedToOrder,
+      isPublished: data.isPublished,
+      isFeatured: data.isFeatured,
+      isVisibleIndividually: data.isVisibleIndividually,
+      metaTitle: data.metaKeyword,
+      metaKeyword: data.metaKeyword,
+      metaDescription: data.metaDescription,
+    };
+    const res = await createProduct(product, data.thumbnail, data.productImages);
+
+    // upload variation
+    let variations = data.productVariations || [];
+    for (const option of variations) {
+      let _product = {
+        name: option.optionName,
+        slug: slugify(option.optionName),
+        sku: option.optionSku,
+        gtin: option.optionGTin,
+        price: option.optionPrice,
+        parentId: res.id,
+      };
+      await createProduct(_product, option.optionThumbnail, option.optionImages);
+    }
+
+    // upload product attribute
+    for (const att of data.productAttributes || []) {
+      let productAtt: ProductAttributeValuePost = {
+        ProductId: res.id,
+        productAttributeId: att.id,
+        value: att.value,
+      };
+      await createProductAttributeValueOfProduct(productAtt);
+    }
+
+    // upload Option Value
+    for (const ele of data.productOptions || []) {
+      ele.ProductId = res.id;
+      ele.displayOrder = 1;
+      await createProductOptionValue(ele);
+    }
+
+    Router.replace('/catalog/products');
   };
 
   return (

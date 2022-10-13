@@ -1,7 +1,7 @@
+import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariation } from './ProductVariation';
 import { ProductAttributeValue } from './ProductAttributeValue';
-import { ProductAttribute } from './ProductAttribute';
-import { Product } from './Product';
+
 export type ProductPost = {
   name: string;
   slug: string;
@@ -14,6 +14,7 @@ export type ProductPost = {
   isAllowedToOrder: boolean;
   isPublished: boolean;
   isFeatured: boolean;
+  isVisibleIndividually: boolean;
   brandId?: number;
   thumbnail?: File;
   productImages?: FileList;
@@ -25,4 +26,5 @@ export type ProductPost = {
   categoryIds: number[]; // category id
   productAttributes: ProductAttributeValue[];
   productVariations: ProductVariation[];
+  productOptions: ProductOptionValuePost[];
 };

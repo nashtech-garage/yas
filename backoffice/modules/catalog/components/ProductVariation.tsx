@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { UseFormGetValues, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { ProductPost } from '../models/ProductPost';
 import { ProductVariation } from '../models/ProductVariation';
+import { ProductOption } from '../models/ProductOption';
+import { getProductOptions } from '../services/ProductOptionService';
 
-const options = ['Color', 'Size', 'SSD', 'Chip'];
 const headers = ['Option Combinations', 'SKU', 'GTIN', 'Price', 'Thumbnail', 'Images', 'Action'];
 
 type Props = {
@@ -16,6 +17,11 @@ type Props = {
 const ProductVariation = ({ getValue, setValue }: Props) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [optionCombines, setOptionCombines] = useState<string[]>([]);
+  const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
+
+  useEffect(() => {
+    getProductOptions().then((data) => setProductOptions(data));
+  }, []);
 
   const onAddOption = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -43,8 +49,11 @@ const ProductVariation = ({ getValue, setValue }: Props) => {
   const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     let result: string[] = [];
+    let productOp = getValue('productOptions') || [];
     selectedOptions.forEach((option) => {
       let combines = (document.getElementById(option) as HTMLInputElement).value.split(',');
+      let item = productOptions.find((_option) => _option.name === option);
+      productOp.push({ ProductOptionId: item?.id, value: combines });
       if (result.length === 0) {
         combines.forEach((item) => {
           result.push(item);
@@ -60,12 +69,13 @@ const ProductVariation = ({ getValue, setValue }: Props) => {
         }
       }
     });
+    setValue("productOptions", productOp)
     let options: string[] = [];
     let productVar: ProductVariation[] = [];
     result.forEach((item) => {
       options.push(item);
       productVar.push({
-        optionName: getValue('name').concat(" ",item),
+        optionName: getValue('name').concat(' ', item),
         optionGTin: getValue('gtin'),
         optionSku: getValue('sku'),
         optionPrice: getValue('price'),
@@ -129,9 +139,9 @@ const ProductVariation = ({ getValue, setValue }: Props) => {
           <option value="0" disabled hidden>
             Select Options
           </option>
-          {(options || []).map((option) => (
-            <option value={option} key={option}>
-              {option}
+          {(productOptions || []).map((option) => (
+            <option value={option.name} key={option.id}>
+              {option.name}
             </option>
           ))}
         </select>
@@ -139,27 +149,32 @@ const ProductVariation = ({ getValue, setValue }: Props) => {
           Add Option
         </button>
       </div>
-      <div className="mb-3">
-        <h5>Value Options</h5>
+      {selectedOptions.length > 0 && (
         <div className="mb-3">
-          {(selectedOptions || []).map((option) => (
-            <div className="mb-3 d-flex justify-content-evenly" key={option}>
-              <label className="form-label" htmlFor={option}>
-                {option}
-              </label>
-              <input type="text" id={option} className={`form-control w-75`} />
-              <button className="btn btn-danger" onClick={(event) => onDeleteOption(event, option)}>
-                <i className="bi bi-x"></i>
-              </button>
-            </div>
-          ))}
+          <h5>Value Options</h5>
+          <div className="mb-3">
+            {(selectedOptions || []).map((option) => (
+              <div className="mb-3 d-flex justify-content-evenly" key={option}>
+                <label className="form-label" htmlFor={option}>
+                  {option}
+                </label>
+                <input type="text" id={option} className={`form-control w-75`} />
+                <button
+                  className="btn btn-danger"
+                  onClick={(event) => onDeleteOption(event, option)}
+                >
+                  <i className="bi bi-x"></i>
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <button className="btn btn-primary" onClick={onGenerate}>
+              Generate Combine
+            </button>
+          </div>
         </div>
-        <div className="text-center">
-          <button className="btn btn-primary" onClick={onGenerate}>
-            Generate Combine
-          </button>
-        </div>
-      </div>
+      )}
 
       {optionCombines.length > 0 && (
         <div className="mb-3">

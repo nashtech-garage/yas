@@ -142,12 +142,17 @@ public class ProductService {
             }
         }
 
-        for (int index = 1; index < files.size(); index++) {
-            ProductImage productImage = new ProductImage();
-            NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(index), "", "");
-            productImage.setImageId(noFileMediaVm.id());
-            productImage.setProduct(product);
-            productImages.add(productImage);
+        if (CollectionUtils.isNotEmpty(files)) {
+            for (int index = 1; index < files.size(); index++) {
+                ProductImage productImage = new ProductImage();
+                NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(index), "", "");
+                productImage.setImageId(noFileMediaVm.id());
+                productImage.setProduct(product);
+                productImages.add(productImage);
+            }
+
+            NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
+            product.setThumbnailMediaId(noFileMediaVm.id());
         }
 
         product.setName(productPostVm.name());
@@ -161,15 +166,23 @@ public class ProductService {
         product.setIsAllowedToOrder(productPostVm.isAllowedToOrder());
         product.setIsFeatured(productPostVm.isFeatured());
         product.setIsPublished(productPostVm.isPublished());
+        product.setMetaTitle(productPostVm.metaTitle());
         product.setMetaKeyword(productPostVm.metaKeyword());
         product.setMetaDescription(productPostVm.metaDescription());
-
+        product.setIsVisibleIndividually(productPostVm.isVisibleIndividually());
+        
+        if(productPostVm.parentId() != null){
+            Product parentProduct = productRepository.findById(productPostVm.parentId()).orElseThrow(
+                    () -> new NotFoundException(String.format("Product %s is not found", productPostVm.parentId())));
+            product.setParent(parentProduct);
+        }else{
+            product.setParent(product);
+        }
+        
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
 
-        NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
-        product.setThumbnailMediaId(noFileMediaVm.id());
 
         Product savedProduct = productRepository.saveAndFlush(product);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
