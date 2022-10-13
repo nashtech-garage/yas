@@ -24,10 +24,10 @@ const EditCategoryOfProduct: NextPage = () => {
   const { handleSubmit } = useForm();
 
   function findChildrenOfCategoryId(id: number) {
-    for (let i = 0; i < categories.length; i++) {
-      if (categories[i].parentId === id) {
-        childrenOfCategoryId.push(String(categories[i]?.id));
-        findChildrenOfCategoryId(categories[i]?.id);
+    for (let value of categories) {
+      if (value.parentId === id) {
+        childrenOfCategoryId.push(String(value?.id));
+        findChildrenOfCategoryId(value?.id);
       }
     }
   }
@@ -47,7 +47,6 @@ const EditCategoryOfProduct: NextPage = () => {
           if (parent?.parentId === -1) break;
           else {
             idParent = parent?.parentId;
-            continue;
           }
         }
       }
@@ -56,8 +55,8 @@ const EditCategoryOfProduct: NextPage = () => {
       checkCategory = checkCategory.filter((item) => item !== e.target.value);
       childrenOfCategoryId = [];
       findChildrenOfCategoryId(Number(e.target.value));
-      for (let i = 0; i < childrenOfCategoryId.length; i++) {
-        checkCategory = checkCategory.filter((item) => item !== childrenOfCategoryId[i]);
+      for (let value of childrenOfCategoryId) {
+        checkCategory = checkCategory.filter((item) => item !== value);
       }
       listCheckCategory = Array.from(new Set(checkCategory));
       setCheckCategory(listCheckCategory);
@@ -81,7 +80,6 @@ const EditCategoryOfProduct: NextPage = () => {
         break;
       } else {
         idParent = parent?.parentId;
-        continue;
       }
     }
     return categoryHierarchy;
@@ -109,8 +107,8 @@ const EditCategoryOfProduct: NextPage = () => {
 
   const onSubmit: SubmitHandler<ProductPut> = (data) => {
     checkCategory = Array.from(new Set(checkCategory));
-    for (let i = 0; i < checkCategory.length; i++) {
-      categoryIds.push(Number(checkCategory[i]));
+    for (let value of checkCategory) {
+      categoryIds.push(Number(value));
     }
     let defaultCategoryIds: number[] = [];
     if (product) {
