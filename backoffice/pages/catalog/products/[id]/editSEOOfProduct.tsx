@@ -14,10 +14,7 @@ const EditSEOOfProduct: NextPage = () => {
   const [metaDescription, setMetaDescription] = useState<string>();
   const router = useRouter();
   const { id } = router.query;
-  const {
-    formState: { errors },
-    handleSubmit,
-  } = useForm();
+  const { handleSubmit } = useForm();
 
   const onMetaKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMetaKeyword(event.target.value);

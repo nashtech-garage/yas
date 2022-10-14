@@ -14,9 +14,10 @@ const EditCategoryOfProduct: NextPage = () => {
   const [isLoading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   let [checkCategory, setCheckCategory] = useState<string[]>([]);
-  let [listCheckCategory] = useState<string[]>([]);
-  let [childrenOfCategoryId] = useState<string[]>([]);
-  let [categoryIds] = useState<number[]>([]);
+  let listCheckCategory: string[] = [];
+  let childrenOfCategoryId: string[] = [];
+  let parentOfCategoryId: string[] = [];
+  let categoryIds: number[] = [];
 
   const [product, setProduct] = useState<Product>();
   const router = useRouter();
@@ -31,24 +32,24 @@ const EditCategoryOfProduct: NextPage = () => {
       }
     }
   }
+  function findParentCategoryOfProduct(id: number) {
+    for (let value of categories) {
+      if (value?.id === id) {
+        parentOfCategoryId.push(String(value?.id));
+        findParentCategoryOfProduct(Number(value?.parentId));
+      }
+    }
+  }
 
   const onSaveListCategory = (e: any) => {
     if (e.target.checked) {
       setCheckCategory([e.target.value, ...checkCategory]);
       const category = categories.find((element) => element.id === Number(e.target.value));
-      let id = e.target.value;
       if (category?.parentId !== -1) {
-        let idParent: number | undefined = category?.parentId;
-        while (true) {
-          const parent = categories.find((element) => element.id === idParent);
-          checkCategory.push(String(id));
-          setCheckCategory([String(idParent), ...checkCategory]);
-          id = idParent;
-          if (parent?.parentId === -1) break;
-          else {
-            idParent = parent?.parentId;
-          }
-        }
+        parentOfCategoryId = [];
+        findParentCategoryOfProduct(Number(category?.parentId));
+        listCheckCategory = checkCategory.concat(parentOfCategoryId, e.target.value);
+        setCheckCategory(listCheckCategory);
       }
     } else {
       listCheckCategory = [];
