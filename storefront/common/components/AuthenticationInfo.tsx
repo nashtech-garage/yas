@@ -15,7 +15,7 @@ export default function AuthenticationInfo() {
     authenticatedUser: { username: '' },
   });
 
-  async function getAuthenticationInfo() {
+  async function getAuthenticationInfo(): Promise<AuthenticationInfoVm> {
     const res = await fetch(`/authentication`);
     return await res.json();
   }
@@ -23,14 +23,11 @@ export default function AuthenticationInfo() {
   useEffect(() => {
     getAuthenticationInfo().then((data) => {
       setAuthenticatedInfoVm(data);
+      if (data.isAuthenticated) {
+        fetch(`/move-cart`);
+      }
     });
   }, []);
-
-  useEffect(() => {
-    if (authenticatedInfoVm.isAuthenticated) {
-      fetch(`/move-cart`);
-    }
-  }, [authenticatedInfoVm.isAuthenticated]);
 
   return (
     <>
