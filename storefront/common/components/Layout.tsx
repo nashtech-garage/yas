@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import AuthenticationInfo from './AuthenticationInfo';
 import { Navbar } from 'react-bootstrap';
+import Link from 'next/link';
 
 type Props = {
   children: React.ReactNode;
@@ -19,6 +20,14 @@ export default function Layout({ children }: Props) {
           <Navbar.Brand href="/">Yas - Storefront</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
+            <Navbar.Brand>
+              <Link href={'/cart'}>
+                <button style={{ backgroundColor: 'transparent', border: 0 }}>
+                  <i className="bi bi-cart4" style={{ color: 'white' }}></i>
+                </button>
+              </Link>
+            </Navbar.Brand>{' '}
+            &nbsp;
             <Navbar.Text>
               <AuthenticationInfo />
             </Navbar.Text>

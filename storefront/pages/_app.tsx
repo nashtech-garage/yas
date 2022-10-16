@@ -3,6 +3,7 @@ import Layout from '../common/components/Layout';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/globals.css';
+import '../styles/cart.css';
 
 import type { AppProps } from 'next/app';
 
@@ -11,6 +12,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+        ></link>
       </Head>
       <Layout>
         <Component {...pageProps} />
