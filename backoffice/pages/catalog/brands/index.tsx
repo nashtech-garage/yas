@@ -71,9 +71,11 @@ const BrandList: NextPage = () => {
               <td>{brand.name}</td>
               <td>{brand.slug}</td>
               <td>
-                <button className="btn btn-outline-primary btn-sm" type="button">
-                  Edit
-                </button>
+                <Link href={`/catalog/brands/${brand.id}/edit`}>
+                  <button className="btn btn-outline-primary btn-sm" type="button">
+                    Edit
+                  </button>
+                </Link>
                 &nbsp;
                 <button
                   className="btn btn-outline-danger btn-sm"
