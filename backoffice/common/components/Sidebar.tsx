@@ -1,5 +1,6 @@
 import { Button } from 'react-bootstrap';
 import { FaMicrosoft, FaMobileAlt, FaTasks, FaUsers } from 'react-icons/fa';
+import { AiOutlineGroup } from 'react-icons/ai';
 import { SiBrandfolder, SiAnydesk } from 'react-icons/si';
 import styles from '../../styles/Sidebar.module.css';
 import ListGroup from '../items/ListGroup';
@@ -48,6 +49,13 @@ let menu_catalog_item_data: any = [
     active: false,
     link: '/catalog/product-options',
     icon: <SiAnydesk />,
+  },
+  {
+    id: 6,
+    name: 'Attribute Groups',
+    active: false,
+    link: '/catalog/product-attribute-groups',
+    icon: <AiOutlineGroup />,
   },
 ];
 
