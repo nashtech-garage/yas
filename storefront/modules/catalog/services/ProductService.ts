@@ -14,3 +14,12 @@ export async function getProduct(slug: string): Promise<Product> {
   );
   return response.json();
 }
+
+export function formatPrice(price: number): any {
+  var formatter = new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  });
+
+  return formatter.format(price);
+}

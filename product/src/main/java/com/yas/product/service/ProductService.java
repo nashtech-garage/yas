@@ -370,4 +370,18 @@ public class ProductService {
                 mediaService.getMedia(product.getThumbnailMediaId()).url());
         return productThumbnailVm;
     }
+
+    public List<ProductThumbnailGetVm> getListFeaturedProducts() {
+        List<ProductThumbnailGetVm> productThumbnailVms = new ArrayList<>();
+        List<Product> products = productRepository.findAll();
+        for (Product product : products) {
+            productThumbnailVms.add(new ProductThumbnailGetVm(
+                    product.getId(),
+                    product.getName(),
+                    product.getSlug(),
+                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                    product.getPrice()));
+        }
+        return productThumbnailVms;
+    }
 }

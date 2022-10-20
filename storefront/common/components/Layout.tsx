@@ -15,8 +15,8 @@ export default function Layout({ children }: Props) {
         <meta name="description" content="Yet another shop storefront" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Navbar collapseOnSelect bg="dark" variant="dark">
-        <div className="container">
+      <Navbar collapseOnSelect bg="dark" variant="dark" style={{ marginBottom: 0 }}>
+        <div className="container" style={{ marginBottom: 0 }}>
           <Navbar.Brand href="/">Yas - Storefront</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">

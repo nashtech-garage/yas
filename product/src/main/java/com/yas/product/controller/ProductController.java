@@ -56,8 +56,8 @@ public class ProductController {
     }
 
     @GetMapping("/storefront/products/featured")
-    public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProducts() {
-        return ResponseEntity.ok(productService.getFeaturedProducts());
+    public ResponseEntity<List<ProductThumbnailGetVm>> getFeaturedProducts() {
+        return ResponseEntity.ok(productService.getListFeaturedProducts());
     }
 
     @GetMapping("/storefront/brand/{brandSlug}/products")
