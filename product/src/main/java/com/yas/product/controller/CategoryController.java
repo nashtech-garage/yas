@@ -4,6 +4,7 @@ import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
+import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.CategoryGetDetailVm;
 import com.yas.product.viewmodel.CategoryGetVm;
 import com.yas.product.viewmodel.CategoryPostVm;
@@ -44,7 +45,7 @@ public class CategoryController {
     public ResponseEntity<CategoryGetDetailVm> getCategory(@PathVariable Long id){
         Category category = categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
 
         CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(category);
         return  ResponseEntity.ok(categoryGetDetailVm);
@@ -67,7 +68,7 @@ public class CategoryController {
         if(categoryPostVm.parentId() != null){
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
-                    .orElseThrow(() -> new BadRequestException(String.format("Parent category %s is not found", categoryPostVm.parentId())));
+                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
             category.setParent(parentCategory);
         }
         Category savedCategory = categoryRepository.saveAndFlush(category);
@@ -85,7 +86,7 @@ public class CategoryController {
     public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm, Principal principal){
         Category category = categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", id)));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
@@ -99,10 +100,10 @@ public class CategoryController {
         } else {
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
-                    .orElseThrow(() -> new BadRequestException(String.format("Parent category %s is not found", categoryPostVm.parentId())));
+                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
 
             if(!checkParent(category.getId(), parentCategory)){
-                throw new BadRequestException("Parent category cannot be itself children");
+                throw new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_CANNOT_BE_ITSELF);
             }
             category.setParent(parentCategory);
         }
@@ -116,12 +117,12 @@ public class CategoryController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException(String.format("Category %s is not found", id)));
+                .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
         if(category.getCategories().size()>0){
-            throw new BadRequestException("Please make sure this category contains no children");
+            throw new BadRequestException(Constants.ERROR_CODE.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_CHILDREN);
         }
         if(category.getProductCategories().size()>0){
-            throw new BadRequestException("Please make sure this category contains no product");
+            throw new BadRequestException(Constants.ERROR_CODE.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_PRODUCT);
         }
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();
