@@ -89,17 +89,20 @@ class ProductServiceTest {
                 true,
                 true,
                 true,
+                true,
+                "title",
                 "meta keyword",
-                "meta description"
+                "meta description",
+                1L
         );
 
         category1 = new Category(1L, null, null, "null", null, null, null, null, null, null);
         category2 = new Category(2L, null, null, "null", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,
-                        1L, null, null, null, null, null, null),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                        1L, null, null, null, null, null, null ),
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
                         1L, null, null, null, null, null, null)
         );
 
@@ -121,6 +124,8 @@ class ProductServiceTest {
         SecurityContext securityContext = mock(SecurityContext.class);
         String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
+        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                        1L, null, null, null, null, null, null );
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
@@ -131,6 +136,7 @@ class ProductServiceTest {
         Product savedProduct = mock(Product.class);
         when(productRepository.saveAndFlush(productCaptor.capture())).thenReturn(savedProduct);
         Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
+        when(productRepository.findById(productPostVm.parentId())).thenReturn(Optional.of(parentProduct));
 
         //when
         ProductGetDetailVm actualResponse = productService.createProduct(productPostVm, files);
@@ -188,8 +194,11 @@ class ProductServiceTest {
                 true,
                 true,
                 true,
+                true,
+                "neta title",
                 "meta keyword",
-                "meta desciption"
+                "meta desciption",
+                1L
         );
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));

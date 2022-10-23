@@ -1,8 +1,6 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { useAccordionButton } from 'react-bootstrap';
-import { isNull } from 'util';
 import { Category } from '../../../modules/catalog/models/Category';
 import { createCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 

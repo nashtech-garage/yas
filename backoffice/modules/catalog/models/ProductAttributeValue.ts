@@ -1,5 +1,5 @@
 export type ProductAttributeValue = {
-  id: string;
+  id: number;
   nameProductAttribute: string;
   value: string;
 };

@@ -7,7 +7,6 @@ import { getCustomers } from '../../modules/customer/services/CustomerService';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { Customer } from '../../modules/customer/models/Customer';
-import 'react-toastify/dist/ReactToastify.css';
 
 const Customers: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
