@@ -167,3 +167,16 @@ img-thumbnail {
   display: block;
   font-style: italic;
 }
+
+.checked {
+  color: orange;
+}
+
+.item-product {
+  transition: transform 0.2s; /* Animation */
+}
+
+.item-product:hover {
+  color: #0070f3;
+  transform: scale(1.1);
+}
