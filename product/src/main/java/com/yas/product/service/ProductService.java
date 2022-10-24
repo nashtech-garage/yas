@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class ProductService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
@@ -182,12 +184,10 @@ public class ProductService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
-
-
-        Product savedProduct = productRepository.saveAndFlush(product);
-        productCategoryRepository.saveAllAndFlush(productCategoryList);
-        productImageRepository.saveAllAndFlush(productImages);
-        return ProductGetDetailVm.fromModel(savedProduct);
+        product.setProductCategories(productCategoryList);
+        product.setProductImages(productImages);
+        productRepository.saveAndFlush(product);
+        return ProductGetDetailVm.fromModel(product);
     }
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
