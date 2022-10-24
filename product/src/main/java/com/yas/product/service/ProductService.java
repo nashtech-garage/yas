@@ -184,10 +184,11 @@ public class ProductService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
+
         product.setProductCategories(productCategoryList);
         product.setProductImages(productImages);
-        productRepository.saveAndFlush(product);
-        return ProductGetDetailVm.fromModel(product);
+        Product savedProduct = productRepository.saveAndFlush(product);
+        return ProductGetDetailVm.fromModel(savedProduct);
     }
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
