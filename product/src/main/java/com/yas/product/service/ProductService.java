@@ -246,7 +246,9 @@ public class ProductService {
         product.setLastModifiedOn(ZonedDateTime.now());
 
         if(null != productPutVm.thumbnailMediaId()){
-            mediaService.removeMedia(product.getThumbnailMediaId());
+            if(null != product.getThumbnailMediaId()){
+                mediaService.removeMedia(product.getThumbnailMediaId());
+            }            
             product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         }
 
