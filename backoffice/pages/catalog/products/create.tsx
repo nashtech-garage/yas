@@ -33,7 +33,7 @@ const ProductCreate: NextPage = () => {
     data.brandId = data.brandId == 0 ? undefined : data.brandId;
     const product = {
       name: data.name,
-      slug: data.sku,
+      slug: data.slug,
       brandId: data.brandId,
       categoryIds: data.categoryIds,
       shortDescription: data.shortDescription,
