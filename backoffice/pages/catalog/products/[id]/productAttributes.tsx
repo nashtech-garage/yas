@@ -85,7 +85,7 @@ const ProductAttributes: NextPage = () => {
   const addNewAttributeOfProduct = (event: any) => {
     event.preventDefault();
     let productAttributeValue: ProductAttributeValue = {
-      id: productAttributeId,
+      id: +productAttributeId,
       nameProductAttribute: nameAttribute,
       value: '',
     };
@@ -126,10 +126,10 @@ const ProductAttributes: NextPage = () => {
     checkProductAttributeIdValid = true;
     for (const productAttributes1 of attributeOfProducts) {
       for (const createProductAttribute of listCreateProductAttributeId) {
-        if (parseInt(productAttributes1.id) === parseInt(createProductAttribute.valueOf())) {
+        if (productAttributes1.id === parseInt(createProductAttribute.valueOf())) {
           if (id) {
             let productAttributeValuePost: ProductAttributeValuePost = {
-              ProductId: (+id).toString(),
+              ProductId: +id,
               productAttributeId: productAttributes1.id,
               value: productAttributes1.value,
             };
@@ -140,15 +140,15 @@ const ProductAttributes: NextPage = () => {
     }
     for (const productAttributes1 of attributeOfProducts) {
       for (const list of listUpdateProductAttributeId) {
-        if (parseInt(list.valueOf()) === parseInt(productAttributes1.id)) {
+        if (parseInt(list.valueOf()) === productAttributes1.id) {
           if (id) {
             let productAttributeValuePost: ProductAttributeValuePost = {
-              ProductId: '',
-              productAttributeId: '',
+              ProductId: 0,
+              productAttributeId: 0,
               value: productAttributes1.value,
             };
             await updateProductAttributeValueOfProduct(
-              parseInt(productAttributes1.id),
+              productAttributes1.id,
               productAttributeValuePost
             );
           }
@@ -157,8 +157,8 @@ const ProductAttributes: NextPage = () => {
     }
     for (const currentAttributes of attributeOfCurrentProducts) {
       for (const list of listDeleteProductAttributeId) {
-        if (parseInt(list.valueOf()) === parseInt(currentAttributes.id)) {
-          await deleteProductAttributeValueOfProductById(parseInt(currentAttributes.id));
+        if (parseInt(list.valueOf()) === currentAttributes.id) {
+          await deleteProductAttributeValueOfProductById(currentAttributes.id);
         }
       }
     }
@@ -235,7 +235,7 @@ const ProductAttributes: NextPage = () => {
                   <tr
                     onClickCapture={() => {
                       setAttributeName(productValue.nameProductAttribute);
-                      setEditProductAttributeId(productValue.id);
+                      setEditProductAttributeId(productValue.id + '');
                     }}
                     key={productValue.id}
                   >

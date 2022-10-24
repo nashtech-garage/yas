@@ -39,7 +39,7 @@ public class ProductController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<ProductGetDetailVm> createProduct(@RequestPart("productDetails") ProductPostVm productPostVm,
-            @RequestPart("files") List<MultipartFile> files, UriComponentsBuilder uriComponentsBuilder) {
+             @RequestPart(value = "files", required = false) List<MultipartFile> files, UriComponentsBuilder uriComponentsBuilder) {
         ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm, files);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/products/{id}").buildAndExpand(productGetDetailVm.id()).toUri())
                 .body(productGetDetailVm);
@@ -56,8 +56,8 @@ public class ProductController {
     }
 
     @GetMapping("/storefront/products/featured")
-    public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProducts() {
-        return ResponseEntity.ok(productService.getFeaturedProducts());
+    public ResponseEntity<List<ProductThumbnailGetVm>> getFeaturedProducts() {
+        return ResponseEntity.ok(productService.getListFeaturedProducts());
     }
 
     @GetMapping("/storefront/brand/{brandSlug}/products")

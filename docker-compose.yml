@@ -97,7 +97,7 @@ services:
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:
-    image: postgres
+    image: postgres:14.5
     ports:
       - "5432:5432"
     volumes:

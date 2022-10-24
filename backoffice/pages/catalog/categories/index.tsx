@@ -2,10 +2,10 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Table } from 'react-bootstrap';
-import type { Category } from '../../../modules/catalog/models/Category';
-import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import type { Category } from '../../../modules/catalog/models/Category';
+import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 
 const CategoryList: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);

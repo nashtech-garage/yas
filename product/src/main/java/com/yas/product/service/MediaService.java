@@ -47,6 +47,10 @@ public class MediaService {
     }
 
     public NoFileMediaVm getMedia(Long id){
+        if(id == null){
+            //TODO return default no image url
+            return new NoFileMediaVm(null, "", "", "", "");
+        }
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.media()).path("/medias/{id}").buildAndExpand(id).toUri();
         return webClient.get()
                 .uri(url)

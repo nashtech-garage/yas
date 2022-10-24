@@ -17,6 +17,9 @@ public record ProductPostVm(
                 Boolean isAllowedToOrder,
                 Boolean isPublished,
                 Boolean isFeatured,
+                Boolean isVisibleIndividually,
+                String metaTitle,
                 String metaKeyword,
-                String metaDescription) {
+                String metaDescription,
+                Long parentId) {
 }
