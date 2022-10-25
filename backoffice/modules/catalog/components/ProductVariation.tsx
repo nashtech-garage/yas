@@ -73,12 +73,12 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     let options: string[] = [];
     let productVar: ProductVariation[] = [];
     result.forEach((item) => {
-      options.push(getValue('name').concat(' ', item));
+      options.push(getValue('name')?.concat(' ', item) || '');
       productVar.push({
-        optionName: getValue('name').concat(' ', item),
-        optionGTin: getValue('gtin'),
-        optionSku: getValue('sku'),
-        optionPrice: getValue('price'),
+        optionName: getValue('name')?.concat(' ', item) || '',
+        optionGTin: getValue('gtin') || '',
+        optionSku: getValue('sku') || '',
+        optionPrice: getValue('price') || 0,
       });
     });
     setOptionCombines(options);
@@ -189,7 +189,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
             <tbody>
               {(optionCombines || []).map((ele) => (
                 <tr key={ele}>
-                  <th>{getValue('name').concat(' ', ele)}</th>
+                  <th>{getValue('name')?.concat(' ', ele)}</th>
                   <th>
                     <input
                       type="text"
