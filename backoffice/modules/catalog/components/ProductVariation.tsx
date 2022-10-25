@@ -75,10 +75,10 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     result.forEach((item) => {
       options.push(item);
       productVar.push({
-        optionName: getValue('name').concat(' ', item),
-        optionGTin: getValue('gtin'),
-        optionSku: getValue('sku'),
-        optionPrice: getValue('price'),
+        optionName: getValue('name').concat(' ', item) || '',
+        optionGTin: getValue('gtin') || '',
+        optionSku: getValue('sku') || '',
+        optionPrice: getValue('price') || '',
       });
     });
     setOptionCombines(options);
