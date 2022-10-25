@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx/templates:/etc/nginx/templates
+      - "./custom_proxy_settings.conf:/etc/nginx/conf.d/custom_proxy_settings.conf"
     ports:
       - "80:80"
   identity:

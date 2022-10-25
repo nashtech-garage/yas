@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class ProductService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
@@ -183,10 +185,9 @@ public class ProductService {
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
 
-
+        product.setProductCategories(productCategoryList);
+        product.setProductImages(productImages);
         Product savedProduct = productRepository.saveAndFlush(product);
-        productCategoryRepository.saveAllAndFlush(productCategoryList);
-        productImageRepository.saveAllAndFlush(productImages);
         return ProductGetDetailVm.fromModel(savedProduct);
     }
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
@@ -245,7 +246,9 @@ public class ProductService {
         product.setLastModifiedOn(ZonedDateTime.now());
 
         if(null != productPutVm.thumbnailMediaId()){
-            mediaService.removeMedia(product.getThumbnailMediaId());
+            if(null != product.getThumbnailMediaId()){
+                mediaService.removeMedia(product.getThumbnailMediaId());
+            }            
             product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         }
 

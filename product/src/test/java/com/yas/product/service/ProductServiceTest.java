@@ -157,9 +157,7 @@ class ProductServiceTest {
         assertThat(productValue.getCreatedBy()).isEqualTo(username);
         assertThat(productValue.getLastModifiedBy()).isEqualTo(username);
         assertThat(productValue.getThumbnailMediaId()).isEqualTo(noFileMediaVm.id());
-
-        verify(productCategoryRepository).saveAllAndFlush(productCategoryListCaptor.capture());
-        List<ProductCategory> productCategoryListValue = productCategoryListCaptor.getValue();
+        List<ProductCategory> productCategoryListValue = productValue.getProductCategories();
         assertThat(productCategoryListValue).hasSize(2);
         assertThat(productCategoryListValue.get(0).getCategory()).isEqualTo(category1);
         assertThat(productCategoryListValue.get(1).getCategory()).isEqualTo(category2);
