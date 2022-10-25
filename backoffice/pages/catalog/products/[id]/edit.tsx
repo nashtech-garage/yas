@@ -84,7 +84,6 @@ const EditProduct: NextPage = () => {
               <ProductImage setValue={setValue} />
             </Tab>
             <Tab eventKey={'variation'} title="Product Variations">
-              <ProductVariation getValue={getValues} setValue={setValue} />
             </Tab>
             <Tab eventKey={'attribute'} title="Product Attributes">
               <ProductAttributes />
