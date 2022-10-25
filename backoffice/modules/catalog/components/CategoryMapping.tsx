@@ -126,7 +126,7 @@ const ProductCategoryMapping = ({ setValue, getValue }: Props) => {
 
   return (
     <>
-     {id ? (
+      {id ? (
         <div className="choice-category">
           <ul style={{ listStyleType: 'none' }}>
             {categories.map((category, index) => (
