@@ -189,7 +189,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
             <tbody>
               {(optionCombines || []).map((ele) => (
                 <tr key={ele}>
-                  <th>{getValue('name')?.concat(' ', ele)}</th>
+                  <th>{getValue('name').concat(' ', ele)}</th>
                   <th>
                     <input
                       type="text"
