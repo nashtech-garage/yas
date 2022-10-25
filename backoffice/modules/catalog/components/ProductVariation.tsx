@@ -73,7 +73,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     let options: string[] = [];
     let productVar: ProductVariation[] = [];
     result.forEach((item) => {
-      options.push(item);
+      options.push(getValue('name')?.concat(' ', item) || '');
       productVar.push({
         optionName: getValue('name')?.concat(' ', item) || '',
         optionGTin: getValue('gtin') || '',
