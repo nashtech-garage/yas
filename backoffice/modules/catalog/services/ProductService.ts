@@ -1,4 +1,5 @@
 import { Product } from '../models/Product';
+import { ProductPost } from '../models/ProductPost';
 import { ProductPut } from '../models/ProductPut';
 import { Products } from '../models/Products';
 
@@ -35,7 +36,7 @@ export async function createProduct(
   return response.json();
 }
 
-export async function updateProduct(id: number, product: ProductPut) {
+export async function updateProduct(id: number, product: ProductPost) {
   const response = await fetch('/api/product/backoffice/products/' + id, {
     method: 'PUT',
     body: JSON.stringify(product),

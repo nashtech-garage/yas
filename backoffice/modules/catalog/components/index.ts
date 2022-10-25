@@ -6,6 +6,7 @@ import ProductSEO from './ProductSEO';
 import ProductVariations from './ProductVariation';
 import RelatedProduct from './RelatedProduct';
 import ProductCategoryMapping from './CategoryMapping';
+import ProductUpdateInformation from './ProductUpdateInformation';
 export {
   CrossSellProduct,
   ProductAttributes,
@@ -15,4 +16,5 @@ export {
   ProductVariations as ProductVariation,
   RelatedProduct,
   ProductCategoryMapping,
+  ProductUpdateInformation,
 };
