@@ -180,3 +180,201 @@ img-thumbnail {
   color: #0070f3;
   transform: scale(1.1);
 }
+
+.product_detail_tr {
+  background-color: #e3e6e4;
+}
+
+.product_detail_th {
+  max-width: 50%;
+  width: 50%;
+}
+
+.product_attribute_name_th {
+  font-size: 12 px;
+  color: #76a6f3;
+}
+
+.product_attribute_value_th {
+  font-weight: normal;
+}
+
+.product_variant_box {
+  height: 35px;
+  width: 90px;
+  border: 1px solid black;
+  margin: 10px 10px 10px 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-sizing: border-box;
+}
+
+.product_variant_box:hover {
+  border-color: #0070f3;
+  transform: scale(1.1);
+}
+
+.main-thumbnail {
+  transition: transform 0.3s;
+}
+
+.main-thumbnail:hover {
+  transform: scale(1.1);
+}
+
+.product_variant_box.pink {
+  background-color: pink;
+}
+
+.product_variant_box.green {
+  background-color: rgb(7, 122, 84);
+}
+
+.product_variant_box.blue {
+  background-color: #0a396e;
+}
+
+.product_variant_box.gold {
+  background-color: burlywood;
+}
+
+.rating-group {
+  display: inline-flex;
+}
+
+/* make hover effect work properly in IE */
+.rating__icon {
+  pointer-events: none;
+}
+
+/* hide radio inputs */
+.rating__input {
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* set icon padding and size */
+.rating__label {
+  cursor: pointer;
+  padding: 0 0.1em;
+  font-size: 2rem;
+}
+
+/* set default star color */
+.rating__icon--star {
+  color: orange;
+}
+
+/* set color of none icon when unchecked */
+.rating__icon--none {
+  color: #eee;
+}
+
+/* if none icon is checked, make it red */
+.rating__input--none:checked + .rating__label .rating__icon--none {
+  color: red;
+}
+
+/* if any input is checked, make its following siblings grey */
+.rating__input:checked ~ .rating__label .rating__icon--star {
+  color: #ddd;
+}
+
+/* make all stars orange on rating group hover */
+.rating-group:hover .rating__label .rating__icon--star {
+  color: orange;
+}
+
+/* make hovered input's following siblings grey on hover */
+.rating__input:hover ~ .rating__label .rating__icon--star {
+  color: #ddd;
+}
+
+/* make none icon grey on rating group hover */
+.rating-group:hover .rating__input--none:not(:hover) + .rating__label .rating__icon--none {
+  color: #eee;
+}
+
+/* make none icon red on hover */
+.rating__input--none:hover + .rating__label .rating__icon--none {
+  color: red;
+}
+
+.list-line {
+  margin-bottom: 6px;
+  margin-top: 6px;
+}
+
+.product-attrs input:checked ~ label {
+  color: #18ba9b;
+  border-color: #18ba9b;
+}
+
+.product-attrs label {
+  width: 80px;
+  height: 40px;
+  float: right;
+  display: block;
+  color: #dedede;
+  font-size: 24px;
+  text-align: center;
+  background: #f8f8f8;
+  border: 2px solid #dedede;
+  font-weight: normal;
+}
+
+input[type='radio'] {
+  box-sizing: border-box;
+  padding: 0;
+  cursor: pointer;
+}
+
+.product_storage_box {
+  width: 70px;
+  height: 35px;
+  display: block;
+  font-size: 24px;
+  text-align: center;
+  border: 1px solid black;
+  font-weight: normal;
+}
+
+.product_storage_value {
+  font-size: 15px;
+  font-weight: lighter;
+  box-sizing: border-box;
+}
+
+.scrolling_inner {
+  position: relative;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.box03 {
+  margin-bottom: 10px;
+}
+
+.box03__item {
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  color: #333;
+  display: inline-block;
+  font-size: 13px;
+  min-width: 67px;
+  padding: 0 15px;
+  text-align: center;
+  margin-bottom: 5px;
+  margin-right: 2px;
+  vertical-align: top;
+  height: 36px;
+  line-height: 36px;
+  position: relative;
+}
+
+.box03__item.act {
+  border-color: #2f80ed;
+  color: #2f80ed;
+}

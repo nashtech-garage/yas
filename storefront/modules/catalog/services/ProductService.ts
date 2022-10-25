@@ -1,4 +1,5 @@
 import { Product } from '../models/Product';
+import { ProductDetail } from '../models/ProductDetail';
 import { ProductThumbnail } from '../models/ProductThumbnail';
 
 export async function getFeaturedProducts(): Promise<ProductThumbnail[]> {
@@ -22,4 +23,11 @@ export function formatPrice(price: number): any {
   });
 
   return formatter.format(price);
+}
+
+export async function getProductDetail(slug: string): Promise<ProductDetail> {
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_API_BASE_PATH + '/product/storefront/product/' + slug
+  );
+  return response.json();
 }
