@@ -7,6 +7,8 @@ import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
 import com.yas.product.model.ProductImage;
+import com.yas.product.model.attribute.ProductAttributeGroup;
+import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
@@ -399,5 +401,61 @@ public class ProductService {
                     product.getPrice()));
         }
         return productThumbnailVms;
+    }
+
+
+    public ProductDetailGetVm getProductDetail(String slug) {
+        Product product = productRepository.findBySlug(slug)
+                .orElseThrow(() -> new NotFoundException(String.format("Product not found: %s", slug)));
+
+        Long productThumbnailMediaId = product.getThumbnailMediaId();
+        String productThumbnailurl = "";
+        if (productThumbnailMediaId != null) {
+            productThumbnailurl = mediaService.getMedia(productThumbnailMediaId).url();
+        }
+
+        List<ProductAttributeGroupGetVm> productAttributeGroupsVm = new ArrayList<>();
+        List<ProductAttributeValue> productAttributeValues = product.getAttributeValues();
+        if (!productAttributeValues.isEmpty()) {
+            List<ProductAttributeGroup> productAttributeGroups = productAttributeValues.stream()
+                    .map(productAttributeValue -> productAttributeValue.getProductAttribute().getProductAttributeGroup())
+                    .distinct()
+                    .toList();
+
+            productAttributeGroups.forEach(productAttributeGroup -> {
+                List<ProductAttributeValueVm> productAttributeValueVms = new ArrayList<>();
+                if (!productAttributeValues.isEmpty()) {
+                    productAttributeValues.forEach(productAttributeValue -> {
+                        if (productAttributeValue.getProductAttribute().getProductAttributeGroup().equals(productAttributeGroup)) {
+                            ProductAttributeValueVm productAttributeValueVm = new ProductAttributeValueVm(
+                                    productAttributeValue.getProductAttribute().getName(),
+                                    productAttributeValue.getValue());
+                            productAttributeValueVms.add(productAttributeValueVm);
+                        }
+                    });
+                }
+                ProductAttributeGroupGetVm productAttributeGroupVm = new ProductAttributeGroupGetVm(
+                        productAttributeGroup.getName(),
+                        productAttributeValueVms);
+                productAttributeGroupsVm.add(productAttributeGroupVm);
+            });
+        }
+
+
+        return new ProductDetailGetVm(
+                product.getId(),
+                product.getName(),
+                product.getBrand().getName(),
+                product.getProductCategories().stream().map(category -> category.getCategory().getName()).toList(),
+                productAttributeGroupsVm,
+                product.getShortDescription(),
+                product.getDescription(),
+                product.getSpecification(),
+                product.getIsAllowedToOrder(),
+                product.getIsPublished(),
+                product.getIsFeatured(),
+                product.getPrice(),
+                productThumbnailurl
+        );
     }
 }
