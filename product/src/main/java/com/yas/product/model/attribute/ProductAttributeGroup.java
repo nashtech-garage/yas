@@ -4,11 +4,9 @@ import com.yas.product.model.AbstractAuditEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "product_attribute_group")
@@ -20,7 +18,6 @@ public class ProductAttributeGroup extends AbstractAuditEntity {
     private Long id;
 
     private String name;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

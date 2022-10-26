@@ -2,13 +2,19 @@ import { GetServerSideProps } from 'next';
 import { AddToCartModel } from '../../modules/cart/models/AddToCartModel';
 import { addToCart } from '../../modules/cart/services/CartService';
 import { Product } from '../../modules/catalog/models/Product';
-import { getProduct } from '../../modules/catalog/services/ProductService';
+import Figure from 'react-bootstrap/Figure';
+import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
+import { getProductDetail, formatPrice } from '../../modules/catalog/services/ProductService';
+import { Table, Breadcrumb } from 'react-bootstrap';
+import Link from 'next/link';
+import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
+import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 
-type Props = { product: Product };
+type Props = { product: ProductDetail };
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
   const { slug } = context.query;
-  let product = await getProduct(slug);
+  let product = await getProductDetail(slug);
   return { props: { product } };
 };
 
@@ -24,15 +30,33 @@ const handleAddToCart = async (event: any) => {
 };
 
 const ProductDetails = ({ product }: Props) => {
+  const crumb: BreadcrumbModel[] = [
+    {
+      pageName: 'Home',
+      url: '/',
+    },
+    {
+      pageName: 'Smartphone',
+      url: '#',
+    },
+  ];
   return (
     <>
+      <BreadcrumbComponent props={crumb} />
       <div className="row justify-content-center">
         <div className="product-item col-5">
-          <img src={product.thumbnailMediaUrl} className="img-thumbnail" alt="photo" />
+          <Figure className="main-thumbnail">
+            <Figure.Image
+              width={500}
+              height={500}
+              alt="photo"
+              src={product.thumbnailMediaUrl}
+            ></Figure.Image>
+          </Figure>
           <span className="caption">{product.shortDescription}</span>
         </div>
 
-        <div className="col-7">
+        <div className="col-7" style={{ marginTop: '20px' }}>
           <div className="d-flex justify-content-between align-items-center">
             <h2 className="mb-2">{product.name}</h2>
             <span className="text-danger">
@@ -51,62 +75,109 @@ const ProductDetails = ({ product }: Props) => {
               </svg>
             </span>
           </div>
-          <div className="mb-4 d-flex gap-3">
-            <button type="button" className="btn btn-outline-primary">
-              Brand: Sonic
-            </button>
-            <button type="button" className="btn btn-outline-success">
-              Category: Zelo
-            </button>
+          <Link href="#">
+            <a style={{ color: '#89b5fa', fontSize: '20px' }}>{product.brandName}</a>
+          </Link>
+          <hr />
+          <form>
+            <div className="product-attrs">
+              <div>
+                <h5 style={{ fontWeight: 'lighter' }}>Color: </h5>
+                <ul className="list-inline product-attr-options">
+                  <li className="list-inline-item">
+                    <input type="radio" value="Gray" name="Cor" id="gray" hidden />
+                    <label
+                      htmlFor="gray"
+                      title="Gray"
+                      className="color"
+                      style={{ backgroundColor: '#a9a9a9' }}
+                    ></label>
+                  </li>
+                  <li className="list-inline-item">
+                    <input id="pink" type="radio" value="Pink" name="Cor" hidden />
+                    <label
+                      htmlFor="pink"
+                      title="Pink"
+                      className="color"
+                      style={{ backgroundColor: '#FFC0CB' }}
+                    ></label>
+                  </li>
+                  <li className="list-inline-item">
+                    <input id="orange" type="radio" value="Gold" name="Cor" hidden />
+                    <label
+                      htmlFor="orange"
+                      title="Gold"
+                      className="color"
+                      style={{ backgroundColor: 'orange' }}
+                    ></label>
+                  </li>
+                  <li className="list-inline-item">
+                    <input id="green" type="radio" value="Silver" name="Cor" hidden />
+                    <label
+                      htmlFor="green"
+                      title="Silver"
+                      className="color"
+                      style={{ backgroundColor: 'green' }}
+                    ></label>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h5 style={{ fontWeight: 'lighter' }}>Storage:</h5>
+                <div className="scrolling_inner">
+                  <div className="box03 group desk">
+                    <a href="#" data-index="0" className="box03__item item act">
+                      4GB - 64GB
+                    </a>
+                    <a href="#" data-index="1" className="box03__item item ">
+                      6GB - 128GB
+                    </a>
+                    <a href="#" data-index="2" className="box03__item item ">
+                      4GB - 128GB
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <h4 style={{ color: 'red' }}>{formatPrice(product.price)}</h4>
+
+          <div id="full-stars-example">
+            <div className="rating-group">
+              <label aria-label="1 star" className="rating__label" htmlFor="rating-1">
+                <i className="rating__icon rating__icon--star fa fa-star"></i>
+              </label>
+              <input className="rating__input" name="rating" id="rating-1" value="1" type="radio" />
+              <label aria-label="2 stars" className="rating__label" htmlFor="rating-2">
+                <i className="rating__icon rating__icon--star fa fa-star"></i>
+              </label>
+              <input className="rating__input" name="rating" id="rating-2" value="2" type="radio" />
+              <label aria-label="3 stars" className="rating__label" htmlFor="rating-3">
+                <i className="rating__icon rating__icon--star fa fa-star"></i>
+              </label>
+              <input className="rating__input" name="rating" id="rating-3" value="3" type="radio" />
+              <label aria-label="4 stars" className="rating__label" htmlFor="rating-4">
+                <i className="rating__icon rating__icon--star fa fa-star"></i>
+              </label>
+              <input className="rating__input" name="rating" id="rating-4" value="4" type="radio" />
+              <label aria-label="5 stars" className="rating__label" htmlFor="rating-5">
+                <i className="rating__icon rating__icon--star fa fa-star"></i>
+              </label>
+              <input className="rating__input" name="rating" id="rating-5" value="5" type="radio" />
+            </div>
           </div>
-          <p className="mb-4 text-muted">
-            Description: {!product.description ? 'No Description' : product.description}
-          </p>
-          <p className="mb-4 fw-bold fst-italic">
-            Specification: {!product.specification ? 'No Specification' : product.specification}
-          </p>
+          <p>{product.description}</p>
           <div className="d-flex flex-column gap-1">
-            <div className="alert alert-primary d-flex justify-content-between" role="alert">
-              {!product.sku ? 'No Sku' : product.sku}
-              <span className="badge bg-primary text-uppercase">sku</span>
-            </div>
-            <div className="alert alert-secondary d-flex justify-content-between" role="alert">
-              {!product.gtin ? 'No Gtin' : product.gtin}
-              <span className="badge bg-secondary text-uppercase">gtin</span>
-            </div>
-            <div className="alert alert-success d-flex justify-content-between" role="alert">
-              {!product.slug ? 'No Slug' : product.slug}
-              <span className="badge bg-success text-uppercase">slug</span>
-            </div>
-            <div className="alert alert-danger d-flex justify-content-between" role="alert">
-              {!product.metaKeyword ? 'No Meta Keyword' : product.metaKeyword}
-              <span className="badge bg-danger text-uppercase">metaKeyword</span>
-            </div>
-            <div className="alert alert-warning d-flex justify-content-between" role="alert">
-              {!product.metaDescription ? 'No Meta Description' : product.metaDescription}
-              <span className="badge bg-warning text-uppercase">metaDescription</span>
-            </div>
             <div className="d-flex justify-content-between">
-              {/*               <button type="button" className="btn btn-danger">
-                {' '}
-                <span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-heart me-3"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
-                  </svg>
-                </span>
-                Add to favourite
-              </button> */}
               <form onSubmit={handleAddToCart}>
                 <input type={'hidden'} name={'productId'} value={product.id} />
                 <input type={'hidden'} name={'quantity'} value={1} />
-                <button type="submit" className="btn btn-primary">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={product.isAllowedToOrder ? false : true}
+                >
                   {' '}
                   <span>
                     <svg
@@ -126,6 +197,29 @@ const ProductDetails = ({ product }: Props) => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="container" style={{ marginTop: '70px' }}>
+        <Table>
+          {product.productAttributeGroups.map((attributeGroup) => (
+            <>
+              <thead key={attributeGroup.name}>
+                <tr className="product_detail_tr">
+                  <th className="product_detail_th">{attributeGroup.name} :</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {attributeGroup.productAttributeValues.map((productAttribute) => (
+                  <tr key={productAttribute.name}>
+                    <th className="product_attribute_name_th">{productAttribute.name}</th>
+                    <th className="product_attribute_value_th">{productAttribute.value}</th>
+                  </tr>
+                ))}
+              </tbody>
+            </>
+          ))}
+        </Table>
       </div>
     </>
   );

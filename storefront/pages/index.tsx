@@ -1,18 +1,29 @@
-import { GetServerSideProps } from 'next';
+import { NextPage } from 'next';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import { getFeaturedProducts, formatPrice } from '../modules/catalog/services/ProductService';
+import ReactPaginate from 'react-paginate';
 import type { ProductThumbnail } from '../modules/catalog/models/ProductThumbnail';
-import styles from '../styles/Home.module.css';
-import { Button } from 'react-bootstrap';
-import Link from 'next/link';
+import { formatPrice, getFeaturedProducts } from '../modules/catalog/services/ProductService';
 
-type Props = {
-  products: ProductThumbnail[];
-};
+const Home: NextPage = () => {
+  const [products, setProduct] = useState<ProductThumbnail[]>([]);
+  const [pageNo, setPageNo] = useState<number>(0);
+  const [totalPage, setTotalPage] = useState<number>(0);
 
-const Home = ({ products }: Props) => {
+  useEffect(() => {
+    getFeaturedProducts(pageNo).then((res) => {
+      setProduct(res.productList);
+      setTotalPage(res.totalPage);
+    });
+  }, [pageNo]);
+
+  const changePage = ({ selected }: any) => {
+    setPageNo(selected);
+  };
+
   return (
     <>
       <h2>Featured products</h2>
@@ -48,14 +59,19 @@ const Home = ({ products }: Props) => {
           </Col>
         ))}
       </Row>
+      <ReactPaginate
+        forcePage={pageNo}
+        previousLabel={'Previous'}
+        nextLabel={'Next'}
+        pageCount={totalPage}
+        onPageChange={changePage}
+        containerClassName={'paginationBtns'}
+        previousLinkClassName={'previousBtn'}
+        nextClassName={'nextBtn'}
+        disabledClassName={'paginationDisabled'}
+        activeClassName={'paginationActive'}
+      />
     </>
   );
 };
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  let products = await getFeaturedProducts();
-
-  return { props: { products } };
-};
-
 export default Home;

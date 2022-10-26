@@ -36,10 +36,10 @@ const ProductAttributes: NextPage = () => {
   const [listUpdateProductAttributeId, setListUpdateProductAttributeId] = useState<string[]>([]);
   const [listCreateProductAttributeId, setListCreateProductAttributeId] = useState<string[]>([]);
 
-  let [arrayDeleteProductAttributeId] = useState<string[]>([]);
-  let [arrayUpdateProductAttributeId] = useState<string[]>([]);
-  let [arrayCreateProductAttributeId] = useState<string[]>([]);
-  let [arrayAttributeOfProducts] = useState<ProductAttributeValue[]>([]);
+  let arrayDeleteProductAttributeId: string[] = [];
+  let arrayUpdateProductAttributeId: string[] = [];
+  let arrayCreateProductAttributeId: string[] = [];
+  let arrayAttributeOfProducts: ProductAttributeValue[] = [];
 
   let checkProductAttributeIdValid: boolean;
 
@@ -82,7 +82,7 @@ const ProductAttributes: NextPage = () => {
     setListUpdateProductAttributeId(arrayUpdateProductAttributeId);
     setAttributeOfProducts(arrayAttributeOfProducts);
   };
-  const addNewAttributeOfProduct = (event: any) => {
+  const addNewAttributeOfProduct = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     let productAttributeValue: ProductAttributeValue = {
       id: +productAttributeId,
@@ -163,25 +163,14 @@ const ProductAttributes: NextPage = () => {
       }
     }
     if (id) {
-      location.replace('/catalog/products');
+      router.push('/catalog/products');
     }
   };
 
   return (
     <>
-      <div className="row mt-5">
-        <div className="col-md-8">
-          <h2>Update product: #{id}</h2>
-        </div>
-      </div>
       <div className="mb-3">
-        <div className="mb-3">
-          <label className="form-label" htmlFor="available-attributes">
-            Available Attributes
-          </label>
-        </div>
-
-        <form onSubmit={addNewAttributeOfProduct}>
+        <div>
           <div className="mb-3">
             <label className="form-label" htmlFor="productAG">
               Attribute Name
@@ -208,11 +197,11 @@ const ProductAttributes: NextPage = () => {
               Add Attribute
             </button>
           ) : (
-            <button className="btn btn-primary" type="submit">
+            <button className="btn btn-primary" onClick={addNewAttributeOfProduct}>
               Add Attribute
             </button>
           )}
-        </form>
+        </div>
       </div>
       <form>
         <div className="mb-3">
@@ -265,19 +254,14 @@ const ProductAttributes: NextPage = () => {
             </tbody>
           </Table>
         </div>
-        <button className="btn btn-primary" type="submit" onClick={saveProductAttributeOfProduct}>
-          Save
-        </button>
-
-        <Link href={`/catalog/products/${id}/edit`}>
-          <button
-            className="btn btn-outline-secondary"
-            style={{ marginLeft: '30px' }}
-            type="button"
-          >
-            Cancel
+        <div className="text-center">
+          <button className="btn btn-primary" type="submit" onClick={saveProductAttributeOfProduct}>
+            Save
           </button>
-        </Link>
+          <Link href="/catalog/products">
+            <button className="btn btn-secondary m-3">Cancel</button>
+          </Link>
+        </div>
       </form>
     </>
   );
