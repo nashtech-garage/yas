@@ -35,9 +35,6 @@ const ProductImage = ({ product, setValue }: Props) => {
       setThumbnailURL(URL.createObjectURL(i));
     }
   };
-  ////////
-
-  /// Product Update
 
   const onProductUpdateImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
