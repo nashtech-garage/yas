@@ -81,14 +81,14 @@ const EditProduct: NextPage = () => {
               <ProductUpdateInformation register={register} errors={errors} setValue={setValue} />
             </Tab>
             <Tab eventKey={'image'} title="Product Images">
-              <ProductImage setValue={setValue} />
+              <ProductImage product={product} setValue={setValue} />
             </Tab>
             <Tab eventKey={'variation'} title="Product Variations"></Tab>
             <Tab eventKey={'attribute'} title="Product Attributes">
               <ProductAttributes />
             </Tab>
             <Tab eventKey={'category'} title="Category Mapping">
-              <ProductCategoryMapping setValue={setValue} getValue={getValues} />
+              <ProductCategoryMapping product ={product} setValue={setValue} getValue={getValues} />
             </Tab>
             <Tab eventKey={'related'} title="Related Products">
               <RelatedProduct setValue={setValue} getValue={getValues} />
@@ -97,7 +97,7 @@ const EditProduct: NextPage = () => {
               <CrossSellProduct setValue={setValue} getValue={getValues} />
             </Tab>
             <Tab eventKey={'seo'} title="SEO">
-              <ProductSEO register={register} errors={errors} />
+              <ProductSEO product={product} register={register} errors={errors} />
             </Tab>
           </Tabs>
 

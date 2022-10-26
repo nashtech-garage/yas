@@ -3,41 +3,30 @@ import { UseFormSetValue, UseFormGetValues } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { getCategories } from '../services/CategoryService';
 import { Category } from '../models/Category';
-import { useRouter } from 'next/router';
-import { getProduct } from '../services/ProductService';
 import { Product } from '../models/Product';
 type Props = {
+  product?: Product;
   setValue: UseFormSetValue<ProductPost>;
   getValue: UseFormGetValues<ProductPost>;
 };
-const ProductCategoryMapping = ({ setValue, getValue }: Props) => {
+const ProductCategoryMapping = ({ product , setValue, getValue }: Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   let [checkCategory, setCheckCategory] = useState<string[]>([]);
   let listCheckCategory: string[] = [];
   let childrenOfCategoryId: string[] = [];
   let parentOfCategoryId: string[] = [];
   let categoryIds: number[] = [];
-  const [product, setProduct] = useState<Product>();
-
-  //Get ID
-  const router = useRouter();
-  const { id } = router.query;
 
   useEffect(() => {
-    if (id) {
-      getProduct(+id).then((data) => {
-        setProduct(data);
-        listCheckCategory = [];
-        if (checkCategory.length === 0) {
-          data.categories.map((item: any) => {
-            listCheckCategory.push(item.id.toString());
-          });
-          setCheckCategory(listCheckCategory);
-        }
-      });
-    }
     getCategories().then((data) => {
       setCategories(data);
+      listCheckCategory = [];
+      if (checkCategory.length === 0) {
+        product?.categories.map((item: any) => {
+          listCheckCategory.push(item.id.toString());
+        });
+        setCheckCategory(listCheckCategory);
+      }
     });
   }, []);
   function findChildrenOfCategoryId(id: number) {
@@ -126,7 +115,7 @@ const ProductCategoryMapping = ({ setValue, getValue }: Props) => {
 
   return (
     <>
-      {id ? (
+      {product ? (
         <div className="choice-category">
           <ul style={{ listStyleType: 'none' }}>
             {categories.map((category, index) => (

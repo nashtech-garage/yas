@@ -48,10 +48,12 @@ const ProductUpdateInformation = ({ register, errors, setValue }: Props) => {
   //Handle
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(slugify(event.target.value.toLowerCase()));
+    setValue('slug', slugify(event.target.value).toLowerCase())
   };
 
   const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(event.target.value.toLowerCase());
+    setValue('slug', slugify(event.target.value).toLowerCase())
   };
   if (isLoading) return <p>Loading...</p>;
   if (!product) {
@@ -81,7 +83,7 @@ const ProductUpdateInformation = ({ register, errors, setValue }: Props) => {
           Slug
         </label>
         <input
-          value={generateSlug !== undefined ? generateSlug : product.slug}
+          value={generateSlug ? generateSlug : product.slug}
           {...register('slug', { onChange: onSlugChange })}
           className={`form-control ${errors.slug ? 'border-danger' : ''}`}
           type="text"

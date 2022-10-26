@@ -1,23 +1,18 @@
-import { useRouter } from 'next/router';
 import { UseFormSetValue } from 'react-hook-form';
 import { ProductPost } from '../models/ProductPost';
 import { Product } from '../models/Product';
-import { useEffect, useState } from 'react';
-import { getProduct } from '../services/ProductService';
+import { useState } from 'react';
 import { uploadMedia } from '../services/MediaService';
 import { toast } from 'react-toastify';
 type Props = {
+  product?: Product;
   setValue: UseFormSetValue<ProductPost>;
 };
 
-const ProductImage = ({ setValue }: Props) => {
+const ProductImage = ({product, setValue }: Props) => {
   const [thumbnailURL, setThumbnailURL] = useState<string>();
   const [productImageURL, setProductImageURL] = useState<string[]>();
-  const [product, setProduct] = useState<Product>();
   const [productImageMediaUrls, setproductImageMediaUrls] = useState<string[]>();
-
-  const router = useRouter();
-  const { id } = router.query;
 
   const onProductImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -43,14 +38,6 @@ const ProductImage = ({ setValue }: Props) => {
   ////////
 
   /// Product Update
-
-  useEffect(() => {
-    if (id) {
-      getProduct(+id).then((data) => {
-        setProduct(data);
-      });
-    }
-  }, []);
 
   const onProductUpdateImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -87,55 +74,50 @@ const ProductImage = ({ setValue }: Props) => {
         });
     }
   };
-
-  if (id) {
-    if (!product) {
-      return <p>No product</p>;
-    } else {
-      return (
-        <>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="thumbnail">
-              Thumbnail
-            </label>
-            <input
-              className="form-control"
-              type="file"
-              name="thumbnail"
-              onChange={onThumbnailUpdateSelected}
-            />
-            <img
-              style={{ width: '150px' }}
-              src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="product-image">
-              Product Images
-            </label>
-            <input
-              className="form-control"
-              type="file"
-              id="product-images"
-              onChange={onProductUpdateImageSelected}
-              multiple
-            />
-            {productImageMediaUrls
-              ? productImageMediaUrls.map((imageUrl, index) => (
-                  <img style={{ width: '150px' }} src={imageUrl} key={index} alt="Product Image" />
-                ))
-              : product.productImageMediaUrls &&
-                product.productImageMediaUrls.map((imageUrl, index) => (
-                  <img style={{ width: '150px' }} src={imageUrl} key={index} alt="Product Image" />
-                ))}
-          </div>
-        </>
-      );
-    }
-  } else {
-    return (
+  return (
+    <>
+    {
+      product? 
       <>
-        <div className="mb-3">
+      <div className="mb-3">
+        <label className="form-label" htmlFor="thumbnail">
+          Thumbnail
+        </label>
+        <input
+          className="form-control"
+          type="file"
+          name="thumbnail"
+          onChange={onThumbnailUpdateSelected}
+        />
+        <img
+          style={{ width: '150px' }}
+          src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl}
+        />
+      </div>
+      <div className="mb-3">
+        <label className="form-label" htmlFor="product-image">
+          Product Images
+        </label>
+        <input
+          className="form-control"
+          type="file"
+          id="product-images"
+          onChange={onProductUpdateImageSelected}
+          multiple
+        />
+        {productImageMediaUrls
+          ? productImageMediaUrls.map((imageUrl, index) => (
+              <img style={{ width: '150px' }} src={imageUrl} key={index} alt="Product Image" />
+            ))
+          : product.productImageMediaUrls &&
+            product.productImageMediaUrls.map((imageUrl, index) => (
+              <img style={{ width: '150px' }} src={imageUrl} key={index} alt="Product Image" />
+            ))}
+      </div>
+      </>
+      :
+      <>
+         <div className="mb-3">
           <label className="form-label" htmlFor="thumbnail">
             Thumbnail
           </label>
@@ -164,8 +146,9 @@ const ProductImage = ({ setValue }: Props) => {
           ))}
         </div>
       </>
-    );
-  }
+    }
+    </>
+  );
 };
 
 export default ProductImage;
