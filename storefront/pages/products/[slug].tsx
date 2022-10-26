@@ -36,8 +36,12 @@ const ProductDetails = ({ product }: Props) => {
       url: '/',
     },
     {
-      pageName: 'Smartphone',
+      pageName: product.productCategories.toString(),
       url: '#',
+    },
+    {
+      pageName: product.name,
+      url: '',
     },
   ];
   return (
