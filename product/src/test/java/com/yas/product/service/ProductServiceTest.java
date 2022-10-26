@@ -248,24 +248,39 @@ class ProductServiceTest {
     @Test
     void getFeaturedProducts_WhenEverythingIsOkay_Success() {
         //given
+        List<Product> productList = List.of(
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                        1L, null, null, null, null, null, null ),
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                        1L, null, null, null, null, null, null)
+        );
         String url = "sample-url";
+        int totalPage = 20;
+        int pageNo = 0;
+        int pageSize = 10;
+        var pageCaptor  = ArgumentCaptor.forClass(Pageable.class);
+        Page<Product> productPage = mock(Page.class);
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
 
-        when(productRepository.findAll()).thenReturn(products);
+        when(productRepository.getFeaturedProduct(any(Pageable.class))).thenReturn(productPage);
+        when(productPage.getContent()).thenReturn(productList);
+        when(productPage.getTotalPages()).thenReturn(totalPage);
         when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
         when(noFileMediaVm.url()).thenReturn(url);
 
         //when
-        List<ProductThumbnailVm> actualResponse = productService.getFeaturedProducts();
+        ProductFeatureGetVm actualResponse = productService.getListFeaturedProducts(pageNo, pageSize);
 
         //then
-        assertThat(actualResponse).hasSize(2);
-        for (int i = 0; i < actualResponse.size(); i++) {
+        verify(productRepository).getFeaturedProduct(pageCaptor.capture());
+        assertThat(actualResponse.totalPage()).isEqualTo(totalPage);
+        assertThat(actualResponse.productList().size()).isEqualTo(2);
+        for (int i = 0; i < actualResponse.productList().size(); i++) {
             Product product = products.get(i);
-            assertThat(actualResponse.get(i).id()).isEqualTo(product.getId());
-            assertThat(actualResponse.get(i).name()).isEqualTo(product.getName());
-            assertThat(actualResponse.get(i).slug()).isEqualTo(product.getSlug());
-            assertThat(actualResponse.get(i).thumbnailUrl()).isEqualTo(mediaService.getMedia(product.getThumbnailMediaId()).url());
+            assertThat(actualResponse.productList().get(i).id()).isEqualTo(product.getId());
+            assertThat(actualResponse.productList().get(i).name()).isEqualTo(product.getName());
+            assertThat(actualResponse.productList().get(i).slug()).isEqualTo(product.getSlug());
+            assertThat(actualResponse.productList().get(i).thumbnailUrl()).isEqualTo(mediaService.getMedia(product.getThumbnailMediaId()).url());
         }
     }
 

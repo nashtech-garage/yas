@@ -387,9 +387,11 @@ public class ProductService {
         return productThumbnailVm;
     }
 
-    public List<ProductThumbnailGetVm> getListFeaturedProducts() {
+    public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int PageSize) {
+        Pageable pageable = PageRequest.of(pageNo, PageSize);
         List<ProductThumbnailGetVm> productThumbnailVms = new ArrayList<>();
-        List<Product> products = productRepository.findAll();
+        Page<Product> productPage = productRepository.getFeaturedProduct(pageable);
+        List<Product> products = productPage.getContent();
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailGetVm(
                     product.getId(),
@@ -398,6 +400,6 @@ public class ProductService {
                     mediaService.getMedia(product.getThumbnailMediaId()).url(),
                     product.getPrice()));
         }
-        return productThumbnailVms;
+        return new ProductFeatureGetVm(productThumbnailVms, productPage.getTotalPages());
     }
 }

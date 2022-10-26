@@ -1,11 +1,11 @@
 import { Product } from '../models/Product';
-import { ProductThumbnail } from '../models/ProductThumbnail';
+import { ProductFeature } from '../models/ProductFeature';
 
-export async function getFeaturedProducts(): Promise<ProductThumbnail[]> {
+export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
   const response = await fetch(
-    process.env.NEXT_PUBLIC_API_BASE_PATH + '/product/storefront/products/featured'
+    process.env.NEXT_PUBLIC_API_BASE_PATH + `/product/storefront/products/featured?pageNo=${pageNo}`
   );
-  return await response.json();
+  return response.json();
 }
 
 export async function getProduct(slug: string): Promise<Product> {
