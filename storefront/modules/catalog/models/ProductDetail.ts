@@ -1,21 +1,21 @@
 export type ProductDetail = {
-    id: number;
+  id: number;
+  name: string;
+  brandName: string;
+  productCategories: string[];
+  productAttributeGroups: {
     name: string;
-    brandName: string;
-    productCategories: string[];
-    productAttributeGroups: {
+    productAttributeValues: {
       name: string;
-      productAttributeValues: {
-        name: string;
-        value: string;
-      }[];
+      value: string;
     }[];
-    shortDescription: string;
-    description: string;
-    specification: string;
-    isAllowedToOrder: boolean;
-    isPublished: boolean;
-    isFeatured: boolean;
-    price: number;
-    thumbnailMediaUrl: string;
-  };
+  }[];
+  shortDescription: string;
+  description: string;
+  specification: string;
+  isAllowedToOrder: boolean;
+  isPublished: boolean;
+  isFeatured: boolean;
+  price: number;
+  thumbnailMediaUrl: string;
+};

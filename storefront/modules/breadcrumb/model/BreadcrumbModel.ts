@@ -1,4 +1,4 @@
 export type BreadcrumbModel = {
-    pageName: string;
-    url: string;
-  };
+  pageName: string;
+  url: string;
+};

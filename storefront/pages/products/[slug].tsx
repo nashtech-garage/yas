@@ -138,7 +138,7 @@ const ProductDetails = ({ product }: Props) => {
                   </div>
                 </div>
               </div>
-              </div>
+            </div>
           </form>
 
           <h4 style={{ color: 'red' }}>{formatPrice(product.price)}</h4>
