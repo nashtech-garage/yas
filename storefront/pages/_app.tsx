@@ -4,6 +4,7 @@ import Layout from '../common/components/Layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/globals.css';
 import '../styles/cart.css';
+import '../styles/productDetail.css';
 
 import type { AppProps } from 'next/app';
 
