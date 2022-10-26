@@ -9,7 +9,7 @@ type Props = {
   setValue: UseFormSetValue<ProductPost>;
   getValue: UseFormGetValues<ProductPost>;
 };
-const ProductCategoryMapping = ({ product , setValue, getValue }: Props) => {
+const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   let [checkCategory, setCheckCategory] = useState<string[]>([]);
   let listCheckCategory: string[] = [];

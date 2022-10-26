@@ -48,12 +48,12 @@ const ProductUpdateInformation = ({ register, errors, setValue }: Props) => {
   //Handle
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(slugify(event.target.value.toLowerCase()));
-    setValue('slug', slugify(event.target.value).toLowerCase())
+    setValue('slug', slugify(event.target.value).toLowerCase());
   };
 
   const onSlugChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGenerateSlug(event.target.value.toLowerCase());
-    setValue('slug', slugify(event.target.value).toLowerCase())
+    setValue('slug', slugify(event.target.value).toLowerCase());
   };
   if (isLoading) return <p>Loading...</p>;
   if (!product) {

@@ -88,7 +88,7 @@ const EditProduct: NextPage = () => {
               <ProductAttributes />
             </Tab>
             <Tab eventKey={'category'} title="Category Mapping">
-              <ProductCategoryMapping product ={product} setValue={setValue} getValue={getValues} />
+              <ProductCategoryMapping product={product} setValue={setValue} getValue={getValues} />
             </Tab>
             <Tab eventKey={'related'} title="Related Products">
               <RelatedProduct setValue={setValue} getValue={getValues} />
