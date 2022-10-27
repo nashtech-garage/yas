@@ -447,7 +447,7 @@ public class ProductService {
         return new ProductDetailGetVm(
                 product.getId(),
                 product.getName(),
-                product.getBrand().getName(),
+                product.getBrand() == null ? null : product.getBrand().getName(),
                 product.getProductCategories().stream().map(category -> category.getCategory().getName()).toList(),
                 productAttributeGroupsVm,
                 product.getShortDescription(),

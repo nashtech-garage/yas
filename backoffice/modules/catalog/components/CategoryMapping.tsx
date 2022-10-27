@@ -102,63 +102,36 @@ const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
       ? setValue('categoryIds', categoryIds)
       : setValue('categoryIds', defaultCategoryIds);
   };
-  const onCategoriesSelected = (event: React.MouseEvent<HTMLElement>, id: number) => {
-    let temp = getValue('categoryIds') || [];
-    let index = temp.indexOf(id);
-    if (index > -1) {
-      temp = temp.filter((item) => item !== id);
-    } else {
-      temp.push(id);
-    }
-    setValue('categoryIds', temp);
-  };
-
   return (
     <>
-      {product ? (
-        <div className="choice-category">
-          <ul style={{ listStyleType: 'none' }}>
-            {categories.map((category, index) => (
-              <li key={category.id}>
-                <input
-                  value={category.id || ''}
-                  type="checkbox"
-                  name="category"
-                  checked={checkedTrue(category.id) === true ? true : false}
-                  id={`checkbox-${category.id}`}
-                  onChange={onSaveUpdateCategory}
-                />
-                <label
-                  htmlFor={`checkbox-${category.id}`}
-                  style={{
-                    paddingLeft: '15px',
-                    fontSize: '1rem',
-                    paddingTop: '10px',
-                    paddingBottom: '5px',
-                  }}
-                >
-                  {' '}
-                  {CategoriesHierarchy(category.id)}
-                </label>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        (categories || []).map((cate) => (
-          <div className="mb-3" key={cate.id}>
-            <input
-              type="checkbox"
-              id={cate.slug}
-              onClick={(event) => onCategoriesSelected(event, cate.id)}
-            />
-            <label className="form-check-label ps-3" htmlFor={cate.slug}>
-              {' '}
-              {CategoriesHierarchy(cate.id)}
-            </label>
-          </div>
-        ))
-      )}
+      <div className="choice-category">
+        <ul style={{ listStyleType: 'none' }}>
+          {categories.map((category, index) => (
+            <li key={category.id}>
+              <input
+                value={category.id || ''}
+                type="checkbox"
+                name="category"
+                checked={checkedTrue(category.id) === true ? true : false}
+                id={`checkbox-${category.id}`}
+                onChange={onSaveUpdateCategory}
+              />
+              <label
+                htmlFor={`checkbox-${category.id}`}
+                style={{
+                  paddingLeft: '15px',
+                  fontSize: '1rem',
+                  paddingTop: '10px',
+                  paddingBottom: '5px',
+                }}
+              >
+                {' '}
+                {CategoriesHierarchy(category.id)}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
     </>
   );
 };
