@@ -13,41 +13,42 @@ const Cart = () => {
     productName: string;
     slug: string;
     thumbnailUrl: string;
-  }
+  };
 
-  const [items, setItems] = useState<Item[]>([])
+  const [items, setItems] = useState<Item[]>([]);
 
   const [cart, setCart] = useState<Cart>({
     id: 0,
     customerId: '',
-    cartDetails: [{
-      id: 0,
-      productId: 0,
-      quantity: 0,
-    }]
-  })
+    cartDetails: [
+      {
+        id: 0,
+        productId: 0,
+        quantity: 0,
+      },
+    ],
+  });
 
   useEffect(() => {
     if (!loaded)
-      getCart().then(data => {
+      getCart().then((data) => {
         setCart(data);
-        data.cartDetails.map(async item => {
+        data.cartDetails.map(async (item) => {
           const product = await getCartProductThumbnail(item.productId);
-          setItems(preitems => [
+          setItems((preitems) => [
             ...preitems,
             {
               productId: product.id,
               quantity: item.quantity,
               productName: product.name,
               slug: product.slug,
-              thumbnailUrl: product.thumbnailUrl
-            }
-          ])
-        })
-      })
+              thumbnailUrl: product.thumbnailUrl,
+            },
+          ]);
+        });
+      });
     loaded = true;
   }, []);
-
 
   return (
     <section className="shop-cart spad">
@@ -55,78 +56,78 @@ const Cart = () => {
         <div className="row">
           <div className="col-lg-12">
             <div className="shop__cart__table">
-              {!cart.id ? <h4>There are no items in this cart.</h4> :
-                (
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    {items.map(item => {
-                      return (
-                        <tbody key={item.productId}>
-                          <tr>
-                            <td className="cart__product__item">
-                              <img
-                                src={item.thumbnailUrl}
-                                alt="img"
-                                style={{ width: '85px', height: '85px' }}
-                              />
-                              <div className="cart__product__item__title">
-                                <h6>{item.productName}</h6>
-                              </div>
-                            </td>
-                            <td className="cart__price">34.500.000</td>
-                            <td className="cart__quantity">
-                              <div className="pro-qty">
-                                <div className="quantity buttons_added">
-                                  <input
-                                    id="minus-button"
-                                    type="button"
-                                    value="-"
-                                    className="minus"
+              {!cart.id ? (
+                <h4>There are no items in this cart.</h4>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Price</th>
+                      <th>Quantity</th>
+                      <th>Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  {items.map((item) => {
+                    return (
+                      <tbody key={item.productId}>
+                        <tr>
+                          <td className="cart__product__item">
+                            <img
+                              src={item.thumbnailUrl}
+                              alt="img"
+                              style={{ width: '85px', height: '85px' }}
+                            />
+                            <div className="cart__product__item__title">
+                              <h6>{item.productName}</h6>
+                            </div>
+                          </td>
+                          <td className="cart__price">34.500.000</td>
+                          <td className="cart__quantity">
+                            <div className="pro-qty">
+                              <div className="quantity buttons_added">
+                                <input
+                                  id="minus-button"
+                                  type="button"
+                                  value="-"
+                                  className="minus"
                                   // onClick={(e) => handleMinus(e)}
-                                  />
-                                  <input
-                                    id="quanity"
-                                    type="number"
-                                    step="1"
-                                    min="1"
-                                    max=""
-                                    name="quantity"
-                                    defaultValue={item.quantity}
-                                    title="Qty"
-                                    className="input-text qty text"
-                                  />
-                                  <input
-                                    id="plus-button"
-                                    type="button"
-                                    value="+"
-                                    className="plus"
+                                />
+                                <input
+                                  id="quanity"
+                                  type="number"
+                                  step="1"
+                                  min="1"
+                                  max=""
+                                  name="quantity"
+                                  defaultValue={item.quantity}
+                                  title="Qty"
+                                  className="input-text qty text"
+                                />
+                                <input
+                                  id="plus-button"
+                                  type="button"
+                                  value="+"
+                                  className="plus"
                                   // onClick={(e) => handlePlus(e)}
-                                  />
-                                </div>
+                                />
                               </div>
-                            </td>
-                            <td className="cart__total">34500000 </td>
-                            <td className="cart__close">
-                              {' '}
-                              <button className="remove_product">
-                                <i className="bi bi-x-lg"></i>
-                              </button>{' '}
-                            </td>
-                          </tr>
-                        </tbody>
-                      )
-                    })}
-                  </table>
-                )
-              }
+                            </div>
+                          </td>
+                          <td className="cart__total">34500000 </td>
+                          <td className="cart__close">
+                            {' '}
+                            <button className="remove_product">
+                              <i className="bi bi-x-lg"></i>
+                            </button>{' '}
+                          </td>
+                        </tr>
+                      </tbody>
+                    );
+                  })}
+                </table>
+              )}
             </div>
           </div>
         </div>
