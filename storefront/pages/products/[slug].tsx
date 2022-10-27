@@ -59,7 +59,6 @@ const handleAddToCart = async (event: any) => {
 };
 
 const ProductDetails = ({ product, productVariations }: Props) => {
-  console.log(productVariations);
   const crumb: BreadcrumbModel[] = [
     {
       pageName: 'Home',
@@ -116,7 +115,7 @@ const ProductDetails = ({ product, productVariations }: Props) => {
             <div key={index}>
               <h5>{productVariation.name}</h5>
               {(productVariation.value || []).map((productVariationValue, index) => (
-                <button key={index} className="btn btn-outline-primary">
+                <button key={index} className="btn btn-outline-primary me-3">
                   {productVariationValue}
                 </button>
               ))}
