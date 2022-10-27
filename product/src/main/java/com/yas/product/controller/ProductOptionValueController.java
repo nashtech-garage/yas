@@ -39,20 +39,20 @@ public class ProductOptionValueController {
         return ResponseEntity.ok(productOptionGetVms);
     }
 
-    @GetMapping({"/backoffice/product-option-values/{productId}"})
+    @GetMapping({"/storefront/product-option-values/{productId}"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200" , description = "OK" , content = @Content(schema = @Schema(implementation =  ProductOptionValueGetVm.class))),
             @ApiResponse(responseCode = "404" , description = "Not found" , content = @Content(schema = @Schema(implementation = ErrorVm.class))),
     })
-    public ResponseEntity<List<ProductOptionValueGetVm>> listProductOptionValueOfProduct(@PathVariable("productId") Long productId){
+    public ResponseEntity<List<ProductVariationVm>> listProductOptionValueOfProduct(@PathVariable("productId") Long productId){
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(()-> new NotFoundException(String.format("Product %s is not found" , productId)));
-        List<ProductOptionValueGetVm> productOptionGetVms = productOptionValueRepository
+        List<ProductVariationVm> productVariations = productOptionValueRepository
                 .findAllByProduct(product).stream()
-                .map(ProductOptionValueGetVm::fromModel)
+                .map(ProductVariationVm::fromModel)
                 .toList();
-        return ResponseEntity.ok(productOptionGetVms);
+        return ResponseEntity.ok(productVariations);
     }
     @PostMapping("/backoffice/product-option-values")
     @ApiResponses(value = {

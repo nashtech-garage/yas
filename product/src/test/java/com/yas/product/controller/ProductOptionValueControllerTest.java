@@ -9,6 +9,7 @@ import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.ProductOptionValueGetVm;
 import com.yas.product.viewmodel.ProductOptionValuePostVm;
+import com.yas.product.viewmodel.ProductVariationVm;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,16 +76,19 @@ class ProductOptionValueControllerTest {
     }
     @Test
     void listProductOptionValueOfProduct_ProductIdIsValid_Success(){
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         List<ProductOptionValue> productOptionValues = List.of(productOptionValue);
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productOptionValueRepository.findAllByProduct(product)).thenReturn(productOptionValues);
-        ResponseEntity<List<ProductOptionValueGetVm>> result = productOptionValueController.listProductOptionValueOfProduct(1L);
+
+        ResponseEntity<List<ProductVariationVm>> result = productOptionValueController.listProductOptionValueOfProduct(1L);
+
         assertThat(result.getStatusCode(),is(HttpStatus.OK));
         assertEquals(Objects.requireNonNull(result.getBody()).size(), productOptionValues.size());
         for(int i=0;i<productOptionValues.size();i++){
-            assertEquals(result.getBody().get(i).value(), productOptionValues.get(i).getValue());
-            assertEquals(result.getBody().get(i).displayType(), productOptionValues.get(i).getDisplayType());
-            assertEquals(result.getBody().get(i).displayOrder(), productOptionValues.get(i).getDisplayOrder());
+            assertEquals(result.getBody().get(i).productOptionValue(), productOptionValues.get(i).getValue());
+            assertEquals(result.getBody().get(i).productOptionId(), productOptionValues.get(i).getProductOption().getId());
+            assertEquals(result.getBody().get(i).productOptionName(), productOptionValues.get(i).getProductOption().getName());
         }
     }
     @Test

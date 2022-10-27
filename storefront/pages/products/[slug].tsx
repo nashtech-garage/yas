@@ -4,18 +4,47 @@ import { addToCart } from '../../modules/cart/services/CartService';
 import { Product } from '../../modules/catalog/models/Product';
 import Figure from 'react-bootstrap/Figure';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
-import { getProductDetail, formatPrice } from '../../modules/catalog/services/ProductService';
+import {
+  getProductDetail,
+  formatPrice,
+  getProductVariations,
+} from '../../modules/catalog/services/ProductService';
 import { Table, Breadcrumb } from 'react-bootstrap';
 import Link from 'next/link';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
+import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
+import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 
-type Props = { product: ProductDetail };
+type Props = {
+  product: ProductDetail;
+  productVariations?: ProductVariations[];
+};
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
   const { slug } = context.query;
   let product = await getProductDetail(slug);
-  return { props: { product } };
+
+  let productOptionValue: ProductOptionValueGet[] = (await getProductVariations(5)) || [];
+
+  const productVariations: ProductVariations[] = [];
+  for (const option of productOptionValue) {
+    let index = productVariations.findIndex(
+      (productVariation) => productVariation.name === option.productOptionName
+    );
+    if (index > -1) {
+      productVariations.at(index)?.value.push(option.productOptionValue);
+    } else {
+      let newVariation: ProductVariations = {
+        name: option.productOptionName,
+        value: [option.productOptionValue],
+      };
+
+      productVariations.push(newVariation);
+    }
+  }
+
+  return { props: { product, productVariations } };
 };
 
 const handleAddToCart = async (event: any) => {
@@ -29,7 +58,7 @@ const handleAddToCart = async (event: any) => {
   await addToCart(addToCartModel);
 };
 
-const ProductDetails = ({ product }: Props) => {
+const ProductDetails = ({ product, productVariations }: Props) => {
   const crumb: BreadcrumbModel[] = [
     {
       pageName: 'Home',
@@ -44,6 +73,7 @@ const ProductDetails = ({ product }: Props) => {
       url: '',
     },
   ];
+
   return (
     <>
       <BreadcrumbComponent props={crumb} />
@@ -83,68 +113,18 @@ const ProductDetails = ({ product }: Props) => {
             <a style={{ color: '#89b5fa', fontSize: '20px' }}>{product.brandName}</a>
           </Link>
           <hr />
-          <form>
-            <div className="product-attrs">
-              <div>
-                <h5 style={{ fontWeight: 'lighter' }}>Color: </h5>
-                <ul className="list-inline product-attr-options">
-                  <li className="list-inline-item">
-                    <input type="radio" value="Gray" name="Cor" id="gray" hidden />
-                    <label
-                      htmlFor="gray"
-                      title="Gray"
-                      className="color"
-                      style={{ backgroundColor: '#a9a9a9' }}
-                    ></label>
-                  </li>
-                  <li className="list-inline-item">
-                    <input id="pink" type="radio" value="Pink" name="Cor" hidden />
-                    <label
-                      htmlFor="pink"
-                      title="Pink"
-                      className="color"
-                      style={{ backgroundColor: '#FFC0CB' }}
-                    ></label>
-                  </li>
-                  <li className="list-inline-item">
-                    <input id="orange" type="radio" value="Gold" name="Cor" hidden />
-                    <label
-                      htmlFor="orange"
-                      title="Gold"
-                      className="color"
-                      style={{ backgroundColor: 'orange' }}
-                    ></label>
-                  </li>
-                  <li className="list-inline-item">
-                    <input id="green" type="radio" value="Silver" name="Cor" hidden />
-                    <label
-                      htmlFor="green"
-                      title="Silver"
-                      className="color"
-                      style={{ backgroundColor: 'green' }}
-                    ></label>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h5 style={{ fontWeight: 'lighter' }}>Storage:</h5>
-                <div className="scrolling_inner">
-                  <div className="box03 group desk">
-                    <a href="#" data-index="0" className="box03__item item act">
-                      4GB - 64GB
-                    </a>
-                    <a href="#" data-index="1" className="box03__item item ">
-                      6GB - 128GB
-                    </a>
-                    <a href="#" data-index="2" className="box03__item item ">
-                      4GB - 128GB
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </form>
+          {/* product variation */}
 
+          {(productVariations || []).map((productVariation, index) => (
+            <div key={index}>
+              <h5>{productVariation.name}</h5>
+              {(productVariation.value || []).map((productVariationValue, index) => (
+                <button key={index} className="btn btn-outline-primary me-3">
+                  {productVariationValue}
+                </button>
+              ))}
+            </div>
+          ))}
           <h4 style={{ color: 'red' }}>{formatPrice(product.price)}</h4>
 
           <div id="full-stars-example">
