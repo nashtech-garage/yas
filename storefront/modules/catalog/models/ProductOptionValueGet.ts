@@ -1,6 +1,6 @@
 export type ProductOptionValueGet = {
-    id: number,
-    productOptionName: string,
-    productOptionId: number,
-    productOptionValue: string,
-}
+  id: number;
+  productOptionName: string;
+  productOptionId: number;
+  productOptionValue: string;
+};

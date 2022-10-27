@@ -39,7 +39,6 @@ public class ProductOptionValueController {
         return ResponseEntity.ok(productOptionGetVms);
     }
 
-    // TODO here
     @GetMapping({"/storefront/product-option-values/{productId}"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200" , description = "OK" , content = @Content(schema = @Schema(implementation =  ProductOptionValueGetVm.class))),
