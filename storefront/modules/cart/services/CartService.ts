@@ -20,7 +20,7 @@ export async function getCart(): Promise<Cart> {
 
 export async function getCartProductThumbnail(id: number): Promise<ProductThumbnail> {
   const response = await fetch('api/product/storefront/products/featured/' + id, {
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    });
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  });
   return await response.json();
 }
