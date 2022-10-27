@@ -71,7 +71,6 @@ const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
     if (e.target.checked) {
       setCheckCategory([e.target.value, ...checkCategory]);
       listCheckCategory = [e.target.value, ...checkCategory];
-      console.log(listCheckCategory);
       const category = categories.find((element) => element.id === Number(e.target.value));
       if (category?.parentId !== -1) {
         parentOfCategoryId = [];
