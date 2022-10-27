@@ -7,6 +7,8 @@ import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
 import com.yas.product.model.ProductImage;
+import com.yas.product.model.attribute.ProductAttributeGroup;
+import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
@@ -27,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class ProductService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
@@ -142,12 +146,17 @@ public class ProductService {
             }
         }
 
-        for (int index = 1; index < files.size(); index++) {
-            ProductImage productImage = new ProductImage();
-            NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(index), "", "");
-            productImage.setImageId(noFileMediaVm.id());
-            productImage.setProduct(product);
-            productImages.add(productImage);
+        if (CollectionUtils.isNotEmpty(files)) {
+            for (int index = 1; index < files.size(); index++) {
+                ProductImage productImage = new ProductImage();
+                NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(index), "", "");
+                productImage.setImageId(noFileMediaVm.id());
+                productImage.setProduct(product);
+                productImages.add(productImage);
+            }
+
+            NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
+            product.setThumbnailMediaId(noFileMediaVm.id());
         }
 
         product.setName(productPostVm.name());
@@ -161,19 +170,26 @@ public class ProductService {
         product.setIsAllowedToOrder(productPostVm.isAllowedToOrder());
         product.setIsFeatured(productPostVm.isFeatured());
         product.setIsPublished(productPostVm.isPublished());
+        product.setMetaTitle(productPostVm.metaTitle());
         product.setMetaKeyword(productPostVm.metaKeyword());
         product.setMetaDescription(productPostVm.metaDescription());
-
+        product.setIsVisibleIndividually(productPostVm.isVisibleIndividually());
+        
+        if(productPostVm.parentId() != null){
+            Product parentProduct = productRepository.findById(productPostVm.parentId()).orElseThrow(
+                    () -> new NotFoundException(String.format("Product %s is not found", productPostVm.parentId())));
+            product.setParent(parentProduct);
+        }else{
+            product.setParent(product);
+        }
+        
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         product.setCreatedBy(auth.getName());
         product.setLastModifiedBy(auth.getName());
 
-        NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
-        product.setThumbnailMediaId(noFileMediaVm.id());
-
+        product.setProductCategories(productCategoryList);
+        product.setProductImages(productImages);
         Product savedProduct = productRepository.saveAndFlush(product);
-        productCategoryRepository.saveAllAndFlush(productCategoryList);
-        productImageRepository.saveAllAndFlush(productImages);
         return ProductGetDetailVm.fromModel(savedProduct);
     }
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
@@ -232,7 +248,9 @@ public class ProductService {
         product.setLastModifiedOn(ZonedDateTime.now());
 
         if(null != productPutVm.thumbnailMediaId()){
-            mediaService.removeMedia(product.getThumbnailMediaId());
+            if(null != product.getThumbnailMediaId()){
+                mediaService.removeMedia(product.getThumbnailMediaId());
+            }            
             product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         }
 
@@ -369,5 +387,77 @@ public class ProductService {
                 product.getSlug(),
                 mediaService.getMedia(product.getThumbnailMediaId()).url());
         return productThumbnailVm;
+    }
+
+    public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int PageSize) {
+        Pageable pageable = PageRequest.of(pageNo, PageSize);
+        List<ProductThumbnailGetVm> productThumbnailVms = new ArrayList<>();
+        Page<Product> productPage = productRepository.getFeaturedProduct(pageable);
+        List<Product> products = productPage.getContent();
+        for (Product product : products) {
+            productThumbnailVms.add(new ProductThumbnailGetVm(
+                    product.getId(),
+                    product.getName(),
+                    product.getSlug(),
+                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                    product.getPrice()));
+        }
+        return new ProductFeatureGetVm(productThumbnailVms, productPage.getTotalPages());
+    }
+
+
+    public ProductDetailGetVm getProductDetail(String slug) {
+        Product product = productRepository.findBySlug(slug)
+                .orElseThrow(() -> new NotFoundException(String.format("Product not found: %s", slug)));
+
+        Long productThumbnailMediaId = product.getThumbnailMediaId();
+        String productThumbnailurl = "";
+        if (productThumbnailMediaId != null) {
+            productThumbnailurl = mediaService.getMedia(productThumbnailMediaId).url();
+        }
+
+        List<ProductAttributeGroupGetVm> productAttributeGroupsVm = new ArrayList<>();
+        List<ProductAttributeValue> productAttributeValues = product.getAttributeValues();
+        if (!productAttributeValues.isEmpty()) {
+            List<ProductAttributeGroup> productAttributeGroups = productAttributeValues.stream()
+                    .map(productAttributeValue -> productAttributeValue.getProductAttribute().getProductAttributeGroup())
+                    .distinct()
+                    .toList();
+
+            productAttributeGroups.forEach(productAttributeGroup -> {
+                List<ProductAttributeValueVm> productAttributeValueVms = new ArrayList<>();
+                if (!productAttributeValues.isEmpty()) {
+                    productAttributeValues.forEach(productAttributeValue -> {
+                        if (productAttributeValue.getProductAttribute().getProductAttributeGroup().equals(productAttributeGroup)) {
+                            ProductAttributeValueVm productAttributeValueVm = new ProductAttributeValueVm(
+                                    productAttributeValue.getProductAttribute().getName(),
+                                    productAttributeValue.getValue());
+                            productAttributeValueVms.add(productAttributeValueVm);
+                        }
+                    });
+                }
+                ProductAttributeGroupGetVm productAttributeGroupVm = new ProductAttributeGroupGetVm(
+                        productAttributeGroup.getName(),
+                        productAttributeValueVms);
+                productAttributeGroupsVm.add(productAttributeGroupVm);
+            });
+        }
+
+
+        return new ProductDetailGetVm(
+                product.getId(),
+                product.getName(),
+                product.getBrand().getName(),
+                product.getProductCategories().stream().map(category -> category.getCategory().getName()).toList(),
+                productAttributeGroupsVm,
+                product.getShortDescription(),
+                product.getDescription(),
+                product.getSpecification(),
+                product.getIsAllowedToOrder(),
+                product.getIsPublished(),
+                product.getIsFeatured(),
+                product.getPrice(),
+                productThumbnailurl
+        );
     }
 }

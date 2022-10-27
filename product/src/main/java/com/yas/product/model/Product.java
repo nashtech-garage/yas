@@ -46,6 +46,8 @@ public class Product extends AbstractAuditEntity {
 
     private Boolean isVisibleIndividually;
 
+    private String metaTitle;
+
     private String metaKeyword;
 
     private String metaDescription;
@@ -56,14 +58,14 @@ public class Product extends AbstractAuditEntity {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST})
     private List<ProductCategory> productCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
     @JsonIgnore
     private List<ProductAttributeValue> attributeValues = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST})
     private List<ProductImage> productImages = new ArrayList<>();
 
     @ManyToOne

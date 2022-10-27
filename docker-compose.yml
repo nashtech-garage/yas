@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx/templates:/etc/nginx/templates
+      - "./custom_proxy_settings.conf:/etc/nginx/conf.d/custom_proxy_settings.conf"
     ports:
       - "80:80"
   identity:
@@ -97,7 +98,7 @@ services:
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:
-    image: postgres
+    image: postgres:14.5
     ports:
       - "5432:5432"
     volumes:

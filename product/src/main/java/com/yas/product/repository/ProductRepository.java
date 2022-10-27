@@ -23,4 +23,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByName(Pageable pageable, String productName);
     Page<Product> findByBrandName(Pageable pageable, String brandName);
+
+//    Page<Product> findByIsPublishedTrueAndIsVisibleIndividuallyTrue(Pageable pageable);
+
+    @Query(value = "select * from product p where p.id  = p.parent_id and p.is_published  and p.is_visible_individually", nativeQuery = true)
+    Page<Product> getFeaturedProduct(Pageable pageable);
 }

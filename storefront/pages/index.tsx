@@ -1,49 +1,77 @@
-import { GetServerSideProps } from 'next';
+import { NextPage } from 'next';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import { getFeaturedProducts } from '../modules/catalog/services/ProductService';
+import ReactPaginate from 'react-paginate';
 import type { ProductThumbnail } from '../modules/catalog/models/ProductThumbnail';
-import styles from '../styles/Home.module.css';
-import { Button } from 'react-bootstrap';
-import Link from 'next/link';
+import { formatPrice, getFeaturedProducts } from '../modules/catalog/services/ProductService';
 
-type Props = {
-  products: ProductThumbnail[];
-};
+const Home: NextPage = () => {
+  const [products, setProduct] = useState<ProductThumbnail[]>([]);
+  const [pageNo, setPageNo] = useState<number>(0);
+  const [totalPage, setTotalPage] = useState<number>(0);
 
-const Home = ({ products }: Props) => {
+  useEffect(() => {
+    getFeaturedProducts(pageNo).then((res) => {
+      setProduct(res.productList);
+      setTotalPage(res.totalPage);
+    });
+  }, [pageNo]);
+
+  const changePage = ({ selected }: any) => {
+    setPageNo(selected);
+  };
+
   return (
     <>
       <h2>Featured products</h2>
-      <Row xs={2} md={4} className="g-4">
+      <Row xs={2} md={5} className="g-4">
         {products.map((product) => (
           <Col key={product.id}>
-            <Card>
-              <Card.Img
-                variant="top"
-                src={product.thumbnailUrl}
-                style={{ width: '100%', height: '18rem' }}
-              />
+            <Card className="item-product" style={{ padding: '0', borderRadius: 0, margin: 0 }}>
+              <Link href={`/products/${product.slug}`}>
+                <Card.Img
+                  variant="top"
+                  src={product.thumbnailUrl}
+                  style={{ width: '100%', height: '14rem', cursor: 'pointer' }}
+                />
+              </Link>
               <Card.Body>
-                <Card.Title>{product.name}</Card.Title>
-                <Card.Text>Price: $0.0</Card.Text>
-                <Button variant="primary" className="">
-                  <Link href={`/products/${product.slug}`}>More detail</Link>
-                </Button>
+                <Link href={`/products/${product.slug}`}>
+                  <div style={{ height: '45px', cursor: 'pointer' }}>
+                    <a style={{ fontWeight: 'bolder' }}>{product.name}</a>
+                  </div>
+                </Link>
+
+                <span style={{ color: 'red', fontWeight: 'bolder' }}>
+                  {formatPrice(product.price)}
+                </span>
+                <br />
+                <span className="fa fa-star checked"></span>
+                <span className="fa fa-star checked"></span>
+                <span className="fa fa-star checked"></span>
+                <span className="fa fa-star checked"></span>
+                <span className="fa fa-star checked"></span>
               </Card.Body>
             </Card>
           </Col>
         ))}
       </Row>
+      <ReactPaginate
+        forcePage={pageNo}
+        previousLabel={'Previous'}
+        nextLabel={'Next'}
+        pageCount={totalPage}
+        onPageChange={changePage}
+        containerClassName={'paginationBtns'}
+        previousLinkClassName={'previousBtn'}
+        nextClassName={'nextBtn'}
+        disabledClassName={'paginationDisabled'}
+        activeClassName={'paginationActive'}
+      />
     </>
   );
 };
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  let products = await getFeaturedProducts();
-
-  return { props: { products } };
-};
-
 export default Home;

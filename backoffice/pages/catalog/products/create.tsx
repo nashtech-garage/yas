@@ -1,323 +1,133 @@
-import type { NextPage } from 'next';
-import React, { useEffect, useState } from 'react';
-import { createProduct } from '../../../modules/catalog/services/ProductService';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { NextPage } from 'next';
+import Link from 'next/link';
+import Router from 'next/router';
+import { Tab, Tabs } from 'react-bootstrap';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import slugify from 'slugify';
-import { Category } from '../../../modules/catalog/models/Category';
-import { Brand } from '../../../modules/catalog/models/Brand';
-import { getCategories } from '../../../modules/catalog/services/CategoryService';
-import { getBrands } from '../../../modules/catalog/services/BrandService';
-import { ProductPost } from '../../../modules/catalog/models/ProductPost';
-
-const schema = yup
-  .object({
-    name: yup.string().required('Product name is required'),
-    slug: yup.string().required('Slug is required'),
-    description: yup.string().required('Description is required'),
-    shortDescription: yup.string().required('Short description is required'),
-    specification: yup.string().required('Specification is required'),
-    price: yup
-      .number()
-      .typeError('Price must me a number')
-      .default(0.0)
-      .positive('Price must be positive number')
-      .required('Product price is required'),
-    // brand: yup.number().min(1, "Select Branch").required("Select Brand"),
-  })
-  .required();
+import {
+  CrossSellProduct,
+  ProductAttributes,
+  ProductCategoryMapping,
+  ProductGeneralInformation,
+  ProductImage,
+  ProductSEO,
+  ProductVariation,
+  RelatedProduct,
+} from '../../../modules/catalog/components';
+import { ProductAttributeValuePost } from '../../../modules/catalog/models/ProductAttributeValuePost';
+import { ProductPost } from '../../../modules/catalog/models/ProductPost.js';
+import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
+import { createProductOptionValue } from '../../../modules/catalog/services/ProductOptionValueService';
+import { createProduct } from '../../../modules/catalog/services/ProductService';
 
 const ProductCreate: NextPage = () => {
-  const [thumbnailURL, setThumbnailURL] = useState<string>();
-  const [productImageURL, setProductImageURL] = useState<string[]>();
-  const [categoriesId, setCategoriesId] = useState<number[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [thumbnail, setThumbnail] = useState<File>();
-  const [productImages, setProductImages] = useState<FileList>();
-
   const {
     register,
-    handleSubmit,
     setValue,
+    handleSubmit,
+    getValues,
     formState: { errors },
-  } = useForm<ProductPost>({ resolver: yupResolver(schema) });
-
-  useEffect(() => {
-    getCategories().then((data) => {
-      setCategories(data);
-    });
-
-    getBrands().then((data) => {
-      setBrands(data);
-    });
-  }, []);
-
-  const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const i = event.target.files[0];
-      setThumbnail(i);
-      setThumbnailURL(URL.createObjectURL(i));
-    }
-  };
-
-  const onProductImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const files = event.target.files;
-      setProductImages(files);
-      let length = files.length;
-
-      let urls: string[] = [];
-
-      for (let i = 0; i < length; i++) {
-        const file = files[i];
-        urls.push(URL.createObjectURL(file));
-      }
-      setProductImageURL([...urls]);
-    }
-  };
+  } = useForm<ProductPost>();
 
   const onSubmitForm: SubmitHandler<ProductPost> = async (data) => {
-    data.categoryIds = categoriesId;
     data.brandId = data.brandId == 0 ? undefined : data.brandId;
+    const product = {
+      name: data.name,
+      slug: data.slug,
+      brandId: data.brandId,
+      categoryIds: data.categoryIds,
+      shortDescription: data.shortDescription,
+      description: data.description,
+      specification: data.specification,
+      sku: data.sku,
+      gtin: data.gtin,
+      price: data.price,
+      isAllowedToOrder: data.isAllowedToOrder,
+      isPublished: data.isPublished,
+      isFeatured: data.isFeatured,
+      isVisibleIndividually: data.isVisibleIndividually,
+      metaTitle: data.metaKeyword,
+      metaKeyword: data.metaKeyword,
+      metaDescription: data.metaDescription,
+    };
+    const res = await createProduct(product, data.thumbnail, data.productImages);
 
-    await createProduct(data, thumbnail, productImages)
-      .then((res) => {
-        location.replace('/catalog/products');
-      })
-      .catch((err) => {
-        alert('Cannot Create Product. Try Later!');
-      });
-  };
-
-  const onCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    let category = event.target.value;
-    if (selectedCategories.indexOf(category) === -1) {
-      let id = categories.find((item) => item.name === category)?.id;
-      if (id) {
-        setCategoriesId([...categoriesId, id]);
-      }
-      setSelectedCategories([category, ...selectedCategories]);
+    // upload variation
+    let variations = data.productVariations || [];
+    for (const option of variations) {
+      let _product = {
+        name: option.optionName,
+        slug: slugify(option.optionName),
+        sku: option.optionSku,
+        gtin: option.optionGTin,
+        price: option.optionPrice,
+        parentId: res.id,
+      };
+      await createProduct(_product, option.optionThumbnail, option.optionImages);
     }
+
+    // upload product attribute
+    for (const att of data.productAttributes || []) {
+      let productAtt: ProductAttributeValuePost = {
+        ProductId: res.id,
+        productAttributeId: att.id,
+        value: att.value,
+      };
+      await createProductAttributeValueOfProduct(productAtt);
+    }
+
+    // upload Option Value
+    for (const ele of data.productOptions || []) {
+      ele.ProductId = res.id;
+      ele.displayOrder = 1;
+      await createProductOptionValue(ele);
+    }
+
+    Router.replace('/catalog/products');
   };
 
   return (
-    <>
-      <div className="row mt-5">
-        <div className="col-md-8">
-          <h2>Create product</h2>
-          <form onSubmit={handleSubmit(onSubmitForm)}>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="name">
-                Name
-              </label>
-              <input
-                className={`form-control ${errors.name ? 'border-danger' : ''}`}
-                {...register('name', {
-                  onChange: (event) => setValue('slug', slugify(event.target.value)),
-                })}
-              />
-              <sup className="text-danger fst-italic">{errors.name?.message}</sup>
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="slug">
-                Slug
-              </label>
-              <input
-                className={`form-control ${errors.slug ? 'border-danger' : ''} `}
-                id="slug"
-                {...register('slug', {
-                  onChange: (e) => setValue('slug', e.target.value),
-                  onBlur: (e) => setValue('slug', slugify(e.target.value)),
-                })}
-              />
-              <sup className="text-danger fst-italic">{errors.slug?.message}</sup>
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="brand">
-                Brand
-              </label>
-              <select
-                className={`form-select ${errors.brandId ? 'border-danger' : ''}`}
-                id="brand"
-                {...register('brandId')}
-                defaultValue={0}
-              >
-                <option disabled hidden value={0}>
-                  Select Brand
-                </option>
-                {Array.from(brands).map((brand) => (
-                  <option value={brand.id} key={brand.id}>
-                    {brand.name}
-                  </option>
-                ))}
-              </select>
-              <sup className="text-danger fst-italic">{errors.brandId?.message}</sup>
-            </div>
+    <div className="create-product">
+      <h2>Create Product</h2>
 
-            <div className="mb-3">
-              <label className="form-label" htmlFor="category">
-                Category
-              </label>
-              <select
-                className={`form-select ${errors.categoryIds ? 'border-danger' : ''}`}
-                id="category"
-                {...register('categoryIds')}
-                onChange={onCategoryChange}
-                defaultValue={0}
-              >
-                <option disabled hidden value={0}>
-                  Select Category
-                </option>
-                {Array.from(categories).map((category) => (
-                  <option value={category?.name} key={category?.id}>
-                    {category?.name}
-                  </option>
-                ))}
-              </select>
-              <sup className="text-danger fst-italic">{errors.categoryIds?.message}</sup>
-              <div className="d-flex flex-start mt-2">
-                {selectedCategories.map((category, index) => (
-                  <span className="border border-primary rounded fst-italic px-2" key={index}>
-                    {category}
-                  </span>
-                ))}
-              </div>
-            </div>
+      <form onSubmit={handleSubmit(onSubmitForm)}>
+        <Tabs defaultActiveKey={'general'} className="mb-3">
+          <Tab eventKey={'general'} title="General Information">
+            <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
+          </Tab>
+          <Tab eventKey={'image'} title="Product Images">
+            <ProductImage setValue={setValue} />
+          </Tab>
+          <Tab eventKey={'variation'} title="Product Variations">
+            <ProductVariation getValue={getValues} setValue={setValue} />
+          </Tab>
 
-            <div className="mb-3">
-              <label className="form-label" htmlFor="short-description">
-                Short Description
-              </label>
-              <textarea
-                className={`form-control ${errors.shortDescription ? 'border-danger' : ''}`}
-                id="short-description"
-                {...register('shortDescription')}
-              />
-              <sup className="text-danger fst-italic">{errors.shortDescription?.message}</sup>
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="description">
-                Description
-              </label>
-              <textarea
-                className={`form-control ${errors.description ? 'border-danger' : ''}`}
-                id="description"
-                {...register('description')}
-              />
-              <sup className="text-danger fst-italic">{errors.description?.message}</sup>
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="specification">
-                Specification
-              </label>
-              <textarea
-                className={`form-control ${errors.specification ? 'border-danger' : ''}`}
-                id="specification"
-                {...register('specification')}
-              />
-              <sup className="text-danger fst-italic">{errors.specification?.message}</sup>
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="sku">
-                SKU
-              </label>
-              <input className="form-control" id="sku" {...register('sku')} />
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="gtin">
-                GTIN
-              </label>
-              <input className="form-control" id="gtin" {...register('gtin')} />
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="price">
-                Price
-              </label>
-              <input
-                className={`form-control ${errors.price ? 'border-danger' : ''}`}
-                id="price"
-                type="number"
-                {...register('price')}
-              />
-              <sup className="text-danger fst-italic">{errors.price?.message}</sup>
-            </div>
-            <div className="d-flex justify-content-between">
-              <div className="mb-3">
-                <label className="form-label me-3" htmlFor="is-allowed-to-order">
-                  Is Allowed To Order
-                </label>
-                <input id="is-allowed-to-order" type="checkbox" {...register('isAllowedToOrder')} />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label me-3" htmlFor="is-published">
-                  Is Published
-                </label>
-                <input type="checkbox" id="is-published" {...register('isPublished')} />
-              </div>
-              <div className="mb-3">
-                <label className="form-label me-3" htmlFor="is-featured">
-                  Is Featured
-                </label>
-                <input id="is-featured" type="checkbox" {...register('isFeatured')} />
-              </div>
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label" htmlFor="thumbnail">
-                Thumbnail
-              </label>
-              <input
-                className={`form-control`}
-                type="file"
-                id="thumbnail"
-                onChange={onThumbnailSelected}
-              />
-
-              <img style={{ width: '150px' }} src={thumbnailURL} />
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="product-image">
-                Product Image
-              </label>
-              <input
-                className="form-control"
-                type="file"
-                id="product-image"
-                onChange={onProductImageSelected}
-                multiple
-              />
-              {productImageURL?.map((productImageUrl, index) => (
-                <img style={{ width: '150px' }} src={productImageUrl} key={index} alt="Image" />
-              ))}
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="meta-keyword">
-                Meta Keyword
-              </label>
-              <textarea className={`form-control`} id="meta-keyword" {...register('metaKeyword')} />
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="meta-description">
-                Meta Description
-              </label>
-              <textarea
-                className={`form-control ${errors.shortDescription ? 'border-danger' : ''}`}
-                id="meta-description"
-                {...register('metaDescription')}
-              />
-              <sup className="text-danger fst-italic">{errors.shortDescription?.message}</sup>
-            </div>
-            <button className="btn btn-primary" type="submit" disabled={thumbnailURL == null}>
-              Submit
-            </button>
-          </form>
+          <Tab eventKey={'attribute'} title="Product Attributes">
+            <ProductAttributes setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'category'} title="Category Mapping">
+            <ProductCategoryMapping setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'related'} title="Related Products">
+            <RelatedProduct setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'cross-sell'} title="Cross-sell Product">
+            <CrossSellProduct setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'seo'} title="SEO">
+            <ProductSEO register={register} errors={errors} />
+          </Tab>
+        </Tabs>
+        <div className="text-center">
+          <button className="btn btn-primary" type="submit">
+            Create
+          </button>
+          <Link href="/catalog/products">
+            <button className="btn btn-secondary m-3">Cancel</button>
+          </Link>
         </div>
-      </div>
-    </>
+      </form>
+    </div>
   );
 };
 

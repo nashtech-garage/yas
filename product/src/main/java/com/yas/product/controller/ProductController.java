@@ -22,6 +22,7 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
+
     @GetMapping("/backoffice/products")
     public ResponseEntity<ProductListGetVm> listProducts(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
@@ -33,13 +34,13 @@ public class ProductController {
     }
 
 
-    @PostMapping(path = "/backoffice/products", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(path = "/backoffice/products", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<ProductGetDetailVm> createProduct(@RequestPart("productDetails") ProductPostVm productPostVm,
-            @RequestPart("files") List<MultipartFile> files, UriComponentsBuilder uriComponentsBuilder) {
+                                                            @RequestPart(value = "files", required = false) List<MultipartFile> files, UriComponentsBuilder uriComponentsBuilder) {
         ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm, files);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/products/{id}").buildAndExpand(productGetDetailVm.id()).toUri())
                 .body(productGetDetailVm);
@@ -56,8 +57,8 @@ public class ProductController {
     }
 
     @GetMapping("/storefront/products/featured")
-    public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProducts() {
-        return ResponseEntity.ok(productService.getFeaturedProducts());
+    public ResponseEntity<ProductFeatureGetVm> getFeaturedProducts(@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo, @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
+        return ResponseEntity.ok(productService.getListFeaturedProducts(pageNo, pageSize));
     }
 
     @GetMapping("/storefront/brand/{brandSlug}/products")
@@ -65,13 +66,13 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByBrand(brandSlug));
     }
 
-    @GetMapping({"/storefront/category/{categorySlug}/products" , "/backoffice/category/{categorySlug}/products"})
+    @GetMapping({"/storefront/category/{categorySlug}/products", "/backoffice/category/{categorySlug}/products"})
     public ResponseEntity<ProductListGetFromCategoryVm> getProductsByCategory(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize,
             @PathVariable String categorySlug
     ) {
-        return ResponseEntity.ok(productService.getProductsFromCategory(pageNo, pageSize,categorySlug));
+        return ResponseEntity.ok(productService.getProductsFromCategory(pageNo, pageSize, categorySlug));
     }
 
     @GetMapping("/backoffice/products/{productId}")
@@ -90,5 +91,10 @@ public class ProductController {
     @GetMapping("/storefront/products/featured/{productId}")
     public ResponseEntity<ProductThumbnailVm> getFeaturedProductsById(@PathVariable long productId) {
         return ResponseEntity.ok(productService.getFeaturedProductsById(productId));
+    }
+
+    @GetMapping("/storefront/product/{slug}")
+    public ProductDetailGetVm getProductDetail(@PathVariable("slug") String slug) {
+        return productService.getProductDetail(slug);
     }
 }

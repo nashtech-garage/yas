@@ -2,14 +2,14 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Category } from '../../../../modules/catalog/models/Category';
 import {
   getCategories,
   getCategory,
   updateCategory,
 } from '../../../../modules/catalog/services/CategoryService';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 const CategoryEdit: NextPage = () => {
   const router = useRouter();

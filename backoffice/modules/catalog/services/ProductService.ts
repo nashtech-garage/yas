@@ -1,7 +1,6 @@
-import { ProductPost } from './../models/ProductPost';
 import { Product } from '../models/Product';
-import { ProductPut } from '../models/ProductPut';
 import { Products } from '../models/Products';
+import { ProductPost } from '../models/ProductPost';
 
 export async function getProducts(
   pageNo: number,
@@ -19,7 +18,7 @@ export async function getProduct(id: number) {
 }
 
 export async function createProduct(
-  product: ProductPost,
+  product: any,
   thumbnail?: File,
   productImage?: FileList
 ): Promise<Product> {
@@ -33,10 +32,10 @@ export async function createProduct(
     method: 'POST',
     body: body,
   });
-  return await response.json();
+  return response.json();
 }
 
-export async function updateProduct(id: number, product: ProductPut) {
+export async function updateProduct(id: number, product: ProductPost) {
   const response = await fetch('/api/product/backoffice/products/' + id, {
     method: 'PUT',
     body: JSON.stringify(product),
