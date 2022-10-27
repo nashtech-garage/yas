@@ -11,7 +11,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  background-color: var(--bs-gray-200);
+  /* background-color: var(--bs-gray-200); */
 }
 
 .w-fit-content {
