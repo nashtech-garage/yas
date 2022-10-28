@@ -28,8 +28,8 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
   let productOptionValue: ProductOptionValueGet[] = (await getProductVariations(5)) || [];
 
   const productVariations: ProductVariations[] = [];
-  
-  if(Array.isArray(productOptionValue)) {
+
+  if (Array.isArray(productOptionValue)) {
     for (const option of productOptionValue) {
       let index = productVariations.findIndex(
         (productVariation) => productVariation.name === option.productOptionName
@@ -41,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
           name: option.productOptionName,
           value: [option.productOptionValue],
         };
-  
+
         productVariations.push(newVariation);
       }
     }
