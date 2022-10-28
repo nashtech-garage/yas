@@ -15,6 +15,8 @@ import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Props = {
   product: ProductDetail;
