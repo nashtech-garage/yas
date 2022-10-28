@@ -28,22 +28,24 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
   let productOptionValue: ProductOptionValueGet[] = (await getProductVariations(5)) || [];
 
   const productVariations: ProductVariations[] = [];
-  for (const option of productOptionValue) {
-    let index = productVariations.findIndex(
-      (productVariation) => productVariation.name === option.productOptionName
-    );
-    if (index > -1) {
-      productVariations.at(index)?.value.push(option.productOptionValue);
-    } else {
-      let newVariation: ProductVariations = {
-        name: option.productOptionName,
-        value: [option.productOptionValue],
-      };
-
-      productVariations.push(newVariation);
+  
+  if(Array.isArray(productOptionValue)) {
+    for (const option of productOptionValue) {
+      let index = productVariations.findIndex(
+        (productVariation) => productVariation.name === option.productOptionName
+      );
+      if (index > -1) {
+        productVariations.at(index)?.value.push(option.productOptionValue);
+      } else {
+        let newVariation: ProductVariations = {
+          name: option.productOptionName,
+          value: [option.productOptionValue],
+        };
+  
+        productVariations.push(newVariation);
+      }
     }
   }
-
   return { props: { product, productVariations } };
 };
 
