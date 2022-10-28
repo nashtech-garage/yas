@@ -25,7 +25,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
   const { slug } = context.query;
   let product = await getProductDetail(slug);
 
-  let productOptionValue: ProductOptionValueGet[] = (await getProductVariations(5)) || [];
+  let productOptionValue: ProductOptionValueGet[] = (await getProductVariations(product.id)) || [];
 
   const productVariations: ProductVariations[] = [];
 
