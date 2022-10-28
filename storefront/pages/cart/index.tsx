@@ -35,8 +35,8 @@ const Cart = () => {
         setCart(data);
         data.cartDetails.map(async (item) => {
           const product = await getCartProductThumbnail(item.productId);
-          setItems((preitems) => [
-            ...preitems,
+          const newitems = [
+            ...items,
             {
               productId: product.id,
               quantity: item.quantity,
@@ -44,7 +44,8 @@ const Cart = () => {
               slug: product.slug,
               thumbnailUrl: product.thumbnailUrl,
             },
-          ]);
+          ];
+          setItems(newitems);
         });
       });
     loaded = true;
