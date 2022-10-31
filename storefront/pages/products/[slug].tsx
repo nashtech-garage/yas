@@ -15,6 +15,8 @@ import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Props = {
   product: ProductDetail;
@@ -57,7 +59,25 @@ const handleAddToCart = async (event: any) => {
       quantity: event.target.quantity.value,
     },
   ];
-  await addToCart(addToCartModel);
+  await addToCart(addToCartModel)
+    .then(() => {
+      toast.success(' Add to cart success', {
+        position: 'top-right',
+        autoClose: 1000,
+        closeOnClick: true,
+        pauseOnHover: false,
+        theme: 'colored',
+      });
+    })
+    .catch(() => {
+      toast.error('Add to cart failed. Try again', {
+        position: 'top-right',
+        autoClose: 1000,
+        closeOnClick: true,
+        pauseOnHover: false,
+        theme: 'colored',
+      });
+    });
 };
 
 const ProductDetails = ({ product, productVariations }: Props) => {
@@ -78,6 +98,7 @@ const ProductDetails = ({ product, productVariations }: Props) => {
 
   return (
     <>
+      <ToastContainer style={{ marginTop: '70px' }} />
       <BreadcrumbComponent props={crumb} />
       <div className="row justify-content-center">
         <div className="product-item col-5">
