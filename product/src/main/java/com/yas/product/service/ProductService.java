@@ -416,6 +416,13 @@ public class ProductService {
             productThumbnailurl = mediaService.getMedia(productThumbnailMediaId).url();
         }
 
+        List<String> productImageMediaUrls = new ArrayList<>();
+        if(null != product.getProductImages() && product.getProductImages().size() > 0){
+            for (ProductImage image: product.getProductImages()){
+                productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
+            }
+        }
+
         List<ProductAttributeGroupGetVm> productAttributeGroupsVm = new ArrayList<>();
         List<ProductAttributeValue> productAttributeValues = product.getAttributeValues();
         if (!productAttributeValues.isEmpty()) {
@@ -457,7 +464,8 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getPrice(),
-                productThumbnailurl
+                productThumbnailurl,
+                productImageMediaUrls
         );
     }
 }

@@ -15,6 +15,7 @@ public record ProductDetailGetVm(
         Boolean isPublished,
         Boolean isFeatured,
         Double price,
-        String thumbnailMediaUrl
+        String thumbnailMediaUrl,
+        List<String> productImageMediaUrls
 ) {
 }
