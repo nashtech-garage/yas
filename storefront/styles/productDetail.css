@@ -228,17 +228,16 @@ input[type='radio'] {
   color: #2f80ed;
 }
 
-
 /* custom style for product Images */
-.images{
-  display:  flex;
-  flex-direction:row;
+.images {
+  display: flex;
+  flex-direction: row;
   flex-wrap: nowrap;
   height: 100px;
   width: 100%;
   overflow-x: scroll;
 }
 
-.images::-webkit-scrollbar{
+.images::-webkit-scrollbar {
   display: none;
 }
