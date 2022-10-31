@@ -1,22 +1,21 @@
 import { GetServerSideProps } from 'next';
-import { AddToCartModel } from '../../modules/cart/models/AddToCartModel';
-import { addToCart } from '../../modules/cart/services/CartService';
-import { Product } from '../../modules/catalog/models/Product';
-import Figure from 'react-bootstrap/Figure';
-import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
-import {
-  getProductDetail,
-  formatPrice,
-  getProductVariations,
-} from '../../modules/catalog/services/ProductService';
-import { Table, Breadcrumb } from 'react-bootstrap';
+import Head from 'next/head';
 import Link from 'next/link';
+import { useState } from 'react';
+import { Carousel, Modal, Table } from 'react-bootstrap';
+import Figure from 'react-bootstrap/Figure';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
+import { AddToCartModel } from '../../modules/cart/models/AddToCartModel';
+import { addToCart } from '../../modules/cart/services/CartService';
+import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
+import {
+  formatPrice, getProductDetail, getProductVariations
+} from '../../modules/catalog/services/ProductService';
 
 type Props = {
   product: ProductDetail;
@@ -96,8 +95,14 @@ const ProductDetails = ({ product, productVariations }: Props) => {
     },
   ];
 
+  const [currentShowUrl, setCurrentShowUrl] = useState<string>(product.thumbnailMediaUrl);
+  const [modalShow, setModalShow] = useState<boolean>(false);
+  const [index, setIndex] = useState<number>(0);
   return (
     <>
+      <Head>
+        <title>{product.name}</title>
+      </Head>
       <ToastContainer style={{ marginTop: '70px' }} />
       <BreadcrumbComponent props={crumb} />
       <div className="row justify-content-center">
@@ -107,9 +112,24 @@ const ProductDetails = ({ product, productVariations }: Props) => {
               width={500}
               height={500}
               alt="photo"
-              src={product.thumbnailMediaUrl}
+              src={currentShowUrl}
+              onClick={() => setModalShow(true)}
             ></Figure.Image>
           </Figure>
+          <div className="product-images">
+            <Figure className="images">
+              {(product.productImageMediaUrls || []).map((item, index) => (
+                <Figure.Image
+                  width={100}
+                  height={100}
+                  alt="photo"
+                  src={item}
+                  key={index}
+                  onClick={() => setCurrentShowUrl(item)}
+                ></Figure.Image>
+              ))}
+            </Figure>
+          </div>
           <span className="caption">{product.shortDescription}</span>
         </div>
 
@@ -228,6 +248,28 @@ const ProductDetails = ({ product, productVariations }: Props) => {
           ))}
         </Table>
       </div>
+
+      {/* Show modal image */}
+      <Modal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">{product.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Carousel activeIndex={index} onSelect={(selectedIndex, e) => setIndex(selectedIndex)}>
+            {(product.productImageMediaUrls || []).map((item, index) => (
+              <Carousel.Item key={index}>
+                <img src={item} alt="" className="d-block w-100" />
+              </Carousel.Item>
+            ))}
+          </Carousel>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };

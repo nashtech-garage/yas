@@ -227,3 +227,18 @@ input[type='radio'] {
   border-color: #2f80ed;
   color: #2f80ed;
 }
+
+
+/* custom style for product Images */
+.images{
+  display:  flex;
+  flex-direction:row;
+  flex-wrap: nowrap;
+  height: 100px;
+  width: 100%;
+  overflow-x: scroll;
+}
+
+.images::-webkit-scrollbar{
+  display: none;
+}

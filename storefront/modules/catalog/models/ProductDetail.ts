@@ -18,4 +18,5 @@ export type ProductDetail = {
   isFeatured: boolean;
   price: number;
   thumbnailMediaUrl: string;
+  productImageMediaUrls: string[];
 };
