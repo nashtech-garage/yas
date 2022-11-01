@@ -33,7 +33,7 @@ const Cart = () => {
     if (!loaded)
       getCart().then((data) => {
         setCart(data);
-        data.cartDetails.map(async (item) => {
+        data.cartDetails.forEach(async (item) => {
           const product = await getCartProductThumbnail(item.productId);
           const newitems = [
             ...items,
