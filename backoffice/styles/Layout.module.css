@@ -8,8 +8,7 @@
   width: 100%;
   z-index: 1000;
   height: 60px;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-right: 1rem;
 }
 
 #main {
