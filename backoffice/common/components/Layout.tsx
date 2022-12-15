@@ -11,8 +11,12 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  const [open, setOpen] = useState(false);
-  const node = useRef();
+
+  const [isSidebarActive, setIsSidebarActive] = useState(false);
+
+  const sidebarToogleClick = () => {
+    setIsSidebarActive(current => !current);
+  };
 
   return (
     <>
@@ -22,7 +26,7 @@ export default function Layout({ children }: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="wrapper d-flex align-items-stretch">
-        <nav id="sidebar">
+        <nav id="sidebar" className={isSidebarActive ? 'active' : ''}>
           <div className="p-4 pt-5">
             <h1>
               <a href="/" className="logo">
@@ -84,7 +88,7 @@ export default function Layout({ children }: Props) {
         </nav>
         <div id="content">
           <Navbar collapseOnSelect bg="dark" variant="dark" className={styles.header}>
-            <button type="button" id="sidebarCollapse" className="btn btn-primary">
+            <button type="button" id="sidebarCollapse" onClick={sidebarToogleClick} className="btn btn-primary">
               <i className="fa fa-bars"></i>
               <span className="sr-only">Toggle Menu</span>
             </button>
