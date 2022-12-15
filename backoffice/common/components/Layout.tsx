@@ -11,11 +11,10 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-
   const [isSidebarActive, setIsSidebarActive] = useState(false);
 
   const sidebarToogleClick = () => {
-    setIsSidebarActive(current => !current);
+    setIsSidebarActive((current) => !current);
   };
 
   return (
@@ -88,7 +87,12 @@ export default function Layout({ children }: Props) {
         </nav>
         <div id="content">
           <Navbar collapseOnSelect bg="dark" variant="dark" className={styles.header}>
-            <button type="button" id="sidebarCollapse" onClick={sidebarToogleClick} className="btn btn-primary">
+            <button
+              type="button"
+              id="sidebarCollapse"
+              onClick={sidebarToogleClick}
+              className="btn btn-primary"
+            >
               <i className="fa fa-bars"></i>
               <span className="sr-only">Toggle Menu</span>
             </button>
