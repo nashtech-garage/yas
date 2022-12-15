@@ -3,7 +3,7 @@ import { Navbar } from 'react-bootstrap';
 import { ToastContainer } from 'react-toastify';
 import styles from '../../styles/Layout.module.css';
 import AuthenticationInfo from './AuthenticationInfo';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 type Props = {
