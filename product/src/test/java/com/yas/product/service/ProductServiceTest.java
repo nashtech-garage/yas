@@ -100,9 +100,9 @@ class ProductServiceTest {
         category2 = new Category(2L, null, null, "null", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
                         1L, null, null, null, null, null, null ),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
                         1L, null, null, null, null, null, null)
         );
 
@@ -124,7 +124,7 @@ class ProductServiceTest {
         SecurityContext securityContext = mock(SecurityContext.class);
         String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
-        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
                         1L, null, null, null, null, null, null );
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
@@ -249,9 +249,9 @@ class ProductServiceTest {
     void getFeaturedProducts_WhenEverythingIsOkay_Success() {
         //given
         List<Product> productList = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
                         1L, null, null, null, null, null, null ),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, true, true, false, true, null, null,null,
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
                         1L, null, null, null, null, null, null)
         );
         String url = "sample-url";
