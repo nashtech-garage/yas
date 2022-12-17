@@ -38,6 +38,8 @@ public class Product extends AbstractAuditEntity {
 
     private Double price;
 
+    private Boolean hasOptions;
+
     private Boolean isAllowedToOrder;
 
     private Boolean isPublished;
