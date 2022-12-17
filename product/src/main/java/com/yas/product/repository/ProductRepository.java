@@ -15,17 +15,20 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByBrand(Brand brand);
+
     Optional<Product> findBySlug(String slug);
-    @Query(value = "from Product p where p.name = :productName and p.brand.name = :brandName ")
+
+    @Query(value = "FROM Product p WHERE p.name = :productName AND p.brand.name = :brandName ")
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
 
     Page<Product> findByName(Pageable pageable, String productName);
+
     Page<Product> findByBrandName(Pageable pageable, String brandName);
 
-//    Page<Product> findByIsPublishedTrueAndIsVisibleIndividuallyTrue(Pageable pageable);
+    Page<Product> findByIsPublishedTrueAndIsVisibleIndividuallyTrue(Pageable pageable);
 
-    @Query(value = "select * from product p where p.id  = p.parent_id and p.is_published  and p.is_visible_individually", nativeQuery = true)
+    @Query(value = "FROM Product p WHERE p.isFeatured = TRUE AND p.isVisibleIndividually = TRUE AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")
     Page<Product> getFeaturedProduct(Pageable pageable);
 }
