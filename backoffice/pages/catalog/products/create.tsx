@@ -27,7 +27,13 @@ const ProductCreate: NextPage = () => {
     handleSubmit,
     getValues,
     formState: { errors },
-  } = useForm<ProductPost>();
+  } = useForm<ProductPost>({
+    defaultValues: {
+      isVisibleIndividually: true,
+      isPublished: true,
+      isAllowedToOrder: true,
+    },
+  });
 
   const onSubmitForm: SubmitHandler<ProductPost> = async (data) => {
     data.brandId = data.brandId == 0 ? undefined : data.brandId;
