@@ -28,9 +28,9 @@ export default function Layout({ children }: Props) {
         <nav id="sidebar" className={isSidebarActive ? 'active' : ''}>
           <div className="p-4 pt-5">
             <h1>
-              <a href="/" className="logo">
+              <Link href="/" className="logo">
                 Yas
-              </a>
+              </Link>
             </h1>
             <ul className="list-unstyled components mb-5">
               <li className="active">
