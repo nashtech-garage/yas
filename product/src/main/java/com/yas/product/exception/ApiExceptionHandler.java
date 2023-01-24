@@ -35,7 +35,8 @@ import java.util.List;
     return ResponseEntity.badRequest().body(errorVm);
   }
 
-//  @Override
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
   protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                 HttpStatus status, WebRequest request) {
     List<String> errors = ex.getBindingResult()
