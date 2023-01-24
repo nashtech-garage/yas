@@ -22,8 +22,8 @@ public class SecurityConfig {
 
         http
                 .authorizeRequests()
-                .antMatchers("/storefront/**").permitAll()
-                .antMatchers("/backoffice/**").hasRole("ADMIN")
+                .requestMatchers("/storefront/**").permitAll()
+                .requestMatchers("/backoffice/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();
@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().antMatchers("/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
+        return web -> web.ignoring().requestMatchers("/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
     }
 
     @Bean
