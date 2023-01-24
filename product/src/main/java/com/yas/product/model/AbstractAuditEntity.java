@@ -3,7 +3,7 @@ package com.yas.product.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.MappedSuperclass;
 import java.time.ZonedDateTime;
 
 @MappedSuperclass

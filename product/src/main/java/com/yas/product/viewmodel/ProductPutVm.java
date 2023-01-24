@@ -1,7 +1,7 @@
 package com.yas.product.viewmodel;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.util.List;
 
 public record ProductPutVm(

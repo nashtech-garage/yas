@@ -1,6 +1,6 @@
 package com.yas.product.viewmodel;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 public record ProductAttributePostVm(@NotEmpty String name , Long productAttributeGroupId) {
 }
