@@ -26,3 +26,12 @@ export async function updateProductOption(id: number, productOption: ProductOpti
   if (response.status === 204) return await response;
   else return await response.json();
 }
+
+export async function deleteProductOption(id: number) {
+  const response = await fetch('/api/product/backoffice/product-options/' + id, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+  });
+  if (response.status === 204) return await response;
+  else return await response.json();
+}

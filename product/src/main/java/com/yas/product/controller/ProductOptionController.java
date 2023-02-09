@@ -3,7 +3,10 @@ package com.yas.product.controller;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.ProductOption;
 import com.yas.product.repository.ProductOptionRepository;
-import com.yas.product.viewmodel.*;
+import com.yas.product.viewmodel.ErrorVm;
+import com.yas.product.viewmodel.ProductAttributeGetVm;
+import com.yas.product.viewmodel.ProductOptionGetVm;
+import com.yas.product.viewmodel.ProductOptionPostVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -77,4 +80,16 @@ public class ProductOptionController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/backoffice/product-options/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> deleteProductOption(@PathVariable Long id){
+        ProductOption productOption = productOptionRepository
+                .findById(id)
+                .orElseThrow(()-> new NotFoundException(String.format("Product option %s is not found", id)));
+        productOptionRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
