@@ -1,5 +1,7 @@
 package com.yas.product.viewmodel;
 
+import com.yas.product.validation.ValidateProductPrice;
+
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -13,7 +15,7 @@ public record ProductPostVm(
                 String specification,
                 String sku,
                 String gtin,
-                Double price,
+                @ValidateProductPrice Double price,
                 Boolean isAllowedToOrder,
                 Boolean isPublished,
                 Boolean isFeatured,
