@@ -1,22 +1,53 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { Button, Table } from 'react-bootstrap';
-import { getProductAttributes } from '../../../modules/catalog/services/ProductAttributeService';
+import { Button, Modal, Table } from 'react-bootstrap';
+import {
+  deleteProductAttribute,
+  getProductAttributes,
+} from '../../../modules/catalog/services/ProductAttributeService';
 import { ProductAttribute } from '../../../modules/catalog/models/ProductAttribute';
+import { toast } from 'react-toastify';
 
 const ProductAttributeList: NextPage = () => {
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>();
-
   const [isLoading, setLoading] = useState(false);
+  const [isShowModalDelete, setIsShowModalDelete] = useState<boolean>(false);
+  const [productAttributeNameWantToDelete, setProductAttributeNameWantToDelete] =
+    useState<string>('');
+  const [productAttributeIdWantToDelete, setProductAttributeIdWantToDelete] = useState<number>(-1);
 
-  useEffect(() => {
-    setLoading(true);
+  const handleClose: any = () => setIsShowModalDelete(false);
+  const handleDelete: any = () => {
+    if (productAttributeIdWantToDelete == -1) return;
+    deleteProductAttribute(productAttributeIdWantToDelete)
+      .then((response) => {
+        if (response.status === 204) {
+          toast.success(productAttributeIdWantToDelete + ' have been deleted');
+        } else if (response.title === 'Not found') {
+          toast.error(response.detail);
+        } else if (response.title === 'Bad request') {
+          toast.error(response.detail);
+        } else {
+          toast.error('Delete failed');
+        }
+        getListProductAttributes();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getListProductAttributes = () => {
     getProductAttributes().then((data) => {
-      console.log(data);
       setProductAttributes(data);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    getListProductAttributes();
   }, []);
   if (isLoading) return <p>Loading...</p>;
   if (!productAttributes) return <p>No Product Attributes</p>;
@@ -53,11 +84,34 @@ const ProductAttributeList: NextPage = () => {
                     Edit
                   </button>
                 </Link>
+                &nbsp;
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  type="button"
+                  onClick={() => {
+                    setIsShowModalDelete(true);
+                    setProductAttributeIdWantToDelete(obj.id);
+                    setProductAttributeNameWantToDelete(obj.name);
+                  }}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      <Modal show={isShowModalDelete} onHide={handleClose}>
+        <Modal.Body>{`Are you sure you want to delete this ${productAttributeNameWantToDelete} ?`}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

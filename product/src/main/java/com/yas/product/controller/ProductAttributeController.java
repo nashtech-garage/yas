@@ -89,4 +89,17 @@ public class ProductAttributeController {
         productAttributeRepository.saveAndFlush(productAttribute);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/backoffice/product-attribute/{id}")
+    @ApiResponses(value ={
+            @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> deleteProductAttribute(@PathVariable Long id){
+        ProductAttribute productAttribute = productAttributeRepository
+                .findById(id)
+                .orElseThrow(()->new NotFoundException(String.format("Product attribute group %s is not found", id)));
+        productAttributeRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

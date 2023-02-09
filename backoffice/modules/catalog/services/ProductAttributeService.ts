@@ -31,7 +31,17 @@ export async function updateProductAttribute(
   });
   return res.status;
 }
+
 export async function getProductAttribute(id: number): Promise<ProductAttribute> {
   const response = await fetch('/api/product/backoffice/product-attribute/' + id);
   return await response.json();
+}
+
+export async function deleteProductAttribute(id: number) {
+  const response = await fetch('/api/product/backoffice/product-attribute/' + id, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  });
+  if (response.status === 204) return await response;
+  else return await response.json();
 }
