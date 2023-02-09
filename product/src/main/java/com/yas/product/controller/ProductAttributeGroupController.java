@@ -11,12 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -72,6 +67,19 @@ public class ProductAttributeGroupController {
                 .orElseThrow(() -> new NotFoundException(String.format("Product attribute group %s is not found", id)));
         productAttributeGroup.setName(productAttributeGroupPostVm.name());
         productAttributeGroupRepository.save(productAttributeGroup);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/backoffice/product-attribute-groups/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> updateProductAttributeGroup(@PathVariable Long id){
+        ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
+                .findById(id)
+                .orElseThrow(()->new NotFoundException(String.format("Product attribute group %s is not found", id)));
+        productAttributeGroupRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

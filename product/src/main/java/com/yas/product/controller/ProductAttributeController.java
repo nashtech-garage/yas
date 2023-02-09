@@ -99,6 +99,8 @@ public class ProductAttributeController {
         ProductAttribute productAttribute = productAttributeRepository
                 .findById(id)
                 .orElseThrow(()->new NotFoundException(String.format("Product attribute group %s is not found", id)));
+        if(productAttribute.getAttributeValues().size() > 0)
+            throw new BadRequestException("Please make sure this Product Attribute doesn't exist in any Product Attribute Values");
         productAttributeRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
