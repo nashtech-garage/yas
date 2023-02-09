@@ -5,6 +5,7 @@ import { Button, InputGroup, Stack, Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import { FaSearch } from 'react-icons/fa';
 import ReactPaginate from 'react-paginate';
+
 import type { Brand } from '../../../modules/catalog/models/Brand';
 import type { Product } from '../../../modules/catalog/models/Product';
 import { getBrands } from '../../../modules/catalog/services/BrandService';
@@ -65,7 +66,6 @@ const ProductList: NextPage = () => {
         <br />
 
         {/* Filter */}
-
         <div className="row mb-3">
           <div className="col ">
             {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
@@ -76,12 +76,11 @@ const ProductList: NextPage = () => {
                 setBrandName(e.target.value);
               }}
               className={styles.filterButton}
+              defaultValue={brandName || ''}
             >
-              <option value={''} selected={brandName == ''}>
-                All
-              </option>
+              <option value={''}>All</option>
               {brands.map((brand) => (
-                <option key={brand.id} value={brand.name} selected={brandName === brand.name}>
+                <option key={brand.id} value={brand.name}>
                   {brand.name}
                 </option>
               ))}
