@@ -53,17 +53,11 @@ public class ProductService {
     public ProductListGetVm getProductsWithFilter(int pageNo, int pageSize, String productName, String brandName) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Product> productPage;
-        if(brandName.isBlank() && productName.isBlank()) {
+        if(brandName.isBlank() && productName.isBlank()){
             productPage= productRepository.findAll(pageable);
-        }
-        else if(brandName.isBlank() && !productName.isBlank()) {
-            productPage= productRepository.findByName(pageable, productName.trim());
-        }
-        else if(!brandName.isBlank() && !productName.isBlank()){
-            productPage = productRepository.getProductsWithFilter( productName.trim(), brandName.trim(), pageable);
-        }
-        else {
-            productPage = productRepository.findByBrandName(pageable, brandName.trim());
+        } else{
+            productPage = productRepository.getProductsWithFilter(productName.trim().toLowerCase(),
+                    brandName.trim(), pageable);
         }
         List<Product> productList = productPage.getContent();
         List<ProductListVm> productListVmList = productList.stream()
