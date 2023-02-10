@@ -69,17 +69,4 @@ public class ProductAttributeGroupController {
         productAttributeGroupRepository.save(productAttributeGroup);
         return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping("/backoffice/product-attribute-groups/{id}")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
-            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateProductAttributeGroup(@PathVariable Long id){
-        ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
-                .findById(id)
-                .orElseThrow(()->new NotFoundException(String.format("Product attribute group %s is not found", id)));
-        productAttributeGroupRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
 }
