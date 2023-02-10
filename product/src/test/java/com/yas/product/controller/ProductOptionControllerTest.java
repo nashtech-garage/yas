@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProductOptionControllerTest {
     private ProductOptionController productOptionController;
@@ -96,4 +96,17 @@ public class ProductOptionControllerTest {
         assertThat(exception.getMessage(), is("Product option 1 is not found"));
     }
 
+    @Test
+    public void deleteProductOption_givenProductOptionIdValid_thenSuccess(){
+        when(productOptionRepository.findById(1L)).thenReturn(Optional.of(productOption));
+        ResponseEntity<Void> response = productOptionController.deleteProductOption(1L);
+        verify(productOptionRepository).deleteById(1L);
+        assertThat(response.getStatusCode(), is(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    public void deleteProductOption_givenProductOptionIdInvalid_thenThrowNotFoundException(){
+        when(productOptionRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, ()->productOptionController.deleteProductOption(1L));
+    }
 }
