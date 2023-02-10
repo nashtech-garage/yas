@@ -6,6 +6,53 @@ import AuthenticationInfo from './AuthenticationInfo';
 import { useState } from 'react';
 import Link from 'next/link';
 
+interface DataProps {
+  id: number;
+  name: string;
+  link: string;
+}
+
+let menu_catalog_item_data = [
+  {
+    id: 1,
+    name: 'Brands',
+    link: '/catalog/brands',
+  },
+  {
+    id: 2,
+    name: 'Categories',
+    link: '/catalog/categories',
+  },
+  {
+    id: 3,
+    name: 'Products',
+    link: '/catalog/products',
+  },
+  {
+    id: 4,
+    name: 'Product Options',
+    link: '/catalog/product-options',
+  },
+  {
+    id: 5,
+    name: 'Product Attributes',
+    link: '/catalog/product-attributes',
+  },
+  {
+    id: 6,
+    name: 'Product Attribute Groups',
+    link: '/catalog/product-attribute-groups',
+  },
+];
+
+let menu_customer_item_data = [
+  {
+    id: 1,
+    name: 'Customers',
+    link: '/customers',
+  },
+];
+
 type Props = {
   children: React.ReactNode;
 };
@@ -26,64 +73,7 @@ export default function Layout({ children }: Props) {
       </Head>
       <div className="wrapper d-flex align-items-stretch">
         <nav id="sidebar" className={isSidebarActive ? 'active' : ''}>
-          <div className="p-4 pt-5">
-            <h1>
-              <Link href="/" className="logo">
-                Yas
-              </Link>
-            </h1>
-            <ul className="list-unstyled components mb-5">
-              <li className="active">
-                <a
-                  href="#catalogSubmenu"
-                  data-target="#catalogSubmenu"
-                  data-bs-toggle="collapse"
-                  aria-controls="catalogSubmenu"
-                  aria-expanded="false"
-                  className="dropdown-toggle"
-                >
-                  <span className="fa fa-product-hunt" aria-hidden="true"></span> Catalog
-                </a>
-                <ul className="collapse show list-unstyled" id="catalogSubmenu">
-                  <li>
-                    <Link href="/catalog/brands">Brands</Link>
-                  </li>
-                  <li>
-                    <Link href="/catalog/categories">Catgegories</Link>
-                  </li>
-                  <li>
-                    <Link href="/catalog/products">Products</Link>
-                  </li>
-                  <li>
-                    <Link href="/catalog/product-options">Product Options</Link>
-                  </li>
-                  <li>
-                    <Link href="/catalog/product-attributes">Product Attributes</Link>
-                  </li>
-                  <li>
-                    <Link href="/catalog/product-attribute-groups">Product Attributes Group</Link>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a
-                  href="#customerSubmenu"
-                  data-target="#customerSubmenu"
-                  data-bs-toggle="collapse"
-                  aria-controls="customerSubmenu"
-                  aria-expanded="false"
-                  className="dropdown-toggle"
-                >
-                  <span className="fa fa-user"></span> Cusomters
-                </a>
-                <ul className="collapse list-unstyled" id="customerSubmenu">
-                  <li>
-                    <Link href="/customers">Customers</Link>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
+          <Sidebar />
         </nav>
         <div id="content">
           <Navbar collapseOnSelect bg="dark" variant="dark" className={styles.header}>
@@ -131,3 +121,65 @@ export default function Layout({ children }: Props) {
     </>
   );
 }
+
+const Sidebar = () => {
+  return (
+    <div className="p-4 pt-5">
+      <h1>
+        <Link href="/" className="logo">
+          Yas
+        </Link>
+      </h1>
+      <ul className="list-unstyled components mb-5">
+        <li className="active">
+          <a
+            href="#catalogSubmenu"
+            data-target="#catalogSubmenu"
+            data-bs-toggle="collapse"
+            aria-controls="catalogSubmenu"
+            aria-expanded="false"
+            className="dropdown-toggle"
+          >
+            <span className="fa fa-product-hunt" aria-hidden="true"></span> Catalog
+          </a>
+          <ul className="collapse show list-unstyled" id="catalogSubmenu">
+            <ListItem data={menu_catalog_item_data} />
+          </ul>
+        </li>
+        <li>
+          <a
+            href="#customerSubmenu"
+            data-target="#customerSubmenu"
+            data-bs-toggle="collapse"
+            aria-controls="customerSubmenu"
+            aria-expanded="false"
+            className="dropdown-toggle"
+          >
+            <span className="fa fa-user"></span> Cusomters
+          </a>
+          <ul className="collapse list-unstyled" id="customerSubmenu">
+            <ListItem data={menu_customer_item_data} />
+          </ul>
+        </li>
+      </ul>
+    </div>
+  );
+};
+
+interface DataListProps {
+  data: DataProps[];
+}
+
+const ListItem: React.FC<DataListProps> = (props) => {
+  return (
+    <>
+      {props.data.map((obj) => (
+        <>
+          <li key={obj.id}>
+            <Link href={obj.link}>{obj.name}</Link>
+          </li>
+        </>
+      ))}
+    </>
+  );
+};
