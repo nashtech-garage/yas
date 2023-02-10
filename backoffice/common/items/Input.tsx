@@ -1,23 +1,21 @@
 import { HTMLInputTypeAttribute } from 'react';
-import { Path, RegisterOptions, UseFormRegister } from 'react-hook-form';
+import { Path, RegisterOptions, UseFormRegister, FieldValues } from 'react-hook-form';
 
-import { ProductPost } from '../../modules/catalog/models/ProductPost';
-
-type InputProps = {
+type InputProps<T extends FieldValues> = {
   labelText: string;
-  field: Path<ProductPost>;
-  register: UseFormRegister<ProductPost>;
+  field: Path<T>;
+  register: UseFormRegister<T>;
   error?: string;
   type?: HTMLInputTypeAttribute;
   registerOptions?: RegisterOptions;
   defaultValue?: number | string | string[];
 };
 
-type CheckProps = InputProps & {
-  defaultChecked?: boolean;
+type CheckProps<T extends FieldValues> = InputProps<T> & {
+  defaultChecked?: any;
 };
 
-export const Input = ({
+export const Input = <T extends FieldValues>({
   labelText,
   field,
   register,
@@ -25,7 +23,7 @@ export const Input = ({
   error,
   defaultValue,
   type = 'text',
-}: InputProps) => (
+}: InputProps<T>) => (
   <div className="mb-3">
     <label className="form-label" htmlFor={field}>
       {labelText} {registerOptions?.required && <span className="text-danger">*</span>}
@@ -41,14 +39,14 @@ export const Input = ({
   </div>
 );
 
-export const TextArea = ({
+export const TextArea = <T extends FieldValues>({
   labelText,
   field,
   register,
   registerOptions = {},
   error,
   defaultValue,
-}: InputProps) => (
+}: InputProps<T>) => (
   <div className="mb-3">
     <label className="form-label" htmlFor={field}>
       {labelText}
@@ -63,14 +61,14 @@ export const TextArea = ({
   </div>
 );
 
-export const CheckBox = ({
+export const CheckBox = <T extends FieldValues>({
   labelText,
   field,
   register,
   defaultChecked,
   registerOptions,
   error,
-}: CheckProps) => (
+}: CheckProps<T>) => (
   <div className="mb-3">
     <input
       type="checkbox"

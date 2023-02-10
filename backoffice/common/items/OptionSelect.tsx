@@ -1,16 +1,14 @@
-import { Path, RegisterOptions, UseFormRegister } from 'react-hook-form';
-
-import { ProductPost } from '../../modules/catalog/models/ProductPost';
+import { Path, RegisterOptions, UseFormRegister, FieldValues } from 'react-hook-form';
 
 type Option = {
   id: string | number;
   name: string;
 };
 
-type OptionSelectProps = {
+type OptionSelectProps<T extends FieldValues> = {
   labelText: string;
-  field: Path<ProductPost>;
-  register: UseFormRegister<ProductPost>;
+  field: Path<T>;
+  register: UseFormRegister<T>;
   registerOptions?: RegisterOptions;
   error?: string;
   options?: Option[];
@@ -19,7 +17,7 @@ type OptionSelectProps = {
   disabled?: boolean;
 };
 
-export const OptionSelect = ({
+export const OptionSelect = <T extends FieldValues>({
   labelText,
   field,
   register,
@@ -29,7 +27,7 @@ export const OptionSelect = ({
   defaultValue,
   placeholder,
   disabled,
-}: OptionSelectProps) => (
+}: OptionSelectProps<T>) => (
   <div className="mb-3">
     <label className="form-label" htmlFor={`select-option-${field}`}>
       {labelText}
