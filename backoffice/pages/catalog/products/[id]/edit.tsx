@@ -1,25 +1,24 @@
 import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
-import { Product } from '../../../../modules/catalog/models/Product';
-import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { ProductPost } from '../../../../modules/catalog/models/ProductPost';
-import { Tab, Tabs } from 'react-bootstrap';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { Tab, Tabs } from 'react-bootstrap';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
 import {
   CrossSellProduct,
-  ProductGeneralInformation,
+  ProductCategoryMapping,
   ProductImage,
   ProductSEO,
-  ProductVariation,
-  RelatedProduct,
   ProductUpdateInformation,
-  ProductCategoryMapping,
+  RelatedProduct,
 } from '../../../../modules/catalog/components';
+import { Product } from '../../../../modules/catalog/models/Product';
+import { ProductPost } from '../../../../modules/catalog/models/ProductPost';
+import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
+
 const EditProduct: NextPage = () => {
   //Get ID
   const router = useRouter();

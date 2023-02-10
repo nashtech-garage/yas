@@ -4,8 +4,8 @@ import { FieldErrorsImpl, UseFormRegister, UseFormSetValue } from 'react-hook-fo
 import { toast } from 'react-toastify';
 import slugify from 'slugify';
 
-import { Check, Input, Text } from '../../../common/items/Input';
-import Select from '../../../common/items/Select';
+import { CheckBox, Input, TextArea } from '../../../common/items/Input';
+import { OptionSelect } from '../../../common/items/OptionSelect';
 import { getProduct } from '../../../modules/catalog/services/ProductService';
 import { Brand } from '../models/Brand';
 import { Product } from '../models/Product';
@@ -85,21 +85,21 @@ const ProductUpdateInformation = ({ register, errors, setValue }: Props) => {
         register={register}
         error={errors.gtin?.message}
       />
-      <Text
+      <TextArea
         labelText="Description"
         field="description"
         register={register}
         error={errors.description?.message}
         defaultValue={product.description}
       />
-      <Text
+      <TextArea
         labelText="Short Description"
         field="shortDescription"
         register={register}
         error={errors.shortDescription?.message}
         defaultValue={product.shortDescription}
       />
-      <Text
+      <TextArea
         labelText="Specification"
         field="specification"
         register={register}
@@ -116,7 +116,7 @@ const ProductUpdateInformation = ({ register, errors, setValue }: Props) => {
         registerOptions={{ min: { value: 0, message: 'Price must be greater than 0' } }}
       />
 
-      <Select
+      <OptionSelect
         labelText="Brand"
         field="brandId"
         options={brands}
@@ -126,19 +126,19 @@ const ProductUpdateInformation = ({ register, errors, setValue }: Props) => {
         defaultValue={product.brandId}
       />
 
-      <Check
+      <CheckBox
         labelText="Is Allowed To Order"
         field="isAllowedToOrder"
         register={register}
         defaultChecked={product.isAllowedToOrder}
       />
-      <Check
+      <CheckBox
         labelText="Is Published"
         field="isPublished"
         register={register}
         defaultChecked={product.isPublished}
       />
-      <Check
+      <CheckBox
         labelText="Is Featured"
         field="isFeatured"
         register={register}

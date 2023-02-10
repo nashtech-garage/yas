@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import slugify from 'slugify';
 
-import { Check, Input, Text } from '../../../common/items/Input';
-import Select from '../../../common/items/Select';
+import { CheckBox, Input, TextArea } from '../../../common/items/Input';
+import { OptionSelect } from '../../../common/items/OptionSelect';
 import { Brand } from '../models/Brand';
 import { ProductPost } from '../models/ProductPost';
 import { getBrands } from '../services/BrandService';
@@ -38,19 +38,19 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
       <Input labelText="Slug" field="slug" register={register} error={errors.slug?.message} />
       <Input labelText="SKU" field="sku" register={register} error={errors.sku?.message} />
       <Input labelText="GTIN" field="gtin" register={register} error={errors.gtin?.message} />
-      <Text
+      <TextArea
         labelText="Description"
         field="description"
         register={register}
         error={errors.description?.message}
       />
-      <Text
+      <TextArea
         labelText="Short Description"
         field="shortDescription"
         register={register}
         error={errors.shortDescription?.message}
       />
-      <Text
+      <TextArea
         labelText="Specification"
         field="specification"
         register={register}
@@ -65,7 +65,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         registerOptions={{ min: { value: 0, message: 'Price must be greater than 0' } }}
       />
 
-      <Select
+      <OptionSelect
         labelText="Brand"
         field="brandId"
         placeholder="Select brand"
@@ -75,10 +75,10 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         error={errors.brandId?.message}
       />
 
-      <Check labelText="Is Allowed To Order" field="isAllowedToOrder" register={register} />
-      <Check labelText="Is Published" field="isPublished" register={register} />
-      <Check labelText="Is Featured" field="isFeatured" register={register} />
-      <Check
+      <CheckBox labelText="Is Allowed To Order" field="isAllowedToOrder" register={register} />
+      <CheckBox labelText="Is Published" field="isPublished" register={register} />
+      <CheckBox labelText="Is Featured" field="isFeatured" register={register} />
+      <CheckBox
         labelText="Is Visible Individually"
         field="isVisibleIndividually"
         register={register}

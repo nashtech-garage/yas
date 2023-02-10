@@ -10,7 +10,7 @@ type InputProps = {
   error?: string;
   type?: HTMLInputTypeAttribute;
   registerOptions?: RegisterOptions;
-  defaultValue?: number | string | string[] | undefined;
+  defaultValue?: number | string | string[];
 };
 
 type CheckProps = InputProps & {
@@ -41,7 +41,7 @@ export const Input = ({
   </div>
 );
 
-export const Text = ({
+export const TextArea = ({
   labelText,
   field,
   register,
@@ -63,18 +63,25 @@ export const Text = ({
   </div>
 );
 
-export const Check = ({ labelText, field, register, defaultChecked, ...restProps }: CheckProps) => (
+export const CheckBox = ({
+  labelText,
+  field,
+  register,
+  defaultChecked,
+  registerOptions,
+  error,
+}: CheckProps) => (
   <div className="mb-3">
     <input
       type="checkbox"
       id={field}
       className={`form-check-input`}
       defaultChecked={defaultChecked}
-      {...register(field, restProps.registerOptions)}
+      {...register(field, registerOptions)}
     />
     <label className="form-check-label ps-3" htmlFor={field}>
       {labelText}
     </label>
-    <p className="error-field mt-1">{restProps.error}</p>
+    <p className="error-field mt-1">{error}</p>
   </div>
 );
