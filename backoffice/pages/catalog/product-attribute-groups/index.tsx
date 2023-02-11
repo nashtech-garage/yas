@@ -1,12 +1,43 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Modal, Table } from 'react-bootstrap';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
-import { getProductAttributeGroups } from '../../../modules/catalog/services/ProductAttributeGroupService';
+import {
+  deleteProductAttributeGroup,
+  getProductAttributeGroups,
+} from '../../../modules/catalog/services/ProductAttributeGroupService';
+import { toast } from 'react-toastify';
 const ProductAttrbuteGroupList: NextPage = () => {
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
   const [isLoading, setLoading] = useState(false);
+  const [isShowModalDelete, setIsShowModalDelete] = useState<boolean>(false);
+  const [productAttributeGroupNameWantToDelete, setProductAttributeGroupNameWantToDelete] =
+    useState<string>('');
+  const [productAttributeGroupIdWantToDelete, setProductAttributeGroupIdWantToDelete] =
+    useState<number>(-1);
+
+  const handleClose: any = () => setIsShowModalDelete(false);
+  const handleDelete: any = () => {
+    if (productAttributeGroupIdWantToDelete == -1) return;
+    deleteProductAttributeGroup(productAttributeGroupIdWantToDelete)
+      .then((response) => {
+        if (response.status === 204) {
+          toast.success(productAttributeGroupIdWantToDelete + ' have been deleted');
+        } else if (response.title === 'Not found') {
+          toast.error(response.detail);
+        } else if (response.title === 'Bad request') {
+          toast.error(response.detail);
+        } else {
+          toast.error('Delete failed');
+        }
+        getListProductAttributeGroup();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const getListProductAttributeGroup = () => {
     getProductAttributeGroups().then((data) => {
       setProductAttributeGroups(data);
@@ -50,11 +81,34 @@ const ProductAttrbuteGroupList: NextPage = () => {
                     Edit
                   </button>
                 </Link>
+                &nbsp;
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  type="button"
+                  onClick={() => {
+                    setIsShowModalDelete(true);
+                    setProductAttributeGroupIdWantToDelete(obj.id);
+                    setProductAttributeGroupNameWantToDelete(obj.name);
+                  }}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      <Modal show={isShowModalDelete} onHide={handleClose}>
+        <Modal.Body>{`Are you sure you want to delete this ${productAttributeGroupNameWantToDelete} ?`}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

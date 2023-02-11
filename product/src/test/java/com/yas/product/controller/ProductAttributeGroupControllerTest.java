@@ -11,12 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -44,9 +47,10 @@ class ProductAttributeGroupControllerTest {
         productAttributeGroupRepository.saveAndFlush(productAttributeGroup2);
 
         productAttributeGroupVmExpected1 = new ProductAttributeGroupVm(1L, "productAttributeGroupName1");
-        ProductAttributeGroupVm productAttributeGroupVmExpected2 = new ProductAttributeGroupVm(2L, "productAttributeGroupName2");
         listProductAttributeGroupVmExpected = new ArrayList<>();
-        listProductAttributeGroupVmExpected.addAll(List.of(productAttributeGroupVmExpected1, productAttributeGroupVmExpected2));
+        listProductAttributeGroupVmExpected.addAll(List.of(
+                new ProductAttributeGroupVm(1L, "productAttributeGroupName1"),
+                new ProductAttributeGroupVm(2L, "productAttributeGroupName2")));
 
         validId = 1L;
         invalidId = 3L;
@@ -150,4 +154,27 @@ class ProductAttributeGroupControllerTest {
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
+
+//    @Test
+//    public void deleteProductAttributeGroup_givenProductAttributeGroupIsValid_thenSuccess(){
+//        webTestClient.delete()
+//                .uri("/backoffice/product-attribute-groups/{id}", validId)
+//                .exchange()
+//                .expectStatus().isNoContent();
+//    }
+//
+//    @Test
+//    public void deleteProductAttributeGroup_givenProductAttributeGroupInValid_thenThrowsNotFoundException(){
+//        ErrorVm errorVmExpected = new ErrorVm(
+//                HttpStatus.NOT_FOUND.toString(),
+//                "NotFound",
+//                String.format("Product attribute group %s is not found", invalidId));
+//
+//        webTestClient.delete()
+//                .uri("/backoffice/product-attribute-groups/{id}", invalidId)
+//                .exchange()
+//                .expectStatus().isNotFound()
+//                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
+//    }
+
 }

@@ -4,6 +4,7 @@ import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeGroup;
+import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.repository.ProductAttributeRepository;
 import com.yas.product.viewmodel.*;
@@ -23,8 +24,7 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class ProductAttributeControllerTest {
@@ -176,5 +176,26 @@ public class ProductAttributeControllerTest {
         ProductAttribute productAttributeValue = ProductAttributeCaptor.getValue();
         assertEquals(productAttributeValue.getProductAttributeGroup(),  productAttribute.getProductAttributeGroup());
         assertThat(result.getStatusCode(),is(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    public void deleteProductAttribute_givenProductAttributeIdValid_thenSuccess(){
+        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
+        ResponseEntity<Void> response = productAttributeController.deleteProductAttribute(1L);
+        verify(productAttributeRepository).deleteById(1L);
+        assertThat(response.getStatusCode(),is(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    public void deleteProductAttribute_givenProductAttributeIdInvalid_thenThrowNotFoundException(){
+        when(productAttributeRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, ()->productAttributeController.deleteProductAttribute(1L));
+    }
+
+    @Test
+    public void deleteProductAttribute_givenProductAttributeIdContainProductAttributeValue_thenThrowBadRequestException(){
+        productAttribute.setAttributeValues(List.of(new ProductAttributeValue()));
+        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
+        assertThrows(BadRequestException.class, ()->productAttributeController.deleteProductAttribute(1L));
     }
 }

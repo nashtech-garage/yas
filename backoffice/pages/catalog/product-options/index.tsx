@@ -1,12 +1,44 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Modal, Table } from 'react-bootstrap';
 import { ProductOption } from '../../../modules/catalog/models/ProductOption';
-import { getProductOptions } from '../../../modules/catalog/services/ProductOptionService';
+import {
+  deleteProductOption,
+  getProductOptions,
+} from '../../../modules/catalog/services/ProductOptionService';
+import { toast } from 'react-toastify';
+
 const ProductOptionList: NextPage = () => {
   const [productOptions, setProductOptions] = useState<ProductOption[]>();
   const [isLoading, setLoading] = useState(false);
+  const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
+  const [productOptionNameWantToDelete, setProductOptionNameWantToDelete] = useState<string>('');
+  const [productOptionIdWantToDelete, setProductOptionIdWantToDelete] = useState<number>(-1);
+
+  const handleClose: any = () => setShowModalDelete(false);
+  const handleDelete: any = () => {
+    if (productOptionIdWantToDelete == -1) {
+      return;
+    }
+    deleteProductOption(productOptionIdWantToDelete)
+      .then((response) => {
+        if (response.status === 204) {
+          toast.success(productOptionNameWantToDelete + ' have been deleted');
+        } else if (response.title === 'Not found') {
+          toast.error(response.detail);
+        } else if (response.title === 'Bad request') {
+          toast.error(response.detail);
+        } else {
+          toast.error('Delete failed');
+        }
+        getListProductOption();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const getListProductOption = () => {
     getProductOptions().then((data) => {
       setProductOptions(data);
@@ -41,21 +73,44 @@ const ProductOptionList: NextPage = () => {
           </tr>
         </thead>
         <tbody>
-          {productOptions.map((obj) => (
-            <tr key={obj.id}>
-              <td>{obj.id}</td>
-              <td>{obj.name}</td>
+          {productOptions.map((productOpt) => (
+            <tr key={productOpt.id}>
+              <td>{productOpt.id}</td>
+              <td>{productOpt.name}</td>
               <td>
-                <Link href={`/catalog/product-options/${obj.id}/edit`}>
+                <Link href={`/catalog/product-options/${productOpt.id}/edit`}>
                   <button className="btn btn-outline-primary btn-sm" type="button">
                     Edit
                   </button>
                 </Link>
+                &nbsp;
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  type="button"
+                  onClick={() => {
+                    setShowModalDelete(true);
+                    setProductOptionIdWantToDelete(productOpt.id);
+                    setProductOptionNameWantToDelete(productOpt.name);
+                  }}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      <Modal show={showModalDelete} onHide={handleClose}>
+        <Modal.Body>{`Are you sure you want to delete this ${productOptionNameWantToDelete} ?`}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
