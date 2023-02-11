@@ -18,7 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Optional<Product> findBySlug(String slug);
 
-    @Query(value = "FROM Product p WHERE p.name = :productName AND p.brand.name = :brandName ")
+    @Query(value = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:productName% " +
+            "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = ''))")
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
@@ -29,6 +30,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByIsPublishedTrueAndIsVisibleIndividuallyTrue(Pageable pageable);
 
-    @Query(value = "FROM Product p WHERE p.isFeatured = TRUE AND p.isVisibleIndividually = TRUE AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")
+    @Query(value = "FROM Product p WHERE p.isFeatured = TRUE " +
+            "AND p.isVisibleIndividually = TRUE " +
+            "AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")
     Page<Product> getFeaturedProduct(Pageable pageable);
 }
