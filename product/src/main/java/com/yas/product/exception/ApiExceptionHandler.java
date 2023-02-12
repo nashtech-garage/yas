@@ -1,6 +1,8 @@
 package com.yas.product.exception;
 
 import com.yas.product.viewmodel.ErrorVm;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,11 +14,12 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
 @Slf4j
-public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+public class ApiExceptionHandler {
   private static final String ERROR_LOG_FORMAT = "Error: URI: {}, ErrorCode: {}, Message: {}";
 
   @ExceptionHandler(NotFoundException.class)
@@ -35,9 +38,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.badRequest().body(errorVm);
   }
 
-  @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
-                                                                HttpStatus status, WebRequest request) {
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
     List<String> errors = ex.getBindingResult()
             .getFieldErrors()
             .stream()
@@ -47,6 +49,19 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
     return ResponseEntity.badRequest().body(errorVm);
   }
+
+  @ExceptionHandler({ ConstraintViolationException.class })
+  public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
+    List<String> errors = new ArrayList<>();
+    for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+      errors.add(violation.getRootBeanClass().getName() + " " +
+              violation.getPropertyPath() + ": " + violation.getMessage());
+    }
+
+    ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
+    return ResponseEntity.badRequest().body(errorVm);
+  }
+
 
   private String getServletPath(WebRequest webRequest) {
     ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
