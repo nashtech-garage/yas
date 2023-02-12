@@ -1,0 +1,18 @@
+global:
+    scrape_interval: 2s
+    evaluation_interval: 2s
+
+scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+          - targets: ['host.docker.internal:9090']
+          
+    - job_name: 'backoffice-bff'
+      metrics_path: '/actuator/prometheus'
+      static_configs:
+        - targets: ['backoffice']
+        
+    - job_name: 'product'
+      metrics_path: '/product/actuator/prometheus'
+      static_configs:
+        - targets: ['product']
