@@ -11,16 +11,19 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
 public class BrandController {
   private final BrandRepository brandRepository;
+  private static final Logger log = LoggerFactory.getLogger(BrandController.class);
 
   public BrandController(BrandRepository brandRepository) {
     this.brandRepository = brandRepository;
@@ -28,6 +31,7 @@ public class BrandController {
 
   @GetMapping({"/backoffice/brands", "/storefront/brands"})
   public ResponseEntity<List<BrandVm>> listBrands() {
+    log.info("[Test logging with trace] Got a request");
     List<BrandVm> brandVms = brandRepository.findAll().stream()
         .map(BrandVm::fromModel)
         .toList();

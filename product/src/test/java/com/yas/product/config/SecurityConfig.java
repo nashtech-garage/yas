@@ -11,9 +11,9 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
-                .antMatchers(HttpMethod.POST, "/backoffice/**")
-                .antMatchers(HttpMethod.PUT, "/backoffice/**")
-                .antMatchers(HttpMethod.GET, "/backoffice/**")
-                .antMatchers(HttpMethod.DELETE, "/backoffice/**");
+                .requestMatchers(HttpMethod.POST, "/backoffice/**")
+                .requestMatchers(HttpMethod.PUT, "/backoffice/**")
+                .requestMatchers(HttpMethod.GET, "/backoffice/**")
+                .requestMatchers(HttpMethod.DELETE, "/backoffice/**");
     }
 }
