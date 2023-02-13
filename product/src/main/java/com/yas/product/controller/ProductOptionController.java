@@ -22,6 +22,8 @@ import java.util.List;
 
 @RestController
 public class ProductOptionController {
+    private final String productOptionNotFoundMessage = "Product option %s is not found";
+
     private final ProductOptionRepository productOptionRepository;
     public ProductOptionController(ProductOptionRepository productOptionRepository){
         this.productOptionRepository = productOptionRepository;
@@ -44,7 +46,7 @@ public class ProductOptionController {
     public ResponseEntity<ProductOptionGetVm> getProductOption(@PathVariable("id") Long id){
         ProductOption productOption = productOptionRepository
                 .findById(id)
-                .orElseThrow(()-> new NotFoundException(String.format("Product option %s is not found" , id)));
+                .orElseThrow(()-> new NotFoundException(String.format(productOptionNotFoundMessage , id)));
         return ResponseEntity.ok(ProductOptionGetVm.fromModel(productOption));
     }
 
@@ -72,7 +74,7 @@ public class ProductOptionController {
     public ResponseEntity<Void> updateProductOption(@PathVariable Long id, @Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal){
         ProductOption productOption = productOptionRepository
                 .findById(id)
-                .orElseThrow(()-> new NotFoundException(String.format("Product option %s is not found", id)));
+                .orElseThrow(()-> new NotFoundException(String.format(productOptionNotFoundMessage, id)));
         productOption.setName(productOptionPostVm.name());
         productOption.setLastModifiedBy(principal.getName());
         productOption.setLastModifiedOn(ZonedDateTime.now());
@@ -86,9 +88,9 @@ public class ProductOptionController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteProductOption(@PathVariable Long id){
-        ProductOption productOption = productOptionRepository
+        productOptionRepository
                 .findById(id)
-                .orElseThrow(()-> new NotFoundException(String.format("Product option %s is not found", id)));
+                .orElseThrow(()-> new NotFoundException(String.format(productOptionNotFoundMessage, id)));
         productOptionRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }

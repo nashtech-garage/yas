@@ -99,7 +99,7 @@ const BrandList: NextPage = () => {
         handleClose={handleClose}
         nameWantToDelete={brandNameWantToDelete}
         handleDelete={handleDelete}
-        action="delete"
+        action="delete2"
       />
     </>
   );

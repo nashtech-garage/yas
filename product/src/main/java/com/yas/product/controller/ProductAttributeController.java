@@ -21,6 +21,8 @@ import java.util.List;
 
 @RestController
 public class ProductAttributeController {
+    private final String productAttributeNotFoundMessage = "Product attribute group %s is not found";
+
     private final ProductAttributeRepository productAttributeRepository;
     private final ProductAttributeGroupRepository productAttributeGroupRepository;
 
@@ -61,7 +63,7 @@ public class ProductAttributeController {
        if(productAttributePostVm.productAttributeGroupId() != null){
            ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
                    .findById(productAttributePostVm.productAttributeGroupId())
-                   .orElseThrow(() -> new BadRequestException(String.format("Product attribute group %s is not found", productAttributePostVm.productAttributeGroupId())));
+                   .orElseThrow(() -> new BadRequestException(String.format(productAttributeNotFoundMessage, productAttributePostVm.productAttributeGroupId())));
            productAttribute.setProductAttributeGroup(productAttributeGroup);
        }
        ProductAttribute savedProductAttribute = productAttributeRepository.saveAndFlush(productAttribute);
@@ -78,12 +80,12 @@ public class ProductAttributeController {
     public ResponseEntity<Void> updateProductAttribute(@PathVariable Long id, @Valid @RequestBody final ProductAttributePostVm productAttributePostVm) {
         ProductAttribute productAttribute = productAttributeRepository
                 .findById(id)
-                .orElseThrow(()-> new NotFoundException(String.format("Product attribute group %s is not found", id)));
+                .orElseThrow(()-> new NotFoundException(String.format(productAttributeNotFoundMessage, id)));
         productAttribute.setName(productAttributePostVm.name());
         if(productAttributePostVm.productAttributeGroupId() != null){
             ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
                     .findById(productAttributePostVm.productAttributeGroupId())
-                    .orElseThrow(() -> new BadRequestException(String.format("Product attribute group %s is not found", productAttributePostVm.productAttributeGroupId())));
+                    .orElseThrow(() -> new BadRequestException(String.format(productAttributeNotFoundMessage, productAttributePostVm.productAttributeGroupId())));
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
         productAttributeRepository.saveAndFlush(productAttribute);
@@ -98,7 +100,7 @@ public class ProductAttributeController {
     public ResponseEntity<Void> deleteProductAttribute(@PathVariable Long id){
         ProductAttribute productAttribute = productAttributeRepository
                 .findById(id)
-                .orElseThrow(()->new NotFoundException(String.format("Product attribute group %s is not found", id)));
+                .orElseThrow(()->new NotFoundException(String.format(productAttributeNotFoundMessage, id)));
         if(productAttribute.getAttributeValues().size() > 0)
             throw new BadRequestException("Please make sure this Product Attribute doesn't exist in any Product Attribute Values");
         productAttributeRepository.deleteById(id);
