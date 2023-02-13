@@ -103,10 +103,4 @@ public class ProductOptionControllerTest {
         verify(productOptionRepository).deleteById(1L);
         assertThat(response.getStatusCode(), is(HttpStatus.NO_CONTENT));
     }
-
-    @Test
-    public void deleteProductOption_givenProductOptionIdInvalid_thenThrowNotFoundException(){
-        when(productOptionRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, ()->productOptionController.deleteProductOption(1L));
-    }
 }

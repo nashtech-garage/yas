@@ -47,7 +47,7 @@ public class ProductAttributeController {
     public ResponseEntity<ProductAttributeGetVm> getProductAttribute(@PathVariable("id") Long id){
        ProductAttribute productAttribute = productAttributeRepository
                .findById(id)
-               .orElseThrow(()-> new NotFoundException(String.format("Product attribute %s is not found" , id)));
+               .orElseThrow(()-> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND , id)));
        return ResponseEntity.ok(ProductAttributeGetVm.fromModel(productAttribute));
     }
 
