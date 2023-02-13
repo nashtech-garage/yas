@@ -30,7 +30,7 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping("/backoffice/categories")
+    @GetMapping({"/backoffice/categories" , "/storefront/categories"})
     public ResponseEntity<List<CategoryGetVm>> listCategories(){
         List<CategoryGetVm> categoryGetVms = categoryRepository.findAll().stream()
                 .map(CategoryGetVm::fromModel)
