@@ -1,13 +1,14 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { Button, Modal, Table } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Button, Table } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { ProductOption } from '../../../modules/catalog/models/ProductOption';
 import {
   deleteProductOption,
   getProductOptions,
 } from '../../../modules/catalog/services/ProductOptionService';
-import { toast } from 'react-toastify';
 
 const ProductOptionList: NextPage = () => {
   const [productOptions, setProductOptions] = useState<ProductOption[]>();
@@ -100,17 +101,13 @@ const ProductOptionList: NextPage = () => {
           ))}
         </tbody>
       </Table>
-      <Modal show={showModalDelete} onHide={handleClose}>
-        <Modal.Body>{`Are you sure you want to delete this ${productOptionNameWantToDelete} ?`}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={productOptionNameWantToDelete}
+        handleDelete={handleDelete}
+        action="delete"
+      />
     </>
   );
 };

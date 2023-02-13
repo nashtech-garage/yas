@@ -27,7 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ProductAttributeControllerTest {
+class ProductAttributeControllerTest {
 
     ProductAttributeRepository productAttributeRepository;
     ProductAttributeGroupRepository productAttributeGroupRepository;
@@ -89,7 +89,7 @@ public class ProductAttributeControllerTest {
         when(productAttributeGroupRepository.findById(productAttributePostVm.productAttributeGroupId())).thenReturn(Optional.empty());
         BadRequestException exception =  Assertions.assertThrows(BadRequestException.class,
                 () -> productAttributeController.createProductAttribute(productAttributePostVm, UriComponentsBuilder.fromPath("/product-attribute/{id}"), principal));
-        assertThat(exception.getMessage(),is("Product attribute group 1 is not found"));
+        assertThat(exception.getMessage(),is("Product attribute 1 is not found"));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ProductAttributeControllerTest {
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.empty());
         NotFoundException exception =  Assertions.assertThrows(NotFoundException.class,
                 () -> productAttributeController.updateProductAttribute(1L,productAttributePostVm));
-        assertThat(exception.getMessage(),is("Product attribute group 1 is not found"));
+        assertThat(exception.getMessage(),is("Product attribute 1 is not found"));
     }
     @Test
     void updateProductAttribute_FindProductAttributeGroupId_ThrowException(){
@@ -146,7 +146,7 @@ public class ProductAttributeControllerTest {
         when(productAttributeGroupRepository.findById(productAttributePostVm.productAttributeGroupId())).thenReturn(Optional.empty());
         BadRequestException exception =  Assertions.assertThrows(BadRequestException.class,
                 () -> productAttributeController.updateProductAttribute(1L,productAttributePostVm));
-        assertThat(exception.getMessage(),is("Product attribute group 1 is not found"));
+        assertThat(exception.getMessage(),is("Product attribute 1 is not found"));
     }
     @Test
     void updateProductAttribute_ValidProductAttributePostVmWithProductAttributeGroupId_Success(){
@@ -179,7 +179,7 @@ public class ProductAttributeControllerTest {
     }
 
     @Test
-    public void deleteProductAttribute_givenProductAttributeIdValid_thenSuccess(){
+    void deleteProductAttribute_givenProductAttributeIdValid_thenSuccess(){
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
         ResponseEntity<Void> response = productAttributeController.deleteProductAttribute(1L);
         verify(productAttributeRepository).deleteById(1L);
@@ -187,13 +187,13 @@ public class ProductAttributeControllerTest {
     }
 
     @Test
-    public void deleteProductAttribute_givenProductAttributeIdInvalid_thenThrowNotFoundException(){
+    void deleteProductAttribute_givenProductAttributeIdInvalid_thenThrowNotFoundException(){
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(NotFoundException.class, ()->productAttributeController.deleteProductAttribute(1L));
     }
 
     @Test
-    public void deleteProductAttribute_givenProductAttributeIdContainProductAttributeValue_thenThrowBadRequestException(){
+    void deleteProductAttribute_givenProductAttributeIdContainProductAttributeValue_thenThrowBadRequestException(){
         productAttribute.setAttributeValues(List.of(new ProductAttributeValue()));
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
         assertThrows(BadRequestException.class, ()->productAttributeController.deleteProductAttribute(1L));
