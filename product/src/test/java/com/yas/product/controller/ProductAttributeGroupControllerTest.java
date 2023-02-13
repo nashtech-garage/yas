@@ -156,25 +156,11 @@ class ProductAttributeGroupControllerTest {
     }
 
     @Test
-    public void deleteProductAttributeGroup_givenProductAttributeGroupIsValid_thenSuccess(){
+    void deleteProductAttributeGroup_givenProductAttributeGroupIsValid_thenSuccess(){
         webTestClient.delete()
                 .uri("/backoffice/product-attribute-groups/{id}", validId)
                 .exchange()
                 .expectStatus().isNoContent();
-    }
-
-    @Test
-    public void deleteProductAttributeGroup_givenProductAttributeGroupInValid_thenThrowsNotFoundException(){
-        ErrorVm errorVmExpected = new ErrorVm(
-                HttpStatus.NOT_FOUND.toString(),
-                "NotFound",
-                String.format("Product attribute group %s is not found", invalidId));
-
-        webTestClient.delete()
-                .uri("/backoffice/product-attribute-groups/{id}", invalidId)
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
 }

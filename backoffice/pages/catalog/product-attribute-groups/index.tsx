@@ -1,14 +1,14 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { Button, Modal, Table } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Button, Table } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import {
   deleteProductAttributeGroup,
   getProductAttributeGroups,
 } from '../../../modules/catalog/services/ProductAttributeGroupService';
-import { toast } from 'react-toastify';
-import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 
 const ProductAttrbuteGroupList: NextPage = () => {
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
