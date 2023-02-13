@@ -8,6 +8,7 @@ import {
   getProductAttributeGroups,
 } from '../../../modules/catalog/services/ProductAttributeGroupService';
 import { toast } from 'react-toastify';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 const ProductAttrbuteGroupList: NextPage = () => {
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
   const [isLoading, setLoading] = useState(false);
@@ -98,17 +99,13 @@ const ProductAttrbuteGroupList: NextPage = () => {
           ))}
         </tbody>
       </Table>
-      <Modal show={isShowModalDelete} onHide={handleClose}>
-        <Modal.Body>{`Are you sure you want to delete this ${productAttributeGroupNameWantToDelete} ?`}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalDeleteCustom
+        showModalDelete={isShowModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={productAttributeGroupNameWantToDelete}
+        handleDelete={handleDelete}
+        action="delete2"
+      />
     </>
   );
 };

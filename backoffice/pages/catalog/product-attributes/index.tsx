@@ -8,6 +8,7 @@ import {
 } from '../../../modules/catalog/services/ProductAttributeService';
 import { ProductAttribute } from '../../../modules/catalog/models/ProductAttribute';
 import { toast } from 'react-toastify';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 
 const ProductAttributeList: NextPage = () => {
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>();
@@ -101,17 +102,13 @@ const ProductAttributeList: NextPage = () => {
           ))}
         </tbody>
       </Table>
-      <Modal show={isShowModalDelete} onHide={handleClose}>
-        <Modal.Body>{`Are you sure you want to delete this ${productAttributeNameWantToDelete} ?`}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalDeleteCustom
+        showModalDelete={isShowModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={productAttributeNameWantToDelete}
+        handleDelete={handleDelete}
+        action="delete"
+      />
     </>
   );
 };
