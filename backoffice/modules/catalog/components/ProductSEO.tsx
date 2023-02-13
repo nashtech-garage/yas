@@ -1,7 +1,8 @@
-import { ProductPost } from '../models/ProductPost';
-import { UseFormRegister, FieldErrorsImpl } from 'react-hook-form';
-import { Input, Text } from '../../../common/items/Input';
+import { FieldErrorsImpl, UseFormRegister } from 'react-hook-form';
+
+import { Input, TextArea } from '../../../common/items/Input';
 import { Product } from '../models/Product';
+import { ProductPost } from '../models/ProductPost';
 
 type Props = {
   product?: Product;
@@ -48,8 +49,8 @@ const ProductSEO = ({ product, register, errors }: Props) => {
         <>
           <div>
             <Input labelText="Meta Title" field="metaTitle" register={register} />
-            <Text labelText="Meta Keywords" field="metaKeyword" register={register} />
-            <Text labelText="Meta Description" field="metaDescription" register={register} />
+            <TextArea labelText="Meta Keywords" field="metaKeyword" register={register} />
+            <TextArea labelText="Meta Description" field="metaDescription" register={register} />
           </div>
         </>
       )}

@@ -134,11 +134,9 @@ const ListItem: React.FC<DataListProps> = (props) => {
   return (
     <>
       {props.data.map((obj) => (
-        <>
-          <li key={obj.id}>
-            <Link href={obj.link}>{obj.name}</Link>
-          </li>
-        </>
+        <li key={obj.id}>
+          <Link href={obj.link}>{obj.name}</Link>
+        </li>
       ))}
     </>
   );

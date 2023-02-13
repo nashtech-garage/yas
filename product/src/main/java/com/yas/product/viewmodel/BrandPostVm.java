@@ -1,7 +1,7 @@
 package com.yas.product.viewmodel;
 
 import com.yas.product.model.Brand;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 public record BrandPostVm(@NotEmpty String name, @NotEmpty String slug) {
 

@@ -586,7 +586,7 @@ class ProductServiceTest {
                 productNameCaptor.capture(),
                 brandNameCaptor.capture(),
                 pageableCaptor.capture());
-        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim());
+        assertThat(productNameCaptor.getValue()).contains(productName.trim().toLowerCase());
         assertThat(brandNameCaptor.getValue()).isEqualTo(brandName.trim());
         assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
 
@@ -614,8 +614,9 @@ class ProductServiceTest {
         String brandName = " Xiaomi ";
         var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         var brandNameCaptor = ArgumentCaptor.forClass(String.class);
+        var productNameCaptor = ArgumentCaptor.forClass(String.class);
 
-        when(productRepository.findByBrandName(pageableCaptor.capture(), brandNameCaptor.capture())).thenReturn(productPage);
+        when(productRepository.getProductsWithFilter(productNameCaptor.capture(), brandNameCaptor.capture(), pageableCaptor.capture())).thenReturn(productPage);
         when(productPage.getContent()).thenReturn(products);
         when(productPage.getNumber()).thenReturn(pageNo);
         when(productPage.getTotalElements()).thenReturn((long) totalElement);
@@ -652,8 +653,9 @@ class ProductServiceTest {
         String brandName = "  ";
         var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         var productNameCaptor = ArgumentCaptor.forClass(String.class);
+        var brandNameCaptor = ArgumentCaptor.forClass(String.class);
 
-        when(productRepository.findByName(pageableCaptor.capture(), productNameCaptor.capture())).thenReturn(productPage);
+        when(productRepository.getProductsWithFilter(productNameCaptor.capture(), brandNameCaptor.capture(), pageableCaptor.capture())).thenReturn(productPage);
         when(productPage.getContent()).thenReturn(products);
         when(productPage.getNumber()).thenReturn(pageNo);
         when(productPage.getTotalElements()).thenReturn((long) totalElement);
@@ -664,7 +666,7 @@ class ProductServiceTest {
         ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
 
         //then
-        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim());
+        assertThat(productNameCaptor.getValue()).isEqualTo(productName.trim().toLowerCase());
         assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
         assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
         assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());

@@ -35,7 +35,7 @@ public class MediaService {
         builder.part("caption", caption);
         builder.part("fileNameOverride", fileNameOverride);
 
-        NoFileMediaVm noFileMediaVm = webClient.post()
+        return webClient.post()
                 .uri(url)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .headers(h -> h.setBearerAuth(jwt))
@@ -43,7 +43,6 @@ public class MediaService {
                 .retrieve()
                 .bodyToMono(NoFileMediaVm.class)
                 .block();
-        return noFileMediaVm;
     }
 
     public NoFileMediaVm getMedia(Long id){

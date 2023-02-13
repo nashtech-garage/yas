@@ -1,7 +1,7 @@
 package com.yas.product.validation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class PriceValidator implements ConstraintValidator<ValidateProductPrice, Double> {
 

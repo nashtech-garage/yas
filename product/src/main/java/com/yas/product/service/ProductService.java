@@ -53,17 +53,11 @@ public class ProductService {
     public ProductListGetVm getProductsWithFilter(int pageNo, int pageSize, String productName, String brandName) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Product> productPage;
-        if(brandName.isBlank() && productName.isBlank()) {
+        if(brandName.isBlank() && productName.isBlank()){
             productPage= productRepository.findAll(pageable);
-        }
-        else if(brandName.isBlank() && !productName.isBlank()) {
-            productPage= productRepository.findByName(pageable, productName.trim());
-        }
-        else if(!brandName.isBlank() && !productName.isBlank()){
-            productPage = productRepository.getProductsWithFilter( productName.trim(), brandName.trim(), pageable);
-        }
-        else {
-            productPage = productRepository.findByBrandName(pageable, brandName.trim());
+        } else{
+            productPage = productRepository.getProductsWithFilter(productName.trim().toLowerCase(),
+                    brandName.trim(), pageable);
         }
         List<Product> productList = productPage.getContent();
         List<ProductListVm> productListVmList = productList.stream()
@@ -85,7 +79,7 @@ public class ProductService {
                 .findBySlug(slug)
                 .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", slug)));
         List<String> productImageMediaUrls = new ArrayList<>();
-        if(null != product.getProductImages() && product.getProductImages().size() > 0){
+        if(null != product.getProductImages() && !product.getProductImages().isEmpty()){
             for (ProductImage image: product.getProductImages()){
                 productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
             }
@@ -200,7 +194,7 @@ public class ProductService {
             throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
         }
 
-        if (productPutVm.brandId() != null && (product.getBrand() == null || (productPutVm.brandId() != product.getBrand().getId()))) {
+        if (productPutVm.brandId() != null && (product.getBrand() == null || !(productPutVm.brandId().equals(product.getBrand().getId()) ))) {
             Brand brand = brandRepository.findById(productPutVm.brandId()).
                     orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
             product.setBrand(brand);
@@ -381,16 +375,15 @@ public class ProductService {
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", productId)));
-        ProductThumbnailVm productThumbnailVm = new ProductThumbnailVm(
+        return new ProductThumbnailVm(
                 product.getId(),
                 product.getName(),
                 product.getSlug(),
                 mediaService.getMedia(product.getThumbnailMediaId()).url());
-        return productThumbnailVm;
     }
 
-    public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int PageSize) {
-        Pageable pageable = PageRequest.of(pageNo, PageSize);
+    public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
         List<ProductThumbnailGetVm> productThumbnailVms = new ArrayList<>();
         Page<Product> productPage = productRepository.getFeaturedProduct(pageable);
         List<Product> products = productPage.getContent();
@@ -417,7 +410,7 @@ public class ProductService {
         }
 
         List<String> productImageMediaUrls = new ArrayList<>();
-        if(null != product.getProductImages() && product.getProductImages().size() > 0){
+        if(null != product.getProductImages() && !product.getProductImages().isEmpty()){
             for (ProductImage image: product.getProductImages()){
                 productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
             }

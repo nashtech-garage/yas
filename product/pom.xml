@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.0</version>
+		<version>3.0.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.yas</groupId>
@@ -21,8 +21,7 @@
 		<springdoc-openapi-ui.version>1.6.9</springdoc-openapi-ui.version>
 		<org.lombok.version>1.18.22</org.lombok.version>
 		<org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
-		<spring-cloud.version>2021.0.3</spring-cloud.version>
-		<spring-cloud-sleuth-otel.version>1.1.0-M6</spring-cloud-sleuth-otel.version>
+		<spring-cloud.version>2022.0.1</spring-cloud.version>
 		<sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.projectKey>nashtech-garage_yas-product</sonar.projectKey>
@@ -32,6 +31,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -81,22 +84,26 @@
             <scope>test</scope>
         </dependency>
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-sleuth</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.cloud</groupId>
-					<artifactId>spring-cloud-sleuth-brave</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-otel</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-exporter-otlp-trace</artifactId>
+			<artifactId>opentelemetry-exporter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.loki4j</groupId>
+			<artifactId>loki-logback-appender</artifactId>
+			<version>1.3.2</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -110,20 +117,6 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
 				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
-				<version>${spring-cloud-sleuth-otel.version}</version>
-				<scope>import</scope>
-				<type>pom</type>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-bom</artifactId>
-				<version>1.15.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

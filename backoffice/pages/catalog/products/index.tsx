@@ -1,10 +1,11 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button, InputGroup, Stack, Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import { FaSearch } from 'react-icons/fa';
 import ReactPaginate from 'react-paginate';
+
 import type { Brand } from '../../../modules/catalog/models/Brand';
 import type { Product } from '../../../modules/catalog/models/Product';
 import { getBrands } from '../../../modules/catalog/services/BrandService';
@@ -12,6 +13,7 @@ import { getProducts } from '../../../modules/catalog/services/ProductService';
 import styles from '../../../styles/Filter.module.css';
 
 const ProductList: NextPage = () => {
+  let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [pageNo, setPageNo] = useState<number>(0);
@@ -40,9 +42,14 @@ const ProductList: NextPage = () => {
 
   //searching handler
   const searchingHandler = () => {
-    let inputValue = (document.getElementById('product-name') as HTMLInputElement).value;
-    setProductName(inputValue);
-    setPageNo(0);
+    if (typingTimeOutRef) {
+      clearTimeout(typingTimeOutRef);
+    }
+    typingTimeOutRef = setTimeout(() => {
+      let inputValue = (document.getElementById('product-name') as HTMLInputElement).value;
+      setProductName(inputValue);
+      setPageNo(0);
+    }, 500);
   };
 
   const changePage = ({ selected }: any) => {
@@ -65,7 +72,6 @@ const ProductList: NextPage = () => {
         <br />
 
         {/* Filter */}
-
         <div className="row mb-3">
           <div className="col ">
             {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
@@ -76,12 +82,11 @@ const ProductList: NextPage = () => {
                 setBrandName(e.target.value);
               }}
               className={styles.filterButton}
+              defaultValue={brandName || ''}
             >
-              <option value={''} selected={brandName == ''}>
-                All
-              </option>
+              <option value={''}>All</option>
               {brands.map((brand) => (
-                <option key={brand.id} value={brand.name} selected={brandName === brand.name}>
+                <option key={brand.id} value={brand.name}>
                   {brand.name}
                 </option>
               ))}
@@ -95,9 +100,7 @@ const ProductList: NextPage = () => {
                   id="product-name"
                   placeholder="Search name ..."
                   defaultValue={productName}
-                  onChange={(e) => {
-                    if (e.target.value.replaceAll(' ', '') == '') setProductName('');
-                  }}
+                  onChange={searchingHandler}
                 />
                 <Button id="seach-category" variant="danger" onClick={searchingHandler}>
                   <FaSearch />

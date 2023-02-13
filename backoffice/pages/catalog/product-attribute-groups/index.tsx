@@ -9,6 +9,7 @@ import {
 } from '../../../modules/catalog/services/ProductAttributeGroupService';
 import { toast } from 'react-toastify';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
+
 const ProductAttrbuteGroupList: NextPage = () => {
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
   const [isLoading, setLoading] = useState(false);
@@ -104,7 +105,7 @@ const ProductAttrbuteGroupList: NextPage = () => {
         handleClose={handleClose}
         nameWantToDelete={productAttributeGroupNameWantToDelete}
         handleDelete={handleDelete}
-        action="delete2"
+        action="delete"
       />
     </>
   );

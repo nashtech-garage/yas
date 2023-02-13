@@ -27,7 +27,6 @@ services:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/auth/realms/Yas
-      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
       SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: api
       SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://nginx
       SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path= /api/**
@@ -45,7 +44,6 @@ services:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/auth/realms/Yas
-      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
       SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: api
       SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://nginx
       SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path= /api/**
@@ -65,7 +63,6 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /media
       YAS_PUBLICURL: http://api.yas.local/media
       SERVER_PORT: "80"
-      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
   product:
     image: ghcr.io/nashtech-garage/yas-product:latest
     environment:
@@ -73,13 +70,11 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /product
       YAS_SERVICES_MEDIA: http://media/media
       SERVER_PORT: "80"
-      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
   customer:
     image: ghcr.io/nashtech-garage/yas-customer:latest
     environment:
       SERVER_SERVLET_CONTEXT_PATH: /customer
       SERVER_PORT: "80"
-      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
   cart:
     image: ghcr.io/nashtech-garage/yas-cart:latest
     environment:
@@ -88,7 +83,6 @@ services:
       YAS_SERVICES_MEDIA: http://media/media
       YAS_SERVICES_PRODUCT: http://product/product
       SERVER_PORT: "80"
-      SPRING_SLEUTH_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
   swagger-ui:
     image: swaggerapi/swagger-ui
     environment:
@@ -114,12 +108,53 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@yas.com
       PGADMIN_DEFAULT_PASSWORD: admin
-  jaeger:
-    image: jaegertracing/all-in-one:1.36
+  tempo:
+    image: grafana/tempo
+    extra_hosts: ['host.docker.internal:host-gateway']
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./docker/tempo/tempo-local.yaml:/etc/tempo.yaml:ro
+      - ./tempo-data:/tmp/tempo
     ports:
-      - "4317:4317"
+      - "14268"  # jaeger ingest
+      - "9411:9411" # zipkin
+      #- "4317:4317" # otlp grpc ingest
+      #- "4318:4318" # otlp http ingest
+  loki:
+    image: grafana/loki
+    extra_hosts: ['host.docker.internal:host-gateway']
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    ports:
+      - "3100:3100"                                   # loki needs to be exposed so it receives logs
     environment:
-      COLLECTOR_OTLP_ENABLED: "true"
+      - JAEGER_AGENT_HOST=tempo
+      - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+  prometheus:
+    image: prom/prometheus
+    extra_hosts: ['host.docker.internal:host-gateway']
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana
+    extra_hosts: ['host.docker.internal:host-gateway']
+    volumes:
+      - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3009:3000"
+      
 volumes:
   postgres:
   pgadmin:

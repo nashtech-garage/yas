@@ -28,6 +28,7 @@ public class SecurityConfig {
         http
                 .authorizeExchange()
                 .pathMatchers("/health").permitAll()
+                .pathMatchers("/actuator/prometheus").permitAll()
                 .anyExchange().hasAnyRole("ADMIN")
                 .and()
                 .oauth2Login()

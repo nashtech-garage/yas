@@ -51,8 +51,8 @@ server {
 }
 
 server {
-  server_name jaeger;
+  server_name grafana;
   location / {
-	proxy_pass http://jaeger:16686;
+	proxy_pass http://grafana:3000;
   }
 }
