@@ -16,3 +16,8 @@ scrape_configs:
       metrics_path: '/product/actuator/prometheus'
       static_configs:
         - targets: ['product']
+
+    - job_name: 'media'
+      metrics_path: '/media/actuator/prometheus'
+      static_configs:
+        - targets: ['media']
