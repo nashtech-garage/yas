@@ -10,7 +10,7 @@ scrape_configs:
     - job_name: 'backoffice-bff'
       metrics_path: '/actuator/prometheus'
       static_configs:
-        - targets: ['backoffice']
+        - targets: ['backoffice', 'storefront']
         
     - job_name: 'product'
       metrics_path: '/product/actuator/prometheus'
