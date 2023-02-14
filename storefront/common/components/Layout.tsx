@@ -18,6 +18,12 @@ export default function Layout({ children }: Props) {
       <Navbar collapseOnSelect bg="dark" variant="dark" style={{ marginBottom: 0 }}>
         <div className="container" style={{ marginBottom: 0 }}>
           <Navbar.Brand href="/">Yas - Storefront</Navbar.Brand>
+          <Navbar.Collapse style={{ marginLeft: 50 }}>
+            <Navbar.Text>
+              <Link href={'/products'}>Our Store</Link>
+            </Navbar.Text>
+          </Navbar.Collapse>
+
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Brand>

@@ -118,17 +118,17 @@ public class CategoryController {
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
-        if(category.getCategories().size()>0){
+        if(!category.getCategories().isEmpty()){
             throw new BadRequestException(Constants.ERROR_CODE.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_CHILDREN);
         }
-        if(category.getProductCategories().size()>0){
+        if(!category.getProductCategories().isEmpty()){
             throw new BadRequestException(Constants.ERROR_CODE.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_PRODUCT);
         }
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
     boolean checkParent(Long id, Category category){
-        if(id == category.getId()) return false;
+        if(id.equals(category.getId())) return false;
         if(category.getParent()!=null)
             return checkParent(id, category.getParent());
         else return true;

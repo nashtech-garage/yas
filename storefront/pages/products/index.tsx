@@ -58,7 +58,7 @@ const ProductList = () => {
       <div className="wrapper py-5">
         <div className="container-xxl">
           <div className="row">
-            <div className="col-3">
+            <div className="d-none d-md-block col-md-3 ">
               <div className={`${styles['filter-card']} mb-3`}>
                 <h3 className={`${styles['filter-title']}`}>Filter By</h3>
                 <div>
@@ -98,7 +98,7 @@ const ProductList = () => {
                 </div>
               </div>
             </div>
-            <div className="col-9">
+            <div className="col-md-9">
               <div className={styles['filter-sort-grid']}>
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center gap-10">
@@ -117,11 +117,11 @@ const ProductList = () => {
                 </div>
               </div>
               <div className="products-list" style={{ marginTop: 10 }}>
-                <Row xs={2} md={3} className="g-4">
+                <Row xs={1} sm={2} md={3} className="g-4">
                   {products.map((product) => (
                     <Col key={product.id}>
                       <Card
-                        className="item-product"
+                        className={styles['item-product']}
                         style={{ padding: '0', borderRadius: 0, margin: 0 }}
                       >
                         <Link href={`/products/${product.slug}`}>
@@ -137,16 +137,38 @@ const ProductList = () => {
                               <a style={{ fontWeight: 'bolder' }}>{product.name}</a>
                             </div>
                           </Link>
+                          <div
+                            className={`container ${styles['btn-card-container']}`}
+                            style={{ zIndex: 2 }}
+                          >
+                            <div className="row">
+                              <Link
+                                href={`/products/${product.slug}`}
+                                className={`col ${styles['btn-in-card']}`}
+                              >
+                                {' '}
+                                Quick View
+                              </Link>
+                              <Link
+                                href={`/products/${product.slug}`}
+                                className={`col ${styles['btn-in-card']}`}
+                              >
+                                <i className="yith-wcwl-icon fa fa-heart-o"></i> <span>Save</span>
+                              </Link>
+                            </div>
+                          </div>
 
-                          <span style={{ color: 'red', fontWeight: 'bolder' }}>
-                            {formatPrice(product.price)}
-                          </span>
-                          <br />
-                          <span className="fa fa-star checked"></span>
-                          <span className="fa fa-star checked"></span>
-                          <span className="fa fa-star checked"></span>
-                          <span className="fa fa-star checked"></span>
-                          <span className="fa fa-star checked"></span>
+                          <div className={styles['price-card-container']} style={{ zIndex: 1 }}>
+                            <span style={{ color: 'red', fontWeight: 'bolder' }}>
+                              {formatPrice(product.price)}
+                            </span>
+                            <br />
+                            <span className="fa fa-star checked"></span>
+                            <span className="fa fa-star checked"></span>
+                            <span className="fa fa-star checked"></span>
+                            <span className="fa fa-star checked"></span>
+                            <span className="fa fa-star checked"></span>
+                          </div>
                         </Card.Body>
                       </Card>
                     </Col>

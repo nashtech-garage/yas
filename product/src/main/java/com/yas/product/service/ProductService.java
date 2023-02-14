@@ -14,6 +14,7 @@ import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.repository.ProductImageRepository;
 import com.yas.product.repository.ProductRepository;
+import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
@@ -77,7 +78,7 @@ public class ProductService {
     public ProductDetailVm getProduct(String slug) {
         Product product = productRepository
                 .findBySlug(slug)
-                .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", slug)));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, slug));
         List<String> productImageMediaUrls = new ArrayList<>();
         if(null != product.getProductImages() && !product.getProductImages().isEmpty()){
             for (ProductImage image: product.getProductImages()){
@@ -118,18 +119,18 @@ public class ProductService {
 
         if (productPostVm.brandId() != null) {
             Brand brand = brandRepository.findById(productPostVm.brandId()).orElseThrow(
-                    () -> new NotFoundException(String.format("Brand %s is not found", productPostVm.brandId())));
+                    () -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, productPostVm.brandId()));
             product.setBrand(brand);
         }
 
         if (CollectionUtils.isNotEmpty(productPostVm.categoryIds())) {
             List<Category> categoryList = categoryRepository.findAllById(productPostVm.categoryIds());
             if (categoryList.isEmpty()) {
-                throw new BadRequestException(String.format("Not found categories %s", productPostVm.categoryIds()));
+                throw new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, productPostVm.categoryIds());
             } else if (categoryList.size() < productPostVm.categoryIds().size()) {
                 List<Long> categoryIdsNotFound = productPostVm.categoryIds();
                 categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
-                throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
+                throw new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, categoryIdsNotFound);
             } else {
                 for (Category category : categoryList) {
                     ProductCategory productCategory = new ProductCategory();
@@ -171,7 +172,7 @@ public class ProductService {
         
         if(productPostVm.parentId() != null){
             Product parentProduct = productRepository.findById(productPostVm.parentId()).orElseThrow(
-                    () -> new NotFoundException(String.format("Product %s is not found", productPostVm.parentId())));
+                    () -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productPostVm.parentId()));
             product.setParent(parentProduct);
         }else{
             product.setParent(product);
@@ -187,7 +188,8 @@ public class ProductService {
         return ProductGetDetailVm.fromModel(savedProduct);
     }
     public ProductGetDetailVm updateProduct(long productId, ProductPutVm productPutVm) {
-        Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException(String.format("Product %s is not found", productId)));
+        Product product = productRepository.findById(productId).orElseThrow(()
+                ->new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
         List<ProductCategory> productCategoryList = new ArrayList<>();
         List<ProductImage> productImages = new ArrayList<>();
         if(!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()){
@@ -196,7 +198,7 @@ public class ProductService {
 
         if (productPutVm.brandId() != null && (product.getBrand() == null || !(productPutVm.brandId().equals(product.getBrand().getId()) ))) {
             Brand brand = brandRepository.findById(productPutVm.brandId()).
-                    orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", productPutVm.brandId())));
+                    orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, productPutVm.brandId()));
             product.setBrand(brand);
         }
         
@@ -208,11 +210,11 @@ public class ProductService {
                 productCategoryRepository.deleteAll(product.getProductCategories());
                 product.setProductCategories(null);
                 if (categoryList.isEmpty()) {
-                    throw new BadRequestException(String.format("Not found categories %s", productPutVm.categoryIds()));
+                    throw new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, productPutVm.categoryIds());
                 } else if (categoryList.size() < productPutVm.categoryIds().size()) {
                     List<Long> categoryIdsNotFound = productPutVm.categoryIds();
                     categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
-                    throw new BadRequestException(String.format("Not found categories %s", categoryIdsNotFound));
+                    throw new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, categoryIdsNotFound);
                 } else {
                     for (Category category : categoryList) {
                         ProductCategory productCategory = new ProductCategory();
@@ -271,7 +273,7 @@ public class ProductService {
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(()->
-                        new NotFoundException(String.format("Product %s is not found", productId))
+                        new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId)
                 );
         List<String> productImageMediaUrls = new ArrayList<>();
         if(null != product.getProductImages()){
@@ -331,7 +333,7 @@ public class ProductService {
         List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
         Brand brand = brandRepository
                 .findBySlug(brandSlug)
-                .orElseThrow(() -> new NotFoundException(String.format("Brand %s is not found", brandSlug)));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, brandSlug));
         List<Product> products = productRepository.findAllByBrand(brand);
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailVm(
@@ -349,7 +351,7 @@ public class ProductService {
         Page<ProductCategory> productCategoryPage;
         Category category = categoryRepository
                 .findBySlug(categorySlug)
-                .orElseThrow(() -> new NotFoundException(String.format("Category %s is not found", categorySlug)));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, categorySlug));
         productCategoryPage = productCategoryRepository.findAllByCategory(pageable,category);
         List<ProductCategory> productList = productCategoryPage.getContent();
         List<Product> products = productList.stream()
@@ -374,7 +376,7 @@ public class ProductService {
     public ProductThumbnailVm getFeaturedProductsById(Long productId) {
         Product product = productRepository
                 .findById(productId)
-                .orElseThrow(() -> new NotFoundException(String.format("Product %s is not found", productId)));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
         return new ProductThumbnailVm(
                 product.getId(),
                 product.getName(),
@@ -401,7 +403,7 @@ public class ProductService {
 
     public ProductDetailGetVm getProductDetail(String slug) {
         Product product = productRepository.findBySlug(slug)
-                .orElseThrow(() -> new NotFoundException(String.format("Product not found: %s", slug)));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, slug));
 
         Long productThumbnailMediaId = product.getThumbnailMediaId();
         String productThumbnailurl = "";

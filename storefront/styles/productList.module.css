@@ -33,3 +33,50 @@
     background-color: #DCE5E1;
     border-radius: 10px;
 }
+
+.item-product{
+    position: relative;
+    text-align: center;
+   
+}
+.btn-card-container{
+    position: absolute;
+  transform: translate(-5%, -10%);
+  opacity: 0;
+  transition: all .8s;
+  cursor: pointer;
+}
+
+.btn-in-card{
+    background-color: black;
+    color: white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 50px;
+    text-align: center;
+    margin-left: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+    z-index: 3;
+    font-weight: 500;
+}
+
+.item-product:hover .btn-card-container,
+.item-product:active .btn-card-container{
+    opacity: 1;
+    transform: translate(-5%, -20%);
+    cursor: pointer;
+  
+}
+.item-product:hover .btn-in-card,
+.item-product:active .btn-in-card{
+  color: white;
+  
+}
+
+.item-product:hover .price-card-container,
+.item-product:active .price-card-container{
+    opacity: 0;
+    z-index: 1;
+}
+
