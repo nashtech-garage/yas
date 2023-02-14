@@ -1,0 +1,77 @@
+/* Product List */
+
+.filter-card {
+  background-color: #dce5e1;
+  border-radius: 10px;
+  padding: 10px 15px;
+}
+.filter-title {
+  font-size: 20px;
+  line-height: 20px;
+  font-weight: 700;
+  color: black;
+  margin-bottom: 20px;
+}
+.filter-card ul {
+  list-style-type: none;
+  font-size: 13px;
+  line-height: 30px;
+  color: #777777;
+  cursor: pointer;
+}
+.sub-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: gray;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  margin-top: 35px;
+}
+.filter-sort-grid {
+  padding: 10px;
+  background-color: #dce5e1;
+  border-radius: 10px;
+}
+
+.item-product {
+  position: relative;
+  text-align: center;
+}
+.btn-card-container {
+  width: 250px;
+  position: absolute;
+  transform: translate(-7%, -0%);
+  opacity: 0;
+  transition: all 0.8s;
+  cursor: pointer;
+}
+
+.btn-in-card {
+  background-color: black;
+  color: white;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 50px;
+  text-align: center;
+  margin-left: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+  z-index: 3;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.item-product:hover .btn-card-container {
+  opacity: 1;
+  transform: translate(-7%, -20%);
+  cursor: pointer;
+}
+.item-product:hover .btn-in-card {
+  color: white;
+}
+
+.item-product:hover .price-card-container,
+.item-product:active .price-card-container {
+  opacity: 0;
+  z-index: 1;
+}

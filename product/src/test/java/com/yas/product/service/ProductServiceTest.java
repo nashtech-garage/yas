@@ -208,7 +208,7 @@ class ProductServiceTest {
                 () -> productService.createProduct(productPostVm, files));
 
         //then
-        assertThat(exception.getMessage()).isEqualTo(String.format("Not found categories %s", categoryIdsNotFound));
+        assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categoryIdsNotFound));
     }
 
     @DisplayName("Create product throws Bad Request Exception when brand id is non exist- negative case")
@@ -226,7 +226,7 @@ class ProductServiceTest {
                 () -> productService.createProduct(productPostVm, files));
 
         //then
-        assertThat(exception.getMessage()).isEqualTo(String.format("Not found categories %s", productPostVm.categoryIds()));
+        assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", productPostVm.categoryIds()));
     }
 
 
@@ -408,7 +408,7 @@ class ProductServiceTest {
                 }
         );
         //Assert
-        assertThat(badRequestException.getMessage(), is(String.format("Not found categories %s", productPutVm.categoryIds())));
+        assertThat(badRequestException.getMessage(), is(String.format("Category %s is not found", productPutVm.categoryIds())));
     }
 
     @Test
@@ -444,7 +444,7 @@ class ProductServiceTest {
                 }
         );
         //Assert
-        assertThat(badRequestException.getMessage(), is(String.format("Not found categories %s", categoryIds)));
+        assertThat(badRequestException.getMessage(), is(String.format("Category %s is not found", categoryIds)));
     }
 
     @Test

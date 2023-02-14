@@ -154,8 +154,8 @@ const ProductDetails = ({ product, productVariations }: Props) => {
               </svg>
             </span>
           </div>
-          <Link href="#">
-            <a style={{ color: '#89b5fa', fontSize: '20px' }}>{product.brandName}</a>
+          <Link href="#" style={{ color: '#89b5fa', fontSize: '20px' }}>
+            {product.brandName}
           </Link>
           <hr />
           {/* product variation */}
