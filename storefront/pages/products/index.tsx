@@ -1,21 +1,16 @@
-import { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Carousel, Modal, Table } from 'react-bootstrap';
-import Figure from 'react-bootstrap/Figure';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail';
 import { Category } from '../../modules/catalog/models/Category';
-import { formatPrice, getFeaturedProducts } from '../../modules/catalog/services/ProductService';
+import { getFeaturedProducts } from '../../modules/catalog/services/ProductService';
 import { getCategories } from '../../modules/catalog/services/CategoryService';
 import styles from '../../styles/productList.module.css';
-import Card from 'react-bootstrap/Card';
-import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import ProductItems from '../../common/items/ProductItems';
 
 const ProductList = () => {
   const [products, setProduct] = useState<ProductThumbnail[]>([]);
@@ -118,61 +113,7 @@ const ProductList = () => {
               </div>
               <div className="products-list" style={{ marginTop: 10 }}>
                 <Row xs={1} sm={2} md={3} className="g-4">
-                  {products.map((product) => (
-                    <Col key={product.id}>
-                      <Card
-                        className={styles['item-product']}
-                        style={{ padding: '0', borderRadius: 0, margin: 0 }}
-                      >
-                        <Link href={`/products/${product.slug}`}>
-                          <Card.Img
-                            variant="top"
-                            src={product.thumbnailUrl}
-                            style={{ width: '100%', height: '14rem', cursor: 'pointer' }}
-                          />
-                        </Link>
-                        <Card.Body>
-                          <Link href={`/products/${product.slug}`}>
-                            <div style={{ height: '45px', cursor: 'pointer' }}>
-                              <a style={{ fontWeight: 'bolder' }}>{product.name}</a>
-                            </div>
-                          </Link>
-                          <div
-                            className={`container ${styles['btn-card-container']}`}
-                            style={{ zIndex: 2 }}
-                          >
-                            <div className="row">
-                              <Link
-                                href={`/products/${product.slug}`}
-                                className={`col ${styles['btn-in-card']}`}
-                              >
-                                {' '}
-                                Quick View
-                              </Link>
-                              <Link
-                                href={`/products/${product.slug}`}
-                                className={`col ${styles['btn-in-card']}`}
-                              >
-                                <i className="yith-wcwl-icon fa fa-heart-o"></i> <span>Save</span>
-                              </Link>
-                            </div>
-                          </div>
-
-                          <div className={styles['price-card-container']} style={{ zIndex: 1 }}>
-                            <span style={{ color: 'red', fontWeight: 'bolder' }}>
-                              {formatPrice(product.price)}
-                            </span>
-                            <br />
-                            <span className="fa fa-star checked"></span>
-                            <span className="fa fa-star checked"></span>
-                            <span className="fa fa-star checked"></span>
-                            <span className="fa fa-star checked"></span>
-                            <span className="fa fa-star checked"></span>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  ))}
+                  <ProductItems products={products} />
                 </Row>
               </div>
             </div>
