@@ -32,21 +32,14 @@ const ProductItems = ({ products }: Props) => {
                   <a style={{ fontWeight: 'bolder' }}>{product.name}</a>
                 </div>
               </Link>
-              <div className={`container ${styles['btn-card-container']}`} style={{ zIndex: 2 }}>
-                <div className="row">
-                  <Link
-                    href={`/products/${product.slug}`}
-                    className={`col ${styles['btn-in-card']}`}
-                  >
-                    Quick View
-                  </Link>
-                  <Link
-                    href={`/products/${product.slug}`}
-                    className={`col ${styles['btn-in-card']}`}
-                  >
-                    <i className="yith-wcwl-icon fa fa-heart-o"></i> <span>Save</span>
-                  </Link>
-                </div>
+
+              <div className={`row ${styles['btn-card-container']}`}>
+                <Link href={`/products/${product.slug}`} className={`col ${styles['btn-in-card']}`}>
+                  Quick View
+                </Link>
+                <Link href={`/products/${product.slug}`} className={`col ${styles['btn-in-card']}`}>
+                  <i className="yith-wcwl-icon fa fa-heart-o"></i> <span>Save</span>
+                </Link>
               </div>
 
               <div className={styles['price-card-container']} style={{ zIndex: 1 }}>

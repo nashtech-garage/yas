@@ -40,14 +40,16 @@
    
 }
 .btn-card-container{
+    width: 250px;
     position: absolute;
-  transform: translate(-5%, -10%);
+  transform: translate(-3%, -0%);
   opacity: 0;
   transition: all .8s;
   cursor: pointer;
 }
 
 .btn-in-card{
+   
     background-color: black;
     color: white;
     padding-top: 10px;
@@ -58,13 +60,14 @@
     margin-right: 5px;
     cursor: pointer;
     z-index: 3;
-    font-weight: 500;
+    font-weight: 400;
+    font-size: 12px;
 }
 
 .item-product:hover .btn-card-container,
 .item-product:active .btn-card-container{
     opacity: 1;
-    transform: translate(-5%, -20%);
+    transform: translate(-3%, -20%);
     cursor: pointer;
   
 }
