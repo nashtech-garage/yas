@@ -3,7 +3,7 @@ package com.yas.cart.controller;
 import java.security.Principal;
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;

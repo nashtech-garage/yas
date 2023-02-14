@@ -5,11 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -25,7 +23,7 @@ public class Cart extends AbstractAuditEntity {
 
     private String customerId;
 
-    @OneToMany(mappedBy = "cart",  fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private Set<CartItem> cartItems = new HashSet<>();
 
     @Override
