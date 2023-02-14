@@ -42,7 +42,7 @@
 .btn-card-container{
     width: 250px;
     position: absolute;
-  transform: translate(-3%, -0%);
+  transform: translate(-7%, -0%);
   opacity: 0;
   transition: all .8s;
   cursor: pointer;
@@ -64,15 +64,13 @@
     font-size: 12px;
 }
 
-.item-product:hover .btn-card-container,
-.item-product:active .btn-card-container{
+.item-product:hover .btn-card-container{
     opacity: 1;
-    transform: translate(-3%, -20%);
+    transform: translate(-7%, -20%);
     cursor: pointer;
   
 }
-.item-product:hover .btn-in-card,
-.item-product:active .btn-in-card{
+.item-product:hover .btn-in-card{
   color: white;
   
 }
