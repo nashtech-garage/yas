@@ -3,6 +3,7 @@ package com.yas.media.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,9 +22,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .authorizeRequests()
-                .antMatchers("/medias").hasRole("ADMIN")
-                .antMatchers("/medias/**").permitAll()
+                .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.GET, "/medias/**").permitAll()
+                .requestMatchers("/medias").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();
@@ -33,7 +34,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().antMatchers("/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
+        return web -> web.ignoring().requestMatchers("/actuator/prometheus", "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
     }
 
     @Bean

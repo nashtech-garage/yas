@@ -3,6 +3,7 @@ package com.yas.product.controller;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
+import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.ErrorVm;
 import com.yas.product.viewmodel.ProductAttributeGroupPostVm;
 import com.yas.product.viewmodel.ProductAttributeGroupVm;
@@ -10,11 +11,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -41,7 +42,7 @@ public class ProductAttributeGroupController {
     public ResponseEntity<ProductAttributeGroupVm> getProductAttributeGroup(@PathVariable("id") Long id) {
         ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Product attribute group %s is not found", id)));
+                .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND, id)));
         return ResponseEntity.ok(ProductAttributeGroupVm.fromModel(productAttributeGroup));
     }
 
@@ -64,9 +65,20 @@ public class ProductAttributeGroupController {
     public ResponseEntity<Void> updateProductAttributeGroup(@PathVariable Long id, @Valid @RequestBody final ProductAttributeGroupPostVm productAttributeGroupPostVm) {
         ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Product attribute group %s is not found", id)));
+                .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND, id)));
         productAttributeGroup.setName(productAttributeGroupPostVm.name());
         productAttributeGroupRepository.save(productAttributeGroup);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/backoffice/product-attribute-groups/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> deleteProductAttributeGroup(@PathVariable Long id) {
+        productAttributeGroupRepository.findById(id);
+        productAttributeGroupRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

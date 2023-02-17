@@ -1,11 +1,12 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { Button, Modal, Table } from 'react-bootstrap';
-import type { Brand } from '../../../modules/catalog/models/Brand';
-import { deleteBrand, getBrands } from '../../../modules/catalog/services/BrandService';
+import { useEffect, useState } from 'react';
+import { Button, Table } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
+import type { Brand } from '../../../modules/catalog/models/Brand';
+import { deleteBrand, getBrands } from '../../../modules/catalog/services/BrandService';
 
 const BrandList: NextPage = () => {
   const [brandIdWantToDelete, setBrandIdWantToDelete] = useState<number>(-1);
@@ -93,17 +94,13 @@ const BrandList: NextPage = () => {
           ))}
         </tbody>
       </Table>
-      <Modal show={showModalDelete} onHide={handleClose}>
-        <Modal.Body>{`Are you sure you want to delete this ${brandNameWantToDelete} ?`}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={brandNameWantToDelete}
+        handleDelete={handleDelete}
+        action="delete"
+      />
     </>
   );
 };
