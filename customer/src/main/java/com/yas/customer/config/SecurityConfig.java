@@ -21,9 +21,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .authorizeRequests()
-                .antMatchers("/storefront/**").permitAll()
-                .antMatchers("/backoffice/**").hasRole("ADMIN")
+                .authorizeHttpRequests()
+                .requestMatchers("/storefront/**").permitAll()
+                .requestMatchers("/backoffice/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();
@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().antMatchers("/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
+        return web -> web.ignoring().requestMatchers("/actuator/prometheus","/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
     }
 
     @Bean
