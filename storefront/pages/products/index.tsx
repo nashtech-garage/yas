@@ -11,6 +11,7 @@ import { getCategories } from '../../modules/catalog/services/CategoryService';
 import styles from '../../styles/productList.module.css';
 import Row from 'react-bootstrap/Row';
 import ProductItems from '../../common/items/ProductItems';
+import ReactPaginate from 'react-paginate';
 
 const ProductList = () => {
   const [products, setProduct] = useState<ProductThumbnail[]>([]);
@@ -53,7 +54,7 @@ const ProductList = () => {
       <div className="wrapper py-5">
         <div className="container-xxl">
           <div className="row">
-            <div className="d-none d-md-block col-md-3 ">
+            <div className="d-none d-lg-block col-lg-3 ">
               <div className={`${styles['filter-card']} mb-3`}>
                 <h3 className={`${styles['filter-title']}`}>Filter By</h3>
                 <div>
@@ -93,7 +94,7 @@ const ProductList = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-9">
+            <div className="col-lg-9">
               <div className={styles['filter-sort-grid']}>
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center gap-10">
@@ -106,15 +107,28 @@ const ProductList = () => {
                     </select>
                   </div>
                   <div className="d-flex align-items-center gap-10">
-                    <p className="totalproducts">1233 Products</p>
-                    <div className="d-flex gap-10 align-items-center"></div>
+                    <p className="totalproducts" style={{ marginTop: 10, paddingRight: '20px' }}>
+                      1233 Products
+                    </p>
                   </div>
                 </div>
               </div>
               <div className="products-list" style={{ marginTop: 10 }}>
-                <Row xs={1} sm={2} md={3} className="g-4">
+                <Row xs={1} sm={1} md={2} lg={3} className="g-2">
                   <ProductItems products={products} />
                 </Row>
+                <ReactPaginate
+                  forcePage={pageNo}
+                  previousLabel={'Previous'}
+                  nextLabel={'Next'}
+                  pageCount={totalPage}
+                  onPageChange={changePage}
+                  containerClassName={'paginationBtns'}
+                  previousLinkClassName={'previousBtn'}
+                  nextClassName={'nextBtn'}
+                  disabledClassName={'paginationDisabled'}
+                  activeClassName={'paginationActive'}
+                />
               </div>
             </div>
           </div>

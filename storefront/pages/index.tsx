@@ -37,7 +37,7 @@ const Home: NextPage = () => {
     <>
       <BreadcrumbComponent props={crumb} />
       <h2>Featured products</h2>
-      <Row xs={2} md={4} className="g-4">
+      <Row xs={1} sm={1} md={2} lg={4} className="g-4">
         <ProductItems products={products} />
       </Row>
       <ReactPaginate
