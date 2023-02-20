@@ -38,12 +38,11 @@
   text-align: center;
 }
 .btn-card-container {
-  width: 250px;
-  position: absolute;
   transform: translate(-7%, -0%);
   opacity: 0;
   transition: all 0.8s;
   cursor: pointer;
+  margin-left: 15px;
 }
 
 .btn-in-card {
@@ -59,6 +58,8 @@
   z-index: 3;
   font-weight: 400;
   font-size: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .item-product:hover .btn-card-container {
