@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -96,5 +97,13 @@ public class ProductController {
     @GetMapping("/storefront/product/{slug}")
     public ProductDetailGetVm getProductDetail(@PathVariable("slug") String slug) {
         return productService.getProductDetail(slug);
+    }
+
+    @GetMapping("/storefront/products/{productId}/ratings")
+    public ResponseEntity<ListObjectAndPageVm<List<ProductRatingVm>>> listRatings(
+            @PathVariable Long productId,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize) {
+        return ResponseEntity.ok(productService.getListRatingByProductId(productId, pageNo, pageSize));
     }
 }

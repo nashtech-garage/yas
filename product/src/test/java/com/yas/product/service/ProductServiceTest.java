@@ -6,11 +6,7 @@ import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
-import com.yas.product.repository.BrandRepository;
-import com.yas.product.repository.CategoryRepository;
-import com.yas.product.repository.ProductCategoryRepository;
-import com.yas.product.repository.ProductImageRepository;
-import com.yas.product.repository.ProductRepository;
+import com.yas.product.repository.*;
 import com.yas.product.viewmodel.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +45,8 @@ class ProductServiceTest {
     ProductService productService;
     ProductImageRepository productImageRepository;
 
+    ProductRatingRepository productRatingRepository;
+
     ProductPostVm productPostVm;
     List<Category> categoryList;
     Category category1;
@@ -68,12 +66,15 @@ class ProductServiceTest {
         categoryRepository = mock(CategoryRepository.class);
         productCategoryRepository = mock(ProductCategoryRepository.class);
         productImageRepository = mock(ProductImageRepository.class);
+        productRatingRepository = mock(ProductRatingRepository.class);
         productService = new ProductService(
                 productRepository,
                 mediaService,
                 brandRepository,
                 productCategoryRepository,
-                categoryRepository, productImageRepository);
+                categoryRepository,
+                productImageRepository,
+                productRatingRepository);
 
         productPostVm = new ProductPostVm(
                 "name",
@@ -101,9 +102,9 @@ class ProductServiceTest {
         categoryList = List.of(category1, category2);
         products = List.of(
                 new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null ),
+                        1L, null, null, null, null, null, null,null ),
                 new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null)
+                        1L, null, null, null, null, null, null, null)
         );
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
@@ -125,7 +126,7 @@ class ProductServiceTest {
         String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
         Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null );
+                        1L, null, null, null, null, null, null, null );
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
@@ -250,9 +251,9 @@ class ProductServiceTest {
         //given
         List<Product> productList = List.of(
                 new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null ),
+                        1L, null, null, null, null, null, null , null),
                 new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null)
+                        1L, null, null, null, null, null, null, null)
         );
         String url = "sample-url";
         int totalPage = 20;
