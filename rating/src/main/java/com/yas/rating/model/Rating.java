@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "product_rating")
+@Table(name = "rating")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,8 +24,6 @@ public class Rating extends AbstractAuditEntity{
     private String content;
 
     private int ratingStar;
-
-    private Date createdDate;
 
     private String customerId;
 
