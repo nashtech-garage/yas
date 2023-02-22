@@ -6,21 +6,26 @@ import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
+import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.repository.ProductImageRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.*;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -30,8 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -105,6 +109,7 @@ class ProductServiceTest {
                 new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
                         1L, null, null, null, null, null, null)
         );
+
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
         //        Product product = new Product()
@@ -765,5 +770,36 @@ class ProductServiceTest {
         NotFoundException exception = assertThrows(NotFoundException.class, () ->productService.getProductsFromCategory(pageNo, pageSize, categorySlug));
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categorySlug));
+    }
+
+    @Test
+    void deleteProduct_givenProductIdValid_thenSuccess(){
+        //Initial variables
+        Long productId = 1L;
+        Product product = new Product();
+        product.setId(productId);
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+
+        //Call method under test
+        productService.deleteProduct(productId);
+
+        // Verifying that the repository was called with expected parameters
+        ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(productRepository).findById(idCaptor.capture());
+        Long capturedId = idCaptor.getValue();
+        assertEquals(productId, capturedId);
+
+        verify(productRepository).save(product);
+        assertFalse(product.getIsVisibleIndividually());
+    }
+
+
+    @Test
+    void deleteProductAttribute_givenProductAttributeIdInvalid_thenThrowNotFoundException(){
+        //Initial variables
+        Long productId = 1L;
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, ()->productService.deleteProduct(productId));
     }
 }

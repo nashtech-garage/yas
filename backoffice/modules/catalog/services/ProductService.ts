@@ -43,3 +43,12 @@ export async function updateProduct(id: number, product: ProductPost) {
   });
   return response;
 }
+
+export async function deleteProduct(id: number) {
+  const response = await fetch('/api/product/backoffice/products/' + id, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (response.status === 204) return await response;
+  else return await response.json();
+}
