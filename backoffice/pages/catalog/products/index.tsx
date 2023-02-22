@@ -9,18 +9,52 @@ import ReactPaginate from 'react-paginate';
 import type { Brand } from '../../../modules/catalog/models/Brand';
 import type { Product } from '../../../modules/catalog/models/Product';
 import { getBrands } from '../../../modules/catalog/services/BrandService';
-import { getProducts } from '../../../modules/catalog/services/ProductService';
+import { deleteProduct, getProducts } from '../../../modules/catalog/services/ProductService';
 import styles from '../../../styles/Filter.module.css';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
+import { toast } from 'react-toastify';
 
 const ProductList: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [products, setProducts] = useState<Product[]>([]);
+  console.log('🚀 ~ file: index.tsx:20 ~ products:', products);
   const [isLoading, setLoading] = useState(false);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [brandName, setBrandName] = useState<string>('');
   const [productName, setProductName] = useState<string>('');
+
+  const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
+  const [productNameWantToDelete, setProductNameWantToDelete] = useState<string>('');
+  const [productIdWantToDelete, setProductIdWantToDelete] = useState<number>(-1);
+
+  const handleClose: any = () => setShowModalDelete(false);
+  const handleDelete: any = () => {
+    if (productIdWantToDelete == -1) {
+      return;
+    }
+    deleteProduct(productIdWantToDelete)
+      .then((response) => {
+        if (response.status === 204) {
+          toast.success(productNameWantToDelete + ' have been deleted');
+        } else if (response.title === 'Not found') {
+          toast.error(response.detail);
+        } else if (response.title === 'Bad request') {
+          toast.error(response.detail);
+        } else {
+          toast.error('Delete failed');
+        }
+        getProducts(pageNo, productName, brandName).then((data) => {
+          setTotalPage(data.totalPages);
+          setProducts(data.productContent);
+          setLoading(false);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -107,27 +141,6 @@ const ProductList: NextPage = () => {
                 </Button>
               </InputGroup>
             </Form>
-
-            {/* <Form.Label htmlFor="brand-filter">Search: </Form.Label>
-            <div className="row height d-flex justify-content-center align-items-center">
-              <div className="col" style={{ padding: '0' }}>
-                <div className="search">
-                  <i className="fa fa-search"></i>
-                  <Form.Control
-                    className="form-control"
-                    id="product-name"
-                    defaultValue={productName}
-                    autoFocus
-                    onChange={(e) => {
-                      if (e.target.value.replaceAll(' ', '') == '') setProductName('');
-                    }}
-                  ></Form.Control>
-                  <button className="btn btn-primary" onClick={searchingHandler}>
-                    Search
-                  </button>
-                </div>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
@@ -152,12 +165,31 @@ const ProductList: NextPage = () => {
                       Edit
                     </button>
                   </Link>
+                  &nbsp;
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    type="button"
+                    onClick={() => {
+                      setShowModalDelete(true);
+                      setProductIdWantToDelete(product.id);
+                      setProductNameWantToDelete(product.name);
+                    }}
+                  >
+                    Delete
+                  </button>
                 </Stack>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={productNameWantToDelete}
+        handleDelete={handleDelete}
+        action="delete"
+      />
 
       <ReactPaginate
         forcePage={pageNo}

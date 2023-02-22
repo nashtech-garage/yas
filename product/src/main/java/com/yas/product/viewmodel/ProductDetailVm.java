@@ -16,6 +16,7 @@ public record ProductDetailVm(
         Boolean isAllowedToOrder,
         Boolean isPublished,
         Boolean isFeatured,
+        Boolean isVisible,
         Double price,
         Long brandId,
         List<Category> categories,

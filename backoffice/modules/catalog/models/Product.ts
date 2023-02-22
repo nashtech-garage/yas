@@ -15,6 +15,7 @@ export type Product = {
   isAllowedToOrder: boolean;
   isPublished: boolean;
   isFeatured: boolean;
+  isVisible?: boolean;
   brandId: number;
   categories: Category[];
   thumbnailMediaUrl: string;

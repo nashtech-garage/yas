@@ -6,11 +6,7 @@ import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
-import com.yas.product.repository.BrandRepository;
-import com.yas.product.repository.CategoryRepository;
-import com.yas.product.repository.ProductCategoryRepository;
-import com.yas.product.repository.ProductImageRepository;
-import com.yas.product.repository.ProductRepository;
+import com.yas.product.repository.*;
 import com.yas.product.viewmodel.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,17 +23,17 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
@@ -100,11 +96,12 @@ class ProductServiceTest {
         category2 = new Category(2L, null, null, "null", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null ),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
+                        1L, null, null, null, null, null, null),
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
                         1L, null, null, null, null, null, null)
         );
+
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
         //        Product product = new Product()
@@ -114,6 +111,7 @@ class ProductServiceTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
     }
+
     @Test
     void createProduct_TheRequestIsValid_Success() {
         //given
@@ -124,8 +122,8 @@ class ProductServiceTest {
         SecurityContext securityContext = mock(SecurityContext.class);
         String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
-        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null );
+        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
+                1L, null, null, null, null, null, null);
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
@@ -249,16 +247,16 @@ class ProductServiceTest {
     void getFeaturedProducts_WhenEverythingIsOkay_Success() {
         //given
         List<Product> productList = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
-                        1L, null, null, null, null, null, null ),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null,null,
+                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
+                        1L, null, null, null, null, null, null),
+                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
                         1L, null, null, null, null, null, null)
         );
         String url = "sample-url";
         int totalPage = 20;
         int pageNo = 0;
         int pageSize = 10;
-        var pageCaptor  = ArgumentCaptor.forClass(Pageable.class);
+        var pageCaptor = ArgumentCaptor.forClass(Pageable.class);
         Page<Product> productPage = mock(Page.class);
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
 
@@ -326,6 +324,7 @@ class ProductServiceTest {
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Brand %s is not found", brandSlug));
     }
+
     @Test
     void updateProduct_whenProductIdInvalid_shouldThrowException() {
         //Initial variables
@@ -369,7 +368,7 @@ class ProductServiceTest {
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, null, null, null, null, null, null, null, null, null, null);
         Product product = mock(Product.class);
         Brand brand = new Brand();
-        brand.setId(id+1);
+        brand.setId(id + 1);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
@@ -394,7 +393,7 @@ class ProductServiceTest {
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null);
         Product product = mock(Product.class);
         Brand brand = new Brand();
-        brand.setId(id+1);
+        brand.setId(id + 1);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
@@ -430,7 +429,7 @@ class ProductServiceTest {
 
         Product product = mock(Product.class);
         Brand brand = new Brand();
-        brand.setId(id+1);
+        brand.setId(id + 1);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
@@ -463,7 +462,7 @@ class ProductServiceTest {
 
         Product product = mock(Product.class);
         Brand brand = new Brand();
-        brand.setId(id+1);
+        brand.setId(id + 1);
 
         List<ProductCategory> productCategories = new ArrayList<>();
         ProductCategory productCategory = new ProductCategory();
@@ -676,41 +675,34 @@ class ProductServiceTest {
         assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
     }
 
-
     @Test
-    void getProductsWithFilter_WhenFindAll_ThenSuccess() {
-        //given
+    void getProductsWithFilter_whenFindAll_thenSuccess() {
+        // Create a mock ProductRepository and mock Page object
         Page<Product> productPage = mock(Page.class);
-        List<ProductListVm> productListVmList = List.of(
-                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
-                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
-        );
-        int pageNo = 1;
-        int pageSize = 10;
-        int totalElement = 20;
-        int totalPages = 4;
-        String productName = "";
-        String brandName = "";
-        var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
 
-        when(productRepository.findAll(pageableCaptor.capture())).thenReturn(productPage);
+        // Set up mock behavior for ProductRepository and Page
+        when(productRepository.getProductsWithFilter(anyString(), anyString(), any(Pageable.class))).thenReturn(productPage);
         when(productPage.getContent()).thenReturn(products);
-        when(productPage.getNumber()).thenReturn(pageNo);
-        when(productPage.getTotalElements()).thenReturn((long) totalElement);
-        when(productPage.getTotalPages()).thenReturn(totalPages);
-        when(productPage.isLast()).thenReturn(false);
+        when(productPage.getNumber()).thenReturn(0);
+        when(productPage.getSize()).thenReturn(2);
+        when(productPage.getTotalElements()).thenReturn(2L);
+        when(productPage.getTotalPages()).thenReturn(1);
+        when(productPage.isLast()).thenReturn(true);
 
-        //when
-        ProductListGetVm actualReponse = productService.getProductsWithFilter(pageNo, pageSize, productName, brandName);
+        // Create an instance of the class under test and call the method
+        ProductListGetVm result = productService.getProductsWithFilter(0, 2, "product", "Brand");
 
-        //then
-        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
-        assertThat(actualReponse.productContent()).isEqualTo(productListVmList);
-        assertThat(actualReponse.pageNo()).isEqualTo(productPage.getNumber());
-        assertThat(actualReponse.pageSize()).isEqualTo(productPage.getSize());
-        assertThat(actualReponse.totalElements()).isEqualTo(productPage.getTotalElements());
-        assertThat(actualReponse.totalPages()).isEqualTo(productPage.getTotalPages());
-        assertThat(actualReponse.isLast()).isEqualTo(productPage.isLast());
+        // Verify that the mock objects were called with the expected arguments
+        verify(productRepository).getProductsWithFilter("product", "Brand", PageRequest.of(0, 2));
+
+        // Verify that the result has the expected values
+        assertEquals(2, result.productContent().size());
+        assertEquals(0, result.pageNo());
+        assertEquals(2, result.pageSize());
+        assertEquals(2, result.totalElements());
+        assertEquals(1, result.totalPages());
+        assertTrue(result.isLast());
+
     }
 
     @Test
@@ -731,7 +723,7 @@ class ProductServiceTest {
         int totalPages = 4;
         var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         when(categoryRepository.findBySlug(categorySlug)).thenReturn(Optional.of(existingCategory));
-        when(productCategoryRepository.findAllByCategory(pageableCaptor.capture(),eq(existingCategory))).thenReturn(productCategoryPage);
+        when(productCategoryRepository.findAllByCategory(pageableCaptor.capture(), eq(existingCategory))).thenReturn(productCategoryPage);
 
         when(productCategoryPage.getContent()).thenReturn(productCategoryList);
         when(productCategoryPage.getNumber()).thenReturn(pageNo);
@@ -752,6 +744,7 @@ class ProductServiceTest {
         assertThat(actualResponse.totalPages()).isEqualTo(productCategoryPage.getTotalPages());
         assertThat(actualResponse.isLast()).isEqualTo(productCategoryPage.isLast());
     }
+
     @Test
     void getProductsFromCategory_CategoryIsNonExist_ThrowsNotFoundException() {
         //given
@@ -762,8 +755,39 @@ class ProductServiceTest {
         int pageSize = 10;
         String productName = "";
         //when
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->productService.getProductsFromCategory(pageNo, pageSize, categorySlug));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> productService.getProductsFromCategory(pageNo, pageSize, categorySlug));
         //then
         assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categorySlug));
+    }
+
+    @Test
+    void deleteProduct_givenProductIdValid_thenSuccess() {
+        //Initial variables
+        Long productId = 1L;
+        Product product = new Product();
+        product.setId(productId);
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+
+        //Call method under test
+        productService.deleteProduct(productId);
+
+        // Verifying that the repository was called with expected parameters
+        ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(productRepository).findById(idCaptor.capture());
+        Long capturedId = idCaptor.getValue();
+        assertEquals(productId, capturedId);
+
+        verify(productRepository).save(product);
+        assertFalse(product.getIsVisibleIndividually());
+    }
+
+
+    @Test
+    void deleteProductAttribute_givenProductAttributeIdInvalid_thenThrowNotFoundException() {
+        //Initial variables
+        Long productId = 1L;
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> productService.deleteProduct(productId));
     }
 }
