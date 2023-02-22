@@ -49,6 +49,6 @@ export async function deleteProduct(id: number) {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }
