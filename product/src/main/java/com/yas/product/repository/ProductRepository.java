@@ -19,9 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findBySlug(String slug);
 
     @Query(value = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:productName% " +
-            "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = ''))" +
-            "AND (p.isVisibleIndividually = true)" +
-            "ORDER BY p.lastModifiedOn DESC ")
+            "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = ''))")
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
