@@ -54,15 +54,9 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
       YAS_SERVICES_CUSTOMER: http://customer/customer
       YAS_SERVICES_CART: http://cart/cart
+      YAS_SERVICES_RATING: http://rating/rating
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
-  rating:
-    image: ghcr.io/nashtech-garage/yas-rating:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rating
-      SERVER_SERVLET_CONTEXT_PATH: /rating
-      YAS_PUBLICURL: http://api.yas.local/rating
-      SERVER_PORT: "80"
   media:
     image: ghcr.io/nashtech-garage/yas-media:latest
     environment:
@@ -90,12 +84,21 @@ services:
       YAS_SERVICES_MEDIA: http://media/media
       YAS_SERVICES_PRODUCT: http://product/product
       SERVER_PORT: "80"
+  rating:
+    image: ghcr.io/nashtech-garage/yas-rating:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rating
+      SERVER_SERVLET_CONTEXT_PATH: /rating
+      YAS_PUBLIC_URL: http://api.yas.local/rating
+      YAS_SERVICES_PRODUCT: http://product/product
+      SERVER_PORT: "80"
   swagger-ui:
     image: swaggerapi/swagger-ui
     environment:
       BASE_URL: /swagger-ui
       URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
-      { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'}]"
+      { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
+      { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:
