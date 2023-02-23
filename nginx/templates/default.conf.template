@@ -15,6 +15,9 @@ server {
   location /cart/ {
 	proxy_pass http://cart;
   }
+  location /rating/ {
+	proxy_pass http://rating;
+  }
 }
 
 server {

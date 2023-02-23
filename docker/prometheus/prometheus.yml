@@ -1,23 +1,27 @@
 global:
-    scrape_interval: 2s
-    evaluation_interval: 2s
+  scrape_interval: 2s
+  evaluation_interval: 2s
 
 scrape_configs:
-    - job_name: 'prometheus'
-      static_configs:
-          - targets: ['host.docker.internal:9090']
-          
-    - job_name: 'backoffice-bff'
-      metrics_path: '/actuator/prometheus'
-      static_configs:
-        - targets: ['backoffice', 'storefront']
-        
-    - job_name: 'product'
-      metrics_path: '/product/actuator/prometheus'
-      static_configs:
-        - targets: ['product']
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["host.docker.internal:9090"]
 
-    - job_name: 'media'
-      metrics_path: '/media/actuator/prometheus'
-      static_configs:
-        - targets: ['media']
+  - job_name: "backoffice-bff"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["backoffice", "storefront"]
+
+  - job_name: "product"
+    metrics_path: "/product/actuator/prometheus"
+    static_configs:
+      - targets: ["product"]
+
+  - job_name: "media"
+    metrics_path: "/media/actuator/prometheus"
+    static_configs:
+      - targets: ["media"]
+  - job_name: "rating"
+    metrics_path: "/rating/actuator/prometheus"
+    static_configs:
+      - targets: ["rating"]
