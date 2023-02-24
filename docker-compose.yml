@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   nginx:
-    image: nginx
+    image:  nginx:1.23.3
     restart: unless-stopped
     volumes:
       - ./nginx/templates:/etc/nginx/templates
@@ -93,7 +93,7 @@ services:
       YAS_SERVICES_PRODUCT: http://product/product
       SERVER_PORT: "80"
   swagger-ui:
-    image: swaggerapi/swagger-ui
+    image: swaggerapi/swagger-ui:v4.16.0
     environment:
       BASE_URL: /swagger-ui
       URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
@@ -112,14 +112,14 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin:4:6.20
     volumes:
       - pgadmin:/var/lib/pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@yas.com
       PGADMIN_DEFAULT_PASSWORD: admin
   tempo:
-    image: grafana/tempo
+    image: grafana/tempo:main-0c1eb27
     extra_hosts: ['host.docker.internal:host-gateway']
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
@@ -131,7 +131,7 @@ services:
       #- "4317:4317" # otlp grpc ingest
       #- "4318:4318" # otlp http ingest
   loki:
-    image: grafana/loki
+    image: grafana/loki:2.7.4
     extra_hosts: ['host.docker.internal:host-gateway']
     command: [ "-config.file=/etc/loki/local-config.yaml" ]
     ports:
@@ -142,7 +142,7 @@ services:
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:2.42.0
     extra_hosts: ['host.docker.internal:host-gateway']
     command:
       - --enable-feature=exemplar-storage
@@ -153,7 +153,7 @@ services:
       - "9090:9090"
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:9.3.6
     extra_hosts: ['host.docker.internal:host-gateway']
     volumes:
       - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
