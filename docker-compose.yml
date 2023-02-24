@@ -142,7 +142,7 @@ services:
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
   prometheus:
-    image: prom/prometheus:2.42.0
+    image: prom/prometheus:v2.42.0
     extra_hosts: ['host.docker.internal:host-gateway']
     command:
       - --enable-feature=exemplar-storage
