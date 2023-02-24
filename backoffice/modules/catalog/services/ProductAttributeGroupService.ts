@@ -38,6 +38,6 @@ export async function deleteProductAttributeGroup(id: number) {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }

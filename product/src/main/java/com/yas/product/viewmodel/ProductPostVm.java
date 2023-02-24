@@ -3,6 +3,9 @@ package com.yas.product.viewmodel;
 import com.yas.product.validation.ValidateProductPrice;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.List;
 
 public record ProductPostVm(
@@ -19,7 +22,8 @@ public record ProductPostVm(
                 Boolean isAllowedToOrder,
                 Boolean isPublished,
                 Boolean isFeatured,
-                Boolean isVisibleIndividually,
+
+                Boolean isVisibleIndividually ,
                 String metaTitle,
                 String metaKeyword,
                 String metaDescription,
