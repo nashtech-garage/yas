@@ -57,9 +57,9 @@ public class RatingService {
         rating.setProductId(ratingPostVm.productId());
 
 
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        rating.setCreatedBy(auth.getName());
-//        rating.setLastModifiedBy(auth.getName());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        rating.setCreatedBy(auth.getName());
+        rating.setLastModifiedBy(auth.getName());
 
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);
