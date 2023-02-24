@@ -112,7 +112,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
   pgadmin:
-    image: dpage/pgadmin:4:6.20
+    image: dpage/pgadmin4:6.20
     volumes:
       - pgadmin:/var/lib/pgadmin
     environment:
