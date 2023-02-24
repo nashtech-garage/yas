@@ -2,11 +2,10 @@ package com.yas.rating.controller;
 
 import com.yas.rating.service.RatingService;
 import com.yas.rating.viewmodel.RatingListVm;
+import com.yas.rating.viewmodel.RatingPostVm;
+import com.yas.rating.viewmodel.RatingVm;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class RatingController {
@@ -22,5 +21,10 @@ public class RatingController {
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) {
 
         return ResponseEntity.ok(ratingService.getRatingListByProductId(productId, pageNo, pageSize));
+    }
+
+    @PostMapping("/storefront/ratings")
+    public ResponseEntity<RatingVm> createRating(RatingPostVm ratingPostVm) {
+        return ResponseEntity.ok(ratingService.createRating(ratingPostVm));
     }
 }

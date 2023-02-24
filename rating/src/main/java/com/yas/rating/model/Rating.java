@@ -25,7 +25,5 @@ public class Rating extends AbstractAuditEntity{
 
     private int ratingStar;
 
-    private String customerId;
-
     private Long productId;
 }

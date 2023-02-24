@@ -722,14 +722,16 @@
         "http://localhost:8083/*",
         "http://api.yas.local/*",
         "http://localhost:8084/*",
-        "http://localhost:8088/*"
+        "http://localhost:8088/*",
+        "http://localhost:8089/*"
       ],
       "webOrigins": [
         "http://localhost:8080",
         "http://localhost:8083",
         "http://api.yas.local",
         "http://localhost:8084",
-        "http://localhost:8088"
+        "http://localhost:8088",
+        "http://localhost:8089"
 	  ],
       "notBefore": 0,
       "bearerOnly": false,
