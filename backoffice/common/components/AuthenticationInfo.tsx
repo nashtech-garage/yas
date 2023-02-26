@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 export default function AuthenticationInfo() {
@@ -20,7 +21,7 @@ export default function AuthenticationInfo() {
 
   return (
     <>
-      Signed in as: <a href="#">{authenticatedUser.username}</a> <a href="#">Logout</a>
+      Signed in as: <Link href="#">{authenticatedUser.username}</Link> <Link href="#">Logout</Link>
     </>
   );
 }

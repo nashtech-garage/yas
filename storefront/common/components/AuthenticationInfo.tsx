@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 export default function AuthenticationInfo() {
@@ -33,12 +34,12 @@ export default function AuthenticationInfo() {
     <>
       {authenticatedInfoVm.isAuthenticated ? (
         <div>
-          Signed in as: <a href="#">{authenticatedInfoVm.authenticatedUser.username}</a>{' '}
-          <a href="/logout">Logout</a>
+          Signed in as: <Link href="#">{authenticatedInfoVm.authenticatedUser.username}</Link>{' '}
+          <Link href="/logout">Logout</Link>
         </div>
       ) : (
         <div>
-          <a href="/oauth2/authorization/keycloak">Login</a>
+          <Link href="/oauth2/authorization/keycloak">Login</Link>
         </div>
       )}
     </>

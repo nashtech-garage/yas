@@ -37,4 +37,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.isVisibleIndividually = TRUE " +
             "AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")
     Page<Product> getFeaturedProduct(Pageable pageable);
+
+    //    GET_PRODUCT_MULTIPLE_QUERY
+    @Query(value = "SELECT p FROM Product p LEFT JOIN p.productCategories pc LEFT JOIN pc.category c " +
+            "WHERE LOWER(p.name) LIKE %:productName% " +
+            "AND (c.slug = :categorySlug OR (:categorySlug IS NULL OR :categorySlug = '')) " +
+            "AND (:startPrice IS NULL OR p.price >= :startPrice) " +
+            "AND (:endPrice IS NULL OR p.price <= :endPrice) " +
+            "AND p.isVisibleIndividually = true " +
+            "ORDER BY p.lastModifiedOn DESC")
+    Page<Product> findByProductNameAndCategorySlugAndPriceBetween(@Param("productName") String productName,
+                                                                  @Param("categorySlug") String categorySlug,
+                                                                  @Param("startPrice") Double startPrice,
+                                                                  @Param("endPrice") Double endPrice,
+                                                                  Pageable pageable);
 }

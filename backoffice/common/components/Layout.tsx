@@ -56,13 +56,13 @@ export default function Layout({ children }: Props) {
             {children}
           </main>
           <footer className={styles.footer}>
-            <a
+            <Link
               href="https://github.com/nashtech-garage/yas"
               target="_blank"
               rel="noopener noreferrer"
             >
               Powered by {'Yas - 2022 '}
-            </a>
+            </Link>
           </footer>
         </div>
       </div>
@@ -92,7 +92,7 @@ const Sidebar = () => {
       </h1>
       <ul className="list-unstyled components mb-5">
         <li className="active">
-          <a
+          <Link
             href="#catalogSubmenu"
             data-target="#catalogSubmenu"
             data-bs-toggle="collapse"
@@ -101,13 +101,13 @@ const Sidebar = () => {
             className="dropdown-toggle"
           >
             <span className="fa fa-product-hunt" aria-hidden="true"></span> Catalog
-          </a>
+          </Link>
           <ul className="collapse show list-unstyled" id="catalogSubmenu">
             <ListItem data={menu_catalog_item_data} />
           </ul>
         </li>
         <li>
-          <a
+          <Link
             href="#customerSubmenu"
             data-target="#customerSubmenu"
             data-bs-toggle="collapse"
@@ -116,7 +116,7 @@ const Sidebar = () => {
             className="dropdown-toggle"
           >
             <span className="fa fa-user"></span> Cusomters
-          </a>
+          </Link>
           <ul className="collapse list-unstyled" id="customerSubmenu">
             <ListItem data={menu_customer_item_data} />
           </ul>

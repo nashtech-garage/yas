@@ -9,6 +9,7 @@ import com.yas.product.repository.*;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -467,5 +468,35 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
         product.setIsVisibleIndividually(false);
         productRepository.save(product);
+    }
+
+
+    public ProductsGetVm getProductsByMultiQuery(int pageNo, int pageSize, String productName, String categorySlug, Double startPrice, Double endPrice) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        Page<Product> productPage;
+        productPage = productRepository.findByProductNameAndCategorySlugAndPriceBetween(
+                productName.trim().toLowerCase(),
+                categorySlug.trim(), startPrice, endPrice, pageable);
+
+        List<ProductThumbnailGetVm> productThumbnailVms = new ArrayList<>();
+        List<Product> products = productPage.getContent();
+        for (Product product : products) {
+            productThumbnailVms.add(new ProductThumbnailGetVm(
+                    product.getId(),
+                    product.getName(),
+                    product.getSlug(),
+                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                    product.getPrice()));
+        }
+
+        return new ProductsGetVm(
+                productThumbnailVms,
+                productPage.getNumber(),
+                productPage.getSize(),
+                (int) productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
+        );
     }
 }
