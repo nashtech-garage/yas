@@ -12,6 +12,7 @@ import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail'
 import { getCategories } from '../../modules/catalog/services/CategoryService';
 import { getProductByMultiParams } from '../../modules/catalog/services/ProductService';
 import styles from '../../styles/productList.module.css';
+import { useDebounce } from '../../utils/useDebounce';
 
 const crumb: BreadcrumbModel[] = [
   {
@@ -30,22 +31,31 @@ const ProductList = () => {
   const [totalPage, setTotalPage] = useState<number>(0);
   const pageSize = 9;
   const [pageNo, setPageNo] = useState<number>(0);
-  const [productName, setProductName] = useState<string>(''); //hardcode Search Result
+  // const [productName, setProductName] = useState<string>(''); //hardcode Search Result
   const [categorySlug, setCategorySlug] = useState<string>('');
   const [startPrice, setStartPrice] = useState<number>();
   const [endPrice, setEndPrice] = useState<number>();
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   useEffect(() => {
-    getProductByMultiParams(pageNo, pageSize, productName, categorySlug, startPrice, endPrice).then(
-      (res) => {
-        setProduct(res.productContent);
-        setTotalPage(res.totalPages);
-      }
-    );
+    getProductByMultiParams(
+      pageNo,
+      pageSize,
+      debouncedSearchTerm,
+      categorySlug,
+      startPrice,
+      endPrice
+    ).then((res) => {
+      setProduct(res.productContent);
+      setTotalPage(res.totalPages);
+    });
     getCategories().then((res) => {
       setCates(res);
     });
-  }, [pageNo, pageSize, productName, categorySlug, startPrice, endPrice]);
+  }, [pageNo, pageSize, debouncedSearchTerm, categorySlug, startPrice, endPrice]);
 
   useEffect(() => {
     getCategories().then((res) => {
@@ -58,7 +68,7 @@ const ProductList = () => {
   };
 
   const handleClearFillter = () => {
-    setProductName('');
+    setSearchTerm('');
     setCategorySlug('');
     setStartPrice(undefined);
     setEndPrice(undefined);
@@ -159,9 +169,10 @@ const ProductList = () => {
                       placeholder="Search..."
                       aria-label="Search..."
                       aria-describedby="button-search"
+                      onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <button className="btn btn-secondary" type="button" id="button-search">
-                      Button
+                      {isSearching && <div>Searching ...</div>}
                     </button>
                   </div>
                 </div>
