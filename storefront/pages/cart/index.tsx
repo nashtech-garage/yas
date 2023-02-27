@@ -164,9 +164,9 @@ const Cart = () => {
                   Total <span>$ 750.0</span>
                 </li>
               </ul>
-              <a href="#" className="primary-btn">
+              <Link href="#" className="primary-btn">
                 Proceed to checkout
-              </a>
+              </Link>
             </div>
           </div>
         </div>

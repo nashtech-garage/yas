@@ -76,3 +76,7 @@
   opacity: 0;
   z-index: 1;
 }
+
+.hover-category:hover {
+  background-color: #bbc9c2;
+}

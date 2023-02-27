@@ -14,10 +14,10 @@ import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
 import {
-  formatPrice,
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
+import { formatPrice } from '../../utils/formatPrice';
 
 type Props = {
   product: ProductDetail;

@@ -44,9 +44,13 @@ export default function Layout({ children }: Props) {
         <main className="col-md-12">{children}</main>
       </div>
       <footer className="footer">
-        <a href="https://github.com/nashtech-garage/yas" target="_blank" rel="noopener noreferrer">
+        <Link
+          href="https://github.com/nashtech-garage/yas"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Powered by {'Yas - 2022 '}
-        </a>
+        </Link>
       </footer>
     </>
   );

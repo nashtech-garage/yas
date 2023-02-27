@@ -107,4 +107,16 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/storefront/products")
+    public ResponseEntity<ProductsGetVm> getProductsByMultiQuery(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize,
+            @RequestParam(value = "productName", defaultValue = "", required = false) String productName,
+            @RequestParam(value = "categorySlug", defaultValue = "", required = false) String categorySlug,
+            @RequestParam(value = "startPrice", defaultValue = "", required = false) Double startPrice,
+            @RequestParam(value = "endPrice", defaultValue = "", required = false) Double endPrice
+    ) {
+        return ResponseEntity.ok(productService.getProductsByMultiQuery(pageNo, pageSize, productName, categorySlug, startPrice, endPrice));
+    }
 }

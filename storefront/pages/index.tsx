@@ -1,15 +1,12 @@
 import { NextPage } from 'next';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import Card from 'react-bootstrap/Card';
-import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import ReactPaginate from 'react-paginate';
 import BreadcrumbComponent from '../common/components/BreadcrumbComponent';
 import ProductItems from '../common/items/ProductItems';
 import { BreadcrumbModel } from '../modules/breadcrumb/model/BreadcrumbModel';
 import type { ProductThumbnail } from '../modules/catalog/models/ProductThumbnail';
-import { formatPrice, getFeaturedProducts } from '../modules/catalog/services/ProductService';
+import { getFeaturedProducts } from '../modules/catalog/services/ProductService';
 
 const Home: NextPage = () => {
   const [products, setProduct] = useState<ProductThumbnail[]>([]);
