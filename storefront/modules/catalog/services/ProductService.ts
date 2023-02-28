@@ -5,16 +5,12 @@ import { ProductFeature, ProductAll } from '../models/ProductFeature';
 import { ProductOptionValueGet } from '../models/ProductOptionValueGet';
 
 export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_API_BASE_PATH + `/product/storefront/products/featured?pageNo=${pageNo}`
-  );
+  const response = await fetch(`api/product/storefront/products/featured?pageNo=${pageNo}`);
   return response.json();
 }
 
 export async function getProduct(slug: string): Promise<Product> {
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_API_BASE_PATH + '/product/storefront/products/' + slug
-  );
+  const response = await fetch('api/product/storefront/products/' + slug);
   return response.json();
 }
 

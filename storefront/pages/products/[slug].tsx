@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Carousel, Modal, Table } from 'react-bootstrap';
 import Figure from 'react-bootstrap/Figure';
 import { toast, ToastContainer } from 'react-toastify';
@@ -13,15 +13,20 @@ import { addToCart } from '../../modules/cart/services/CartService';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import {
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
 import { formatPrice } from '../../utils/formatPrice';
+import { Rating } from '../../modules/catalog/models/Rating';
+import { getRatingsByProductId } from '../../modules/catalog/services/RatingService';
 
 type Props = {
   product: ProductDetail;
   productVariations?: ProductVariations[];
+  ratingOject: {};
 };
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
@@ -49,7 +54,11 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
       }
     }
   }
-  return { props: { product, productVariations } };
+
+  //getRating
+  let ratingObject = await getRatingsByProductId(product.id);
+
+  return { props: { product, productVariations, ratingObject } };
 };
 
 const handleAddToCart = async (event: any) => {
@@ -81,7 +90,7 @@ const handleAddToCart = async (event: any) => {
     });
 };
 
-const ProductDetails = ({ product, productVariations }: Props) => {
+const ProductDetails = ({ product, productVariations, ratingObject }: Props) => {
   const crumb: BreadcrumbModel[] = [
     {
       pageName: 'Home',
@@ -96,6 +105,9 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       url: '',
     },
   ];
+  useEffect(() => {
+    console.log(ratingObject.ratingList);
+  }, []);
 
   const [currentShowUrl, setCurrentShowUrl] = useState<string>(product.thumbnailMediaUrl);
   const [modalShow, setModalShow] = useState<boolean>(false);
@@ -272,6 +284,22 @@ const ProductDetails = ({ product, productVariations }: Props) => {
           </Carousel>
         </Modal.Body>
       </Modal>
+
+      {/* Description and Rating */}
+      <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " justify>
+        <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
+          <div className="tabs"> {product.specification}</div>
+        </Tab>
+        <Tab eventKey="Reviews" title="Reviews" style={{ minHeight: '200px' }}>
+          <div>
+            <p>Anonymous: </p>
+            {Array.isArray(ratingObject.ratingList) &&
+              ratingObject.ratingList?.map((rating: Rating) => (
+                <p key={rating.id}>{rating.content}</p>
+              ))}
+          </div>
+        </Tab>
+      </Tabs>
     </>
   );
 };

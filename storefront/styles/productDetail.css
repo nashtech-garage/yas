@@ -241,3 +241,21 @@ input[type='radio'] {
 .images::-webkit-scrollbar {
   display: none;
 }
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+  color: black;
+  background-color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+  /* border-bottom: black;
+  border-style: solid; */
+}
+
+.nav-tabs {
+  /* border-bottom: black;
+  border-bottom: 1px solid black; */
+}
+
+.nav-tabs .nav-link:hover {
+}
