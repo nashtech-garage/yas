@@ -10,11 +10,12 @@ YAS is a pet project aim to practice building a typical microservice application
 [![media-ci](https://github.com/nashtech-garage/yas/actions/workflows/media-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/media-ci.yaml)
 [![cart-ci](https://github.com/nashtech-garage/yas/actions/workflows/cart-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/cart-ci.yaml)
 [![customer-ci](https://github.com/nashtech-garage/yas/actions/workflows/customer-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/customer-ci.yaml)
+[![rating-ci](https://github.com/nashtech-garage/yas/actions/workflows/rating-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/rating-ci.yaml)
 
 ## Tentative technologies and frameworks
 
 - Java 17
-- Spring boot 2.7
+- Spring boot 3
 - Next.js
 - Keycloak
 - Kafka
@@ -26,7 +27,7 @@ YAS is a pet project aim to practice building a typical microservice application
 
 ## Local development architecture
 
-![Yas - local development architecture](https://raw.githubusercontent.com/nashtech-garage/yas/main/yas_architecture_local.png)
+![Yas - local development architecture](https://raw.githubusercontent.com/nashtech-garage/yas/main/yas-architecture-local.png)
 
 ## Getting started with Docker Compose
 
@@ -50,11 +51,11 @@ YAS is a pet project aim to practice building a typical microservice application
 ## Components roadmap
 - [x] Identity service
 - [x] Media service
-- [ ] Product service
+- [x] Product service
 - [ ] Pricing service
-- [ ] Cart service
+- [x] Cart service
 - [ ] Order service
-- [ ] Review service
+- [x] Review service
 
 ## Contributing
 - Give us a star
