@@ -1,5 +1,7 @@
 import Head from 'next/head';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import queryString from 'query-string';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import Row from 'react-bootstrap/Row';
 import ReactPaginate from 'react-paginate';
 import { ToastContainer } from 'react-toastify';
@@ -12,7 +14,6 @@ import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail'
 import { getCategories } from '../../modules/catalog/services/CategoryService';
 import { getProductByMultiParams } from '../../modules/catalog/services/ProductService';
 import styles from '../../styles/productList.module.css';
-import { useDebounce } from '../../utils/useDebounce';
 
 const crumb: BreadcrumbModel[] = [
   {
@@ -26,36 +27,21 @@ const crumb: BreadcrumbModel[] = [
 ];
 
 const ProductList = () => {
+  const router = useRouter();
   const [products, setProduct] = useState<ProductThumbnail[]>([]);
   const [cates, setCates] = useState<Category[]>([]);
   const [totalPage, setTotalPage] = useState<number>(0);
-  const pageSize = 9;
-  const [pageNo, setPageNo] = useState<number>(0);
-  // const [productName, setProductName] = useState<string>(''); //hardcode Search Result
-  const [categorySlug, setCategorySlug] = useState<string>('');
-  const [startPrice, setStartPrice] = useState<number>();
-  const [endPrice, setEndPrice] = useState<number>();
+  const [pageNo, setPageNo] = useState<number>();
+  // const [categorySlug, setCategorySlug] = useState<string>();
+  // const [startPrice, setStartPrice] = useState<number>();
+  // const [endPrice, setEndPrice] = useState<number>();
+  // const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
+  // const productName = useDebounce(searchTerm, 500);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  useEffect(() => {
-    getProductByMultiParams(
-      pageNo,
-      pageSize,
-      debouncedSearchTerm,
-      categorySlug,
-      startPrice,
-      endPrice
-    ).then((res) => {
-      setProduct(res.productContent);
-      setTotalPage(res.totalPages);
-    });
-    getCategories().then((res) => {
-      setCates(res);
-    });
-  }, [pageNo, pageSize, debouncedSearchTerm, categorySlug, startPrice, endPrice]);
+  const [filters, setFilters] = useState<any>(null);
+  const inputSearchRef = useRef<HTMLInputElement>(null);
+  const inputStartPriceRef = useRef<HTMLInputElement>(null);
+  const inputEndPriceRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     getCategories().then((res) => {
@@ -63,23 +49,45 @@ const ProductList = () => {
     });
   }, []);
 
+  useEffect(() => {
+    setFilters(router.query);
+  }, [router.query]);
+
+  useEffect(() => {
+    let predicates = queryString.stringify(filters);
+    getProductByMultiParams(predicates).then((res) => {
+      setProduct(res.productContent);
+      setTotalPage(res.totalPages);
+    });
+  }, [filters]);
+
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
   };
 
-  const handleClearFillter = () => {
-    setSearchTerm('');
-    setCategorySlug('');
-    setStartPrice(undefined);
-    setEndPrice(undefined);
+  const handleClearFilter = () => {
+    router.push({
+      pathname: '/products',
+    });
+    if (inputSearchRef.current) {
+      inputSearchRef.current.value = '';
+    }
+    if (inputStartPriceRef.current) {
+      inputStartPriceRef.current.value = '';
+    }
+    if (inputEndPriceRef.current) {
+      inputEndPriceRef.current.value = '';
+    }
   };
 
-  const handleStartPriceChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setStartPrice(Number(event.target.value));
-  };
-
-  const handleEndPriceChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setEndPrice(Number(event.target.value));
+  const handleFilter = (key: string, value: string | number | undefined) => {
+    router.push({
+      pathname: '/products',
+      query: {
+        ...filters,
+        [key]: value,
+      },
+    });
   };
 
   return (
@@ -97,7 +105,7 @@ const ProductList = () => {
               <div className={`${styles['filter-card']} mb-3`}>
                 <div className="d-flex justify-content-between">
                   <h3 className={`${styles['filter-title']}`}>Filter By</h3>
-                  <button type="button" className="btn btn-secondary" onClick={handleClearFillter}>
+                  <button type="button" className="btn btn-secondary" onClick={handleClearFilter}>
                     Clear fillter
                   </button>
                 </div>
@@ -111,7 +119,9 @@ const ProductList = () => {
                           key={cate.id}
                           style={{ cursor: 'pointer' }}
                           className={`d-inline-block my-2 me-2 px-3 border border-secondary rounded-pill ${styles['hover-category']}`}
-                          onClick={() => setCategorySlug(cate.slug)}
+                          onClick={() => {
+                            handleFilter('categorySlug', cate.slug);
+                          }}
                         >
                           {cate.name}
                         </li>
@@ -128,9 +138,11 @@ const ProductList = () => {
                         className="form-control"
                         id="priceFrom"
                         placeholder="From"
-                        value={startPrice}
                         min={0}
-                        onChange={handleStartPriceChange}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          handleFilter('startPrice', Number(e.target.value));
+                        }}
+                        ref={inputStartPriceRef}
                       />
                       <label htmlFor="priceFrom">From</label>
                     </div>
@@ -140,9 +152,11 @@ const ProductList = () => {
                         className="form-control "
                         id="priceTo"
                         placeholder="To"
-                        value={endPrice}
                         min={0}
-                        onChange={handleEndPriceChange}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          handleFilter('endPrice', Number(e.target.value));
+                        }}
+                        ref={inputEndPriceRef}
                       />
                       <label htmlFor="priceTo">To</label>
                     </div>
@@ -169,11 +183,11 @@ const ProductList = () => {
                       placeholder="Search..."
                       aria-label="Search..."
                       aria-describedby="button-search"
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      ref={inputSearchRef}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        handleFilter('productName', e.target.value);
+                      }}
                     />
-                    <button className="btn btn-secondary" type="button" id="button-search">
-                      {isSearching && <div>Searching ...</div>}
-                    </button>
                   </div>
                 </div>
               </div>
