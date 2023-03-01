@@ -102,7 +102,7 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);
     });
-  }, [pageNo, pageSize]);
+  }, [pageNo, pageSize, product.id]);
 
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
@@ -122,8 +122,6 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       url: '',
     },
   ];
-
-  console.log(ratingList);
 
   const [currentShowUrl, setCurrentShowUrl] = useState<string>(product.thumbnailMediaUrl);
   const [modalShow, setModalShow] = useState<boolean>(false);
@@ -303,7 +301,7 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       </Modal>
 
       {/* specification  and Rating */}
-      <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " justify>
+      <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " fill>
         <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
           <div className="tabs"> {product.specification}</div>
         </Tab>
