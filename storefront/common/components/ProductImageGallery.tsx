@@ -6,39 +6,40 @@ export interface IProductImageGalleryProps {
 }
 
 export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
-  const MAX_IMAGES = 3;
+  const NO_SLIDER_IMAGE = 3;
 
-  const [currentShowUrl, setCurrentShowUrl] = useState<string>(listImages[0]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [startSliderIndex, setStartSliderIndex] = useState(0);
 
-  const visibleImages = listImages.slice(startSliderIndex, startSliderIndex + MAX_IMAGES);
+  let startSliderIndex = 0;
+
+  const currentMax = Math.max(currentIndex - Math.floor(NO_SLIDER_IMAGE / 2), 0);
+
+  if (currentMax < listImages.length - NO_SLIDER_IMAGE) {
+    // If there are enough images after the current index to fill the slider, start the slider at the current max
+    startSliderIndex = currentMax;
+  } else {
+    // Otherwise, start the slider at the end of the list minus the maximum number of images to show
+    startSliderIndex = listImages.length - NO_SLIDER_IMAGE;
+  }
+
+  const visibleImages = listImages.slice(startSliderIndex, startSliderIndex + NO_SLIDER_IMAGE);
 
   const handleNextClick = () => {
-    if (startSliderIndex < listImages.length - MAX_IMAGES) {
-      setStartSliderIndex(startSliderIndex + 1);
-    }
     if (currentIndex < listImages.length - 1) {
       setCurrentIndex(currentIndex + 1);
-      setCurrentShowUrl(listImages[currentIndex + 1]);
     }
   };
 
   const handlePrevClick = () => {
-    if (startSliderIndex > 0) {
-      setStartSliderIndex(startSliderIndex - 1);
-      setCurrentShowUrl(listImages[startSliderIndex + 1]);
-    }
     if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-      setCurrentShowUrl(listImages[currentIndex - 1]);
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
   return (
     <>
       <Figure className="main-image">
-        <Figure.Image width={500} height={500} alt="photo" src={currentShowUrl} />
+        <Figure.Image width={500} height={500} alt="photo" src={listImages[currentIndex]} />
       </Figure>
       <div className="image-slider">
         <button disabled={currentIndex === 0} className="slider-button" onClick={handlePrevClick}>
@@ -48,10 +49,9 @@ export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
         <Figure className="list-images">
           {visibleImages.map((item, index) => (
             <div
-              className={`wrapper ${currentShowUrl === item ? 'active' : ''}`}
+              className={`wrapper ${listImages[currentIndex] === item ? 'active' : ''}`}
               key={`${item}-${index}`}
               onClick={() => {
-                setCurrentShowUrl(item);
                 setCurrentIndex(listImages.indexOf(item));
               }}
             >
