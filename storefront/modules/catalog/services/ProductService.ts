@@ -1,8 +1,6 @@
-import axiosClient from '../../../utils/axiosClient';
-import { concatQueryString } from '../../../utils/concatQueryString';
 import { Product } from '../models/Product';
 import { ProductDetail } from '../models/ProductDetail';
-import { ProductFeature, ProductAll } from '../models/ProductFeature';
+import { ProductAll, ProductFeature } from '../models/ProductFeature';
 import { ProductOptionValueGet } from '../models/ProductOptionValueGet';
 
 export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
@@ -33,7 +31,9 @@ export async function getProductVariations(productId: number): Promise<ProductOp
   return res.json();
 }
 
-export async function getProductByMultiParams(queryString: string): Promise<any> {
-  const response = await axiosClient.get(`/product/storefront/products?${queryString}`);
-  return response;
+export async function getProductByMultiParams(queryString: string): Promise<ProductAll> {
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_API_BASE_PATH + `/product/storefront/products?${queryString}`
+  );
+  return response.json();
 }

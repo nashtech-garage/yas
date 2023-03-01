@@ -2,24 +2,21 @@ package com.yas.product.controller;
 
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
-import com.yas.product.viewmodel.ErrorVm;
-import com.yas.product.viewmodel.ProductAttributeGroupPostVm;
-import com.yas.product.viewmodel.ProductAttributeGroupVm;
+import com.yas.product.viewmodel.error.ErrorVm;
+import com.yas.product.viewmodel.productattribute.ProductAttributeGroupPostVm;
+import com.yas.product.viewmodel.productattribute.ProductAttributeGroupVm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)

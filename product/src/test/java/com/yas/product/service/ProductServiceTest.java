@@ -8,6 +8,7 @@ import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
 import com.yas.product.repository.*;
 import com.yas.product.viewmodel.*;
+import com.yas.product.viewmodel.product.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -6,7 +6,6 @@ export type ProductFeature = {
 };
 
 export type ProductAll = {
-  totalPages?: number;
-  productContent?: ProductThumbnail[];
-  data?: any;
+  totalPages: number;
+  productContent: ProductThumbnail[];
 };
