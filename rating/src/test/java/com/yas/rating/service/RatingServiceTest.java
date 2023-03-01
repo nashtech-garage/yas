@@ -118,7 +118,7 @@ public class RatingServiceTest {
         Rating savedRating = mock(Rating.class);
         var ratingCaptor = ArgumentCaptor.forClass(Rating.class);
         when(productService.getProductById(anyLong())).thenReturn(mock(ProductThumbnailVm.class));
-        when(customerService.getCustomer(anyString())).thenReturn(mock(CustomerVm.class));
+        when(customerService.getCustomer()).thenReturn(mock(CustomerVm.class));
         when(ratingRepository.saveAndFlush(ratingCaptor.capture())).thenReturn(savedRating);
 
 

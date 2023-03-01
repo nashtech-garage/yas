@@ -66,7 +66,7 @@ public class RatingService {
         rating.setCreatedBy(auth.getName());
         rating.setLastModifiedBy(auth.getName());
 
-        CustomerVm customerVm = customerService.getCustomer(auth.getName());
+        CustomerVm customerVm = customerService.getCustomer();
         rating.setLastName(customerVm.lastName());
         rating.setFirstName(customerVm.firstName());
         rating.setEmail(customerVm.email());

@@ -51,14 +51,6 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
             - TokenRelay=
-#        - id: api
-#          uri: http://localhost:8089
-#          #uri: http://api.yas.local
-#          predicates:
-#            - Path=/api/rating/**
-#          filters:
-#            - RewritePath=/api/(?<segment>.*), /$\{segment}
-#            - TokenRelay=
         - id: nextjs
           uri: http://localhost:3000
           predicates:

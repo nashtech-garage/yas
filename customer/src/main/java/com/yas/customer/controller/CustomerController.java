@@ -54,14 +54,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomerProfile(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 
-    @GetMapping("/storefront/customer/{customerId}")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CustomerVm.class))),
-           })
-    public ResponseEntity<CustomerVm> getCustomerById(@PathVariable String customerId) {
-        return ResponseEntity.ok(customerService.getCustomerProfile(customerId));
-    }
-
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = GuestUserVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
