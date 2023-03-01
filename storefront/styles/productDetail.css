@@ -1,15 +1,8 @@
 /* Products */
-
 .product-item {
   vertical-align: top;
   display: inline-block;
   text-align: center;
-}
-
-img-thumbnail {
-  width: 500px;
-  height: 500px;
-  background-color: grey;
 }
 
 .product-item .caption {
@@ -60,14 +53,6 @@ img-thumbnail {
 
 .product_variant_box:hover {
   border-color: #0070f3;
-  transform: scale(1.1);
-}
-
-.main-thumbnail {
-  transition: transform 0.3s;
-}
-
-.main-thumbnail:hover {
   transform: scale(1.1);
 }
 
@@ -228,16 +213,81 @@ input[type='radio'] {
   color: #2f80ed;
 }
 
-/* custom style for product Images */
-.images {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  height: 100px;
-  width: 100%;
-  overflow-x: scroll;
+/* custom style for Product Images Gallery */
+.main-image {
+  transition: transform 0.3s;
 }
 
-.images::-webkit-scrollbar {
-  display: none;
+.main-image:hover {
+  transform: scale(1.02);
+  cursor: pointer;
+}
+
+.main-image img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  margin: 0;
+  border-radius: 3px;
+}
+
+.image-slider {
+  display: flex;
+  height: 110px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.image-slider .list-images {
+  margin: 0;
+  display: flex;
+}
+
+.image-slider .list-images .wrapper {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+}
+
+.image-slider .list-images .wrapper img {
+  width: 100px;
+  height: 110px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.image-slider .list-images .wrapper.active {
+  border-color: #000;
+}
+
+.image-slider .list-images .wrapper:hover {
+  border-color: #000;
+}
+
+.image-slider .list-images .wrapper + .wrapper {
+  margin-left: 16px;
+}
+
+.image-slider .slider-button {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 32px;
+  color: #ccc;
+}
+
+.image-slider .slider-button:hover {
+  cursor: pointer;
+  color: #000;
+}
+
+.image-slider .slider-button:disabled {
+  opacity: 0;
+  cursor: default;
 }

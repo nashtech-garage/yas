@@ -1,12 +1,13 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Carousel, Modal, Table } from 'react-bootstrap';
-import Figure from 'react-bootstrap/Figure';
+import { Table } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
+
 import 'react-toastify/dist/ReactToastify.css';
+
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
+import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { AddToCartModel } from '../../modules/cart/models/AddToCartModel';
 import { addToCart } from '../../modules/cart/services/CartService';
@@ -97,9 +98,6 @@ const ProductDetails = ({ product, productVariations }: Props) => {
     },
   ];
 
-  const [currentShowUrl, setCurrentShowUrl] = useState<string>(product.thumbnailMediaUrl);
-  const [modalShow, setModalShow] = useState<boolean>(false);
-  const [index, setIndex] = useState<number>(0);
   return (
     <>
       <Head>
@@ -109,29 +107,7 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       <BreadcrumbComponent props={crumb} />
       <div className="row justify-content-center">
         <div className="product-item col-5">
-          <Figure className="main-thumbnail">
-            <Figure.Image
-              width={500}
-              height={500}
-              alt="photo"
-              src={currentShowUrl}
-              onClick={() => setModalShow(true)}
-            ></Figure.Image>
-          </Figure>
-          <div className="product-images">
-            <Figure className="images">
-              {(product.productImageMediaUrls || []).map((item, index) => (
-                <Figure.Image
-                  width={100}
-                  height={100}
-                  alt="photo"
-                  src={item}
-                  key={index}
-                  onClick={() => setCurrentShowUrl(item)}
-                ></Figure.Image>
-              ))}
-            </Figure>
-          </div>
+          <ProductImageGallery listImages={product.productImageMediaUrls} />
           <span className="caption">{product.shortDescription}</span>
         </div>
 
@@ -250,28 +226,6 @@ const ProductDetails = ({ product, productVariations }: Props) => {
           ))}
         </Table>
       </div>
-
-      {/* Show modal image */}
-      <Modal
-        show={modalShow}
-        onHide={() => setModalShow(false)}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">{product.name}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Carousel activeIndex={index} onSelect={(selectedIndex, e) => setIndex(selectedIndex)}>
-            {(product.productImageMediaUrls || []).map((item, index) => (
-              <Carousel.Item key={index}>
-                <img src={item} alt="" className="d-block w-100" />
-              </Carousel.Item>
-            ))}
-          </Carousel>
-        </Modal.Body>
-      </Modal>
     </>
   );
 };
