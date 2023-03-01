@@ -244,7 +244,7 @@ input[type='radio'] {
 
 .nav-tabs .nav-item.show .nav-link,
 .nav-tabs .nav-link.active {
-  color: black;
+  color: black !important;
   background-color: #fff;
   font-weight: 600;
   font-size: 18px;
@@ -253,9 +253,13 @@ input[type='radio'] {
 }
 
 .nav-tabs {
-  /* border-bottom: black;
-  border-bottom: 1px solid black; */
+  color: black !important;
 }
 
 .nav-tabs .nav-link:hover {
+  color: black !important;
+}
+
+.review-item {
+  margin-bottom: 15px;
 }

@@ -22,11 +22,12 @@ import {
 import { formatPrice } from '../../utils/formatPrice';
 import { Rating } from '../../modules/catalog/models/Rating';
 import { getRatingsByProductId } from '../../modules/catalog/services/RatingService';
+import Moment from 'react-moment';
+import ReactPaginate from 'react-paginate';
 
 type Props = {
   product: ProductDetail;
   productVariations?: ProductVariations[];
-  ratingOject: {};
 };
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
@@ -55,10 +56,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     }
   }
 
-  //getRating
-  let ratingObject = await getRatingsByProductId(product.id);
-
-  return { props: { product, productVariations, ratingObject } };
+  return { props: { product, productVariations } };
 };
 
 const handleAddToCart = async (event: any) => {
@@ -90,7 +88,26 @@ const handleAddToCart = async (event: any) => {
     });
 };
 
-const ProductDetails = ({ product, productVariations, ratingObject }: Props) => {
+const ProductDetails = ({ product, productVariations }: Props) => {
+  //getRating
+  const [pageNo, setPageNo] = useState<number>(0);
+  const [ratingList, setRatingList] = useState<Rating[]>();
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const pageSize = 4;
+
+  useEffect(() => {
+    getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
+      setRatingList(res.ratingList);
+      setTotalPages(res.totalPages);
+      setTotalElements(res.totalElements);
+    });
+  }, [pageNo, pageSize]);
+
+  const handlePageChange = ({ selected }: any) => {
+    setPageNo(selected);
+  };
+
   const crumb: BreadcrumbModel[] = [
     {
       pageName: 'Home',
@@ -105,13 +122,13 @@ const ProductDetails = ({ product, productVariations, ratingObject }: Props) => 
       url: '',
     },
   ];
-  useEffect(() => {
-    console.log(ratingObject.ratingList);
-  }, []);
+
+  console.log(ratingList);
 
   const [currentShowUrl, setCurrentShowUrl] = useState<string>(product.thumbnailMediaUrl);
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [index, setIndex] = useState<number>(0);
+
   return (
     <>
       <Head>
@@ -285,18 +302,59 @@ const ProductDetails = ({ product, productVariations, ratingObject }: Props) => 
         </Modal.Body>
       </Modal>
 
-      {/* Description and Rating */}
+      {/* specification  and Rating */}
       <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " justify>
         <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
           <div className="tabs"> {product.specification}</div>
         </Tab>
         <Tab eventKey="Reviews" title="Reviews" style={{ minHeight: '200px' }}>
           <div>
-            <p>Anonymous: </p>
-            {Array.isArray(ratingObject.ratingList) &&
-              ratingObject.ratingList?.map((rating: Rating) => (
-                <p key={rating.id}>{rating.content}</p>
-              ))}
+            {totalElements == 0 ? (
+              <>No Reviews</>
+            ) : (
+              <>
+                {ratingList?.map((rating: Rating) => (
+                  <div className="review-item" key={rating.id}>
+                    <p style={{ fontWeight: 'bold' }}>
+                      {rating.lastName == null && rating.firstName == null ? (
+                        <>Anonymous</>
+                      ) : (
+                        <>
+                          {' '}
+                          {rating.firstName} {rating.lastName}
+                        </>
+                      )}
+                    </p>
+                    <div className="container-fluid">
+                      <div className="row">
+                        <p className=" col-9" style={{ marginLeft: 5 }}>
+                          {rating.content}
+                        </p>
+                        <p className="col-2" style={{ color: 'gray', marginLeft: 5 }}>
+                          <Moment fromNow ago>
+                            {rating.createdOn}
+                          </Moment>{' '}
+                          ago
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {/* PAGINATION */}
+                <ReactPaginate
+                  forcePage={pageNo}
+                  previousLabel={'Previous'}
+                  nextLabel={'Next'}
+                  pageCount={totalPages}
+                  onPageChange={handlePageChange}
+                  containerClassName={'paginationBtns'}
+                  previousLinkClassName={'previousBtn'}
+                  nextClassName={'nextBtn'}
+                  disabledClassName={'paginationDisabled'}
+                  activeClassName={'paginationActive'}
+                />
+              </>
+            )}
           </div>
         </Tab>
       </Tabs>

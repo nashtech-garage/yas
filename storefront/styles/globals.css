@@ -190,23 +190,26 @@ img-thumbnail {
   list-style: none;
   display: flex;
   justify-content: flex-end;
+
   /* position: relative; */
 }
 
 .paginationBtns a {
   padding: 10px;
   border: 1px solid rgb(188, 183, 183);
-  color: red;
+  color: black;
 }
 
 .paginationBtns a:hover {
-  color: white;
-  background-color: red;
+  color: white !important;
+  font-weight: bold;
+  background-color: black;
 }
 
 .paginationActive a {
-  color: white;
-  background-color: red;
+  color: white !important;
+  font-weight: bold;
+  background-color: black;
 }
 
 .paginationDisabled a {

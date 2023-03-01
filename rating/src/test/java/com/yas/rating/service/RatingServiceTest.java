@@ -3,10 +3,7 @@ package com.yas.rating.service;
 import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
-import com.yas.rating.viewmodel.ProductThumbnailVm;
-import com.yas.rating.viewmodel.RatingListVm;
-import com.yas.rating.viewmodel.RatingPostVm;
-import com.yas.rating.viewmodel.RatingVm;
+import com.yas.rating.viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +25,7 @@ import static org.mockito.Mockito.*;
 public class RatingServiceTest {
     RatingRepository ratingRepository;
     ProductService productService;
+    CustomerService customerService;
     RatingService ratingService;
 
     RatingPostVm ratingPostVm;
@@ -38,12 +36,23 @@ public class RatingServiceTest {
     void setUp() {
         ratingRepository = mock(RatingRepository.class);
         productService = mock(ProductService.class);
-        ratingService = new RatingService(ratingRepository, productService);
+        customerService = mock(CustomerService.class);
+        ratingService = new RatingService(ratingRepository, productService, customerService);
 
 
         ratingList = List.of(
-                new Rating(1L, "comment 1", 2, 1L),
-                new Rating(2L, "comment 2", 2, 1L)
+                Rating.builder()
+                        .id(1L)
+                        .content("comment 1")
+                        .ratingStar(2)
+                        .productId(1L)
+                        .build(),
+                Rating.builder()
+                        .id(1L)
+                        .content("comment 2")
+                        .ratingStar(2)
+                        .productId(1L)
+                        .build()
         );
 
         ratingPostVm = new RatingPostVm(
@@ -109,6 +118,7 @@ public class RatingServiceTest {
         Rating savedRating = mock(Rating.class);
         var ratingCaptor = ArgumentCaptor.forClass(Rating.class);
         when(productService.getProductById(anyLong())).thenReturn(mock(ProductThumbnailVm.class));
+        when(customerService.getCustomer(anyString())).thenReturn(mock(CustomerVm.class));
         when(ratingRepository.saveAndFlush(ratingCaptor.capture())).thenReturn(savedRating);
 
 
