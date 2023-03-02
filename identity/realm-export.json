@@ -45,7 +45,49 @@
   "failureFactor": 30,
   "roles": {
     "realm": [
-	  {
+      {
+        "id": "2006cd24-9bfb-417d-8e0b-81ef33fac6cf",
+        "name": "CUSTOMER",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "Yas",
+        "attributes": {}
+      },
+      {
+        "id": "a4b40d5f-75d9-47d4-9119-eaf7db5a6c25",
+        "name": "uma_authorization",
+        "description": "${role_uma_authorization}",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "Yas",
+        "attributes": {}
+      },
+      {
+        "id": "514784fb-7137-4134-bad7-db373e7d398a",
+        "name": "offline_access",
+        "description": "${role_offline-access}",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "Yas",
+        "attributes": {}
+      },
+      {
+        "id": "f2da71cd-654f-4beb-8ec8-fa78d6fc1219",
+        "name": "default-roles-yas",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "offline_access",
+            "CUSTOMER",
+            "uma_authorization"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "Yas",
+        "attributes": {}
+      },
+      {
         "id": "eadee165-c7b4-4508-bf60-937580c5d987",
         "name": "ADMIN",
         "composite": false,

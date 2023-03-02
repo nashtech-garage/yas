@@ -1,22 +1,30 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Carousel, Modal, Table } from 'react-bootstrap';
-import Figure from 'react-bootstrap/Figure';
+import { useEffect, useState } from 'react';
+import { Table } from 'react-bootstrap';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import Moment from 'react-moment';
+import ReactPaginate from 'react-paginate';
 import { toast, ToastContainer } from 'react-toastify';
+
 import 'react-toastify/dist/ReactToastify.css';
+
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
+import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { AddToCartModel } from '../../modules/cart/models/AddToCartModel';
 import { addToCart } from '../../modules/cart/services/CartService';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
+import { Rating } from '../../modules/catalog/models/Rating';
 import {
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
+import { getRatingsByProductId } from '../../modules/catalog/services/RatingService';
 import { formatPrice } from '../../utils/formatPrice';
 
 type Props = {
@@ -49,6 +57,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
       }
     }
   }
+
   return { props: { product, productVariations } };
 };
 
@@ -82,6 +91,25 @@ const handleAddToCart = async (event: any) => {
 };
 
 const ProductDetails = ({ product, productVariations }: Props) => {
+  //getRating
+  const [pageNo, setPageNo] = useState<number>(0);
+  const [ratingList, setRatingList] = useState<Rating[]>();
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const pageSize = 4;
+
+  useEffect(() => {
+    getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
+      setRatingList(res.ratingList);
+      setTotalPages(res.totalPages);
+      setTotalElements(res.totalElements);
+    });
+  }, [pageNo, pageSize, product.id]);
+
+  const handlePageChange = ({ selected }: any) => {
+    setPageNo(selected);
+  };
+
   const crumb: BreadcrumbModel[] = [
     {
       pageName: 'Home',
@@ -97,9 +125,6 @@ const ProductDetails = ({ product, productVariations }: Props) => {
     },
   ];
 
-  const [currentShowUrl, setCurrentShowUrl] = useState<string>(product.thumbnailMediaUrl);
-  const [modalShow, setModalShow] = useState<boolean>(false);
-  const [index, setIndex] = useState<number>(0);
   return (
     <>
       <Head>
@@ -109,29 +134,7 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       <BreadcrumbComponent props={crumb} />
       <div className="row justify-content-center">
         <div className="product-item col-5">
-          <Figure className="main-thumbnail">
-            <Figure.Image
-              width={500}
-              height={500}
-              alt="photo"
-              src={currentShowUrl}
-              onClick={() => setModalShow(true)}
-            ></Figure.Image>
-          </Figure>
-          <div className="product-images">
-            <Figure className="images">
-              {(product.productImageMediaUrls || []).map((item, index) => (
-                <Figure.Image
-                  width={100}
-                  height={100}
-                  alt="photo"
-                  src={item}
-                  key={index}
-                  onClick={() => setCurrentShowUrl(item)}
-                ></Figure.Image>
-              ))}
-            </Figure>
-          </div>
+          <ProductImageGallery listImages={product.productImageMediaUrls} />
           <span className="caption">{product.shortDescription}</span>
         </div>
 
@@ -251,27 +254,62 @@ const ProductDetails = ({ product, productVariations }: Props) => {
         </Table>
       </div>
 
-      {/* Show modal image */}
-      <Modal
-        show={modalShow}
-        onHide={() => setModalShow(false)}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">{product.name}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Carousel activeIndex={index} onSelect={(selectedIndex, e) => setIndex(selectedIndex)}>
-            {(product.productImageMediaUrls || []).map((item, index) => (
-              <Carousel.Item key={index}>
-                <img src={item} alt="" className="d-block w-100" />
-              </Carousel.Item>
-            ))}
-          </Carousel>
-        </Modal.Body>
-      </Modal>
+      {/* specification  and Rating */}
+      <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " fill>
+        <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
+          <div className="tabs"> {product.specification}</div>
+        </Tab>
+        <Tab eventKey="Reviews" title="Reviews" style={{ minHeight: '200px' }}>
+          <div>
+            {totalElements == 0 ? (
+              <>No Reviews</>
+            ) : (
+              <>
+                {ratingList?.map((rating: Rating) => (
+                  <div className="review-item" key={rating.id}>
+                    <p style={{ fontWeight: 'bold' }}>
+                      {rating.lastName == null && rating.firstName == null ? (
+                        <>Anonymous</>
+                      ) : (
+                        <>
+                          {' '}
+                          {rating.firstName} {rating.lastName}
+                        </>
+                      )}
+                    </p>
+                    <div className="container-fluid">
+                      <div className="row">
+                        <p className=" col-9" style={{ marginLeft: 5 }}>
+                          {rating.content}
+                        </p>
+                        <p className="col-2" style={{ color: 'gray', marginLeft: 5 }}>
+                          <Moment fromNow ago>
+                            {rating.createdOn}
+                          </Moment>{' '}
+                          ago
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {/* PAGINATION */}
+                <ReactPaginate
+                  forcePage={pageNo}
+                  previousLabel={'Previous'}
+                  nextLabel={'Next'}
+                  pageCount={totalPages}
+                  onPageChange={handlePageChange}
+                  containerClassName={'paginationBtns'}
+                  previousLinkClassName={'previousBtn'}
+                  nextClassName={'nextBtn'}
+                  disabledClassName={'paginationDisabled'}
+                  activeClassName={'paginationActive'}
+                />
+              </>
+            )}
+          </div>
+        </Tab>
+      </Tabs>
     </>
   );
 };

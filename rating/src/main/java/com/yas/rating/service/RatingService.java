@@ -4,12 +4,14 @@ import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.utils.Constants;
+import com.yas.rating.viewmodel.CustomerVm;
 import com.yas.rating.viewmodel.RatingListVm;
 import com.yas.rating.viewmodel.RatingPostVm;
 import com.yas.rating.viewmodel.RatingVm;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,10 +26,12 @@ import java.util.List;
 public class RatingService {
     private final RatingRepository ratingRepository;
     private final ProductService productService;
+    private final CustomerService customerService;
 
-    public RatingService(RatingRepository ratingRepository,ProductService productService) {
+    public RatingService(RatingRepository ratingRepository, ProductService productService, CustomerService customerService) {
         this.ratingRepository = ratingRepository;
         this.productService = productService;
+        this.customerService = customerService;
     }
 
     public RatingListVm getRatingListByProductId(Long id, int pageNo, int pageSize) {
@@ -35,7 +39,7 @@ public class RatingService {
             throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id);
         }
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdOn").descending());
         Page<Rating> ratings = ratingRepository.findByProductId(id, pageable);
 
         List<RatingVm> ratingVmList = new ArrayList<>();
@@ -51,6 +55,7 @@ public class RatingService {
             throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
         }
 
+
         Rating rating = new Rating();
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());
@@ -60,6 +65,10 @@ public class RatingService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         rating.setCreatedBy(auth.getName());
         rating.setLastModifiedBy(auth.getName());
+
+        CustomerVm customerVm = customerService.getCustomer();
+        rating.setLastName(customerVm.lastName());
+        rating.setFirstName(customerVm.firstName());
 
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);

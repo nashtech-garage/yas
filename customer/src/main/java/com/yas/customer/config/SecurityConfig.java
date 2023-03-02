@@ -22,6 +22,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests()
+                .requestMatchers("/storefront/customer/**").hasRole("CUSTOMER")
                 .requestMatchers("/storefront/**").permitAll()
                 .requestMatchers("/backoffice/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
