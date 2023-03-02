@@ -7,7 +7,8 @@ import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
 import com.yas.product.repository.*;
-import com.yas.product.viewmodel.*;
+import com.yas.product.viewmodel.NoFileMediaVm;
+import com.yas.product.viewmodel.product.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
@@ -92,8 +94,8 @@ class ProductServiceTest {
                 1L
         );
 
-        category1 = new Category(1L, null, null, "null", null, null, null, null, null, null);
-        category2 = new Category(2L, null, null, "null", null, null, null, null, null, null);
+        category1 = new Category(1L, "category", null, "category", null, null, null, null, null, null);
+        category2 = new Category(2L, "category2", null, "category2", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
                 new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
@@ -789,5 +791,62 @@ class ProductServiceTest {
         Long productId = 1L;
         when(productRepository.findById(productId)).thenReturn(Optional.empty());
         assertThrows(NotFoundException.class, () -> productService.deleteProduct(productId));
+    }
+
+    @Test
+    void getProductsByMultiQuery_WhenFilterByBrandNameAndProductName_ThenSuccess() {
+        //given
+        int pageNo = 0;
+        int pageSize = 9;
+        Double startPrice = 1.0;
+        Double endPrice = 10.0;
+        String productName = "product1";
+        String categorySlug = "category1";
+        String url = "sample-url";
+//        List<ProductThumbnailGetVm> productThumbnailVms = List.of(
+//                new ProductThumbnailGetVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(), mediaService.getMedia(products.get(0).getThumbnailMediaId()).url(), products.get(0).getPrice()),
+//                new ProductThumbnailGetVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(), mediaService.getMedia(products.get(1).getThumbnailMediaId()).url(), products.get(1).getPrice())
+//        );
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(0, 2), 2);
+        NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
+
+        when(productRepository.findByProductNameAndCategorySlugAndPriceBetween(
+                anyString(), anyString(), anyDouble(), anyDouble(), any(Pageable.class))).thenReturn(productPage);
+        when(mediaService.getMedia(anyLong())).thenReturn(new NoFileMediaVm(null, "", "", "", url));
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        ArgumentCaptor<String> productNameCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> categorySlugCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Double> startPriceCaptor = ArgumentCaptor.forClass(Double.class);
+        ArgumentCaptor<Double> endPriceCaptor = ArgumentCaptor.forClass(Double.class);
+
+        //Call method under test
+        ProductsGetVm result = productService.getProductsByMultiQuery(pageNo, pageSize, productName, categorySlug, startPrice, endPrice);
+
+        // Verifying that the repository was called with expected parameters
+        verify(productRepository).findByProductNameAndCategorySlugAndPriceBetween(
+                productNameCaptor.capture(), categorySlugCaptor.capture(), startPriceCaptor.capture(),
+                endPriceCaptor.capture(), pageableCaptor.capture());
+        assertThat(pageableCaptor.getValue()).isEqualTo(PageRequest.of(pageNo, pageSize));
+        assertThat(productNameCaptor.getValue()).contains(productName.trim().toLowerCase());
+        assertEquals("product1", productNameCaptor.getValue());
+        assertEquals("category1", categorySlugCaptor.getValue());
+
+        // Assert result
+        assertEquals(2, result.productContent().size());
+//        assertThat(result.productContent()).isEqualTo(productThumbnailVms);
+        assertEquals(0, result.pageNo());
+        assertEquals(2, result.pageSize());
+        assertEquals(2, result.totalElements());
+        assertEquals(1, result.totalPages());
+        assertTrue(result.isLast());
+        assertThat(result.pageNo()).isEqualTo(productPage.getNumber());
+        assertThat(result.pageSize()).isEqualTo(productPage.getSize());
+        assertThat(result.totalElements()).isEqualTo(productPage.getTotalElements());
+        assertThat(result.totalPages()).isEqualTo(productPage.getTotalPages());
+        assertThat(result.isLast()).isEqualTo(productPage.isLast());
+
+        when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
+        when(noFileMediaVm.url()).thenReturn(url);
     }
 }

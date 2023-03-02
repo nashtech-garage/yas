@@ -3,16 +3,23 @@ package com.yas.rating.viewmodel;
 
 
 import com.yas.rating.model.Rating;
+import lombok.Builder;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
-public record RatingVm(Long id, String content, int star, Long productId, String createdBy) {
+@Builder
+public record RatingVm(Long id, String content, int star, Long productId, String createdBy,String lastName, String firstName, ZonedDateTime createdOn) {
     public static RatingVm fromModel(Rating rating) {
-        return new RatingVm(rating.getId(),
-                rating.getContent(),
-                rating.getRatingStar(),
-                rating.getProductId(),
-                rating.getCreatedBy()
-        );
+        return RatingVm.builder()
+                .id(rating.getId())
+                .content(rating.getContent())
+                .star(rating.getRatingStar())
+                .productId(rating.getProductId())
+                .lastName(rating.getLastName())
+                .firstName(rating.getFirstName())
+                .createdBy(rating.getCreatedBy())
+                .createdOn(rating.getCreatedOn())
+                .build();
     }
 }

@@ -34,9 +34,6 @@ public class ProductService {
                 .uri(url)
                 .retrieve()
                 .onStatus(
-                        HttpStatus.INTERNAL_SERVER_ERROR::equals,
-                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
-                .onStatus(
                         HttpStatus.NOT_FOUND::equals,
                         response -> response.bodyToMono(String.class).map(NotFoundException::new))
                 .bodyToMono(ProductThumbnailVm.class)

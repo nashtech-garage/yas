@@ -291,3 +291,25 @@ input[type='radio'] {
   opacity: 0;
   cursor: default;
 }
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+  color: black !important;
+  background-color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+  /* border-bottom: black;
+  border-style: solid; */
+}
+
+.nav-tabs {
+  color: black !important;
+}
+
+.nav-tabs .nav-link:hover {
+  color: black !important;
+}
+
+.review-item {
+  margin-bottom: 15px;
+}

@@ -1,7 +1,8 @@
 package com.yas.product.controller;
 
 import com.yas.product.service.ProductService;
-import com.yas.product.viewmodel.*;
+import com.yas.product.viewmodel.error.ErrorVm;
+import com.yas.product.viewmodel.product.*;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
