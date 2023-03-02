@@ -43,7 +43,7 @@ export default function Layout({ children }: Props) {
       <Header>
         <AuthenticationInfo />
       </Header>
-      <div className="container container-fluid py-5">
+      <div className="container container-fluid py-5" style={{ minHeight: '70vh' }}>
         <main className="col-md-12">{children}</main>
       </div>
       <Footer />

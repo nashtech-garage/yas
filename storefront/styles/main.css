@@ -159,7 +159,6 @@
 .wrap-menu-desktop {
   position: fixed;
   z-index: 1100;
-  background-color: transparent;
   width: 100%;
   left: 0px;
   background-color: #fff;
@@ -3413,7 +3412,6 @@ input.num-product::-webkit-inner-spin-button {
   border-top-style: solid;
   -o-border-image: linear-gradient(139deg, #fb8817, #ff4b01, #c12127, #e02aff) 3;
   border-image: linear-gradient(139deg, #fb8817, #ff4b01, #c12127, #e02aff) 3;
-  position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
@@ -3428,7 +3426,6 @@ input.num-product::-webkit-inner-spin-button {
 .main-menu-li {
   display: block;
   position: relative;
-  padding: 20px 10px 20px 0px;
   margin: 0px 4px 0px 14px;
 
   font-size: 19px;

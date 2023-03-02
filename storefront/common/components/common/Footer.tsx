@@ -29,8 +29,8 @@ const Footer = () => {
             <h4 className="stext-301 cl0 p-b-30">GET IN TOUCH</h4>
 
             <p className="stext-107 cl7 size-201">
-              Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or
-              call us on (+1) 96 716 6879
+              Etown 4, 364 Cong Hoa Street, Tan Binh District,, Ho Chi Minh City, Thành phố Hồ Chí
+              Minh 736839
             </p>
 
             <div className="p-t-27">
@@ -108,7 +108,8 @@ const Footer = () => {
             </Link>
             &amp; distributed by
             <Link href="" target={'_blank'}>
-              Tresor
+              {' '}
+              Yas Team
             </Link>
           </p>
         </div>
