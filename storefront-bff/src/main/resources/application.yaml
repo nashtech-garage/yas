@@ -41,20 +41,20 @@ spring:
     activate:
       on-profile: "dev"
   cloud:
-    gateway:
-      routes:
+      gateway:
+        routes:
         - id: api
           #uri: http://localhost:8080
           uri: http://api.yas.local
           predicates:
-            - Path=/api/**
+              - Path=/api/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
         - id: nextjs
           uri: http://localhost:3000
           predicates:
-            - Path=/**
+              - Path=/**
 ---
 
 spring:
@@ -62,19 +62,19 @@ spring:
     activate:
       on-profile: "prod"
   cloud:
-    gateway:
-      routes:
-        - id: api
-          uri: http://product
-          predicates:
-            - Path=/api/product/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: nextjs
-          uri: http://localhost:3000
-          predicates:
-            - Path=/**
+      gateway:
+        routes:
+          - id: api
+            uri: http://product
+            predicates:
+              - Path=/api/product/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: nextjs
+            uri: http://localhost:3000
+            predicates:
+              - Path=/**
 ---
 
 yas:
