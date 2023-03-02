@@ -24,6 +24,7 @@ import { Rating } from '../../modules/catalog/models/Rating';
 import { getRatingsByProductId } from '../../modules/catalog/services/RatingService';
 import Moment from 'react-moment';
 import ReactPaginate from 'react-paginate';
+import StarRatings from 'react-star-ratings';
 
 type Props = {
   product: ProductDetail;
@@ -89,12 +90,13 @@ const handleAddToCart = async (event: any) => {
 };
 
 const ProductDetails = ({ product, productVariations }: Props) => {
-  //getRating
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalElements, setTotalElements] = useState<number>(0);
-  const pageSize = 4;
+  const pageSize = 5;
+
+  const [ratingStar, setRatingStar] = useState<number>(5);
 
   useEffect(() => {
     getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
@@ -106,6 +108,9 @@ const ProductDetails = ({ product, productVariations }: Props) => {
 
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
+  };
+  const handleChangeRating = (ratingStar: number) => {
+    setRatingStar(ratingStar);
   };
 
   const crumb: BreadcrumbModel[] = [
@@ -305,10 +310,54 @@ const ProductDetails = ({ product, productVariations }: Props) => {
         <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
           <div className="tabs"> {product.specification}</div>
         </Tab>
-        <Tab eventKey="Reviews" title="Reviews" style={{ minHeight: '200px' }}>
+        <Tab eventKey="Reviews" title={`Reviews (${totalElements})`} style={{ minHeight: '200px' }}>
           <div>
+            <div
+              style={{
+                borderBottom: '1px solid lightgray',
+                marginBottom: 30,
+              }}
+            >
+              <h4>Add a review</h4>
+
+              <div style={{ marginLeft: 10, display: 'flex', marginBottom: -10 }}>
+                <p>Your rating: </p>
+                <div style={{ marginLeft: 10 }}>
+                  <StarRatings
+                    rating={ratingStar}
+                    starRatedColor="#FFBF00"
+                    numberOfStars={5}
+                    starDimension="16px"
+                    starSpacing="1px"
+                    changeRating={handleChangeRating}
+                  />
+                </div>
+              </div>
+
+              <textarea
+                placeholder="Great..."
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  border: '1px solid lightgray',
+                  padding: 10,
+                }}
+              />
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  margin: 20,
+                }}
+              >
+                <button type="button" className="btn btn-primary" style={{ width: '100px' }}>
+                  Post
+                </button>
+              </div>
+            </div>
             {totalElements == 0 ? (
-              <>No Reviews</>
+              <>No reviews for now</>
             ) : (
               <>
                 {ratingList?.map((rating: Rating) => (
@@ -323,21 +372,21 @@ const ProductDetails = ({ product, productVariations }: Props) => {
                         </>
                       )}
                     </p>
-                    <div className="container-fluid">
-                      <div className="row">
-                        <p className=" col-9" style={{ marginLeft: 5 }}>
-                          {rating.content}
-                        </p>
-                        <p className="col-2" style={{ color: 'gray', marginLeft: 5 }}>
-                          <Moment fromNow ago>
-                            {rating.createdOn}
-                          </Moment>{' '}
-                          ago
-                        </p>
-                      </div>
+
+                    <div style={{ display: 'flex' }}>
+                      <p className="col-10" style={{ marginLeft: 5 }}>
+                        {rating.content}
+                      </p>
+                      <p className="col-2" style={{ color: 'gray', marginLeft: 5 }}>
+                        <Moment fromNow ago>
+                          {rating.createdOn}
+                        </Moment>{' '}
+                        ago
+                      </p>
                     </div>
                   </div>
                 ))}
+
                 {/* PAGINATION */}
                 <ReactPaginate
                   forcePage={pageNo}
