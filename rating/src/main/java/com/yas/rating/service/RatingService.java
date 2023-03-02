@@ -69,7 +69,6 @@ public class RatingService {
         CustomerVm customerVm = customerService.getCustomer();
         rating.setLastName(customerVm.lastName());
         rating.setFirstName(customerVm.firstName());
-        rating.setEmail(customerVm.email());
 
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);
