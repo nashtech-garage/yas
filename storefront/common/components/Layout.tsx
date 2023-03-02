@@ -2,8 +2,6 @@ import Head from 'next/head';
 import AuthenticationInfo from './AuthenticationInfo';
 import Footer from './common/Footer';
 import Header from './common/Header';
-import { Navbar } from 'react-bootstrap';
-import Link from 'next/link';
 
 type Props = {
   children: React.ReactNode;

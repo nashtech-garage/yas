@@ -1,62 +1,3 @@
-/* [ FONT ]*/
-
-@font-face {
-  font-family: Poppins-Regular;
-  src: url('../asset/fonts/Poppins/Poppins-Regular.ttf');
-}
-
-@font-face {
-  font-family: Poppins-Light;
-  src: url('../asset/fonts/Poppins/Poppins-Light.ttf');
-}
-
-@font-face {
-  font-family: Poppins-ExtraLight;
-  src: url('../asset/fonts/Poppins/Poppins-ExtraLight.ttf');
-}
-
-@font-face {
-  font-family: Poppins-Medium;
-  src: url('../asset/fonts/Poppins/Poppins-Medium.ttf');
-}
-
-@font-face {
-  font-family: Poppins-Italic;
-  src: url('../asset/fonts/Poppins/Poppins-Italic.ttf');
-}
-
-@font-face {
-  font-family: Poppins-Bold;
-  src: url('../asset/fonts/Poppins/Poppins-Bold.ttf');
-}
-
-@font-face {
-  font-family: Poppins-SemiBold;
-  src: url('../asset/fonts/Poppins/Poppins-SemiBold.ttf');
-}
-
-/*---------------------------------------------*/
-@font-face {
-  font-family: PlayfairDisplay-Regular;
-  src: url('../asset/fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf');
-}
-
-@font-face {
-  font-family: PlayfairDisplay-Bold;
-  src: url('../asset/fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf');
-}
-
-/*---------------------------------------------*/
-@font-face {
-  font-family: Montserrat-Regular;
-  src: url('../asset/fonts/Montserrat/Montserrat-Regular.ttf');
-}
-
-@font-face {
-  font-family: Montserrat-Bold;
-  src: url('../asset/fonts/Montserrat/Montserrat-Bold.ttf');
-}
-
 /*//////////////////////////////////////////////////////////////////
 [ RS PLUGIN ]*/
 
@@ -161,16 +102,6 @@
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 [ Header Desktop ]*/
 
-.container-menu-desktop {
-  height: auto;
-  width: 100%;
-  position: relative;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
-  -moz-transition: all 0.3s;
-  transition: all 0.3s;
-}
-
 .header-v2 .container-menu-desktop {
   height: 84px;
 }
@@ -192,7 +123,6 @@
 
 /*---------------------------------------------*/
 .left-top-bar {
-  font-family: Poppins-Regular;
   font-size: 12px;
   line-height: 1.8;
   color: #b2b2b2;
@@ -200,7 +130,6 @@
 
 /*---------------------------------------------*/
 .right-top-bar a {
-  font-family: Poppins-Regular;
   font-size: 12px;
   line-height: 1.8;
 
@@ -232,9 +161,11 @@
   z-index: 1100;
   background-color: transparent;
   width: 100%;
-  height: 84px;
-  top: 40px;
   left: 0px;
+  background-color: #fff;
+  top: 0;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  height: 8rem;
 
   -webkit-transition: height 0.3s, background-color 0.3s;
   -o-transition: height 0.3s, background-color 0.3s;
@@ -320,7 +251,6 @@
 }
 
 .main-menu > li > a {
-  font-family: Poppins-Medium;
   font-size: 14px;
   color: #333;
   padding: 5px 0px;
@@ -375,7 +305,6 @@
 }
 
 .sub-menu a {
-  font-family: Poppins-Regular;
   font-size: 14px;
   line-height: 1.5;
   color: #555;
@@ -444,7 +373,7 @@
 /*---------------------------------------------*/
 .icon-header-noti::after {
   content: attr(data-notify);
-  font-family: Poppins-Regular;
+
   font-size: 12px;
   color: #fff;
   line-height: 15px;
@@ -511,7 +440,6 @@
 
 /*---------------------------------------------*/
 .wrap-search-header input {
-  font-family: Poppins-ExtraLight;
   font-size: 50px;
   line-height: 1.2;
   color: #333;
@@ -598,12 +526,11 @@
   display: -webkit-flex;
   display: -moz-box;
   display: -ms-flexbox;
-  display: flex;
   align-items: center;
   height: 70px;
   background-color: #fff;
   padding: 15px;
-  display: none;
+  /* display: none; */
 
   box-shadow: 0 0px 3px 0px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 0px 3px 0px rgba(0, 0, 0, 0.2);
@@ -684,7 +611,6 @@
 }
 
 .main-menu-m > li > a {
-  font-family: Poppins-Medium;
   font-size: 14px;
   color: white;
   line-height: 2.8;
@@ -738,7 +664,6 @@
 }
 
 .sub-menu-m a {
-  font-family: Poppins-Regular;
   font-size: 14px;
   color: #666;
   line-height: 2.5;
@@ -940,7 +865,7 @@
 
 .header-cart-item-img::after {
   content: '\e870';
-  font-family: Linearicons-Free;
+
   font-size: 16px;
   display: -webkit-box;
   display: -webkit-flex;
@@ -974,7 +899,7 @@
 
 .header-cart-item-name {
   display: block;
-  font-family: Poppins-Regular;
+
   font-size: 14px;
   color: #555;
   line-height: 1.3;
@@ -982,14 +907,13 @@
 
 .header-cart-item-info {
   display: block;
-  font-family: Poppins-Regular;
+
   font-size: 14px;
   color: #888;
   line-height: 1.5;
 }
 
 .header-cart-total {
-  font-family: Poppins-Regular;
   font-size: 18px;
   color: #222;
   line-height: 1.3;
@@ -1033,7 +957,6 @@
 /*------------------------------------------------------------------
 [ in select ]*/
 .rs1-select2 .select2-container .select2-selection--single .select2-selection__rendered {
-  font-family: Poppins-Regular;
   font-size: 13px;
   color: #555;
   line-height: 1.2;
@@ -1065,7 +988,7 @@
   .select2-selection--single
   .select2-selection__arrow::after {
   content: '\f0dc';
-  font-family: FontAwesome;
+
   font-size: 13px;
   color: #808080;
 }
@@ -1119,7 +1042,6 @@
 }
 
 .rs1-select2 .select2-results__options {
-  font-family: Poppins-Regular;
   font-size: 13px;
   color: #555;
   line-height: 1.2;
@@ -1128,7 +1050,7 @@
 .rs1-select2 .select2-search--dropdown .select2-search__field {
   border: 1px solid #aaa;
   outline: none;
-  font-family: Poppins-Regular;
+
   font-size: 13px;
   color: #555;
   line-height: 1.2;
@@ -1278,7 +1200,6 @@
 }
 
 .caption-dots-slick1 {
-  font-family: Poppins-ExtraLight;
   font-size: 16px;
   line-height: 1.3;
   color: #fff;
@@ -1566,7 +1487,6 @@ button.mfp-close {
 }
 
 .tab01 .nav-link {
-  font-family: Poppins-Regular;
   font-size: 15px;
   color: #888;
   line-height: 1.2;
@@ -1605,7 +1525,7 @@ button.mfp-close {
 
 .swal-button {
   background-color: #717fe0;
-  font-family: Poppins-Regular;
+
   font-size: 16px;
   color: white;
   text-transform: uppercase;
@@ -1626,7 +1546,6 @@ button.mfp-close {
 }
 
 .swal-title {
-  font-family: Poppins-Bold;
   color: #333333;
   font-size: 18px;
   line-height: 1.5;
@@ -1634,7 +1553,6 @@ button.mfp-close {
 }
 
 .swal-text {
-  font-family: Poppins-Regular;
   color: #555555;
   font-size: 16px;
   line-height: 1.666667;
@@ -1791,7 +1709,7 @@ input.num-product::-webkit-inner-spin-button {
 
 .tooltip100::after {
   content: attr(data-tooltip);
-  font-family: Poppins-Regular;
+
   font-size: 12px;
   color: #888;
   line-height: 18px;
@@ -1927,7 +1845,6 @@ input.num-product::-webkit-inner-spin-button {
 }
 
 .table-shopping-cart .table_head th {
-  font-family: Poppins-Bold;
   font-size: 13px;
   color: #555;
   text-transform: uppercase;
@@ -1937,7 +1854,6 @@ input.num-product::-webkit-inner-spin-button {
 }
 
 .table-shopping-cart td {
-  font-family: Poppins-Regular;
   color: #555;
   line-height: 1.6;
 }
@@ -2063,7 +1979,7 @@ input.num-product::-webkit-inner-spin-button {
 
 .label-new::after {
   content: attr(data-label);
-  font-family: Montserrat-Regular;
+
   font-size: 12px;
   color: #fff;
   line-height: 1.2;
@@ -2131,113 +2047,95 @@ input.num-product::-webkit-inner-spin-button {
 /*//////////////////////////////////////////////////////////////////
 [ S-Text 0 - 15 ]*/
 .stext-101 {
-  font-family: Poppins-Medium;
   font-size: 15px;
   line-height: 1.466667;
   text-transform: uppercase;
 }
 
 .stext-102 {
-  font-family: Poppins-Regular;
   font-size: 14px;
   line-height: 1.7;
 }
 
 .stext-103 {
-  font-family: Poppins-Regular;
   font-size: 15px;
   line-height: 1.466667;
 }
 
 .stext-104 {
-  font-family: Poppins-Regular;
   font-size: 14px;
   line-height: 1.466667;
 }
 
 .stext-105 {
-  font-family: Poppins-Regular;
   font-size: 14px;
   line-height: 1.466667;
   letter-spacing: 1px;
 }
 
 .stext-106 {
-  font-family: Poppins-Regular;
   font-size: 15px;
   line-height: 1.2;
 }
 
 .stext-107 {
-  font-family: Poppins-Regular;
   font-size: 13px;
   line-height: 1.923;
 }
 
 .stext-108 {
-  font-family: Poppins-Light;
   font-size: 14px;
   line-height: 1.7143;
 }
 
 .stext-109 {
-  font-family: Poppins-Regular;
   font-size: 12px;
   line-height: 1.833333;
 }
 
 .stext-110 {
-  font-family: Poppins-Medium;
   font-size: 15px;
   line-height: 1.466667;
 }
 
 .stext-111 {
-  font-family: Poppins-Regular;
   font-size: 13px;
   line-height: 1.6923;
 }
 
 .stext-112 {
-  font-family: Poppins-Regular;
   font-size: 13px;
   line-height: 1.6923;
   text-transform: uppercase;
 }
 
 .stext-113 {
-  font-family: Poppins-Light;
   font-size: 14px;
   line-height: 1.7857;
 }
 
 .stext-114 {
-  font-family: Poppins-Italic;
   font-size: 15px;
   line-height: 1.666667;
 }
 
 .stext-115 {
-  font-family: Poppins-Regular;
   font-size: 15px;
   line-height: 1.666667;
 }
 
 .stext-116 {
-  font-family: Poppins-Regular;
   font-size: 15px;
   line-height: 1.266667;
 }
 
 .stext-117 {
-  font-family: Poppins-Light;
   font-size: 15px;
   line-height: 1.666667;
 }
 
 /*---------------------------------------------*/
 .stext-301 {
-  font-family: Montserrat-Bold;
   font-size: 15px;
   line-height: 1.6;
   text-transform: uppercase;
@@ -2246,81 +2144,68 @@ input.num-product::-webkit-inner-spin-button {
 /*//////////////////////////////////////////////////////////////////
 [ M-Text 16 - 25 ]*/
 .mtext-101 {
-  font-family: Poppins-Medium;
   font-size: 18px;
   line-height: 1.333333;
 }
 
 .mtext-102 {
-  font-family: Poppins-SemiBold;
   font-size: 16px;
   line-height: 1.6;
 }
 
 .mtext-103 {
-  font-family: Poppins-Bold;
   font-size: 18px;
   line-height: 1.333333;
   text-transform: uppercase;
 }
 
 .mtext-104 {
-  font-family: Poppins-Medium;
   font-size: 16px;
   line-height: 1.6;
 }
 
 .mtext-105 {
-  font-family: Poppins-Regular;
   font-size: 24px;
   line-height: 1.5;
 }
 
 .mtext-106 {
-  font-family: Poppins-SemiBold;
   font-size: 18px;
   line-height: 1.388888;
 }
 
 .mtext-107 {
-  font-family: Poppins-Regular;
   font-size: 16px;
   line-height: 1.625;
 }
 
 .mtext-108 {
-  font-family: Poppins-Regular;
   font-size: 20px;
   line-height: 1.3;
 }
 
 .mtext-109 {
-  font-family: Poppins-Bold;
   font-size: 20px;
   line-height: 1.3;
   text-transform: uppercase;
 }
 
 .mtext-110 {
-  font-family: Poppins-Regular;
   font-size: 18px;
   line-height: 1.222222;
 }
 
 .mtext-111 {
-  font-family: Poppins-Bold;
   font-size: 25px;
   line-height: 1.2;
 }
 
 .mtext-112 {
-  font-family: Poppins-Bold;
   font-size: 22px;
   line-height: 1.333333;
 }
 
 .mtext-113 {
-  font-family: Poppins-Bold;
   font-size: 22px;
   line-height: 1.333333;
   text-transform: uppercase;
@@ -2329,71 +2214,60 @@ input.num-product::-webkit-inner-spin-button {
 /*//////////////////////////////////////////////////////////////////
 [ L-Text >= 26 ]*/
 .ltext-101 {
-  font-family: Poppins-Regular;
   font-size: 28px;
   line-height: 1.2857;
 }
 
 .ltext-102 {
-  font-family: Poppins-Bold;
   font-size: 28px;
   line-height: 1.1;
 }
 
 .ltext-103 {
-  font-family: Poppins-Bold;
   font-size: 36px;
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 .ltext-104 {
-  font-family: Poppins-Bold;
   font-size: 60px;
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 .ltext-105 {
-  font-family: Poppins-Bold;
   font-size: 50px;
   line-height: 1.1;
 }
 
 .ltext-106 {
-  font-family: Poppins-Bold;
   font-size: 36px;
   line-height: 1.2;
 }
 
 .ltext-107 {
-  font-family: Poppins-Bold;
   font-size: 30px;
   line-height: 1.1;
 }
 
 .ltext-108 {
-  font-family: Poppins-Bold;
   font-size: 26px;
   line-height: 1.3846;
 }
 
 .ltext-109 {
-  font-family: Poppins-Bold;
   font-size: 36px;
   line-height: 1.2;
 }
 
 /*---------------------------------------------*/
 .ltext-201 {
-  font-family: PlayfairDisplay-Bold;
   font-size: 60px;
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 .ltext-202 {
-  font-family: PlayfairDisplay-Regular;
   font-size: 28px;
   line-height: 1.2857;
 }
@@ -2850,7 +2724,7 @@ input.num-product::-webkit-inner-spin-button {
 
 .label1::after {
   content: attr(data-label1);
-  font-family: Poppins-Regular;
+
   font-size: 10px;
   line-height: 15px;
   color: #fff;
@@ -2906,7 +2780,6 @@ input.num-product::-webkit-inner-spin-button {
 
 /*---------------------------------------------*/
 .how-pagination1 {
-  font-family: Poppins-Regular;
   font-size: 14px;
   color: #808080;
 
@@ -3004,7 +2877,7 @@ input.num-product::-webkit-inner-spin-button {
 
 .how-itemcart1::after {
   content: '\e870';
-  font-family: Linearicons-Free;
+
   font-size: 16px;
   display: -webkit-box;
   display: -webkit-flex;
@@ -3537,22 +3410,27 @@ input.num-product::-webkit-inner-spin-button {
 
 /* ============= OWN CUSTOM ============== */
 .container-menu-desktop {
-  position: fixed !important;
   border-top-style: solid;
   -o-border-image: linear-gradient(139deg, #fb8817, #ff4b01, #c12127, #e02aff) 3;
   border-image: linear-gradient(139deg, #fb8817, #ff4b01, #c12127, #e02aff) 3;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
   z-index: 1000;
+  height: auto;
+  width: 100%;
+  position: relative;
+  -webkit-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
 }
 .main-menu-li {
   display: block;
   position: relative;
   padding: 20px 10px 20px 0px;
   margin: 0px 4px 0px 14px;
-  font-family: Poppins-Medium;
+
   font-size: 19px;
   color: #333;
   padding: 5px 0px;
@@ -3570,13 +3448,6 @@ input.num-product::-webkit-inner-spin-button {
   color: #6c7ae0;
 }
 
-.wrap-menu-desktop {
-  background-color: #fff;
-  top: 0;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  height: 8rem;
-}
-
 .search-header {
   position: relative;
 }
@@ -3587,12 +3458,4 @@ input.num-product::-webkit-inner-spin-button {
 }
 .search-header input {
   padding-right: 2rem;
-}
-
-.red-test {
-  color: red;
-}
-
-.blue-test {
-  color: #7280e0;
 }

@@ -22,7 +22,7 @@ const Header = ({ children }: Props) => {
                 <div className="right-top-bar flex-w h-full main-menu">
                   <div className="right-top-bar flex-w h-full">
                     {data_menu_top_no_login.map((item, index) => (
-                      <Link href={item.links} className="flex-c-m trans-04 p-lr-25" key={index}>
+                      <Link href={item.links} className="flex-c-m trans-04 p-lr-25" key={item.id}>
                         {item.name}
                       </Link>
                     ))}
@@ -77,7 +77,6 @@ const Header = ({ children }: Props) => {
           </div>
         </div>
       </header>
-      {/* {<LogoutClient show={showLogout} setStateModal={() => setShowLogout(false)} />} */}
     </>
   );
 };

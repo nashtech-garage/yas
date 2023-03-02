@@ -30,6 +30,9 @@
 
 .cog2 {
   border: 6vmin solid #4f8a8b;
+  position: relative;
+  left: -10.2vmin;
+  bottom: 10vmin;
 }
 
 .top,
@@ -99,12 +102,6 @@
   transform: rotateZ(-45deg);
   right: -8vmin;
   top: 25vmin;
-}
-
-.cog2 {
-  position: relative;
-  left: -10.2vmin;
-  bottom: 10vmin;
 }
 
 .first-four {

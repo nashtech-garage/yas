@@ -1,5 +1,4 @@
 import Link from 'next/link';
-// import { iconPay01, iconPay02, iconPay03, iconPay04, iconPay05 } from '../../../asset/icons';
 import iconPay01 from '../../../asset/icons/icon-pay-01.jpg';
 import iconPay02 from '../../../asset/icons/icon-pay-02.jpg';
 import iconPay03 from '../../../asset/icons/icon-pay-03.jpg';
