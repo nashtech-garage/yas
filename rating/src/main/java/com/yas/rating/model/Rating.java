@@ -1,10 +1,7 @@
 package com.yas.rating.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Rating extends AbstractAuditEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +24,10 @@ public class Rating extends AbstractAuditEntity{
     private int ratingStar;
 
     private Long productId;
+
+    private String lastName;
+
+    private String firstName;
 
     @Override
     public boolean equals(Object o) {
