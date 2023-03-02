@@ -67,14 +67,14 @@ spring:
           - id: api
             uri: http://product
             predicates:
-              - Path=/api/product/**
+                - Path=/api/product/**
             filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
+                - RewritePath=/api/(?<segment>.*), /$\{segment}
+                - TokenRelay=
           - id: nextjs
             uri: http://localhost:3000
             predicates:
-              - Path=/**
+                - Path=/**
 ---
 
 yas:
