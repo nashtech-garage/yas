@@ -17,7 +17,6 @@ import { toast } from 'react-toastify';
 const ProductList: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [products, setProducts] = useState<Product[]>([]);
-  console.log('🚀 ~ file: index.tsx:20 ~ products:', products);
   const [isLoading, setLoading] = useState(false);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
