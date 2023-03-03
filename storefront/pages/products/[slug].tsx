@@ -125,6 +125,7 @@ const ProductDetails = ({ product, productVariations }: Props) => {
 
     createRating(ratingPost)
       .then(() => {
+        setContentRating('');
         setIsPost(!isPost);
         toast.success('Post a review succesfully', {
           position: 'top-right',
