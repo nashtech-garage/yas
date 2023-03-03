@@ -23,6 +23,7 @@ const ProductAttributeList: NextPage = () => {
     if (productAttributeIdWantToDelete == -1) return;
     deleteProductAttribute(productAttributeIdWantToDelete)
       .then((response) => {
+        setIsShowModalDelete(false);
         if (response.status === 204) {
           toast.success(productAttributeIdWantToDelete + ' have been deleted');
         } else if (response.title === 'Not found') {
