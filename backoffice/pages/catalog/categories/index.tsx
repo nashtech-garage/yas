@@ -112,17 +112,13 @@ const CategoryList: NextPage = () => {
         </thead>
         <tbody>{renderCategoriesHierarchy(-1, categories, '')}</tbody>
       </Table>
-      <Modal show={showModalDelete} onHide={handleClose}>
-        <Modal.Body>{'Are you sure you want to delete this ' + categoryName + ' ?'}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalDeleteCustom
+         showModalDelete={showModalDelete}
+         setIsShowModalDelete={setShowModalDelete}
+         nameWantToDelete={categoryName}
+         handleDelete={handleDelete}
+         action="delete"
+      />
     </>
   );
 };
