@@ -17,7 +17,7 @@ const Header = ({ children }: Props) => {
           <div className="wrap-menu-desktop">
             <nav className="top-bar">
               <div className="content-topbar flex-sb-m h-full container">
-                <div className="left-top-bar">Free shipping for standa rd order over $100</div>
+                <div className="left-top-bar">Free shipping for standard order over $100</div>
 
                 <div className="right-top-bar flex-w h-full main-menu">
                   <div className="right-top-bar flex-w h-full">
