@@ -128,9 +128,6 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       star: ratingStar,
       productId: product.id,
     };
-
-    // console.log(createRating(ratingPost));
-
     createRating(ratingPost)
       .then((res) => {
         setContentRating('');
@@ -142,7 +139,6 @@ const ProductDetails = ({ product, productVariations }: Props) => {
           pauseOnHover: false,
           theme: 'colored',
         });
-        console.log(res);
       })
       .catch((err) => {
         if (err == 403)
