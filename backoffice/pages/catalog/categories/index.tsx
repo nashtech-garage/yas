@@ -113,13 +113,13 @@ const CategoryList: NextPage = () => {
         </thead>
         <tbody>{renderCategoriesHierarchy(-1, categories, '')}</tbody>
       </Table>
-       <ModalDeleteCustom
-           showModalDelete={showModalDelete}
-           handleClose={handleClose}
-           nameWantToDelete={categoryName}
-           handleDelete={handleDelete}
-           action="delete"
-       />
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={categoryName}
+        handleDelete={handleDelete}
+        action="delete"
+      />
     </>
   );
 };
