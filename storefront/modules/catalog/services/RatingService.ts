@@ -1,4 +1,5 @@
 import { Rating } from '../models/Rating';
+import { RatingPost } from '../models/RatingPost';
 import { concatQueryString } from '../../../utils/concatQueryString';
 
 export async function getRatingsByProductId(
@@ -15,8 +16,19 @@ export async function getRatingsByProductId(
     queryString.push(`pageSize=${pageSize}`);
   }
   const final_url = concatQueryString(queryString, url);
-  console.log(final_url);
 
   const response = await fetch(final_url);
+  return await response.json();
+}
+
+export async function createRating(rating: RatingPost): Promise<Rating> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_PATH}/rating/storefront/ratings`,
+    {
+      method: 'POST',
+      body: JSON.stringify(rating),
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  );
   return await response.json();
 }
