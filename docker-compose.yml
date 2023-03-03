@@ -9,20 +9,23 @@ services:
     ports:
       - "80:80"
   identity:
-    image: quay.io/keycloak/keycloak:16.1.0
-    command: ["-Djboss.http.port=80"]
+    image: quay.io/keycloak/keycloak:21.0.1
+    command: [ 'start-dev --import-realm' ]
     environment:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-      PROXY_ADDRESS_FORWARDING: "true"
-      DB_VENDOR: POSTGRES
-      DB_USER: admin
-      DB_PASSWORD: admin
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_PROXY: passthrough
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: admin
+      KC_DB_PASSWORD: admin
+      KC_HTTP_PORT: 80
+      KC_HTTP_RELATIVE_PATH: /auth
+    volumes:
+      - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
   backoffice:
     image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=90", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=180", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
     environment:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
@@ -39,7 +42,7 @@ services:
     image: ghcr.io/nashtech-garage/yas-backoffice:latest
   storefront:
     image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=90", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=180", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
     environment:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
