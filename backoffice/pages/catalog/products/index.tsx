@@ -36,6 +36,7 @@ const ProductList: NextPage = () => {
     }
     deleteProduct(productIdWantToDelete)
       .then((response) => {
+        setShowModalDelete(false);
         if (response.status === 204) {
           toast.success(productNameWantToDelete + ' have been deleted');
         } else if (response.title === 'Not found') {

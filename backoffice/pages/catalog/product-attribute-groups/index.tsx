@@ -24,6 +24,7 @@ const ProductAttrbuteGroupList: NextPage = () => {
     if (productAttributeGroupIdWantToDelete == -1) return;
     deleteProductAttributeGroup(productAttributeGroupIdWantToDelete)
       .then((response) => {
+        setIsShowModalDelete(false);
         if (response.status === 204) {
           toast.success(productAttributeGroupIdWantToDelete + ' have been deleted');
         } else if (response.title === 'Not found') {

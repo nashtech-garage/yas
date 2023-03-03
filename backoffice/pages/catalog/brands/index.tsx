@@ -20,6 +20,7 @@ const BrandList: NextPage = () => {
       return;
     }
     deleteBrand(brandIdWantToDelete).then((response) => {
+      setShowModalDelete(false);
       if (response.status === 204) {
         toast.success(brandNameWantToDelete + ' have been deleted');
       } else if (response.title === 'Not found') {
