@@ -312,4 +312,8 @@ input[type='radio'] {
 
 .review-item {
   margin-bottom: 15px;
+  background-color: #f9f9f9 !important;
+  border-radius: 20px;
+  padding-top: 10px;
+  padding-left: 15px;
 }

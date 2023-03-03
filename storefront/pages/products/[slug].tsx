@@ -8,9 +8,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Moment from 'react-moment';
 import ReactPaginate from 'react-paginate';
 import { toast, ToastContainer } from 'react-toastify';
-
 import 'react-toastify/dist/ReactToastify.css';
-
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
@@ -24,8 +22,10 @@ import {
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
-import { getRatingsByProductId } from '../../modules/catalog/services/RatingService';
+import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
 import { formatPrice } from '../../utils/formatPrice';
+import StarRatings from 'react-star-ratings';
+import { RatingPost } from '../../modules/catalog/models/RatingPost';
 
 type Props = {
   product: ProductDetail;
@@ -91,12 +91,15 @@ const handleAddToCart = async (event: any) => {
 };
 
 const ProductDetails = ({ product, productVariations }: Props) => {
-  //getRating
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalElements, setTotalElements] = useState<number>(0);
-  const pageSize = 4;
+  const pageSize = 5;
+
+  const [ratingStar, setRatingStar] = useState<number>(5);
+  const [contentRating, setContentRating] = useState<string>('');
+  const [isPost, setIsPost] = useState<boolean>(false);
 
   useEffect(() => {
     getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
@@ -104,10 +107,42 @@ const ProductDetails = ({ product, productVariations }: Props) => {
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);
     });
-  }, [pageNo, pageSize, product.id]);
+  }, [pageNo, pageSize, product.id, isPost]);
 
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
+  };
+  const handleChangeRating = (ratingStar: number) => {
+    setRatingStar(ratingStar);
+  };
+
+  const handleCreateRating = async () => {
+    const ratingPost: RatingPost = {
+      content: contentRating,
+      star: ratingStar,
+      productId: product.id,
+    };
+
+    createRating(ratingPost)
+      .then(() => {
+        setIsPost(!isPost);
+        toast.success('Post a review succesfully', {
+          position: 'top-right',
+          autoClose: 1000,
+          closeOnClick: true,
+          pauseOnHover: false,
+          theme: 'colored',
+        });
+      })
+      .catch(() => {
+        toast.error('Some thing went wrong. Try again', {
+          position: 'top-right',
+          autoClose: 1000,
+          closeOnClick: true,
+          pauseOnHover: false,
+          theme: 'colored',
+        });
+      });
   };
 
   const crumb: BreadcrumbModel[] = [
@@ -259,10 +294,61 @@ const ProductDetails = ({ product, productVariations }: Props) => {
         <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
           <div className="tabs"> {product.specification}</div>
         </Tab>
-        <Tab eventKey="Reviews" title="Reviews" style={{ minHeight: '200px' }}>
+        <Tab eventKey="Reviews" title={`Reviews (${totalElements})`} style={{ minHeight: '200px' }}>
           <div>
+            <div
+              style={{
+                borderBottom: '1px solid lightgray',
+                marginBottom: 30,
+              }}
+            >
+              <h4>Add a review</h4>
+
+              <div style={{ marginLeft: 10, display: 'flex', marginBottom: -10 }}>
+                <p>Your rating: </p>
+                <div style={{ marginLeft: 10 }}>
+                  <StarRatings
+                    rating={ratingStar}
+                    starRatedColor="#FFBF00"
+                    numberOfStars={5}
+                    starDimension="16px"
+                    starSpacing="1px"
+                    changeRating={handleChangeRating}
+                  />
+                </div>
+              </div>
+
+              <textarea
+                onChange={(e) => setContentRating(e.target.value)}
+                value={contentRating}
+                placeholder="Great..."
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  border: '1px solid lightgray',
+                  padding: 10,
+                }}
+              />
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  margin: 20,
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{ width: '100px' }}
+                  onClick={handleCreateRating}
+                >
+                  Post
+                </button>
+              </div>
+            </div>
             {totalElements == 0 ? (
-              <>No Reviews</>
+              <>No reviews for now</>
             ) : (
               <>
                 {ratingList?.map((rating: Rating) => (
@@ -277,18 +363,16 @@ const ProductDetails = ({ product, productVariations }: Props) => {
                         </>
                       )}
                     </p>
-                    <div className="container-fluid">
-                      <div className="row">
-                        <p className=" col-9" style={{ marginLeft: 5 }}>
-                          {rating.content}
-                        </p>
-                        <p className="col-2" style={{ color: 'gray', marginLeft: 5 }}>
-                          <Moment fromNow ago>
-                            {rating.createdOn}
-                          </Moment>{' '}
-                          ago
-                        </p>
-                      </div>
+                    <div style={{ display: 'flex' }}>
+                      <p className="col-10" style={{ marginLeft: 5 }}>
+                        {rating.content}
+                      </p>
+                      <p className="col-2" style={{ color: 'gray', marginLeft: 5 }}>
+                        <Moment fromNow ago>
+                          {rating.createdOn}
+                        </Moment>{' '}
+                        ago
+                      </p>
                     </div>
                   </div>
                 ))}
