@@ -5,6 +5,7 @@ import { Button, Modal, Table } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import type { Category } from '../../../modules/catalog/models/Category';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 
 const CategoryList: NextPage = () => {
@@ -112,17 +113,13 @@ const CategoryList: NextPage = () => {
         </thead>
         <tbody>{renderCategoriesHierarchy(-1, categories, '')}</tbody>
       </Table>
-      <Modal show={showModalDelete} onHide={handleClose}>
-        <Modal.Body>{'Are you sure you want to delete this ' + categoryName + ' ?'}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={categoryName}
+        handleDelete={handleDelete}
+        action="delete"
+      />
     </>
   );
 };
