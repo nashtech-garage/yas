@@ -40,14 +40,11 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
     if (id) {
       setLoading(true);
       getProduct(+id).then((data) => {
-        if (data) {
           setProduct(data);
           setLoading(false);
-        } else {
-          //Show error
-          toast(data.detail);
+        }).catch((error) => {
+          toast('Load product failed. Please check the error log'); 
           location.replace('/catalog/products');
-        }
       });
     }
   }, [id]);
