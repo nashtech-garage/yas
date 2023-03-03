@@ -70,7 +70,7 @@ const EditProduct: NextPage = () => {
   if (!product) {
     return <p>No product</p>;
   } else {
-    return (      
+    return (
       <div className="create-product">
         <h2>Update Product: {product.name}</h2>
 

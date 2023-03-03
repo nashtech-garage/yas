@@ -14,5 +14,5 @@ export {
   ProductSEO,
   ProductVariations as ProductVariation,
   RelatedProduct,
-  ProductCategoryMapping
+  ProductCategoryMapping,
 };

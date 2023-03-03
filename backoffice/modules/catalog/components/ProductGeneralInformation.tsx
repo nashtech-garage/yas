@@ -33,9 +33,9 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
     getBrands().then((data) => {
       setBrands(data);
     });
-  },[])
+  }, []);
 
-  useEffect(() => {    
+  useEffect(() => {
     // In case of updating we load product base on id
     if (id) {
       setLoading(true);
@@ -49,12 +49,11 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
           location.replace('/catalog/products');
         }
       });
-    }    
+    }
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;
   if (id && !product) return <p>No product</p>;
-  console.log(product)
   return (
     <>
       <Input
@@ -117,7 +116,10 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         register={register}
         error={errors.price?.message}
         type="number"
-        registerOptions={{ required: { value: true, message: 'Product price is required' }, validate: { positive: v => v > 0 || 'Price must be greater than 0' } }}
+        registerOptions={{
+          required: { value: true, message: 'Product price is required' },
+          validate: { positive: (v) => v > 0 || 'Price must be greater than 0' },
+        }}
       />
 
       <OptionSelect
@@ -149,7 +151,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         register={register}
         defaultChecked={product?.isFeatured}
       />
-      <CheckBox 
+      <CheckBox
         labelText="Is Visible Individually"
         field="isVisibleIndividually"
         register={register}
