@@ -39,13 +39,15 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
     // In case of updating we load product base on id
     if (id) {
       setLoading(true);
-      getProduct(+id).then((data) => {
+      getProduct(+id)
+        .then((data) => {
           setProduct(data);
           setLoading(false);
-        }).catch((error) => {
-          toast('Load product failed. Please check the error log'); 
+        })
+        .catch((error) => {
+          toast('Load product failed. Please check the error log');
           location.replace('/catalog/products');
-      });
+        });
     }
   }, [id]);
 
