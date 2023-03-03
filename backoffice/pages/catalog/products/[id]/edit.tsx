@@ -11,7 +11,7 @@ import {
   ProductCategoryMapping,
   ProductImage,
   ProductSEO,
-  ProductUpdateInformation,
+  ProductGeneralInformation,
   RelatedProduct,
 } from '../../../../modules/catalog/components';
 import { Product } from '../../../../modules/catalog/models/Product';
@@ -77,7 +77,7 @@ const EditProduct: NextPage = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Tabs className="mb-3" activeKey={tabKey} onSelect={(e: any) => setTabKey(e)}>
             <Tab eventKey={'general'} title="General Information">
-              <ProductUpdateInformation register={register} errors={errors} setValue={setValue} />
+              <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
             </Tab>
             <Tab eventKey={'image'} title="Product Images">
               <ProductImage product={product} setValue={setValue} />
