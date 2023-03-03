@@ -1,10 +1,7 @@
 package com.yas.rating.service;
 
 import com.yas.rating.config.ServiceUrlConfig;
-import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.viewmodel.CustomerVm;
-import com.yas.rating.viewmodel.ProductThumbnailVm;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;

@@ -2,7 +2,6 @@ package com.yas.customer.service;
 
 import com.yas.customer.config.KeycloakPropsConfig;
 import com.yas.customer.exception.AccessDeniedException;
-import com.yas.customer.exception.CreateGuestUserException;
 import com.yas.customer.exception.NotFoundException;
 import com.yas.customer.exception.WrongEmailFormatException;
 import com.yas.customer.viewmodel.CustomerAdminVm;
@@ -33,6 +32,7 @@ public class CustomerService {
     private final KeycloakPropsConfig keycloakPropsConfig;
     private static final String ERROR_FORMAT = "%s: Client %s don't have access right for this resource";
     private static final int USER_PER_PAGE = 2;
+    private static final String GUEST = "GUEST";
 
     public CustomerService(Keycloak keycloak, KeycloakPropsConfig keycloakPropsConfig) {
         this.keycloak = keycloak;
@@ -83,12 +83,12 @@ public class CustomerService {
             RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
             String randomGuestName = generateSafeString();
             String guestUserEmail = randomGuestName + "_guest@yas.com";
-            CredentialRepresentation credential = createPasswordCredentials("GUEST");
+            CredentialRepresentation credential = createPasswordCredentials(GUEST);
 
             // Define user
             UserRepresentation user = new UserRepresentation();
             user.setUsername(guestUserEmail);
-            user.setFirstName("GUEST");
+            user.setFirstName(GUEST);
             user.setLastName(randomGuestName);
             user.setEmail(guestUserEmail);
             user.setCredentials(Collections.singletonList(credential));
@@ -98,12 +98,12 @@ public class CustomerService {
             // get new user
             String userId = CreatedResponseUtil.getCreatedId(response);
             UserResource userResource = realmResource.users().get(userId);
-            RoleRepresentation guestRealmRole = realmResource.roles().get("GUEST").toRepresentation();
+            RoleRepresentation guestRealmRole = realmResource.roles().get(GUEST).toRepresentation();
 
             // Assign realm role GUEST to user
             userResource.roles().realmLevel().add(Collections.singletonList(guestRealmRole));
 
-            return new GuestUserVm(userId, guestUserEmail, "GUEST");
+            return new GuestUserVm(userId, guestUserEmail, GUEST);
     }
 
     public static CredentialRepresentation createPasswordCredentials(String password) {

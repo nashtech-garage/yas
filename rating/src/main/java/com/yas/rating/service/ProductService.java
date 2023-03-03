@@ -2,15 +2,11 @@ package com.yas.rating.service;
 
 import com.yas.rating.config.ServiceUrlConfig;
 import com.yas.rating.exception.NotFoundException;
-import com.yas.rating.utils.Constants;
-import com.yas.rating.viewmodel.ErrorVm;
 import com.yas.rating.viewmodel.ProductThumbnailVm;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.http.HttpStatus;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
