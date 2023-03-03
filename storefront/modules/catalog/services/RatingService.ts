@@ -21,7 +21,7 @@ export async function getRatingsByProductId(
   return await response.json();
 }
 
-export async function createRating(rating: RatingPost): Promise<Rating> {
+export async function createRating(rating: RatingPost): Promise<Rating | null> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_PATH}/rating/storefront/ratings`,
     {
@@ -30,5 +30,8 @@ export async function createRating(rating: RatingPost): Promise<Rating> {
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
     }
   );
-  return await response.json();
+  if (response.status >= 200 && response.status < 300) {
+    return await response.json();
+  }
+  return Promise.reject(response.status);
 }

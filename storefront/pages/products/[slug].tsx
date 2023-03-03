@@ -122,15 +122,17 @@ const ProductDetails = ({ product, productVariations }: Props) => {
     setRatingStar(ratingStar);
   };
 
-  const handleCreateRating = async () => {
+  const handleCreateRating = () => {
     const ratingPost: RatingPost = {
       content: contentRating,
       star: ratingStar,
       productId: product.id,
     };
 
+    // console.log(createRating(ratingPost));
+
     createRating(ratingPost)
-      .then(() => {
+      .then((res) => {
         setContentRating('');
         setIsPost(!isPost);
         toast.success('Post a review succesfully', {
@@ -140,15 +142,26 @@ const ProductDetails = ({ product, productVariations }: Props) => {
           pauseOnHover: false,
           theme: 'colored',
         });
+        console.log(res);
       })
-      .catch(() => {
-        toast.error('Some thing went wrong. Try again', {
-          position: 'top-right',
-          autoClose: 1000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: 'colored',
-        });
+      .catch((err) => {
+        if (err == 403)
+          toast.error('Please login to post a review', {
+            position: 'top-right',
+            autoClose: 2000,
+            closeOnClick: true,
+            pauseOnHover: false,
+            theme: 'colored',
+          });
+        else {
+          toast.error('Some thing went wrong. Try again after a', {
+            position: 'top-right',
+            autoClose: 1000,
+            closeOnClick: true,
+            pauseOnHover: false,
+            theme: 'colored',
+          });
+        }
       });
   };
 
