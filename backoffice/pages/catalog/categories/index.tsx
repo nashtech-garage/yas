@@ -5,6 +5,7 @@ import { Button, Modal, Table } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import type { Category } from '../../../modules/catalog/models/Category';
+import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 
 const CategoryList: NextPage = () => {
