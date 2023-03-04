@@ -31,7 +31,7 @@ const Header = ({ children }: Props) => {
                 </div>
               </div>
             </nav>
-            <nav className="limiter-menu-desktop container-fluid px-5">
+            <nav className="limiter-menu-desktop container">
               {/* <!-- Logo desktop --> */}
               <Link href="/" className="me-5">
                 <h3 className="font-weight-black text-black">Yas - Storefront</h3>
