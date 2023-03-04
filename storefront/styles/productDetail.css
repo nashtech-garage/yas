@@ -317,3 +317,32 @@ input[type='radio'] {
   padding-top: 10px;
   padding-left: 15px;
 }
+
+/* custom style for product detail header */
+.product-detail-header {
+  display: flex;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e6e6e6;
+  margin: 14px 0;
+}
+
+.product-detail-header .left {
+  flex: 1;
+  display: flex;
+  align-items: end;
+}
+
+.product-detail-header .left .title {
+  font-size: 28px;
+  margin: 0;
+  padding-right: 16px;
+}
+
+.product-detail-header .left .rating-star {
+  line-height: 30px;
+  margin-right: 8px;
+}
+
+.product-detail-header .left .rating-count {
+  color: #2f80ed;
+}
