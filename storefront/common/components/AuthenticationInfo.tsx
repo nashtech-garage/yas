@@ -31,7 +31,7 @@ export default function AuthenticationInfo() {
   }, []);
 
   return (
-    <div className='wrap-auth'>
+    <div className="wrap-auth">
       {authenticatedInfoVm.isAuthenticated ? (
         <div>
           Signed in as: <Link href="#">{authenticatedInfoVm.authenticatedUser.username}</Link>{' '}
@@ -39,9 +39,7 @@ export default function AuthenticationInfo() {
         </div>
       ) : (
         <div>
-          <Link href="/oauth2/authorization/keycloak">
-            Login
-          </Link>
+          <Link href="/oauth2/authorization/keycloak">Login</Link>
         </div>
       )}
     </div>

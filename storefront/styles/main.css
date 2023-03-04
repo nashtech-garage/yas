@@ -3454,10 +3454,10 @@ input.num-product::-webkit-inner-spin-button {
 }
 
 .main-menu .list-group-item {
-	border:none;
-	font-size: 14px;
+  border: none;
+  font-size: 14px;
 }
 
 .wrap-auth a {
-	border:none;
+  border: none;
 }
