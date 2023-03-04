@@ -39,7 +39,9 @@ export default function AuthenticationInfo() {
         </div>
       ) : (
         <div>
-          <Link href="/oauth2/authorization/keycloak">Login</Link>
+          <Link href="/oauth2/authorization/keycloak" className="fs-6 fw-bold">
+            Login
+          </Link>
         </div>
       )}
     </>
