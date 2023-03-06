@@ -369,8 +369,16 @@ const ProductDetails = ({ product, productVariations }: Props) => {
                         <>Anonymous</>
                       ) : (
                         <>
-                          {' '}
-                          {rating.firstName} {rating.lastName}
+                          {rating.firstName} {rating.lastName}{' '}
+                          <span className="ms-2">
+                            <StarRatings
+                              rating={rating.star}
+                              starRatedColor="#FFBF00"
+                              numberOfStars={5}
+                              starDimension="16px"
+                              starSpacing="1px"
+                            />
+                          </span>
                         </>
                       )}
                     </p>
