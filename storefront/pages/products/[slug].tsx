@@ -7,9 +7,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Moment from 'react-moment';
 import ReactPaginate from 'react-paginate';
 import { toast, ToastContainer } from 'react-toastify';
-
 import 'react-toastify/dist/ReactToastify.css';
-
 import StarRatings from 'react-star-ratings';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
@@ -27,8 +25,6 @@ import {
 
 import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
 import { formatPrice } from '../../utils/formatPrice';
-import StarRatings from 'react-star-ratings';
-import { RatingPost } from '../../modules/catalog/models/RatingPost';
 import { useForm } from 'react-hook-form';
 
 type Props = {
