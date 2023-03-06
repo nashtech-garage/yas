@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import AuthenticationInfo from './AuthenticationInfo';
-import { Navbar } from 'react-bootstrap';
-import Link from 'next/link';
+import Footer from './common/Footer';
+import Header from './common/Header';
 
 type Props = {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export default function Layout({ children }: Props) {
         <meta name="description" content="Yet another shop storefront" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Navbar collapseOnSelect bg="dark" variant="dark" style={{ marginBottom: 0 }}>
+      {/* <Navbar collapseOnSelect bg="dark" variant="dark" style={{ marginBottom: 0 }}>
         <div className="container" style={{ marginBottom: 0 }}>
           <Navbar.Brand href="/">Yas - Storefront</Navbar.Brand>
           <Navbar.Collapse style={{ marginLeft: 50 }}>
@@ -39,19 +39,14 @@ export default function Layout({ children }: Props) {
             </Navbar.Text>
           </Navbar.Collapse>
         </div>
-      </Navbar>
-      <div className="container container-fluid">
+      </Navbar> */}
+      <Header>
+        <AuthenticationInfo />
+      </Header>
+      <div className="container container-fluid py-5" style={{ minHeight: '70vh' }}>
         <main className="col-md-12">{children}</main>
       </div>
-      <footer className="footer">
-        <Link
-          href="https://github.com/nashtech-garage/yas"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by {'Yas - 2022 '}
-        </Link>
-      </footer>
+      <Footer />
     </>
   );
 }

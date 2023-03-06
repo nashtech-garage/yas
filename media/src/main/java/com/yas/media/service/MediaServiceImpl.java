@@ -70,13 +70,12 @@ public class MediaServiceImpl implements MediaService {
         String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
                 .path(String.format("/medias/%1$s/file/%2$s", noFileMediaVm.id(), noFileMediaVm.fileName()))
                 .build().toUriString();
-        MediaVm mediaVm = new MediaVm(
+        return new MediaVm(
                 noFileMediaVm.id(),
                 noFileMediaVm.caption(),
                 noFileMediaVm.fileName(),
                 noFileMediaVm.mediaType(),
                 url
         );
-        return mediaVm;
     }
 }
