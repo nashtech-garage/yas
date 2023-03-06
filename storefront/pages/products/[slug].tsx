@@ -22,7 +22,6 @@ import {
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
-
 import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
 import { formatPrice } from '../../utils/formatPrice';
 import { useForm } from 'react-hook-form';
@@ -61,37 +60,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
   return { props: { product, productVariations } };
 };
 
-
-const handleAddToCart = async (event: any) => {
-  event.preventDefault();
-  let addToCartModel: AddToCartModel[] = [
-    {
-      productId: event.target.productId.value,
-      quantity: event.target.quantity.value,
-    },
-  ];
-  await addToCart(addToCartModel)
-    .then(() => {
-      toast.success(' Add to cart success', {
-        position: 'top-right',
-        autoClose: 1000,
-        closeOnClick: true,
-        pauseOnHover: false,
-        theme: 'colored',
-      });
-    })
-    .catch(() => {
-      toast.error('Add to cart failed. Try again', {
-        position: 'top-right',
-        autoClose: 1000,
-        closeOnClick: true,
-        pauseOnHover: false,
-        theme: 'colored',
-      });
-    });
-};
-
-const ProductDetails = ({ product, productVariations }: Props) => {
+const ProductDetailsPage = ({ product, productVariations }: Props) => {
   const {
     register,
     handleSubmit,
