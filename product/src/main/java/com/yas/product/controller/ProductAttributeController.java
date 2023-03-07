@@ -104,7 +104,7 @@ public class ProductAttributeController {
                 .findById(id)
                 .orElseThrow(()->new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND, id)));
         if(!productAttribute.getAttributeValues().isEmpty())
-            throw new BadRequestException("Please make sure this Product Attribute doesn't exist in any Product Attribute Values");
+            throw new BadRequestException(Constants.ERROR_CODE.THIS_PROD_ATTRI_NOT_EXIST_IN_ANY_PROD_ATTRI);
         productAttributeRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }

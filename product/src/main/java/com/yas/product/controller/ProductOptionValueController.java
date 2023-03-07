@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.yas.product.utils.Constants;
 
 import jakarta.validation.Valid;
 import java.util.*;
@@ -50,7 +51,7 @@ public class ProductOptionValueController {
     public ResponseEntity<List<ProductVariationVm>> listProductOptionValueOfProduct(@PathVariable("productId") Long productId){
         Product product = productRepository
                 .findById(productId)
-                .orElseThrow(()-> new NotFoundException(String.format("Product %s is not found" , productId)));
+                .orElseThrow(()-> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
         List<ProductVariationVm> productVariations = productOptionValueRepository
                 .findAllByProduct(product).stream()
                 .map(ProductVariationVm::fromModel)
@@ -68,10 +69,10 @@ public class ProductOptionValueController {
 
             Product product = productRepository
             .findById(productOptionValuePostVm.ProductId())
-            .orElseThrow(()-> new NotFoundException(String.format("Product %s is not found" , productOptionValuePostVm.ProductId())));
+            .orElseThrow(()-> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productOptionValuePostVm.ProductId()));
             ProductOption productOption = productOptionRepository
             .findById(productOptionValuePostVm.ProductOptionId())
-            .orElseThrow(()-> new NotFoundException(String.format("Product option %s is not found" , productOptionValuePostVm.ProductOptionId())));
+            .orElseThrow(()-> new NotFoundException(Constants.ERROR_CODE.PRODUCT_OPTION_IS_NOT_FOUND, productOptionValuePostVm.ProductOptionId()));
             for(String value: productOptionValuePostVm.value()){
                 ProductOptionValue productOptionValue = new ProductOptionValue();
                 productOptionValue.setProduct(product);
