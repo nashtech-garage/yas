@@ -9,7 +9,7 @@ export interface Props {
   setContentRating: (newContentRating: string) => void;
 }
 
-export default function PostRating({
+export default function PostRatingForm({
   ratingStar,
   handleChangeRating,
   handleCreateRating,

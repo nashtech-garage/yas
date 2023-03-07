@@ -10,7 +10,12 @@ import StarRatings from 'react-star-ratings';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { DetailHeader, ProductDetails } from '../../modules/catalog/components';
+import {
+  DetailHeader,
+  ProductDetails,
+  RatingList,
+  PostRatingForm,
+} from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
@@ -21,9 +26,6 @@ import {
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
 import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
-
-import RatingList from '../../modules/catalog/components/RatingList';
-import PostRating from '../../modules/catalog/components/PostRating';
 
 type Props = {
   product: ProductDetail;
@@ -200,7 +202,7 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
                 marginBottom: 30,
               }}
             >
-              <PostRating
+              <PostRatingForm
                 ratingStar={ratingStar}
                 handleChangeRating={handleChangeRating}
                 contentRating={contentRating}
