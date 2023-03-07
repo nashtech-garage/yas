@@ -1,6 +1,4 @@
-import { TIMEOUT } from 'dns';
 import { Brand } from '../models/Brand';
-import { Product } from '../models/Product';
 
 export async function getBrands(): Promise<Brand[]> {
   const response = await fetch('/api/product/backoffice/brands');
