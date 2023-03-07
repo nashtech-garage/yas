@@ -1,3 +1,4 @@
+import { TIMEOUT } from 'dns';
 import { Brand } from '../models/Brand';
 import { Product } from '../models/Product';
 
@@ -14,7 +15,7 @@ export async function createBrand(brand: Brand): Promise<Brand> {
   });
   return await response.json();
 }
-export async function getBrand(id: number): Promise<Brand> {
+export async function getBrand(id: number) {
   const response = await fetch('/api/product/backoffice/brands/' + id);
   return await response.json();
 }
