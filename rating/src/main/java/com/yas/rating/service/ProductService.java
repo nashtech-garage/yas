@@ -43,7 +43,7 @@ public class ProductService {
                 .block();
     }
 
-    public ProductThumbnailVm updateAverageStar(Long productId, int newStar) {
+    public ProductThumbnailVm updateAverageStar(long productId, int newStar) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())

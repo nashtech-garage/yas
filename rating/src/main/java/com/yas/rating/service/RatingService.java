@@ -47,8 +47,9 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
-        //Also check if product existed
-        productService.updateAverageStar(ratingPostVm.productId(), ratingPostVm.star());
+       if(productService.updateAverageStar(ratingPostVm.productId(), ratingPostVm.star()) == null){
+           throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
+       };
 
         Rating rating = new Rating();
         CustomerVm customerVm = customerService.getCustomer();

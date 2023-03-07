@@ -39,7 +39,6 @@ public class RatingServiceTest {
         customerService = mock(CustomerService.class);
         ratingService = new RatingService(ratingRepository, productService, customerService);
 
-
         ratingList = List.of(
                 Rating.builder()
                         .id(1L)
@@ -117,10 +116,10 @@ public class RatingServiceTest {
     void createProduct_WhenProductIsExist_ShouldReturnSuccess() {
         Rating savedRating = mock(Rating.class);
         var ratingCaptor = ArgumentCaptor.forClass(Rating.class);
-        when(productService.getProductById(anyLong())).thenReturn(mock(ProductThumbnailVm.class));
+       // when(productService.getProductById(anyLong())).thenReturn(mock(ProductThumbnailVm.class));
+        when(productService.updateAverageStar(ratingPostVm.productId(), ratingPostVm.star())).thenReturn(mock(ProductThumbnailVm.class));
         when(customerService.getCustomer()).thenReturn(mock(CustomerVm.class));
         when(ratingRepository.saveAndFlush(ratingCaptor.capture())).thenReturn(savedRating);
-
 
         RatingVm actualResponse = ratingService.createRating(ratingPostVm);
 
