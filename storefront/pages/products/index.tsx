@@ -50,14 +50,14 @@ const ProductList = () => {
   }, []);
 
   useEffect(() => {
-    if(!Object.keys(router.query).length) {
+    if (!Object.keys(router.query).length) {
       setPageNo(0);
     }
     setFilters(router.query);
   }, [router.query]);
 
   useEffect(() => {
-    let predicates = queryString.stringify({...filters, pageNo: pageNo});
+    let predicates = queryString.stringify({ ...filters, pageNo: pageNo });
     getProductByMultiParams(predicates, pageNo).then((res) => {
       setProduct(res.productContent);
       setTotalPage(res.totalPages);
