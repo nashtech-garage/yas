@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import { editBrand, getBrand } from '../../../../modules/catalog/services/BrandService';
 import BrandGeneralInformation from '../../../../modules/catalog/components/BrandGeneralInformation';
 import { useEffect, useState } from 'react';
-import { ClipLoader } from 'react-spinners';
 
 const BrandEdit: NextPage = () => {
   const router = useRouter();
