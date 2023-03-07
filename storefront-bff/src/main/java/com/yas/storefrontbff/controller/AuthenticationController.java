@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AuthenticationController {
-
     @GetMapping("/authentication")
     public ResponseEntity<AuthenticationInfoVm> user(@AuthenticationPrincipal OAuth2User principal) {
-        AuthenticationInfoVm authenticationInfoVm = new AuthenticationInfoVm(false, null);
-        if(principal == null){
+        if (principal == null) {
             return ResponseEntity.ok(new AuthenticationInfoVm(false, null));
         }
         AuthenticatedUserVm authenticatedUser = new AuthenticatedUserVm(principal.getAttribute("preferred_username"));
