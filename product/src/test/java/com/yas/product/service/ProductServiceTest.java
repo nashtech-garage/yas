@@ -126,6 +126,8 @@ class ProductServiceTest {
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
         Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
                 1L, null, null, null, null, null, null);
+        parentProduct.setCreatedBy(username);
+        parentProduct.setLastModifiedBy(username);
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);

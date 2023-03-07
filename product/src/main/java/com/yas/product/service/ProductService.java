@@ -175,10 +175,6 @@ public class ProductService {
             product.setParent(product);
         }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        product.setCreatedBy(auth.getName());
-        product.setLastModifiedBy(auth.getName());
-
         product.setProductCategories(productCategoryList);
         product.setProductImages(productImages);
         Product savedProduct = productRepository.saveAndFlush(product);

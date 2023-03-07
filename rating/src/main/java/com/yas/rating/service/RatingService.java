@@ -54,16 +54,10 @@ public class RatingService {
             throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
         }
 
-
         Rating rating = new Rating();
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());
         rating.setProductId(ratingPostVm.productId());
-
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        rating.setCreatedBy(auth.getName());
-        rating.setLastModifiedBy(auth.getName());
 
         CustomerVm customerVm = customerService.getCustomer();
         rating.setLastName(customerVm.lastName());
