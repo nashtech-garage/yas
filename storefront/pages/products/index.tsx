@@ -58,7 +58,7 @@ const ProductList = () => {
 
   useEffect(() => {
     let predicates = queryString.stringify({ ...filters, pageNo: pageNo });
-    getProductByMultiParams(predicates, pageNo).then((res) => {
+    getProductByMultiParams(predicates).then((res) => {
       setProduct(res.productContent);
       setTotalPage(res.totalPages);
     });
