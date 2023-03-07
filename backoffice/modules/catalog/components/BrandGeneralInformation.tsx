@@ -1,11 +1,9 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
 import slugify from 'slugify';
 
 import { Input } from '../../../common/items/Input';
 import { Brand } from '../models/Brand';
-import { getBrand } from '../services/BrandService';
 import { SLUG_FIELD_PATTERN } from '../constants/validationPattern';
 
 type Props = {
@@ -13,30 +11,16 @@ type Props = {
   errors: FieldErrorsImpl<Brand>;
   setValue: UseFormSetValue<Brand>;
   trigger: UseFormTrigger<Brand>;
+  brand?: Brand;
 };
 
-const BrandGeneralInformation = ({ register, errors, setValue, trigger }: Props) => {
+const BrandGeneralInformation = ({ register, errors, setValue, trigger, brand }: Props) => {
   const router = useRouter();
-  const { id } = router.query;
-  const [brand, setBrand] = useState<Brand>();
-  const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (id) {
-      setLoading(true);
-      getBrand(+id).then((data) => {
-        setBrand(data);
-        setLoading(false);
-      });
-    }
-  }, [id]);
-
   const onNameChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue('slug', slugify(event.target.value, { lower: true, strict: true }));
     await trigger('slug');
     await trigger('name');
   };
-  if (isLoading) return <p>Loading...</p>;
   if (!brand) {
     return <></>;
   } else {
