@@ -31,7 +31,7 @@ const ProductList = () => {
   const [products, setProduct] = useState<ProductThumbnail[]>([]);
   const [cates, setCates] = useState<Category[]>([]);
   const [totalPage, setTotalPage] = useState<number>(0);
-  const [pageNo, setPageNo] = useState<number>();
+  const [pageNo, setPageNo] = useState<number>(0);
   // const [categorySlug, setCategorySlug] = useState<string>();
   // const [startPrice, setStartPrice] = useState<number>();
   // const [endPrice, setEndPrice] = useState<number>();
@@ -55,11 +55,11 @@ const ProductList = () => {
 
   useEffect(() => {
     let predicates = queryString.stringify(filters);
-    getProductByMultiParams(predicates).then((res) => {
+    getProductByMultiParams(predicates, pageNo).then((res) => {
       setProduct(res.productContent);
       setTotalPage(res.totalPages);
     });
-  }, [filters]);
+  }, [filters, pageNo]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
