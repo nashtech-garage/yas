@@ -12,9 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Brand extends AbstractAuditEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
   private String name;
 
@@ -31,7 +28,7 @@ public class Brand extends AbstractAuditEntity {
     if (!(o instanceof Brand)) {
       return false;
     }
-    return id != null && id.equals(((Brand) o).id);
+    return getId() != null && getId().equals(((Brand) o).getId());
   }
 
   @Override

@@ -94,15 +94,10 @@ class ProductServiceTest {
                 1L
         );
 
-        category1 = new Category(1L, "category", null, "category", null, null, null, null, null, null);
-        category2 = new Category(2L, "category2", null, "category2", null, null, null, null, null, null);
+        category1 = generateCategory(1L);
+        category2 = generateCategory(2L);
         categoryList = List.of(category1, category2);
-        products = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null)
-        );
+        products = List.of(generateProduct(1L), generateProduct(2L));
 
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
@@ -112,6 +107,21 @@ class ProductServiceTest {
         Mockito.when(authentication.getName()).thenReturn("Name");
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+    }
+
+    private Product generateProduct(long id) {
+        Product product = new Product("product" + id, null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
+                1L, null, null, null, null, null, null);
+        product.setId(id);
+
+        return product;
+    }
+
+    private Category generateCategory(long id) {
+        Category category = new Category("category" + id, null, "category" + id, null, null, null, null, null, null);
+        category.setId(id);
+
+        return category;
     }
 
     @Test
@@ -124,8 +134,7 @@ class ProductServiceTest {
         SecurityContext securityContext = mock(SecurityContext.class);
         String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
-        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                1L, null, null, null, null, null, null);
+        Product parentProduct = generateProduct(1L);
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
@@ -170,7 +179,7 @@ class ProductServiceTest {
     void createProduct_TheRequestContainsNonExistCategoryIdInCategoryList_ThrowsBadRequestException() {
         //given
         List<Category> categoryList = new ArrayList<>();
-        categoryList.add(new Category(1L, null, null, "null", null, null, null, null, null, null));
+        categoryList.add(generateCategory(1L));
 
         List<Long> categoryIds = new ArrayList<>();
         categoryIds.add(1L);
@@ -248,12 +257,7 @@ class ProductServiceTest {
     @Test
     void getFeaturedProducts_WhenEverythingIsOkay_Success() {
         //given
-        List<Product> productList = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null)
-        );
+        List<Product> productList = List.of(generateProduct(1L), generateProduct(2L));
         String url = "sample-url";
         int totalPage = 20;
         int pageNo = 0;

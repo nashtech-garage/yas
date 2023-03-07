@@ -15,10 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Rating extends AbstractAuditEntity{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String content;
 
     private int ratingStar;
@@ -37,7 +33,7 @@ public class Rating extends AbstractAuditEntity{
         if (!(o instanceof Rating)) {
             return false;
         }
-        return id != null && id.equals(((Rating) o).id);
+        return getId() != null && getId().equals(((Rating) o).getId());
     }
 
     @Override

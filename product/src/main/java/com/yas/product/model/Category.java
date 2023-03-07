@@ -18,10 +18,6 @@ import java.util.List;
 @Table(name="category")
 public class Category extends AbstractAuditEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String name;
 
     private String description;
@@ -54,7 +50,7 @@ public class Category extends AbstractAuditEntity {
         if (!(o instanceof Category)) {
             return false;
         }
-        return id != null && id.equals(((Category) o).id);
+        return getId() != null && getId().equals(((Category) o).getId());
     }
 
     @Override

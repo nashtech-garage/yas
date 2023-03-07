@@ -18,9 +18,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product extends AbstractAuditEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private String name;
 
@@ -86,7 +83,7 @@ public class Product extends AbstractAuditEntity {
         if (!(o instanceof Product)) {
             return false;
         }
-        return id != null && id.equals(((Product) o).id);
+        return getId() != null && getId().equals(((Product) o).getId());
     }
 
     @Override

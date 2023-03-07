@@ -17,9 +17,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cart extends AbstractAuditEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     private String customerId;
 
@@ -34,7 +31,7 @@ public class Cart extends AbstractAuditEntity {
         if (!(o instanceof Cart)) {
             return false;
         }
-        return id != null && id.equals(((Cart) o).id);
+        return getId() != null && getId().equals(((Cart) o).getId());
     }
 
     @Override

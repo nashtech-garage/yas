@@ -10,9 +10,6 @@ import jakarta.persistence.*;
 @Getter
 @Setter
 public class ProductOption extends AbstractAuditEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private String name;
 
@@ -24,7 +21,7 @@ public class ProductOption extends AbstractAuditEntity {
         if (!(o instanceof ProductOption)) {
             return false;
         }
-        return id != null && id.equals(((ProductOption) o).id);
+        return getId() != null && getId().equals(((ProductOption) o).getId());
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.yas.cart.model;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +13,10 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 public class AbstractAuditEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
     private ZonedDateTime createdOn = ZonedDateTime.now();
 
     private String createdBy;

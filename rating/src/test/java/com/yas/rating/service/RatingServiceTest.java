@@ -39,21 +39,7 @@ public class RatingServiceTest {
         customerService = mock(CustomerService.class);
         ratingService = new RatingService(ratingRepository, productService, customerService);
 
-
-        ratingList = List.of(
-                Rating.builder()
-                        .id(1L)
-                        .content("comment 1")
-                        .ratingStar(2)
-                        .productId(1L)
-                        .build(),
-                Rating.builder()
-                        .id(1L)
-                        .content("comment 2")
-                        .ratingStar(2)
-                        .productId(1L)
-                        .build()
-        );
+        ratingList = List.of(generateRating(1L), generateRating(2L));
 
         ratingPostVm = new RatingPostVm(
                 "comment 1",
@@ -65,6 +51,17 @@ public class RatingServiceTest {
         authentication = mock(Authentication.class);
         Mockito.when(authentication.getName()).thenReturn("Name");
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private Rating generateRating(long id) {
+        Rating rating = Rating.builder()
+                .content("comment " + id)
+                .ratingStar(2)
+                .productId(1L)
+                .build();
+        rating.setId(id);
+
+        return rating;
     }
 
     @Test

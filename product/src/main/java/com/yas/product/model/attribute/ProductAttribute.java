@@ -20,10 +20,6 @@ import java.util.List;
 @Getter
 @Setter
 public class ProductAttribute extends AbstractAuditEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String name;
 
     @ManyToOne
@@ -41,7 +37,7 @@ public class ProductAttribute extends AbstractAuditEntity {
         if (!(o instanceof ProductAttribute)) {
             return false;
         }
-        return id != null && id.equals(((ProductAttribute) o).id);
+        return getId() != null && getId().equals(((ProductAttribute) o).getId());
     }
 
     @Override

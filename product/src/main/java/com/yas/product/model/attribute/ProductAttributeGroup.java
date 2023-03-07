@@ -13,10 +13,6 @@ import java.util.List;
 @Getter
 @Setter
 public class ProductAttributeGroup extends AbstractAuditEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String name;
     @Override
     public boolean equals(Object o) {
@@ -26,7 +22,7 @@ public class ProductAttributeGroup extends AbstractAuditEntity {
         if (!(o instanceof ProductAttributeGroup)) {
             return false;
         }
-        return id != null && id.equals(((ProductAttributeGroup) o).id);
+        return getId() != null && getId().equals(((ProductAttributeGroup) o).getId());
     }
 
     @Override

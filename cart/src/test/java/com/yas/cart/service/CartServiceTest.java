@@ -50,8 +50,10 @@ public class CartServiceTest {
         HashSet<CartItem> cartItemList = new HashSet<>();
         cartItemList.add(new CartItem(1L, null, 1L, null, 1));
         cartItemList.add(new CartItem(2L, null, 2L, null, 2));
-        cart1 = new Cart(1L, "customer-1", cartItemList);
-        cart2 = new Cart(2L, "customer-2", null);
+        cart1 = new Cart("customer-1", cartItemList);
+        cart1.setId(1L);
+        cart2 = new Cart("customer-2", null);
+        cart2.setId(2L);
         carts = List.of(cart1, cart2);
        
         //Security config
