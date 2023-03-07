@@ -13,7 +13,7 @@ export default function DetailHeader({ productName, averageStar, ratingCount }: 
         <h4 className="title">{productName}</h4>
         <div className="rating-star">
           <StarRatings
-            rating={averageStar}
+            rating={averageStar ? averageStar : 0}
             starRatedColor="#fb6e2e"
             numberOfStars={5}
             starDimension="18px"
