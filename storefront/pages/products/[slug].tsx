@@ -23,7 +23,6 @@ import {
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
 import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
-import { formatPrice } from '../../utils/formatPrice';
 import { useForm } from 'react-hook-form';
 
 type Props = {
@@ -98,7 +97,7 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
       productId: product.id,
     };
     createRating(ratingPost)
-      .then((res) => {
+      .then(() => {
         setContentRating('');
         setIsPost(!isPost);
         toast.success('Post a review succesfully', {
@@ -153,7 +152,11 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
       <ToastContainer style={{ marginTop: '70px' }} />
       <BreadcrumbComponent props={crumb} />
 
-      <DetailHeader productName={product.name} />
+      <DetailHeader
+        productName={product.name}
+        averageStar={product.averageStar}
+        ratingCount={totalElements}
+      />
 
       <div className="row justify-content-center">
         <div className="col-6">

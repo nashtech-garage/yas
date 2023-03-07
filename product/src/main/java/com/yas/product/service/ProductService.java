@@ -270,11 +270,14 @@ public class ProductService {
         return ProductGetDetailVm.fromModel(product);
     }
 
-    public ProductThumbnailVm updateAverageStar(long productId, Double newAverageStar) {
+    public ProductThumbnailVm updateAverageStar(long productId, int newStar) {
         Product product = productRepository.findById(productId).orElseThrow(()
                 -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
 
-        product.setAverageStar(newAverageStar);
+        if(product.getAverageStar() == 0.0)
+            product.setAverageStar(newStar*1.0);
+        product.setAverageStar((product.getAverageStar() + newStar)/2);
+
         productRepository.saveAndFlush(product);
         return new ProductThumbnailVm(product.getId(),
                 product.getName(),

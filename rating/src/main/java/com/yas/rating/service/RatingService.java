@@ -47,10 +47,8 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
-        ProductThumbnailVm productThumbnailVm = productService.getProductById(ratingPostVm.productId());
-        if (productThumbnailVm == null) {
-            throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
-        }
+        //Also check if product existed
+        productService.updateAverageStar(ratingPostVm.productId(), ratingPostVm.star());
 
         Rating rating = new Rating();
         CustomerVm customerVm = customerService.getCustomer();
@@ -64,16 +62,9 @@ public class RatingService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         rating.setCreatedBy(auth.getName());
         rating.setLastModifiedBy(auth.getName());
-        
-        productService.updateAverageStar(ratingPostVm.productId(),
-                calculateAverageStar(productThumbnailVm.averageStar(), ratingPostVm.star()));
+
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);
     }
 
-    public Double calculateAverageStar(Double oldAverageStar, int newStar) {
-        if(oldAverageStar == 0.0)
-            return newStar*1.0;
-        return (oldAverageStar + newStar)/2;
-    }
 }
