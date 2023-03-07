@@ -1,6 +1,6 @@
 package com.yas.rating.viewmodel;
 
 
-public record ProductThumbnailVm(long id, String name, String slug, String thumbnailUrl) {
+public record ProductThumbnailVm(long id, String name, String slug, String thumbnailUrl, Double averageStar) {
 
 }

@@ -1,4 +1,9 @@
 package com.yas.product.viewmodel.product;
 
-public record ProductThumbnailGetVm(long id, String name, String slug, String thumbnailUrl, Double price) {
+import com.yas.product.model.Product;
+import lombok.Builder;
+
+
+public record ProductThumbnailGetVm(long id, String name, String slug, String thumbnailUrl, Double price, Double averageStar) {
+
 }

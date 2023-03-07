@@ -98,11 +98,18 @@ class ProductServiceTest {
         category2 = new Category(2L, "category2", null, "category2", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null)
-        );
+                Product.builder()
+                        .id(1L)
+                        .name("product1")
+                        .slug("slug1")
+                        .thumbnailMediaId(1L)
+                        .build(),
+                Product.builder()
+                        .id(2L)
+                        .name("product2")
+                        .thumbnailMediaId(1L)
+                        .slug("slug2")
+                        .build());
 
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
@@ -124,8 +131,11 @@ class ProductServiceTest {
         SecurityContext securityContext = mock(SecurityContext.class);
         String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
-        Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                1L, null, null, null, null, null, null);
+        Product parentProduct = Product.builder()
+                .id(1L)
+                .name("product1")
+                .slug("slug1")
+                .build();
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
@@ -249,11 +259,20 @@ class ProductServiceTest {
     void getFeaturedProducts_WhenEverythingIsOkay_Success() {
         //given
         List<Product> productList = List.of(
-                new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null),
-                new Product(2L, "product2", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
-                        1L, null, null, null, null, null, null)
-        );
+               Product.builder()
+                       .id(1L)
+                       .name("product1")
+                       .slug("slug1")
+                       .thumbnailMediaId(1L)
+                       .sku("sku")
+                       .build(),
+                Product.builder()
+                        .id(2L)
+                        .name("product2")
+                        .sku("sku")
+                        .slug("slug2")
+                        .thumbnailMediaId(1L)
+                        .build());
         String url = "sample-url";
         int totalPage = 20;
         int pageNo = 0;

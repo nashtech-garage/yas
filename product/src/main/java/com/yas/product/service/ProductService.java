@@ -98,6 +98,7 @@ public class ProductService {
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually(),
                 product.getPrice(),
+                product.getAverageStar(),
                 product.getBrand().getId(),
                 categories,
                 product.getMetaKeyword(),
@@ -163,6 +164,7 @@ public class ProductService {
         product.setMetaTitle(productPostVm.metaTitle());
         product.setMetaKeyword(productPostVm.metaKeyword());
         product.setMetaDescription(productPostVm.metaDescription());
+        product.setAverageStar(0.0);
         if (productPostVm.isVisibleIndividually() == null)
             product.setIsVisibleIndividually(true);
         product.setIsVisibleIndividually(productPostVm.isVisibleIndividually());
@@ -268,6 +270,19 @@ public class ProductService {
         return ProductGetDetailVm.fromModel(product);
     }
 
+    public ProductThumbnailVm updateAverageStar(long productId, Double newAverageStar) {
+        Product product = productRepository.findById(productId).orElseThrow(()
+                -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
+
+        product.setAverageStar(newAverageStar);
+        productRepository.saveAndFlush(product);
+        return new ProductThumbnailVm(product.getId(),
+                product.getName(),
+                product.getSlug(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                product.getAverageStar());
+    }
+
     public ProductDetailVm getProductById(long productId) {
         Product product = productRepository
                 .findById(productId)
@@ -307,6 +322,7 @@ public class ProductService {
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually(),
                 product.getPrice(),
+                product.getAverageStar(),
                 brandId,
                 categories,
                 product.getMetaKeyword(),
@@ -324,7 +340,8 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                    product.getAverageStar()));
         }
         return productThumbnailVms;
     }
@@ -340,7 +357,8 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                    product.getAverageStar()));
         }
         return productThumbnailVms;
     }
@@ -361,7 +379,8 @@ public class ProductService {
                     product.getId(),
                     product.getName(),
                     product.getSlug(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url()));
+                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                    product.getAverageStar()));
         }
         return new ProductListGetFromCategoryVm(
                 productThumbnailVms,
@@ -381,7 +400,8 @@ public class ProductService {
                 product.getId(),
                 product.getName(),
                 product.getSlug(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url());
+                mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                product.getAverageStar());
     }
 
     public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int pageSize) {
@@ -395,7 +415,8 @@ public class ProductService {
                     product.getName(),
                     product.getSlug(),
                     mediaService.getMedia(product.getThumbnailMediaId()).url(),
-                    product.getPrice()));
+                    product.getPrice(),
+                    product.getAverageStar()));
         }
         return new ProductFeatureGetVm(productThumbnailVms, productPage.getTotalPages());
     }
@@ -459,6 +480,7 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getPrice(),
+                product.getAverageStar(),
                 productThumbnailurl,
                 productImageMediaUrls
         );
@@ -489,7 +511,8 @@ public class ProductService {
                     product.getName(),
                     product.getSlug(),
                     mediaService.getMedia(product.getThumbnailMediaId()).url(),
-                    product.getPrice()));
+                    product.getPrice(),
+                    product.getAverageStar()));
         }
 
         return new ProductsGetVm(

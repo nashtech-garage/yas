@@ -4,10 +4,7 @@ import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.utils.Constants;
-import com.yas.rating.viewmodel.CustomerVm;
-import com.yas.rating.viewmodel.RatingListVm;
-import com.yas.rating.viewmodel.RatingPostVm;
-import com.yas.rating.viewmodel.RatingVm;
+import com.yas.rating.viewmodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,26 +47,33 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
-        if (productService.getProductById(ratingPostVm.productId()) == null) {
+        ProductThumbnailVm productThumbnailVm = productService.getProductById(ratingPostVm.productId());
+        if (productThumbnailVm == null) {
             throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
         }
 
-
         Rating rating = new Rating();
+        CustomerVm customerVm = customerService.getCustomer();
+
+        rating.setLastName(customerVm.lastName());
+        rating.setFirstName(customerVm.firstName());
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());
         rating.setProductId(ratingPostVm.productId());
 
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         rating.setCreatedBy(auth.getName());
         rating.setLastModifiedBy(auth.getName());
-
-        CustomerVm customerVm = customerService.getCustomer();
-        rating.setLastName(customerVm.lastName());
-        rating.setFirstName(customerVm.firstName());
-
+        
+        productService.updateAverageStar(ratingPostVm.productId(),
+                calculateAverageStar(productThumbnailVm.averageStar(), ratingPostVm.star()));
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);
+    }
+
+    public Double calculateAverageStar(Double oldAverageStar, int newStar) {
+        if(oldAverageStar == 0.0)
+            return newStar*1.0;
+        return (oldAverageStar + newStar)/2;
     }
 }

@@ -120,4 +120,9 @@ public class ProductController {
     ) {
         return ResponseEntity.ok(productService.getProductsByMultiQuery(pageNo, pageSize, productName, categorySlug, startPrice, endPrice));
     }
+
+    @PatchMapping("/storefront/products/{id}/average-star")
+    public ResponseEntity<ProductThumbnailVm> updateAverageStar(@PathVariable Long id,Double averageStar) {
+        return ResponseEntity.ok(productService.updateAverageStar(id, averageStar));
+    }
 }

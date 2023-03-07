@@ -1,5 +1,5 @@
 package com.yas.product.viewmodel.product;
 
-public record ProductThumbnailVm(long id, String name, String slug, String thumbnailUrl) {
+public record ProductThumbnailVm(long id, String name, String slug, String thumbnailUrl, Double averageStar) {
 
 }
