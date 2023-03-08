@@ -1,5 +1,6 @@
 package com.yas.rating.service;
 
+import com.yas.rating.exception.BadRequestException;
 import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -47,9 +49,9 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
-       if(productService.updateAverageStar(ratingPostVm.productId(), ratingPostVm.star()) == null){
-           throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
-       };
+        if(ratingPostVm.star() > 5 || ratingPostVm.star() < 1){
+            throw new BadRequestException("Invid star input");
+        }
 
         Rating rating = new Rating();
         CustomerVm customerVm = customerService.getCustomer();
@@ -64,8 +66,25 @@ public class RatingService {
         rating.setCreatedBy(auth.getName());
         rating.setLastModifiedBy(auth.getName());
 
+        if (productService.updateAverageStar(
+                ratingPostVm.productId(),
+                calculateAverageStar(ratingPostVm.productId(), ratingPostVm.star()))
+                == null) {
+            throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
+        }
+        ;
+
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);
+    }
+
+    public Double calculateAverageStar(Long ProductId, int newStarAdd) {
+        List<Object[]> totalStarsAndRatings = ratingRepository.getTotalStarsAndTotalRatings(ProductId);
+        int totalStars = (Integer.parseInt(totalStarsAndRatings.get(0)[0].toString()) + newStarAdd);
+        int totalRatings = (Integer.parseInt(totalStarsAndRatings.get(0)[1].toString()) + 1);
+
+        Double averageStars = (totalStars * 1.0) / totalRatings;
+        return averageStars;
     }
 
 }

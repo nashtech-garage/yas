@@ -43,15 +43,15 @@ public class ProductService {
                 .block();
     }
 
-    public ProductThumbnailVm updateAverageStar(long productId, int newStar) {
+    public ProductThumbnailVm updateAverageStar(long productId, double newAverageStar) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())
-                .path("/storefront/products/{id}/average-star")
+                .path("/storefront/products/{productId}/average-star")
                 .buildAndExpand(productId)
                 .toUri();
         final MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("newStar", newStar);
+        builder.part("newAverageStar", newAverageStar);
 
         return webClient.patch()
                 .uri(url)

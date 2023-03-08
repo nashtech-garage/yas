@@ -122,7 +122,7 @@ public class ProductController {
     }
 
     @PatchMapping("/storefront/products/{id}/average-star")
-    public ResponseEntity<ProductThumbnailVm> updateAverageStar(@PathVariable Long id,int newStar) {
-        return ResponseEntity.ok(productService.updateAverageStar(id, newStar));
+    public ResponseEntity<ProductThumbnailVm> updateAverageStar(@PathVariable Long id,Double newAverageStar) {
+        return ResponseEntity.ok(productService.updateAverageStar(id, newAverageStar));
     }
 }
