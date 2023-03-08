@@ -69,9 +69,11 @@ const Header = ({ children }: Props) => {
                 </form>
                 {/* end search */}
 
-                <div className="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart">
-                  <i className="bi bi-cart3"></i>
-                </div>
+                <Link href="/cart">
+                  <div className="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart">
+                    <i className="bi bi-cart3"></i>
+                  </div>
+                </Link>
               </div>
             </nav>
           </div>
