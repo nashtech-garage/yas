@@ -1,20 +1,27 @@
 package com.yas.product.model;
 
+import com.yas.product.listener.CustomAuditingEntityListener;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 
-import jakarta.persistence.MappedSuperclass;
 import java.time.ZonedDateTime;
 
 @MappedSuperclass
 @Getter
 @Setter
+@EntityListeners(CustomAuditingEntityListener.class)
 public class AbstractAuditEntity {
     private ZonedDateTime createdOn = ZonedDateTime.now();
 
+    @CreatedBy
     private String createdBy;
 
     private ZonedDateTime lastModifiedOn = ZonedDateTime.now();
 
+    @LastModifiedBy
     private String lastModifiedBy;
 }

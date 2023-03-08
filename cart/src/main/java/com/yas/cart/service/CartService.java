@@ -52,7 +52,6 @@ public class CartService {
         Cart cart = cartRepository.findByCustomerId(customerId).stream().findFirst().orElse(null);
         if (cart == null) {
             cart = new Cart(null, customerId, new HashSet<>());
-            cart.setCreatedBy(auth.getName());
             cart.setCreatedOn(ZonedDateTime.now());
             cartRepository.save(cart);
         }
