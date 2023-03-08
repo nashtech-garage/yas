@@ -50,22 +50,27 @@ const ProductList = () => {
   }, []);
 
   useEffect(() => {
+    if (!Object.keys(router.query).length) {
+      setPageNo(0);
+    }
     setFilters(router.query);
   }, [router.query]);
 
   useEffect(() => {
-    let predicates = queryString.stringify(filters);
-    getProductByMultiParams(predicates, pageNo).then((res) => {
+    let predicates = queryString.stringify({ ...filters, pageNo: pageNo });
+    getProductByMultiParams(predicates).then((res) => {
       setProduct(res.productContent);
       setTotalPage(res.totalPages);
     });
-  }, [filters, pageNo]);
+  }, [filters]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
+    pushParamsToRouter('pageNo', selected);
   };
 
   const handleClearFilter = () => {
+    setPageNo(0);
     router.push({
       pathname: '/products',
     });
@@ -81,6 +86,11 @@ const ProductList = () => {
   };
 
   const handleFilter = (key: string, value: string | number | undefined) => {
+    setPageNo(0);
+    pushParamsToRouter(key, value);
+  };
+
+  const pushParamsToRouter = (key: string, value: string | number | undefined) => {
     router.push({
       pathname: '/products',
       query: {

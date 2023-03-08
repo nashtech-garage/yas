@@ -27,13 +27,9 @@ export async function getProductVariations(productId: number): Promise<ProductOp
   return res.json();
 }
 
-export async function getProductByMultiParams(
-  queryString: string,
-  pageNo: number
-): Promise<ProductAll> {
+export async function getProductByMultiParams(queryString: string): Promise<ProductAll> {
   const response = await fetch(
-    process.env.NEXT_PUBLIC_API_BASE_PATH +
-      `/product/storefront/products?pageNo=${pageNo}&${queryString}`
+    process.env.NEXT_PUBLIC_API_BASE_PATH + `/product/storefront/products?${queryString}`
   );
   return response.json();
 }
