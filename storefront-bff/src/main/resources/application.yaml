@@ -79,6 +79,7 @@ spring:
 
 yas:
   services:
+    rating: http://api.yas.local/rating
     customer: http://api.yas.local/customer
     cart: http://api.yas.local/cart
     token-identity: http://identity/auth/realms/Yas/protocol/openid-connect/token
