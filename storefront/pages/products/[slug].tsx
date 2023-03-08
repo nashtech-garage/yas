@@ -130,20 +130,25 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
       });
   };
 
+  const category: BreadcrumbModel = {
+    pageName: product.productCategories.toString(),
+    url: '#',
+  };
+
   const crumb: BreadcrumbModel[] = [
     {
       pageName: 'Home',
       url: '/',
     },
     {
-      pageName: product.productCategories.toString(),
-      url: '#',
-    },
-    {
       pageName: product.name,
       url: '',
     },
   ];
+
+  if (product.productCategories.toString()) {
+    crumb.splice(1, 0, category);
+  }
 
   return (
     <>
