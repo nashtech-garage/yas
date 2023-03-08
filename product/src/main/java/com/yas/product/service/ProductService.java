@@ -12,6 +12,7 @@ import com.yas.product.viewmodel.product.*;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -110,7 +111,7 @@ public class ProductService {
         List<ProductCategory> productCategoryList = new ArrayList<>();
         List<ProductImage> productImages = new ArrayList<>();
 
-        if (productPostVm.brandId() != null) {
+        if (ObjectUtils.isNotEmpty(productPostVm.brandId())) {
             Brand brand = brandRepository.findById(productPostVm.brandId()).orElseThrow(
                     () -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, productPostVm.brandId()));
             product.setBrand(brand);
@@ -161,11 +162,11 @@ public class ProductService {
         product.setMetaTitle(productPostVm.metaTitle());
         product.setMetaKeyword(productPostVm.metaKeyword());
         product.setMetaDescription(productPostVm.metaDescription());
-        if (productPostVm.isVisibleIndividually() == null)
+        if ( ObjectUtils.isEmpty(productPostVm.isVisibleIndividually()))
             product.setIsVisibleIndividually(true);
         product.setIsVisibleIndividually(productPostVm.isVisibleIndividually());
 
-        if (productPostVm.parentId() != null) {
+        if (ObjectUtils.isNotEmpty(productPostVm.parentId())) {
             Product parentProduct = productRepository.findById(productPostVm.parentId()).orElseThrow(
                     () -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productPostVm.parentId()));
             product.setParent(parentProduct);
@@ -233,14 +234,14 @@ public class ProductService {
 
         product.setLastModifiedOn(ZonedDateTime.now());
 
-        if (null != productPutVm.thumbnailMediaId()) {
-            if (null != product.getThumbnailMediaId()) {
+        if (ObjectUtils.isNotEmpty(productPutVm.thumbnailMediaId())) {
+            if (ObjectUtils.isNotEmpty(product.getThumbnailMediaId())) {
                 mediaService.removeMedia(product.getThumbnailMediaId());
             }
             product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         }
 
-        if (null != productPutVm.productImageIds() && !productPutVm.productImageIds().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(productPutVm.productImageIds())) {
             productImageRepository.deleteAll(product.getProductImages());
             for (int i = 0; i < product.getProductImages().size(); i++) {
                 mediaService.removeMedia(product.getProductImages().get(i).getImageId());
@@ -267,23 +268,23 @@ public class ProductService {
                         new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId)
                 );
         List<String> productImageMediaUrls = new ArrayList<>();
-        if (null != product.getProductImages()) {
+        if (CollectionUtils.isNotEmpty(product.getProductImages())) {
             for (ProductImage image : product.getProductImages()) {
                 productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
             }
         }
         String thumbnailMediaId = "";
-        if (null != product.getThumbnailMediaId()) {
+        if (ObjectUtils.isNotEmpty(product.getThumbnailMediaId())) {
             thumbnailMediaId = mediaService.getMedia(product.getThumbnailMediaId()).url();
         }
         List<Category> categories = new ArrayList<>();
-        if (null != product.getProductCategories()) {
+        if (CollectionUtils.isNotEmpty(product.getProductCategories())) {
             for (ProductCategory category : product.getProductCategories()) {
                 categories.add(category.getCategory());
             }
         }
         Long brandId = null;
-        if (null != product.getBrand()) {
+        if (ObjectUtils.isNotEmpty(product.getBrand())) {
             brandId = product.getBrand().getId();
         }
         return new ProductDetailVm(product.getId(),
@@ -404,7 +405,7 @@ public class ProductService {
         }
 
         List<String> productImageMediaUrls = new ArrayList<>();
-        if (null != product.getProductImages() && !product.getProductImages().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(product.getProductImages())) {
             for (ProductImage image : product.getProductImages()) {
                 productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
             }

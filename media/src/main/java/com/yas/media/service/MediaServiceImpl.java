@@ -9,8 +9,10 @@ import com.yas.media.repository.MediaRepository;
 import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -41,7 +43,7 @@ public class MediaServiceImpl implements MediaService {
         catch (IOException e){
             throw new MultipartFileContentException(e);
         }
-        if (mediaPostVm.fileNameOverride() == null || mediaPostVm.fileNameOverride().isEmpty() || mediaPostVm.fileNameOverride().trim().isEmpty()){
+        if (StringUtils.isBlank(mediaPostVm.fileNameOverride())){
             media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
         }
         else {
@@ -55,7 +57,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public void removeMedia(Long id) {
         NoFileMediaVm noFileMediaVm = mediaRepository.findByIdWithoutFileInReturn(id);
-        if(noFileMediaVm == null){
+        if(ObjectUtils.isEmpty(noFileMediaVm)){
             throw new NotFoundException(String.format("Media %s is not found", id));
         }
         mediaRepository.deleteById(id);
@@ -64,7 +66,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public MediaVm getMediaById(Long id) {
         NoFileMediaVm noFileMediaVm = mediaRepository.findByIdWithoutFileInReturn(id);
-        if(noFileMediaVm == null){
+        if(ObjectUtils.isEmpty(noFileMediaVm)){
             return null;
         }
         String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())

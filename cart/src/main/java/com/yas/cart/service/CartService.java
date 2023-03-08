@@ -11,6 +11,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -50,7 +51,7 @@ public class CartService {
         String customerId = auth.getName();
 
         Cart cart = cartRepository.findByCustomerId(customerId).stream().findFirst().orElse(null);
-        if (cart == null) {
+        if (ObjectUtils.isEmpty(cart)) {
             cart = new Cart(null, customerId, new HashSet<>());
             cart.setCreatedOn(ZonedDateTime.now());
             cartRepository.save(cart);
@@ -68,7 +69,7 @@ public class CartService {
             }
 
             CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
-            if (cartItem.getId() != null) {
+            if (!ObjectUtils.isEmpty(cartItem.getId())) {
                 cartItem.setQuantity(cartItem.getQuantity() + cartItemVm.quantity());
                 cartItemRepository.save(cartItem);
             } else {
