@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.ZonedDateTime;
+
 @Configurable
 public class CustomAuditingEntityListener extends AuditingEntityListener {
     public CustomAuditingEntityListener(ObjectFactory<AuditingHandler> handler) {
@@ -24,6 +26,7 @@ public class CustomAuditingEntityListener extends AuditingEntityListener {
             if (entity.getLastModifiedBy() == null) {
                 entity.setLastModifiedBy(entity.getCreatedBy());
             }
+            setCreatedTime(entity);
         }
     }
 
@@ -33,6 +36,17 @@ public class CustomAuditingEntityListener extends AuditingEntityListener {
         AbstractAuditEntity entity = (AbstractAuditEntity) target;
         if (entity.getLastModifiedBy() == null) {
             super.touchForUpdate(target);
+        } else {
+            setUpdatedTime(entity);
         }
+    }
+
+    private void setCreatedTime(AbstractAuditEntity target) {
+        target.setLastModifiedOn(ZonedDateTime.now());
+        target.setCreatedOn(ZonedDateTime.now());
+    }
+
+    private void setUpdatedTime(AbstractAuditEntity target) {
+        target.setLastModifiedOn(ZonedDateTime.now());
     }
 }

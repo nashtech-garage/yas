@@ -6,7 +6,9 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.ZonedDateTime;
 
@@ -15,12 +17,14 @@ import java.time.ZonedDateTime;
 @Setter
 @EntityListeners(CustomAuditingEntityListener.class)
 public class AbstractAuditEntity {
-    private ZonedDateTime createdOn = ZonedDateTime.now();
+    @CreatedDate
+    private ZonedDateTime createdOn;
 
     @CreatedBy
     private String createdBy;
 
-    private ZonedDateTime lastModifiedOn = ZonedDateTime.now();
+    @LastModifiedDate
+    private ZonedDateTime lastModifiedOn;
 
     @LastModifiedBy
     private String lastModifiedBy;
