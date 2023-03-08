@@ -58,8 +58,6 @@ public class ProductOptionController {
     public ResponseEntity<ProductOptionGetVm> createProductOption(@Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal, UriComponentsBuilder uriComponentsBuilder) {
         ProductOption productOption = new ProductOption();
         productOption.setName(productOptionPostVm.name());
-        productOption.setCreatedBy(principal.getName());
-        productOption.setLastModifiedBy(principal.getName());
         ProductOption savedProductOption = productOptionRepository.saveAndFlush(productOption);
         ProductOptionGetVm productOptionGetVm = ProductOptionGetVm.fromModel(savedProductOption);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/product-options/{id}").buildAndExpand(savedProductOption.getId()).toUri())
@@ -77,7 +75,6 @@ public class ProductOptionController {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_OPTION_NOT_FOUND, id)));
         productOption.setName(productOptionPostVm.name());
-        productOption.setLastModifiedBy(principal.getName());
         productOption.setLastModifiedOn(ZonedDateTime.now());
         productOptionRepository.saveAndFlush(productOption);
         return ResponseEntity.noContent().build();

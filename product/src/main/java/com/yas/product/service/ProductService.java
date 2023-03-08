@@ -15,8 +15,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -177,10 +175,6 @@ public class ProductService {
             product.setParent(product);
         }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        product.setCreatedBy(auth.getName());
-        product.setLastModifiedBy(auth.getName());
-
         product.setProductCategories(productCategoryList);
         product.setProductImages(productImages);
         Product savedProduct = productRepository.saveAndFlush(product);
@@ -239,8 +233,6 @@ public class ProductService {
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        product.setLastModifiedBy(auth.getName());
         product.setLastModifiedOn(ZonedDateTime.now());
 
         if (null != productPutVm.thumbnailMediaId()) {

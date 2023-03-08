@@ -60,8 +60,6 @@ public class ProductAttributeController {
     public ResponseEntity<ProductAttributeGetVm> createProductAttribute(@Valid @RequestBody ProductAttributePostVm productAttributePostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal) {
        ProductAttribute productAttribute = new ProductAttribute();
        productAttribute.setName(productAttributePostVm.name());
-       productAttribute.setCreatedBy(principal.getName());
-       productAttribute.setLastModifiedBy(principal.getName());
        if(productAttributePostVm.productAttributeGroupId() != null){
            ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
                    .findById(productAttributePostVm.productAttributeGroupId())

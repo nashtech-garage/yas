@@ -7,13 +7,9 @@ import com.yas.rating.viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +26,6 @@ public class RatingServiceTest {
 
     RatingPostVm ratingPostVm;
     List<Rating> ratingList;
-    Authentication authentication;
 
     @BeforeEach
     void setUp() {
@@ -61,9 +56,6 @@ public class RatingServiceTest {
         );
 
         //Security config
-        authentication = mock(Authentication.class);
-        Mockito.when(authentication.getName()).thenReturn("Name");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test

@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,17 +60,13 @@ public class RatingService {
         rating.setContent(ratingPostVm.content());
         rating.setProductId(ratingPostVm.productId());
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        rating.setCreatedBy(auth.getName());
-        rating.setLastModifiedBy(auth.getName());
-
         if (productService.updateAverageStar(
                 ratingPostVm.productId(),
                 calculateAverageStar(ratingPostVm.productId(), ratingPostVm.star()))
                 == null) {
             throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
         }
-        ;
+
 
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);

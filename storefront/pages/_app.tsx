@@ -7,7 +7,6 @@ import '../styles/cart.css';
 import '../styles/main.css';
 import '../styles/util.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import '../styles/productDetail.css';
 
 import type { AppProps } from 'next/app';
 
@@ -16,14 +15,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
-        ></link>
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-        ></link>
       </Head>
       <Layout>
         <Component {...pageProps} />
