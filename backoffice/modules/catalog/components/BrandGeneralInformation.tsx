@@ -21,40 +21,37 @@ const BrandGeneralInformation = ({ register, errors, setValue, trigger, brand }:
     await trigger('slug');
     await trigger('name');
   };
-  if (!brand) {
-    return <></>;
-  } else {
-    return (
-      <>
-        <Input
-          labelText="Name"
-          field="name"
-          defaultValue={brand?.name}
-          register={register}
-          registerOptions={{
-            required: { value: true, message: 'Brand name is required' },
-            onChange: onNameChange,
-          }}
-          error={errors.name?.message}
-        />
-        <Input
-          labelText="Slug"
-          field="slug"
-          defaultValue={brand?.slug}
-          register={register}
-          registerOptions={{
-            required: { value: true, message: 'Slug brand is required' },
-            pattern: {
-              value: SLUG_FIELD_PATTERN,
-              message:
-                'Slug must not contain special characters except dash and all characters must be lowercase',
-            },
-          }}
-          error={errors.slug?.message}
-        />
-      </>
-    );
-  }
+
+  return (
+    <>
+      <Input
+        labelText="Name"
+        field="name"
+        defaultValue={brand?.name}
+        register={register}
+        registerOptions={{
+          required: { value: true, message: 'Brand name is required' },
+          onChange: onNameChange,
+        }}
+        error={errors.name?.message}
+      />
+      <Input
+        labelText="Slug"
+        field="slug"
+        defaultValue={brand?.slug}
+        register={register}
+        registerOptions={{
+          required: { value: true, message: 'Slug brand is required' },
+          pattern: {
+            value: SLUG_FIELD_PATTERN,
+            message:
+              'Slug must not contain special characters except dash and all characters must be lowercase',
+          },
+        }}
+        error={errors.slug?.message}
+      />
+    </>
+  );
 };
 
 export default BrandGeneralInformation;
