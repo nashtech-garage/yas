@@ -12,16 +12,17 @@ type Props = {
   setValue: UseFormSetValue<Brand>;
   trigger: UseFormTrigger<Brand>;
   brand?: Brand;
+  id?: number;
 };
 
-const BrandGeneralInformation = ({ register, errors, setValue, trigger, brand }: Props) => {
+const BrandGeneralInformation = ({ register, errors, setValue, trigger, brand, id }: Props) => {
   const router = useRouter();
   const onNameChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue('slug', slugify(event.target.value, { lower: true, strict: true }));
     await trigger('slug');
     await trigger('name');
   };
-
+  if (!brand && id) return <></>;
   return (
     <>
       <Input
