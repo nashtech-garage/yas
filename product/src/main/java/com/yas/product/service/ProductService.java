@@ -231,8 +231,6 @@ public class ProductService {
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
 
-        product.setLastModifiedOn(ZonedDateTime.now());
-
         if (null != productPutVm.thumbnailMediaId()) {
             if (null != product.getThumbnailMediaId()) {
                 mediaService.removeMedia(product.getThumbnailMediaId());

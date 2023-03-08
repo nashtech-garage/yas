@@ -15,12 +15,12 @@ import java.time.ZonedDateTime;
 @Setter
 @EntityListeners(CustomAuditingEntityListener.class)
 public class AbstractAuditEntity {
-    private ZonedDateTime createdOn = ZonedDateTime.now();
+    private ZonedDateTime createdOn;
 
     @CreatedBy
     private String createdBy;
 
-    private ZonedDateTime lastModifiedOn = ZonedDateTime.now();
+    private ZonedDateTime lastModifiedOn;
 
     @LastModifiedBy
     private String lastModifiedBy;

@@ -75,7 +75,6 @@ public class ProductOptionController {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_OPTION_NOT_FOUND, id)));
         productOption.setName(productOptionPostVm.name());
-        productOption.setLastModifiedOn(ZonedDateTime.now());
         productOptionRepository.saveAndFlush(productOption);
         return ResponseEntity.noContent().build();
     }
