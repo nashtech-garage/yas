@@ -60,8 +60,6 @@ public class CategoryController {
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
-        category.setCreatedBy(principal.getName());
-        category.setLastModifiedBy(principal.getName());
         category.setDisplayOrder(categoryPostVm.displayOrder());
         category.setMetaDescription(categoryPostVm.metaDescription());
         category.setMetaKeyword(categoryPostVm.metaKeywords());
@@ -90,7 +88,6 @@ public class CategoryController {
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
-        category.setLastModifiedBy(principal.getName());
         category.setLastModifiedOn(ZonedDateTime.now());
         category.setDisplayOrder(categoryPostVm.displayOrder());
         category.setMetaDescription(categoryPostVm.metaDescription());

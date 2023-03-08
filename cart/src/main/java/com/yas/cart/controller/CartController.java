@@ -37,7 +37,7 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCartDetailByCustomerId(customerId));
     }
 
-    @GetMapping("/storefront/cart")
+    @GetMapping("/storefront/carts")
     public ResponseEntity<CartGetDetailVm> getLastCart(Principal principal) {
         if (principal == null)
             return ResponseEntity.ok(null);

@@ -12,11 +12,20 @@ import org.springframework.stereotype.Service;
 
 import com.yas.cart.utils.Constants;
 import com.yas.cart.exception.BadRequestException;
+import com.yas.cart.exception.NotFoundException;
 import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.viewmodel.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class CartService {
@@ -54,7 +63,6 @@ public class CartService {
         Cart cart = cartRepository.findByCustomerId(customerId).stream().findFirst().orElse(null);
         if (cart == null) {
             cart = new Cart(null, customerId, new HashSet<>());
-            cart.setCreatedBy(auth.getName());
             cart.setCreatedOn(ZonedDateTime.now());
             cartRepository.save(cart);
         }
@@ -121,11 +129,10 @@ public class CartService {
 
         int newQuantity = cartItemVm.quantity();
         cartItem.setQuantity(newQuantity);
-        if(newQuantity == 0) {
+        if (newQuantity == 0) {
             cartItemRepository.delete(cartItem);
             return CartItemPutVm.fromModel(cartItem, String.format(CART_ITEM_UPDATED_MSG, "DELETED"));
-        }
-        else {
+        } else {
             CartItem savedCartItem = cartItemRepository.saveAndFlush(cartItem);
             cartItem.setQuantity(newQuantity);
             return CartItemPutVm.fromModel(savedCartItem, String.format(CART_ITEM_UPDATED_MSG, "UPDATED"));

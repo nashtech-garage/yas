@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,8 +53,6 @@ class ProductServiceTest {
     List<Product> products;
     List<MultipartFile> files;
     MockMultipartFile thumbnail;
-
-    private Authentication authentication;
 
     @BeforeEach
     void setUp() {
@@ -108,10 +105,6 @@ class ProductServiceTest {
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
         //        Product product = new Product()
         //Security config
-        authentication = mock(Authentication.class);
-        Mockito.when(authentication.getName()).thenReturn("Name");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
     }
 
     @Test
@@ -119,19 +112,14 @@ class ProductServiceTest {
         //given
         var productCaptor = ArgumentCaptor.forClass(Product.class);
         Brand brand = mock(Brand.class);
-        var productCategoryListCaptor = ArgumentCaptor.forClass(List.class);
-        Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
-        String username = "admin";
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
         Product parentProduct = new Product(1L, "product1", null, null, null, null, null, "slug", 1.5, false, true, true, false, true, null, null, null,
                 1L, null, null, null, null, null, null);
 
         when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
         when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-        when(authentication.getName()).thenReturn(username);
         when(mediaService.saveFile(files.get(0), "", "")).thenReturn(noFileMediaVm);
         Product savedProduct = mock(Product.class);
         when(productRepository.saveAndFlush(productCaptor.capture())).thenReturn(savedProduct);
@@ -154,8 +142,8 @@ class ProductServiceTest {
         assertThat(productValue.getGtin()).isEqualTo(productPostVm.gtin());
         assertThat(productValue.getMetaKeyword()).isEqualTo(productPostVm.metaKeyword());
         assertThat(productValue.getMetaDescription()).isEqualTo(productPostVm.metaDescription());
-        assertThat(productValue.getCreatedBy()).isEqualTo(username);
-        assertThat(productValue.getLastModifiedBy()).isEqualTo(username);
+        assertThat(productValue.getCreatedBy()).isEqualTo(null);
+        assertThat(productValue.getLastModifiedBy()).isEqualTo(null);
         assertThat(productValue.getThumbnailMediaId()).isEqualTo(noFileMediaVm.id());
         List<ProductCategory> productCategoryListValue = productValue.getProductCategories();
         assertThat(productCategoryListValue).hasSize(2);
