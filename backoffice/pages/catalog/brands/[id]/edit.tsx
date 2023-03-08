@@ -76,7 +76,6 @@ const BrandEdit: NextPage = () => {
               setValue={setValue}
               trigger={trigger}
               brand={brand}
-              id={id ? +id : 0}
             />
 
             <button className="btn btn-primary" type="submit">
