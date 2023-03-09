@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { useForm } from 'react-hook-form';
 import Moment from 'react-moment';
 import ReactPaginate from 'react-paginate';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import StarRatings from 'react-star-ratings';
+import { toast, ToastContainer } from 'react-toastify';
+
+import 'react-toastify/dist/ReactToastify.css';
+
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
@@ -22,9 +25,7 @@ import {
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
-import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
-import { formatPrice } from '../../utils/formatPrice';
-import { useForm } from 'react-hook-form';
+import { createRating, getRatingsByProductId } from '../../modules/catalog/services/RatingService';
 
 type Props = {
   product: ProductDetail;
@@ -98,7 +99,7 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
       productId: product.id,
     };
     createRating(ratingPost)
-      .then((res) => {
+      .then((_res) => {
         setContentRating('');
         setIsPost(!isPost);
         toast.success('Post a review succesfully', {

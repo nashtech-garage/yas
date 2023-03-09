@@ -8,7 +8,8 @@ export async function addToCart(addToCart: AddToCartModel[]): Promise<Cart> {
     body: JSON.stringify(addToCart),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response.json();
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(response);
 }
 
 export async function getCart(): Promise<Cart> {
