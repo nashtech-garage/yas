@@ -9,7 +9,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { DetailHeader, ProductDetails, RatingList, PostRatingForm} from '../../modules/catalog/components';
+import {
+  DetailHeader,
+  ProductDetails,
+  RatingList,
+  PostRatingForm,
+} from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
@@ -19,7 +24,11 @@ import {
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
-import { getRatingsByProductId, createRating, getAverageStarByProductId } from '../../modules/catalog/services/RatingService';
+import {
+  getRatingsByProductId,
+  createRating,
+  getAverageStarByProductId,
+} from '../../modules/catalog/services/RatingService';
 
 type Props = {
   product: ProductDetail;
@@ -52,7 +61,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
       }
     }
   }
-  
+
   let averageStar: number;
   averageStar = await getAverageStarByProductId(product.id);
 
