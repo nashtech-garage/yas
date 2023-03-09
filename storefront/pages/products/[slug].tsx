@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import Moment from 'react-moment';
-import ReactPaginate from 'react-paginate';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import StarRatings from 'react-star-ratings';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { DetailHeader, ProductDetails } from '../../modules/catalog/components';
+import {
+  DetailHeader,
+  ProductDetails,
+  RatingList,
+  PostRatingForm,
+} from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
@@ -23,8 +25,6 @@ import {
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
 import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
-import { formatPrice } from '../../utils/formatPrice';
-import { useForm } from 'react-hook-form';
 
 type Props = {
   product: ProductDetail;
@@ -61,11 +61,6 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 };
 
 const ProductDetailsPage = ({ product, productVariations }: Props) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -98,7 +93,7 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
       productId: product.id,
     };
     createRating(ratingPost)
-      .then((res) => {
+      .then(() => {
         setContentRating('');
         setIsPost(!isPost);
         toast.success('Post a review succesfully', {
@@ -158,7 +153,11 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
       <ToastContainer style={{ marginTop: '70px' }} />
       <BreadcrumbComponent props={crumb} />
 
-      <DetailHeader productName={product.name} />
+      <DetailHeader
+        productName={product.name}
+        averageStar={product.averageStar}
+        ratingCount={totalElements}
+      />
 
       <div className="row justify-content-center">
         <div className="col-6">
@@ -207,96 +206,23 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
                 marginBottom: 30,
               }}
             >
-              <form onSubmit={handleSubmit(handleCreateRating)}>
-                <h4>Add a review</h4>
-
-                <div className="d-flex">
-                  <p>Your rating: </p>
-                  <span className="ms-2">
-                    <StarRatings
-                      rating={ratingStar}
-                      starRatedColor="#FFBF00"
-                      numberOfStars={5}
-                      starDimension="16px"
-                      starSpacing="1px"
-                      changeRating={handleChangeRating}
-                    />
-                  </span>
-                </div>
-
-                <div>
-                  <textarea
-                    {...register('content', { required: true })}
-                    onChange={(e) => setContentRating(e.target.value)}
-                    value={contentRating}
-                    placeholder="Great..."
-                    style={{
-                      width: '100%',
-                      minHeight: '100px',
-                      border: '1px solid lightgray',
-                      padding: 10,
-                    }}
-                  />
-                  {errors.content && <p className="text-danger">Content review is required.</p>}
-                </div>
-
-                <div className="d-flex justify-content-end m-3">
-                  <button type="submit" className="btn btn-primary" style={{ width: '100px' }}>
-                    Post
-                  </button>
-                </div>
-              </form>
+              <PostRatingForm
+                ratingStar={ratingStar}
+                handleChangeRating={handleChangeRating}
+                contentRating={contentRating}
+                setContentRating={setContentRating}
+                handleCreateRating={handleCreateRating}
+              />
             </div>
-            {totalElements == 0 ? (
-              <>No reviews for now</>
-            ) : (
-              <>
-                {ratingList?.map((rating: Rating) => (
-                  <div className="review-item" key={rating.id}>
-                    <p style={{ fontWeight: 'bold' }}>
-                      {rating.lastName == null && rating.firstName == null ? (
-                        <>Anonymous</>
-                      ) : (
-                        <>
-                          {rating.firstName} {rating.lastName}{' '}
-                          <span className="ms-2">
-                            <StarRatings
-                              rating={rating.star}
-                              starRatedColor="#FFBF00"
-                              numberOfStars={5}
-                              starDimension="16px"
-                              starSpacing="1px"
-                            />
-                          </span>
-                        </>
-                      )}
-                    </p>
-                    <div className="d-flex justify-content-between">
-                      <p className="mx-2">{rating.content}</p>
-                      <p className="mx-5">
-                        <Moment fromNow ago>
-                          {rating.createdOn}
-                        </Moment>{' '}
-                        ago
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {/* PAGINATION */}
-                <ReactPaginate
-                  forcePage={pageNo}
-                  previousLabel={'Previous'}
-                  nextLabel={'Next'}
-                  pageCount={totalPages}
-                  onPageChange={handlePageChange}
-                  containerClassName={'paginationBtns'}
-                  previousLinkClassName={'previousBtn'}
-                  nextClassName={'nextBtn'}
-                  disabledClassName={'paginationDisabled'}
-                  activeClassName={'paginationActive'}
-                />
-              </>
-            )}
+            <div>
+              <RatingList
+                ratingList={ratingList ? ratingList : null}
+                pageNo={pageNo}
+                totalElements={totalElements}
+                totalPages={totalPages}
+                handlePageChange={handlePageChange}
+              />
+            </div>
           </div>
         </Tab>
       </Tabs>

@@ -1,5 +1,6 @@
 package com.yas.rating.service;
 
+import com.yas.rating.exception.BadRequestException;
 import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
@@ -63,5 +64,16 @@ public class RatingService {
 
         Rating savedRating = ratingRepository.saveAndFlush(rating);
         return RatingVm.fromModel(savedRating);
+    }
+
+    public Double calculateAverageStar(Long productId){
+        List<Object[]> totalStarsAndRatings = ratingRepository.getTotalStarsAndTotalRatings(productId);
+        if(totalStarsAndRatings.get(0)[0] == null || totalStarsAndRatings.get(0)[1] == null)
+            return 0.0;
+        int totalStars = (Integer.parseInt(totalStarsAndRatings.get(0)[0].toString()));
+        int totalRatings = (Integer.parseInt(totalStarsAndRatings.get(0)[1].toString()));
+
+        Double averageStars = (totalStars * 1.0) / totalRatings;
+        return averageStars;
     }
 }

@@ -28,4 +28,9 @@ public class RatingController {
     public ResponseEntity<RatingVm> createRating(@Valid @RequestBody  RatingPostVm ratingPostVm) {
         return ResponseEntity.ok(ratingService.createRating(ratingPostVm));
     }
+
+    @GetMapping("/storefront/ratings/product/{productId}/average-star")
+    public Double getAverageStarOfProduct( @PathVariable Long productId) {
+        return ratingService.calculateAverageStar(productId);
+    }
 }

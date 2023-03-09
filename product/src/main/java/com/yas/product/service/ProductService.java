@@ -28,17 +28,20 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
+    private final RatingService ratingService;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductImageRepository productImageRepository;
 
     public ProductService(ProductRepository productRepository, MediaService mediaService,
+                          RatingService ratingService,
                           BrandRepository brandRepository,
                           ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository,
                           ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
+        this.ratingService = ratingService;
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.productCategoryRepository = productCategoryRepository;
@@ -83,6 +86,8 @@ public class ProductService {
                 categories.add(category.getCategory());
             }
         }
+
+        Double averageStar = ratingService.getAverageStar(product.getId());
         return new ProductDetailVm(product.getId(),
                 product.getName(),
                 product.getShortDescription(),
@@ -96,6 +101,7 @@ public class ProductService {
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually(),
                 product.getPrice(),
+                averageStar,
                 product.getBrand().getId(),
                 categories,
                 product.getMetaKeyword(),
@@ -286,6 +292,7 @@ public class ProductService {
         if (null != product.getBrand()) {
             brandId = product.getBrand().getId();
         }
+
         return new ProductDetailVm(product.getId(),
                 product.getName(),
                 product.getShortDescription(),
@@ -299,6 +306,7 @@ public class ProductService {
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually(),
                 product.getPrice(),
+                null,
                 brandId,
                 categories,
                 product.getMetaKeyword(),
@@ -437,7 +445,7 @@ public class ProductService {
             });
         }
 
-
+        Double averageStar = ratingService.getAverageStar(product.getId());
         return new ProductDetailGetVm(
                 product.getId(),
                 product.getName(),
@@ -451,6 +459,7 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getPrice(),
+                averageStar,
                 productThumbnailurl,
                 productImageMediaUrls
         );

@@ -18,6 +18,7 @@ public record ProductDetailVm(
         Boolean isFeatured,
         Boolean isVisible,
         Double price,
+        Double averageStar,
         Long brandId,
         List<Category> categories,
         String metaKeyword,
