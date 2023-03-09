@@ -7,7 +7,6 @@ import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.viewmodel.*;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,9 +42,13 @@ public class CartService {
     }
 
     public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
-        if (CollectionUtils.isEmpty(cartItemVms)) {
-            throw new BadRequestException("Cart's item can't be null");
+        // Call API to check all products will be added to cart are existed
+        List<Long> productIds = cartItemVms.stream().map(CartItemVm::productId).toList();
+        List<ProductThumbnailVm> productThumbnailVmList = productService.getProducts(productIds);
+        if (productThumbnailVmList.size() != productIds.size()) {
+            throw new NotFoundException("Some products are not existed");
         }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String customerId = auth.getName();
 
@@ -53,33 +56,22 @@ public class CartService {
         if (cart == null) {
             cart = new Cart(null, customerId, new HashSet<>());
             cart.setCreatedOn(ZonedDateTime.now());
-            cartRepository.save(cart);
         }
 
         List<CartItem> existedCartItems = cartItemRepository.findAllByCart(cart);
+
         for (CartItemVm cartItemVm : cartItemVms) {
-            if (cartItemVm.quantity() <= 0)
-                throw new BadRequestException(("Quantity cannot be negative"));
-
-            try {
-                productService.getProduct(cartItemVm.productId());
-            } catch (Exception e) {
-                throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
-            }
-
             CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
             if (cartItem.getId() != null) {
                 cartItem.setQuantity(cartItem.getQuantity() + cartItemVm.quantity());
-                cartItemRepository.save(cartItem);
             } else {
                 cartItem.setCart(cart);
                 cartItem.setProductId(cartItemVm.productId());
                 cartItem.setQuantity(cartItemVm.quantity());
                 cart.getCartItems().add(cartItem);
-                cartItemRepository.save(cartItem);
-                cartRepository.saveAndFlush(cart);
             }
         }
+        cart = cartRepository.saveAndFlush(cart);
 
         return CartGetDetailVm.fromModel(cart);
     }
@@ -106,8 +98,8 @@ public class CartService {
             throw new BadRequestException("There is no cart item in current cart to update !");
         }
 
-        List<CartDetailListVm> cartDetailListVmList = currentCart.cartDetails();
-        boolean itemExist = cartDetailListVmList.stream().anyMatch(item -> item.productId().equals(cartItemVm.productId()));
+        List<CartDetailVm> cartDetailListVm = currentCart.cartDetails();
+        boolean itemExist = cartDetailListVm.stream().anyMatch(item -> item.productId().equals(cartItemVm.productId()));
         if (!itemExist) {
             throw new NotFoundException(String.format("There is no product with ID: %s in the current cart", cartItemVm.productId()));
         }

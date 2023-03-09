@@ -33,6 +33,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByIsPublishedTrueAndIsVisibleIndividuallyTrue(Pageable pageable);
 
+    List<Product> findAllByIdIn(List<Long> productIds);
+
     @Query(value = "FROM Product p WHERE p.isFeatured = TRUE " +
             "AND p.isVisibleIndividually = TRUE " +
             "AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")

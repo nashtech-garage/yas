@@ -1,24 +1,23 @@
 package com.yas.cart.controller;
 
-import java.security.Principal;
-import java.util.List;
-
-import jakarta.validation.Valid;
-
-import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import com.yas.cart.service.CartService;
 import com.yas.cart.viewmodel.*;
-
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.List;
+
+@Validated
 @RestController
 public class CartController {
     private final CartService cartService;
@@ -45,16 +44,14 @@ public class CartController {
     }
 
     @PostMapping(path = "/storefront/carts")
-    @Operation(summary = "Add product to shopping cart. When no cart exists, this will create a new cart")
+    @Operation(summary = "Add product to shopping cart. When no cart exists, this will create a new cart.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CartGetDetailVm.class))),
+            @ApiResponse(responseCode = "201", description = "Add to cart successfully", content = @Content(schema = @Schema(implementation = CartGetDetailVm.class))),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody List<CartItemVm> cartItemVms, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody @NotEmpty List<CartItemVm> cartItemVms) {
         CartGetDetailVm cartGetDetailVm = cartService.addToCart(cartItemVms);
-        return ResponseEntity
-                .created(uriComponentsBuilder.replacePath("/carts/{customerId}")
-                        .buildAndExpand(cartGetDetailVm.customerId()).toUri())
-                .body(cartGetDetailVm);
+        return new ResponseEntity<>(cartGetDetailVm, HttpStatus.CREATED);
     }
 
     @PutMapping("cart-item")

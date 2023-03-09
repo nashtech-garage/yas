@@ -1,6 +1,7 @@
 package com.yas.cart.service;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,16 +20,18 @@ public class ProductService {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
-    public ProductThumbnailVm getProduct(Long id) {
+    public List<ProductThumbnailVm> getProducts(List<Long> ids) {
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())
-                .path("/storefront/products/featured/{productId}")
-                .buildAndExpand(id)
+                .path("/storefront/products/list-featured")
+                .queryParam("productId", ids)
+                .build()
                 .toUri();
         return webClient.get()
                 .uri(url)
                 .retrieve()
-                .bodyToMono(ProductThumbnailVm.class)
+                .bodyToFlux(ProductThumbnailVm.class)
+                .collectList()
                 .block();
     }
 }

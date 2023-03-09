@@ -23,7 +23,7 @@ public class Cart extends AbstractAuditEntity {
 
     private String customerId;
 
-    @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private Set<CartItem> cartItems = new HashSet<>();
 
     @Override
