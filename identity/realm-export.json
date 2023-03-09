@@ -415,14 +415,14 @@
       "enabled" : true,
       "totp" : false,
       "emailVerified" : false,
-      "firstName" : "admin ",
-      "lastName" : "admin",
+      "firstName" : "John",
+      "lastName" : "Doe",
       "credentials" : [ {
         "id" : "0bed1acd-4585-450d-9fca-0cd02fb57140",
         "type" : "password",
         "userLabel" : "My password",
-        "createdDate" : 1678335023233,
-        "secretData" : "{\"value\":\"xwGgvs64QNIOsSr8dvchhSxbqry0e8rcqHX93vMZdU8=\",\"salt\":\"mqGJX1Yyo9aJhcV7LqIa0Q==\",\"additionalParameters\":{}}",
+        "createdDate" : 1678346530213,
+        "secretData" : "{\"value\":\"u6oZH6INLj3cGGIJNxhhVUAhJQhYpFmsr3yLLQyVNqs=\",\"salt\":\"WmnWNNQ1hvyeXj0NlcVugA==\",\"additionalParameters\":{}}",
         "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
       } ],
       "disableableCredentialTypes" : [ ],
