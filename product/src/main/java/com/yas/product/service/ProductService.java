@@ -185,7 +185,7 @@ public class ProductService {
         List<ProductCategory> productCategoryList = new ArrayList<>();
         List<ProductImage> productImages = new ArrayList<>();
         if (!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()) {
-            throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
+            throw new BadRequestException(Constants.ERROR_CODE.SLUG_IS_DUPLICATED, productPutVm.slug());
         }
 
         if (productPutVm.brandId() != null && (product.getBrand() == null || !(productPutVm.brandId().equals(product.getBrand().getId())))) {

@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.yas.product.utils.Constants;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -44,7 +45,7 @@ public class ProductAttributeValueController {
     public ResponseEntity<List<ProductAttributeValueGetVm>> listProductAttributeValuesByProductId(@PathVariable("productId") Long productId){
         Product product = productRepository
                  .findById(productId)
-                 .orElseThrow(() -> new BadRequestException(String.format("Product %s is not found",productId)));
+                 .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
         List<ProductAttributeValueGetVm> productAttributeValueGetVms = productAttributeValueRepository
                 .findAllByProduct(product).stream()
                 .map(ProductAttributeValueGetVm::fromModel)
@@ -60,7 +61,7 @@ public class ProductAttributeValueController {
     public ResponseEntity<Void> updateProductAttributeValue(@PathVariable Long id, @Valid @RequestBody final ProductAttributeValuePostVm productAttributeValuePostVm) {
         ProductAttributeValue productAttributeValue = productAttributeValueRepository
                 .findById(id)
-                .orElseThrow(()-> new NotFoundException(String.format("Product attribute value %s is not found", id)));
+                .orElseThrow(()-> new NotFoundException(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_VALUE_IS_NOT_FOUND, id));
         productAttributeValue.setValue(productAttributeValuePostVm.value());
         productAttributeValueRepository.saveAndFlush(productAttributeValue);
         return ResponseEntity.noContent().build();
@@ -75,13 +76,13 @@ public class ProductAttributeValueController {
         if(productAttributeValuePostVm.ProductId() != null){
             Product product = productRepository
                     .findById(productAttributeValuePostVm.ProductId())
-                    .orElseThrow(() -> new BadRequestException(String.format("Product %s is not found", productAttributeValuePostVm.ProductId())));
+                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productAttributeValuePostVm.ProductId()));
             productAttributeValue.setProduct(product);
         }
         if(productAttributeValuePostVm.productAttributeId() != null){
             ProductAttribute productAttribute = productAttributeRepository
                     .findById(productAttributeValuePostVm.productAttributeId())
-                    .orElseThrow(() -> new BadRequestException(String.format("Product Attribute %s is not found",productAttributeValuePostVm.productAttributeId())));
+                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_IS_NOT_FOUND, productAttributeValuePostVm.productAttributeId()));
             productAttributeValue.setProductAttribute(productAttribute);
         }
         productAttributeValue.setValue(productAttributeValuePostVm.value());
@@ -98,7 +99,7 @@ public class ProductAttributeValueController {
     public ResponseEntity<Void> deleteProductAttributeValueById(@PathVariable Long id) {
         Optional<ProductAttributeValue> productAttributeValue = productAttributeValueRepository.findById(id);
         if(productAttributeValue.isEmpty())
-            throw new  NotFoundException(String.format("Product attribute value %s is not found", id));
+            throw new  NotFoundException(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_VALUE_IS_NOT_FOUND, id);
         productAttributeValueRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }

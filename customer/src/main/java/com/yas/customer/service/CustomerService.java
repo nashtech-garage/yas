@@ -8,6 +8,7 @@ import com.yas.customer.viewmodel.CustomerAdminVm;
 import com.yas.customer.viewmodel.CustomerListVm;
 import com.yas.customer.viewmodel.CustomerVm;
 import com.yas.customer.viewmodel.GuestUserVm;
+import com.yas.customer.utils.Constants;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -58,11 +59,11 @@ public class CustomerService {
             if (EmailValidator.getInstance().isValid(email)) {
                 List<UserRepresentation> searchResult = keycloak.realm(keycloakPropsConfig.getRealm()).users().search(email, true);
                 if (searchResult.isEmpty()) {
-                    throw new NotFoundException(String.format("User with email %s not found", email));
+                    throw new NotFoundException(Constants.ERROR_CODE.USER_WITH_EMAIL_NOT_FOUND, email);
                 }
                 return CustomerAdminVm.fromUserRepresentation(searchResult.get(0));
             } else {
-                throw new WrongEmailFormatException(String.format("Wrong email format for %s", email));
+                throw new WrongEmailFormatException(Constants.ERROR_CODE.WRONG_EMAIL_FORMAT, email);
             }
         } catch (ForbiddenException exception) {
             throw new AccessDeniedException(String.format(ERROR_FORMAT, exception.getMessage(), keycloakPropsConfig.getResource()));
