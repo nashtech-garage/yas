@@ -2,13 +2,32 @@ package com.yas.product.service;
 
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
-import com.yas.product.model.*;
+import com.yas.product.model.Brand;
+import com.yas.product.model.Category;
+import com.yas.product.model.Product;
+import com.yas.product.model.ProductCategory;
+import com.yas.product.model.ProductImage;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
-import com.yas.product.repository.*;
+import com.yas.product.repository.BrandRepository;
+import com.yas.product.repository.CategoryRepository;
+import com.yas.product.repository.ProductCategoryRepository;
+import com.yas.product.repository.ProductImageRepository;
+import com.yas.product.repository.ProductRepository;
 import com.yas.product.utils.Constants;
-import com.yas.product.viewmodel.*;
-import com.yas.product.viewmodel.product.*;
+import com.yas.product.viewmodel.NoFileMediaVm;
+import com.yas.product.viewmodel.product.ProductDetailGetVm;
+import com.yas.product.viewmodel.product.ProductDetailVm;
+import com.yas.product.viewmodel.product.ProductFeatureGetVm;
+import com.yas.product.viewmodel.product.ProductGetDetailVm;
+import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
+import com.yas.product.viewmodel.product.ProductListGetVm;
+import com.yas.product.viewmodel.product.ProductListVm;
+import com.yas.product.viewmodel.product.ProductPostVm;
+import com.yas.product.viewmodel.product.ProductPutVm;
+import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
+import com.yas.product.viewmodel.product.ProductThumbnailVm;
+import com.yas.product.viewmodel.product.ProductsGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
 import org.apache.commons.collections4.CollectionUtils;
@@ -33,6 +52,8 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductImageRepository productImageRepository;
+
+    private static final String NONE_GROUP = "None group";
 
     public ProductService(ProductRepository productRepository, MediaService mediaService,
                           RatingService ratingService,
@@ -191,7 +212,7 @@ public class ProductService {
         List<ProductCategory> productCategoryList = new ArrayList<>();
         List<ProductImage> productImages = new ArrayList<>();
         if (!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()) {
-            throw new BadRequestException(String.format("Slug %s is duplicated", productPutVm.slug()));
+            throw new BadRequestException(Constants.ERROR_CODE.SLUG_IS_DUPLICATED, productPutVm.slug());
         }
 
         if (productPutVm.brandId() != null && (product.getBrand() == null || !(productPutVm.brandId().equals(product.getBrand().getId())))) {
@@ -406,13 +427,10 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, slug));
 
         Long productThumbnailMediaId = product.getThumbnailMediaId();
-        String productThumbnailurl = "";
-        if (productThumbnailMediaId != null) {
-            productThumbnailurl = mediaService.getMedia(productThumbnailMediaId).url();
-        }
+        String productThumbnailUrl = mediaService.getMedia(productThumbnailMediaId).url();
 
         List<String> productImageMediaUrls = new ArrayList<>();
-        if (null != product.getProductImages() && !product.getProductImages().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(product.getProductImages())) {
             for (ProductImage image : product.getProductImages()) {
                 productImageMediaUrls.add(mediaService.getMedia(image.getImageId()).url());
             }
@@ -420,7 +438,7 @@ public class ProductService {
 
         List<ProductAttributeGroupGetVm> productAttributeGroupsVm = new ArrayList<>();
         List<ProductAttributeValue> productAttributeValues = product.getAttributeValues();
-        if (!productAttributeValues.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(productAttributeValues)) {
             List<ProductAttributeGroup> productAttributeGroups = productAttributeValues.stream()
                     .map(productAttributeValue -> productAttributeValue.getProductAttribute().getProductAttributeGroup())
                     .distinct()
@@ -428,18 +446,19 @@ public class ProductService {
 
             productAttributeGroups.forEach(productAttributeGroup -> {
                 List<ProductAttributeValueVm> productAttributeValueVms = new ArrayList<>();
-                if (!productAttributeValues.isEmpty()) {
-                    productAttributeValues.forEach(productAttributeValue -> {
-                        if (productAttributeValue.getProductAttribute().getProductAttributeGroup().equals(productAttributeGroup)) {
+                productAttributeValues.forEach(productAttributeValue -> {
+                    ProductAttributeGroup group = productAttributeValue.getProductAttribute().getProductAttributeGroup();
+                    if ((group != null && group.equals(productAttributeGroup))
+                        || (group == null && productAttributeGroup == null)) {
                             ProductAttributeValueVm productAttributeValueVm = new ProductAttributeValueVm(
                                     productAttributeValue.getProductAttribute().getName(),
                                     productAttributeValue.getValue());
                             productAttributeValueVms.add(productAttributeValueVm);
-                        }
-                    });
-                }
+                    }
+                });
+                String productAttributeGroupName = productAttributeGroup == null ? NONE_GROUP : productAttributeGroup.getName();
                 ProductAttributeGroupGetVm productAttributeGroupVm = new ProductAttributeGroupGetVm(
-                        productAttributeGroup.getName(),
+                        productAttributeGroupName,
                         productAttributeValueVms);
                 productAttributeGroupsVm.add(productAttributeGroupVm);
             });
@@ -460,7 +479,7 @@ public class ProductService {
                 product.getIsFeatured(),
                 product.getPrice(),
                 averageStar,
-                productThumbnailurl,
+                productThumbnailUrl,
                 productImageMediaUrls
         );
     }
@@ -502,4 +521,5 @@ public class ProductService {
                 productPage.isLast()
         );
     }
+
 }

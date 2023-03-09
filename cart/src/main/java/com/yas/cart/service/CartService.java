@@ -1,5 +1,16 @@
 package com.yas.cart.service;
 
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.List;
+
+import com.yas.cart.exception.NotFoundException;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.yas.cart.utils.Constants;
 import com.yas.cart.exception.BadRequestException;
 import com.yas.cart.exception.NotFoundException;
 import com.yas.cart.model.Cart;
@@ -44,7 +55,7 @@ public class CartService {
 
     public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
         if (CollectionUtils.isEmpty(cartItemVms)) {
-            throw new BadRequestException("Cart's item can't be null");
+            throw new BadRequestException(Constants.ERROR_CODE.CART_ITEM_CANT_NULL);
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String customerId = auth.getName();
@@ -59,12 +70,12 @@ public class CartService {
         List<CartItem> existedCartItems = cartItemRepository.findAllByCart(cart);
         for (CartItemVm cartItemVm : cartItemVms) {
             if (cartItemVm.quantity() <= 0)
-                throw new BadRequestException(("Quantity cannot be negative"));
+                throw new BadRequestException(Constants.ERROR_CODE.QUANTITY_CANT_NEGATIVE);
 
             try {
                 productService.getProduct(cartItemVm.productId());
             } catch (Exception e) {
-                throw new BadRequestException(String.format("Not found product %d", cartItemVm.productId()));
+                throw new BadRequestException(Constants.ERROR_CODE.NOT_FOUND_PRODUCT, cartItemVm.productId());
             }
 
             CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
@@ -102,19 +113,19 @@ public class CartService {
     public CartItemPutVm updateCartItems(CartItemVm cartItemVm) {
         CartGetDetailVm currentCart = getLastCart();
 
-        if (currentCart.cartDetails().isEmpty()) {
-            throw new BadRequestException("There is no cart item in current cart to update !");
+        if(currentCart.cartDetails().isEmpty()) {
+            throw new BadRequestException(Constants.ERROR_CODE.NOT_EXISTING_ITEM_IN_CART);
         }
 
         List<CartDetailListVm> cartDetailListVmList = currentCart.cartDetails();
         boolean itemExist = cartDetailListVmList.stream().anyMatch(item -> item.productId().equals(cartItemVm.productId()));
         if (!itemExist) {
-            throw new NotFoundException(String.format("There is no product with ID: %s in the current cart", cartItemVm.productId()));
+            throw new NotFoundException(Constants.ERROR_CODE.NOT_EXISTING_PRODUCT_IN_CART, cartItemVm.productId());
         }
 
         Long cartId = currentCart.id();
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, cartItemVm.productId())
-                .orElseThrow(() -> new NotFoundException("Non exist cart item with ID: " + cartId));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.NON_EXISTING_CART_ITEM + cartId));
 
         int newQuantity = cartItemVm.quantity();
         cartItem.setQuantity(newQuantity);
