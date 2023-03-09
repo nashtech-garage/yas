@@ -30,7 +30,7 @@ export default function ProductDetails({ product, productVariations }: ProductDe
     ];
     await addToCart(payload)
       .then((_response) => {
-        toast.success(' Add to cart success', {
+        toast.success('Add to cart success', {
           position: 'top-right',
           autoClose: 1000,
           closeOnClick: true,
@@ -67,7 +67,7 @@ export default function ProductDetails({ product, productVariations }: ProductDe
       <h4 className="fs-3" style={{ color: 'red' }}>
         {formatPrice(product.price)}
       </h4>
-      <p>{product.description}</p>
+      <p className="py-4">{product.description}</p>
       <div>
         <button
           type="submit"
@@ -89,6 +89,13 @@ export default function ProductDetails({ product, productVariations }: ProductDe
           <div style={{ fontSize: '14px' }}>Visa, Mastercard, JSB, Amex</div>
         </button>
       </div>
+      <p className="text-center my-4">
+        Call to order{' '}
+        <a className="fw-bold" href="tel:18009999">
+          1800.9999
+        </a>{' '}
+        (7:30 - 22:00)
+      </p>
     </>
   );
 }
