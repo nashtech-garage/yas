@@ -409,6 +409,29 @@
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
   "users": [
     {
+      "id" : "6a4ccf58-14a7-4c68-8f35-9107f98755b2",
+      "createdTimestamp" : 1678334999731,
+      "username" : "admin",
+      "enabled" : true,
+      "totp" : false,
+      "emailVerified" : false,
+      "firstName" : "admin ",
+      "lastName" : "admin",
+      "credentials" : [ {
+        "id" : "0bed1acd-4585-450d-9fca-0cd02fb57140",
+        "type" : "password",
+        "userLabel" : "My password",
+        "createdDate" : 1678335023233,
+        "secretData" : "{\"value\":\"xwGgvs64QNIOsSr8dvchhSxbqry0e8rcqHX93vMZdU8=\",\"salt\":\"mqGJX1Yyo9aJhcV7LqIa0Q==\",\"additionalParameters\":{}}",
+        "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-yas", "ADMIN" ],
+      "notBefore" : 0,
+      "groups" : [ ]
+    },
+    {
       "id": "6249ae7e-844e-4ed7-9b66-02013a98ba2e",
       "createdTimestamp": 1663154002788,
       "username": "service-account-customer-management",
