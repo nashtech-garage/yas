@@ -40,7 +40,6 @@ class ProductServiceTest {
 
     ProductRepository productRepository;
     MediaService mediaService;
-    RatingService ratingService;
     BrandRepository brandRepository;
     CategoryRepository categoryRepository;
     ProductCategoryRepository productCategoryRepository;
@@ -59,7 +58,6 @@ class ProductServiceTest {
     void setUp() {
         productRepository = mock(ProductRepository.class);
         mediaService = mock(MediaService.class);
-        ratingService = mock(RatingService.class);
         brandRepository = mock(BrandRepository.class);
         productRepository = mock(ProductRepository.class);
         categoryRepository = mock(CategoryRepository.class);
@@ -68,7 +66,6 @@ class ProductServiceTest {
         productService = new ProductService(
                 productRepository,
                 mediaService,
-                ratingService,
                 brandRepository,
                 productCategoryRepository,
                 categoryRepository, productImageRepository);
