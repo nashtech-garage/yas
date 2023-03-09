@@ -24,11 +24,12 @@ import {
   getProductDetail,
   getProductVariations,
 } from '../../modules/catalog/services/ProductService';
-import { getRatingsByProductId, createRating } from '../../modules/catalog/services/RatingService';
+import { getRatingsByProductId, createRating, getAverageStarByProductId } from '../../modules/catalog/services/RatingService';
 
 type Props = {
   product: ProductDetail;
   productVariations?: ProductVariations[];
+  averageStar: number;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
@@ -56,11 +57,14 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
       }
     }
   }
+  
+  let averageStar: number;
+  averageStar = await getAverageStarByProductId(product.id);
 
-  return { props: { product, productVariations } };
+  return { props: { product, productVariations, averageStar } };
 };
 
-const ProductDetailsPage = ({ product, productVariations }: Props) => {
+const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) => {
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -155,7 +159,7 @@ const ProductDetailsPage = ({ product, productVariations }: Props) => {
 
       <DetailHeader
         productName={product.name}
-        averageStar={product.averageStar}
+        averageStar={averageStar}
         ratingCount={totalElements}
       />
 
