@@ -16,33 +16,27 @@ const ProductSEO = ({ product, register, errors }: Props) => {
       {product ? (
         <>
           <div>
-            <Input labelText="Meta Title" field="metaTitle" register={register} />
-            <div className="mb-3">
-              <label className="form-label" htmlFor="meta-keyword">
-                Meta Keyword
-              </label>
-              <input
-                defaultValue={product.metaKeyword}
-                {...register('metaKeyword')}
-                className={`form-control ${errors.metaKeyword ? 'border-danger' : ''}`}
-                type="text"
-                id="meta-keyword"
-                name="metaKeyword"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label" htmlFor="meta-description">
-                Meta Description
-              </label>
-              <input
-                defaultValue={product.metaDescription}
-                {...register('metaDescription')}
-                type="text"
-                className="form-control"
-                id="meta-description"
-                name="metaDescription"
-              />
-            </div>
+            <Input
+              labelText="Meta Title"
+              field="metaTitle"
+              defaultValue={product?.metaTitle}
+              register={register}
+              error={errors.metaTitle?.message}
+            />
+            <Input
+              labelText="Meta Keyword"
+              field="metaKeyword"
+              defaultValue={product?.metaKeyword}
+              register={register}
+              error={errors.metaKeyword?.message}
+            />
+            <Input
+              labelText="Meta Description"
+              field="metaDescription"
+              defaultValue={product?.metaDescription}
+              register={register}
+              error={errors.metaDescription?.message}
+            />
           </div>
         </>
       ) : (
