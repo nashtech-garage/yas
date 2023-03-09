@@ -9,12 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import {
-  DetailHeader,
-  ProductDetails,
-  RatingList,
-  PostRatingForm,
-} from '../../modules/catalog/components';
+import { DetailHeader, ProductDetails, RatingList, PostRatingForm} from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
 import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
