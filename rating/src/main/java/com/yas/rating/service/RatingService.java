@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -48,14 +47,14 @@ public class RatingService {
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
         if(ratingPostVm.star() > 5 || ratingPostVm.star() < 1){
-            throw new BadRequestException("Invid star input");
+            throw new BadRequestException("Invalid star input");
         }
 
         Rating rating = new Rating();
-        CustomerVm customerVm = customerService.getCustomer();
+         CustomerVm customerVm = customerService.getCustomer();
 
-        rating.setLastName(customerVm.lastName());
-        rating.setFirstName(customerVm.firstName());
+         rating.setLastName(customerVm.lastName());
+         rating.setFirstName(customerVm.firstName());
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());
         rating.setProductId(ratingPostVm.productId());
