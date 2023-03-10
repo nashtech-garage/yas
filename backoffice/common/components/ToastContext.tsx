@@ -19,7 +19,7 @@ export const ToastContext = createContext({
   },
   handleUpdatingResponse: (response: any, url: string) => {
     // Do nothing on default
-  }
+  },
 });
 
 export function ToastProvider(props: React.PropsWithChildren) {
