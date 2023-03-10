@@ -25,8 +25,8 @@ export const ToastContext = createContext({
 export function ToastProvider(props: React.PropsWithChildren) {
 const router = useRouter();
   const [showToast, setShowToast] = useState(true);
-  const [toastHeader, setToastHeader] = useState();
-  const [toastVariant, setToastVariant] = useState('error');
+  const [toastHeader, setToastHeader] = useState('');
+  const [toastVariant, setToastVariant] = useState(ToastVariant.ERROR);
 
   const setToastProperties = (header: string, variant: string, show: boolean) => {
     setShowToast(show);
