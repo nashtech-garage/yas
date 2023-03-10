@@ -36,10 +36,6 @@ public class RatingService {
     }
 
     public RatingListVm getRatingListByProductId(Long id, int pageNo, int pageSize) {
-        if (productService.getProductById(id) == null) {
-            throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id);
-        }
-
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdOn").descending());
         Page<Rating> ratings = ratingRepository.findByProductId(id, pageable);
 
@@ -52,10 +48,6 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
-        if (productService.getProductById(ratingPostVm.productId()) == null) {
-            throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
-        }
-
         Rating rating = new Rating();
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());

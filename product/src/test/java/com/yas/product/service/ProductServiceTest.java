@@ -299,7 +299,7 @@ class ProductServiceTest {
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
 
         when(brandRepository.findBySlug(brandSlug)).thenReturn(Optional.of(existingBrand));
-        when(productRepository.findAllByBrand(existingBrand)).thenReturn(products);
+        when(productRepository.findAllByBrandAndIsActiveTrue(existingBrand)).thenReturn(products);
         when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
         when(noFileMediaVm.url()).thenReturn(url);
 
@@ -356,7 +356,7 @@ class ProductServiceTest {
 
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
-        Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.of(new Product()));
+        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.of(new Product()));
 
         //Test
         BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
@@ -377,7 +377,7 @@ class ProductServiceTest {
         brand.setId(id + 1);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
+        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.ofNullable(null));
         Mockito.when(product.getBrand()).thenReturn(brand);
 
@@ -402,7 +402,7 @@ class ProductServiceTest {
         brand.setId(id + 1);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
+        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(new ArrayList<>());
         Mockito.when(product.getBrand()).thenReturn(brand);
@@ -438,7 +438,7 @@ class ProductServiceTest {
         brand.setId(id + 1);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
+        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
         Mockito.when(product.getBrand()).thenReturn(brand);
@@ -480,7 +480,7 @@ class ProductServiceTest {
         ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlug("Test")).thenReturn(Optional.ofNullable(null));
+        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
         Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
         Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
         Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
@@ -785,7 +785,7 @@ class ProductServiceTest {
         assertEquals(productId, capturedId);
 
         verify(productRepository).save(product);
-        assertFalse(product.getIsVisibleIndividually());
+        assertFalse(product.getIsActive());
     }
 
 

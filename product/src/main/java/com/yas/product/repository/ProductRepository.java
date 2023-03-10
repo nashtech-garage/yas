@@ -14,37 +14,33 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findAllByBrand(Brand brand);
+    List<Product> findAllByBrandAndIsActiveTrue(Brand brand);
 
-    Optional<Product> findBySlug(String slug);
+    Optional<Product> findBySlugAndIsActiveTrue(String slug);
 
     @Query(value = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:productName% " +
             "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = '')) " +
             "AND p.isVisibleIndividually = true " +
+            "AND p.isActive = true " +
             "ORDER BY p.lastModifiedOn DESC")
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
 
 
-    Page<Product> findByName(Pageable pageable, String productName);
-
-    Page<Product> findByBrandName(Pageable pageable, String brandName);
-
-    Page<Product> findByIsPublishedTrueAndIsVisibleIndividuallyTrue(Pageable pageable);
-
     @Query(value = "FROM Product p WHERE p.isFeatured = TRUE " +
             "AND p.isVisibleIndividually = TRUE " +
+            "AND p.isActive = true " +
             "AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")
     Page<Product> getFeaturedProduct(Pageable pageable);
 
-    //    GET_PRODUCT_MULTIPLE_QUERY
     @Query(value = "SELECT p FROM Product p LEFT JOIN p.productCategories pc LEFT JOIN pc.category c " +
             "WHERE LOWER(p.name) LIKE %:productName% " +
             "AND (c.slug = :categorySlug OR (:categorySlug IS NULL OR :categorySlug = '')) " +
             "AND (:startPrice IS NULL OR p.price >= :startPrice) " +
             "AND (:endPrice IS NULL OR p.price <= :endPrice) " +
             "AND p.isVisibleIndividually = true " +
+            "AND p.isActive = true " +
             "ORDER BY p.lastModifiedOn DESC")
     Page<Product> findByProductNameAndCategorySlugAndPriceBetween(@Param("productName") String productName,
                                                                   @Param("categorySlug") String categorySlug,
