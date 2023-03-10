@@ -11,13 +11,13 @@ export const ToastContext = createContext({
   showToast: false,
   toastHeader: '',
   toastVariant: '',
-  setToastProperties: () => {
+  setToastProperties: (header: string, variant: string, show: boolean) => {
     // Do nothing on default
   },
-  handleDeletingResponse: () => {
+  handleDeletingResponse: (response: any, itemName: string) => {
     // Do nothing on default
   },
-  handleUpdatingResponse: () => {
+  handleUpdatingResponse: (response: any, url: string) => {
     // Do nothing on default
   }
 });
