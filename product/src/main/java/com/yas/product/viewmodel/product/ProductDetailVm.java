@@ -20,6 +20,7 @@ public record ProductDetailVm(
         Double price,
         Long brandId,
         List<Category> categories,
+        String metaTitle,
         String metaKeyword,
         String metaDescription,
         String thumbnailMediaUrl,

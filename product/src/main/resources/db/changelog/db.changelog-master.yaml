@@ -1,5 +1,11 @@
 databaseChangeLog:
   - include:
       file: db/changelog/ddl/changelog-0001.sql
+
   - include:
-      file: db/changelog/data/changelog-0001.sql
+      file: db/changelog/data/changelog-brand.sql
+      file: db/changelog/data/changelog-category.sql
+      file: db/changelog/data/changelog-product-option.sql
+      file: db/changelog/data/changelog-product-attribute-group.sql
+      file: db/changelog/data/changelog-product-attribute.sql
+      file: db/changelog/data/changelog-product.sql

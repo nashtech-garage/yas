@@ -119,6 +119,7 @@ public class ProductService {
                 product.getPrice(),
                 product.getBrand().getId(),
                 categories,
+                product.getMetaTitle(),
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
                 mediaService.getMedia(product.getThumbnailMediaId()).url(),
@@ -249,6 +250,7 @@ public class ProductService {
         product.setSpecification(productPutVm.specification());
         product.setSku(productPutVm.sku());
         product.setGtin(productPutVm.gtin());
+        product.setMetaTitle(productPutVm.metaTitle());
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
 
@@ -322,6 +324,7 @@ public class ProductService {
                 product.getPrice(),
                 brandId,
                 categories,
+                product.getMetaTitle(),
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
                 thumbnailMediaId,

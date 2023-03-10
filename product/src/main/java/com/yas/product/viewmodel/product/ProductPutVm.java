@@ -19,6 +19,7 @@ public record ProductPutVm(
         String specification,
         String sku,
         String gtin,
+        String metaTitle,
         String metaKeyword,
         String metaDescription,
         Long thumbnailMediaId,
