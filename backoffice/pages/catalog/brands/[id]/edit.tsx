@@ -32,7 +32,7 @@ const BrandEdit: NextPage = () => {
       };
 
       editBrand(+id, brand).then((response) => {
-        handleUpdatingResponse(response, CATEGORIES_UR);
+        handleUpdatingResponse(response, BRAND_URL);
       });
     }
   };
