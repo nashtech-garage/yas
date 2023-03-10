@@ -17,10 +17,10 @@ const CustomToast = ({
 }) => {
   const renderIcon = useMemo(() => {
     switch (variant) {
-      case ResponseStatus.SUCCESS:
-        return <FontAwesomeIcon icon={faCircleCheck} />;
-      case ResponseStatus.WARNING:
-      case ResponseStatus.ERROR:
+      case ToastVariant.SUCCESS:
+        return <FontAwesomeIcon className={styles.icon} icon={faCircleCheck} />;
+      case ToastVariant.WARNING:
+      case ToastVariant.ERROR:
         return <FontAwesomeIcon icon={faCircleExclamation} />;
       default:
         return '';
