@@ -8,10 +8,10 @@ import { ResponseStatus,
   UPDATE_FAILED } from '../../constants/Common';
 
 export const ToastContext = createContext({
-  showToast: false,
-  toastHeader: '',
   toastVariant: '',
-  setToastProperties: (header: string, variant: string, show: any) => {
+  toastHeader: '',
+  showToast: false,
+  setShowToast: (show: boolean) => {
     // Do nothing on default
   },
   handleDeletingResponse: (response: any, itemName: string) => {
@@ -24,7 +24,7 @@ export const ToastContext = createContext({
 
 export function ToastProvider(props: React.PropsWithChildren) {
 const router = useRouter();
-  const [showToast, setShowToast] = useState<boolean>(false);
+  const [showToast, setShowToast] = useState(false);
   const [toastHeader, setToastHeader] = useState('');
   const [toastVariant, setToastVariant] = useState(ToastVariant.ERROR);
 
