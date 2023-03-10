@@ -28,14 +28,14 @@ const router = useRouter();
   const [toastHeader, setToastHeader] = useState('');
   const [toastVariant, setToastVariant] = useState(ToastVariant.ERROR);
 
-  const setToastProperties = (header: string, variant: string, show: boolean) : Promise<void> => {
+  const setToastProperties = (header: string, variant: string, show: boolean) => {
     setShowToast(show);
     setToastHeader(header);
     setToastVariant(variant);
   };
 
   //Handle deleting response message from API
-  const handleDeletingResponse = useCallback((response: any, itemName: string) : Promise<void> => {
+  const handleDeletingResponse = useCallback((response: any, itemName: string) => {
     if (response.status === ResponseStatus.SUCCESS) {
       setToastProperties(itemName + HAVE_BEEN_DELETED, ToastVariant.SUCCESS, true);
     } else if (response.title === ResponseStatus.NOT_FOUND) {
@@ -48,7 +48,7 @@ const router = useRouter();
   }, []);
 
   //Handle updating response message from API
-  const handleUpdatingResponse = useCallback((response: any, url: string) : Promise<void> => {
+  const handleUpdatingResponse = useCallback((response: any, url: string) => {
     if (response.status === ResponseStatus.SUCCESS) {
       setToastProperties(UPDATE_SUCCESSFULLY, ToastVariant.SUCCESS, true);
       router.replace(url);
