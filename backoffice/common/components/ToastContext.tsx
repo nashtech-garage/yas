@@ -11,7 +11,7 @@ export const ToastContext = createContext({
   showToast: false,
   toastHeader: '',
   toastVariant: '',
-  setToastProperties: (header: string, variant: string, show: boolean) => {
+  setToastProperties: (header: string, variant: string, show: any) => {
     // Do nothing on default
   },
   handleDeletingResponse: (response: any, itemName: string) => {
@@ -24,14 +24,14 @@ export const ToastContext = createContext({
 
 export function ToastProvider(props: React.PropsWithChildren) {
 const router = useRouter();
-  const [showToast, setShowToast] = useState(true);
+  const [showToast, setShowToast] = useState<boolean>(false);
   const [toastHeader, setToastHeader] = useState('');
   const [toastVariant, setToastVariant] = useState(ToastVariant.ERROR);
 
-  const setToastProperties = (header: string, variant: string, show: boolean) => {
-    setShowToast(show);
+  const setToastProperties = (header: string, variant: string, show: any) => {
     setToastHeader(header);
     setToastVariant(variant);
+    setShowToast(show);
   };
 
   //Handle deleting response message from API
