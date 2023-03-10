@@ -35,3 +35,12 @@ export async function createRating(rating: RatingPost): Promise<Rating | null> {
   }
   return Promise.reject(response.status);
 }
+
+export async function getAverageStarByProductId(productId: number): Promise<number> {
+  const url = `${process.env.NEXT_PUBLIC_API_BASE_PATH}/rating/storefront/ratings/product/${productId}/average-star`;
+
+  const response = await fetch(url);
+  // console.log(response);
+
+  return await response.json();
+}
