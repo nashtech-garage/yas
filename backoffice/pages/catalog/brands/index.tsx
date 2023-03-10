@@ -11,13 +11,8 @@ import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 
 const BrandList: NextPage = () => {
-  const {
-    toastVariant,
-    toastHeader,
-    showToast,
-    setShowToast,
-    handleDeletingResponse
-  } = useDeletingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
+    useDeletingContext();
   const [brandIdWantToDelete, setBrandIdWantToDelete] = useState<number>(-1);
   const [brandNameWantToDelete, setBrandNameWantToDelete] = useState<string>('');
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
@@ -105,10 +100,10 @@ const BrandList: NextPage = () => {
       />
       {showToast && (
         <CustomToast
-        variant={toastVariant}
-        header={toastHeader}
-        show={showToast}
-        setShow={setShowToast}
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
         ></CustomToast>
       )}
     </>

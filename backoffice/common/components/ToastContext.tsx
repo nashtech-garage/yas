@@ -1,11 +1,13 @@
 import React, { createContext, useMemo, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { ResponseStatus,
+import {
+  ResponseStatus,
   ToastVariant,
   HAVE_BEEN_DELETED,
   DELETE_FAILED,
   UPDATE_SUCCESSFULLY,
-  UPDATE_FAILED } from '../../constants/Common';
+  UPDATE_FAILED,
+} from '../../constants/Common';
 
 export const ToastContext = createContext({
   toastVariant: '',
@@ -23,7 +25,7 @@ export const ToastContext = createContext({
 });
 
 export function ToastProvider(props: React.PropsWithChildren) {
-const router = useRouter();
+  const router = useRouter();
   const [showToast, setShowToast] = useState(false);
   const [toastHeader, setToastHeader] = useState('');
   const [toastVariant, setToastVariant] = useState(ToastVariant.ERROR);
@@ -52,8 +54,7 @@ const router = useRouter();
     if (response.status === ResponseStatus.SUCCESS) {
       setToastProperties(UPDATE_SUCCESSFULLY, ToastVariant.SUCCESS, true);
       router.replace(url);
-    }
-    else if (response.title === ResponseStatus.NOT_FOUND) {
+    } else if (response.title === ResponseStatus.NOT_FOUND) {
       setToastProperties(response.detail, ToastVariant.ERROR, true);
       router.replace(url);
     } else if (response.title === ResponseStatus.BAD_REQUEST) {
@@ -65,8 +66,22 @@ const router = useRouter();
   }, []);
 
   const state = useMemo(
-    () => ({ toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse, handleUpdatingResponse }),
-    [toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse, handleUpdatingResponse]
+    () => ({
+      toastVariant,
+      toastHeader,
+      showToast,
+      setShowToast,
+      handleDeletingResponse,
+      handleUpdatingResponse,
+    }),
+    [
+      toastVariant,
+      toastHeader,
+      showToast,
+      setShowToast,
+      handleDeletingResponse,
+      handleUpdatingResponse,
+    ]
   );
 
   return <ToastContext.Provider value={state}>{props.children}</ToastContext.Provider>;

@@ -13,13 +13,8 @@ import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 
 const ProductOptionList: NextPage = () => {
- const {
-     toastVariant,
-     toastHeader,
-     showToast,
-     setShowToast,
-     handleDeletingResponse
-   } = useDeletingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
+    useDeletingContext();
   const [productOptions, setProductOptions] = useState<ProductOption[]>();
   const [isLoading, setLoading] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
@@ -112,10 +107,10 @@ const ProductOptionList: NextPage = () => {
       />
       {showToast && (
         <CustomToast
-        variant={toastVariant}
-        header={toastHeader}
-        show={showToast}
-        setShow={setShowToast}
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
         ></CustomToast>
       )}
     </>

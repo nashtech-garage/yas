@@ -17,13 +17,8 @@ import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 
 const ProductList: NextPage = () => {
-  const {
-    toastVariant,
-    toastHeader,
-    showToast,
-    setShowToast,
-    handleDeletingResponse
-  } = useDeletingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
+    useDeletingContext();
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setLoading] = useState(false);
@@ -206,10 +201,10 @@ const ProductList: NextPage = () => {
       />
       {showToast && (
         <CustomToast
-        variant={toastVariant}
-        header={toastHeader}
-        show={showToast}
-        setShow={setShowToast}
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
         ></CustomToast>
       )}
     </>

@@ -11,13 +11,8 @@ import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 
 const CategoryList: NextPage = () => {
-  const {
-    toastVariant,
-    toastHeader,
-    showToast,
-    setShowToast,
-    handleDeletingResponse
-  } = useDeletingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
+    useDeletingContext();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
@@ -27,8 +22,8 @@ const CategoryList: NextPage = () => {
   const handleDelete = () => {
     setShowModalDelete(false);
     deleteCategory(+categoryId).then((response) => {
-    handleDeletingResponse(response, categoryName);
-    getListCategory();
+      handleDeletingResponse(response, categoryName);
+      getListCategory();
     });
   };
   function getListCategory(): void {
@@ -123,10 +118,10 @@ const CategoryList: NextPage = () => {
       />
       {showToast && (
         <CustomToast
-        variant={toastVariant}
-        header={toastHeader}
-        show={showToast}
-        setShow={setShowToast}
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
         ></CustomToast>
       )}
     </>
