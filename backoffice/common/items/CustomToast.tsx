@@ -11,7 +11,7 @@ const CustomToast = ({
   header = '',
   body = '',
   show = true,
-  setShow = any,
+  setShow = () => {},
   variant = ToastVariant.ERROR,
   ...rest
 }) => {
