@@ -14,7 +14,7 @@ export const ToastContext = createContext({
   setShowToast: (show: boolean) => {
     // Do nothing on default
   },
-  handleDeletingResponse: (response: any, itemName: string) => {
+  handleDeletingResponse: (response: any, itemName: string | number) => {
     // Do nothing on default
   },
   handleUpdatingResponse: (response: any, url: string) => {
