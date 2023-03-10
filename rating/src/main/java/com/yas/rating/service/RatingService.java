@@ -26,12 +26,10 @@ import java.util.List;
 @Transactional
 public class RatingService {
     private final RatingRepository ratingRepository;
-    private final ProductService productService;
     private final CustomerService customerService;
 
-    public RatingService(RatingRepository ratingRepository, ProductService productService, CustomerService customerService) {
+    public RatingService(RatingRepository ratingRepository, CustomerService customerService) {
         this.ratingRepository = ratingRepository;
-        this.productService = productService;
         this.customerService = customerService;
     }
 
