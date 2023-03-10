@@ -28,7 +28,7 @@ const router = useRouter();
   const [toastHeader, setToastHeader] = useState();
   const [toastVariant, setToastVariant] = useState('error');
 
-  const setToastProperties = (header : string, variant : string, show : boolean) => {
+  const setToastProperties = (header : any, variant : string, show : boolean) => {
     setShowToast(show);
     setToastHeader(header);
     setToastVariant(variant);
