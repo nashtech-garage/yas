@@ -7,8 +7,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import type { Brand } from '../../../modules/catalog/models/Brand';
 import { deleteBrand, getBrands } from '../../../modules/catalog/services/BrandService';
+import CustomToast from '../../../common/items/CustomToast';
+import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 
 const BrandList: NextPage = () => {
+  const {
+    toastVariant,
+    toastHeader,
+    showToast,
+    setShowToast,
+    handleDeletingResponse
+  } = useDeletingContext();
   const [brandIdWantToDelete, setBrandIdWantToDelete] = useState<number>(-1);
   const [brandNameWantToDelete, setBrandNameWantToDelete] = useState<string>('');
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
@@ -21,15 +30,7 @@ const BrandList: NextPage = () => {
     }
     deleteBrand(brandIdWantToDelete).then((response) => {
       setShowModalDelete(false);
-      if (response.status === 204) {
-        toast.success(brandNameWantToDelete + ' have been deleted');
-      } else if (response.title === 'Not found') {
-        toast.error(response.detail);
-      } else if (response.title === 'Bad request') {
-        toast.error(response.detail);
-      } else {
-        toast.error('Delete failed');
-      }
+      handleDeletingResponse(response, brandNameWantToDelete);
       getListBrand();
     });
   };
@@ -102,6 +103,14 @@ const BrandList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
+      {showToast && (
+        <CustomToast
+        variant={toastVariant}
+        header={toastHeader}
+        show={showToast}
+        setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };
