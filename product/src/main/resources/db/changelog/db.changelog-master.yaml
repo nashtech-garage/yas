@@ -8,3 +8,4 @@ databaseChangeLog:
       file: db/changelog/data/changelog-product-option.sql
       file: db/changelog/data/changelog-product-attribute-group.sql
       file: db/changelog/data/changelog-product-attribute.sql
+      file: db/changelog/data/changelog-product.sql
