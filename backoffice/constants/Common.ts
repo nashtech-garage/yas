@@ -6,7 +6,7 @@ export const ToastVariant = {
 export const ResponseStatus = {
   SUCCESS: 204,
   NOT_FOUND: 'Not found',
-  BAD_REQUEST: 'Bad request'
+  BAD_REQUEST: 'Bad request',
 };
 export const HAVE_BEEN_DELETED = ' have been deleted';
 export const DELETE_FAILED = 'Delete failed';
