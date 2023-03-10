@@ -35,7 +35,7 @@ const router = useRouter();
   };
 
   //Handle deleting response message from API
-  const handleDeletingResponse = useCallback((response: any, itemName: string) => {
+  const handleDeletingResponse = useCallback((response: any, itemName: string | number) => {
     if (response.status === ResponseStatus.SUCCESS) {
       setToastProperties(itemName + HAVE_BEEN_DELETED, ToastVariant.SUCCESS, true);
     } else if (response.title === ResponseStatus.NOT_FOUND) {
