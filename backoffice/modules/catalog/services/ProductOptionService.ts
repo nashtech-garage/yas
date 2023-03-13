@@ -1,4 +1,5 @@
 import { ProductOption } from '../models/ProductOption';
+import { ResponseStatus } from '../../../constants/Common';
 
 export async function getProductOptions(): Promise<ProductOption[]> {
   const response = await fetch('/api/product/backoffice/product-options');
@@ -15,7 +16,7 @@ export async function createProductOption(productOption: ProductOption): Promise
     body: JSON.stringify(productOption),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 201) return await response;
+  if (response.status === ResponseStatus.CREATE) return await response;
   else return await response.json();
 }
 export async function updateProductOption(id: number, productOption: ProductOption) {

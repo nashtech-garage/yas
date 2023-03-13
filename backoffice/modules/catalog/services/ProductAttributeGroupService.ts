@@ -1,5 +1,6 @@
 import { stringify } from 'querystring';
 import { ProductAttributeGroup } from '../models/ProductAttributeGroup';
+import { ResponseStatus } from '../../../constants/Common';
 
 export async function getProductAttributeGroups(): Promise<ProductAttributeGroup[]> {
   const response = await fetch('/api/product/backoffice/product-attribute-groups');
@@ -17,7 +18,7 @@ export async function createProductAttributeGroup(productAttributeGroup: Product
     body: JSON.stringify(productAttributeGroup),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 201) return await response;
+  if (response.status === ResponseStatus.CREATE) return await response;
   else return await response.json();
 }
 

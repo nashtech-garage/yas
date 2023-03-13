@@ -1,4 +1,5 @@
 import { ProductAttribute } from '../models/ProductAttribute';
+import { ResponseStatus } from '../../../constants/Common';
 
 interface ProductAttributeId {
   name: string;
@@ -17,7 +18,7 @@ export async function createProductAttribute(
     body: JSON.stringify(productAttributePost),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 201) return await response;
+  if (response.status === ResponseStatus.CREATE) return await response;
   else return await response.json();
 }
 

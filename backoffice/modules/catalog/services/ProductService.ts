@@ -1,6 +1,7 @@
 import { Product } from '../models/Product';
 import { Products } from '../models/Products';
 import { ProductPost } from '../models/ProductPost';
+import { ResponseStatus } from '../../../constants/Common';
 
 export async function getProducts(
   pageNo: number,
@@ -32,7 +33,7 @@ export async function createProduct(
     method: 'POST',
     body: body,
   });
-  if (response.status === 201) return await response;
+  if (response.status === ResponseStatus.CREATE) return await response;
   else return await response.json();
 }
 

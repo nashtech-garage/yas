@@ -1,4 +1,5 @@
 import { Brand } from '../models/Brand';
+import { ResponseStatus } from '../../../constants/Common';
 
 export async function getBrands(): Promise<Brand[]> {
   const response = await fetch('/api/product/backoffice/brands');
@@ -11,7 +12,7 @@ export async function createBrand(brand: Brand): Promise<Brand> {
     body: JSON.stringify(brand),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 201) return await response;
+  if (response.status === ResponseStatus.CREATE) return await response;
   else return await response.json();
 }
 export async function getBrand(id: number) {
