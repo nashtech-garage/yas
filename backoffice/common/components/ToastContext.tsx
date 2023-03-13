@@ -71,17 +71,15 @@ export function ToastProvider(props: React.PropsWithChildren) {
   }, []);
 
   /*Handle creating response message from API
-   * setup infor global for toast
+   * setup info global for toast
    *
    */
-  const handleCreatingResponse = useCallback((response: any, url: string) => {
-    if (response.status === ResponseStatus.CREATE) {
+  const handleCreatingResponse = useCallback(async(response: any, url: string) => {
+    if (response.status === ResponseStatus.CREATED) {
       setToastProperties(CREATE_SUCCESSFULLY, ToastVariant.SUCCESS, true);
       router.replace(url);
-    } else if (response.title === ResponseStatus.NOT_FOUND) {
-      setToastProperties(response.detail, ToastVariant.ERROR, true);
-      router.replace(url);
-    } else if (response.title === ResponseStatus.BAD_REQUEST) {
+    } else if (response.status === ResponseStatus.BAD_REQUEST) {
+      response = await response.json();
       setToastProperties(response.detail, ToastVariant.ERROR, true);
     } else {
       setToastProperties(CREATE_FAILED, ToastVariant.ERROR, true);

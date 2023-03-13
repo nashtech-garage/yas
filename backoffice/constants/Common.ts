@@ -4,10 +4,10 @@ export const ToastVariant = {
   ERROR: 'error',
 };
 export const ResponseStatus = {
-  CREATE: 201,
+  CREATED: 201,
   SUCCESS: 204,
-  NOT_FOUND: 'Not found',
-  BAD_REQUEST: 'Bad request',
+  NOT_FOUND: 404,
+  BAD_REQUEST: 400,
 };
 export const HAVE_BEEN_DELETED = ' have been deleted';
 export const DELETE_FAILED = 'Delete failed';

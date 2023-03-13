@@ -1,4 +1,5 @@
 import { ProductAttribute } from '../models/ProductAttribute';
+import { ResponseStatus } from '../../../constants/Common';
 
 interface ProductAttributeId {
   name: string;
@@ -11,14 +12,13 @@ export async function getProductAttributes(): Promise<ProductAttribute[]> {
 
 export async function createProductAttribute(
   productAttributePost: ProductAttributeId
-): Promise<ProductAttributeId> {
+){
   const response = await fetch('/api/product/backoffice/product-attribute', {
     method: 'POST',
     body: JSON.stringify(productAttributePost),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 201) return await response;
-  else return await response.json();
+  return await response;
 }
 
 export async function updateProductAttribute(

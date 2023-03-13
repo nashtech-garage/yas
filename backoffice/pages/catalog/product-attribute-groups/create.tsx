@@ -7,9 +7,10 @@ import { createProductAttributeGroup } from '../../../modules/catalog/services/P
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../constants/Common';
 import { useCreatingContext } from '../../../common/hooks/UseToastContext';
+import CustomToast from '../../../common/items/CustomToast';
 
 const ProductAttributeGroupCreate: NextPage = () => {
-  const { handleCreatingResponse } = useCreatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useCreatingContext();
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
@@ -18,7 +19,7 @@ const ProductAttributeGroupCreate: NextPage = () => {
       id: 0,
       name: event.name,
     };
-    const response = await createProductAttributeGroup(productAttributeGroup);
+    let response = await createProductAttributeGroup(productAttributeGroup);
     handleCreatingResponse(response, PRODUCT_ATTRIBUTE_GROUPS_URL);
   };
 
@@ -53,6 +54,14 @@ const ProductAttributeGroupCreate: NextPage = () => {
           </form>
         </div>
       </div>
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };

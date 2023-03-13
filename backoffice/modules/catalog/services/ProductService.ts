@@ -1,6 +1,7 @@
 import { Product } from '../models/Product';
 import { Products } from '../models/Products';
 import { ProductPost } from '../models/ProductPost';
+import { ResponseStatus } from '../../../constants/Common';
 
 export async function getProducts(
   pageNo: number,
@@ -21,7 +22,7 @@ export async function createProduct(
   product: any,
   thumbnail?: File,
   productImage?: FileList
-): Promise<Product> {
+) {
   let body = new FormData();
 
   body.append('productDetails', new Blob([JSON.stringify(product)], { type: 'application/json' }));
@@ -32,8 +33,7 @@ export async function createProduct(
     method: 'POST',
     body: body,
   });
-  if (response.status === 201) return await response;
-  else return await response.json();
+  return await response;
 }
 
 export async function updateProduct(id: number, product: ProductPost) {

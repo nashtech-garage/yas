@@ -7,9 +7,10 @@ import { ProductOption } from '../../../modules/catalog/models/ProductOption';
 import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../constants/Common';
 import { useCreatingContext } from '../../../common/hooks/UseToastContext';
+import CustomToast from '../../../common/items/CustomToast';
 
 const ProductOptionCreate: NextPage = () => {
-  const { handleCreatingResponse } = useCreatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useCreatingContext();
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
@@ -18,7 +19,7 @@ const ProductOptionCreate: NextPage = () => {
       id: 0,
       name: event.name,
     };
-    const response = await createProductOption(productOption);
+    let response = await createProductOption(productOption);
     handleCreatingResponse(response, PRODUCT_OPTIONS_URL);
   };
 
@@ -53,6 +54,14 @@ const ProductOptionCreate: NextPage = () => {
           </form>
         </div>
       </div>
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };

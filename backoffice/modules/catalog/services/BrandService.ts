@@ -1,18 +1,18 @@
 import { Brand } from '../models/Brand';
+import { ResponseStatus } from '../../../constants/Common';
 
 export async function getBrands(): Promise<Brand[]> {
   const response = await fetch('/api/product/backoffice/brands');
   return await response.json();
 }
 
-export async function createBrand(brand: Brand): Promise<Brand> {
+export async function createBrand(brand: Brand){
   const response = await fetch('/api/product/backoffice/brands', {
     method: 'POST',
     body: JSON.stringify(brand),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 201) return await response;
-  else return await response.json();
+  return await response;
 }
 export async function getBrand(id: number) {
   const response = await fetch('/api/product/backoffice/brands/' + id);

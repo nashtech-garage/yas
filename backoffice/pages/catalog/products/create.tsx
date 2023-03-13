@@ -21,9 +21,10 @@ import { createProductOptionValue } from '../../../modules/catalog/services/Prod
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 import { PRODUCT_URL } from '../../../constants/Common';
 import { useCreatingContext } from '../../../common/hooks/UseToastContext';
+import CustomToast from '../../../common/items/CustomToast';
 
 const ProductCreate: NextPage = () => {
-  const { handleCreatingResponse } = useCreatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useCreatingContext();
   const {
     register,
     setValue,
@@ -59,8 +60,8 @@ const ProductCreate: NextPage = () => {
       metaKeyword: data.metaKeyword,
       metaDescription: data.metaDescription,
     };
-    const res = await createProduct(product, data.thumbnail, data.productImages);
-
+    let response = await createProduct(product, data.thumbnail, data.productImages);
+    let res = await response.json();
     // upload variation
     let variations = data.productVariations || [];
     for (const option of variations) {
@@ -92,51 +93,61 @@ const ProductCreate: NextPage = () => {
       await createProductOptionValue(ele);
     }
 
-    handleCreatingResponse(res, PRODUCT_URL);
+    handleCreatingResponse(response, PRODUCT_URL);
   };
 
   return (
-    <div className="create-product">
-      <h2>Create Product</h2>
+    <>
+      <div className="create-product">
+        <h2>Create Product</h2>
 
-      <form onSubmit={handleSubmit(onSubmitForm)}>
-        <Tabs defaultActiveKey={'general'} className="mb-3">
-          <Tab eventKey={'general'} title="General Information">
-            <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
-          </Tab>
-          <Tab eventKey={'image'} title="Product Images">
-            <ProductImage setValue={setValue} />
-          </Tab>
-          <Tab eventKey={'variation'} title="Product Variations">
-            <ProductVariation getValue={getValues} setValue={setValue} />
-          </Tab>
+        <form onSubmit={handleSubmit(onSubmitForm)}>
+          <Tabs defaultActiveKey={'general'} className="mb-3">
+            <Tab eventKey={'general'} title="General Information">
+              <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
+            </Tab>
+            <Tab eventKey={'image'} title="Product Images">
+              <ProductImage setValue={setValue} />
+            </Tab>
+            <Tab eventKey={'variation'} title="Product Variations">
+              <ProductVariation getValue={getValues} setValue={setValue} />
+            </Tab>
 
-          <Tab eventKey={'attribute'} title="Product Attributes">
-            <ProductAttributes setValue={setValue} getValue={getValues} />
-          </Tab>
-          <Tab eventKey={'category'} title="Category Mapping">
-            <ProductCategoryMapping setValue={setValue} getValue={getValues} />
-          </Tab>
-          <Tab eventKey={'related'} title="Related Products">
-            <RelatedProduct setValue={setValue} getValue={getValues} />
-          </Tab>
-          <Tab eventKey={'cross-sell'} title="Cross-sell Product">
-            <CrossSellProduct setValue={setValue} getValue={getValues} />
-          </Tab>
-          <Tab eventKey={'seo'} title="SEO">
-            <ProductSEO register={register} errors={errors} />
-          </Tab>
-        </Tabs>
-        <div className="text-center">
-          <button className="btn btn-primary" type="submit">
-            Create
-          </button>
-          <Link href="/catalog/products">
-            <button className="btn btn-secondary m-3">Cancel</button>
-          </Link>
-        </div>
-      </form>
-    </div>
+            <Tab eventKey={'attribute'} title="Product Attributes">
+              <ProductAttributes setValue={setValue} getValue={getValues} />
+            </Tab>
+            <Tab eventKey={'category'} title="Category Mapping">
+              <ProductCategoryMapping setValue={setValue} getValue={getValues} />
+            </Tab>
+            <Tab eventKey={'related'} title="Related Products">
+              <RelatedProduct setValue={setValue} getValue={getValues} />
+            </Tab>
+            <Tab eventKey={'cross-sell'} title="Cross-sell Product">
+              <CrossSellProduct setValue={setValue} getValue={getValues} />
+            </Tab>
+            <Tab eventKey={'seo'} title="SEO">
+              <ProductSEO register={register} errors={errors} />
+            </Tab>
+          </Tabs>
+          <div className="text-center">
+            <button className="btn btn-primary" type="submit">
+              Create
+            </button>
+            <Link href="/catalog/products">
+              <button className="btn btn-secondary m-3">Cancel</button>
+            </Link>
+          </div>
+        </form>
+      </div>
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
+    </>
   );
 };
 

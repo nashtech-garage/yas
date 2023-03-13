@@ -18,7 +18,7 @@ export const useUpdatingContext = () => {
 
 //Custom hook for creating context
 export const useCreatingContext = () => {
-  const { handleCreatingResponse } = useContext(ToastContext);
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useContext(ToastContext);
 
-  return { handleCreatingResponse };
+  return { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse };
 };
