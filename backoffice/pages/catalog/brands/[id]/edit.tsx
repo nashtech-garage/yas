@@ -7,8 +7,11 @@ import { toast } from 'react-toastify';
 import { editBrand, getBrand } from '../../../../modules/catalog/services/BrandService';
 import BrandGeneralInformation from '../../../../modules/catalog/components/BrandGeneralInformation';
 import { useEffect, useState } from 'react';
+import { BRAND_URL } from '../../../../constants/Common';
+import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
 
 const BrandEdit: NextPage = () => {
+  const { handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const {
     register,
@@ -29,18 +32,7 @@ const BrandEdit: NextPage = () => {
       };
 
       editBrand(+id, brand).then((response) => {
-        if (response.status === 204) {
-          toast.success('Update successfully');
-          location.replace('/catalog/brands');
-        } else if (response.title === 'Not found') {
-          toast.error(response.detail);
-          location.replace('/catalog/brands');
-        } else if (response.title === 'Bad request') {
-          toast.error(response.detail);
-        } else {
-          toast.error('Update failed');
-          location.replace('/catalog/brands');
-        }
+        handleUpdatingResponse(response, BRAND_URL);
       });
     }
   };

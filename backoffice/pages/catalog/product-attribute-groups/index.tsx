@@ -9,8 +9,12 @@ import {
   deleteProductAttributeGroup,
   getProductAttributeGroups,
 } from '../../../modules/catalog/services/ProductAttributeGroupService';
+import CustomToast from '../../../common/items/CustomToast';
+import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 
 const ProductAttrbuteGroupList: NextPage = () => {
+  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
+    useDeletingContext();
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
   const [isLoading, setLoading] = useState(false);
   const [isShowModalDelete, setIsShowModalDelete] = useState<boolean>(false);
@@ -25,15 +29,7 @@ const ProductAttrbuteGroupList: NextPage = () => {
     deleteProductAttributeGroup(productAttributeGroupIdWantToDelete)
       .then((response) => {
         setIsShowModalDelete(false);
-        if (response.status === 204) {
-          toast.success(productAttributeGroupIdWantToDelete + ' have been deleted');
-        } else if (response.title === 'Not found') {
-          toast.error(response.detail);
-        } else if (response.title === 'Bad request') {
-          toast.error(response.detail);
-        } else {
-          toast.error('Delete failed');
-        }
+        handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
         getListProductAttributeGroup();
       })
       .catch((err) => {
@@ -108,6 +104,14 @@ const ProductAttrbuteGroupList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };

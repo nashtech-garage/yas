@@ -1,0 +1,53 @@
+.wrapper :global(.toast) {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.wrapper .header,
+.wrapper .body {
+  border-radius: 0;
+  font-size: 16px;
+  background-color: var(--bg-color);
+  color: var(--header-color);
+}
+.wrapper svg {
+  font-size: 24px;
+  color: var(--svg-color);
+  margin-right: 0.75rem;
+}
+.wrapper :global(.btn-close) {
+  display: none;
+}
+.wrapper.success {
+  --bg-color: #07bc0c;
+  --header-color: #fff;
+  --svg-color: #fff;
+  z-index: 9999;
+  position: fixed;
+}
+.wrapper.warning {
+  --bg-color: #f1c40f;
+  --header-color: #fff;
+  --svg-color: #fff;
+  z-index: 9999;
+  position: fixed;
+}
+.wrapper.error {
+  --bg-color: #e74c3c;
+  --header-color: #fff;
+  --svg-color: #fff;
+  z-index: 9999;
+  position: fixed;
+}
+.header {
+  border: none;
+  padding: 20px;
+}
+.body {
+  padding-left: 46px;
+  padding-bottom: 30px;
+}
+.icon {
+  height: 40px;
+}

@@ -10,7 +10,11 @@ import {
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
+import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+
 const ProductOptionEdit: NextPage = () => {
+  const { handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   const [productOption, setProductOption] = useState<ProductOption>();
@@ -23,18 +27,7 @@ const ProductOptionEdit: NextPage = () => {
     };
     if (id) {
       updateProductOption(+id, productOption).then((response) => {
-        if (response.status === 204) {
-          toast.success('Update successfully');
-          router.replace('/catalog/product-options');
-        } else if (response.title === 'Not found') {
-          toast.error(response.detail);
-          router.replace('/catalog/product-options');
-        } else if (response.title === 'Bad request') {
-          toast.error(response.detail);
-        } else {
-          toast.error('Update failed');
-          router.replace('/catalog/product-options');
-        }
+        handleUpdatingResponse(response, PRODUCT_OPTIONS_URL);
       });
     }
   };
