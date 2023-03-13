@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Configuration
 @EnableJpaRepositories("com.yas.product.repository")
-@EntityScan("com.yas.product.model")
+@EntityScan({"com.yas.product.model", "com.yas.product.model.attribute"})
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class DatabaseAutoConfig {
 
