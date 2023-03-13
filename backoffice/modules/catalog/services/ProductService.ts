@@ -32,7 +32,8 @@ export async function createProduct(
     method: 'POST',
     body: body,
   });
-  return response.json();
+  if (response.status === 201) return await response;
+  else return await response.json();
 }
 
 export async function updateProduct(id: number, product: ProductPost) {

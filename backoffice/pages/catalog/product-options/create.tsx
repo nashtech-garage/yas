@@ -5,8 +5,11 @@ import { useForm } from 'react-hook-form';
 import { createProductOption } from '../../../modules/catalog/services/ProductOptionService';
 import { ProductOption } from '../../../modules/catalog/models/ProductOption';
 import { useRouter } from 'next/router';
+import { PRODUCT_OPTIONS_URL } from '../../../constants/Common';
+import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 
 const ProductOptionCreate: NextPage = () => {
+  const { handleCreatingResponse } = useCreatingContext();
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
@@ -15,8 +18,8 @@ const ProductOptionCreate: NextPage = () => {
       id: 0,
       name: event.name,
     };
-    productOption = await createProductOption(productOption);
-    router.replace('/catalog/product-options');
+    const response = await createProductOption(productOption);
+    handleCreatingResponse(response, PRODUCT_OPTIONS_URL);
   };
 
   return (

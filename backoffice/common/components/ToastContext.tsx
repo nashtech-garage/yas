@@ -7,6 +7,8 @@ import {
   DELETE_FAILED,
   UPDATE_SUCCESSFULLY,
   UPDATE_FAILED,
+  CREATE_SUCCESSFULLY,
+  CREATE_FAILED,
 } from '../../constants/Common';
 
 export const ToastContext = createContext({
@@ -20,6 +22,9 @@ export const ToastContext = createContext({
     // Do nothing on default
   },
   handleUpdatingResponse: (response: any, url: string) => {
+    // Do nothing on default
+  },
+  handleCreatingResponse: (response: any, url: string) => {
     // Do nothing on default
   },
 });
@@ -65,6 +70,25 @@ export function ToastProvider(props: React.PropsWithChildren) {
     }
   }, []);
 
+  /*Handle creating response message from API
+   * setup infor global for toast
+   *
+   */
+  const handleCreatingResponse = useCallback((response: any, url: string) => {
+    if (response.status === ResponseStatus.CREATE) {
+      setToastProperties(CREATE_SUCCESSFULLY, ToastVariant.SUCCESS, true);
+      router.replace(url);
+    } else if (response.title === ResponseStatus.NOT_FOUND) {
+      setToastProperties(response.detail, ToastVariant.ERROR, true);
+      router.replace(url);
+    } else if (response.title === ResponseStatus.BAD_REQUEST) {
+      setToastProperties(response.detail, ToastVariant.ERROR, true);
+    } else {
+      setToastProperties(CREATE_FAILED, ToastVariant.ERROR, true);
+      router.replace(url);
+    }
+  }, []);
+
   const state = useMemo(
     () => ({
       toastVariant,
@@ -73,6 +97,7 @@ export function ToastProvider(props: React.PropsWithChildren) {
       setShowToast,
       handleDeletingResponse,
       handleUpdatingResponse,
+      handleCreatingResponse,
     }),
     [
       toastVariant,
@@ -81,6 +106,7 @@ export function ToastProvider(props: React.PropsWithChildren) {
       setShowToast,
       handleDeletingResponse,
       handleUpdatingResponse,
+      handleCreatingResponse,
     ]
   );
 

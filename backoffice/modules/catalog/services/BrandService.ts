@@ -11,7 +11,8 @@ export async function createBrand(brand: Brand): Promise<Brand> {
     body: JSON.stringify(brand),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response.json();
+  if (response.status === 201) return await response;
+  else return await response.json();
 }
 export async function getBrand(id: number) {
   const response = await fetch('/api/product/backoffice/brands/' + id);

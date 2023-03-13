@@ -19,8 +19,11 @@ import { ProductPost } from '../../../modules/catalog/models/ProductPost.js';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProductOptionValue } from '../../../modules/catalog/services/ProductOptionValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
+import { PRODUCT_URL } from '../../../constants/Common';
+import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 
 const ProductCreate: NextPage = () => {
+  const { handleCreatingResponse } = useCreatingContext();
   const {
     register,
     setValue,
@@ -89,7 +92,7 @@ const ProductCreate: NextPage = () => {
       await createProductOptionValue(ele);
     }
 
-    Router.replace('/catalog/products');
+    handleCreatingResponse(res, PRODUCT_URL);
   };
 
   return (

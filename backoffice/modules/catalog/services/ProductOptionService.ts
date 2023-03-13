@@ -15,7 +15,8 @@ export async function createProductOption(productOption: ProductOption): Promise
     body: JSON.stringify(productOption),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response.json();
+  if (response.status === 201) return await response;
+  else return await response.json();
 }
 export async function updateProductOption(id: number, productOption: ProductOption) {
   const response = await fetch('/api/product/backoffice/product-options/' + id, {

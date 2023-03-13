@@ -15,3 +15,10 @@ export const useUpdatingContext = () => {
 
   return { handleUpdatingResponse };
 };
+
+//Custom hook for creating context
+export const useCreatingContext = () => {
+  const { handleCreatingResponse } = useContext(ToastContext);
+
+  return { handleCreatingResponse };
+};

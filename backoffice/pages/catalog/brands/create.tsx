@@ -6,8 +6,11 @@ import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import BrandGeneralInformation from '../../../modules/catalog/components/BrandGeneralInformation';
+import { BRAND_URL } from '../../../constants/Common';
+import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 
 const BrandCreate: NextPage = () => {
+  const { handleCreatingResponse } = useCreatingContext();
   const router = useRouter();
   const {
     register,
@@ -22,8 +25,8 @@ const BrandCreate: NextPage = () => {
       name: event.name,
       slug: event.slug,
     };
-    brand = await createBrand(brand);
-    router.replace('/catalog/brands');
+    const response = await createBrand(brand);
+    handleCreatingResponse(response, BRAND_URL);
   };
 
   return (

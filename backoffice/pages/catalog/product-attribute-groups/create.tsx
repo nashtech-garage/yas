@@ -5,7 +5,11 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { createProductAttributeGroup } from '../../../modules/catalog/services/ProductAttributeGroupService';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
+import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../constants/Common';
+import { useCreatingContext } from '../../../common/hooks/UseToastContext';
+
 const ProductAttributeGroupCreate: NextPage = () => {
+  const { handleCreatingResponse } = useCreatingContext();
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
@@ -14,8 +18,8 @@ const ProductAttributeGroupCreate: NextPage = () => {
       id: 0,
       name: event.name,
     };
-    productAttributeGroup = await createProductAttributeGroup(productAttributeGroup);
-    router.replace('/catalog/product-attribute-groups');
+    const response = await createProductAttributeGroup(productAttributeGroup);
+    handleCreatingResponse(response, PRODUCT_ATTRIBUTE_GROUPS_URL);
   };
 
   return (
