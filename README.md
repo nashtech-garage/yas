@@ -49,7 +49,7 @@ YAS is a pet project aim to practice building a typical microservice application
 You might aslo want to explore:
 1. `http://pgadmin.yas.local/`. Account login: `admin@yas.com` / admin. Register a server: postgres, port 5432, username admin, password admin. The Postgresql server is also exposed to the host machine: servername: localhost, port: 5432, username: admin, password: admin
 1. `http://api.yas.local/swagger-ui/` for all the REST API document of all the services
-1. `http://identity/auth/` for Keycloak console, account admin/admin
+1. `http://identity/` for Keycloak console, account admin/admin
 1. `http://grafana/` for observability: log, trace, matrix
 
 ## Components roadmap

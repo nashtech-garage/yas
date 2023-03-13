@@ -10,7 +10,7 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://identity/auth/realms/Yas
+            issuer-uri: http://identity/realms/Yas
         registration:
           api-client:
             provider: keycloak
