@@ -94,6 +94,7 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /rating
       YAS_PUBLIC_URL: http://api.yas.local/rating
       YAS_SERVICES_PRODUCT: http://product/product
+      YAS_SERVICES_CUSTOMER: http://customer/customer
       SERVER_PORT: "80"
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0

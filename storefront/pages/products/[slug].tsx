@@ -124,7 +124,7 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
             theme: 'colored',
           });
         else {
-          toast.error('Some thing went wrong. Try again after a', {
+          toast.error('Some thing went wrong. Try again after a few seconds', {
             position: 'top-right',
             autoClose: 1000,
             closeOnClick: true,
