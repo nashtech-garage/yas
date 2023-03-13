@@ -20,7 +20,6 @@ import static org.mockito.Mockito.*;
 
 public class RatingServiceTest {
     RatingRepository ratingRepository;
-    ProductService productService;
     CustomerService customerService;
     RatingService ratingService;
 
@@ -30,9 +29,8 @@ public class RatingServiceTest {
     @BeforeEach
     void setUp() {
         ratingRepository = mock(RatingRepository.class);
-        productService = mock(ProductService.class);
         customerService = mock(CustomerService.class);
-        ratingService = new RatingService(ratingRepository, productService, customerService);
+        ratingService = new RatingService(ratingRepository, customerService);
 
 
         ratingList = List.of(
@@ -71,7 +69,6 @@ public class RatingServiceTest {
         when(ratingPage.getContent()).thenReturn(ratingList);
         when(ratingPage.getTotalPages()).thenReturn(totalPage);
         when(ratingPage.getTotalElements()).thenReturn(2L);
-        when(productService.getProductById(anyLong())).thenReturn(mock(ProductThumbnailVm.class));
 
         RatingListVm actualResponse = ratingService.getRatingListByProductId(1L, pageNo, pageSize);
 
@@ -88,28 +85,9 @@ public class RatingServiceTest {
     }
 
     @Test
-    void getRatingList_WhenProductIsNotExist_ShouldThrowException() {
-        Long productId = 1L;
-        int pageNo = 0;
-        int pageSize = 10;
-
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> ratingService.getRatingListByProductId(productId, pageNo, pageSize));
-
-        assertThat(exception.getMessage()).isEqualTo(String.format("Product %s is not found", productId));
-    }
-
-    @Test
-    void createProduct_WhenProductIsNotExist_ShouldThrowException() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> ratingService.createRating(ratingPostVm));
-
-        assertThat(exception.getMessage()).isEqualTo(String.format("Product %s is not found", ratingPostVm.productId()));
-    }
-
-    @Test
     void createProduct_WhenProductIsExist_ShouldReturnSuccess() {
         Rating savedRating = mock(Rating.class);
         var ratingCaptor = ArgumentCaptor.forClass(Rating.class);
-        when(productService.getProductById(anyLong())).thenReturn(mock(ProductThumbnailVm.class));
         when(customerService.getCustomer()).thenReturn(mock(CustomerVm.class));
         when(ratingRepository.saveAndFlush(ratingCaptor.capture())).thenReturn(savedRating);
 

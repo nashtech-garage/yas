@@ -43,10 +43,14 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 tempo
 127.0.0.1 grafana
 `
-1. Open terminal of your choice, go to 'yas' directory and run `docker compose up`
-1. Open your favorite browser and go to  http://pgadmin.yas.local. Account login: admin@yas.com / admin. Register a server: postgres, port 5432, username admin, password admin
-1. [Setup Keycloak](https://github.com/nashtech-garage/yas/wiki/Keycloak-Setup/)
-1. The Postgresql server is also published to the host machine: servername: localhost, port: 5432, username: admin, password: admin
+1. Open terminal of your choice, go to `yas` directory and run `docker compose up` and wait for all the containers up and running
+1. Open your browser, now you can access the websites via `http://storefront/`; `http://backoffice/` login with admin/password
+
+You might aslo want to explore:
+1. `http://pgadmin.yas.local/`. Account login: `admin@yas.com` / admin. Register a server: postgres, port 5432, username admin, password admin. The Postgresql server is also exposed to the host machine: servername: localhost, port: 5432, username: admin, password: admin
+1. `http://api.yas.local/swagger-ui/` for all the REST API document of all the services
+1. `http://identity/auth/` for Keycloak console, account admin/admin
+1. `http://grafana/` for observability: log, trace, matrix
 
 ## Components roadmap
 - [x] Identity service

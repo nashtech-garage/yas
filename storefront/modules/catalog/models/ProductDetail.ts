@@ -17,6 +17,7 @@ export type ProductDetail = {
   isPublished: boolean;
   isFeatured: boolean;
   price: number;
+  averageStar: number;
   thumbnailMediaUrl: string;
   productImageMediaUrls: string[];
 };

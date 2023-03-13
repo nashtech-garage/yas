@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { useRef } from 'react';
-import { ListGroup as ListGroupBootstrap } from 'react-bootstrap';
+import {
+  ListGroup as ListGroupBootstrap,
+  Nav,
+  Navbar,
+  NavDropdown,
+  Container,
+} from 'react-bootstrap';
 import { data_header_client, data_menu_top_no_login } from '../../../asset/data/data_header_client';
 
 type Props = {
@@ -39,15 +45,23 @@ const Header = ({ children }: Props) => {
 
               {/* <!-- Menu desktop --> */}
               <div className="menu-desktop main-menu">
-                {data_header_client.map((element) => (
-                  <Link href={element.link} key={element.id} className="main-menu-li">
-                    <ListGroupBootstrap.Item as="li">
-                      <span className="ms-3">{element.name}</span>
-                    </ListGroupBootstrap.Item>
-                  </Link>
-                ))}
+                <Navbar expand="lg" id="navigation-bar">
+                  <Container>
+                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                    <Navbar.Collapse id="basic-navbar-nav">
+                      <Nav className="me-auto">
+                        {data_header_client.map((element) => (
+                          <Link href={element.link} key={element.id} className="main-menu-li">
+                            <ListGroupBootstrap.Item as="li">
+                              <span className="ms-3">{element.name}</span>
+                            </ListGroupBootstrap.Item>
+                          </Link>
+                        ))}
+                      </Nav>
+                    </Navbar.Collapse>
+                  </Container>
+                </Navbar>
               </div>
-
               {/* <!-- Icon header --> */}
               <div className="wrap-icon-header flex-w flex-r-m">
                 {/* start search */}

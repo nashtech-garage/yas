@@ -10,14 +10,18 @@ import {
   getCategory,
   updateCategory,
 } from '../../../../modules/catalog/services/CategoryService';
+import { CATEGORIES_URL } from '../../../../constants/Common';
+import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
 
 const CategoryEdit: NextPage = () => {
+  const { handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   var slugify = require('slugify');
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState<Category>();
   const [slug, setSlug] = useState<string>();
+
   const handleSubmitEdit = async (event: any) => {
     event.preventDefault();
     if (event.target.parentCategory.value == 0) event.target.parentCategory.value = null;
@@ -34,18 +38,7 @@ const CategoryEdit: NextPage = () => {
 
     if (id) {
       updateCategory(+id, category).then((response) => {
-        if (response.status === 204) {
-          toast.success('Update successfully');
-          location.replace('/catalog/categories');
-        } else if (response.title === 'Not found') {
-          toast.error(response.detail);
-          location.replace('/catalog/categories');
-        } else if (response.title === 'Bad request') {
-          toast.error(response.detail);
-        } else {
-          toast.error('Update failed');
-          location.replace('/catalog/categories');
-        }
+        handleUpdatingResponse(response, CATEGORIES_URL);
       });
     }
   };

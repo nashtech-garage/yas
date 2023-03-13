@@ -10,7 +10,11 @@ import {
   getProductAttributeGroup,
   updateProductAttributeGroup,
 } from '../../../../modules/catalog/services/ProductAttributeGroupService';
+import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../../constants/Common';
+import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+
 const ProductAttributeGroupEdit: NextPage = () => {
+  const { handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup>();
@@ -23,16 +27,7 @@ const ProductAttributeGroupEdit: NextPage = () => {
     };
     if (id) {
       updateProductAttributeGroup(+id, productAttributeGroup).then((response) => {
-        if (response.status === 204) {
-          toast.success('Update successfully');
-        } else if (response.title === 'Not found') {
-          toast.error(response.detail);
-        } else if (response.title === 'Bad request') {
-          toast.error(response.detail);
-        } else {
-          toast.error('Update failed');
-        }
-        router.replace('/catalog/product-attribute-groups');
+        handleUpdatingResponse(response, PRODUCT_ATTRIBUTE_GROUPS_URL);
       });
     }
   };

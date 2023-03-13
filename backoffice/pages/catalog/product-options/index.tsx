@@ -9,8 +9,12 @@ import {
   deleteProductOption,
   getProductOptions,
 } from '../../../modules/catalog/services/ProductOptionService';
+import CustomToast from '../../../common/items/CustomToast';
+import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 
 const ProductOptionList: NextPage = () => {
+  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
+    useDeletingContext();
   const [productOptions, setProductOptions] = useState<ProductOption[]>();
   const [isLoading, setLoading] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
@@ -25,15 +29,7 @@ const ProductOptionList: NextPage = () => {
     deleteProductOption(productOptionIdWantToDelete)
       .then((response) => {
         setShowModalDelete(false);
-        if (response.status === 204) {
-          toast.success(productOptionNameWantToDelete + ' have been deleted');
-        } else if (response.title === 'Not found') {
-          toast.error(response.detail);
-        } else if (response.title === 'Bad request') {
-          toast.error(response.detail);
-        } else {
-          toast.error('Delete failed');
-        }
+        handleDeletingResponse(response, productOptionNameWantToDelete);
         getListProductOption();
       })
       .catch((err) => {
@@ -109,6 +105,14 @@ const ProductOptionList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };

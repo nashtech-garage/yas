@@ -2,10 +2,7 @@ package com.yas.product.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yas.product.model.attribute.ProductAttributeValue;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -17,6 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Product extends AbstractAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +53,8 @@ public class Product extends AbstractAuditEntity {
     private String metaDescription;
 
     private Long thumbnailMediaId;
+
+    private Boolean isActive;
 
     @ManyToOne
     @JoinColumn(name = "brand_id")

@@ -6,6 +6,7 @@ import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
+import com.yas.cart.utils.Constants;
 import com.yas.cart.viewmodel.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,7 +47,7 @@ public class CartService {
         List<Long> productIds = cartItemVms.stream().map(CartItemVm::productId).toList();
         List<ProductThumbnailVm> productThumbnailVmList = productService.getProducts(productIds);
         if (productThumbnailVmList.size() != productIds.size()) {
-            throw new NotFoundException("Some products are not existed");
+            throw new NotFoundException(Constants.ERROR_CODE.NOT_FOUND_PRODUCT);
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -95,18 +96,18 @@ public class CartService {
         CartGetDetailVm currentCart = getLastCart();
 
         if (currentCart.cartDetails().isEmpty()) {
-            throw new BadRequestException("There is no cart item in current cart to update !");
+            throw new BadRequestException(Constants.ERROR_CODE.NOT_EXISTING_ITEM_IN_CART);
         }
 
         List<CartDetailVm> cartDetailListVm = currentCart.cartDetails();
         boolean itemExist = cartDetailListVm.stream().anyMatch(item -> item.productId().equals(cartItemVm.productId()));
         if (!itemExist) {
-            throw new NotFoundException(String.format("There is no product with ID: %s in the current cart", cartItemVm.productId()));
+            throw new NotFoundException(Constants.ERROR_CODE.NOT_EXISTING_PRODUCT_IN_CART, cartItemVm.productId());
         }
 
         Long cartId = currentCart.id();
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, cartItemVm.productId())
-                .orElseThrow(() -> new NotFoundException("Non exist cart item with ID: " + cartId));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.NON_EXISTING_CART_ITEM + cartId));
 
         int newQuantity = cartItemVm.quantity();
         cartItem.setQuantity(newQuantity);

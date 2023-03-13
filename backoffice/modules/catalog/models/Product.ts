@@ -10,6 +10,7 @@ export type Product = {
   gtin: string;
   slug: string;
   price: number;
+  metaTitle: string;
   metaKeyword: string;
   metaDescription: string;
   isAllowedToOrder: boolean;

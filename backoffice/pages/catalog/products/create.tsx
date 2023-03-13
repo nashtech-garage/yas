@@ -52,7 +52,7 @@ const ProductCreate: NextPage = () => {
       isPublished: data.isPublished,
       isFeatured: data.isFeatured,
       isVisibleIndividually: data.isVisibleIndividually,
-      metaTitle: data.metaKeyword,
+      metaTitle: data.metaTitle,
       metaKeyword: data.metaKeyword,
       metaDescription: data.metaDescription,
     };

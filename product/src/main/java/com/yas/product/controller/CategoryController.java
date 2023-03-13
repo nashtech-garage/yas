@@ -88,7 +88,6 @@ public class CategoryController {
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
-        category.setLastModifiedOn(ZonedDateTime.now());
         category.setDisplayOrder(categoryPostVm.displayOrder());
         category.setMetaDescription(categoryPostVm.metaDescription());
         category.setMetaKeyword(categoryPostVm.metaKeywords());
