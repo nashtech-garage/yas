@@ -54,6 +54,8 @@ public class Product extends AbstractAuditEntity {
 
     private Long thumbnailMediaId;
 
+    private Boolean isActive;
+
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;

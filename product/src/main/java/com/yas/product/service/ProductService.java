@@ -90,7 +90,7 @@ public class ProductService {
 
     public ProductDetailVm getProduct(String slug) {
         Product product = productRepository
-                .findBySlug(slug)
+                .findBySlugAndIsActiveTrue(slug)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, slug));
         List<String> productImageMediaUrls = new ArrayList<>();
         if (null != product.getProductImages() && !product.getProductImages().isEmpty()) {
@@ -180,6 +180,7 @@ public class ProductService {
         product.setIsAllowedToOrder(productPostVm.isAllowedToOrder());
         product.setIsFeatured(productPostVm.isFeatured());
         product.setIsPublished(productPostVm.isPublished());
+        product.setIsActive(true);
         product.setMetaTitle(productPostVm.metaTitle());
         product.setMetaKeyword(productPostVm.metaKeyword());
         product.setMetaDescription(productPostVm.metaDescription());
@@ -206,7 +207,7 @@ public class ProductService {
                 -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
         List<ProductCategory> productCategoryList = new ArrayList<>();
         List<ProductImage> productImages = new ArrayList<>();
-        if (!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlug(productPutVm.slug()).isPresent()) {
+        if (!productPutVm.slug().equals(product.getSlug()) && productRepository.findBySlugAndIsActiveTrue(productPutVm.slug()).isPresent()) {
             throw new BadRequestException(Constants.ERROR_CODE.SLUG_IS_DUPLICATED, productPutVm.slug());
         }
 
@@ -350,7 +351,7 @@ public class ProductService {
         Brand brand = brandRepository
                 .findBySlug(brandSlug)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, brandSlug));
-        List<Product> products = productRepository.findAllByBrand(brand);
+        List<Product> products = productRepository.findAllByBrandAndIsActiveTrue(brand);
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailVm(
                     product.getId(),
@@ -418,7 +419,7 @@ public class ProductService {
 
 
     public ProductDetailGetVm getProductDetail(String slug) {
-        Product product = productRepository.findBySlug(slug)
+        Product product = productRepository.findBySlugAndIsActiveTrue(slug)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, slug));
 
         Long productThumbnailMediaId = product.getThumbnailMediaId();
@@ -482,7 +483,7 @@ public class ProductService {
         Product product = productRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
-        product.setIsVisibleIndividually(false);
+        product.setIsActive(false);
         productRepository.save(product);
     }
 

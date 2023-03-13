@@ -26,20 +26,14 @@ import java.util.List;
 @Transactional
 public class RatingService {
     private final RatingRepository ratingRepository;
-    private final ProductService productService;
     private final CustomerService customerService;
 
-    public RatingService(RatingRepository ratingRepository, ProductService productService, CustomerService customerService) {
+    public RatingService(RatingRepository ratingRepository, CustomerService customerService) {
         this.ratingRepository = ratingRepository;
-        this.productService = productService;
         this.customerService = customerService;
     }
 
     public RatingListVm getRatingListByProductId(Long id, int pageNo, int pageSize) {
-        if (productService.getProductById(id) == null) {
-            throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id);
-        }
-
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdOn").descending());
         Page<Rating> ratings = ratingRepository.findByProductId(id, pageable);
 
@@ -52,10 +46,6 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
-        if (productService.getProductById(ratingPostVm.productId()) == null) {
-            throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, ratingPostVm.productId());
-        }
-
         Rating rating = new Rating();
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());
