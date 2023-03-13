@@ -20,17 +20,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query(value = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:productName% " +
             "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = '')) " +
-            "AND p.isVisibleIndividually = true " +
-            "AND p.isActive = true " +
+            "AND p.isVisibleIndividually = TRUE " +
+            "AND p.isActive = TRUE " +
             "ORDER BY p.lastModifiedOn DESC")
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
 
+    List<Product> findAllByIdIn(List<Long> productIds);
 
     @Query(value = "FROM Product p WHERE p.isFeatured = TRUE " +
             "AND p.isVisibleIndividually = TRUE " +
-            "AND p.isActive = true " +
+            "AND p.isActive = TRUE " +
             "AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")
     Page<Product> getFeaturedProduct(Pageable pageable);
 
@@ -39,8 +40,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND (c.slug = :categorySlug OR (:categorySlug IS NULL OR :categorySlug = '')) " +
             "AND (:startPrice IS NULL OR p.price >= :startPrice) " +
             "AND (:endPrice IS NULL OR p.price <= :endPrice) " +
-            "AND p.isVisibleIndividually = true " +
-            "AND p.isActive = true " +
+            "AND p.isVisibleIndividually = TRUE " +
+            "AND p.isActive = TRUE " +
             "ORDER BY p.lastModifiedOn DESC")
     Page<Product> findByProductNameAndCategorySlugAndPriceBetween(@Param("productName") String productName,
                                                                   @Param("categorySlug") String categorySlug,

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { toast } from 'react-toastify';
+import { toast, ToastOptions } from 'react-toastify';
 
 import { formatPrice } from '../../../utils/formatPrice';
 import { AddToCartModel } from '../../cart/models/AddToCartModel';
@@ -12,36 +12,38 @@ export interface ProductDetailProps {
   productVariations: ProductVariations[] | undefined;
 }
 
-const handleAddToCart = async (event: any) => {
-  event.preventDefault();
-  let addToCartModel: AddToCartModel[] = [
-    {
-      productId: event.target.productId.value,
-      quantity: event.target.quantity.value,
-    },
-  ];
-  await addToCart(addToCartModel)
-    .then(() => {
-      toast.success(' Add to cart success', {
-        position: 'top-right',
-        autoClose: 1000,
-        closeOnClick: true,
-        pauseOnHover: false,
-        theme: 'colored',
-      });
-    })
-    .catch(() => {
-      toast.error('Add to cart failed. Try again', {
-        position: 'top-right',
-        autoClose: 1000,
-        closeOnClick: true,
-        pauseOnHover: false,
-        theme: 'colored',
-      });
-    });
+const toastOption: ToastOptions = {
+  position: 'top-right',
+  autoClose: 1000,
+  closeOnClick: true,
+  pauseOnHover: false,
+  theme: 'colored',
 };
 
 export default function ProductDetails({ product, productVariations }: ProductDetailProps) {
+  const handleAddToCart = async () => {
+    let payload: AddToCartModel[] = [
+      {
+        productId: product.id,
+        quantity: 1,
+      },
+    ];
+    await addToCart(payload)
+      .then((_response) => {
+        toast.success('Add to cart success', {
+          position: 'top-right',
+          autoClose: 1000,
+          closeOnClick: true,
+          pauseOnHover: false,
+          theme: 'colored',
+        });
+      })
+      .catch((error) => {
+        if (error.status === 403) toast.error('You need to log in before add to cart', toastOption);
+        else toast.error('Add to cart failed. Try again', toastOption);
+      });
+  };
+
   return (
     <>
       <div className="d-flex gap-2 align-items-center mb-2">
@@ -65,20 +67,17 @@ export default function ProductDetails({ product, productVariations }: ProductDe
       <h4 className="fs-3" style={{ color: 'red' }}>
         {formatPrice(product.price)}
       </h4>
-      <p>{product.description}</p>
+      <p className="py-4">{product.description}</p>
       <div>
-        <form onSubmit={handleAddToCart}>
-          <input type={'hidden'} name={'productId'} value={product.id} />
-          <input type={'hidden'} name={'quantity'} value={1} />
-          <button
-            type="submit"
-            className="btn btn-dark d-flex align-items-center justify-content-center gap-2 w-100 fs-6 fw-bold"
-            style={{ height: '56px' }}
-            disabled={product.isAllowedToOrder ? false : true}
-          >
-            <span>Add to cart</span>
-          </button>
-        </form>
+        <button
+          type="submit"
+          className="btn btn-dark d-flex align-items-center justify-content-center gap-2 w-100 fs-6 fw-bold"
+          style={{ height: '56px' }}
+          disabled={!product.isAllowedToOrder}
+          onClick={handleAddToCart}
+        >
+          <span>Add to cart</span>
+        </button>
       </div>
       <div className="d-flex gap-2 mt-2">
         <button className="btn btn-primary w-100">
@@ -90,6 +89,13 @@ export default function ProductDetails({ product, productVariations }: ProductDe
           <div style={{ fontSize: '14px' }}>Visa, Mastercard, JSB, Amex</div>
         </button>
       </div>
+      <p className="text-center my-4">
+        Call to order{' '}
+        <a className="fw-bold" href="tel:18009999">
+          1800.9999
+        </a>{' '}
+        (7:30 - 22:00)
+      </p>
     </>
   );
 }

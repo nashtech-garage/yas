@@ -24,10 +24,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -529,17 +526,17 @@ class ProductServiceTest {
     }
 
     @Test
-    void getFeaturedProductsById_whenProductIdValid_shouldSuccess() {
+    void getListFeaturedProductsByListProductIds_whenAllProductIdsValid_shouldSuccess() {
         // Initial variables
-        Long id = Long.valueOf(1);
+        Long[] ids = { 1L };
+        List<Long> productIds = Arrays.asList(ids);
         Product product = mock(Product.class);
 
         // Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        Mockito.when(productRepository.findAllByIdIn(productIds)).thenReturn(List.of(product));
         Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
-        Mockito.when(product.getName()).thenReturn("name");
 
-        assertThat(product.getName(), is(productService.getFeaturedProductsById(id).name()));
+        assertThat(1, is(productService.getFeaturedProductsById(productIds).size()));
     }
 
     @Test

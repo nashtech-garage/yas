@@ -89,9 +89,9 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProduct(slug));
     }
 
-    @GetMapping("/storefront/products/featured/{productId}")
-    public ResponseEntity<ProductThumbnailVm> getFeaturedProductsById(@PathVariable long productId) {
-        return ResponseEntity.ok(productService.getFeaturedProductsById(productId));
+    @GetMapping("/storefront/products/list-featured")
+    public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProductsById(@RequestParam("productId") List<Long> productIds) {
+        return ResponseEntity.ok(productService.getFeaturedProductsById(productIds));
     }
 
     @GetMapping("/storefront/product/{slug}")

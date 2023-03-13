@@ -5,7 +5,9 @@ import { Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { toast, ToastContainer } from 'react-toastify';
+
 import 'react-toastify/dist/ReactToastify.css';
+
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
@@ -201,7 +203,7 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
         </Table>
       </div>
 
-      {/* specification  and Rating */}
+      {/* Specification and Rating */}
       <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " fill>
         <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
           <div className="tabs"> {product.specification}</div>

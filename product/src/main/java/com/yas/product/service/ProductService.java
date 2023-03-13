@@ -388,15 +388,13 @@ public class ProductService {
         );
     }
 
-    public ProductThumbnailVm getFeaturedProductsById(Long productId) {
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
-        return new ProductThumbnailVm(
+    public List<ProductThumbnailVm> getFeaturedProductsById(List<Long> productIds) {
+        List<Product> products = productRepository.findAllByIdIn(productIds);
+        return products.stream().map(product -> new ProductThumbnailVm(
                 product.getId(),
                 product.getName(),
                 product.getSlug(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url());
+                mediaService.getMedia(product.getThumbnailMediaId()).url())).toList();
     }
 
     public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int pageSize) {
