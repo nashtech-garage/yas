@@ -365,6 +365,12 @@
   cursor: pointer;
 }
 
+.icon-header-bell-question {
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  margin-right: 4px;
+}
 /*---------------------------------------------*/
 .icon-header-noti::after {
   content: attr(data-notify);
