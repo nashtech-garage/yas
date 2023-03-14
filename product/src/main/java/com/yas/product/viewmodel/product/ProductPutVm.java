@@ -12,6 +12,7 @@ public record ProductPutVm(
         Boolean isAllowedToOrder,
         Boolean isPublished,
         Boolean isFeatured,
+        Boolean isVisibleIndividually,
         Long brandId,
         List<Long> categoryIds,
         String shortDescription,
