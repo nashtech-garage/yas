@@ -5,13 +5,8 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { createProductAttributeGroup } from '../../../modules/catalog/services/ProductAttributeGroupService';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
-import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
-
+import { showToastError } from '../../error';
 const ProductAttributeGroupCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
@@ -20,8 +15,14 @@ const ProductAttributeGroupCreate: NextPage = () => {
       id: 0,
       name: event.name,
     };
-    let response = await createProductAttributeGroup(productAttributeGroup);
-    handleCreatingResponse(response, PRODUCT_ATTRIBUTE_GROUPS_URL);
+    createProductAttributeGroup(productAttributeGroup).then(async res => {
+      if (res?.ok) {
+        productAttributeGroup = await res.json();
+        router.replace('/catalog/product-attribute-groups');
+      } else {
+        showToastError(await res.json());
+      }
+    });
   };
 
   return (
@@ -55,14 +56,6 @@ const ProductAttributeGroupCreate: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

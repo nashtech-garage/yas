@@ -9,13 +9,12 @@ export async function getProductAttributes(): Promise<ProductAttribute[]> {
   return await response.json();
 }
 
-export async function createProductAttribute(productAttributePost: ProductAttributeId) {
-  const response = await fetch('/api/product/backoffice/product-attribute', {
+export function createProductAttribute(productAttributePost: ProductAttributeId) {
+  return fetch('/api/product/backoffice/product-attribute', {
     method: 'POST',
     body: JSON.stringify(productAttributePost),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response;
 }
 
 export async function updateProductAttribute(

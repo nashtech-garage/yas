@@ -6,17 +6,13 @@ import Link from 'next/link';
 import { getProductAttributeGroups } from '../../../modules/catalog/services/ProductAttributeGroupService';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import { createProductAttribute } from '../../../modules/catalog/services/ProductAttributeService';
-import { PRODUCT_ATTRIBUTE_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
+import { showToastError } from '../../error';
 
 interface ProductAttributeId {
   name: string;
   productAttributeGroupId: string;
 }
 const ProductAttributeCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
   const { formState, register, handleSubmit } = useForm();
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup[]>([]);
   const [idGroup, setIdGroup] = useState(String);
@@ -33,8 +29,15 @@ const ProductAttributeCreate: NextPage = () => {
       name: event.name,
       productAttributeGroupId: idGroup,
     };
-    let response = await createProductAttribute(productAttribute);
-    handleCreatingResponse(response, PRODUCT_ATTRIBUTE_URL);
+    console.log(productAttribute);
+    createProductAttribute(productAttribute).then(async res => {
+      if (res?.ok) {
+        productAttribute = await res.json();
+        location.replace('/catalog/product-attributes');
+      } else {
+        showToastError(await res.json());
+      }
+    });
   };
   return (
     <>
@@ -88,14 +91,6 @@ const ProductAttributeCreate: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

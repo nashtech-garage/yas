@@ -11,13 +11,12 @@ export async function getProductAttributeGroup(id: number): Promise<ProductAttri
   return await response.json();
 }
 
-export async function createProductAttributeGroup(productAttributeGroup: ProductAttributeGroup) {
-  const response = await fetch('/api/product/backoffice/product-attribute-groups', {
+export function createProductAttributeGroup(productAttributeGroup: ProductAttributeGroup) {
+  return fetch('/api/product/backoffice/product-attribute-groups', {
     method: 'POST',
     body: JSON.stringify(productAttributeGroup),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response;
 }
 
 export async function updateProductAttributeGroup(
