@@ -1,6 +1,5 @@
 import { stringify } from 'querystring';
 import { ProductAttributeGroup } from '../models/ProductAttributeGroup';
-import { ResponseStatus } from '../../../constants/Common';
 
 export async function getProductAttributeGroups(): Promise<ProductAttributeGroup[]> {
   const response = await fetch('/api/product/backoffice/product-attribute-groups');

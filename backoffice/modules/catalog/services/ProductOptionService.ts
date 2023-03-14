@@ -1,5 +1,4 @@
 import { ProductOption } from '../models/ProductOption';
-import { ResponseStatus } from '../../../constants/Common';
 
 export async function getProductOptions(): Promise<ProductOption[]> {
   const response = await fetch('/api/product/backoffice/product-options');

@@ -1,7 +1,6 @@
 import { Product } from '../models/Product';
 import { Products } from '../models/Products';
 import { ProductPost } from '../models/ProductPost';
-import { ResponseStatus } from '../../../constants/Common';
 
 export async function getProducts(
   pageNo: number,

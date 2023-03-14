@@ -1,6 +1,5 @@
 import { Category } from '../models/Category';
 import { ProductThumbnails } from '../models/ProductThumbnails';
-import { ResponseStatus } from '../../../constants/Common';
 
 export async function getCategories(): Promise<Category[]> {
   const response = await fetch('/api/product/backoffice/categories');
@@ -12,7 +11,7 @@ export async function getCategory(id: number): Promise<Category> {
   return await response.json();
 }
 
-export async function createCategory(category: Category): Promise<Category> {
+export async function createCategory(category: Category) {
   const response = await fetch('/api/product/backoffice/categories', {
     method: 'POST',
     body: JSON.stringify(category),

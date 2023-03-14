@@ -1,5 +1,4 @@
 import { ProductAttribute } from '../models/ProductAttribute';
-import { ResponseStatus } from '../../../constants/Common';
 
 interface ProductAttributeId {
   name: string;
