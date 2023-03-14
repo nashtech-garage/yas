@@ -1,9 +1,12 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
-import Router from 'next/router';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import slugify from 'slugify';
+
+import { useCreatingContext } from '../../../common/hooks/UseToastContext';
+import CustomToast from '../../../common/items/CustomToast';
+import { PRODUCT_URL } from '../../../constants/Common';
 import {
   CrossSellProduct,
   ProductAttributes,
@@ -19,9 +22,6 @@ import { ProductPost } from '../../../modules/catalog/models/ProductPost.js';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProductOptionValue } from '../../../modules/catalog/services/ProductOptionValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
-import { PRODUCT_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
 
 const ProductCreate: NextPage = () => {
   const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =

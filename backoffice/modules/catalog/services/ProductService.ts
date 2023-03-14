@@ -1,6 +1,5 @@
-import { Product } from '../models/Product';
-import { Products } from '../models/Products';
 import { ProductPost } from '../models/ProductPost';
+import { Products } from '../models/Products';
 
 export async function getProducts(
   pageNo: number,
@@ -28,7 +27,7 @@ export async function createProduct(product: any, thumbnail?: File, productImage
     method: 'POST',
     body: body,
   });
-  return await response;
+  return response;
 }
 
 export async function updateProduct(id: number, product: ProductPost) {

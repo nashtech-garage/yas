@@ -1,0 +1,55 @@
+.image-label {
+  width: 150px;
+  height: 150px;
+  border: 1px dashed #000;
+  border-radius: 4px;
+  line-height: 150px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.product-image {
+  width: 150px;
+  height: 150px;
+  position: relative;
+  padding: 4px;
+  border: 1px dashed #000;
+  border-radius: 4px;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.product-image .actions {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  display: flex;
+  gap: 4px;
+  z-index: 1;
+}
+
+.product-image .actions .icon {
+  color: white;
+  background-color: blue;
+  border-radius: 50%;
+  padding: 4px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.product-image .actions .icon.delete {
+  background-color: red;
+}
+
+.product-image .actions .icon:hover {
+  background-color: #000;
+}
