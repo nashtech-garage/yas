@@ -9,13 +9,13 @@ export async function getProductOption(id: number): Promise<ProductOption> {
   const response = await fetch('/api/product/backoffice/product-options/' + id);
   return await response.json();
 }
-export async function createProductOption(productOption: ProductOption): Promise<ProductOption> {
+export async function createProductOption(productOption: ProductOption) {
   const response = await fetch('/api/product/backoffice/product-options', {
     method: 'POST',
     body: JSON.stringify(productOption),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response.json();
+  return await response;
 }
 export async function updateProductOption(id: number, productOption: ProductOption) {
   const response = await fetch('/api/product/backoffice/product-options/' + id, {

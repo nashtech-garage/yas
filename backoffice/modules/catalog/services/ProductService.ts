@@ -17,11 +17,7 @@ export async function getProduct(id: number) {
   return await response.json();
 }
 
-export async function createProduct(
-  product: any,
-  thumbnail?: File,
-  productImage?: FileList
-): Promise<Product> {
+export async function createProduct(product: any, thumbnail?: File, productImage?: FileList) {
   let body = new FormData();
 
   body.append('productDetails', new Blob([JSON.stringify(product)], { type: 'application/json' }));
@@ -32,7 +28,7 @@ export async function createProduct(
     method: 'POST',
     body: body,
   });
-  return response.json();
+  return await response;
 }
 
 export async function updateProduct(id: number, product: ProductPost) {

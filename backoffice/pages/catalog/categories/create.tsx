@@ -3,8 +3,13 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { Category } from '../../../modules/catalog/models/Category';
 import { createCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
+import { CATEGORIES_URL } from '../../../constants/Common';
+import { useCreatingContext } from '../../../common/hooks/UseToastContext';
+import CustomToast from '../../../common/items/CustomToast';
 
 const CategoryCreate: NextPage = () => {
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
+    useCreatingContext();
   var slugify = require('slugify');
   const [categories, setCategories] = useState<Category[]>([]);
   const handleSubmit = async (event: any) => {
@@ -20,8 +25,8 @@ const CategoryCreate: NextPage = () => {
       metaDescription: event.target.metaDescription.value,
       displayOrder: event.target.displayOrder.value,
     };
-    category = await createCategory(category);
-    location.replace('/catalog/categories');
+    let response = await createCategory(category);
+    handleCreatingResponse(response, CATEGORIES_URL);
   };
   useEffect(() => {
     getCategories().then((data) => {
@@ -136,6 +141,14 @@ const CategoryCreate: NextPage = () => {
           </form>
         </div>
       </div>
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };

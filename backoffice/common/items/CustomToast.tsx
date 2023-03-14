@@ -21,7 +21,7 @@ const CustomToast = ({
         return <FontAwesomeIcon className={styles.icon} icon={faCircleCheck} />;
       case ToastVariant.WARNING:
       case ToastVariant.ERROR:
-        return <FontAwesomeIcon icon={faCircleExclamation} />;
+        return <FontAwesomeIcon className={styles.icon} icon={faCircleExclamation} />;
       default:
         return '';
     }

@@ -11,13 +11,13 @@ export async function getCategory(id: number): Promise<Category> {
   return await response.json();
 }
 
-export async function createCategory(category: Category): Promise<Category> {
+export async function createCategory(category: Category) {
   const response = await fetch('/api/product/backoffice/categories', {
     method: 'POST',
     body: JSON.stringify(category),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response.json();
+  return await response;
 }
 export async function updateCategory(id: number, category: Category) {
   const response = await fetch('/api/product/backoffice/categories/' + id, {

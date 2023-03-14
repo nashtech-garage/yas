@@ -18,8 +18,12 @@ import { Product } from '../../../../modules/catalog/models/Product';
 import { ProductPost } from '../../../../modules/catalog/models/ProductPost';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
+import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
+import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import { PRODUCT_URL } from '../../../../constants/Common';
 
 const EditProduct: NextPage = () => {
+  const { handleUpdatingResponse } = useUpdatingContext();
   //Get ID
   const router = useRouter();
   const { id } = router.query;
@@ -46,7 +50,7 @@ const EditProduct: NextPage = () => {
         } else {
           //Show error
           toast(data.detail);
-          router.push('/catalog/products');
+          router.push(PRODUCT_URL);
         }
       });
     }
@@ -56,13 +60,7 @@ const EditProduct: NextPage = () => {
   const onSubmit: SubmitHandler<ProductPost> = (data) => {
     if (id) {
       updateProduct(+id, data).then(async (res) => {
-        if (res.ok) {
-          router.push('/catalog/products');
-        } else {
-          res.json().then((error) => {
-            toast(error.detail);
-          });
-        }
+        handleUpdatingResponse(res, PRODUCT_URL);
       });
     }
   };
