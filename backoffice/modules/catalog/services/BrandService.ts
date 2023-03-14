@@ -1,5 +1,4 @@
 import { Brand } from '../models/Brand';
-import { ResponseStatus } from '../../../constants/Common';
 
 export async function getBrands(): Promise<Brand[]> {
   const response = await fetch('/api/product/backoffice/brands');
