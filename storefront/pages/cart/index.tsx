@@ -2,9 +2,8 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { Cart } from '../../modules/cart/models/Cart';
+import { CartItem } from '../../modules/cart/models/CartItem';
 import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
-
-let loaded = false;
 
 const Cart = () => {
   type Item = {
@@ -16,6 +15,8 @@ const Cart = () => {
   };
 
   const [items, setItems] = useState<Item[]>([]);
+
+  const [loaded, setLoaded] = useState(false);
 
   const [cart, setCart] = useState<Cart>({
     id: 0,
@@ -29,26 +30,33 @@ const Cart = () => {
     ],
   });
 
+  const getProductThumbnail = (item: CartItem) => {
+    return getCartProductThumbnail(item.productId);
+  };
+
   useEffect(() => {
-    if (!loaded)
+    if (!loaded) {
       getCart().then((data) => {
         setCart(data);
-        data.cartDetails.forEach(async (item) => {
-          const product = await getCartProductThumbnail(item.productId);
-          const newitems = [
-            ...items,
-            {
-              productId: product.id,
-              quantity: item.quantity,
-              productName: product.name,
-              slug: product.slug,
-              thumbnailUrl: product.thumbnailUrl,
-            },
-          ];
-          setItems(newitems);
-        });
+        Promise.allSettled(data.cartDetails.map((item) => getProductThumbnail(item))).then(
+          (results: any) => {
+            const newItems: Item[] = [];
+            for (let i = 0; i < results.length; i++) {
+              const product = results[i].value;
+              newItems.push({
+                productId: product.id,
+                quantity: data.cartDetails[i].quantity,
+                productName: product.name,
+                slug: product.slug,
+                thumbnailUrl: product.thumbnailUrl,
+              });
+            }
+            setItems(newItems);
+          }
+        );
       });
-    loaded = true;
+      setLoaded(true);
+    }
   }, []);
 
   return (
