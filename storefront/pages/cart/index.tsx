@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { Cart } from '../../modules/cart/models/Cart';
 import { CartItem } from '../../modules/cart/models/CartItem';
-import { getCart, getCartProductThumbnail, removeProductInCart } from '../../modules/cart/services/CartService';
+import {
+  getCart,
+  getCartProductThumbnail,
+  removeProductInCart,
+} from '../../modules/cart/services/CartService';
 
 const Cart = () => {
   type Item = {
@@ -55,11 +59,11 @@ const Cart = () => {
         }
       );
     });
-  }
+  };
 
   const removeProduct = (productId: number) => {
     removeProductInCart(productId).then(() => loadCart());
-  }
+  };
 
   useEffect(() => {
     if (!loaded) {
@@ -136,8 +140,10 @@ const Cart = () => {
                           <td className="cart__total">34500000 </td>
                           <td className="cart__close">
                             {' '}
-                            <button className="remove_product"
-                              onClick={() => removeProduct(item.productId)}>
+                            <button
+                              className="remove_product"
+                              onClick={() => removeProduct(item.productId)}
+                            >
                               <i className="bi bi-x-lg"></i>
                             </button>{' '}
                           </td>
