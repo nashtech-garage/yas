@@ -41,6 +41,7 @@ type Props = {
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
   const { slug } = context.query;
   let product = await getProductDetail(slug);
+  if (!product.id) return { notFound: true };
 
   let productOptionValue: ProductOptionValueGet[] = (await getProductVariations(product.id)) || [];
 
