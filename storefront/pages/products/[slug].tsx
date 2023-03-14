@@ -67,11 +67,13 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
   }
 
   let averageStar: AverageStarResponseDto;
-  averageStar = await getAverageStarByProductId(product.id).then(result => {
-    return { averageStar: result };
-  }).catch(error => {
-    return { averageStar: 0, errorMessage: "Could't fetch average star" };
-  });
+  averageStar = await getAverageStarByProductId(product.id)
+    .then((result) => {
+      return { averageStar: result };
+    })
+    .catch((error) => {
+      return { averageStar: 0, errorMessage: "Could't fetch average star" };
+    });
 
   return { props: { product, productVariations, averageStar } };
 };
@@ -99,7 +101,7 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
       });
       averageStar.averageStar = 0;
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {

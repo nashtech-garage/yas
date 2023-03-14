@@ -1,4 +1,4 @@
 export type AverageStarResponseDto = {
-    averageStar: number = 0,
-    errorMessage?: string
-} 
+  averageStar: number = 0;
+  errorMessage?: string;
+};
