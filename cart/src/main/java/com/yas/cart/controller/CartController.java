@@ -59,4 +59,10 @@ public class CartController {
         return new ResponseEntity<>(cartService.updateCartItems(cartItemVm), HttpStatus.OK);
     }
 
+    @DeleteMapping("/storefront/cart-item")
+    public ResponseEntity<Void> removeCartItemByProductId(@RequestParam Long productId) {
+        cartService.removeCartItemByProductId(productId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -25,3 +25,12 @@ export async function getCartProductThumbnail(id: number): Promise<ProductThumbn
   });
   return await response.json();
 }
+
+export async function removeProductInCart(productId: number) {
+  const response = await fetch('/api/cart/storefront/cart-item?productId=' + productId, {
+    method: 'DELETE',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  });
+  if (response.status === 204) return await response;
+  else return await response.json();
+}

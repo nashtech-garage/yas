@@ -11,6 +11,7 @@ import com.yas.cart.viewmodel.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -102,15 +103,7 @@ public class CartService {
     public CartItemPutVm updateCartItems(CartItemVm cartItemVm) {
         CartGetDetailVm currentCart = getLastCart();
 
-        if (currentCart.cartDetails().isEmpty()) {
-            throw new BadRequestException(Constants.ERROR_CODE.NOT_EXISTING_ITEM_IN_CART);
-        }
-
-        List<CartDetailVm> cartDetailListVm = currentCart.cartDetails();
-        boolean itemExist = cartDetailListVm.stream().anyMatch(item -> item.productId().equals(cartItemVm.productId()));
-        if (!itemExist) {
-            throw new NotFoundException(Constants.ERROR_CODE.NOT_EXISTING_PRODUCT_IN_CART, cartItemVm.productId());
-        }
+        validateCart(currentCart, cartItemVm.productId());
 
         Long cartId = currentCart.id();
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, cartItemVm.productId())
@@ -126,5 +119,26 @@ public class CartService {
             cartItem.setQuantity(newQuantity);
             return CartItemPutVm.fromModel(savedCartItem, String.format(CART_ITEM_UPDATED_MSG, "UPDATED"));
         }
+    }
+
+    private void validateCart(CartGetDetailVm cart, Long productId) {
+        if (cart.cartDetails().isEmpty()) {
+            throw new BadRequestException(Constants.ERROR_CODE.NOT_EXISTING_ITEM_IN_CART);
+        }
+
+        List<CartDetailVm> cartDetailListVm = cart.cartDetails();
+        boolean itemExist = cartDetailListVm.stream().anyMatch(item -> item.productId().equals(productId));
+        if (!itemExist) {
+            throw new NotFoundException(Constants.ERROR_CODE.NOT_EXISTING_PRODUCT_IN_CART, productId);
+        }
+    }
+
+    @Transactional
+    public void removeCartItemByProductId(Long productId) {
+        CartGetDetailVm currentCart = getLastCart();
+
+        validateCart(currentCart, productId);
+
+        cartItemRepository.deleteByCartIdAndProductId(currentCart.id(), productId);
     }
 }
