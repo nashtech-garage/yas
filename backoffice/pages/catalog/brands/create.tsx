@@ -11,7 +11,8 @@ import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 import CustomToast from '../../../common/items/CustomToast';
 
 const BrandCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useCreatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
+    useCreatingContext();
   const router = useRouter();
   const {
     register,
@@ -26,8 +27,8 @@ const BrandCreate: NextPage = () => {
       name: event.name,
       slug: event.slug,
     };
-  let response = await createBrand(brand);
-  handleCreatingResponse(response, BRAND_URL);
+    let response = await createBrand(brand);
+    handleCreatingResponse(response, BRAND_URL);
   };
 
   return (

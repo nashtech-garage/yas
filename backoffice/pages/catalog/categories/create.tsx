@@ -8,7 +8,8 @@ import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 import CustomToast from '../../../common/items/CustomToast';
 
 const CategoryCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useCreatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
+    useCreatingContext();
   var slugify = require('slugify');
   const [categories, setCategories] = useState<Category[]>([]);
   const handleSubmit = async (event: any) => {

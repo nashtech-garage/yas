@@ -5,7 +5,7 @@ export async function getBrands(): Promise<Brand[]> {
   return await response.json();
 }
 
-export async function createBrand(brand: Brand){
+export async function createBrand(brand: Brand) {
   const response = await fetch('/api/product/backoffice/brands', {
     method: 'POST',
     body: JSON.stringify(brand),

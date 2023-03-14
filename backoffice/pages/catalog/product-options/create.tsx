@@ -10,7 +10,8 @@ import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 import CustomToast from '../../../common/items/CustomToast';
 
 const ProductOptionCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useCreatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
+    useCreatingContext();
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;

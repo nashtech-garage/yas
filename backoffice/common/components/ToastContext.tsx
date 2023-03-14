@@ -74,7 +74,7 @@ export function ToastProvider(props: React.PropsWithChildren) {
    * setup info global for toast
    *
    */
-  const handleCreatingResponse = useCallback(async(response: any, url: string) => {
+  const handleCreatingResponse = useCallback(async (response: any, url: string) => {
     if (response.status === ResponseStatus.CREATED) {
       setToastProperties(CREATE_SUCCESSFULLY, ToastVariant.SUCCESS, true);
       router.replace(url);

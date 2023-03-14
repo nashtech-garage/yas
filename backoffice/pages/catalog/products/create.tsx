@@ -24,7 +24,8 @@ import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 import CustomToast from '../../../common/items/CustomToast';
 
 const ProductCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } = useCreatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
+    useCreatingContext();
   const {
     register,
     setValue,
