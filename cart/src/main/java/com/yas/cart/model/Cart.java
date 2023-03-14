@@ -1,19 +1,15 @@
 package com.yas.cart.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "cart")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cart extends AbstractAuditEntity {
@@ -24,7 +20,7 @@ public class Cart extends AbstractAuditEntity {
     private String customerId;
 
     @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    private Set<CartItem> cartItems = new HashSet<>();
+    private Set<CartItem> cartItems;
 
     @Override
     public boolean equals(Object o) {

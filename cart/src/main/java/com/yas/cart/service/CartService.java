@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CartService {
@@ -54,12 +55,17 @@ public class CartService {
         String customerId = auth.getName();
 
         Cart cart = cartRepository.findByCustomerId(customerId).stream().findFirst().orElse(null);
-        if (cart == null) {
-            cart = new Cart(null, customerId, new HashSet<>());
-            cart.setCreatedOn(ZonedDateTime.now());
-        }
+        Set<CartItem> existedCartItems = new HashSet<>();
 
-        List<CartItem> existedCartItems = cartItemRepository.findAllByCart(cart);
+        if (cart == null) {
+            cart = Cart.builder()
+                    .customerId(customerId)
+                    .cartItems(existedCartItems)
+                    .build();
+            cart.setCreatedOn(ZonedDateTime.now());
+        } else {
+            existedCartItems = cartItemRepository.findAllByCart(cart);
+        }
 
         for (CartItemVm cartItemVm : cartItemVms) {
             CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
@@ -72,7 +78,8 @@ public class CartService {
                 cart.getCartItems().add(cartItem);
             }
         }
-        cart = cartRepository.saveAndFlush(cart);
+        cart = cartRepository.save(cart);
+        cartItemRepository.saveAll(cart.getCartItems());
 
         return CartGetDetailVm.fromModel(cart);
     }
@@ -84,7 +91,7 @@ public class CartService {
                 .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
     }
 
-    private CartItem getCartItemByProductId(List<CartItem> cartItems, Long productId) {
+    private CartItem getCartItemByProductId(Set<CartItem> cartItems, Long productId) {
         for (CartItem cartItem : cartItems) {
             if (cartItem.getProductId().equals(productId))
                 return cartItem;
