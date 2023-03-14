@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Service
 public class MediaServiceImpl implements MediaService {
@@ -21,41 +22,42 @@ public class MediaServiceImpl implements MediaService {
     private final MediaRepository mediaRepository;
     private final YasConfig yasConfig;
 
-    public MediaServiceImpl(MediaRepository mediaRepository, YasConfig yasConfig){
+    public MediaServiceImpl(MediaRepository mediaRepository, YasConfig yasConfig) {
         this.mediaRepository = mediaRepository;
         this.yasConfig = yasConfig;
     }
 
     @Override
     public Media saveMedia(MediaPostVm mediaPostVm) {
-        MediaType mediaType = MediaType.valueOf(mediaPostVm.multipartFile().getContentType());
-        if(!(MediaType.IMAGE_PNG.equals(mediaType) || MediaType.IMAGE_JPEG.equals(mediaType) || MediaType.IMAGE_GIF.equals(mediaType))){
+        MediaType mediaType = MediaType.valueOf(Objects.requireNonNull(mediaPostVm.multipartFile().getContentType()));
+        if (!(MediaType.IMAGE_PNG.equals(mediaType)
+                || MediaType.IMAGE_JPEG.equals(mediaType)
+                || MediaType.IMAGE_GIF.equals(mediaType))) {
             throw new UnsupportedMediaTypeException();
         }
         Media media = new Media();
         media.setCaption(mediaPostVm.caption());
         media.setMediaType(mediaPostVm.multipartFile().getContentType());
+
         try {
             media.setData(mediaPostVm.multipartFile().getBytes());
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             throw new MultipartFileContentException(e);
         }
-        if (mediaPostVm.fileNameOverride() == null || mediaPostVm.fileNameOverride().isEmpty() || mediaPostVm.fileNameOverride().trim().isEmpty()){
+
+        if (mediaPostVm.fileNameOverride() == null || mediaPostVm.fileNameOverride().isEmpty() || mediaPostVm.fileNameOverride().trim().isEmpty()) {
             media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
-        }
-        else {
+        } else {
             media.setFileName(mediaPostVm.fileNameOverride());
         }
 
-        mediaRepository.saveAndFlush(media);
-        return media;
+        return mediaRepository.saveAndFlush(media);
     }
-    
+
     @Override
     public void removeMedia(Long id) {
         NoFileMediaVm noFileMediaVm = mediaRepository.findByIdWithoutFileInReturn(id);
-        if(noFileMediaVm == null){
+        if (noFileMediaVm == null) {
             throw new NotFoundException(String.format("Media %s is not found", id));
         }
         mediaRepository.deleteById(id);
@@ -64,12 +66,13 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public MediaVm getMediaById(Long id) {
         NoFileMediaVm noFileMediaVm = mediaRepository.findByIdWithoutFileInReturn(id);
-        if(noFileMediaVm == null){
+        if (noFileMediaVm == null) {
             return null;
         }
         String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
                 .path(String.format("/medias/%1$s/file/%2$s", noFileMediaVm.id(), noFileMediaVm.fileName()))
                 .build().toUriString();
+
         return new MediaVm(
                 noFileMediaVm.id(),
                 noFileMediaVm.caption(),
