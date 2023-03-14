@@ -35,31 +35,29 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    console.log(loaded);
-      if (!loaded) {
-        getCart().then((data) => {
-          setCart(data);
-            Promise.allSettled(
-              data.cartDetails.map(item => getProductThumbnail(item)))
-              .then((results: any) => {
-                const newItems: Item[] = [];
-                for(let i = 0; i < results.length; i++) {
-                  const product = results[i].value;
-                  newItems.push({
-                    productId: product.id,
-                    quantity: data.cartDetails[i].quantity,
-                    productName: product.name,
-                    slug: product.slug,
-                    thumbnailUrl: product.thumbnailUrl,
-                  });
-                }
-                setItems(newItems);
+    if (!loaded) {
+      getCart().then((data) => {
+        setCart(data);
+        Promise.allSettled(data.cartDetails.map((item) => getProductThumbnail(item))).then(
+          (results: any) => {
+            const newItems: Item[] = [];
+            for (let i = 0; i < results.length; i++) {
+              const product = results[i].value;
+              newItems.push({
+                productId: product.id,
+                quantity: data.cartDetails[i].quantity,
+                productName: product.name,
+                slug: product.slug,
+                thumbnailUrl: product.thumbnailUrl,
               });
-          });
-          setLoaded(true);
-      }
-      }, []);
-  
+            }
+            setItems(newItems);
+          }
+        );
+      });
+      setLoaded(true);
+    }
+  }, []);
 
   return (
     <section className="shop-cart spad">
