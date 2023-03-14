@@ -41,6 +41,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND (:startPrice IS NULL OR p.price >= :startPrice) " +
             "AND (:endPrice IS NULL OR p.price <= :endPrice) " +
             "AND p.isVisibleIndividually = TRUE " +
+            "AND p.isPublished = TRUE " +
             "AND p.isActive = TRUE " +
             "ORDER BY p.lastModifiedOn DESC")
     Page<Product> findByProductNameAndCategorySlugAndPriceBetween(@Param("productName") String productName,
