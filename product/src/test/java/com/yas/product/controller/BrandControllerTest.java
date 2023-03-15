@@ -1,10 +1,13 @@
 package com.yas.product.controller;
+
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
+import com.yas.product.service.BrandService;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.viewmodel.brand.BrandPostVm;
+import com.yas.product.viewmodel.brand.BrandListGetVm;
 import com.yas.product.viewmodel.brand.BrandVm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,13 +24,15 @@ import static org.mockito.Mockito.*;
 
 public class BrandControllerTest {
     private BrandRepository brandRepository;
+    private BrandService brandService;
     private BrandController brandController;
     private final Brand brand1 = new Brand();
 
     @BeforeEach
     void init(){
         brandRepository = mock(BrandRepository.class);
-        brandController = new BrandController(brandRepository);
+        brandService =  mock(BrandService.class);
+        brandController = new BrandController(brandRepository,brandService );
         brand1.setId(1L);
         brand1.setName("dien thoai");
         brand1.setSlug("dien-thoai");
@@ -42,12 +47,12 @@ public class BrandControllerTest {
         brand2.setSlug("ao-quan");
         List<Brand> brands= new ArrayList<>(Arrays.asList(brand1,brand2));
         when(brandRepository.findAll()).thenReturn(brands);
-        ResponseEntity<List<BrandVm>> result = brandController.listBrands();
+        ResponseEntity<BrandListGetVm> result = brandController.listBrands(0, 10);
         assertThat(result.getStatusCode(),is(HttpStatus.OK));
-        assertEquals(Objects.requireNonNull(result.getBody()).size(), brands.size());
+        assertEquals(Objects.requireNonNull(result.getBody().brandContent()).size(), brands.size());
         for(int i=0;i<brands.size();i++){
-            assertEquals(result.getBody().get(i).slug(), brands.get(i).getSlug());
-            assertEquals(result.getBody().get(i).name(), brands.get(i).getName());
+            assertEquals(result.getBody().brandContent().get(i).slug(), brands.get(i).getSlug());
+            assertEquals(result.getBody().brandContent().get(i).name(), brands.get(i).getName());
         }
     }
 

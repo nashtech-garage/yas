@@ -9,6 +9,7 @@ import type { Brand } from '../../../modules/catalog/models/Brand';
 import { deleteBrand, getBrands } from '../../../modules/catalog/services/BrandService';
 import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import ReactPaginate from 'react-paginate';
 
 const BrandList: NextPage = () => {
   const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
@@ -17,6 +18,8 @@ const BrandList: NextPage = () => {
   const [brandNameWantToDelete, setBrandNameWantToDelete] = useState<string>('');
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [pageNo, setPageNo] = useState<number>(0);
+  const [totalPage, setTotalPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(false);
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -30,15 +33,19 @@ const BrandList: NextPage = () => {
     });
   };
   const getListBrand = () => {
-    getBrands().then((data) => {
-      setBrands(data);
+    getBrands(pageNo).then((data) => {
+      setTotalPage(data.totalPages);
+      setBrands(data.brandContent);
       setLoading(false);
     });
   };
+    const changePage = ({ selected }: any) => {
+      setPageNo(selected);
+    };
   useEffect(() => {
     setLoading(true);
     getListBrand();
-  }, []);
+  }, [pageNo]);
   if (isLoading) return <p>Loading...</p>;
   if (!brands) return <p>No brand</p>;
   return (
@@ -97,6 +104,18 @@ const BrandList: NextPage = () => {
         nameWantToDelete={brandNameWantToDelete}
         handleDelete={handleDelete}
         action="delete"
+      />
+      <ReactPaginate
+        forcePage={pageNo}
+        previousLabel={'Previous'}
+        nextLabel={'Next'}
+        pageCount={totalPage}
+        onPageChange={changePage}
+        containerClassName={'paginationBtns'}
+        previousLinkClassName={'previousBtn'}
+        nextClassName={'nextBtn'}
+        disabledClassName={'paginationDisabled'}
+        activeClassName={'paginationActive'}
       />
       {showToast && (
         <CustomToast

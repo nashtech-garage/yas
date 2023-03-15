@@ -1,7 +1,8 @@
 import { Brand } from '../models/Brand';
 
-export async function getBrands(): Promise<Brand[]> {
-  const response = await fetch('/api/product/backoffice/brands');
+export async function getBrands(pageNo: number): Promise<Brand[]> {
+  const url = `/api/product/backoffice/brands?pageNo=${pageNo}`;
+  const response = await fetch(url);
   return await response.json();
 }
 
