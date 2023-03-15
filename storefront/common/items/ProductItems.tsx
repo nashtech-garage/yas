@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import 'react-toastify/dist/ReactToastify.css';
 import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail';
 import { getFeaturedProducts } from '../../modules/catalog/services/ProductService';
 import styles from '../../styles/productList.module.css';
