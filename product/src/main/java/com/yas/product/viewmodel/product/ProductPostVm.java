@@ -23,5 +23,7 @@ public record ProductPostVm(
         String metaTitle,
         String metaKeyword,
         String metaDescription,
-        Long parentId) {
+        Long thumbnailMediaId,
+        List<Long> productImageIds,
+        List<ProductVariationPostVm> variations) {
 }
