@@ -6,10 +6,11 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import type { Brand } from '../../../modules/catalog/models/Brand';
-import { deleteBrand, getBrands } from '../../../modules/catalog/services/BrandService';
+import { deleteBrand, getPageableBrands } from '../../../modules/catalog/services/BrandService';
 import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 import ReactPaginate from 'react-paginate';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 
 const BrandList: NextPage = () => {
   const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
@@ -18,7 +19,7 @@ const BrandList: NextPage = () => {
   const [brandNameWantToDelete, setBrandNameWantToDelete] = useState<string>('');
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [pageNo, setPageNo] = useState<number>(0);
+  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(false);
   const handleClose: any = () => setShowModalDelete(false);
@@ -33,7 +34,7 @@ const BrandList: NextPage = () => {
     });
   };
   const getListBrand = () => {
-    getBrands(pageNo).then((data) => {
+      getPageableBrands(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
       setTotalPage(data.totalPages);
       setBrands(data.brandContent);
       setLoading(false);

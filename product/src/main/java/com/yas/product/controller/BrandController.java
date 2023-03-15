@@ -37,9 +37,18 @@ public class BrandController {
   }
 
   @GetMapping({"/backoffice/brands", "/storefront/brands"})
-  public ResponseEntity<BrandListGetVm> listBrands(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
-                                                    @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+  public ResponseEntity<List<BrandVm>> listBrands() {
     log.info("[Test logging with trace] Got a request");
+    List<BrandVm> brandVms = brandRepository.findAll().stream()
+            .map(BrandVm::fromModel)
+            .toList();
+    return ResponseEntity.ok(brandVms);
+  }
+
+  @GetMapping({"/backoffice/brands/paging", "/storefront/brands/paging"})
+  public ResponseEntity<BrandListGetVm> getPageableBrands(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                    @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+
     return ResponseEntity.ok(brandService.getBrands(pageNo, pageSize));
   }
 

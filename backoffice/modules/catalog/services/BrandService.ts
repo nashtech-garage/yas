@@ -1,7 +1,12 @@
 import { Brand } from '../models/Brand';
 
-export async function getBrands(pageNo: number): Promise<Brand[]> {
-  const url = `/api/product/backoffice/brands?pageNo=${pageNo}`;
+export async function getBrands(): Promise<Brand[]> {
+  const response = await fetch('/api/product/backoffice/brands');
+  return await response.json();
+}
+
+export async function getPageableBrands(pageNo: number, pageSize: number): Promise<Brand[]> {
+  const url = `/api/product/backoffice/brands/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
   const response = await fetch(url);
   return await response.json();
 }
