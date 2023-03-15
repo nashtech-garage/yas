@@ -41,7 +41,6 @@ const ProductCreate: NextPage = () => {
   });
 
   const onSubmitForm: SubmitHandler<ProductPost> = async (data) => {
-    data.brandId = data.brandId == 0 ? undefined : data.brandId;
     const product = {
       name: data.name,
       slug: data.slug,
@@ -60,41 +59,42 @@ const ProductCreate: NextPage = () => {
       metaTitle: data.metaTitle,
       metaKeyword: data.metaKeyword,
       metaDescription: data.metaDescription,
+      thumbnailMediaId: data.thumbnailMedia?.id,
+      productImageIds: data.productImageMedias?.map((ele) => ele.id),
+      variations:
+        data.productVariations &&
+        data.productVariations.map((ele) => {
+          return {
+            name: ele.optionName,
+            slug: slugify(ele.optionName),
+            sku: ele.optionSku,
+            gtin: ele.optionGTin,
+            price: ele.optionPrice,
+            thumbnailMediaId: ele.optionThumbnail,
+            productImageIds: ele.optionImages,
+          };
+        }),
     };
-    let response = await createProduct(product, data.thumbnail, data.productImages);
-    let res = await response.json();
-    // upload variation
-    let variations = data.productVariations || [];
-    for (const option of variations) {
-      let _product = {
-        name: option.optionName,
-        slug: slugify(option.optionName),
-        sku: option.optionSku,
-        gtin: option.optionGTin,
-        price: option.optionPrice,
-        parentId: res.id,
-      };
-      await createProduct(_product, option.optionThumbnail, option.optionImages);
-    }
+    const productResponse = await createProduct(product);
 
     // upload product attribute
     for (const att of data.productAttributes || []) {
       let productAtt: ProductAttributeValuePost = {
-        ProductId: res.id,
+        ProductId: productResponse.id,
         productAttributeId: att.id,
         value: att.value,
       };
       await createProductAttributeValueOfProduct(productAtt);
     }
 
-    // upload Option Value
+    // upload option value
     for (const ele of data.productOptions || []) {
-      ele.ProductId = res.id;
+      ele.ProductId = productResponse.id;
       ele.displayOrder = 1;
       await createProductOptionValue(ele);
     }
 
-    handleCreatingResponse(response, PRODUCT_URL);
+    handleCreatingResponse(productResponse, PRODUCT_URL);
   };
 
   return (

@@ -5,22 +5,22 @@ import { useEffect, useState } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import slugify from 'slugify';
 
+import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import { PRODUCT_URL } from '../../../../constants/Common';
 import {
   CrossSellProduct,
   ProductCategoryMapping,
+  ProductGeneralInformation,
   ProductImage,
   ProductSEO,
-  ProductGeneralInformation,
   RelatedProduct,
 } from '../../../../modules/catalog/components';
 import { Product } from '../../../../modules/catalog/models/Product';
 import { ProductPost } from '../../../../modules/catalog/models/ProductPost';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
-import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
-import { PRODUCT_URL } from '../../../../constants/Common';
 
 const EditProduct: NextPage = () => {
   const { handleUpdatingResponse } = useUpdatingContext();
@@ -59,7 +59,41 @@ const EditProduct: NextPage = () => {
   //Form validate
   const onSubmit: SubmitHandler<ProductPost> = (data) => {
     if (id) {
-      updateProduct(+id, data).then(async (res) => {
+      const product = {
+        name: data.name,
+        slug: data.slug,
+        brandId: data.brandId,
+        categoryIds: data.categoryIds,
+        shortDescription: data.shortDescription,
+        description: data.description,
+        specification: data.specification,
+        sku: data.sku,
+        gtin: data.gtin,
+        price: data.price,
+        isAllowedToOrder: data.isAllowedToOrder,
+        isPublished: data.isPublished,
+        isFeatured: data.isFeatured,
+        isVisibleIndividually: data.isVisibleIndividually,
+        metaTitle: data.metaTitle,
+        metaKeyword: data.metaKeyword,
+        metaDescription: data.metaDescription,
+        thumbnailMediaId: data.thumbnailMedia?.id,
+        productImageIds: data.productImageMedias?.map((ele) => ele.id),
+        variations:
+          data.productVariations &&
+          data.productVariations.map((ele) => {
+            return {
+              name: ele.optionName,
+              slug: slugify(ele.optionName),
+              sku: ele.optionSku,
+              gtin: ele.optionGTin,
+              price: ele.optionPrice,
+              thumbnailMediaId: ele.optionThumbnail,
+              productImageIds: ele.optionImages,
+            };
+          }),
+      };
+      updateProduct(+id, product).then(async (res) => {
         handleUpdatingResponse(res, PRODUCT_URL);
       });
     }

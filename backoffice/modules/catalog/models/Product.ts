@@ -1,4 +1,5 @@
 import { Category } from './Category';
+import { Image } from './Image';
 
 export type Product = {
   id: number;
@@ -19,6 +20,6 @@ export type Product = {
   isVisible?: boolean;
   brandId: number;
   categories: Category[];
-  thumbnailMediaUrl: string;
-  productImageMediaUrls: string[];
+  thumbnailMedia: Image;
+  productImageMedias: Image[];
 };
