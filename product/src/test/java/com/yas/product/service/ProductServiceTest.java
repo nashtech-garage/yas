@@ -88,8 +88,8 @@ class ProductServiceTest {
                 1L
         );
 
-        category1 = new Category(1L, "category", null, "category", null, null, null, null, null, null);
-        category2 = new Category(2L, "category2", null, "category2", null, null, null, null, null, null);
+        category1 = new Category(1L, "category", null, "category", null, null, null, false, null, null, null);
+        category2 = new Category(2L, "category2", null, "category2", null, null, null, false, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
                 Product.builder()
@@ -162,7 +162,7 @@ class ProductServiceTest {
     void createProduct_TheRequestContainsNonExistCategoryIdInCategoryList_ThrowsBadRequestException() {
         //given
         List<Category> categoryList = new ArrayList<>();
-        categoryList.add(new Category(1L, null, null, "null", null, null, null, null, null, null));
+        categoryList.add(new Category(1L, null, null, "null", null, null, null, false, null, null, null));
 
         List<Long> categoryIds = new ArrayList<>();
         categoryIds.add(1L);
