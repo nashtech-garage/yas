@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -78,7 +80,12 @@ public class ProductAttributeGroupController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteProductAttributeGroup(@PathVariable Long id) {
         productAttributeGroupRepository.findById(id);
-        productAttributeGroupRepository.deleteById(id);
+        try{
+        productAttributeGroupRepository.deleteById(id);}
+        catch(DataIntegrityViolationException e){
+            throw new DataIntegrityViolationException(
+                    Constants.ERROR_CODE.MAKE_SURE_PRODUCT_ATTRIBUTE_GROUP_DO_NOT_CONTAINS_ANY_PRODUCT_ATTRIBUTE);
+        }
         return ResponseEntity.noContent().build();
     }
 }

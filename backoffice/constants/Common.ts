@@ -7,7 +7,7 @@ export const ResponseStatus = {
   CREATED: 201,
   SUCCESS: 204,
   NOT_FOUND: 404,
-  BAD_REQUEST: 400,
+  BAD_REQUEST: '400 BAD_REQUEST',
 };
 export const HAVE_BEEN_DELETED = ' have been deleted';
 export const DELETE_FAILED = 'Delete failed';

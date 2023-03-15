@@ -32,9 +32,6 @@ const ProductAttrbuteGroupList: NextPage = () => {
         handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
         getListProductAttributeGroup();
       })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   const getListProductAttributeGroup = () => {

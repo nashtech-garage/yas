@@ -47,7 +47,7 @@ export function ToastProvider(props: React.PropsWithChildren) {
       setToastProperties(itemName + HAVE_BEEN_DELETED, ToastVariant.SUCCESS, true);
     } else if (response.title === ResponseStatus.NOT_FOUND) {
       setToastProperties(response.detail, ToastVariant.ERROR, true);
-    } else if (response.title === ResponseStatus.BAD_REQUEST) {
+    } else if (response.statusCode === ResponseStatus.BAD_REQUEST) {
       setToastProperties(response.detail, ToastVariant.ERROR, true);
     } else {
       setToastProperties(DELETE_FAILED, ToastVariant.ERROR, true);

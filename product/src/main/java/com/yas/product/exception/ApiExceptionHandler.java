@@ -4,6 +4,8 @@ import com.yas.product.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NestedExceptionUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -57,6 +59,13 @@ public class ApiExceptionHandler {
     }
 
     ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
+    return ResponseEntity.badRequest().body(errorVm);
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+    String message = NestedExceptionUtils.getMostSpecificCause(e).getMessage();
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
     return ResponseEntity.badRequest().body(errorVm);
   }
 
