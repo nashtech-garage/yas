@@ -30,6 +30,7 @@ const BrandList: NextPage = () => {
     deleteBrand(brandIdWantToDelete).then((response) => {
       setShowModalDelete(false);
       handleDeletingResponse(response, brandNameWantToDelete);
+      setPageNo(DEFAULT_PAGE_NUMBER);
       getListBrand();
     });
   };
