@@ -12,9 +12,10 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
 import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import CustomToast from '../../../../common/items/CustomToast';
 
 const ProductOptionEdit: NextPage = () => {
-  const { handleUpdatingResponse } = useUpdatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   const [productOption, setProductOption] = useState<ProductOption>();
@@ -71,6 +72,14 @@ const ProductOptionEdit: NextPage = () => {
           </form>
         </div>
       </div>
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };

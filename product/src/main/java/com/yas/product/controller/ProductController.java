@@ -9,11 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -40,7 +40,7 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductGetDetailVm> createProduct(@RequestPart("productDetails") ProductPostVm productPostVm,
+    public ResponseEntity<ProductGetDetailVm> createProduct(@RequestPart("productDetails") @Validated ProductPostVm productPostVm,
                                                             @RequestPart(value = "files", required = false) List<MultipartFile> files, UriComponentsBuilder uriComponentsBuilder) {
         ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm, files);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/products/{id}").buildAndExpand(productGetDetailVm.id()).toUri())
@@ -52,7 +52,7 @@ public class ProductController {
             @ApiResponse(responseCode = "204", description = "Updated"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @RequestBody ProductPutVm productPutVm) {
+    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Validated @RequestBody ProductPutVm productPutVm) {
         productService.updateProduct(id, productPutVm);
         return ResponseEntity.noContent().build();
     }

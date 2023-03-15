@@ -16,11 +16,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.yas.product.utils.Constants;
 
-import jakarta.validation.Valid;
 import java.util.*;
 
 @RestController
@@ -63,7 +63,7 @@ public class ProductOptionValueController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema( implementation = ProductOptionValueGetVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
-    public ResponseEntity<Void> createProductOptionValue(@Valid @RequestBody ProductOptionValuePostVm productOptionValuePostVm, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Void> createProductOptionValue(@Validated @RequestBody ProductOptionValuePostVm productOptionValuePostVm, UriComponentsBuilder uriComponentsBuilder) {
 
         List<ProductOptionValue> productOptionValues = new ArrayList<>();
 

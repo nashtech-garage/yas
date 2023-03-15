@@ -15,10 +15,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class ProductAttributeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductAttributeGetVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductAttributeGetVm> createProductAttribute(@Valid @RequestBody ProductAttributePostVm productAttributePostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal) {
+    public ResponseEntity<ProductAttributeGetVm> createProductAttribute(@Validated @RequestBody ProductAttributePostVm productAttributePostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal) {
        ProductAttribute productAttribute = new ProductAttribute();
        productAttribute.setName(productAttributePostVm.name());
        if(productAttributePostVm.productAttributeGroupId() != null){
@@ -77,7 +77,7 @@ public class ProductAttributeController {
             @ApiResponse(responseCode = "204", description = "No content"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateProductAttribute(@PathVariable Long id, @Valid @RequestBody final ProductAttributePostVm productAttributePostVm) {
+    public ResponseEntity<Void> updateProductAttribute(@PathVariable Long id, @Validated @RequestBody final ProductAttributePostVm productAttributePostVm) {
         ProductAttribute productAttribute = productAttributeRepository
                 .findById(id)
                 .orElseThrow(()-> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND, id)));

@@ -12,9 +12,10 @@ import {
 } from '../../../../modules/catalog/services/ProductAttributeGroupService';
 import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../../constants/Common';
 import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import CustomToast from '../../../../common/items/CustomToast';
 
 const ProductAttributeGroupEdit: NextPage = () => {
-  const { handleUpdatingResponse } = useUpdatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup>();
@@ -71,6 +72,14 @@ const ProductAttributeGroupEdit: NextPage = () => {
           </form>
         </div>
       </div>
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };

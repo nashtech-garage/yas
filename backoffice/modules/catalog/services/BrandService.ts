@@ -11,7 +11,7 @@ export async function createBrand(brand: Brand) {
     body: JSON.stringify(brand),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response;
+  return response;
 }
 export async function getBrand(id: number) {
   const response = await fetch('/api/product/backoffice/brands/' + id);
@@ -23,7 +23,7 @@ export async function deleteBrand(id: number) {
     method: 'DELETE',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }
 
@@ -33,6 +33,6 @@ export async function editBrand(id: number, brand: Brand) {
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
     body: JSON.stringify(brand),
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }

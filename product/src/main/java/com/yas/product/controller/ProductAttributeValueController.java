@@ -16,11 +16,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.yas.product.utils.Constants;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +58,7 @@ public class ProductAttributeValueController {
             @ApiResponse(responseCode = "204", description = "No content"),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateProductAttributeValue(@PathVariable Long id, @Valid @RequestBody final ProductAttributeValuePostVm productAttributeValuePostVm) {
+    public ResponseEntity<Void> updateProductAttributeValue(@PathVariable Long id, @Validated @RequestBody final ProductAttributeValuePostVm productAttributeValuePostVm) {
         ProductAttributeValue productAttributeValue = productAttributeValueRepository
                 .findById(id)
                 .orElseThrow(()-> new NotFoundException(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_VALUE_IS_NOT_FOUND, id));
@@ -71,7 +71,7 @@ public class ProductAttributeValueController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductAttributeValueGetVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductAttributeValueGetVm> createProductAttributeValue(@Valid @RequestBody ProductAttributeValuePostVm productAttributeValuePostVm, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<ProductAttributeValueGetVm> createProductAttributeValue(@Validated @RequestBody ProductAttributeValuePostVm productAttributeValuePostVm, UriComponentsBuilder uriComponentsBuilder) {
         ProductAttributeValue productAttributeValue = new ProductAttributeValue();
         if(productAttributeValuePostVm.ProductId() != null){
             Product product = productRepository

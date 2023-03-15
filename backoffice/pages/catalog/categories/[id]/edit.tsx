@@ -12,9 +12,10 @@ import {
 } from '../../../../modules/catalog/services/CategoryService';
 import { CATEGORIES_URL } from '../../../../constants/Common';
 import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import CustomToast from '../../../../common/items/CustomToast';
 
 const CategoryEdit: NextPage = () => {
-  const { handleUpdatingResponse } = useUpdatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   var slugify = require('slugify');
@@ -207,6 +208,14 @@ const CategoryEdit: NextPage = () => {
           </form>
         </div>
       </div>
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };
