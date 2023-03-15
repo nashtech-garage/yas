@@ -7,5 +7,7 @@ export async function uploadMedia(image: File): Promise<Media> {
     method: 'POST',
     body: body,
   });
-  return await response.json();
+
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(response);
 }

@@ -1,148 +1,198 @@
-import { UseFormSetValue } from 'react-hook-form';
-import { ProductPost } from '../models/ProductPost';
-import { Product } from '../models/Product';
+import clsx from 'clsx';
 import { useState } from 'react';
-import { uploadMedia } from '../services/MediaService';
+import { Image } from 'react-bootstrap';
+import { UseFormSetValue } from 'react-hook-form';
 import { toast } from 'react-toastify';
+
+import { Product } from '../models/Product';
+import { ProductPost } from '../models/ProductPost';
+import { uploadMedia } from '../services/MediaService';
+
+import styles from '../../../styles/ProductImage.module.css';
+
 type Props = {
   product?: Product;
   setValue: UseFormSetValue<ProductPost>;
 };
 
+type EventType = 'thumbnail' | 'productImages';
+
+type Image = {
+  id: number;
+  url: string;
+};
+
+const isValidFile = (file: File, validTypes: string[]) => {
+  return validTypes.indexOf(file.type) !== -1;
+};
+
 const ProductImage = ({ product, setValue }: Props) => {
-  const [thumbnailURL, setThumbnailURL] = useState<string>();
-  const [productImageURL, setProductImageURL] = useState<string[]>();
-  const [productImageMediaUrls, setproductImageMediaUrls] = useState<string[]>();
+  const validTypes = ['image/jpeg', 'image/png'];
 
-  const onProductImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const files = event.target.files;
-      let length = files.length;
-      let urls: string[] = [];
-      for (let i = 0; i < length; i++) {
-        const file = files[i];
-        urls.push(URL.createObjectURL(file));
-      }
-      setValue('productImages', files);
-      setProductImageURL([...urls]);
+  const [thumbnailURL, setThumbnailURL] = useState<Image | null>(
+    product?.thumbnailMediaUrl
+      ? { id: +product.thumbnailMediaUrl, url: product.thumbnailMediaUrl }
+      : null
+  );
+  const [productImageURL, setProductImageURL] = useState<Image[]>(
+    product?.productImageMediaUrls
+      ? product.productImageMediaUrls.map((url, index) => ({
+          id: index,
+          url,
+        }))
+      : []
+  );
+
+  const onChangeImage = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: EventType,
+    index?: number
+  ) => {
+    if (!event || !type) {
+      return;
     }
-  };
 
-  const onThumbnailSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const i = event.target.files[0];
-      setValue('thumbnail', i);
-      setThumbnailURL(URL.createObjectURL(i));
+    const filesList = event.target.files;
+    const isAllValidImages =
+      filesList && Array.from(filesList).every((file) => isValidFile(file, validTypes));
+
+    if (!isAllValidImages) {
+      toast.error('Please select an image file (jpg or png)');
+      return;
     }
-  };
 
-  const onProductUpdateImageSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const files = event.target.files;
-      let length = files.length;
-      let urls: string[] = [];
-      let ids: number[] = [];
-      for (let i = 0; i < length; i++) {
-        const file = files[i];
-        urls.push(URL.createObjectURL(file));
-        uploadMedia(file)
-          .then((res) => {
-            ids = [...ids, res.id];
-            setValue('productImageIds', ids);
-          })
-          .catch(() => {
-            toast('Upload failed. Please try again!');
-          });
-      }
-      setproductImageMediaUrls([...urls]);
-    }
-  };
+    try {
+      if (type === 'thumbnail') {
+        const file = filesList[0];
 
-  const onThumbnailUpdateSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const i = event.target.files[0];
-      setThumbnailURL(URL.createObjectURL(i));
-      uploadMedia(i)
-        .then((res) => {
-          setValue('thumbnailMediaId', res.id);
-        })
-        .catch(() => {
-          toast('Upload failed. Please try again!');
+        const response = await uploadMedia(filesList[0]);
+
+        setValue('thumbnail', file);
+        setThumbnailURL({
+          id: response.id,
+          url: URL.createObjectURL(file),
         });
+      } else if (type === 'productImages') {
+        if (index && index > 0) {
+          const file = filesList[0];
+
+          const response = await uploadMedia(file);
+
+          const productImageTmp = [...productImageURL];
+          productImageTmp[index] = {
+            id: response.id,
+            url: URL.createObjectURL(file),
+          };
+
+          setProductImageURL(productImageTmp);
+        } else {
+          const images: Image[] = [];
+
+          const uploadPromises = Array.from(filesList).map(async (file) => {
+            const response = await uploadMedia(file);
+
+            images.push({
+              id: response.id,
+              url: URL.createObjectURL(file),
+            });
+          });
+
+          await Promise.all(uploadPromises);
+
+          setProductImageURL((prev) => [...prev, ...images]);
+        }
+      }
+    } catch (error) {
+      toast.error('Upload image failed');
     }
   };
+
+  const onDeleteImage = (type: EventType, imageId?: number) => {
+    if (type === 'thumbnail') {
+      setThumbnailURL(null);
+    } else {
+      setProductImageURL((prev) => prev.filter((image) => image.id !== imageId));
+    }
+  };
+
   return (
     <>
-      {product ? (
-        <>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="thumbnail">
-              Thumbnail
-            </label>
-            <input
-              className="form-control"
-              type="file"
-              name="thumbnail"
-              onChange={onThumbnailUpdateSelected}
-            />
-            <img
-              style={{ width: '150px' }}
-              src={thumbnailURL ? thumbnailURL : product.thumbnailMediaUrl}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="product-image">
-              Product Images
-            </label>
-            <input
-              className="form-control"
-              type="file"
-              id="product-images"
-              onChange={onProductUpdateImageSelected}
-              multiple
-            />
-            {productImageMediaUrls
-              ? productImageMediaUrls.map((imageUrl, index) => (
-                  <img style={{ width: '150px' }} src={imageUrl} key={index} alt="Product Image" />
-                ))
-              : product.productImageMediaUrls &&
-                product.productImageMediaUrls.map((imageUrl, index) => (
-                  <img style={{ width: '150px' }} src={imageUrl} key={index} alt="Product Image" />
-                ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="thumbnail">
-              Thumbnail
-            </label>
-            <input
-              className={`form-control`}
-              type="file"
-              id="thumbnail"
-              onChange={onThumbnailSelected}
-            />
+      <div className="mb-3">
+        <h4 className="mb-3">Thumbnail</h4>
+        {!thumbnailURL && (
+          <label className={styles['image-label']} htmlFor="product-thumbnail">
+            Choose an image
+          </label>
+        )}
 
-            <img style={{ width: '150px' }} src={thumbnailURL} />
+        <input
+          hidden
+          type="file"
+          id="product-thumbnail"
+          onChange={(event) => onChangeImage(event, 'thumbnail')}
+        />
+
+        {thumbnailURL && (
+          <div className={styles['product-image']}>
+            <div className={styles['actions']}>
+              <label className={styles['icon']} htmlFor="product-thumbnail">
+                <i className="bi bi-arrow-repeat"></i>
+              </label>
+
+              <div
+                onClick={() => onDeleteImage('thumbnail')}
+                className={clsx(styles['icon'], styles['delete'])}
+              >
+                <i className="bi bi-x-lg"></i>
+              </div>
+            </div>
+            <Image width={'100%'} src={thumbnailURL.url} alt="Thumbnail" />
           </div>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="product-image">
-              Product Image
-            </label>
-            <input
-              className="form-control"
-              type="file"
-              id="product-image"
-              onChange={onProductImageSelected}
-              multiple
-            />
-            {productImageURL?.map((productImageUrl, index) => (
-              <img style={{ width: '150px' }} src={productImageUrl} key={index} alt="Image" />
-            ))}
-          </div>
-        </>
-      )}
+        )}
+      </div>
+      <div className="mb-3">
+        <h4 className="mb-3">Product Image</h4>
+
+        <input
+          hidden
+          type="file"
+          id="product-images"
+          onChange={(event) => onChangeImage(event, 'productImages')}
+          multiple
+        />
+
+        <div className="d-flex gap-2 flex-wrap">
+          {productImageURL.map((productImageUrl, index) => (
+            <div key={index} className={styles['product-image']}>
+              <div className={styles['actions']}>
+                <label className={styles['icon']} htmlFor={`product-images-${productImageUrl.id}`}>
+                  <i className="bi bi-arrow-repeat"></i>
+                </label>
+
+                <div
+                  onClick={() => onDeleteImage('productImages', productImageUrl.id)}
+                  className={clsx(styles['icon'], styles['delete'])}
+                >
+                  <i className="bi bi-x-lg"></i>
+                </div>
+              </div>
+
+              <input
+                hidden
+                type="file"
+                id={`product-images-${productImageUrl.id}`}
+                onChange={(event) => onChangeImage(event, 'productImages', index)}
+                multiple
+              />
+              <Image width={'100%'} src={productImageUrl.url} alt="Image" />
+            </div>
+          ))}
+
+          <label className={styles['image-label']} htmlFor="product-images">
+            Choose multi images
+          </label>
+        </div>
+      </div>
     </>
   );
 };

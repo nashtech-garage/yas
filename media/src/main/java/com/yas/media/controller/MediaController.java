@@ -12,24 +12,25 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
+@Validated
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class MediaController {
     private final MediaService mediaService;
     private final MediaRepository mediaRepository;
 
-    public MediaController(MediaService mediaService, MediaRepository mediaRepository){
+    public MediaController(MediaService mediaService, MediaRepository mediaRepository) {
         this.mediaService = mediaService;
         this.mediaRepository = mediaRepository;
     }
 
-    @PostMapping(path = "/medias", consumes =  { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(path = "/medias", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = NoFileMediaVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
@@ -54,7 +55,7 @@ public class MediaController {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = MediaVm.class)))})
     public ResponseEntity<MediaVm> get(@PathVariable Long id) {
         MediaVm media = mediaService.getMediaById(id);
-        if(media == null){
+        if (media == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().body(media);
@@ -64,7 +65,7 @@ public class MediaController {
     @GetMapping("/medias/{id}/file/{fileName}")
     public ResponseEntity<byte[]> getFile(@PathVariable Long id, @PathVariable String fileName) {
         Media media = mediaRepository.findById(id).orElse(null);
-        if(media == null || !fileName.equalsIgnoreCase(media.getFileName())){
+        if (media == null || !fileName.equalsIgnoreCase(media.getFileName())) {
             return ResponseEntity.notFound().build();
         }
         MediaType mediaType = MediaType.valueOf(media.getMediaType());
