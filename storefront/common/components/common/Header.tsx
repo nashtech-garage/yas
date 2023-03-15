@@ -29,6 +29,11 @@ const Header = ({ children }: Props) => {
                   <div className="right-top-bar flex-w h-full">
                     {data_menu_top_no_login.map((item, index) => (
                       <Link href={item.links} className="flex-c-m trans-04 p-lr-25" key={item.id}>
+                        {item.icon && (
+                          <div className="icon-header-bell-question">
+                            <i className={item.icon}></i>
+                          </div>
+                        )}
                         {item.name}
                       </Link>
                     ))}
