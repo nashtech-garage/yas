@@ -3,14 +3,21 @@ import { Navbar } from 'react-bootstrap';
 import { ToastContainer } from 'react-toastify';
 import styles from '../../styles/Layout.module.css';
 import AuthenticationInfo from './AuthenticationInfo';
-import { useState } from 'react';
+import { MouseEventHandler, useState } from 'react';
 import Link from 'next/link';
 import { menu_catalog_item_data, menu_customer_item_data } from '../../asset/data/sidebar';
+import { AnyObject } from 'yup/lib/object';
 
 interface DataProps {
   id: number;
   name: string;
   link: string;
+}
+interface MenuProps {
+  name: string;
+  childActive: string;
+  changeMenu: MouseEventHandler;
+  changeChildMenu: MouseEventHandler;
 }
 
 type Props = {
@@ -19,9 +26,19 @@ type Props = {
 
 export default function Layout({ children }: Props) {
   const [isSidebarActive, setIsSidebarActive] = useState(false);
+  const [menuActive, setMenuActive] = useState('catalog');
+  const [childActive, setChildActive] = useState('Brands');
 
   const sidebarToogleClick = () => {
     setIsSidebarActive((current) => !current);
+  };
+
+  const menuChangeClick = (name: any) => {
+    setMenuActive(name);
+  };
+
+  const childChangeClick = (name: any) => {
+    setChildActive(name);
   };
 
   return (
@@ -33,7 +50,12 @@ export default function Layout({ children }: Props) {
       </Head>
       <div className="wrapper d-flex align-items-stretch">
         <nav id="sidebar" className={isSidebarActive ? 'active' : ''}>
-          <Sidebar />
+          <Sidebar
+            changeChildMenu={childChangeClick}
+            childActive={childActive}
+            changeMenu={menuChangeClick}
+            name={menuActive}
+          />
         </nav>
         <div id="content">
           <Navbar collapseOnSelect bg="dark" variant="dark" className={styles.header}>
@@ -82,7 +104,11 @@ export default function Layout({ children }: Props) {
   );
 }
 
-const Sidebar = () => {
+const Sidebar = (menu: MenuProps) => {
+  const menuActive = menu.name;
+  const changeMenu = (name: any) => {
+    menu.changeMenu(name);
+  };
   return (
     <div className="p-4 pt-5">
       <h1>
@@ -91,7 +117,10 @@ const Sidebar = () => {
         </Link>
       </h1>
       <ul className="list-unstyled components mb-5">
-        <li className="active">
+        <li
+          className={menuActive == 'catalog' ? 'active' : ''}
+          onClick={() => changeMenu('catalog')}
+        >
           <Link
             href="#catalogSubmenu"
             data-target="#catalogSubmenu"
@@ -103,10 +132,17 @@ const Sidebar = () => {
             <span className="fa fa-product-hunt" aria-hidden="true"></span> Catalog
           </Link>
           <ul className="collapse show list-unstyled" id="catalogSubmenu">
-            <ListItem data={menu_catalog_item_data} />
+            <ListItem
+              data={menu_catalog_item_data}
+              changeChildMenu={menu.changeChildMenu}
+              childActive={menu.childActive}
+            />
           </ul>
         </li>
-        <li>
+        <li
+          className={menuActive == 'customer' ? 'active' : ''}
+          onClick={() => changeMenu('customer')}
+        >
           <Link
             href="#customerSubmenu"
             data-target="#customerSubmenu"
@@ -118,7 +154,11 @@ const Sidebar = () => {
             <span className="fa fa-user"></span> Cusomters
           </Link>
           <ul className="collapse list-unstyled" id="customerSubmenu">
-            <ListItem data={menu_customer_item_data} />
+            <ListItem
+              data={menu_customer_item_data}
+              childActive={menu.childActive}
+              changeChildMenu={menu.changeChildMenu}
+            />
           </ul>
         </li>
       </ul>
@@ -128,13 +168,22 @@ const Sidebar = () => {
 
 interface DataListProps {
   data: DataProps[];
+  childActive: string;
+  changeChildMenu: MouseEventHandler;
 }
 
 const ListItem: React.FC<DataListProps> = (props) => {
+  const changeChildMenu = (name: any) => {
+    props.changeChildMenu(name);
+  };
   return (
     <>
       {props.data.map((obj) => (
-        <li key={obj.id}>
+        <li
+          key={obj.id}
+          className={obj.name == props.childActive ? 'active' : ''}
+          onClick={() => changeChildMenu(obj.name)}
+        >
           <Link href={obj.link}>{obj.name}</Link>
         </li>
       ))}
