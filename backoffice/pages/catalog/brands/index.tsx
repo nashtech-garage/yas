@@ -34,15 +34,15 @@ const BrandList: NextPage = () => {
     });
   };
   const getListBrand = () => {
-      getPageableBrands(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
+    getPageableBrands(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
       setTotalPage(data.totalPages);
       setBrands(data.brandContent);
       setLoading(false);
     });
   };
-    const changePage = ({ selected }: any) => {
-      setPageNo(selected);
-    };
+  const changePage = ({ selected }: any) => {
+    setPageNo(selected);
+  };
   useEffect(() => {
     setLoading(true);
     getListBrand();
