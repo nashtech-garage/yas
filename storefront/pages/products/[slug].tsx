@@ -90,7 +90,6 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
   const [isPost, setIsPost] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(averageStar);
     if (averageStar.errorMessage) {
       toast.error(averageStar.errorMessage, {
         position: 'top-right',
