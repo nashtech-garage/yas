@@ -243,6 +243,7 @@ public class ProductService {
         product.setIsAllowedToOrder(productPutVm.isAllowedToOrder());
         product.setIsPublished(productPutVm.isPublished());
         product.setIsFeatured(productPutVm.isFeatured());
+        product.setIsVisibleIndividually(productPutVm.isVisibleIndividually());
         product.setPrice(productPutVm.price());
         product.setName(productPutVm.name());
         product.setSlug(productPutVm.slug());

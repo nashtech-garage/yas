@@ -349,7 +349,7 @@ class ProductServiceTest {
     void updateProduct_whenSlugIsDulicated_shouldThrowException() {
         //Initial variables
         Long id = Long.valueOf(1);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
@@ -368,7 +368,7 @@ class ProductServiceTest {
     void updateProduct_whenBrandIdInvalid_shouldThrowException() {
         //Initial variables
         Long id = Long.valueOf(1);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, null, null, null, null, null, null, null, null, null, null, null);
+        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, null, id, null, null, null, null, null, null, null, null, null, null, null);
         Product product = mock(Product.class);
         Brand brand = new Brand();
         brand.setId(id + 1);
@@ -393,7 +393,7 @@ class ProductServiceTest {
         Long id = Long.valueOf(1);
         List<Long> categoryIds = new ArrayList<>();
         categoryIds.add(1L);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
+        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
         Product product = mock(Product.class);
         Brand brand = new Brand();
         brand.setId(id + 1);
@@ -428,7 +428,7 @@ class ProductServiceTest {
         category.setDescription("Description 1");
 
         categoryList.add(category);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
+        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
 
         Product product = mock(Product.class);
         Brand brand = new Brand();
@@ -474,7 +474,7 @@ class ProductServiceTest {
         productCategories.add(productCategory);
 
 
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
+        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
         //Stub
         Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
         Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
