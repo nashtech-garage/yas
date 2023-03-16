@@ -9,6 +9,8 @@ import '../styles/cart.css';
 import '../styles/main.css';
 import '../styles/util.css';
 import '../styles/productDetail.css';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 import type { AppProps } from 'next/app';
 
@@ -21,6 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
+      <ToastContainer style={{ marginTop: '70px' }} />
     </>
   );
 }
