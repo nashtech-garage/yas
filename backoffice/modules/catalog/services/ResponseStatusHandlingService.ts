@@ -34,7 +34,7 @@ import {
   };
 
   //Handle updating response message from API
-  export const handleUpdatingResponse = (response: any, url: string) => {
+  export const handleUpdatingResponse = (response: any) => {
 
     if (response.status === ResponseStatus.SUCCESS) {
       toastSuccess(UPDATE_SUCCESSFULLY);
@@ -54,7 +54,7 @@ import {
    * setup info global for toast
    *
    */
-  export const handleCreatingResponse = async (response: any, url: string) => {
+  export const handleCreatingResponse = async (response: any) => {
 
     if (response.status === ResponseStatus.CREATED) {
       toastSuccess(CREATE_SUCCESSFULLY);
