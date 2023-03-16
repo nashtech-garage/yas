@@ -330,6 +330,10 @@
   opacity: 1;
 }
 
+.main-menu .active {
+  border-bottom: solid 2px;
+}
+
 .sub-menu li:hover {
   background-color: transparent;
 }

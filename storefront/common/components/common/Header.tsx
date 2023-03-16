@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   ListGroup as ListGroupBootstrap,
   Nav,
@@ -15,7 +15,10 @@ type Props = {
 
 const Header = ({ children }: Props) => {
   const ref = useRef(null);
-
+  const [menuActive, setMenuActive] = useState('Home');
+  const menuActiveClick = (name: string) => {
+    setMenuActive(name);
+  };
   return (
     <>
       <header>
@@ -56,9 +59,16 @@ const Header = ({ children }: Props) => {
                     <Navbar.Collapse id="basic-navbar-nav">
                       <Nav className="me-auto">
                         {data_header_client.map((element) => (
-                          <Link href={element.link} key={element.id} className="main-menu-li">
+                          <Link
+                            href={element.link}
+                            key={element.id}
+                            className="main-menu-li"
+                            onClick={() => menuActiveClick(element.name)}
+                          >
                             <ListGroupBootstrap.Item as="li">
-                              <span className="ms-3">{element.name}</span>
+                              <div className={element.name == menuActive ? 'active' : ''}>
+                                <span>{element.name}</span>
+                              </div>
                             </ListGroupBootstrap.Item>
                           </Link>
                         ))}
