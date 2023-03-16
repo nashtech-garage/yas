@@ -15,7 +15,6 @@ import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { toast } from 'react-toastify';
 import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
-
 const ProductList: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [products, setProducts] = useState<Product[]>([]);

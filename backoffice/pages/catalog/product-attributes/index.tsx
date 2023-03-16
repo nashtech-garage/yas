@@ -10,7 +10,6 @@ import {
 } from '../../../modules/catalog/services/ProductAttributeService';
 import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
-
 const ProductAttributeList: NextPage = () => {
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>();
   const [isLoading, setLoading] = useState(false);

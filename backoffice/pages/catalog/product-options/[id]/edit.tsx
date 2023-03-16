@@ -11,7 +11,6 @@ import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
 import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
-
 const ProductOptionEdit: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;

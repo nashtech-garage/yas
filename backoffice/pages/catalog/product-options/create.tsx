@@ -8,7 +8,6 @@ import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../constants/Common';
 import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
-
 const ProductOptionCreate: NextPage = () => {
   const router = useRouter();
   const { register, handleSubmit, formState } = useForm();

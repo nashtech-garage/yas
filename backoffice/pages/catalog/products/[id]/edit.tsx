@@ -23,7 +23,6 @@ import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
 import { PRODUCT_URL } from '../../../../constants/Common';
 import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
-
 const EditProduct: NextPage = () => {
   //Get ID
   const router = useRouter();
