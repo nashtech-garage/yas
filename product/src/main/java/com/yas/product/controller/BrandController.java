@@ -72,6 +72,7 @@ public class BrandController {
             .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, id));
     brand.setSlug(brandPostVm.slug());
     brand.setName(brandPostVm.name());
+    brand.setIsPublished(brandPostVm.isPublish());
     brandRepository.save(brand);
     return ResponseEntity.noContent().build();
   }

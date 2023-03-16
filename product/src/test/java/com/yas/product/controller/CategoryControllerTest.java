@@ -85,7 +85,7 @@ class CategoryControllerTest {
                 null,
                 "",
                 "",
-                (short) 0
+                (short) 0, false
         );
         var categoryCaptor = ArgumentCaptor.forClass(Category.class);
         Category savedCategory = mock(Category.class);
@@ -110,7 +110,7 @@ class CategoryControllerTest {
                 1L,
                 "",
                 "",
-                (short) 0
+                (short) 0, false
         );
         var categoryCaptor = ArgumentCaptor.forClass(Category.class);
         Category savedCategory = mock(Category.class);
@@ -136,7 +136,7 @@ class CategoryControllerTest {
                 2L,
                 "",
                 "",
-                (short) 0
+                (short) 0, false
         );
         when(categoryRepository.findById(categoryPostVm.parentId())).thenThrow(BadRequestException.class);
         assertThrows(BadRequestException.class, () -> categoryController.createCategory(categoryPostVm

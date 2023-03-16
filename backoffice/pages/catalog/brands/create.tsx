@@ -26,6 +26,7 @@ const BrandCreate: NextPage = () => {
       id: 0,
       name: event.name,
       slug: event.slug,
+      isPublish: event.isPublish,
     };
     let response = await createBrand(brand);
     handleCreatingResponse(response, BRAND_URL);
