@@ -4,9 +4,11 @@ import { Button } from 'react-bootstrap';
 import { Cart } from '../../modules/cart/models/Cart';
 import { CartItem } from '../../modules/cart/models/CartItem';
 import {
+  addToCart,
   getCart,
   getCartProductThumbnail,
   removeProductInCart,
+  updateCart,
 } from '../../modules/cart/services/CartService';
 
 const Cart = () => {
@@ -48,7 +50,7 @@ const Cart = () => {
           for (let i = 0; i < results.length; i++) {
             const product = results[i].value;
             newItems.push({
-              productId: product.id,
+              productId: cartDetails[i].productId,
               quantity: cartDetails[i].quantity,
               productName: product.name,
               slug: product.slug,
@@ -63,6 +65,26 @@ const Cart = () => {
 
   const removeProduct = (productId: number) => {
     removeProductInCart(productId).then(() => loadCart());
+  };
+
+  const handlePlus = (productId: number) => {
+    addToCart([
+      {
+        productId: productId,
+        quantity: 1,
+      },
+    ]).then(() => loadCart());
+  };
+
+  const handleMinus = (productId: number, productQuantity: number) => {
+    if (productQuantity === 1) {
+      removeProductInCart(productId).then(() => loadCart());
+    } else {
+      updateCart({
+        productId: productId,
+        quantity: productQuantity - 1,
+      }).then(() => loadCart());
+    }
   };
 
   useEffect(() => {
@@ -91,10 +113,10 @@ const Cart = () => {
                       <th></th>
                     </tr>
                   </thead>
-                  {items.map((item) => {
-                    return (
-                      <tbody key={item.productId}>
-                        <tr>
+                  <tbody>
+                    {items.map((item) => {
+                      return (
+                        <tr key={item.quantity.toString() + item.productId.toString()}>
                           <td className="cart__product__item">
                             <img
                               src={item.thumbnailUrl}
@@ -114,7 +136,7 @@ const Cart = () => {
                                   type="button"
                                   value="-"
                                   className="minus"
-                                  // onClick={(e) => handleMinus(e)}
+                                  onClick={() => handleMinus(item.productId, item.quantity)}
                                 />
                                 <input
                                   id="quanity"
@@ -132,7 +154,7 @@ const Cart = () => {
                                   type="button"
                                   value="+"
                                   className="plus"
-                                  // onClick={(e) => handlePlus(e)}
+                                  onClick={() => handlePlus(item.productId)}
                                 />
                               </div>
                             </div>
@@ -148,9 +170,9 @@ const Cart = () => {
                             </button>{' '}
                           </td>
                         </tr>
-                      </tbody>
-                    );
-                  })}
+                      );
+                    })}
+                  </tbody>
                 </table>
               )}
             </div>
