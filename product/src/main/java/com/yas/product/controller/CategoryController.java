@@ -4,10 +4,12 @@ import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
+import com.yas.product.service.CategoryService;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
 import com.yas.product.viewmodel.category.CategoryPostVm;
+import com.yas.product.constants.PageableConstant;
 import com.yas.product.viewmodel.error.ErrorVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,7 +28,10 @@ import java.util.List;
 public class CategoryController {
     private final CategoryRepository categoryRepository;
 
-    public CategoryController(CategoryRepository categoryRepository) {
+    private final CategoryService categoryService;
+
+    public CategoryController(CategoryRepository categoryRepository, CategoryService categoryService) {
+        this.categoryService = categoryService;
         this.categoryRepository = categoryRepository;
     }
 
@@ -36,6 +41,21 @@ public class CategoryController {
                 .map(CategoryGetVm::fromModel)
                 .toList();
         return  ResponseEntity.ok(categoryGetVms);
+    }
+
+//    @GetMapping({"/backoffice/categories" , "/storefront/categories"})
+//    public ResponseEntity<List<CategoryGetVm>> listCategories(){
+//        List<CategoryGetVm> categoryGetVms = categoryRepository.findAll().stream()
+//                .map(CategoryGetVm::fromModel)
+//                .toList();
+//        return  ResponseEntity.ok(categoryGetVms);
+//    }
+
+    @GetMapping({"/backoffice/categories/paging", "/storefront/categories/paging"})
+    public ResponseEntity<CategoryListGetVm> getPageableCategories(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                              @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+
+        return ResponseEntity.ok(categoryService.getPageableCategories(pageNo, pageSize));
     }
 
     @GetMapping("/backoffice/categories/{id}")
