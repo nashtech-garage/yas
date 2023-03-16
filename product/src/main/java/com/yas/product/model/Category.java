@@ -34,6 +34,8 @@ public class Category extends AbstractAuditEntity {
 
     private Short displayOrder;
 
+    private Boolean isPublished;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;
