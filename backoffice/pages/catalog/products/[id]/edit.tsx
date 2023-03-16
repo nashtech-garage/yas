@@ -4,8 +4,6 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
-
 import {
   CrossSellProduct,
   ProductCategoryMapping,
@@ -19,7 +17,7 @@ import { ProductPost } from '../../../../modules/catalog/models/ProductPost';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-
+import { toastError } from '../../../../modules/catalog/services/ToastService';
 import { PRODUCT_URL } from '../../../../constants/Common';
 import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
@@ -49,7 +47,7 @@ const EditProduct: NextPage = () => {
           setLoading(false);
         } else {
           //Show error
-          toast(data.detail);
+          toastError(data.detail);
           router.push(PRODUCT_URL);
         }
       });

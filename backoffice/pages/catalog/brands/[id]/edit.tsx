@@ -7,6 +7,7 @@ import { editBrand, getBrand } from '../../../../modules/catalog/services/BrandS
 import BrandGeneralInformation from '../../../../modules/catalog/components/BrandGeneralInformation';
 import { useEffect, useState } from 'react';
 import { BRAND_URL } from '../../../../constants/Common';
+import { toastError } from '../../../../modules/catalog/services/ToastService';
 
 import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
@@ -45,7 +46,7 @@ const BrandEdit: NextPage = () => {
           setBrand(data);
           setLoading(false);
         } else {
-          toast(data?.detail);
+          toastError(data?.detail);
           setLoading(false);
           router.push('/catalog/brands');
         }

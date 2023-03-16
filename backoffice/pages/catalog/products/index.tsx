@@ -12,7 +12,6 @@ import { getBrands } from '../../../modules/catalog/services/BrandService';
 import { deleteProduct, getProducts } from '../../../modules/catalog/services/ProductService';
 import styles from '../../../styles/Filter.module.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import { toast } from 'react-toastify';
 import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const ProductList: NextPage = () => {
