@@ -17,6 +17,7 @@ import {
   ProductVariation,
   RelatedProduct,
 } from '../../../modules/catalog/components';
+import { FormProduct } from '../../../modules/catalog/models/FormProduct';
 import { ProductAttributeValuePost } from '../../../modules/catalog/models/ProductAttributeValuePost';
 import { ProductPost } from '../../../modules/catalog/models/ProductPost.js';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
@@ -40,8 +41,8 @@ const ProductCreate: NextPage = () => {
     },
   });
 
-  const onSubmitForm: SubmitHandler<ProductPost> = async (data) => {
-    const product = {
+  const onSubmitForm: SubmitHandler<FormProduct> = async (data) => {
+    const product: ProductPost = {
       name: data.name,
       slug: data.slug,
       brandId: data.brandId,
@@ -60,21 +61,22 @@ const ProductCreate: NextPage = () => {
       metaKeyword: data.metaKeyword,
       metaDescription: data.metaDescription,
       thumbnailMediaId: data.thumbnailMedia?.id,
-      productImageIds: data.productImageMedias?.map((ele) => ele.id),
-      variations:
-        data.productVariations &&
-        data.productVariations.map((ele) => {
-          return {
-            name: ele.optionName,
-            slug: slugify(ele.optionName),
-            sku: ele.optionSku,
-            gtin: ele.optionGTin,
-            price: ele.optionPrice,
-            thumbnailMediaId: ele.optionThumbnail,
-            productImageIds: ele.optionImages,
-          };
-        }),
+      productImageIds: data.productImageMedias?.map((image) => image.id),
+      variations: data.productVariations
+        ? data.productVariations.map((variant) => {
+            return {
+              name: variant.optionName,
+              slug: slugify(variant.optionName),
+              sku: variant.optionSku,
+              gtin: variant.optionGTin,
+              price: variant.optionPrice,
+              thumbnailMediaId: variant.optionThumbnail?.id,
+              productImageIds: variant.optionImages?.map((image) => image.id),
+            };
+          })
+        : [],
     };
+    // create product
     const productResponse = await createProduct(product);
 
     // upload product attribute
@@ -88,10 +90,10 @@ const ProductCreate: NextPage = () => {
     }
 
     // upload option value
-    for (const ele of data.productOptions || []) {
-      ele.ProductId = productResponse.id;
-      ele.displayOrder = 1;
-      await createProductOptionValue(ele);
+    for (const option of data.productOptions || []) {
+      option.ProductId = productResponse.id;
+      option.displayOrder = 1;
+      await createProductOptionValue(option);
     }
 
     handleCreatingResponse(productResponse, PRODUCT_URL);

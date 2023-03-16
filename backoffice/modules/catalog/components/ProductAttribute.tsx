@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form/dist/types';
 import { toast } from 'react-toastify';
+
+import { FormProduct } from '../models/FormProduct';
 import { ProductAttribute } from '../models/ProductAttribute';
 import { ProductAttributeValue } from '../models/ProductAttributeValue';
-import { ProductPost } from '../models/ProductPost';
 import { getProductAttributes } from '../services/ProductAttributeService';
 
 type Props = {
-  setValue: UseFormSetValue<ProductPost>;
-  getValue: UseFormGetValues<ProductPost>;
+  setValue: UseFormSetValue<FormProduct>;
+  getValue: UseFormGetValues<FormProduct>;
 };
 
 const ProductAttributes = ({ setValue, getValue }: Props) => {

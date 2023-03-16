@@ -9,6 +9,6 @@ public record ProductVariationPostVm(
         String gtin,
         Double price,
         Long thumbnailMediaId,
-        List<Long> imageMediaIds
+        List<Long> productImageIds
 ) {
 }

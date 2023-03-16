@@ -5,14 +5,14 @@ import { UseFormSetValue } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
 import { Product } from '../models/Product';
-import { ProductPost } from '../models/ProductPost';
 import { uploadMedia } from '../services/MediaService';
 
 import styles from '../../../styles/ProductImage.module.css';
+import { FormProduct } from '../models/FormProduct';
 
 type Props = {
   product?: Product;
-  setValue: UseFormSetValue<ProductPost>;
+  setValue: UseFormSetValue<FormProduct>;
 };
 
 type EventType = 'thumbnail' | 'productImages';

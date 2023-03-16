@@ -2,16 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import { FormProduct } from '../models/FormProduct';
+import { Media } from '../models/Media';
+
 import { ProductOption } from '../models/ProductOption';
-import { ProductPost } from '../models/ProductPost';
 import { ProductVariation } from '../models/ProductVariation';
+import { uploadMedia } from '../services/MediaService';
 import { getProductOptions } from '../services/ProductOptionService';
 
 const headers = ['Option Combinations', 'SKU', 'GTIN', 'Price', 'Thumbnail', 'Images', 'Action'];
 
 type Props = {
-  getValue: UseFormGetValues<ProductPost>;
-  setValue: UseFormSetValue<ProductPost>;
+  getValue: UseFormGetValues<FormProduct>;
+  setValue: UseFormSetValue<FormProduct>;
 };
 
 const ProductVariations = ({ getValue, setValue }: Props) => {
@@ -23,14 +26,13 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     getProductOptions().then((data) => setProductOptions(data));
   }, []);
 
-  const onAddOption = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    let option = (document.getElementById('option') as HTMLSelectElement).value;
+  const onAddOption = () => {
+    const option = (document.getElementById('option') as HTMLSelectElement).value;
 
     if (option === '0') {
       toast.info('Select options first');
     } else {
-      let index = selectedOptions.indexOf(option);
+      const index = selectedOptions.indexOf(option);
       if (index === -1) {
         setSelectedOptions([...selectedOptions, option]);
       } else {
@@ -39,48 +41,51 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     }
   };
 
-  const onDeleteOption = (event: React.MouseEvent<HTMLElement>, option: string) => {
-    event.preventDefault();
+  const onDeleteOption = (option: string) => {
     setOptionCombines([]);
-    let result = selectedOptions.filter((_option) => _option !== option);
+    const result = selectedOptions.filter((_option) => _option !== option);
     setSelectedOptions([...result]);
   };
 
-  const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    let result: string[] = [];
-    let productOp = getValue('productOptions') || [];
+  const onGenerate = () => {
+    const result: string[] = [];
+    const productOp = getValue('productOptions') || [];
+
     selectedOptions.forEach((option) => {
-      let combines = (document.getElementById(option) as HTMLInputElement).value.split(',');
-      let item = productOptions.find((_option) => _option.name === option);
-      productOp.push({ ProductOptionId: item?.id, value: combines });
+      const combines =
+        (document.getElementById(option) as HTMLInputElement)?.value.split(',') || [];
+      const item = productOptions.find((_option) => _option.name === option);
+
+      if (item) productOp.push({ ProductOptionId: item.id, value: combines });
+
       if (result.length === 0) {
-        combines.forEach((item) => {
-          result.push(item);
-        });
+        result.push(...combines);
       } else {
-        let index = 0;
-        const old = [...result];
-        for (const oldItem of old) {
+        result.forEach((oldItem, index) => {
           for (const newItem of combines) {
             result[index] = oldItem.concat(' ', newItem);
             index++;
           }
-        }
+        });
       }
     });
+
     setValue('productOptions', productOp);
-    let options: string[] = [];
-    let productVar: ProductVariation[] = [];
+
+    const options: string[] = [];
+    const productVar: ProductVariation[] = [];
+
     result.forEach((item) => {
-      options.push(getValue('name')?.concat(' ', item) || '');
+      const optionName = getValue('name')?.concat(' ', item) || '';
+      options.push(optionName);
       productVar.push({
-        optionName: getValue('name')?.concat(' ', item) || '',
+        optionName,
         optionGTin: getValue('gtin') || '',
         optionSku: getValue('sku') || '',
         optionPrice: getValue('price') || 0,
       });
     });
+
     setOptionCombines(options);
     setValue('productVariations', productVar);
   };
@@ -95,39 +100,64 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     setValue('productVariations', productVar);
   };
 
-  const onChangeVariationValue = (
+  const onChangeVariationValue = async (
     event: React.ChangeEvent<HTMLInputElement>,
     optionName: string
   ) => {
-    let value = event.target.value;
-    let productVar = getValue('productVariations') || [];
-    let item = productVar.find((item) => item.optionName === optionName);
-    if (item) {
-      switch (event.target.name) {
-        case 'optionSku':
-          item.optionSku = value;
-          break;
-        case 'optionGTin':
-          item.optionGTin = value;
-          break;
-        case 'optionPrice':
-          item.optionPrice = +value;
-          break;
-        case 'optionThumbnail':
-          if (event.target.files) {
-            item.optionThumbnail = event.target.files[0];
-          }
-          break;
-        case 'optionImages':
-          if (event.target.files) {
-            item.optionImages = event.target.files;
-          }
-          break;
-        default:
-          break;
-      }
-      setValue('productVariations', productVar);
+    const value = event.target.value;
+    const productVar = getValue('productVariations') || [];
+    const item = productVar.find((item) => item.optionName === optionName);
+
+    if (!item) {
+      return;
     }
+
+    switch (event.target.name) {
+      case 'optionSku':
+        item.optionSku = value;
+        break;
+      case 'optionGTin':
+        item.optionGTin = value;
+        break;
+      case 'optionPrice':
+        item.optionPrice = +value;
+        break;
+      case 'optionThumbnail':
+        if (!event.target.files) {
+          return;
+        }
+
+        try {
+          const response = await uploadMedia(event.target.files[0]);
+          item.optionThumbnail = { ...response };
+        } catch (error) {
+          toast.error("Can't upload image");
+        }
+        break;
+      case 'optionImages':
+        if (!event.target.files) {
+          return;
+        }
+
+        const images: Media[] = [];
+
+        try {
+          const uploadPromises = Array.from(event.target.files).map(async (file) => {
+            const response = await uploadMedia(file);
+            images.push(response);
+          });
+
+          await Promise.all(uploadPromises);
+          item.optionImages = [...images];
+        } catch (error) {
+          toast.error("Can't upload image");
+        }
+        break;
+      default:
+        return;
+    }
+
+    setValue('productVariations', productVar);
   };
 
   return (
@@ -160,10 +190,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
                   {option}
                 </label>
                 <input type="text" id={option} className={`form-control w-75`} />
-                <button
-                  className="btn btn-danger"
-                  onClick={(event) => onDeleteOption(event, option)}
-                >
+                <button className="btn btn-danger" onClick={() => onDeleteOption(option)}>
                   <i className="bi bi-x"></i>
                 </button>
               </div>

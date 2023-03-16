@@ -5,5 +5,5 @@ export type ProductVariationPost = {
   gtin?: string;
   price?: number;
   thumbnailMediaId?: number;
-  imageMediaIds?: number[];
+  productImageIds?: number[];
 };

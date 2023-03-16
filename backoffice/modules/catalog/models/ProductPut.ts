@@ -1,6 +1,10 @@
+import { ProductVariationPost } from './ProductVariationPost';
+
 export type ProductPut = {
   name?: string;
   slug?: string;
+  brandId?: number;
+  categoryIds?: number[];
   shortDescription?: string;
   description?: string;
   specification?: string;
@@ -10,10 +14,11 @@ export type ProductPut = {
   isAllowedToOrder?: boolean;
   isPublished?: boolean;
   isFeatured?: boolean;
-  brandId?: number;
-  categoryIds?: number[];
+  isVisibleIndividually?: boolean;
+  metaTitle?: string;
   metaKeyword?: string;
   metaDescription?: string;
   thumbnailMediaId?: number;
   productImageIds?: number[];
+  variations?: ProductVariationPost[];
 };
