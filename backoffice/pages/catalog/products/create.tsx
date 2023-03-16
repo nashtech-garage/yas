@@ -31,7 +31,7 @@ const ProductCreate: NextPage = () => {
     handleSubmit,
     getValues,
     formState: { errors },
-  } = useForm<ProductPost>({
+  } = useForm<FormProduct>({
     defaultValues: {
       isVisibleIndividually: true,
       isPublished: true,

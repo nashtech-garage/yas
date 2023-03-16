@@ -17,8 +17,8 @@ import {
   ProductSEO,
   RelatedProduct,
 } from '../../../../modules/catalog/components';
+import { FormProduct } from '../../../../modules/catalog/models/FormProduct';
 import { Product } from '../../../../modules/catalog/models/Product';
-import { ProductPost } from '../../../../modules/catalog/models/ProductPost';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
 
@@ -38,7 +38,7 @@ const EditProduct: NextPage = () => {
     handleSubmit,
     getValues,
     formState: { errors },
-  } = useForm<ProductPost>();
+  } = useForm<FormProduct>();
 
   useEffect(() => {
     setLoading(true);
@@ -57,7 +57,7 @@ const EditProduct: NextPage = () => {
   }, [id]);
 
   //Form validate
-  const onSubmit: SubmitHandler<ProductPost> = (data) => {
+  const onSubmit: SubmitHandler<FormProduct> = (data) => {
     if (id) {
       const product = {
         name: data.name,
@@ -78,20 +78,20 @@ const EditProduct: NextPage = () => {
         metaKeyword: data.metaKeyword,
         metaDescription: data.metaDescription,
         thumbnailMediaId: data.thumbnailMedia?.id,
-        productImageIds: data.productImageMedias?.map((ele) => ele.id),
-        variations:
-          data.productVariations &&
-          data.productVariations.map((ele) => {
-            return {
-              name: ele.optionName,
-              slug: slugify(ele.optionName),
-              sku: ele.optionSku,
-              gtin: ele.optionGTin,
-              price: ele.optionPrice,
-              thumbnailMediaId: ele.optionThumbnail,
-              productImageIds: ele.optionImages,
-            };
-          }),
+        productImageIds: data.productImageMedias?.map((image) => image.id),
+        variations: data.productVariations
+          ? data.productVariations.map((variant) => {
+              return {
+                name: variant.optionName,
+                slug: slugify(variant.optionName),
+                sku: variant.optionSku,
+                gtin: variant.optionGTin,
+                price: variant.optionPrice,
+                thumbnailMediaId: variant.optionThumbnail?.id,
+                productImageIds: variant.optionImages?.map((image) => image.id),
+              };
+            })
+          : [],
       };
       updateProduct(+id, product).then(async (res) => {
         handleUpdatingResponse(res, PRODUCT_URL);

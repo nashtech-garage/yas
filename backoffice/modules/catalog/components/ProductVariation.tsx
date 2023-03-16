@@ -58,7 +58,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     selectedOptions.forEach((option) => {
       const combines = (document.getElementById(option) as HTMLInputElement).value.split(',');
       const item = productOptions.find((_option) => _option.name === option);
-      productOp.push({ ProductOptionId: item?.id, value: combines });
+      productOp.push({ productOptionId: item?.id, value: combines });
       if (result.length === 0) {
         combines.forEach((item) => {
           result.push(item);

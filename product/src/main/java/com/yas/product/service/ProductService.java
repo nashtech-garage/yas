@@ -12,7 +12,7 @@ import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.product.*;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
-import com.yas.product.viewmodel.productoption.ProductOptionValueVm;
+import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -177,7 +177,7 @@ public class ProductService {
 
             List<Product> productsVariantsSaved = productRepository.saveAllAndFlush(productVariants);
 
-            List<Long> productOptionIds = productPostVm.productOptionValues().stream().map(ProductOptionValueVm::ProductOptionId).toList();
+            List<Long> productOptionIds = productPostVm.productOptionValues().stream().map(ProductOptionValuePostVm::productOptionId).toList();
             List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
             Map<Long, ProductOption> productOptionMap = productOptions.stream().collect(Collectors.toMap(ProductOption::getId, Function.identity()));
             List<ProductOptionValue> productOptionValues = new ArrayList<>();
@@ -188,19 +188,20 @@ public class ProductService {
                         .product(mainSavedProduct)
                         .displayOrder(optionValue.displayOrder())
                         .displayType(optionValue.displayType())
-                        .productOption(productOptionMap.get(optionValue.ProductOptionId()))
+                        .productOption(productOptionMap.get(optionValue.productOptionId()))
                         .value(value)
                         .build();
-                Product combineProduct = productsVariantsSaved.stream()
-                        .filter(product -> product.getSlug().contains(StringUtils.toSlug(value))).findFirst().orElse(null);
-                ProductOptionCombination productOptionCombination = ProductOptionCombination.builder()
-                        .product(combineProduct)
-                        .productOption(productOptionMap.get(optionValue.ProductOptionId()))
-                        .value(value)
-                        .displayOrder(optionValue.displayOrder())
-                        .build();
+                List<ProductOptionCombination> productOptionCombinationList =
+                        productsVariantsSaved.stream()
+                        .filter(product -> product.getSlug().contains(StringUtils.toSlug(value)))
+                                .map(product -> ProductOptionCombination.builder()
+                                        .product(product)
+                                        .productOption(productOptionMap.get(optionValue.productOptionId()))
+                                        .value(value)
+                                        .displayOrder(optionValue.displayOrder())
+                                        .build()).toList();
                 productOptionValues.add(productOptionValue);
-                productOptionCombinations.add(productOptionCombination);
+                productOptionCombinations.addAll(productOptionCombinationList);
             }));
 
             productImageRepository.saveAllAndFlush(allProductVariantImageList);
