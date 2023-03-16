@@ -7,6 +7,7 @@ import Tabs from 'react-bootstrap/Tabs';
 
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
+import { AverageStarResponseDto } from '../../common/dtos/AverageStarResponseDto';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import {
   DetailHeader,
@@ -33,7 +34,7 @@ import { toastError, toastSuccess } from '../../modules/catalog/services/ToastSe
 type Props = {
   product: ProductDetail;
   productVariations?: ProductVariations[];
-  averageStar: number;
+  averageStar: AverageStarResponseDto;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
@@ -63,8 +64,14 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     }
   }
 
-  let averageStar: number;
-  averageStar = await getAverageStarByProductId(product.id);
+  let averageStar: AverageStarResponseDto;
+  averageStar = await getAverageStarByProductId(product.id)
+    .then((result) => {
+      return { averageStar: result };
+    })
+    .catch((error) => {
+      return { averageStar: 0, errorMessage: "Could't fetch average star" };
+    });
 
   return { props: { product, productVariations, averageStar } };
 };
@@ -79,6 +86,19 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
   const [ratingStar, setRatingStar] = useState<number>(5);
   const [contentRating, setContentRating] = useState<string>('');
   const [isPost, setIsPost] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (averageStar.errorMessage) {
+      toast.error(averageStar.errorMessage, {
+        position: 'top-right',
+        autoClose: 2000,
+        closeOnClick: true,
+        pauseOnHover: false,
+        theme: 'colored',
+      });
+      averageStar.averageStar = 0;
+    }
+  }, []);
 
   useEffect(() => {
     getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
@@ -144,7 +164,7 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
 
       <DetailHeader
         productName={product.name}
-        averageStar={averageStar}
+        averageStar={averageStar.averageStar}
         ratingCount={totalElements}
       />
 
