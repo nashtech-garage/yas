@@ -24,7 +24,8 @@ import { PRODUCT_URL } from '../../../../constants/Common';
 import CustomToast from '../../../../common/items/CustomToast';
 
 const EditProduct: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useUpdatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
+    useUpdatingContext();
   //Get ID
   const router = useRouter();
   const { id } = router.query;
@@ -77,7 +78,11 @@ const EditProduct: NextPage = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Tabs className="mb-3" activeKey={tabKey} onSelect={(e: any) => setTabKey(e)}>
               <Tab eventKey={'general'} title="General Information">
-                <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
+                <ProductGeneralInformation
+                  register={register}
+                  errors={errors}
+                  setValue={setValue}
+                />
               </Tab>
               <Tab eventKey={'image'} title="Product Images">
                 <ProductImage product={product} setValue={setValue} />
@@ -87,7 +92,11 @@ const EditProduct: NextPage = () => {
                 <ProductAttributes />
               </Tab>
               <Tab eventKey={'category'} title="Category Mapping">
-                <ProductCategoryMapping product={product} setValue={setValue} getValue={getValues} />
+                <ProductCategoryMapping
+                  product={product}
+                  setValue={setValue}
+                  getValue={getValues}
+                />
               </Tab>
               <Tab eventKey={'related'} title="Related Products">
                 <RelatedProduct setValue={setValue} getValue={getValues} />

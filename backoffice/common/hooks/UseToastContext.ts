@@ -11,7 +11,8 @@ export const useDeletingContext = () => {
 
 //Custom hook for updating context
 export const useUpdatingContext = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useContext(ToastContext);
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
+    useContext(ToastContext);
 
   return { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse };
 };

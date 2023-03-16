@@ -12,7 +12,8 @@ import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
 import CustomToast from '../../../../common/items/CustomToast';
 
 const BrandEdit: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useUpdatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
+    useUpdatingContext();
   const router = useRouter();
   const {
     register,
@@ -76,7 +77,10 @@ const BrandEdit: NextPage = () => {
                 Save
               </button>
               <Link href="/catalog/brands">
-                <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
+                <button
+                  className="btn btn-primary"
+                  style={{ background: 'red', marginLeft: '30px' }}
+                >
                   Cancel
                 </button>
               </Link>

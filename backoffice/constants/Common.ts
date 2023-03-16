@@ -7,7 +7,7 @@ export const ResponseStatus = {
   CREATED: 201,
   SUCCESS: 204,
   NOT_FOUND: 404,
-  BAD_REQUEST: '400 BAD_REQUEST',
+  BAD_REQUEST: 400,
 };
 export const ResponseTitle = {
   NOT_FOUND: 'Not Found',

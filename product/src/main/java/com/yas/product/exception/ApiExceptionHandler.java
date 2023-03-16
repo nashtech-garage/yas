@@ -58,14 +58,14 @@ public class ApiExceptionHandler {
               violation.getPropertyPath() + ": " + violation.getMessage());
     }
 
-    ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Request information is not valid", errors);
     return ResponseEntity.badRequest().body(errorVm);
   }
 
   @ExceptionHandler(DataIntegrityViolationException.class)
   public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
     String message = NestedExceptionUtils.getMostSpecificCause(e).getMessage();
-    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), message);
     return ResponseEntity.badRequest().body(errorVm);
   }
 

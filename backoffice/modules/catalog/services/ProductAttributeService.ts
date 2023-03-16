@@ -18,10 +18,7 @@ export async function createProductAttribute(productAttributePost: ProductAttrib
   return response;
 }
 
-export async function updateProductAttribute(
-  id: number,
-  productAttributeId: ProductAttributeId
-) {
+export async function updateProductAttribute(id: number, productAttributeId: ProductAttributeId) {
   const response = await fetch('/api/product/backoffice/product-attribute/' + id, {
     method: 'PUT',
     body: JSON.stringify(productAttributeId),

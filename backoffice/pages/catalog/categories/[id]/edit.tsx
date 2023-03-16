@@ -15,7 +15,8 @@ import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
 import CustomToast from '../../../../common/items/CustomToast';
 
 const CategoryEdit: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useUpdatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
+    useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   var slugify = require('slugify');

@@ -22,7 +22,8 @@ const ProductAttributeEdit: NextPage = () => {
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup[]>([]);
   const [getProductAttributeVm, setGetProductAttributeVm] = useState<ProductAttribute>();
   const [idProductAttributeGroup, setIdProductAttributeGroupGroup] = useState(String);
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } = useUpdatingContext();
+  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
+    useUpdatingContext();
 
   const router = useRouter();
   let { id }: any = router.query;
@@ -110,14 +111,14 @@ const ProductAttributeEdit: NextPage = () => {
           </form>
         </div>
       </div>
-        {showToast && (
-          <CustomToast
-            variant={toastVariant}
-            header={toastHeader}
-            show={showToast}
-            setShow={setShowToast}
-          ></CustomToast>
-        )}
+      {showToast && (
+        <CustomToast
+          variant={toastVariant}
+          header={toastHeader}
+          show={showToast}
+          setShow={setShowToast}
+        ></CustomToast>
+      )}
     </>
   );
 };
