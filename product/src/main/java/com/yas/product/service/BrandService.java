@@ -23,9 +23,7 @@ public class BrandService {
     public BrandListGetVm getBrands(int pageNo, int pageSize) {
         List<BrandVm> brandVms = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Brand> brandPage;
-
-        brandPage = brandRepository.findAll(pageable);
+        Page<Brand> brandPage = brandRepository.findAll(pageable);
         List<Brand> brandList = brandPage.getContent();
         for (Brand brand : brandList) {
             brandVms.add(BrandVm.fromModel(brand));
