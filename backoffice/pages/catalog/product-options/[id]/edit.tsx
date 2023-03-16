@@ -8,13 +8,11 @@ import {
   updateProductOption,
 } from '../../../../modules/catalog/services/ProductOptionService';
 import { useRouter } from 'next/router';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+
 
 const ProductOptionEdit: NextPage = () => {
-  const { handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   const [productOption, setProductOption] = useState<ProductOption>();
@@ -27,7 +25,8 @@ const ProductOptionEdit: NextPage = () => {
     };
     if (id) {
       updateProductOption(+id, productOption).then((response) => {
-        handleUpdatingResponse(response, PRODUCT_OPTIONS_URL);
+        handleUpdatingResponse(response);
+        router.replace(PRODUCT_OPTIONS_URL);
       });
     }
   };

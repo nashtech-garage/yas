@@ -4,8 +4,8 @@ import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import slugify from 'slugify';
 
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
+import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+
 import { PRODUCT_URL } from '../../../constants/Common';
 import {
   CrossSellProduct,
@@ -22,10 +22,10 @@ import { ProductPost } from '../../../modules/catalog/models/ProductPost.js';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProductOptionValue } from '../../../modules/catalog/services/ProductOptionValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
+import { useRouter } from 'next/router';
 
 const ProductCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
+  const router = useRouter();
   const {
     register,
     setValue,
@@ -94,7 +94,8 @@ const ProductCreate: NextPage = () => {
       await createProductOptionValue(ele);
     }
 
-    handleCreatingResponse(response, PRODUCT_URL);
+    handleCreatingResponse(response);
+    router.replace(PRODUCT_URL);
   };
 
   return (
@@ -140,14 +141,6 @@ const ProductCreate: NextPage = () => {
           </div>
         </form>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

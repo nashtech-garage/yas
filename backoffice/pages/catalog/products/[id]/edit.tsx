@@ -19,13 +19,12 @@ import { ProductPost } from '../../../../modules/catalog/models/ProductPost';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+
 import { PRODUCT_URL } from '../../../../constants/Common';
-import CustomToast from '../../../../common/items/CustomToast';
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+
 
 const EditProduct: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
-    useUpdatingContext();
   //Get ID
   const router = useRouter();
   const { id } = router.query;
@@ -62,7 +61,8 @@ const EditProduct: NextPage = () => {
   const onSubmit: SubmitHandler<ProductPost> = (data) => {
     if (id) {
       updateProduct(+id, data).then(async (res) => {
-        handleUpdatingResponse(res, PRODUCT_URL);
+        handleUpdatingResponse(res);
+        router.replace(PRODUCT_URL);
       });
     }
   };
@@ -123,14 +123,6 @@ const EditProduct: NextPage = () => {
             )}
           </form>
         </div>
-        {showToast && (
-          <CustomToast
-            variant={toastVariant}
-            header={toastHeader}
-            show={showToast}
-            setShow={setShowToast}
-          ></CustomToast>
-        )}
       </>
     );
   }

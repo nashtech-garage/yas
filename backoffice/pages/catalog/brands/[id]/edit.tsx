@@ -3,17 +3,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { Brand } from '../../../../modules/catalog/models/Brand';
-import { toast } from 'react-toastify';
 import { editBrand, getBrand } from '../../../../modules/catalog/services/BrandService';
 import BrandGeneralInformation from '../../../../modules/catalog/components/BrandGeneralInformation';
 import { useEffect, useState } from 'react';
 import { BRAND_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
-import CustomToast from '../../../../common/items/CustomToast';
+
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const BrandEdit: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
-    useUpdatingContext();
   const router = useRouter();
   const {
     register,
@@ -34,7 +31,8 @@ const BrandEdit: NextPage = () => {
       };
 
       editBrand(+id, brand).then((response) => {
-        handleUpdatingResponse(response, BRAND_URL);
+        handleUpdatingResponse(response);
+        router.replace(BRAND_URL);
       });
     }
   };
@@ -87,14 +85,6 @@ const BrandEdit: NextPage = () => {
             </form>
           </div>
         </div>
-        {showToast && (
-          <CustomToast
-            variant={toastVariant}
-            header={toastHeader}
-            show={showToast}
-            setShow={setShowToast}
-          ></CustomToast>
-        )}
       </>
     );
   }
