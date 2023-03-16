@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { toast } from 'react-toastify';
 
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
