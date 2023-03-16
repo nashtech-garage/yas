@@ -1,6 +1,8 @@
+import { stringify } from 'querystring';
 import { ProductThumbnail } from '../../catalog/models/ProductThumbnail';
 import { AddToCartModel } from '../models/AddToCartModel';
 import { Cart } from '../models/Cart';
+import { UpdateCartModel } from '../models/UpdateCartModel';
 
 export async function addToCart(addToCart: AddToCartModel[]): Promise<Cart> {
   const response = await fetch(`/api/cart/storefront/carts`, {
@@ -33,4 +35,16 @@ export async function removeProductInCart(productId: number) {
   });
   if (response.status === 204) return await response;
   else return await response.json();
+}
+
+export async function updateCart(updateCartBody: AddToCartModel): Promise<UpdateCartModel> {
+  const response = await fetch('/api/cart/cart-item', {
+    method: 'PUT',
+    body: JSON.stringify(updateCartBody),
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  });
+
+  if (response.status >= 200 && response.status < 300) return await response.json();
+
+  return Promise.reject(response);
 }

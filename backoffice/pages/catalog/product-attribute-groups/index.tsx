@@ -2,7 +2,6 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import {
@@ -26,15 +25,11 @@ const ProductAttrbuteGroupList: NextPage = () => {
   const handleClose: any = () => setIsShowModalDelete(false);
   const handleDelete: any = () => {
     if (productAttributeGroupIdWantToDelete == -1) return;
-    deleteProductAttributeGroup(productAttributeGroupIdWantToDelete)
-      .then((response) => {
-        setIsShowModalDelete(false);
-        handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
-        getListProductAttributeGroup();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    deleteProductAttributeGroup(productAttributeGroupIdWantToDelete).then((response) => {
+      setIsShowModalDelete(false);
+      handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
+      getListProductAttributeGroup();
+    });
   };
 
   const getListProductAttributeGroup = () => {

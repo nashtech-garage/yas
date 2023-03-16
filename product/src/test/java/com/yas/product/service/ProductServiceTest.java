@@ -72,8 +72,8 @@ class ProductServiceTest {
                 productOptionRepository,
                 productOptionValueRepository,
                 productOptionCombinationRepository);
-        category1 = new Category(1L, "category", null, "category", null, null, null, null, null, null);
-        category2 = new Category(2L, "category2", null, "category2", null, null, null, null, null, null);
+        category1 = new Category(1L, "category", null, "category", null, null, null, false, null, null, null);
+        category2 = new Category(2L, "category2", null, "category2", null, null, null, false, null, null, null);
         categoryList = List.of(category1, category2);
         products = List.of(
                 Product.builder()

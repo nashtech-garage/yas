@@ -1,24 +1,15 @@
 import Link from 'next/link';
-import { toast, ToastOptions } from 'react-toastify';
-
 import { formatPrice } from '../../../utils/formatPrice';
 import { AddToCartModel } from '../../cart/models/AddToCartModel';
 import { addToCart } from '../../cart/services/CartService';
 import { ProductDetail } from '../models/ProductDetail';
 import { ProductVariations } from '../models/ProductVariations';
+import { toastSuccess, toastError } from '../services/ToastService';
 
 export interface ProductDetailProps {
   product: ProductDetail;
   productVariations: ProductVariations[] | undefined;
 }
-
-const toastOption: ToastOptions = {
-  position: 'top-right',
-  autoClose: 1000,
-  closeOnClick: true,
-  pauseOnHover: false,
-  theme: 'colored',
-};
 
 export default function ProductDetails({ product, productVariations }: ProductDetailProps) {
   const handleAddToCart = async () => {
@@ -30,17 +21,11 @@ export default function ProductDetails({ product, productVariations }: ProductDe
     ];
     await addToCart(payload)
       .then((_response) => {
-        toast.success('Add to cart success', {
-          position: 'top-right',
-          autoClose: 1000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: 'colored',
-        });
+        toastSuccess('Add to cart success');
       })
       .catch((error) => {
-        if (error.status === 403) toast.error('You need to log in before add to cart', toastOption);
-        else toast.error('Add to cart failed. Try again', toastOption);
+        if (error.status === 403) toastError('You need to log in before add to cart');
+        else toastError('Add to cart failed. Try again');
       });
   };
 

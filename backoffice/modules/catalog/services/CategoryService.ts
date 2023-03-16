@@ -17,7 +17,7 @@ export async function createCategory(category: Category) {
     body: JSON.stringify(category),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response;
+  return response;
 }
 export async function updateCategory(id: number, category: Category) {
   const response = await fetch('/api/product/backoffice/categories/' + id, {
@@ -25,7 +25,7 @@ export async function updateCategory(id: number, category: Category) {
     body: JSON.stringify(category),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }
 export async function deleteCategory(id: number) {
@@ -33,7 +33,7 @@ export async function deleteCategory(id: number) {
     method: 'DELETE',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }
 

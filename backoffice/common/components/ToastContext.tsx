@@ -9,6 +9,7 @@ import {
   UPDATE_FAILED,
   CREATE_SUCCESSFULLY,
   CREATE_FAILED,
+  ResponseTitle,
 } from '../../constants/Common';
 
 export const ToastContext = createContext({
@@ -45,9 +46,9 @@ export function ToastProvider(props: React.PropsWithChildren) {
   const handleDeletingResponse = useCallback((response: any, itemName: string | number) => {
     if (response.status === ResponseStatus.SUCCESS) {
       setToastProperties(itemName + HAVE_BEEN_DELETED, ToastVariant.SUCCESS, true);
-    } else if (response.title === ResponseStatus.NOT_FOUND) {
+    } else if (response.title === ResponseTitle.NOT_FOUND) {
       setToastProperties(response.detail, ToastVariant.ERROR, true);
-    } else if (response.title === ResponseStatus.BAD_REQUEST) {
+    } else if (response.title === ResponseTitle.BAD_REQUEST) {
       setToastProperties(response.detail, ToastVariant.ERROR, true);
     } else {
       setToastProperties(DELETE_FAILED, ToastVariant.ERROR, true);
@@ -59,10 +60,10 @@ export function ToastProvider(props: React.PropsWithChildren) {
     if (response.status === ResponseStatus.SUCCESS) {
       setToastProperties(UPDATE_SUCCESSFULLY, ToastVariant.SUCCESS, true);
       router.replace(url);
-    } else if (response.title === ResponseStatus.NOT_FOUND) {
+    } else if (response.title === ResponseTitle.NOT_FOUND) {
       setToastProperties(response.detail, ToastVariant.ERROR, true);
       router.replace(url);
-    } else if (response.title === ResponseStatus.BAD_REQUEST) {
+    } else if (response.title === ResponseTitle.BAD_REQUEST) {
       setToastProperties(response.detail, ToastVariant.ERROR, true);
     } else {
       setToastProperties(UPDATE_FAILED, ToastVariant.ERROR, true);
