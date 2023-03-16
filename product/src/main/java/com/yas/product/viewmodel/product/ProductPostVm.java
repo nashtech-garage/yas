@@ -1,13 +1,13 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.validation.ValidateProductPrice;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
 public record ProductPostVm(
-        @NotEmpty String name,
-        @NotEmpty String slug,
+        @NotBlank String name,
+        @NotBlank String slug,
         Long brandId,
         List<Long> categoryIds,
         String shortDescription,

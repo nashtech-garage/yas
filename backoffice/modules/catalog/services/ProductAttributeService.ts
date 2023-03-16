@@ -15,19 +15,17 @@ export async function createProductAttribute(productAttributePost: ProductAttrib
     body: JSON.stringify(productAttributePost),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response;
+  return response;
 }
 
-export async function updateProductAttribute(
-  id: number,
-  productAttributeId: ProductAttributeId
-): Promise<Number> {
-  const res = await fetch('/api/product/backoffice/product-attribute/' + id, {
+export async function updateProductAttribute(id: number, productAttributeId: ProductAttributeId) {
+  const response = await fetch('/api/product/backoffice/product-attribute/' + id, {
     method: 'PUT',
     body: JSON.stringify(productAttributeId),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return res.status;
+  if (response.status === 204) return response;
+  else return await response.json();
 }
 
 export async function getProductAttribute(id: number): Promise<ProductAttribute> {
