@@ -31,6 +31,7 @@ const BrandEdit: NextPage = () => {
         id: 0,
         name: event.name,
         slug: event.slug,
+        isPublish: event.isPublish,
       };
 
       editBrand(+id, brand).then((response) => {
