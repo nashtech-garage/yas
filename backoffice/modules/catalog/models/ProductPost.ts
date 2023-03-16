@@ -1,3 +1,4 @@
+import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariationPost } from './ProductVariationPost';
 
 export type ProductPost = {
@@ -21,4 +22,5 @@ export type ProductPost = {
   thumbnailMediaId?: number;
   productImageIds?: number[];
   variations?: ProductVariationPost[];
+  productOptionValues?: ProductOptionValuePost[];
 };

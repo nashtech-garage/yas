@@ -1,6 +1,7 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.validation.ValidateProductPrice;
+import com.yas.product.viewmodel.productoption.ProductOptionValueVm;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
@@ -25,5 +26,6 @@ public record ProductPostVm(
         String metaDescription,
         Long thumbnailMediaId,
         List<Long> productImageIds,
-        List<ProductVariationPostVm> variations) {
+        List<ProductVariationPostVm> variations,
+        List<ProductOptionValueVm> productOptionValues) {
 }

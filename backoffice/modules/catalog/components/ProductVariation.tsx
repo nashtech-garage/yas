@@ -26,7 +26,8 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     getProductOptions().then((data) => setProductOptions(data));
   }, []);
 
-  const onAddOption = () => {
+  const onAddOption = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
     const option = (document.getElementById('option') as HTMLSelectElement).value;
 
     if (option === '0') {
@@ -41,51 +42,51 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     }
   };
 
-  const onDeleteOption = (option: string) => {
+  const onDeleteOption = (event: React.MouseEvent<HTMLElement>, option: string) => {
+    event.preventDefault();
     setOptionCombines([]);
     const result = selectedOptions.filter((_option) => _option !== option);
     setSelectedOptions([...result]);
   };
 
-  const onGenerate = () => {
+  const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+
     const result: string[] = [];
     const productOp = getValue('productOptions') || [];
 
     selectedOptions.forEach((option) => {
-      const combines =
-        (document.getElementById(option) as HTMLInputElement)?.value.split(',') || [];
+      const combines = (document.getElementById(option) as HTMLInputElement).value.split(',');
       const item = productOptions.find((_option) => _option.name === option);
-
-      if (item) productOp.push({ ProductOptionId: item.id, value: combines });
-
+      productOp.push({ ProductOptionId: item?.id, value: combines });
       if (result.length === 0) {
-        result.push(...combines);
+        combines.forEach((item) => {
+          result.push(item);
+        });
       } else {
-        result.forEach((oldItem, index) => {
+        let index = 0;
+        const old = [...result];
+        for (const oldItem of old) {
           for (const newItem of combines) {
             result[index] = oldItem.concat(' ', newItem);
             index++;
           }
-        });
+        }
       }
     });
 
     setValue('productOptions', productOp);
-
     const options: string[] = [];
     const productVar: ProductVariation[] = [];
-
     result.forEach((item) => {
-      const optionName = getValue('name')?.concat(' ', item) || '';
-      options.push(optionName);
+      options.push(getValue('name')?.concat(' ', item) || '');
       productVar.push({
-        optionName,
+        optionName: getValue('name')?.concat(' ', item) || '',
         optionGTin: getValue('gtin') || '',
         optionSku: getValue('sku') || '',
         optionPrice: getValue('price') || 0,
       });
     });
-
     setOptionCombines(options);
     setValue('productVariations', productVar);
   };
@@ -190,7 +191,10 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
                   {option}
                 </label>
                 <input type="text" id={option} className={`form-control w-75`} />
-                <button className="btn btn-danger" onClick={() => onDeleteOption(option)}>
+                <button
+                  className="btn btn-danger"
+                  onClick={(event) => onDeleteOption(event, option)}
+                >
                   <i className="bi bi-x"></i>
                 </button>
               </div>

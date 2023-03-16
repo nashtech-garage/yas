@@ -7,10 +7,12 @@ import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.repository.*;
 import com.yas.product.utils.Constants;
+import com.yas.product.utils.StringUtils;
 import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.product.*;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
+import com.yas.product.viewmodel.productoption.ProductOptionValueVm;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,6 +35,9 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductImageRepository productImageRepository;
+    private final ProductOptionRepository productOptionRepository;
+    private final ProductOptionValueRepository productOptionValueRepository;
+    private final ProductOptionCombinationRepository productOptionCombinationRepository;
 
     private static final String NONE_GROUP = "None group";
 
@@ -38,13 +46,19 @@ public class ProductService {
                           BrandRepository brandRepository,
                           ProductCategoryRepository productCategoryRepository,
                           CategoryRepository categoryRepository,
-                          ProductImageRepository productImageRepository) {
+                          ProductImageRepository productImageRepository,
+                          ProductOptionRepository productOptionRepository,
+                          ProductOptionValueRepository productOptionValueRepository,
+                          ProductOptionCombinationRepository productOptionCombinationRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.productImageRepository = productImageRepository;
+        this.productOptionRepository = productOptionRepository;
+        this.productOptionValueRepository = productOptionValueRepository;
+        this.productOptionCombinationRepository = productOptionCombinationRepository;
     }
 
     public ProductListGetVm getProductsWithFilter(int pageNo, int pageSize, String productName, String brandName) {
@@ -143,19 +157,55 @@ public class ProductService {
         productImageRepository.saveAllAndFlush(productImageList);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
 
-        // Save product variations
-        if (CollectionUtils.isNotEmpty(productPostVm.variations())) {
+        // Save product variations, product option values, and product option combinations
+        if (CollectionUtils.isNotEmpty(productPostVm.variations()) && CollectionUtils.isNotEmpty(productPostVm.productOptionValues())) {
+            List<ProductImage> allProductVariantImageList = new ArrayList<>();
             List<Product> productVariants = productPostVm.variations().stream()
-                    .map(variation -> Product.builder()
-                            .name(variation.name())
-                            .thumbnailMediaId(variation.thumbnailMediaId())
-                            .slug(variation.slug())
-                            .sku(variation.sku())
-                            .gtin(variation.gtin())
-                            .price(variation.price())
-                            .parent(mainProduct).build())
+                    .map(variation -> {
+                        List<ProductImage> productVariantImageList = setProductImages(variation.productImageIds(), mainProduct);
+                        allProductVariantImageList.addAll(productVariantImageList);
+                        return Product.builder()
+                                .name(variation.name())
+                                .thumbnailMediaId(variation.thumbnailMediaId())
+                                .slug(variation.slug().toLowerCase())
+                                .sku(variation.sku())
+                                .gtin(variation.gtin())
+                                .price(variation.price())
+                                .parent(mainProduct).build();
+                    })
                     .toList();
-            productRepository.saveAllAndFlush(productVariants);
+
+            List<Product> productsVariantsSaved = productRepository.saveAllAndFlush(productVariants);
+
+            List<Long> productOptionIds = productPostVm.productOptionValues().stream().map(ProductOptionValueVm::ProductOptionId).toList();
+            List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
+            Map<Long, ProductOption> productOptionMap = productOptions.stream().collect(Collectors.toMap(ProductOption::getId, Function.identity()));
+            List<ProductOptionValue> productOptionValues = new ArrayList<>();
+            List<ProductOptionCombination> productOptionCombinations = new ArrayList<>();
+
+            productPostVm.productOptionValues().forEach(optionValue -> optionValue.value().forEach(value -> {
+                ProductOptionValue productOptionValue = ProductOptionValue.builder()
+                        .product(mainSavedProduct)
+                        .displayOrder(optionValue.displayOrder())
+                        .displayType(optionValue.displayType())
+                        .productOption(productOptionMap.get(optionValue.ProductOptionId()))
+                        .value(value)
+                        .build();
+                Product combineProduct = productsVariantsSaved.stream()
+                        .filter(product -> product.getSlug().contains(StringUtils.toSlug(value))).findFirst().orElse(null);
+                ProductOptionCombination productOptionCombination = ProductOptionCombination.builder()
+                        .product(combineProduct)
+                        .productOption(productOptionMap.get(optionValue.ProductOptionId()))
+                        .value(value)
+                        .displayOrder(optionValue.displayOrder())
+                        .build();
+                productOptionValues.add(productOptionValue);
+                productOptionCombinations.add(productOptionCombination);
+            }));
+
+            productImageRepository.saveAllAndFlush(allProductVariantImageList);
+            productOptionValueRepository.saveAllAndFlush(productOptionValues);
+            productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
         }
 
         return ProductGetDetailVm.fromModel(mainSavedProduct);

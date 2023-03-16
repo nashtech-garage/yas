@@ -40,6 +40,9 @@ class ProductServiceTest {
     ProductCategoryRepository productCategoryRepository;
     ProductService productService;
     ProductImageRepository productImageRepository;
+    ProductOptionRepository productOptionRepository;
+    ProductOptionValueRepository productOptionValueRepository;
+    ProductOptionCombinationRepository productOptionCombinationRepository;
 
     List<Category> categoryList;
     Category category1;
@@ -56,12 +59,19 @@ class ProductServiceTest {
         categoryRepository = mock(CategoryRepository.class);
         productCategoryRepository = mock(ProductCategoryRepository.class);
         productImageRepository = mock(ProductImageRepository.class);
+        productOptionRepository = mock(ProductOptionRepository.class);
+        productOptionValueRepository = mock(ProductOptionValueRepository.class);
+        productOptionCombinationRepository = mock(ProductOptionCombinationRepository.class);
         productService = new ProductService(
                 productRepository,
                 mediaService,
                 brandRepository,
                 productCategoryRepository,
-                categoryRepository, productImageRepository);
+                categoryRepository,
+                productImageRepository,
+                productOptionRepository,
+                productOptionValueRepository,
+                productOptionCombinationRepository);
         category1 = new Category(1L, "category", null, "category", null, null, null, null, null, null);
         category2 = new Category(2L, "category2", null, "category2", null, null, null, null, null, null);
         categoryList = List.of(category1, category2);
