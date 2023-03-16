@@ -19,7 +19,6 @@ import {
 } from '../../../modules/catalog/components';
 import { FormProduct } from '../../../modules/catalog/models/FormProduct';
 import { ProductAttributeValuePost } from '../../../modules/catalog/models/ProductAttributeValuePost';
-import { ProductPost } from '../../../modules/catalog/models/ProductPost.js';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 
@@ -41,7 +40,8 @@ const ProductCreate: NextPage = () => {
 
   const onSubmitForm: SubmitHandler<FormProduct> = async (data) => {
     try {
-      const product: ProductPost = {
+      // create product
+      const productResponse = await createProduct({
         name: data.name,
         slug: data.slug,
         brandId: data.brandId,
@@ -75,9 +75,7 @@ const ProductCreate: NextPage = () => {
             })
           : [],
         productOptionValues: data.productOptions?.map((option) => ({ ...option, displayOrder: 1 })),
-      };
-      // create product
-      const productResponse = await createProduct(product);
+      });
 
       // upload product attribute
       for (const att of data.productAttributes || []) {

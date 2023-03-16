@@ -1,7 +1,7 @@
 import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariationPost } from './ProductVariationPost';
 
-export type ProductPost = {
+export type ProductPayload = {
   name?: string;
   slug?: string;
   brandId?: number;

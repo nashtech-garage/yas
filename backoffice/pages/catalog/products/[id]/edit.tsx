@@ -59,7 +59,7 @@ const EditProduct: NextPage = () => {
   //Form validate
   const onSubmit: SubmitHandler<FormProduct> = (data) => {
     if (id) {
-      const product = {
+      updateProduct(+id, {
         name: data.name,
         slug: data.slug,
         brandId: data.brandId,
@@ -92,8 +92,7 @@ const EditProduct: NextPage = () => {
               };
             })
           : [],
-      };
-      updateProduct(+id, product).then(async (res) => {
+      }).then(async (res) => {
         handleUpdatingResponse(res, PRODUCT_URL);
       });
     }
