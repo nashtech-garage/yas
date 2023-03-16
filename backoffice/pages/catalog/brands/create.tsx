@@ -7,8 +7,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import BrandGeneralInformation from '../../../modules/catalog/components/BrandGeneralInformation';
 import { BRAND_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
 import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const BrandCreate: NextPage = () => {
