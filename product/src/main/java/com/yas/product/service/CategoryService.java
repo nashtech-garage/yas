@@ -23,9 +23,7 @@ public class CategoryService {
     public CategoryListGetVm getPageableCategories(int pageNo, int pageSize) {
         List<CategoryGetVm> categoryGetVms = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Category> categoryPage;
-
-        categoryPage = categoryRepository.findAll(pageable);
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
         List<Category> categories = categoryPage.getContent();
         for (Category category : categories) {
             categoryGetVms.add(CategoryGetVm.fromModel(category));
