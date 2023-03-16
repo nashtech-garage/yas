@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import slugify from 'slugify';
 
 import { PRODUCT_URL } from '../../../constants/Common';
 import {
@@ -19,6 +18,7 @@ import {
 } from '../../../modules/catalog/components';
 import { FormProduct } from '../../../modules/catalog/models/FormProduct';
 import { ProductAttributeValuePost } from '../../../modules/catalog/models/ProductAttributeValuePost';
+import { mapFormProductToProductPayload } from '../../../modules/catalog/models/ProductPayload';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 
@@ -41,41 +41,8 @@ const ProductCreate: NextPage = () => {
   const onSubmitForm: SubmitHandler<FormProduct> = async (data) => {
     try {
       // create product
-      const productResponse = await createProduct({
-        name: data.name,
-        slug: data.slug,
-        brandId: data.brandId,
-        categoryIds: data.categoryIds,
-        shortDescription: data.shortDescription,
-        description: data.description,
-        specification: data.specification,
-        sku: data.sku,
-        gtin: data.gtin,
-        price: data.price,
-        isAllowedToOrder: data.isAllowedToOrder,
-        isPublished: data.isPublished,
-        isFeatured: data.isFeatured,
-        isVisibleIndividually: data.isVisibleIndividually,
-        metaTitle: data.metaTitle,
-        metaKeyword: data.metaKeyword,
-        metaDescription: data.metaDescription,
-        thumbnailMediaId: data.thumbnailMedia?.id,
-        productImageIds: data.productImageMedias?.map((image) => image.id),
-        variations: data.productVariations
-          ? data.productVariations.map((variant) => {
-              return {
-                name: variant.optionName,
-                slug: slugify(variant.optionName),
-                sku: variant.optionSku,
-                gtin: variant.optionGTin,
-                price: variant.optionPrice,
-                thumbnailMediaId: variant.optionThumbnail?.id,
-                productImageIds: variant.optionImages?.map((image) => image.id),
-              };
-            })
-          : [],
-        productOptionValues: data.productOptions?.map((option) => ({ ...option, displayOrder: 1 })),
-      });
+      const payload = mapFormProductToProductPayload(data);
+      const productResponse = await createProduct(payload);
 
       // upload product attribute
       for (const att of data.productAttributes || []) {
