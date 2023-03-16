@@ -1,8 +1,10 @@
 package com.yas.product.controller;
+
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
+import com.yas.product.service.BrandService;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.viewmodel.brand.BrandPostVm;
 import com.yas.product.viewmodel.brand.BrandVm;
@@ -21,13 +23,15 @@ import static org.mockito.Mockito.*;
 
 public class BrandControllerTest {
     private BrandRepository brandRepository;
+    private BrandService brandService;
     private BrandController brandController;
     private final Brand brand1 = new Brand();
 
     @BeforeEach
     void init(){
         brandRepository = mock(BrandRepository.class);
-        brandController = new BrandController(brandRepository);
+        brandService =  mock(BrandService.class);
+        brandController = new BrandController(brandRepository, brandService );
         brand1.setId(1L);
         brand1.setName("dien thoai");
         brand1.setSlug("dien-thoai");
