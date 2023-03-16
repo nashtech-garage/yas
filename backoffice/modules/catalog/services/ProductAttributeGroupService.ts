@@ -6,7 +6,7 @@ export async function getProductAttributeGroups(): Promise<ProductAttributeGroup
   return await response.json();
 }
 
-export async function getProductAttributeGroup(id: number): Promise<ProductAttributeGroup> {
+export async function getProductAttributeGroup(id: number) {
   const response = await fetch('/api/product/backoffice/product-attribute-groups/' + id);
   return await response.json();
 }
