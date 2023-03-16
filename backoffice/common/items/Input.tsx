@@ -83,3 +83,28 @@ export const CheckBox = <T extends FieldValues>({
     <p className="error-field mt-1">{error}</p>
   </div>
 );
+
+export const Switch = <T extends FieldValues>({
+  labelText,
+  field,
+  register,
+  defaultChecked,
+  registerOptions,
+  error,
+}: CheckProps<T>) => (
+  <div className="d-flex">
+    <label className="form-check-label mr-3" htmlFor={field} style={{ marginRight: '15px' }}>
+      {labelText}
+    </label>
+    <div className="form-check form-switch mb-3">
+      <input
+        className={`form-check-input`}
+        type="checkbox"
+        id={field}
+        defaultChecked={defaultChecked}
+        {...register(field, registerOptions)}
+      />
+      <p className="error-field mt-1">{error}</p>
+    </div>
+  </div>
+);
