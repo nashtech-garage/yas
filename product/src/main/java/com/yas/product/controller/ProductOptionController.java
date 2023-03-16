@@ -12,12 +12,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -54,7 +55,7 @@ public class ProductOptionController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductOptionGetVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
-    public ResponseEntity<ProductOptionGetVm> createProductOption(@Validated @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<ProductOptionGetVm> createProductOption(@Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal, UriComponentsBuilder uriComponentsBuilder) {
         ProductOption productOption = new ProductOption();
         productOption.setName(productOptionPostVm.name());
         ProductOption savedProductOption = productOptionRepository.saveAndFlush(productOption);
@@ -69,7 +70,7 @@ public class ProductOptionController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
     })
-    public ResponseEntity<Void> updateProductOption(@PathVariable Long id, @Validated @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal) {
+    public ResponseEntity<Void> updateProductOption(@PathVariable Long id, @Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal) {
         ProductOption productOption = productOptionRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_OPTION_NOT_FOUND, id)));
