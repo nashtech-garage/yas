@@ -28,7 +28,7 @@ public class CategoryService {
         categoryPage = categoryRepository.findAll(pageable);
         List<Category> categories = categoryPage.getContent();
         for (Category category : categories) {
-            categoryGetVms.add(BrandVm.fromModel(category));
+            categoryGetVms.add(CategoryGetVm.fromModel(category));
         }
 
         return new CategoryListGetVm(
