@@ -80,7 +80,7 @@ const EditProduct: NextPage = () => {
         thumbnailMediaId: data.thumbnailMedia?.id,
         productImageIds: data.productImageMedias?.map((image) => image.id),
         variations: data.productVariations
-            ? data.productVariations.map((variant) => {
+          ? data.productVariations.map((variant) => {
               return {
                 name: variant.optionName,
                 slug: slugify(variant.optionName),
@@ -91,7 +91,7 @@ const EditProduct: NextPage = () => {
                 productImageIds: variant.optionImages?.map((image) => image.id),
               };
             })
-            : [],
+          : [],
       };
       updateProduct(+id, product).then(async (res) => {
         handleUpdatingResponse(res, PRODUCT_URL);
@@ -103,49 +103,49 @@ const EditProduct: NextPage = () => {
     return <p>No product</p>;
   } else {
     return (
-        <div className="create-product">
-          <h2>Update Product: {product.name}</h2>
+      <div className="create-product">
+        <h2>Update Product: {product.name}</h2>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Tabs className="mb-3" activeKey={tabKey} onSelect={(e: any) => setTabKey(e)}>
-              <Tab eventKey={'general'} title="General Information">
-                <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
-              </Tab>
-              <Tab eventKey={'image'} title="Product Images">
-                <ProductImage product={product} setValue={setValue} />
-              </Tab>
-              <Tab eventKey={'variation'} title="Product Variations"></Tab>
-              <Tab eventKey={'attribute'} title="Product Attributes">
-                <ProductAttributes />
-              </Tab>
-              <Tab eventKey={'category'} title="Category Mapping">
-                <ProductCategoryMapping product={product} setValue={setValue} getValue={getValues} />
-              </Tab>
-              <Tab eventKey={'related'} title="Related Products">
-                <RelatedProduct setValue={setValue} getValue={getValues} />
-              </Tab>
-              <Tab eventKey={'cross-sell'} title="Cross-sell Product">
-                <CrossSellProduct setValue={setValue} getValue={getValues} />
-              </Tab>
-              <Tab eventKey={'seo'} title="SEO">
-                <ProductSEO product={product} register={register} errors={errors} />
-              </Tab>
-            </Tabs>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Tabs className="mb-3" activeKey={tabKey} onSelect={(e: any) => setTabKey(e)}>
+            <Tab eventKey={'general'} title="General Information">
+              <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
+            </Tab>
+            <Tab eventKey={'image'} title="Product Images">
+              <ProductImage product={product} setValue={setValue} />
+            </Tab>
+            <Tab eventKey={'variation'} title="Product Variations"></Tab>
+            <Tab eventKey={'attribute'} title="Product Attributes">
+              <ProductAttributes />
+            </Tab>
+            <Tab eventKey={'category'} title="Category Mapping">
+              <ProductCategoryMapping product={product} setValue={setValue} getValue={getValues} />
+            </Tab>
+            <Tab eventKey={'related'} title="Related Products">
+              <RelatedProduct setValue={setValue} getValue={getValues} />
+            </Tab>
+            <Tab eventKey={'cross-sell'} title="Cross-sell Product">
+              <CrossSellProduct setValue={setValue} getValue={getValues} />
+            </Tab>
+            <Tab eventKey={'seo'} title="SEO">
+              <ProductSEO product={product} register={register} errors={errors} />
+            </Tab>
+          </Tabs>
 
-            {tabKey === 'attribute' ? (
-                <div className="text-center"></div>
-            ) : (
-                <div className="text-center">
-                  <button className="btn btn-primary" type="submit">
-                    Save
-                  </button>
-                  <Link href="/catalog/products">
-                    <button className="btn btn-secondary m-3">Cancel</button>
-                  </Link>
-                </div>
-            )}
-          </form>
-        </div>
+          {tabKey === 'attribute' ? (
+            <div className="text-center"></div>
+          ) : (
+            <div className="text-center">
+              <button className="btn btn-primary" type="submit">
+                Save
+              </button>
+              <Link href="/catalog/products">
+                <button className="btn btn-secondary m-3">Cancel</button>
+              </Link>
+            </div>
+          )}
+        </form>
+      </div>
     );
   }
 };
