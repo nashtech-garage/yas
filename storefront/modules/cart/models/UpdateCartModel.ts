@@ -1,4 +1,4 @@
-export type UpdateCartModel {
+export type UpdateCartModel = {
     cartItemId: number,
     userId: string,
     productId: number,
