@@ -1,9 +1,16 @@
 package com.yas.product.service;
 
+import com.yas.product.exception.BadRequestException;
+import com.yas.product.exception.DuplicatedNameException;
+import com.yas.product.exception.NotFoundException;
+import com.yas.product.model.attribute.ProductAttributeGroup;
+import com.yas.product.repository.ProductAttributeGroupRepository;
+import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGetVm;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.viewmodel.productattribute.ProductAttributeListGetVm;
 import com.yas.product.repository.ProductAttributeRepository;
+import com.yas.product.viewmodel.productattribute.ProductAttributePostVm;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +22,12 @@ import java.util.List;
 @Service
 public class ProductAttributeService {
     private final ProductAttributeRepository productAttributeRepository;
+    private final ProductAttributeGroupRepository productAttributeGroupRepository;
 
-    public ProductAttributeService(ProductAttributeRepository productAttributeRepository) {
+    public ProductAttributeService(ProductAttributeRepository productAttributeRepository,
+                                   ProductAttributeGroupRepository productAttributeGroupRepository) {
         this.productAttributeRepository = productAttributeRepository;
+        this.productAttributeGroupRepository = productAttributeGroupRepository;
     }
 
     public ProductAttributeListGetVm getPageableProductAttributes(int pageNo, int pageSize) {
@@ -37,5 +47,50 @@ public class ProductAttributeService {
             productAttributePage.getTotalPages(),
             productAttributePage.isLast()
         );
+    }
+
+    public ProductAttribute save(ProductAttributePostVm productAttributePostVm) {
+        validateExistedName(productAttributePostVm.name(), null);
+        ProductAttribute productAttribute = new ProductAttribute();
+        productAttribute.setName(productAttributePostVm.name());
+
+        if(productAttributePostVm.productAttributeGroupId() != null){
+            ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
+                    .findById(productAttributePostVm.productAttributeGroupId())
+                    .orElseThrow(() -> new BadRequestException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND,
+                            productAttributePostVm.productAttributeGroupId())));
+            productAttribute.setProductAttributeGroup(productAttributeGroup);
+        }
+
+        return productAttributeRepository.saveAndFlush(productAttribute);
+    }
+
+    public ProductAttribute update(ProductAttributePostVm productAttributePostVm, Long id) {
+        validateExistedName(productAttributePostVm.name(), id);
+        ProductAttribute productAttribute = productAttributeRepository
+                .findById(id)
+                .orElseThrow(()-> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND, id)));
+        productAttribute.setName(productAttributePostVm.name());
+
+
+        if(productAttributePostVm.productAttributeGroupId() != null){
+            ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
+                    .findById(productAttributePostVm.productAttributeGroupId())
+                    .orElseThrow(() -> new BadRequestException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND,
+                            productAttributePostVm.productAttributeGroupId())));
+            productAttribute.setProductAttributeGroup(productAttributeGroup);
+        }
+
+        return productAttributeRepository.saveAndFlush(productAttribute);
+    }
+
+    private void validateExistedName(String name, Long id) {
+        if (checkExistedName(name, id)) {
+            throw new DuplicatedNameException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
+        }
+    }
+
+    private boolean checkExistedName(String name, Long id) {
+        return productAttributeRepository.findByNameAndId(name, id) != null;
     }
 }

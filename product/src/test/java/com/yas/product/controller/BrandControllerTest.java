@@ -74,6 +74,9 @@ public class BrandControllerTest {
     @Test
     void createBrand_SaveBrandPostVm_Success(){
         BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung", false);
+        Brand savedBrand = brandPostVm.toModel();
+        savedBrand.setId(1L);
+        when(brandService.create(any())).thenReturn(savedBrand);
         ResponseEntity<BrandVm> result = brandController.createBrand(brandPostVm, UriComponentsBuilder.fromPath("/brands/{id}"));
         assertEquals(Objects.requireNonNull(result.getBody()).name(), brandPostVm.name());
         assertEquals(result.getBody().slug(), brandPostVm.slug());
@@ -82,9 +85,9 @@ public class BrandControllerTest {
     @Test
     void updateBrand_FindIdBrandUpdate_ThrowException(){
         BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung", false);
-        when(brandRepository.findById(1L)).thenReturn(Optional.empty());
+        when(brandService.update(any(), anyLong())).thenThrow(new NotFoundException("Brand 1 is not found"));
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                () -> brandController.updateBrand(1L,brandPostVm));
+                () -> brandController.updateBrand(1L, brandPostVm));
         assertThat(exception.getMessage(),is("Brand 1 is not found"));
     }
 

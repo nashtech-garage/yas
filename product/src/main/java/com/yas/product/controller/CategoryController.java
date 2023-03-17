@@ -4,6 +4,7 @@ import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
+import com.yas.product.service.CategoryService;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
@@ -19,15 +20,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
 import java.security.Principal;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
 public class CategoryController {
     private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryRepository categoryRepository) {
+    public CategoryController(CategoryRepository categoryRepository, CategoryService categoryService) {
         this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
     }
 
     @GetMapping({"/backoffice/categories" , "/storefront/categories"})
@@ -56,21 +58,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CategoryGetDetailVm> createCategory(@Valid @RequestBody CategoryPostVm categoryPostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal){
-        Category category = new Category();
-        category.setName(categoryPostVm.name());
-        category.setSlug(categoryPostVm.slug());
-        category.setDescription(categoryPostVm.description());
-        category.setDisplayOrder(categoryPostVm.displayOrder());
-        category.setMetaDescription(categoryPostVm.metaDescription());
-        category.setMetaKeyword(categoryPostVm.metaKeywords());
-        category.setIsPublished(categoryPostVm.isPublish());
-        if(categoryPostVm.parentId() != null){
-            Category parentCategory = categoryRepository
-                    .findById(categoryPostVm.parentId())
-                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
-            category.setParent(parentCategory);
-        }
-        Category savedCategory = categoryRepository.saveAndFlush(category);
+        Category savedCategory = categoryService.create(categoryPostVm);
 
         CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(savedCategory);
         return  ResponseEntity.created(uriComponentsBuilder.replacePath("/categories/{id}").buildAndExpand(savedCategory.getId()).toUri())
@@ -83,29 +71,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm, Principal principal){
-        Category category = categoryRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
-        category.setName(categoryPostVm.name());
-        category.setSlug(categoryPostVm.slug());
-        category.setDescription(categoryPostVm.description());
-        category.setDisplayOrder(categoryPostVm.displayOrder());
-        category.setMetaDescription(categoryPostVm.metaDescription());
-        category.setMetaKeyword(categoryPostVm.metaKeywords());
-        category.setIsPublished(categoryPostVm.isPublish());
-        if(categoryPostVm.parentId() == null){
-            category.setParent(null);
-        } else {
-            Category parentCategory = categoryRepository
-                    .findById(categoryPostVm.parentId())
-                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
-
-            if(!checkParent(category.getId(), parentCategory)){
-                throw new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_CANNOT_BE_ITSELF);
-            }
-            category.setParent(parentCategory);
-        }
-        categoryRepository.saveAndFlush(category);
+        categoryService.update(categoryPostVm, id);
         return ResponseEntity.noContent().build();
     }
     @DeleteMapping("/backoffice/categories/{id}")
@@ -124,11 +90,5 @@ public class CategoryController {
         }
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-    boolean checkParent(Long id, Category category){
-        if(id.equals(category.getId())) return false;
-        if(category.getParent()!=null)
-            return checkParent(id, category.getParent());
-        else return true;
     }
 }

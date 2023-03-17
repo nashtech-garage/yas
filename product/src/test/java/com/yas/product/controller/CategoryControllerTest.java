@@ -4,6 +4,7 @@ import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
+import com.yas.product.service.CategoryService;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
 import com.yas.product.viewmodel.category.CategoryPostVm;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.*;
 
 class CategoryControllerTest {
     CategoryRepository categoryRepository;
+    CategoryService categoryService;
     CategoryController categoryController;
     List<Category> categories;
     Category category;
@@ -36,10 +38,11 @@ class CategoryControllerTest {
     @BeforeEach
     void setUp() {
         uriComponentsBuilder = mock(UriComponentsBuilder.class);
+        categoryService = mock(CategoryService.class);
         principal = mock(Principal.class);
         categories = new ArrayList<>();
         categoryRepository = mock(CategoryRepository.class);
-        categoryController = new CategoryController(categoryRepository);
+        categoryController = new CategoryController(categoryRepository, categoryService);
         category = new Category();
         category.setId(1L);
         category.setName("hô hô");
@@ -87,18 +90,23 @@ class CategoryControllerTest {
                 "",
                 (short) 0, false
         );
-        var categoryCaptor = ArgumentCaptor.forClass(Category.class);
-        Category savedCategory = mock(Category.class);
-        when(categoryRepository.saveAndFlush(categoryCaptor.capture())).thenReturn(savedCategory);
+        Category savedCategory = mockSavedCategory();
+        when(categoryService.create(any())).thenReturn(savedCategory);
         UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
         UriComponents uriComponents = mock(UriComponents.class);
         when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
         when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
-        ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
-                , uriComponentsBuilder, principal);
-        verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
-        Category categoryValue = categoryCaptor.getValue();
-        assertThat(categoryValue.getName()).isEqualTo(categoryPostVm.name());
+        categoryController.createCategory(categoryPostVm, uriComponentsBuilder, principal);
+        assertThat(savedCategory.getName()).isEqualTo(categoryPostVm.name());
+    }
+
+    private Category mockSavedCategory() {
+        Category savedCategory = new Category();
+        savedCategory.setName(categoryPostVm.name());
+        savedCategory.setId(1L);
+        savedCategory.setDisplayOrder((short) 1);
+
+        return savedCategory;
     }
 
     @Test
@@ -112,19 +120,15 @@ class CategoryControllerTest {
                 "",
                 (short) 0, false
         );
-        var categoryCaptor = ArgumentCaptor.forClass(Category.class);
-        Category savedCategory = mock(Category.class);
-        when(categoryRepository.findById(categoryPostVm.parentId())).thenReturn(Optional.of(category));
-        when(categoryRepository.saveAndFlush(categoryCaptor.capture())).thenReturn(savedCategory);
+        Category savedCategory = mockSavedCategory();
+        when(categoryService.create(any())).thenReturn(savedCategory);
         UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
         UriComponents uriComponents = mock(UriComponents.class);
         when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
         when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
-        ResponseEntity<CategoryGetDetailVm> actual = categoryController.createCategory(categoryPostVm
+        categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal);
-        verify(categoryRepository).saveAndFlush(categoryCaptor.capture());
-        Category categoryValue = categoryCaptor.getValue();
-        assertThat(categoryValue.getName()).isEqualTo(categoryPostVm.name());
+        assertThat(savedCategory.getName()).isEqualTo(categoryPostVm.name());
     }
 
     @Test
@@ -138,7 +142,7 @@ class CategoryControllerTest {
                 "",
                 (short) 0, false
         );
-        when(categoryRepository.findById(categoryPostVm.parentId())).thenThrow(BadRequestException.class);
+        when(categoryService.create(any())).thenThrow(BadRequestException.class);
         assertThrows(BadRequestException.class, () -> categoryController.createCategory(categoryPostVm
                 , uriComponentsBuilder, principal));
     }
