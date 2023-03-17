@@ -56,6 +56,8 @@ public class Product extends AbstractAuditEntity {
 
     private Boolean isActive;
 
+    private Integer remainingQuantity;
+
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;
