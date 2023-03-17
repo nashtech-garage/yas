@@ -4,10 +4,6 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
-
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
-import { PRODUCT_URL } from '../../../../constants/Common';
 import {
   CrossSellProduct,
   ProductCategoryMapping,
@@ -21,9 +17,12 @@ import { Product } from '../../../../modules/catalog/models/Product';
 import { mapFormProductToProductPayload } from '../../../../modules/catalog/models/ProductPayload';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
+import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
+import { toastError } from '../../../../modules/catalog/services/ToastService';
+import { PRODUCT_URL } from '../../../../constants/Common';
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const EditProduct: NextPage = () => {
-  const { handleUpdatingResponse } = useUpdatingContext();
   //Get ID
   const router = useRouter();
   const { id } = router.query;
@@ -49,7 +48,7 @@ const EditProduct: NextPage = () => {
           setLoading(false);
         } else {
           //Show error
-          toast(data.detail);
+          toastError(data.detail);
           router.push(PRODUCT_URL);
         }
       });
@@ -61,7 +60,8 @@ const EditProduct: NextPage = () => {
     if (id) {
       const payload = mapFormProductToProductPayload(data);
       updateProduct(+id, payload).then(async (res) => {
-        handleUpdatingResponse(res, PRODUCT_URL);
+        handleUpdatingResponse(res);
+        router.replace(PRODUCT_URL);
       });
     }
   };

@@ -2,8 +2,6 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { Category } from '../../../../modules/catalog/models/Category';
 import {
   getCategories,
@@ -11,10 +9,10 @@ import {
   updateCategory,
 } from '../../../../modules/catalog/services/CategoryService';
 import { CATEGORIES_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const CategoryEdit: NextPage = () => {
-  const { handleUpdatingResponse } = useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   var slugify = require('slugify');
@@ -39,7 +37,8 @@ const CategoryEdit: NextPage = () => {
 
     if (id) {
       updateCategory(+id, category).then((response) => {
-        handleUpdatingResponse(response, CATEGORIES_URL);
+        handleUpdatingResponse(response);
+        router.replace(CATEGORIES_URL);
       });
     }
   };

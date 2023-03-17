@@ -2,19 +2,15 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { ProductAttribute } from '../../../modules/catalog/models/ProductAttribute';
 import {
   deleteProductAttribute,
   getProductAttributes,
 } from '../../../modules/catalog/services/ProductAttributeService';
-import CustomToast from '../../../common/items/CustomToast';
-import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const ProductAttributeList: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
-    useDeletingContext();
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>();
   const [isLoading, setLoading] = useState(false);
   const [isShowModalDelete, setIsShowModalDelete] = useState<boolean>(false);
@@ -106,14 +102,6 @@ const ProductAttributeList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

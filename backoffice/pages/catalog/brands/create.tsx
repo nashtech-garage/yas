@@ -7,12 +7,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import BrandGeneralInformation from '../../../modules/catalog/components/BrandGeneralInformation';
 import { BRAND_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
+import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const BrandCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
   const router = useRouter();
   const {
     register,
@@ -29,7 +26,8 @@ const BrandCreate: NextPage = () => {
       isPublish: event.isPublish,
     };
     let response = await createBrand(brand);
-    handleCreatingResponse(response, BRAND_URL);
+    handleCreatingResponse(response);
+    router.replace(BRAND_URL);
   };
 
   return (
@@ -55,14 +53,6 @@ const BrandCreate: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

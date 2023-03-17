@@ -8,12 +8,9 @@ import {
   deleteProductAttributeGroup,
   getProductAttributeGroups,
 } from '../../../modules/catalog/services/ProductAttributeGroupService';
-import CustomToast from '../../../common/items/CustomToast';
-import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const ProductAttrbuteGroupList: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
-    useDeletingContext();
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
   const [isLoading, setLoading] = useState(false);
   const [isShowModalDelete, setIsShowModalDelete] = useState<boolean>(false);
@@ -99,14 +96,6 @@ const ProductAttrbuteGroupList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

@@ -3,21 +3,17 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { ProductAttributeGroup } from '../../../../modules/catalog/models/ProductAttributeGroup';
 import {
   getProductAttributeGroup,
   updateProductAttributeGroup,
 } from '../../../../modules/catalog/services/ProductAttributeGroupService';
 import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 import ProductAttributeGroupGeneralInformation from '../../../../modules/catalog/components/ProductAttributeGroupGeneralInformation';
-import CustomToast from '../../../../common/items/CustomToast';
+import { toastError } from '../../../../modules/catalog/services/ToastService';
 
 const ProductAttributeGroupEdit: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
-    useUpdatingContext();
   const router = useRouter();
   const { id } = router.query;
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup>();
@@ -36,7 +32,8 @@ const ProductAttributeGroupEdit: NextPage = () => {
     };
     if (id) {
       updateProductAttributeGroup(+id, productAttributeGroup).then((response) => {
-        handleUpdatingResponse(response, PRODUCT_ATTRIBUTE_GROUPS_URL);
+        handleUpdatingResponse(response);
+        router.replace(PRODUCT_ATTRIBUTE_GROUPS_URL);
       });
     }
   };
@@ -48,7 +45,7 @@ const ProductAttributeGroupEdit: NextPage = () => {
           setProductAttributeGroup(data);
           setLoading(false);
         } else {
-          toast(data?.detail);
+          toastError(data?.detail);
           setLoading(false);
           router.push(PRODUCT_ATTRIBUTE_GROUPS_URL);
         }
@@ -78,14 +75,6 @@ const ProductAttributeGroupEdit: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

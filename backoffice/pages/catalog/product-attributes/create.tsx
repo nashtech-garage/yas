@@ -7,16 +7,15 @@ import { getProductAttributeGroups } from '../../../modules/catalog/services/Pro
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import { createProductAttribute } from '../../../modules/catalog/services/ProductAttributeService';
 import { PRODUCT_ATTRIBUTE_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
+import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { useRouter } from 'next/router';
 
 interface ProductAttributeId {
   name: string;
   productAttributeGroupId: string;
 }
 const ProductAttributeCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
+  const router = useRouter();
   const { formState, register, handleSubmit } = useForm();
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup[]>([]);
   const [idGroup, setIdGroup] = useState(String);
@@ -34,7 +33,8 @@ const ProductAttributeCreate: NextPage = () => {
       productAttributeGroupId: idGroup,
     };
     let response = await createProductAttribute(productAttribute);
-    handleCreatingResponse(response, PRODUCT_ATTRIBUTE_URL);
+    handleCreatingResponse(response);
+    router.replace(PRODUCT_ATTRIBUTE_URL);
   };
   return (
     <>
@@ -88,14 +88,6 @@ const ProductAttributeCreate: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

@@ -2,17 +2,12 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Table } from 'react-bootstrap';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import type { Category } from '../../../modules/catalog/models/Category';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
-import CustomToast from '../../../common/items/CustomToast';
-import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const CategoryList: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
-    useDeletingContext();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [categoryId, setCategoryId] = useState(0);
@@ -116,14 +111,6 @@ const CategoryList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };
