@@ -5,6 +5,12 @@ export async function getBrands(): Promise<Brand[]> {
   return await response.json();
 }
 
+export async function getPageableBrands(pageNo: number, pageSize: number) {
+  const url = `/api/product/backoffice/brands/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  const response = await fetch(url);
+  return await response.json();
+}
+
 export async function createBrand(brand: Brand) {
   const response = await fetch('/api/product/backoffice/brands', {
     method: 'POST',

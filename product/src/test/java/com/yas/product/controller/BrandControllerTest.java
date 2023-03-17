@@ -1,8 +1,10 @@
 package com.yas.product.controller;
+
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
+import com.yas.product.service.BrandService;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.viewmodel.brand.BrandPostVm;
 import com.yas.product.viewmodel.brand.BrandVm;
@@ -21,13 +23,15 @@ import static org.mockito.Mockito.*;
 
 public class BrandControllerTest {
     private BrandRepository brandRepository;
+    private BrandService brandService;
     private BrandController brandController;
     private final Brand brand1 = new Brand();
 
     @BeforeEach
     void init(){
         brandRepository = mock(BrandRepository.class);
-        brandController = new BrandController(brandRepository);
+        brandService =  mock(BrandService.class);
+        brandController = new BrandController(brandRepository, brandService );
         brand1.setId(1L);
         brand1.setName("dien thoai");
         brand1.setSlug("dien-thoai");
@@ -69,7 +73,7 @@ public class BrandControllerTest {
 
     @Test
     void createBrand_SaveBrandPostVm_Success(){
-        BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
+        BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung", false);
         ResponseEntity<BrandVm> result = brandController.createBrand(brandPostVm, UriComponentsBuilder.fromPath("/brands/{id}"));
         assertEquals(Objects.requireNonNull(result.getBody()).name(), brandPostVm.name());
         assertEquals(result.getBody().slug(), brandPostVm.slug());
@@ -77,7 +81,7 @@ public class BrandControllerTest {
 
     @Test
     void updateBrand_FindIdBrandUpdate_ThrowException(){
-        BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
+        BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung", false);
         when(brandRepository.findById(1L)).thenReturn(Optional.empty());
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
                 () -> brandController.updateBrand(1L,brandPostVm));
@@ -86,7 +90,7 @@ public class BrandControllerTest {
 
     @Test
     void updateBrand_UpdateBrand_Success(){
-        BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung");
+        BrandPostVm brandPostVm = new BrandPostVm("samsung","samsung", false);
         when(brandRepository.findById(1L)).thenReturn(Optional.of(brand1));
         brandRepository.findById(1L).get().setSlug(brandPostVm.slug());
         brandRepository.findById(1L).get().setName(brandPostVm.name());

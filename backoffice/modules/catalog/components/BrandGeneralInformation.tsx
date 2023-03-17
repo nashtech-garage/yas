@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
 import slugify from 'slugify';
 
-import { Input } from '../../../common/items/Input';
+import { Input, Switch } from '../../../common/items/Input';
 import { Brand } from '../models/Brand';
 import { SLUG_FIELD_PATTERN } from '../constants/validationPattern';
 
@@ -20,6 +20,7 @@ const BrandGeneralInformation = ({ register, errors, setValue, trigger, brand }:
     setValue('slug', slugify(event.target.value, { lower: true, strict: true }));
     await trigger('slug');
     await trigger('name');
+    await trigger('isPublish');
   };
   return (
     <>
@@ -48,6 +49,12 @@ const BrandGeneralInformation = ({ register, errors, setValue, trigger, brand }:
           },
         }}
         error={errors.slug?.message}
+      />
+      <Switch
+        labelText="Publish"
+        field="isPublish"
+        defaultChecked={brand?.isPublish}
+        register={register}
       />
     </>
   );

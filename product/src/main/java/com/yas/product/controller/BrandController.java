@@ -3,8 +3,11 @@ package com.yas.product.controller;
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
+import com.yas.product.service.BrandService;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.viewmodel.brand.BrandPostVm;
+import com.yas.product.viewmodel.brand.BrandListGetVm;
+import com.yas.product.constants.PageableConstant;
 import com.yas.product.viewmodel.brand.BrandVm;
 import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.utils.Constants;
@@ -24,19 +27,29 @@ import java.util.List;
 @RestController
 public class BrandController {
   private final BrandRepository brandRepository;
+
+  private final BrandService brandService;
   private static final Logger log = LoggerFactory.getLogger(BrandController.class);
 
-  public BrandController(BrandRepository brandRepository) {
+  public BrandController(BrandRepository brandRepository, BrandService brandService) {
     this.brandRepository = brandRepository;
+    this.brandService = brandService;
   }
 
   @GetMapping({"/backoffice/brands", "/storefront/brands"})
   public ResponseEntity<List<BrandVm>> listBrands() {
     log.info("[Test logging with trace] Got a request");
     List<BrandVm> brandVms = brandRepository.findAll().stream()
-        .map(BrandVm::fromModel)
-        .toList();
+            .map(BrandVm::fromModel)
+            .toList();
     return ResponseEntity.ok(brandVms);
+  }
+
+  @GetMapping({"/backoffice/brands/paging", "/storefront/brands/paging"})
+  public ResponseEntity<BrandListGetVm> getPageableBrands(@RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                    @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+
+    return ResponseEntity.ok(brandService.getBrands(pageNo, pageSize));
   }
 
   @GetMapping("/backoffice/brands/{id}")
@@ -72,6 +85,7 @@ public class BrandController {
             .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, id));
     brand.setSlug(brandPostVm.slug());
     brand.setName(brandPostVm.name());
+    brand.setIsPublished(brandPostVm.isPublish());
     brandRepository.save(brand);
     return ResponseEntity.noContent().build();
   }

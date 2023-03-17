@@ -10,14 +10,23 @@ import {
 } from '../../../../modules/catalog/services/ProductAttributeGroupService';
 import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../../constants/Common';
 import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import ProductAttributeGroupGeneralInformation from '../../../../modules/catalog/components/ProductAttributeGroupGeneralInformation';
+import CustomToast from '../../../../common/items/CustomToast';
 
 const ProductAttributeGroupEdit: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup>();
-  const { register, handleSubmit, formState, setValue } = useForm();
-  const { errors } = formState;
-  const handleSubmitGroup = async (event: any) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<ProductAttributeGroup>();
+  const [isLoading, setLoading] = useState(false);
+
+  const handleSubmitGroup = async (event: ProductAttributeGroup) => {
     let productAttributeGroup: ProductAttributeGroup = {
       id: 0,
       name: event.name,
@@ -31,39 +40,37 @@ const ProductAttributeGroupEdit: NextPage = () => {
   };
   useEffect(() => {
     if (id) {
+      setLoading(true);
       getProductAttributeGroup(+id).then((data) => {
-        setProductAttributeGroup(data);
-        setValue('name', data.name);
+        if (data.id) {
+          setProductAttributeGroup(data);
+          setLoading(false);
+        } else {
+          toast(data?.detail);
+          setLoading(false);
+          router.push(PRODUCT_ATTRIBUTE_GROUPS_URL);
+        }
       });
     }
   }, [id]);
+  if (isLoading) return <p>Loading...</p>;
+  if (!productAttributeGroup) return <></>;
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
           <h2>Edit Product Attribute Group</h2>
           <form onSubmit={handleSubmit(handleSubmitGroup)} name="form">
-            <div className="mb-3">
-              <div className="mb-3">
-                <label className="form-label">Name</label>
-                <input
-                  className="form-control"
-                  {...register('name', { required: true })}
-                  type="text"
-                  id="name"
-                  name="name"
-                  defaultValue={productAttributeGroup?.name}
-                />
-                {errors.name && errors.name.type == 'required' && (
-                  <p className="text-danger">Please enter the name product attribute group</p>
-                )}
-              </div>
-            </div>
+            <ProductAttributeGroupGeneralInformation
+              register={register}
+              errors={errors}
+              productAttributeGroup={productAttributeGroup}
+            ></ProductAttributeGroupGeneralInformation>
             <button className="btn btn-primary" type="submit">
               Save
             </button>
             &emsp;
-            <Link href="/catalog/product-options">
+            <Link href="/catalog/product-attribute-groups">
               <button className="btn btn-outline-secondary">Cancel</button>
             </Link>
           </form>
