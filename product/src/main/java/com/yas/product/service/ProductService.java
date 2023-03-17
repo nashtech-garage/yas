@@ -148,6 +148,7 @@ public class ProductService {
                 .metaDescription(productPostVm.description())
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
+                .remainingQuantity(productPostVm.remainingQuantity())
                 .isActive(true).build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
@@ -212,74 +213,7 @@ public class ProductService {
             productOptionValueRepository.saveAllAndFlush(productOptionValues);
             productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
         }
-
-<<<<<<< Updated upstream
         return ProductGetDetailVm.fromModel(mainSavedProduct);
-=======
-        if (CollectionUtils.isNotEmpty(productPostVm.categoryIds())) {
-            List<Category> categoryList = categoryRepository.findAllById(productPostVm.categoryIds());
-            if (categoryList.isEmpty()) {
-                throw new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, productPostVm.categoryIds());
-            } else if (categoryList.size() < productPostVm.categoryIds().size()) {
-                List<Long> categoryIdsNotFound = productPostVm.categoryIds();
-                categoryIdsNotFound.removeAll(categoryList.stream().map(Category::getId).toList());
-                throw new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, categoryIdsNotFound);
-            } else {
-                for (Category category : categoryList) {
-                    ProductCategory productCategory = new ProductCategory();
-                    productCategory.setProduct(product);
-                    productCategory.setCategory(category);
-                    productCategoryList.add(productCategory);
-                }
-            }
-        }
-
-        if (CollectionUtils.isNotEmpty(files)) {
-            for (int index = 1; index < files.size(); index++) {
-                ProductImage productImage = new ProductImage();
-                NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(index), "", "");
-                productImage.setImageId(noFileMediaVm.id());
-                productImage.setProduct(product);
-                productImages.add(productImage);
-            }
-
-            NoFileMediaVm noFileMediaVm = mediaService.saveFile(files.get(0), "", "");
-            product.setThumbnailMediaId(noFileMediaVm.id());
-        }
-
-        product.setName(productPostVm.name());
-        product.setSlug(productPostVm.slug());
-        product.setDescription(productPostVm.description());
-        product.setShortDescription(productPostVm.shortDescription());
-        product.setSpecification(productPostVm.specification());
-        product.setSku(productPostVm.sku());
-        product.setGtin(productPostVm.gtin());
-        product.setPrice(productPostVm.price());
-        product.setIsAllowedToOrder(productPostVm.isAllowedToOrder());
-        product.setIsFeatured(productPostVm.isFeatured());
-        product.setIsPublished(productPostVm.isPublished());
-        product.setIsActive(true);
-        product.setMetaTitle(productPostVm.metaTitle());
-        product.setMetaKeyword(productPostVm.metaKeyword());
-        product.setMetaDescription(productPostVm.metaDescription());
-        product.setRemainingQuantity(productPostVm.remainingQuantity());
-        if (productPostVm.isVisibleIndividually() == null)
-            product.setIsVisibleIndividually(true);
-        product.setIsVisibleIndividually(productPostVm.isVisibleIndividually());
-
-        if (productPostVm.parentId() != null) {
-            Product parentProduct = productRepository.findById(productPostVm.parentId()).orElseThrow(
-                    () -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productPostVm.parentId()));
-            product.setParent(parentProduct);
-        } else {
-            product.setParent(product);
-        }
-
-        product.setProductCategories(productCategoryList);
-        product.setProductImages(productImages);
-        Product savedProduct = productRepository.saveAndFlush(product);
-        return ProductGetDetailVm.fromModel(savedProduct);
->>>>>>> Stashed changes
     }
 
     public void updateProduct(long productId, ProductPutVm productPutVm) {

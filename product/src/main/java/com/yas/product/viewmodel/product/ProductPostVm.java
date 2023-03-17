@@ -1,11 +1,8 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.validation.ValidateProductPrice;
-<<<<<<< Updated upstream
 import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
-=======
 import jakarta.validation.constraints.Min;
->>>>>>> Stashed changes
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;

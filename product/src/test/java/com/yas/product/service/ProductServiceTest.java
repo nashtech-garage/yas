@@ -67,38 +67,11 @@ class ProductServiceTest {
                 mediaService,
                 brandRepository,
                 productCategoryRepository,
-<<<<<<< Updated upstream
                 categoryRepository,
                 productImageRepository,
                 productOptionRepository,
                 productOptionValueRepository,
                 productOptionCombinationRepository);
-=======
-                categoryRepository, productImageRepository);
-
-        productPostVm = new ProductPostVm(
-                "name",
-                "slug",
-                1L,
-                List.of(1L, 2L),
-                "Short description",
-                "description",
-                "specification",
-                "sku",
-                "gtin",
-                123.5,
-                10,
-                true,
-                true,
-                true,
-                true,
-                "title",
-                "meta keyword",
-                "meta description",
-                1L
-        );
-
->>>>>>> Stashed changes
         category1 = new Category(1L, "category", null, "category", null, null, null, false, null, null, null);
         category2 = new Category(2L, "category2", null, "category2", null, null, null, false, null, null, null);
         categoryList = List.of(category1, category2);
@@ -108,149 +81,19 @@ class ProductServiceTest {
                         .name("product1")
                         .slug("slug1")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .build(),
                 Product.builder()
                         .id(2L)
                         .name("product2")
                         .thumbnailMediaId(1L)
                         .slug("slug2")
+                        .remainingQuantity(10)
                         .build());
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
     }
 
-<<<<<<< Updated upstream
-=======
-    @Test
-    void createProduct_TheRequestIsValid_Success() {
-        //given
-        var productCaptor = ArgumentCaptor.forClass(Product.class);
-        Brand brand = mock(Brand.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
-        Product parentProduct = Product.builder()
-                .id(1L)
-                .name("product1")
-                .slug("slug1")
-                .build();
-
-        when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
-        when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
-        SecurityContextHolder.setContext(securityContext);
-        when(mediaService.saveFile(files.get(0), "", "")).thenReturn(noFileMediaVm);
-        Product savedProduct = mock(Product.class);
-        when(productRepository.saveAndFlush(productCaptor.capture())).thenReturn(savedProduct);
-        Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
-        when(productRepository.findById(productPostVm.parentId())).thenReturn(Optional.of(parentProduct));
-
-        //when
-        ProductGetDetailVm actualResponse = productService.createProduct(productPostVm, files);
-
-        //then
-        verify(productRepository).saveAndFlush(productCaptor.capture());
-        Product productValue = productCaptor.getValue();
-        assertThat(productValue.getBrand()).isEqualTo(brand);
-        assertThat(productValue.getName()).isEqualTo(productPostVm.name());
-        assertThat(productValue.getSlug()).isEqualTo(productPostVm.slug());
-        assertThat(productValue.getDescription()).isEqualTo(productPostVm.description());
-        assertThat(productValue.getShortDescription()).isEqualTo(productPostVm.shortDescription());
-        assertThat(productValue.getSpecification()).isEqualTo(productPostVm.specification());
-        assertThat(productValue.getSku()).isEqualTo(productPostVm.sku());
-        assertThat(productValue.getGtin()).isEqualTo(productPostVm.gtin());
-        assertThat(productValue.getMetaKeyword()).isEqualTo(productPostVm.metaKeyword());
-        assertThat(productValue.getMetaDescription()).isEqualTo(productPostVm.metaDescription());
-        assertThat(productValue.getCreatedBy()).isEqualTo(null);
-        assertThat(productValue.getLastModifiedBy()).isEqualTo(null);
-        assertThat(productValue.getThumbnailMediaId()).isEqualTo(noFileMediaVm.id());
-        List<ProductCategory> productCategoryListValue = productValue.getProductCategories();
-        assertThat(productCategoryListValue).hasSize(2);
-        assertThat(productCategoryListValue.get(0).getCategory()).isEqualTo(category1);
-        assertThat(productCategoryListValue.get(1).getCategory()).isEqualTo(category2);
-        assertThat(productCategoryListValue.get(0).getProduct()).isEqualTo(productValue);
-        assertThat(productCategoryListValue.get(1).getProduct()).isEqualTo(productValue);
-
-    }
-
-    @Test
-    void createProduct_TheRequestContainsNonExistCategoryIdInCategoryList_ThrowsBadRequestException() {
-        //given
-        List<Category> categoryList = new ArrayList<>();
-        categoryList.add(new Category(1L, null, null, "null", null, null, null, false, null, null, null));
-
-        List<Long> categoryIds = new ArrayList<>();
-        categoryIds.add(1L);
-        categoryIds.add(2L);
-        categoryIds.add(3L);
-
-        Brand brand = mock(Brand.class);
-        ProductPostVm productPostVm = new ProductPostVm(
-                "name",
-                "slug",
-                1L,
-                categoryIds,
-                "Short description",
-                "description",
-                "specification",
-                "sku",
-                "gtin",
-                123.5,
-                10,
-                true,
-                true,
-                true,
-                true,
-                "neta title",
-                "meta keyword",
-                "meta desciption",
-                1L
-        );
-
-        when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
-        when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(categoryList);
-        List<Long> categoryIdsNotFound = productPostVm.categoryIds();
-
-        //when
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> productService.createProduct(productPostVm, files));
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", categoryIdsNotFound));
-    }
-
-    @DisplayName("Create product throws Bad Request Exception when brand id is non exist- negative case")
-    @Test
-    void createProduct_BrandIdIsNonExist_ThrowsBadRequestException() {
-        //given
-        Brand brand = mock(Brand.class);
-        List<Category> emptyCategoryList = Collections.emptyList();
-
-        when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.of(brand));
-        when(categoryRepository.findAllById(productPostVm.categoryIds())).thenReturn(emptyCategoryList);
-
-        //when
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> productService.createProduct(productPostVm, files));
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo(String.format("Category %s is not found", productPostVm.categoryIds()));
-    }
-
-
-    @DisplayName("Create product throws Not Found Exception when brand id is null- negative case")
-    @Test
-    void createProduct_BrandIdIsNull_ThrowNotFoundException() {
-        //given
-        when(brandRepository.findById(productPostVm.brandId())).thenReturn(Optional.empty());
-
-        //when
-        NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> productService.createProduct(productPostVm, files));
-
-        //then
-        assertThat(exception.getMessage()).isEqualTo(String.format("Brand %s is not found", productPostVm.brandId()));
-    }
-
->>>>>>> Stashed changes
     @DisplayName("Get product feature success then return list ProductThumbnailVm")
     @Test
     void getFeaturedProducts_WhenEverythingIsOkay_Success() {
@@ -261,6 +104,7 @@ class ProductServiceTest {
                         .name("product1")
                         .slug("slug1")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .sku("sku")
                         .build(),
                 Product.builder()
@@ -269,6 +113,7 @@ class ProductServiceTest {
                         .sku("sku")
                         .slug("slug2")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .build());
         String url = "sample-url";
         int totalPage = 20;
@@ -344,172 +189,6 @@ class ProductServiceTest {
     }
 
     @Test
-<<<<<<< Updated upstream
-=======
-    void updateProduct_whenProductIdInvalid_shouldThrowException() {
-        //Initial variables
-        Long id = Long.valueOf(1);
-
-        //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.ofNullable(null));
-
-        //Test
-        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
-                    productService.updateProduct(id, null);
-                }
-        );
-        //Assert
-        assertThat(notFoundException.getMessage(), is(String.format("Product %s is not found", id)));
-    }
-
-    @Test
-    void updateProduct_whenSlugIsDulicated_shouldThrowException() {
-        //Initial variables
-        Long id = Long.valueOf(1);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, 10, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-
-        //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(new Product()));
-        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.of(new Product()));
-
-        //Test
-        BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
-                    productService.updateProduct(id, productPutVm);
-                }
-        );
-        //Assert
-        assertThat(badRequestException.getMessage(), is(String.format("Slug %s is duplicated", productPutVm.slug())));
-    }
-
-    @Test
-    void updateProduct_whenBrandIdInvalid_shouldThrowException() {
-        //Initial variables
-        Long id = Long.valueOf(1);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, 10, null, null, null, null, id, null, null, null, null, null, null, null, null, null, null, null);
-        Product product = mock(Product.class);
-        Brand brand = new Brand();
-        brand.setId(id + 1);
-        //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
-        Mockito.when(brandRepository.findById(id)).thenReturn(Optional.ofNullable(null));
-        Mockito.when(product.getBrand()).thenReturn(brand);
-
-        //Test
-        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> {
-                    productService.updateProduct(id, productPutVm);
-                }
-        );
-        //Assert
-        assertThat(notFoundException.getMessage(), is(String.format("Brand %s is not found", productPutVm.brandId())));
-    }
-
-    @Test
-    void updateProduct_whenCategoryIdsInvalid_shouldThrowException() {
-        //Initial variables
-        Long id = Long.valueOf(1);
-        List<Long> categoryIds = new ArrayList<>();
-        categoryIds.add(1L);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, 10, null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
-        Product product = mock(Product.class);
-        Brand brand = new Brand();
-        brand.setId(id + 1);
-        //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
-        Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
-        Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(new ArrayList<>());
-        Mockito.when(product.getBrand()).thenReturn(brand);
-
-        //Test
-        BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
-                    productService.updateProduct(id, productPutVm);
-                }
-        );
-        //Assert
-        assertThat(badRequestException.getMessage(), is(String.format("Category %s is not found", productPutVm.categoryIds())));
-    }
-
-    @Test
-    void updateProduct_whenCategoryIdsNotFoundInvalid_shouldThrowException() {
-        //Initial variables
-        Long id = Long.valueOf(1);
-        List<Long> categoryIds = new ArrayList<>();
-        categoryIds.add(1L);
-        categoryIds.add(2L);
-        List<Category> categoryList = new ArrayList<>();
-        Category category = new Category();
-        category.setId(1L);
-        category.setName("Category 1");
-        category.setSlug("category-1");
-        category.setDescription("Description 1");
-
-        categoryList.add(category);
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, 10, null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
-
-        Product product = mock(Product.class);
-        Brand brand = new Brand();
-        brand.setId(id + 1);
-        //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
-        Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
-        Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
-        Mockito.when(product.getBrand()).thenReturn(brand);
-
-        //Test
-        BadRequestException badRequestException = Assertions.assertThrows(BadRequestException.class, () -> {
-                    productService.updateProduct(id, productPutVm);
-                }
-        );
-        //Assert
-        assertThat(badRequestException.getMessage(), is(String.format("Category %s is not found", categoryIds)));
-    }
-
-    @Test
-    void updateProduct_whenParamsValid_shouldSuccess() {
-        //Initial variables
-        Long id = Long.valueOf(1);
-        List<Long> categoryIds = new ArrayList<>();
-        categoryIds.add(1L);
-        List<Category> categoryList = new ArrayList<>();
-        Category category = new Category();
-        category.setId(1L);
-        category.setName("Category 1");
-        category.setSlug("category-1");
-        category.setDescription("Description 1");
-        categoryList.add(category);
-
-        Product product = mock(Product.class);
-        Brand brand = new Brand();
-        brand.setId(id + 1);
-
-        List<ProductCategory> productCategories = new ArrayList<>();
-        ProductCategory productCategory = new ProductCategory();
-        productCategory.setCategory(category);
-        productCategory.setProduct(product);
-        productCategories.add(productCategory);
-
-
-        ProductPutVm productPutVm = new ProductPutVm("Test", "Test", null, 10, null, null, null, null, id, categoryIds, null, null, null, null, null, null, null, null, null, null);
-        //Stub
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        Mockito.when(productRepository.findBySlugAndIsActiveTrue("Test")).thenReturn(Optional.ofNullable(null));
-        Mockito.when(brandRepository.findById(id)).thenReturn(Optional.of(new Brand()));
-        Mockito.when(categoryRepository.findAllById(productPutVm.categoryIds())).thenReturn(categoryList);
-        Mockito.when(mediaService.getMedia(any())).thenReturn(new NoFileMediaVm(1L, "", "", "", ""));
-
-        Mockito.when(productRepository.saveAndFlush(product)).thenReturn(product);
-        Mockito.when(productCategoryRepository.saveAllAndFlush(productCategories)).thenReturn(productCategories);
-        Mockito.when(product.getName()).thenReturn("Test");
-        Mockito.when(product.getBrand()).thenReturn(brand);
-
-        //Assert
-        assertThat(productPutVm.name(), is(productService.updateProduct(id, productPutVm).name()));
-    }
-
-    @Test
->>>>>>> Stashed changes
     void getProduct_whenProductIdInvalid_shouldThrowException() {
         // Initial variables
         Long id = 1L;
