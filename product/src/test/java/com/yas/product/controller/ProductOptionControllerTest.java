@@ -5,6 +5,7 @@ import com.yas.product.model.ProductOption;
 import com.yas.product.repository.ProductOptionRepository;
 import com.yas.product.viewmodel.productoption.ProductOptionGetVm;
 import com.yas.product.viewmodel.productoption.ProductOptionPostVm;
+import com.yas.product.service.ProductOptionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,15 +29,17 @@ import static org.mockito.Mockito.*;
 public class ProductOptionControllerTest {
     private ProductOptionController productOptionController;
     ProductOptionRepository productOptionRepository;
+    ProductOptionService productOptionService;
     private Principal principal;
     private UriComponentsBuilder uriComponentsBuilder;
     private ProductOption productOption;
     @BeforeEach
     public void setUp(){
         productOptionRepository = mock(ProductOptionRepository.class);
+        productOptionService = mock(ProductOptionService.class);
         principal = mock(Principal.class);
         uriComponentsBuilder = mock(UriComponentsBuilder.class);
-        productOptionController = new ProductOptionController(productOptionRepository);
+        productOptionController = new ProductOptionController(productOptionRepository, productOptionService);
         productOption = new ProductOption();
         productOption.setId(1L);
         productOption.setName("hihi");

@@ -1,6 +1,6 @@
 package com.yas.product.service;
 
-import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
+import com.yas.product.viewmodel.productattribute.ProductAttributeGroupVm;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupListGetVm;
 import com.yas.product.repository.ProductAttributeGroupRepository;
@@ -21,16 +21,16 @@ public class ProductAttributeGroupService {
     }
 
     public ProductAttributeGroupListGetVm getPageableProductAttributeGroups(int pageNo, int pageSize) {
-        List<ProductAttributeGroupGetVm> productAttributeGroupGetVms = new ArrayList<>();
+        List<ProductAttributeGroupVm> productAttributeGroupVms = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<ProductAttributeGroup> productAttributeGroupPage = productAttributeGroupRepository.findAll(pageable);
         List<ProductAttributeGroup> productAttributeGroups = productAttributeGroupPage.getContent();
         for (ProductAttributeGroup productAttributeGroup : productAttributeGroups) {
-            productAttributeGroupGetVms.add(ProductAttributeGroupGetVm.fromModel(productAttributeGroup));
+            productAttributeGroupVms.add(ProductAttributeGroupVm.fromModel(productAttributeGroup));
         }
 
         return new ProductAttributeGroupListGetVm(
-            productAttributeGroupGetVms,
+            productAttributeGroupVms,
             productAttributeGroupPage.getNumber(),
             productAttributeGroupPage.getSize(),
             (int) productAttributeGroupPage.getTotalElements(),

@@ -44,7 +44,7 @@ public class ProductAttributeGroupController {
     }
 
     @GetMapping({"/backoffice/product-attribute-groups/paging", "/storefront/product-attribute-groups/paging"})
-    public ResponseEntity<ProductAttributeListGetVm> getPageableProductAttributeGroups(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+    public ResponseEntity<ProductAttributeGroupListGetVm> getPageableProductAttributeGroups(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
                                                                                     @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
 
         return ResponseEntity.ok(productAttributeGroupService.getPageableProductAttributeGroups(pageNo, pageSize));

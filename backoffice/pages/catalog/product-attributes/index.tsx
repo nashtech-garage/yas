@@ -52,9 +52,9 @@ const ProductAttributeList: NextPage = () => {
     getListProductAttributes();
   }, [pageNo]);
 
-   const changePage = ({ selected }: any) => {
-      setPageNo(selected);
-    };
+  const changePage = ({ selected }: any) => {
+    setPageNo(selected);
+  };
 
   if (isLoading) return <p>Loading...</p>;
   if (!productAttributes) return <p>No Product Attributes</p>;
