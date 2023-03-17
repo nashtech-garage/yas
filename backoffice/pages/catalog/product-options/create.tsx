@@ -8,14 +8,18 @@ import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../constants/Common';
 import { useCreatingContext } from '../../../common/hooks/UseToastContext';
 import CustomToast from '../../../common/items/CustomToast';
+import ProductOptionGeneralInformation from '../../../modules/catalog/components/ProductOptionGeneralInformation';
 
 const ProductOptionCreate: NextPage = () => {
   const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
     useCreatingContext();
   const router = useRouter();
-  const { register, handleSubmit, formState } = useForm();
-  const { errors } = formState;
-  const handleSubmitOption = async (event: any) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProductOption>();
+  const handleSubmitOption = async (event: ProductOption) => {
     let productOption: ProductOption = {
       id: 0,
       name: event.name,
@@ -30,21 +34,10 @@ const ProductOptionCreate: NextPage = () => {
         <div className="col-md-8">
           <h2>Create Product Option</h2>
           <form onSubmit={handleSubmit(handleSubmitOption)}>
-            <div className="mb-3">
-              <div className="mb-3">
-                <label className="form-label">Name</label>
-                <input
-                  className="form-control"
-                  {...register('name', { required: true })}
-                  type="text"
-                  id="name"
-                  name="name"
-                />
-                {errors.name && errors.name.type == 'required' && (
-                  <p className="text-danger">Please enter the name product option</p>
-                )}
-              </div>
-            </div>
+            <ProductOptionGeneralInformation
+              register={register}
+              errors={errors}
+            ></ProductOptionGeneralInformation>
             <button className="btn btn-primary" type="submit">
               Save
             </button>
