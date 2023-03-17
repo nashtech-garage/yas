@@ -25,3 +25,7 @@ scrape_configs:
     metrics_path: "/rating/actuator/prometheus"
     static_configs:
       - targets: ["rating"]
+  - job_name: "order"
+    metrics_path: "/order/actuator/prometheus"
+    static_configs:
+      - targets: ["order"]
