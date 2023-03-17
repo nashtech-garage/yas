@@ -1,13 +1,13 @@
 import { FieldErrorsImpl, UseFormRegister } from 'react-hook-form';
 
 import { Input, TextArea } from '../../../common/items/Input';
+import { FormProduct } from '../models/FormProduct';
 import { Product } from '../models/Product';
-import { ProductPost } from '../models/ProductPost';
 
 type Props = {
   product?: Product;
-  register: UseFormRegister<ProductPost>;
-  errors: FieldErrorsImpl<ProductPost>;
+  register: UseFormRegister<FormProduct>;
+  errors: FieldErrorsImpl<FormProduct>;
 };
 
 const ProductSEO = ({ product, register, errors }: Props) => {

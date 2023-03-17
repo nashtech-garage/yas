@@ -46,7 +46,7 @@ public class BrandController {
   }
 
   @GetMapping({"/backoffice/brands/paging", "/storefront/brands/paging"})
-  public ResponseEntity<BrandListGetVm> getPageableBrands(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+  public ResponseEntity<BrandListGetVm> getPageableBrands(@RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
                                                     @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
 
     return ResponseEntity.ok(brandService.getBrands(pageNo, pageSize));

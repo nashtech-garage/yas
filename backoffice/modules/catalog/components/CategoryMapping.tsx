@@ -1,14 +1,17 @@
-import { ProductPost } from '../models/ProductPost';
-import { UseFormSetValue, UseFormGetValues } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { getCategories } from '../services/CategoryService';
+import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
+
 import { Category } from '../models/Category';
+import { FormProduct } from '../models/FormProduct';
 import { Product } from '../models/Product';
+import { getCategories } from '../services/CategoryService';
+
 type Props = {
   product?: Product;
-  setValue: UseFormSetValue<ProductPost>;
-  getValue: UseFormGetValues<ProductPost>;
+  setValue: UseFormSetValue<FormProduct>;
+  getValue: UseFormGetValues<FormProduct>;
 };
+
 const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   let [checkCategory, setCheckCategory] = useState<string[]>([]);

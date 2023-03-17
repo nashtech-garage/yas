@@ -1,6 +1,7 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.model.Category;
+import com.yas.product.viewmodel.ImageVm;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ public record ProductDetailVm(
         String name,
         String shortDescription,
         String description,
+        Integer remainingQuantity,
         String specification,
         String sku,
         String gtin,
@@ -23,6 +25,6 @@ public record ProductDetailVm(
         String metaTitle,
         String metaKeyword,
         String metaDescription,
-        String thumbnailMediaUrl,
-        List<String> productImageMediaUrls) {
+        ImageVm thumbnailMedia,
+        List<ImageVm> productImageMedias) {
 }

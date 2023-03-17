@@ -6,22 +6,24 @@ import { createProductOption } from '../../../modules/catalog/services/ProductOp
 import { ProductOption } from '../../../modules/catalog/models/ProductOption';
 import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
+import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import ProductOptionGeneralInformation from '../../../modules/catalog/components/ProductOptionGeneralInformation';
 
 const ProductOptionCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
   const router = useRouter();
-  const { register, handleSubmit, formState } = useForm();
-  const { errors } = formState;
-  const handleSubmitOption = async (event: any) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProductOption>();
+  const handleSubmitOption = async (event: ProductOption) => {
     let productOption: ProductOption = {
       id: 0,
       name: event.name,
     };
     let response = await createProductOption(productOption);
-    handleCreatingResponse(response, PRODUCT_OPTIONS_URL);
+    handleCreatingResponse(response);
+    router.replace(PRODUCT_OPTIONS_URL);
   };
 
   return (
@@ -30,21 +32,10 @@ const ProductOptionCreate: NextPage = () => {
         <div className="col-md-8">
           <h2>Create Product Option</h2>
           <form onSubmit={handleSubmit(handleSubmitOption)}>
-            <div className="mb-3">
-              <div className="mb-3">
-                <label className="form-label">Name</label>
-                <input
-                  className="form-control"
-                  {...register('name', { required: true })}
-                  type="text"
-                  id="name"
-                  name="name"
-                />
-                {errors.name && errors.name.type == 'required' && (
-                  <p className="text-danger">Please enter the name product option</p>
-                )}
-              </div>
-            </div>
+            <ProductOptionGeneralInformation
+              register={register}
+              errors={errors}
+            ></ProductOptionGeneralInformation>
             <button className="btn btn-primary" type="submit">
               Save
             </button>
@@ -55,14 +46,6 @@ const ProductOptionCreate: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

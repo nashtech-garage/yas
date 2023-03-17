@@ -1,14 +1,15 @@
 package com.yas.product.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "product_option_combination")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductOptionCombination {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +23,7 @@ public class ProductOptionCombination {
     @JoinColumn(name = "product_option_id", nullable = false)
     private ProductOption productOption;
 
-    public int displayOrder;
+    private int displayOrder;
 
     private String value;
 

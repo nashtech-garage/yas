@@ -9,6 +9,7 @@ type InputProps<T extends FieldValues> = {
   type?: HTMLInputTypeAttribute;
   registerOptions?: RegisterOptions;
   defaultValue?: number | string | string[];
+  disabled?: boolean;
 };
 
 type CheckProps<T extends FieldValues> = InputProps<T> & {
@@ -23,6 +24,7 @@ export const Input = <T extends FieldValues>({
   error,
   defaultValue,
   type = 'text',
+  disabled = false,
 }: InputProps<T>) => (
   <div className="mb-3">
     <label className="form-label" htmlFor={field}>
@@ -34,6 +36,7 @@ export const Input = <T extends FieldValues>({
       className={`form-control ${error ? 'border-danger' : ''}`}
       {...register(field, registerOptions)}
       defaultValue={defaultValue}
+      disabled={disabled}
     />
     <p className="error-field mt-1">{error}</p>
   </div>

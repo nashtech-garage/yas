@@ -1,4 +1,5 @@
 import { Category } from './Category';
+import { Media } from './Media';
 
 export type Product = {
   id: number;
@@ -13,12 +14,13 @@ export type Product = {
   metaTitle: string;
   metaKeyword: string;
   metaDescription: string;
+  remainingQuantity: number;
   isAllowedToOrder: boolean;
   isPublished: boolean;
   isFeatured: boolean;
   isVisible?: boolean;
   brandId: number;
   categories: Category[];
-  thumbnailMediaUrl: string;
-  productImageMediaUrls: string[];
+  thumbnailMedia: Media;
+  productImageMedias: Media[];
 };

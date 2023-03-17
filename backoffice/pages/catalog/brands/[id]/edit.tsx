@@ -3,17 +3,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { Brand } from '../../../../modules/catalog/models/Brand';
-import { toast } from 'react-toastify';
 import { editBrand, getBrand } from '../../../../modules/catalog/services/BrandService';
 import BrandGeneralInformation from '../../../../modules/catalog/components/BrandGeneralInformation';
 import { useEffect, useState } from 'react';
 import { BRAND_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
-import CustomToast from '../../../../common/items/CustomToast';
+import { toastError } from '../../../../modules/catalog/services/ToastService';
+
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const BrandEdit: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleUpdatingResponse } =
-    useUpdatingContext();
   const router = useRouter();
   const {
     register,
@@ -35,7 +33,8 @@ const BrandEdit: NextPage = () => {
       };
 
       editBrand(+id, brand).then((response) => {
-        handleUpdatingResponse(response, BRAND_URL);
+        handleUpdatingResponse(response);
+        router.replace(BRAND_URL);
       });
     }
   };
@@ -48,57 +47,43 @@ const BrandEdit: NextPage = () => {
           setBrand(data);
           setLoading(false);
         } else {
-          toast(data?.detail);
+          toastError(data?.detail);
           setLoading(false);
-          router.push('/catalog/brands');
+          router.push(BRAND_URL);
         }
       });
     }
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;
-  if (!brand) {
-    return <p>No brand</p>;
-  } else {
-    return (
-      <>
-        <div className="row mt-5">
-          <div className="col-md-8">
-            <h2>Edit brand: {id}</h2>
-            <form onSubmit={handleSubmit(handleSubmitEdit)}>
-              <BrandGeneralInformation
-                register={register}
-                errors={errors}
-                setValue={setValue}
-                trigger={trigger}
-                brand={brand}
-              />
+  if (!brand) return <></>;
+  return (
+    <>
+      <div className="row mt-5">
+        <div className="col-md-8">
+          <h2>Edit brand: {id}</h2>
+          <form onSubmit={handleSubmit(handleSubmitEdit)}>
+            <BrandGeneralInformation
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              trigger={trigger}
+              brand={brand}
+            />
 
-              <button className="btn btn-primary" type="submit">
-                Save
+            <button className="btn btn-primary" type="submit">
+              Save
+            </button>
+            <Link href="/catalog/brands">
+              <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
+                Cancel
               </button>
-              <Link href="/catalog/brands">
-                <button
-                  className="btn btn-primary"
-                  style={{ background: 'red', marginLeft: '30px' }}
-                >
-                  Cancel
-                </button>
-              </Link>
-            </form>
-          </div>
+            </Link>
+          </form>
         </div>
-        {showToast && (
-          <CustomToast
-            variant={toastVariant}
-            header={toastHeader}
-            show={showToast}
-            setShow={setShowToast}
-          ></CustomToast>
-        )}
-      </>
-    );
-  }
+      </div>
+    </>
+  );
 };
 
 export default BrandEdit;

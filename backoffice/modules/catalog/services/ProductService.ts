@@ -1,4 +1,4 @@
-import { ProductPost } from '../models/ProductPost';
+import { ProductPayload } from '../models/ProductPayload';
 import { Products } from '../models/Products';
 
 export async function getProducts(
@@ -16,21 +16,17 @@ export async function getProduct(id: number) {
   return await response.json();
 }
 
-export async function createProduct(product: any, thumbnail?: File, productImage?: FileList) {
-  let body = new FormData();
-
-  body.append('productDetails', new Blob([JSON.stringify(product)], { type: 'application/json' }));
-  thumbnail && body.append('files', thumbnail);
-  productImage && Array.from(productImage).forEach((file) => body.append('files', file));
-
+export async function createProduct(product: ProductPayload) {
   const response = await fetch('/api/product/backoffice/products', {
     method: 'POST',
-    body: body,
+    body: JSON.stringify(product),
+    headers: { 'Content-Type': 'application/json' },
   });
-  return response;
+  if (response.status === 201) return response.json();
+  return Promise.reject(response);
 }
 
-export async function updateProduct(id: number, product: ProductPost) {
+export async function updateProduct(id: number, product: ProductPayload) {
   const response = await fetch('/api/product/backoffice/products/' + id, {
     method: 'PUT',
     body: JSON.stringify(product),

@@ -6,16 +6,16 @@ import slugify from 'slugify';
 
 import { CheckBox, Input, TextArea } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
-import { getProduct } from '../services/ProductService';
 import { Brand } from '../models/Brand';
+import { FormProduct } from '../models/FormProduct';
 import { Product } from '../models/Product';
-import { ProductPost } from '../models/ProductPost';
 import { getBrands } from '../services/BrandService';
+import { getProduct } from '../services/ProductService';
 
 type Props = {
-  register: UseFormRegister<ProductPost>;
-  errors: FieldErrorsImpl<ProductPost>;
-  setValue: UseFormSetValue<ProductPost>;
+  register: UseFormRegister<FormProduct>;
+  errors: FieldErrorsImpl<FormProduct>;
+  setValue: UseFormSetValue<FormProduct>;
 };
 
 const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
@@ -118,6 +118,19 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         registerOptions={{
           required: { value: true, message: 'Product price is required' },
           validate: { positive: (v) => v > 0 || 'Price must be greater than 0' },
+        }}
+      />
+
+      <Input
+        labelText="Remaining Quatity"
+        field="remainingQuantity"
+        defaultValue={product?.remainingQuantity}
+        register={register}
+        error={errors.remainingQuantity?.message}
+        type="number"
+        registerOptions={{
+          required: { value: true, message: 'Remaining quantity is required' },
+          validate: { positive: (v) => v > 0 || 'Remaining quantity must be greater than 0' },
         }}
       />
 

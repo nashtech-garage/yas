@@ -3,18 +3,13 @@ import Link from 'next/link';
 import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import type { Brand } from '../../../modules/catalog/models/Brand';
+import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 import { deleteBrand, getPageableBrands } from '../../../modules/catalog/services/BrandService';
-import CustomToast from '../../../common/items/CustomToast';
-import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 
 const BrandList: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
-    useDeletingContext();
   const [brandIdWantToDelete, setBrandIdWantToDelete] = useState<number>(-1);
   const [brandNameWantToDelete, setBrandNameWantToDelete] = useState<string>('');
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
@@ -109,14 +104,6 @@ const BrandList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
       <ReactPaginate
         forcePage={pageNo}
         previousLabel={'Previous'}

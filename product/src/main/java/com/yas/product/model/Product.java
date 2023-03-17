@@ -56,6 +56,8 @@ public class Product extends AbstractAuditEntity {
 
     private Boolean isActive;
 
+    private Integer remainingQuantity;
+
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;
@@ -94,5 +96,4 @@ public class Product extends AbstractAuditEntity {
         // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
-
 }

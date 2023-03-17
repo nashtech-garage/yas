@@ -5,7 +5,7 @@ export async function getProductOptions(): Promise<ProductOption[]> {
   return await response.json();
 }
 
-export async function getProductOption(id: number): Promise<ProductOption> {
+export async function getProductOption(id: number) {
   const response = await fetch('/api/product/backoffice/product-options/' + id);
   return await response.json();
 }
