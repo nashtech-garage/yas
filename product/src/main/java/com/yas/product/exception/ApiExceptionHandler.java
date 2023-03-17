@@ -25,7 +25,7 @@ public class ApiExceptionHandler {
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<ErrorVm> handleNotFoundException(NotFoundException ex, WebRequest request) {
     String message = ex.getMessage();
-    ErrorVm errorVm = new ErrorVm(HttpStatus.NOT_FOUND.toString(), "NotFound", message);
+    ErrorVm errorVm = new ErrorVm(HttpStatus.NOT_FOUND.toString(), HttpStatus.NOT_FOUND.getReasonPhrase(), message);
     log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 404, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(errorVm, HttpStatus.NOT_FOUND);
@@ -34,7 +34,7 @@ public class ApiExceptionHandler {
   @ExceptionHandler(BadRequestException.class)
   public ResponseEntity<ErrorVm> handleBadRequestException(BadRequestException ex, WebRequest request) {
     String message = ex.getMessage();
-    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), message);
     return ResponseEntity.badRequest().body(errorVm);
   }
 
@@ -46,7 +46,7 @@ public class ApiExceptionHandler {
             .map(error -> error.getField() + " " + error.getDefaultMessage())
             .toList();
 
-    ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Request information is not valid", errors);
     return ResponseEntity.badRequest().body(errorVm);
   }
 
@@ -58,14 +58,14 @@ public class ApiExceptionHandler {
               violation.getPropertyPath() + ": " + violation.getMessage());
     }
 
-    ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Request information is not valid", errors);
     return ResponseEntity.badRequest().body(errorVm);
   }
 
   @ExceptionHandler(DataIntegrityViolationException.class)
   public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
     String message = NestedExceptionUtils.getMostSpecificCause(e).getMessage();
-    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), message);
     return ResponseEntity.badRequest().body(errorVm);
   }
 

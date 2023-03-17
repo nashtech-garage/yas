@@ -7,4 +7,5 @@ export type Category = {
   metaKeywords: string;
   metaDescription: string;
   displayOrder: number;
+  isPublish: boolean;
 };

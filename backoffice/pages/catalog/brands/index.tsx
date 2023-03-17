@@ -1,14 +1,16 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
+import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import type { Brand } from '../../../modules/catalog/models/Brand';
-import { deleteBrand, getBrands } from '../../../modules/catalog/services/BrandService';
+import { deleteBrand, getPageableBrands } from '../../../modules/catalog/services/BrandService';
 import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 
 const BrandList: NextPage = () => {
   const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
@@ -18,6 +20,9 @@ const BrandList: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setLoading] = useState(false);
+  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
+  const [totalPage, setTotalPage] = useState<number>(1);
+
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
     if (brandIdWantToDelete == -1) {
@@ -26,19 +31,24 @@ const BrandList: NextPage = () => {
     deleteBrand(brandIdWantToDelete).then((response) => {
       setShowModalDelete(false);
       handleDeletingResponse(response, brandNameWantToDelete);
+      setPageNo(DEFAULT_PAGE_NUMBER);
       getListBrand();
     });
   };
   const getListBrand = () => {
-    getBrands().then((data) => {
-      setBrands(data);
+    getPageableBrands(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
+      setTotalPage(data.totalPages);
+      setBrands(data.brandContent);
       setLoading(false);
     });
   };
   useEffect(() => {
     setLoading(true);
     getListBrand();
-  }, []);
+  }, [pageNo]);
+  const changePage = ({ selected }: any) => {
+    setPageNo(selected);
+  };
   if (isLoading) return <p>Loading...</p>;
   if (!brands) return <p>No brand</p>;
   return (
@@ -106,6 +116,18 @@ const BrandList: NextPage = () => {
           setShow={setShowToast}
         ></CustomToast>
       )}
+      <ReactPaginate
+        forcePage={pageNo}
+        previousLabel={'Previous'}
+        nextLabel={'Next'}
+        pageCount={totalPage}
+        onPageChange={changePage}
+        containerClassName={'paginationBtns'}
+        previousLinkClassName={'previousBtn'}
+        nextClassName={'nextBtn'}
+        disabledClassName={'paginationDisabled'}
+        activeClassName={'paginationActive'}
+      />
     </>
   );
 };

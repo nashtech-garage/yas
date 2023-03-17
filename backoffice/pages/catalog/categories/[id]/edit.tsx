@@ -34,6 +34,7 @@ const CategoryEdit: NextPage = () => {
       parentId: event.target.parentCategory.value,
       displayOrder: event.target.displayOrder.value,
       description: event.target.description.value,
+      isPublish: event.target.isPublish.checked,
     };
 
     if (id) {
@@ -194,6 +195,24 @@ const CategoryEdit: NextPage = () => {
                 id="displayOrder"
                 name="displayOrder"
               />
+            </div>
+            <div className="d-flex">
+              <label
+                className="form-check-label mr-3"
+                htmlFor="isPublish"
+                style={{ marginRight: '15px' }}
+              >
+                Publish
+              </label>
+              <div className="form-check form-switch mb-3">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="isPublish"
+                  name="isPublish"
+                  defaultChecked={category?.isPublish}
+                />
+              </div>
             </div>
             <button className="btn btn-primary" type="submit">
               Save

@@ -1,6 +1,8 @@
 import { Rating } from '../models/Rating';
 import { RatingPost } from '../models/RatingPost';
 import { concatQueryString } from '../../../utils/concatQueryString';
+import { toast } from 'react-toastify';
+import { AverageStarResponseDto } from '../../../common/dtos/AverageStarResponseDto';
 
 export async function getRatingsByProductId(
   productId: number,
@@ -40,7 +42,10 @@ export async function getAverageStarByProductId(productId: number): Promise<numb
   const url = `${process.env.NEXT_PUBLIC_API_BASE_PATH}/rating/storefront/ratings/product/${productId}/average-star`;
 
   const response = await fetch(url);
-  // console.log(response);
 
-  return await response.json();
+  if (response.status >= 200 && response.status < 300) {
+    return await response.json();
+  }
+
+  return Promise.reject(response.status);
 }

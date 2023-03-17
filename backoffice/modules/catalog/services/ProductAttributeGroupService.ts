@@ -17,7 +17,7 @@ export async function createProductAttributeGroup(productAttributeGroup: Product
     body: JSON.stringify(productAttributeGroup),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response;
+  return response;
 }
 
 export async function updateProductAttributeGroup(
@@ -29,7 +29,7 @@ export async function updateProductAttributeGroup(
     body: JSON.stringify(productAttributeGroup),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }
 

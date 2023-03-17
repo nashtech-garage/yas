@@ -24,6 +24,7 @@ const CategoryCreate: NextPage = () => {
       metaKeywords: event.target.metaKeywords.value,
       metaDescription: event.target.metaDescription.value,
       displayOrder: event.target.displayOrder.value,
+      isPublish: event.target.isPublish.checked,
     };
     let response = await createCategory(category);
     handleCreatingResponse(response, CATEGORIES_URL);
@@ -128,6 +129,24 @@ const CategoryCreate: NextPage = () => {
                 id="displayOrder"
                 name="displayOrder"
               />
+            </div>
+            <div className="d-flex">
+              <label
+                className="form-check-label mr-3"
+                htmlFor="isPublish"
+                style={{ marginRight: '15px' }}
+              >
+                Publish
+              </label>
+              <div className="form-check form-switch mb-3">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="isPublish"
+                  name="isPublish"
+                  defaultChecked={false}
+                />
+              </div>
             </div>
             <button className="btn btn-primary" type="submit">
               Save

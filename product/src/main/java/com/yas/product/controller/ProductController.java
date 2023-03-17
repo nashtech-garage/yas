@@ -40,7 +40,7 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductGetDetailVm> createProduct(@RequestPart("productDetails") ProductPostVm productPostVm,
+    public ResponseEntity<ProductGetDetailVm> createProduct(@RequestPart("productDetails") @Valid ProductPostVm productPostVm,
                                                             @RequestPart(value = "files", required = false) List<MultipartFile> files, UriComponentsBuilder uriComponentsBuilder) {
         ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm, files);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/products/{id}").buildAndExpand(productGetDetailVm.id()).toUri())

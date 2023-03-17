@@ -63,6 +63,7 @@ public class CategoryController {
         category.setDisplayOrder(categoryPostVm.displayOrder());
         category.setMetaDescription(categoryPostVm.metaDescription());
         category.setMetaKeyword(categoryPostVm.metaKeywords());
+        category.setIsPublished(categoryPostVm.isPublish());
         if(categoryPostVm.parentId() != null){
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
@@ -91,6 +92,7 @@ public class CategoryController {
         category.setDisplayOrder(categoryPostVm.displayOrder());
         category.setMetaDescription(categoryPostVm.metaDescription());
         category.setMetaKeyword(categoryPostVm.metaKeywords());
+        category.setIsPublished(categoryPostVm.isPublish());
         if(categoryPostVm.parentId() == null){
             category.setParent(null);
         } else {

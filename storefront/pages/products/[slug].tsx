@@ -4,12 +4,11 @@ import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { toast, ToastContainer } from 'react-toastify';
-
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
+import { AverageStarResponseDto } from '../../common/dtos/AverageStarResponseDto';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import {
   DetailHeader,
@@ -31,11 +30,12 @@ import {
   createRating,
   getAverageStarByProductId,
 } from '../../modules/catalog/services/RatingService';
+import { toastError, toastSuccess } from '../../modules/catalog/services/ToastService';
 
 type Props = {
   product: ProductDetail;
   productVariations?: ProductVariations[];
-  averageStar: number;
+  averageStar: AverageStarResponseDto;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
@@ -65,8 +65,14 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     }
   }
 
-  let averageStar: number;
-  averageStar = await getAverageStarByProductId(product.id);
+  let averageStar: AverageStarResponseDto;
+  averageStar = await getAverageStarByProductId(product.id)
+    .then((result) => {
+      return { averageStar: result };
+    })
+    .catch((error) => {
+      return { averageStar: 0, errorMessage: "Could't fetch average star" };
+    });
 
   return { props: { product, productVariations, averageStar } };
 };
@@ -81,6 +87,19 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
   const [ratingStar, setRatingStar] = useState<number>(5);
   const [contentRating, setContentRating] = useState<string>('');
   const [isPost, setIsPost] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (averageStar.errorMessage) {
+      toast.error(averageStar.errorMessage, {
+        position: 'top-right',
+        autoClose: 2000,
+        closeOnClick: true,
+        pauseOnHover: false,
+        theme: 'colored',
+      });
+      averageStar.averageStar = 0;
+    }
+  }, []);
 
   useEffect(() => {
     getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
@@ -107,31 +126,12 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
       .then(() => {
         setContentRating('');
         setIsPost(!isPost);
-        toast.success('Post a review succesfully', {
-          position: 'top-right',
-          autoClose: 1000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: 'colored',
-        });
+        toastSuccess('Post a review succesfully');
       })
       .catch((err) => {
-        if (err == 403)
-          toast.error('Please login to post a review', {
-            position: 'top-right',
-            autoClose: 2000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            theme: 'colored',
-          });
+        if (err == 403) toastError('Please login to post a review');
         else {
-          toast.error('Some thing went wrong. Try again after a few seconds', {
-            position: 'top-right',
-            autoClose: 1000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            theme: 'colored',
-          });
+          toastError('Some thing went wrong. Try again after a few seconds');
         }
       });
   };
@@ -161,12 +161,11 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
       <Head>
         <title>{product.name}</title>
       </Head>
-      <ToastContainer style={{ marginTop: '70px' }} />
       <BreadcrumbComponent props={crumb} />
 
       <DetailHeader
         productName={product.name}
-        averageStar={averageStar}
+        averageStar={averageStar.averageStar}
         ratingCount={totalElements}
       />
 

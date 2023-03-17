@@ -4,8 +4,6 @@ import queryString from 'query-string';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import Row from 'react-bootstrap/Row';
 import ReactPaginate from 'react-paginate';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import ProductItems from '../../common/items/ProductItems';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
@@ -105,7 +103,6 @@ const ProductList = () => {
       <Head>
         <title>Product List</title>
       </Head>
-      <ToastContainer style={{ marginTop: '70px' }} />
       <BreadcrumbComponent props={crumb} />
 
       <div className="wrapper py-5">
