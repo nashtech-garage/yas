@@ -8,8 +8,6 @@ import {
   deleteProductAttribute,
   getPageableProductAttributes,
 } from '../../../modules/catalog/services/ProductAttributeService';
-import CustomToast from '../../../common/items/CustomToast';
-import { useDeletingContext } from '../../../common/hooks/UseToastContext';
 import ReactPaginate from 'react-paginate';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
