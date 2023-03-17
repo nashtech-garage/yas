@@ -81,12 +81,14 @@ class ProductServiceTest {
                         .name("product1")
                         .slug("slug1")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .build(),
                 Product.builder()
                         .id(2L)
                         .name("product2")
                         .thumbnailMediaId(1L)
                         .slug("slug2")
+                        .remainingQuantity(10)
                         .build());
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
@@ -102,6 +104,7 @@ class ProductServiceTest {
                         .name("product1")
                         .slug("slug1")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .sku("sku")
                         .build(),
                 Product.builder()
@@ -110,6 +113,7 @@ class ProductServiceTest {
                         .sku("sku")
                         .slug("slug2")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .build());
         String url = "sample-url";
         int totalPage = 20;

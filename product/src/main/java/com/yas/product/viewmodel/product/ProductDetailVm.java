@@ -10,6 +10,7 @@ public record ProductDetailVm(
         String name,
         String shortDescription,
         String description,
+        Integer remainingQuantity,
         String specification,
         String sku,
         String gtin,
