@@ -7,10 +7,12 @@ import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { ProductAttribute } from '../../../modules/catalog/models/ProductAttribute';
 import {
   deleteProductAttribute,
-  getProductAttributes,
+  getPageableProductAttributes,
 } from '../../../modules/catalog/services/ProductAttributeService';
 import CustomToast from '../../../common/items/CustomToast';
 import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import ReactPaginate from 'react-paginate';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 
 const ProductAttributeList: NextPage = () => {
   const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
@@ -21,6 +23,8 @@ const ProductAttributeList: NextPage = () => {
   const [productAttributeNameWantToDelete, setProductAttributeNameWantToDelete] =
     useState<string>('');
   const [productAttributeIdWantToDelete, setProductAttributeIdWantToDelete] = useState<number>(-1);
+  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
+  const [totalPage, setTotalPage] = useState<number>(1);
 
   const handleClose: any = () => setIsShowModalDelete(false);
   const handleDelete: any = () => {
@@ -29,6 +33,7 @@ const ProductAttributeList: NextPage = () => {
       .then((response) => {
         setIsShowModalDelete(false);
         handleDeletingResponse(response, productAttributeIdWantToDelete);
+        setPageNo(DEFAULT_PAGE_NUMBER);
         getListProductAttributes();
       })
       .catch((err) => {
@@ -37,8 +42,9 @@ const ProductAttributeList: NextPage = () => {
   };
 
   const getListProductAttributes = () => {
-    getProductAttributes().then((data) => {
-      setProductAttributes(data);
+    getPageableProductAttributes(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
+      setTotalPage(data.totalPages);
+      setProductAttributes(data.productAttributeContent);
       setLoading(false);
     });
   };
@@ -46,7 +52,12 @@ const ProductAttributeList: NextPage = () => {
   useEffect(() => {
     setLoading(true);
     getListProductAttributes();
-  }, []);
+  }, [pageNo]);
+
+   const changePage = ({ selected }: any) => {
+      setPageNo(selected);
+    };
+
   if (isLoading) return <p>Loading...</p>;
   if (!productAttributes) return <p>No Product Attributes</p>;
   return (
@@ -114,6 +125,18 @@ const ProductAttributeList: NextPage = () => {
           setShow={setShowToast}
         ></CustomToast>
       )}
+      <ReactPaginate
+        forcePage={pageNo}
+        previousLabel={'Previous'}
+        nextLabel={'Next'}
+        pageCount={totalPage}
+        onPageChange={changePage}
+        containerClassName={'paginationBtns'}
+        previousLinkClassName={'previousBtn'}
+        nextClassName={'nextBtn'}
+        disabledClassName={'paginationDisabled'}
+        activeClassName={'paginationActive'}
+      />
     </>
   );
 };

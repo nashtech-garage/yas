@@ -9,6 +9,7 @@ import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.repository.ProductAttributeRepository;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributePostVm;
+import com.yas.product.service.ProductAttributeService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.*;
 class ProductAttributeControllerTest {
 
     ProductAttributeRepository productAttributeRepository;
+    ProductAttributeService productAttributeService;
     ProductAttributeGroupRepository productAttributeGroupRepository;
     ProductAttributeController productAttributeController;
     UriComponentsBuilder uriComponentsBuilder;
@@ -42,10 +44,13 @@ class ProductAttributeControllerTest {
     @BeforeEach
     void setUp(){
         productAttributeRepository = mock(ProductAttributeRepository.class);
+        productAttributeService = mock(ProductAttributeService.class);
         productAttributeGroupRepository = mock(ProductAttributeGroupRepository.class);
         uriComponentsBuilder = mock(UriComponentsBuilder.class);
         principal = mock(Principal.class);
-        productAttributeController = new ProductAttributeController(productAttributeRepository, productAttributeGroupRepository);
+        productAttributeController = new ProductAttributeController(productAttributeRepository,
+                productAttributeGroupRepository,
+                productAttributeService);
         productAttributeGroup.setId(1L);
         productAttributeGroup.setName("Computer");
         productAttribute.setId(1L);

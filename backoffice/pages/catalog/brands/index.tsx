@@ -46,6 +46,7 @@ const BrandList: NextPage = () => {
     setLoading(true);
     getListBrand();
   }, [pageNo]);
+
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
   };
