@@ -39,6 +39,9 @@
                 <input class="submit" type="submit" value="${msg("doLogIn")}" tabindex="3">
                 </form>
             </div>
+            <div>
+                <p class="copyright">&copy; copyright - yas.nashtech-garage ${.now?string('yyyy')}</p>
+            </div>
         </#if>
       <div>
             <p class="copyright">&copy; copyright - yas.nashtech-garage ${.now?string('yyyy')}</p>
