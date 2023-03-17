@@ -24,6 +24,6 @@ public record ProductPutVm(
         String metaKeyword,
         String metaDescription,
         Long thumbnailMediaId,
-        List<Long> productImageIds
-) {
+        List<Long> productImageIds,
+        List<ProductVariationPostVm> variations) {
 }

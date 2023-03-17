@@ -1,6 +1,5 @@
 export type ProductOptionValuePost = {
-  ProductId?: number;
-  ProductOptionId?: number;
+  productOptionId?: number;
   value: string[];
   displayType?: string;
   displayOrder?: number;

@@ -49,47 +49,41 @@ const BrandEdit: NextPage = () => {
         } else {
           toastError(data?.detail);
           setLoading(false);
-          router.push('/catalog/brands');
+          router.push(BRAND_URL);
         }
       });
     }
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;
-  if (!brand) {
-    return <p>No brand</p>;
-  } else {
-    return (
-      <>
-        <div className="row mt-5">
-          <div className="col-md-8">
-            <h2>Edit brand: {id}</h2>
-            <form onSubmit={handleSubmit(handleSubmitEdit)}>
-              <BrandGeneralInformation
-                register={register}
-                errors={errors}
-                setValue={setValue}
-                trigger={trigger}
-                brand={brand}
-              />
+  if (!brand) return <></>;
+  return (
+    <>
+      <div className="row mt-5">
+        <div className="col-md-8">
+          <h2>Edit brand: {id}</h2>
+          <form onSubmit={handleSubmit(handleSubmitEdit)}>
+            <BrandGeneralInformation
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              trigger={trigger}
+              brand={brand}
+            />
 
-              <button className="btn btn-primary" type="submit">
-                Save
+            <button className="btn btn-primary" type="submit">
+              Save
+            </button>
+            <Link href="/catalog/brands">
+              <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
+                Cancel
               </button>
-              <Link href="/catalog/brands">
-                <button
-                  className="btn btn-primary"
-                  style={{ background: 'red', marginLeft: '30px' }}
-                >
-                  Cancel
-                </button>
-              </Link>
-            </form>
-          </div>
+            </Link>
+          </form>
         </div>
-      </>
-    );
-  }
+      </div>
+    </>
+  );
 };
 
 export default BrandEdit;

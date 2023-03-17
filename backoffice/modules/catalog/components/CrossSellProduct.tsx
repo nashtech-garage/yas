@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import { Product } from '../models/Product';
 import { Table } from 'react-bootstrap';
-import { UseFormSetValue, UseFormGetValues } from 'react-hook-form';
-import { ProductPost } from '../models/ProductPost';
+import Button from 'react-bootstrap/Button';
+import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
+
 import ShowProductModel from '../../../common/items/ProductModal';
+import { FormProduct } from '../models/FormProduct';
+import { Product } from '../models/Product';
 
 type Props = {
-  setValue: UseFormSetValue<ProductPost>;
-  getValue: UseFormGetValues<ProductPost>;
+  setValue: UseFormSetValue<FormProduct>;
+  getValue: UseFormGetValues<FormProduct>;
 };
 
 const CrossSellProduct = ({ setValue, getValue }: Props) => {
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product[]>([]);
 
-  const onProductSelected = (event: React.MouseEvent<HTMLElement>, product: Product) => {
+  const onProductSelected = (_event: React.MouseEvent<HTMLElement>, product: Product) => {
     let temp = getValue('crossSell') || [];
     let index = temp.indexOf(product.id);
     if (index === -1) {
