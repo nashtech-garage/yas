@@ -12,15 +12,20 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
 import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import ProductOptionGeneralInformation from '../../../../modules/catalog/components/ProductOptionGeneralInformation';
 
 const ProductOptionEdit: NextPage = () => {
   const { handleUpdatingResponse } = useUpdatingContext();
+  const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const { id } = router.query;
   const [productOption, setProductOption] = useState<ProductOption>();
-  const { register, handleSubmit, formState, setValue } = useForm();
-  const { errors } = formState;
-  const handleSubmitOption = async (event: any) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProductOption>();
+  const handleSubmitOption = async (event: ProductOption) => {
     let productOption: ProductOption = {
       id: 0,
       name: event.name,
@@ -33,34 +38,32 @@ const ProductOptionEdit: NextPage = () => {
   };
   useEffect(() => {
     if (id) {
+      setLoading(true);
       getProductOption(+id).then((data) => {
-        setProductOption(data);
-        setValue('name', data.name);
+        if (data.id) {
+          setProductOption(data);
+          setLoading(false);
+        } else {
+          toast(data?.detail);
+          setLoading(false);
+          router.push(PRODUCT_OPTIONS_URL);
+        }
       });
     }
   }, [id]);
+  if (isLoading) return <p>Loading...</p>;
+  if (!productOption) return <></>;
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
           <h2>Edit Product Option</h2>
           <form onSubmit={handleSubmit(handleSubmitOption)} name="form">
-            <div className="mb-3">
-              <div className="mb-3">
-                <label className="form-label">Name</label>
-                <input
-                  className="form-control"
-                  {...register('name', { required: true })}
-                  type="text"
-                  id="name"
-                  name="name"
-                  defaultValue={productOption?.name}
-                />
-                {errors.name && errors.name.type == 'required' && (
-                  <p className="text-danger">Please enter the name product option</p>
-                )}
-              </div>
-            </div>
+            <ProductOptionGeneralInformation
+              register={register}
+              errors={errors}
+              productOption={productOption}
+            ></ProductOptionGeneralInformation>
             <button className="btn btn-primary" type="submit">
               Save
             </button>
