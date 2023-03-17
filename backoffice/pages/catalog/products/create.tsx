@@ -62,48 +62,48 @@ const ProductCreate: NextPage = () => {
   };
 
   return (
-      <div className="create-product">
-        <h2>Create Product</h2>
+    <div className="create-product">
+      <h2>Create Product</h2>
 
-        <form onSubmit={handleSubmit(onSubmitForm)}>
-          <Tabs defaultActiveKey={'general'} className="mb-3">
-            <Tab eventKey={'general'} title="General Information">
-              <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
-            </Tab>
-            <Tab eventKey={'image'} title="Product Images">
-              <ProductImage setValue={setValue} />
-            </Tab>
-            <Tab eventKey={'variation'} title="Product Variations">
-              <ProductVariation getValue={getValues} setValue={setValue} />
-            </Tab>
+      <form onSubmit={handleSubmit(onSubmitForm)}>
+        <Tabs defaultActiveKey={'general'} className="mb-3">
+          <Tab eventKey={'general'} title="General Information">
+            <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
+          </Tab>
+          <Tab eventKey={'image'} title="Product Images">
+            <ProductImage setValue={setValue} />
+          </Tab>
+          <Tab eventKey={'variation'} title="Product Variations">
+            <ProductVariation getValue={getValues} setValue={setValue} />
+          </Tab>
 
-            <Tab eventKey={'attribute'} title="Product Attributes">
-              <ProductAttributes setValue={setValue} getValue={getValues} />
-            </Tab>
-            <Tab eventKey={'category'} title="Category Mapping">
-              <ProductCategoryMapping setValue={setValue} getValue={getValues} />
-            </Tab>
-            <Tab eventKey={'related'} title="Related Products">
-              <RelatedProduct setValue={setValue} getValue={getValues} />
-            </Tab>
-            <Tab eventKey={'cross-sell'} title="Cross-sell Product">
-              <CrossSellProduct setValue={setValue} getValue={getValues} />
-            </Tab>
-            <Tab eventKey={'seo'} title="SEO">
-              <ProductSEO register={register} errors={errors} />
-            </Tab>
-          </Tabs>
-          <div className="text-center">
-            <button className="btn btn-primary" type="submit">
-              Create
-            </button>
-            <Link href="/catalog/products">
-              <button className="btn btn-secondary m-3">Cancel</button>
-            </Link>
-          </div>
-        </form>
-      </div>
-    );
-  };
+          <Tab eventKey={'attribute'} title="Product Attributes">
+            <ProductAttributes setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'category'} title="Category Mapping">
+            <ProductCategoryMapping setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'related'} title="Related Products">
+            <RelatedProduct setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'cross-sell'} title="Cross-sell Product">
+            <CrossSellProduct setValue={setValue} getValue={getValues} />
+          </Tab>
+          <Tab eventKey={'seo'} title="SEO">
+            <ProductSEO register={register} errors={errors} />
+          </Tab>
+        </Tabs>
+        <div className="text-center">
+          <button className="btn btn-primary" type="submit">
+            Create
+          </button>
+          <Link href="/catalog/products">
+            <button className="btn btn-secondary m-3">Cancel</button>
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+};
 
 export default ProductCreate;

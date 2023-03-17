@@ -65,7 +65,7 @@ const EditProduct: NextPage = () => {
       });
     }
   };
- if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>Loading...</p>;
   if (!product) {
     return <p>No product</p>;
   } else {
