@@ -1,14 +1,15 @@
 package com.yas.product.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "product_option_value")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductOptionValue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,7 @@ public class ProductOptionValue {
 
     private String displayType;
 
-    public int displayOrder;
+    private int displayOrder;
 
     private String value;
 

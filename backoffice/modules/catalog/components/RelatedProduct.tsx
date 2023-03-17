@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import { Product } from '../models/Product';
 import { Table } from 'react-bootstrap';
-import { UseFormSetValue, UseFormGetValues } from 'react-hook-form';
-import { ProductPost } from '../models/ProductPost';
+import Button from 'react-bootstrap/Button';
+
+import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 import ShowProductModel from '../../../common/items/ProductModal';
+import { FormProduct } from '../models/FormProduct';
+import { Product } from '../models/Product';
 
 type Props = {
-  setValue: UseFormSetValue<ProductPost>;
-  getValue: UseFormGetValues<ProductPost>;
+  setValue: UseFormSetValue<FormProduct>;
+  getValue: UseFormGetValues<FormProduct>;
 };
 
 const RelatedProduct = ({ setValue, getValue }: Props) => {

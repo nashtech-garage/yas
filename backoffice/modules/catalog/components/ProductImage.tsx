@@ -1,18 +1,18 @@
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Image } from 'react-bootstrap';
 import { UseFormSetValue } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
 import { Product } from '../models/Product';
-import { ProductPost } from '../models/ProductPost';
 import { uploadMedia } from '../services/MediaService';
 
 import styles from '../../../styles/ProductImage.module.css';
+import { FormProduct } from '../models/FormProduct';
 
 type Props = {
   product?: Product;
-  setValue: UseFormSetValue<ProductPost>;
+  setValue: UseFormSetValue<FormProduct>;
 };
 
 type EventType = 'thumbnail' | 'productImages';
@@ -30,23 +30,28 @@ const ProductImage = ({ product, setValue }: Props) => {
   const validTypes = ['image/jpeg', 'image/png'];
 
   const [thumbnailURL, setThumbnailURL] = useState<Image | null>(
-    product?.thumbnailMediaUrl
-      ? { id: +product.thumbnailMediaUrl, url: product.thumbnailMediaUrl }
+    product?.thumbnailMedia
+      ? { id: +product.thumbnailMedia.id, url: product.thumbnailMedia.url }
       : null
   );
   const [productImageURL, setProductImageURL] = useState<Image[]>(
-    product?.productImageMediaUrls
-      ? product.productImageMediaUrls.map((url, index) => ({
-          id: index,
-          url,
+    product?.productImageMedias
+      ? product.productImageMedias.map((image) => ({
+          id: image.id,
+          url: image.url,
         }))
       : []
   );
 
+  useEffect(() => {
+    setValue('thumbnailMedia', product?.thumbnailMedia);
+    setValue('productImageMedias', product?.productImageMedias);
+  }, []);
+
   const onChangeImage = async (
     event: React.ChangeEvent<HTMLInputElement>,
     type: EventType,
-    index?: number
+    index: number = -1
   ) => {
     if (!event || !type) {
       return;
@@ -67,13 +72,16 @@ const ProductImage = ({ product, setValue }: Props) => {
 
         const response = await uploadMedia(filesList[0]);
 
-        setValue('thumbnail', file);
+        setValue('thumbnailMedia', {
+          id: response.id,
+          url: URL.createObjectURL(file),
+        });
         setThumbnailURL({
           id: response.id,
           url: URL.createObjectURL(file),
         });
       } else if (type === 'productImages') {
-        if (index && index > 0) {
+        if (index > -1) {
           const file = filesList[0];
 
           const response = await uploadMedia(file);
@@ -84,6 +92,13 @@ const ProductImage = ({ product, setValue }: Props) => {
             url: URL.createObjectURL(file),
           };
 
+          setValue(
+            'productImageMedias',
+            productImageTmp.map((image) => ({
+              id: image.id,
+              url: image.url,
+            }))
+          );
           setProductImageURL(productImageTmp);
         } else {
           const images: Image[] = [];
@@ -99,6 +114,13 @@ const ProductImage = ({ product, setValue }: Props) => {
 
           await Promise.all(uploadPromises);
 
+          setValue(
+            'productImageMedias',
+            [...productImageURL, ...images].map((image) => ({
+              id: image.id,
+              url: image.url,
+            }))
+          );
           setProductImageURL((prev) => [...prev, ...images]);
         }
       }
@@ -163,7 +185,7 @@ const ProductImage = ({ product, setValue }: Props) => {
 
         <div className="d-flex gap-2 flex-wrap">
           {productImageURL.map((productImageUrl, index) => (
-            <div key={index} className={styles['product-image']}>
+            <div key={productImageUrl.id} className={styles['product-image']}>
               <div className={styles['actions']}>
                 <label className={styles['icon']} htmlFor={`product-images-${productImageUrl.id}`}>
                   <i className="bi bi-arrow-repeat"></i>

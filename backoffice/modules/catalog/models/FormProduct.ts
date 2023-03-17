@@ -1,10 +1,13 @@
+import { Media } from './Media';
+import { ProductAttributeValue } from './ProductAttributeValue';
 import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariation } from './ProductVariation';
-import { ProductAttributeValue } from './ProductAttributeValue';
 
-export type ProductPost = {
+export type FormProduct = {
   name?: string;
   slug?: string;
+  brandId?: number;
+  categoryIds?: number[];
   description?: string;
   shortDescription?: string;
   specification?: string;
@@ -15,18 +18,14 @@ export type ProductPost = {
   isPublished?: boolean;
   isFeatured?: boolean;
   isVisibleIndividually?: boolean;
-  brandId?: number;
-  thumbnail?: File;
-  productImages?: FileList;
+  thumbnailMedia?: Media;
+  productImageMedias?: Media[];
   metaTitle?: string;
   metaKeyword?: string;
   metaDescription?: string;
   relateProduct?: number[]; // product id
   crossSell?: number[]; // product id
-  categoryIds?: number[]; // category id
   productAttributes?: ProductAttributeValue[];
   productVariations?: ProductVariation[];
   productOptions?: ProductOptionValuePost[];
-  thumbnailMediaId?: number;
-  productImageIds?: number[];
 };

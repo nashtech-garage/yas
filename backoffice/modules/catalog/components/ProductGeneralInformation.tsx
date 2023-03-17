@@ -6,16 +6,16 @@ import slugify from 'slugify';
 
 import { CheckBox, Input, TextArea } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
-import { getProduct } from '../services/ProductService';
 import { Brand } from '../models/Brand';
+import { FormProduct } from '../models/FormProduct';
 import { Product } from '../models/Product';
-import { ProductPost } from '../models/ProductPost';
 import { getBrands } from '../services/BrandService';
+import { getProduct } from '../services/ProductService';
 
 type Props = {
-  register: UseFormRegister<ProductPost>;
-  errors: FieldErrorsImpl<ProductPost>;
-  setValue: UseFormSetValue<ProductPost>;
+  register: UseFormRegister<FormProduct>;
+  errors: FieldErrorsImpl<FormProduct>;
+  setValue: UseFormSetValue<FormProduct>;
 };
 
 const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {

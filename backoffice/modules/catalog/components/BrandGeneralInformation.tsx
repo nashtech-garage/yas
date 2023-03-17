@@ -1,10 +1,9 @@
-import { useRouter } from 'next/router';
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
 import slugify from 'slugify';
 
 import { Input, Switch } from '../../../common/items/Input';
-import { Brand } from '../models/Brand';
 import { SLUG_FIELD_PATTERN } from '../constants/validationPattern';
+import { Brand } from '../models/Brand';
 
 type Props = {
   register: UseFormRegister<Brand>;
@@ -15,7 +14,6 @@ type Props = {
 };
 
 const BrandGeneralInformation = ({ register, errors, setValue, trigger, brand }: Props) => {
-  const router = useRouter();
   const onNameChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue('slug', slugify(event.target.value, { lower: true, strict: true }));
     await trigger('slug');
