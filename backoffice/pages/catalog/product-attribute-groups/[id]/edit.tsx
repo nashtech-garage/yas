@@ -10,7 +10,6 @@ import {
 } from '../../../../modules/catalog/services/ProductAttributeGroupService';
 import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../../constants/Common';
 import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
 import ProductAttributeGroupGeneralInformation from '../../../../modules/catalog/components/ProductAttributeGroupGeneralInformation';
 import CustomToast from '../../../../common/items/CustomToast';
 
