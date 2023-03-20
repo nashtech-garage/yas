@@ -91,7 +91,7 @@ public class CategoryService {
     }
 
     private boolean checkExistedName(String name, Long id) {
-        return categoryRepository.findByNameAndId(name, id) != null;
+        return categoryRepository.findExistedName(name, id) != null;
     }
 
     private void validateDuplicateName(String name, Long id) {

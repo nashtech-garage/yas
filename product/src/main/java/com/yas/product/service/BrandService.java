@@ -69,6 +69,6 @@ public class BrandService {
     }
 
     private boolean checkExistedName(String name, Long id) {
-        return brandRepository.findByNameAndId(name, id) != null;
+        return brandRepository.findExistedName(name, id) != null;
     }
 }

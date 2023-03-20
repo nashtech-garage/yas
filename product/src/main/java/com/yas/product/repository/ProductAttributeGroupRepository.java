@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductAttributeGroupRepository extends JpaRepository<ProductAttributeGroup, Long> {
     @Query("select e from ProductAttributeGroup e where e.name = ?1 and (?2 is null or e.id != ?2)")
-    ProductAttributeGroup findByNameAndId(String name, Long id);
+    ProductAttributeGroup findExistedName(String name, Long id);
 }

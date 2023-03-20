@@ -51,6 +51,6 @@ public class ProductAttributeGroupService {
     }
 
     private boolean checkExistedName(String name, Long id) {
-        return productAttributeGroupRepository.findByNameAndId(name, id) != null;
+        return productAttributeGroupRepository.findExistedName(name, id) != null;
     }
 }

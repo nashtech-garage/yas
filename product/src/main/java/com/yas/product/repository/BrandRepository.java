@@ -12,5 +12,5 @@ public interface BrandRepository extends JpaRepository<Brand,Long> {
     Optional<Brand> findBySlug(String slug);
 
     @Query("select e from Brand e where e.name = ?1 and (?2 is null or e.id != ?2)")
-    Brand findByNameAndId(String name, Long id);
+    Brand findExistedName(String name, Long id);
 }
