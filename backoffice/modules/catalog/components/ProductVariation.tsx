@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Table } from 'react-bootstrap';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
+import Select, { SingleValue } from 'react-select';
 import { toast } from 'react-toastify';
-import { FormProduct } from '../models/FormProduct';
-import { Media } from '../models/Media';
 
+import { FormProduct } from '../models/FormProduct';
 import { ProductOption } from '../models/ProductOption';
 import { ProductVariation } from '../models/ProductVariation';
-import { uploadMedia } from '../services/MediaService';
 import { getProductOptions } from '../services/ProductOptionService';
-
-const headers = ['Option Combinations', 'SKU', 'GTIN', 'Price', 'Thumbnail', 'Images', 'Action'];
+import ProductVariant from './ProductVariant';
 
 type Props = {
   getValue: UseFormGetValues<FormProduct>;
@@ -18,26 +15,36 @@ type Props = {
 };
 
 const ProductVariations = ({ getValue, setValue }: Props) => {
+  const [currentOption, setCurrentOption] = useState<SingleValue<ProductOption>>(null);
+  const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [optionCombines, setOptionCombines] = useState<string[]>([]);
-  const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
+
+  const options = useMemo(() => {
+    return productOptions.map((option) => ({ value: option.name, label: option.name }));
+  }, [productOptions]);
+
+  let listVariant = useMemo(() => {
+    return getValue('productVariations') || [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [optionCombines]);
 
   useEffect(() => {
-    getProductOptions().then((data) => setProductOptions(data));
+    getProductOptions().then((data) => {
+      setProductOptions(data);
+    });
   }, []);
 
   const onAddOption = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    const option = (document.getElementById('option') as HTMLSelectElement).value;
-
-    if (option === '0') {
+    if (!currentOption) {
       toast.info('Select options first');
     } else {
-      const index = selectedOptions.indexOf(option);
+      const index = selectedOptions.indexOf(currentOption.name);
       if (index === -1) {
-        setSelectedOptions([...selectedOptions, option]);
+        setSelectedOptions([...selectedOptions, currentOption.name]);
       } else {
-        toast.info(`${option} is selected. Select Other`);
+        toast.info(`${currentOption.name} is selected. Select Other`);
       }
     }
   };
@@ -52,13 +59,36 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
   const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
 
+    const result = generateProductOptionCombinations();
+
+    const listOptionCombine: string[] = [];
+    const productVariants: ProductVariation[] = [];
+    result.forEach((item) => {
+      listOptionCombine.push(getValue('name')?.concat(' ', item) || '');
+      productVariants.push({
+        optionName: getValue('name')?.concat(' ', item) || '',
+        optionGTin: getValue('gtin') || '',
+        optionSku: getValue('sku') || '',
+        optionPrice: getValue('price') || 0,
+      });
+    });
+    setOptionCombines(listOptionCombine);
+    setValue('productVariations', productVariants);
+  };
+
+  const generateProductOptionCombinations = (): string[] => {
     const result: string[] = [];
     const productOp = getValue('productOptions') || [];
 
     selectedOptions.forEach((option) => {
-      const combines = (document.getElementById(option) as HTMLInputElement).value.split(',');
-      const item = productOptions.find((_option) => _option.name === option);
-      productOp.push({ productOptionId: item?.id, value: combines });
+      const combines = (document.getElementById(option) as HTMLInputElement).value
+        .split(',')
+        .map((item) => item.trim());
+
+      const productOption = productOptions.find((productOption) => productOption.name === option);
+      productOp.push({ productOptionId: productOption?.id, value: combines });
+      setValue('productOptions', productOp);
+
       if (result.length === 0) {
         combines.forEach((item) => {
           result.push(item);
@@ -75,122 +105,55 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       }
     });
 
-    setValue('productOptions', productOp);
-    const options: string[] = [];
-    const productVar: ProductVariation[] = [];
-    result.forEach((item) => {
-      options.push(getValue('name')?.concat(' ', item) || '');
-      productVar.push({
-        optionName: getValue('name')?.concat(' ', item) || '',
-        optionGTin: getValue('gtin') || '',
-        optionSku: getValue('sku') || '',
-        optionPrice: getValue('price') || 0,
-      });
-    });
-    setOptionCombines(options);
-    setValue('productVariations', productVar);
+    return result;
   };
 
-  const onDeleteVariation = (event: React.MouseEvent<HTMLElement>, optionName: string) => {
-    event.preventDefault();
-    const result = optionCombines.filter((_optionName) => _optionName !== optionName);
+  const onDeleteVariation = (variant: ProductVariation) => {
+    const result = optionCombines.filter((optionName) => optionName !== variant.optionName);
     setOptionCombines(result);
 
     let productVar = getValue('productVariations') || [];
-    productVar = productVar.filter((item) => item.optionName !== optionName);
-    setValue('productVariations', productVar);
-  };
-
-  const onChangeVariationValue = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    optionName: string
-  ) => {
-    const value = event.target.value;
-    const productVar = getValue('productVariations') || [];
-    const item = productVar.find((item) => item.optionName === optionName);
-
-    if (!item) {
-      return;
-    }
-
-    switch (event.target.name) {
-      case 'optionSku':
-        item.optionSku = value;
-        break;
-      case 'optionGTin':
-        item.optionGTin = value;
-        break;
-      case 'optionPrice':
-        item.optionPrice = +value;
-        break;
-      case 'optionThumbnail':
-        if (!event.target.files) {
-          return;
-        }
-
-        try {
-          const response = await uploadMedia(event.target.files[0]);
-          item.optionThumbnail = { ...response };
-        } catch (error) {
-          toast.error("Can't upload image");
-        }
-        break;
-      case 'optionImages':
-        if (!event.target.files) {
-          return;
-        }
-
-        const images: Media[] = [];
-
-        try {
-          const uploadPromises = Array.from(event.target.files).map(async (file) => {
-            const response = await uploadMedia(file);
-            images.push(response);
-          });
-
-          await Promise.all(uploadPromises);
-          item.optionImages = [...images];
-        } catch (error) {
-          toast.error("Can't upload image");
-        }
-        break;
-      default:
-        return;
-    }
-
+    productVar = productVar.filter((item) => item.optionName !== variant.optionName);
     setValue('productVariations', productVar);
   };
 
   return (
     <>
+      {/* Selection */}
       <div className="mb-3 d-flex justify-content-evenly">
-        <label className="form-label" htmlFor="brand">
+        <label className="form-label m-0" htmlFor="option">
           Available Options
         </label>
-        <select className="form-control w-50" id="option" defaultValue="0">
-          <option value="0" disabled hidden>
-            Select Options
-          </option>
-          {(productOptions || []).map((option) => (
-            <option value={option.name} key={option.id}>
-              {option.name}
-            </option>
-          ))}
-        </select>
-        <button className="btn btn-primary" onClick={onAddOption}>
+        <Select
+          className="w-50"
+          options={options}
+          isClearable
+          isOptionDisabled={(option) => selectedOptions.includes(option.value.toString())}
+          onChange={(option) => {
+            if (option?.label) {
+              setCurrentOption({
+                id: +option.value,
+                name: option.label,
+              });
+            }
+          }}
+        />
+        <button className="btn btn-success" onClick={(event) => onAddOption(event)}>
           Add Option
         </button>
       </div>
+
+      {/* Value options */}
       {selectedOptions.length > 0 && (
         <div className="mb-3">
-          <h5>Value Options</h5>
+          <h5 className="mb-3">Value Options</h5>
           <div className="mb-3">
             {(selectedOptions || []).map((option) => (
-              <div className="mb-3 d-flex justify-content-evenly" key={option}>
-                <label className="form-label" htmlFor={option}>
+              <div className="mb-3 d-flex gap-4" key={option}>
+                <label className="form-label flex-grow-1" htmlFor={option}>
                   {option}
                 </label>
-                <input type="text" id={option} className={`form-control w-75`} />
+                <input type="text" id={option} className="form-control w-75" />
                 <button
                   className="btn btn-danger"
                   onClick={(event) => onDeleteOption(event, option)}
@@ -201,77 +164,26 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
             ))}
           </div>
           <div className="text-center">
-            <button className="btn btn-primary" onClick={onGenerate}>
+            <button className="btn btn-info" onClick={onGenerate}>
               Generate Combine
             </button>
           </div>
         </div>
       )}
 
-      {optionCombines.length > 0 && (
+      {/* Product variations */}
+      {listVariant.length > 0 && (
         <div className="mb-3">
-          <h5>Product Variations</h5>
-          <Table>
-            <thead className="mb-3">
-              {headers.map((title, index) => (
-                <th key={index}>{title}</th>
-              ))}
-            </thead>
-            <tbody>
-              {(optionCombines || []).map((ele) => (
-                <tr key={ele}>
-                  <th>{getValue('name')?.concat(' ', ele)}</th>
-                  <th>
-                    <input
-                      type="text"
-                      className="w-50"
-                      name="optionSku"
-                      onChange={(e) => onChangeVariationValue(e, ele)}
-                    />
-                  </th>
-                  <th>
-                    <input
-                      type="text"
-                      className="w-50"
-                      name="optionGTin"
-                      onChange={(e) => onChangeVariationValue(e, ele)}
-                    />
-                  </th>
-                  <th>
-                    <input
-                      type="number"
-                      className="w-50"
-                      name="optionPrice"
-                      onChange={(e) => onChangeVariationValue(e, ele)}
-                    />
-                  </th>
-                  <th>
-                    <input
-                      type="file"
-                      name="optionThumbnail"
-                      onChange={(e) => onChangeVariationValue(e, ele)}
-                    />
-                  </th>
-                  <th>
-                    <input
-                      type="file"
-                      multiple
-                      name="optionImages"
-                      onChange={(e) => onChangeVariationValue(e, ele)}
-                    />
-                  </th>
-                  <th>
-                    <button
-                      className="btn btn-danger"
-                      onClick={(event) => onDeleteVariation(event, ele)}
-                    >
-                      <i className="bi bi-x"></i>
-                    </button>
-                  </th>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <h5 className="mb-3">Product Variations</h5>
+
+          {listVariant.map((variant, index) => (
+            <ProductVariant
+              key={variant.optionName}
+              index={index}
+              variant={variant}
+              onDelete={onDeleteVariation}
+            />
+          ))}
         </div>
       )}
     </>
