@@ -38,3 +38,11 @@ export const menu_customer_item_data = [
     link: '/customers',
   },
 ];
+
+export const menu_other_item_data = [
+  {
+    id: 1,
+    name: 'Product Reviews',
+    link: '/reviews',
+  },
+];
