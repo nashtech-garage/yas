@@ -3,10 +3,19 @@
   height: 150px;
   border: 1px dashed #000;
   border-radius: 4px;
-  line-height: 150px;
   text-align: center;
   cursor: pointer;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 4px;
+}
+
+.image-label:hover {
+  background-color: #000;
+  color: white;
 }
 
 .product-image {
@@ -16,6 +25,11 @@
   padding: 4px;
   border: 1px dashed #000;
   border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.product-image:hover {
+  border-style: solid;
 }
 
 .product-image img {
@@ -41,9 +55,13 @@
   padding: 4px;
   width: 30px;
   height: 30px;
-  text-align: center;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  padding-top: 6px;
 }
 
 .product-image .actions .icon.delete {

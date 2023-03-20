@@ -1,0 +1,41 @@
+.product-variant {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-variant:hover {
+  border-color: blue;
+}
+
+.product-variant + .product-variant {
+  margin-top: 14px;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.delete-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: red;
+  border-bottom-left-radius: 6px;
+  width: 40px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+}
+
+.delete-button:hover {
+  background: #c00;
+}

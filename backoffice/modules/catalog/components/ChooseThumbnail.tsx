@@ -1,22 +1,24 @@
 import clsx from 'clsx';
 import { useState } from 'react';
 import { Image } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import { UseFormSetValue } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
-import { uploadMedia } from '../services/MediaService';
 import { FormProduct } from '../models/FormProduct';
+import { ProductVariation } from '../models/ProductVariation';
+import { uploadMedia } from '../services/MediaService';
 
 import styles from '../../../styles/ChooseImage.module.css';
-import { ProductVariation } from '../models/ProductVariation';
 
 type ChooseThumbnailProps = {
   id: string;
   image: Image | null;
-  setValue: UseFormSetValue<FormProduct>;
   name: 'thumbnailMedia' | 'productVariations';
-  productVariation?: ProductVariation[];
-  index?: number;
+  setValue?: UseFormSetValue<FormProduct>;
+  variation?: ProductVariation;
+  wrapperStyle?: React.CSSProperties;
+  actionStyle?: React.CSSProperties;
+  iconStyle?: React.CSSProperties;
 };
 
 type Image = {
@@ -35,8 +37,10 @@ export default function ChooseThumbnail({
   image,
   setValue,
   name,
-  productVariation,
-  index,
+  variation,
+  wrapperStyle,
+  actionStyle,
+  iconStyle,
 }: ChooseThumbnailProps) {
   const [thumbnailURL, setThumbnailURL] = useState<Image | null>(image);
 
@@ -60,19 +64,15 @@ export default function ChooseThumbnail({
       const response = await uploadMedia(filesList[0]);
 
       if (name === 'thumbnailMedia') {
-        setValue('thumbnailMedia', {
+        setValue?.('thumbnailMedia', {
           id: response.id,
           url: URL.createObjectURL(file),
         });
-      } else if (name === 'productVariations' && productVariation && index) {
-        const productVariations = [...productVariation];
-
-        productVariations[index].optionThumbnail = {
+      } else if (name === 'productVariations' && variation) {
+        variation.optionThumbnail = {
           id: response.id,
           url: URL.createObjectURL(file),
         };
-
-        setValue('productVariations', productVariations);
       }
 
       setThumbnailURL({
@@ -87,20 +87,16 @@ export default function ChooseThumbnail({
   const onDeleteImage = () => {
     setThumbnailURL(null);
     if (name === 'thumbnailMedia') {
-      setValue('thumbnailMedia', undefined);
-    } else if (name === 'productVariations' && productVariation && index) {
-      const productVariations = [...productVariation];
-
-      productVariations[index].optionThumbnail = undefined;
-
-      setValue('productVariations', productVariations);
+      setValue?.('thumbnailMedia', undefined);
+    } else if (name === 'productVariations' && variation) {
+      variation.optionThumbnail = undefined;
     }
   };
 
   return (
     <>
       {!thumbnailURL && (
-        <label className={styles['image-label']} htmlFor={id}>
+        <label className={styles['image-label']} htmlFor={id} style={wrapperStyle}>
           Choose an image
         </label>
       )}
@@ -108,13 +104,17 @@ export default function ChooseThumbnail({
       <input hidden type="file" id={id} onChange={(event) => onChangeImage(event)} />
 
       {thumbnailURL && (
-        <div className={styles['product-image']}>
-          <div className={styles['actions']}>
-            <label className={styles['icon']} htmlFor={id}>
+        <div className={styles['product-image']} style={wrapperStyle}>
+          <div className={styles['actions']} style={actionStyle}>
+            <label className={styles['icon']} htmlFor={id} style={iconStyle}>
               <i className="bi bi-arrow-repeat"></i>
             </label>
 
-            <div onClick={onDeleteImage} className={clsx(styles['icon'], styles['delete'])}>
+            <div
+              onClick={onDeleteImage}
+              className={clsx(styles['icon'], styles['delete'])}
+              style={iconStyle}
+            >
               <i className="bi bi-x-lg"></i>
             </div>
           </div>
