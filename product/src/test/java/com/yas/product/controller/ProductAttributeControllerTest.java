@@ -33,7 +33,6 @@ class ProductAttributeControllerTest {
 
     ProductAttributeRepository productAttributeRepository;
     ProductAttributeService productAttributeService;
-    ProductAttributeGroupRepository productAttributeGroupRepository;
     ProductAttributeController productAttributeController;
     UriComponentsBuilder uriComponentsBuilder;
     Principal principal;
@@ -45,11 +44,9 @@ class ProductAttributeControllerTest {
     void setUp(){
         productAttributeRepository = mock(ProductAttributeRepository.class);
         productAttributeService = mock(ProductAttributeService.class);
-        productAttributeGroupRepository = mock(ProductAttributeGroupRepository.class);
         uriComponentsBuilder = mock(UriComponentsBuilder.class);
         principal = mock(Principal.class);
         productAttributeController = new ProductAttributeController(productAttributeRepository,
-                productAttributeGroupRepository,
                 productAttributeService);
         productAttributeGroup.setId(1L);
         productAttributeGroup.setName("Computer");

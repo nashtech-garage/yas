@@ -27,7 +27,6 @@ public class ProductAttributeGroupController {
 
     private final ProductAttributeGroupService productAttributeGroupService;
     private final ProductAttributeGroupRepository productAttributeGroupRepository;
-    private final ProductAttributeGroupService productAttributeGroupService;
 
     public ProductAttributeGroupController(ProductAttributeGroupRepository productAttributeGroupRepository,
                                            ProductAttributeGroupService productAttributeGroupService) {

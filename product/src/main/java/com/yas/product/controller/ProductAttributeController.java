@@ -3,8 +3,6 @@ package com.yas.product.controller;
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttribute;
-import com.yas.product.model.attribute.ProductAttributeGroup;
-import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.repository.ProductAttributeRepository;
 import com.yas.product.service.ProductAttributeService;
 import com.yas.product.utils.Constants;
@@ -30,14 +28,10 @@ public class ProductAttributeController {
 
     private final ProductAttributeService productAttributeService;
     private final ProductAttributeRepository productAttributeRepository;
-    private final ProductAttributeGroupRepository productAttributeGroupRepository;
-    private final ProductAttributeService productAttributeService;
 
     public ProductAttributeController(ProductAttributeRepository productAttributeRepository,
-                                      ProductAttributeGroupRepository productAttributeGroupRepository,
                                       ProductAttributeService productAttributeService) {
         this.productAttributeRepository = productAttributeRepository;
-        this.productAttributeGroupRepository = productAttributeGroupRepository;
         this.productAttributeService = productAttributeService;
     }
 
