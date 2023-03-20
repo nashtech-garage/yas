@@ -277,8 +277,6 @@ public class ProductService {
             Brand brand = brandRepository.findById(brandId).orElseThrow(()
                     -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, brandId));
             product.setBrand(brand);
-        } else {
-            product.setBrand(null);
         }
     }
 
