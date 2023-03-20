@@ -34,7 +34,8 @@ export default function AuthenticationInfo() {
     <div className="wrap-auth">
       {authenticatedInfoVm.isAuthenticated ? (
         <div>
-          Signed in as: <Link href="#">{authenticatedInfoVm.authenticatedUser.username}</Link>{' '}
+          Signed in as:{' '}
+          <Link href="/profile">{authenticatedInfoVm.authenticatedUser.username}</Link>{' '}
           <Link href="/logout">Logout</Link>
         </div>
       ) : (
