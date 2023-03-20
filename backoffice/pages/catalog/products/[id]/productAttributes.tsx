@@ -76,10 +76,10 @@ const ProductAttributes: NextPage = () => {
       }
     });
     attributeOfCurrentProducts.forEach((obj) => {
-      if (obj.id.toString() === editProductAttributeId.toString())
-        arrayUpdateProductAttributeId.push(obj.id.toString());
+      if (obj.id.toString() === editProductAttributeId.toString()) {
+        setListUpdateProductAttributeId((prevState) => [...prevState, obj.id.toString()]);
+      }
     });
-    setListUpdateProductAttributeId(arrayUpdateProductAttributeId);
     setAttributeOfProducts(arrayAttributeOfProducts);
   };
   const addNewAttributeOfProduct = (event: React.MouseEvent<HTMLElement>) => {
