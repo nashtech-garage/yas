@@ -69,6 +69,12 @@ public class ApiExceptionHandler {
     return ResponseEntity.badRequest().body(errorVm);
   }
 
+  @ExceptionHandler(DuplicatedNameException.class)
+  protected ResponseEntity<Object> handleDuplicatedName(DuplicatedNameException e) {
+    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
+    return ResponseEntity.badRequest().body(errorVm);
+  }
+
 
   private String getServletPath(WebRequest webRequest) {
     ServletWebRequest servletRequest = (ServletWebRequest) webRequest;

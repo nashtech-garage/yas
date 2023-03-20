@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -68,7 +67,7 @@ public class ProductAttributeGroupController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<ProductAttributeGroupVm> createProductAttributeGroup(@Valid @RequestBody ProductAttributeGroupPostVm productAttributeGroupPostVm, UriComponentsBuilder uriComponentsBuilder) {
         ProductAttributeGroup productAttributeGroup = productAttributeGroupPostVm.toModel();
-        productAttributeGroupRepository.save(productAttributeGroup);
+        productAttributeGroupService.save(productAttributeGroup);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/product-attribute-groups/{id}").buildAndExpand(productAttributeGroup.getId()).toUri())
                 .body(ProductAttributeGroupVm.fromModel(productAttributeGroup));
     }
@@ -83,7 +82,7 @@ public class ProductAttributeGroupController {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND, id)));
         productAttributeGroup.setName(productAttributeGroupPostVm.name());
-        productAttributeGroupRepository.save(productAttributeGroup);
+        productAttributeGroupService.save(productAttributeGroup);
         return ResponseEntity.noContent().build();
     }
 

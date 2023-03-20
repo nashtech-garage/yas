@@ -21,5 +21,6 @@ public final class Constants {
 		public static final String MAKE_SURE_BRAND_DONT_CONTAINS_ANY_PRODUCT = "MAKE_SURE_BRAND_DONT_CONTAINS_ANY_PRODUCT";
 		public static final String MAKE_SURE_PRODUCT_ATTRIBUTE_GROUP_DO_NOT_CONTAINS_ANY_PRODUCT_ATTRIBUTE =
 				"Make sure product attribute group do not contains any product attribute";
+		public static final String NAME_ALREADY_EXITED = "NAME_ALREADY_EXITED";
 	}
 }

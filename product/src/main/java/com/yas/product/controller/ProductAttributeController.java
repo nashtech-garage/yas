@@ -3,8 +3,6 @@ package com.yas.product.controller;
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttribute;
-import com.yas.product.model.attribute.ProductAttributeGroup;
-import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.repository.ProductAttributeRepository;
 import com.yas.product.service.ProductAttributeService;
 import com.yas.product.utils.Constants;
@@ -30,13 +28,10 @@ public class ProductAttributeController {
 
     private final ProductAttributeService productAttributeService;
     private final ProductAttributeRepository productAttributeRepository;
-    private final ProductAttributeGroupRepository productAttributeGroupRepository;
 
     public ProductAttributeController(ProductAttributeRepository productAttributeRepository,
-                                      ProductAttributeGroupRepository productAttributeGroupRepository,
                                       ProductAttributeService productAttributeService) {
         this.productAttributeRepository = productAttributeRepository;
-        this.productAttributeGroupRepository = productAttributeGroupRepository;
         this.productAttributeService = productAttributeService;
     }
 
@@ -71,15 +66,7 @@ public class ProductAttributeController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductAttributeGetVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<ProductAttributeGetVm> createProductAttribute(@Valid @RequestBody ProductAttributePostVm productAttributePostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal) {
-       ProductAttribute productAttribute = new ProductAttribute();
-       productAttribute.setName(productAttributePostVm.name());
-       if(productAttributePostVm.productAttributeGroupId() != null){
-           ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
-                   .findById(productAttributePostVm.productAttributeGroupId())
-                   .orElseThrow(() -> new BadRequestException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND, productAttributePostVm.productAttributeGroupId())));
-           productAttribute.setProductAttributeGroup(productAttributeGroup);
-       }
-       ProductAttribute savedProductAttribute = productAttributeRepository.saveAndFlush(productAttribute);
+       ProductAttribute savedProductAttribute = productAttributeService.save(productAttributePostVm);
        ProductAttributeGetVm productAttributeGetVm = ProductAttributeGetVm.fromModel(savedProductAttribute);
        return  ResponseEntity.created(uriComponentsBuilder.replacePath("/product-attribute/{id}").buildAndExpand(savedProductAttribute.getId()).toUri())
                .body(productAttributeGetVm);
@@ -91,17 +78,7 @@ public class ProductAttributeController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> updateProductAttribute(@PathVariable Long id, @Valid @RequestBody final ProductAttributePostVm productAttributePostVm) {
-        ProductAttribute productAttribute = productAttributeRepository
-                .findById(id)
-                .orElseThrow(()-> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND, id)));
-        productAttribute.setName(productAttributePostVm.name());
-        if(productAttributePostVm.productAttributeGroupId() != null){
-            ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
-                    .findById(productAttributePostVm.productAttributeGroupId())
-                    .orElseThrow(() -> new BadRequestException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND, productAttributePostVm.productAttributeGroupId())));
-            productAttribute.setProductAttributeGroup(productAttributeGroup);
-        }
-        productAttributeRepository.saveAndFlush(productAttribute);
+        productAttributeService.update(productAttributePostVm, id);
         return ResponseEntity.noContent().build();
     }
 

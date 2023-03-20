@@ -68,8 +68,7 @@ public class BrandController {
         @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = BrandVm.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
   public ResponseEntity<BrandVm> createBrand(@Valid @RequestBody BrandPostVm brandPostVm, UriComponentsBuilder uriComponentsBuilder) {
-    Brand brand = brandPostVm.toModel();
-    brandRepository.save(brand);
+    Brand brand = brandService.create(brandPostVm);
     return ResponseEntity.created(uriComponentsBuilder.replacePath("/brands/{id}").buildAndExpand(brand.getId()).toUri())
             .body(BrandVm.fromModel(brand));
   }
@@ -80,13 +79,7 @@ public class BrandController {
         @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
   public ResponseEntity<Void> updateBrand(@PathVariable Long id, @Valid @RequestBody final BrandPostVm brandPostVm) {
-    Brand brand = brandRepository
-            .findById(id)
-            .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, id));
-    brand.setSlug(brandPostVm.slug());
-    brand.setName(brandPostVm.name());
-    brand.setIsPublished(brandPostVm.isPublish());
-    brandRepository.save(brand);
+    brandService.update(brandPostVm, id);
     return ResponseEntity.noContent().build();
   }
 
