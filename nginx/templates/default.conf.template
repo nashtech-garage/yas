@@ -18,6 +18,9 @@ server {
   location /rating/ {
 	proxy_pass http://rating;
   }
+  location /order/ {
+	proxy_pass http://order;
+  }
 }
 
 server {
