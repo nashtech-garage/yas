@@ -9,6 +9,12 @@ export async function getProductAttributes(): Promise<ProductAttribute[]> {
   return await response.json();
 }
 
+export async function getPageableProductAttributes(pageNo: number, pageSize: number) {
+  const url = `/api/product/backoffice/product-attribute/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  const response = await fetch(url);
+  return await response.json();
+}
+
 export async function createProductAttribute(productAttributePost: ProductAttributeId) {
   const response = await fetch('/api/product/backoffice/product-attribute', {
     method: 'POST',

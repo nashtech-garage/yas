@@ -5,6 +5,12 @@ export async function getProductOptions(): Promise<ProductOption[]> {
   return await response.json();
 }
 
+export async function getPageableProductOptions(pageNo: number, pageSize: number) {
+  const url = `/api/product/backoffice/product-options/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  const response = await fetch(url);
+  return await response.json();
+}
+
 export async function getProductOption(id: number) {
   const response = await fetch('/api/product/backoffice/product-options/' + id);
   return await response.json();

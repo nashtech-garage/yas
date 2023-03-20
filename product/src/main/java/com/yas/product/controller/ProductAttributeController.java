@@ -6,10 +6,13 @@ import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.repository.ProductAttributeRepository;
+import com.yas.product.service.ProductAttributeService;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributePostVm;
+import com.yas.product.viewmodel.productattribute.ProductAttributeListGetVm;
+import com.yas.product.constants.PageableConstant;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,12 +28,16 @@ import java.util.List;
 @RestController
 public class ProductAttributeController {
 
+    private final ProductAttributeService productAttributeService;
     private final ProductAttributeRepository productAttributeRepository;
     private final ProductAttributeGroupRepository productAttributeGroupRepository;
 
-    public ProductAttributeController(ProductAttributeRepository productAttributeRepository,  ProductAttributeGroupRepository productAttributeGroupRepository) {
+    public ProductAttributeController(ProductAttributeRepository productAttributeRepository,
+                                      ProductAttributeGroupRepository productAttributeGroupRepository,
+                                      ProductAttributeService productAttributeService) {
         this.productAttributeRepository = productAttributeRepository;
         this.productAttributeGroupRepository = productAttributeGroupRepository;
+        this.productAttributeService = productAttributeService;
     }
 
     @GetMapping({"/backoffice/product-attribute" , "/storefront/product-attribute"})
@@ -40,6 +47,12 @@ public class ProductAttributeController {
                 .map(ProductAttributeGetVm::fromModel)
                 .toList();
         return ResponseEntity.ok(productAttributeGetVms);
+    }
+    @GetMapping({"/backoffice/product-attribute/paging", "/storefront/product-attribute/paging"})
+    public ResponseEntity<ProductAttributeListGetVm> getPageableProductAttributes(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                              @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+
+        return ResponseEntity.ok(productAttributeService.getPageableProductAttributes(pageNo, pageSize));
     }
     @GetMapping("/backoffice/product-attribute/{id}" )
     @ApiResponses(value = {
