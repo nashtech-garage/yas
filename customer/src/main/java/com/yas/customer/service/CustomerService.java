@@ -6,6 +6,7 @@ import com.yas.customer.exception.NotFoundException;
 import com.yas.customer.exception.WrongEmailFormatException;
 import com.yas.customer.viewmodel.CustomerAdminVm;
 import com.yas.customer.viewmodel.CustomerListVm;
+import com.yas.customer.viewmodel.CustomerProfileRequestVm;
 import com.yas.customer.viewmodel.CustomerVm;
 import com.yas.customer.viewmodel.GuestUserVm;
 import com.yas.customer.utils.Constants;
@@ -15,8 +16,10 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.ForbiddenException;
@@ -51,6 +54,21 @@ public class CustomerService {
             return new CustomerListVm(totalUser, result, totalUser / USER_PER_PAGE);
         } catch (ForbiddenException exception) {
             throw new AccessDeniedException(String.format(ERROR_FORMAT, exception.getMessage(), keycloakPropsConfig.getResource()));
+        }
+    }
+
+    public void updateCustomers(CustomerProfileRequestVm requestVm) {
+        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserRepresentation userRepresentation = keycloak.realm(keycloakPropsConfig.getRealm()).users().get(id).toRepresentation();
+        if (userRepresentation != null) {
+            RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
+            UserResource userResource = realmResource.users().get(id);
+            userRepresentation.setFirstName(requestVm.firstName());
+            userRepresentation.setLastName(requestVm.lastName());
+            userRepresentation.setEmail(requestVm.email());
+            userResource.update(userRepresentation);
+        } else {
+            throw new NotFoundException(Constants.ERROR_CODE.USER_NOT_FOUND);
         }
     }
 

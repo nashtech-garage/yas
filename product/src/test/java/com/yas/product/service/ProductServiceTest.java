@@ -80,13 +80,23 @@ class ProductServiceTest {
                         .id(1L)
                         .name("product1")
                         .slug("slug1")
+                        .isAllowedToOrder(true)
+                        .isPublished(true)
+                        .isFeatured(true)
+                        .isVisibleIndividually(true)
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .build(),
                 Product.builder()
                         .id(2L)
                         .name("product2")
-                        .thumbnailMediaId(1L)
                         .slug("slug2")
+                        .isAllowedToOrder(true)
+                        .isPublished(true)
+                        .isFeatured(true)
+                        .isVisibleIndividually(true)
+                        .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .build());
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
@@ -102,6 +112,7 @@ class ProductServiceTest {
                         .name("product1")
                         .slug("slug1")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .sku("sku")
                         .build(),
                 Product.builder()
@@ -110,6 +121,7 @@ class ProductServiceTest {
                         .sku("sku")
                         .slug("slug2")
                         .thumbnailMediaId(1L)
+                        .remainingQuantity(10)
                         .build());
         String url = "sample-url";
         int totalPage = 20;
@@ -254,8 +266,10 @@ class ProductServiceTest {
         //given
         Page<Product> productPage = mock(Page.class);
         List<ProductListVm> productListVmList = List.of(
-                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
-                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
+                        true, true, true, true),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
+                        true, true, true, true)
         );
         int pageNo = 1;
         int pageSize = 10;
@@ -299,8 +313,12 @@ class ProductServiceTest {
         //given
         Page<Product> productPage = mock(Page.class);
         List<ProductListVm> productListVmList = List.of(
-                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
-                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
+                        products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
+                        products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually())
         );
         int pageNo = 1;
         int pageSize = 10;
@@ -338,8 +356,12 @@ class ProductServiceTest {
         //given
         Page<Product> productPage = mock(Page.class);
         List<ProductListVm> productListVmList = List.of(
-                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug()),
-                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug())
+                new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
+                        products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually()),
+                new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
+                        products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually())
         );
         int pageNo = 1;
         int pageSize = 10;

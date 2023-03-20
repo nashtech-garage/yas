@@ -39,6 +39,11 @@
                 <input class="submit" type="submit" value="${msg("doLogIn")}" tabindex="3">
                 </form>
             </div>
+            <div class="register">
+               <@linkPrimary.kw href=url.registrationUrl>
+                    <input class="register" type="button" value="${msg("doRegister")}" tabindex="3" href=url.registrationUrl>
+                </@linkPrimary.kw>
+            </div>
         </#if>
       <div>
             <p class="copyright">&copy; copyright - yas.nashtech-garage ${.now?string('yyyy')}</p>

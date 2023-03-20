@@ -4,12 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { Category } from '../../../modules/catalog/models/Category';
 import { createCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 import { CATEGORIES_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
+import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { useRouter } from 'next/router';
 
 const CategoryCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
+  const router = useRouter();
   var slugify = require('slugify');
   const [categories, setCategories] = useState<Category[]>([]);
   const handleSubmit = async (event: any) => {
@@ -27,7 +26,8 @@ const CategoryCreate: NextPage = () => {
       isPublish: event.target.isPublish.checked,
     };
     let response = await createCategory(category);
-    handleCreatingResponse(response, CATEGORIES_URL);
+    handleCreatingResponse(response);
+    router.replace(CATEGORIES_URL);
   };
   useEffect(() => {
     getCategories().then((data) => {
@@ -160,14 +160,6 @@ const CategoryCreate: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

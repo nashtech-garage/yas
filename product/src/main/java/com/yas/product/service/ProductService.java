@@ -108,6 +108,7 @@ public class ProductService {
                 product.getName(),
                 product.getShortDescription(),
                 product.getDescription(),
+                product.getRemainingQuantity(),
                 product.getSpecification(),
                 product.getSku(),
                 product.getGtin(),
@@ -145,6 +146,9 @@ public class ProductService {
                 .metaTitle(productPostVm.metaTitle())
                 .metaKeyword(productPostVm.metaKeyword())
                 .metaDescription(productPostVm.description())
+                .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
+                        && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
+                .remainingQuantity(productPostVm.remainingQuantity())
                 .isActive(true).build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
@@ -162,9 +166,7 @@ public class ProductService {
             List<ProductImage> allProductVariantImageList = new ArrayList<>();
             List<Product> productVariants = productPostVm.variations().stream()
                     .map(variation -> {
-                        List<ProductImage> productVariantImageList = setProductImages(variation.productImageIds(), mainProduct);
-                        allProductVariantImageList.addAll(productVariantImageList);
-                        return Product.builder()
+                        Product productVariant = Product.builder()
                                 .name(variation.name())
                                 .thumbnailMediaId(variation.thumbnailMediaId())
                                 .slug(variation.slug().toLowerCase())
@@ -172,10 +174,14 @@ public class ProductService {
                                 .gtin(variation.gtin())
                                 .price(variation.price())
                                 .parent(mainProduct).build();
+                        List<ProductImage> productVariantImageList = setProductImages(variation.productImageIds(), productVariant);
+                        allProductVariantImageList.addAll(productVariantImageList);
+                        return productVariant;
                     })
                     .toList();
 
             List<Product> productsVariantsSaved = productRepository.saveAllAndFlush(productVariants);
+            productImageRepository.saveAllAndFlush(allProductVariantImageList);
 
             List<Long> productOptionIds = productPostVm.productOptionValues().stream().map(ProductOptionValuePostVm::productOptionId).toList();
             List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
@@ -193,7 +199,7 @@ public class ProductService {
                         .build();
                 List<ProductOptionCombination> productOptionCombinationList =
                         productsVariantsSaved.stream()
-                        .filter(product -> product.getSlug().contains(StringUtils.toSlug(value)))
+                                .filter(product -> product.getSlug().contains(StringUtils.toSlug(value)))
                                 .map(product -> ProductOptionCombination.builder()
                                         .product(product)
                                         .productOption(productOptionMap.get(optionValue.productOptionId()))
@@ -204,11 +210,9 @@ public class ProductService {
                 productOptionCombinations.addAll(productOptionCombinationList);
             }));
 
-            productImageRepository.saveAllAndFlush(allProductVariantImageList);
             productOptionValueRepository.saveAllAndFlush(productOptionValues);
             productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
         }
-
         return ProductGetDetailVm.fromModel(mainSavedProduct);
     }
 
@@ -226,6 +230,7 @@ public class ProductService {
         product.setSlug(productPutVm.slug());
         product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         product.setDescription(productPutVm.description());
+        product.setRemainingQuantity(productPutVm.remainingQuantity());
         product.setShortDescription(productPutVm.shortDescription());
         product.setSpecification(productPutVm.specification());
         product.setSku(productPutVm.sku());
@@ -330,6 +335,7 @@ public class ProductService {
                 product.getName(),
                 product.getShortDescription(),
                 product.getDescription(),
+                product.getRemainingQuantity(),
                 product.getSpecification(),
                 product.getSku(),
                 product.getGtin(),

@@ -21,7 +21,8 @@ export default function AuthenticationInfo() {
 
   return (
     <>
-      Signed in as: <Link href="#">{authenticatedUser.username}</Link> <Link href="#">Logout</Link>
+      Signed in as: <Link href="/profile">{authenticatedUser.username}</Link>{' '}
+      <Link href="#">Logout</Link>
     </>
   );
 }

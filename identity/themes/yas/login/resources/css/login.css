@@ -190,3 +190,18 @@ input {
 a {
   text-decoration: none;
 }
+
+.register {
+  width: 320px;
+  height: 36px;
+  border-radius: 2px;
+  background-color: white;
+  font-family: Muli;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  color: black;
+  margin-left: 16px;
+  margin-top: 5px;
+  border-style: 1px solid black;
+}

@@ -9,7 +9,7 @@ import {
   getProductAttribute,
   updateProductAttribute,
 } from '../../../../modules/catalog/services/ProductAttributeService';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 import { PRODUCT_ATTRIBUTE_URL } from '../../../../constants/Common';
 
 interface ProductAttributeId {
@@ -21,7 +21,6 @@ const ProductAttributeEdit: NextPage = () => {
   const [productAttributeGroup, setProductAttributeGroup] = useState<ProductAttributeGroup[]>([]);
   const [getProductAttributeVm, setGetProductAttributeVm] = useState<ProductAttribute>();
   const [idProductAttributeGroup, setIdProductAttributeGroupGroup] = useState(String);
-  const { handleUpdatingResponse } = useUpdatingContext();
 
   const router = useRouter();
   let { id }: any = router.query;
@@ -34,7 +33,8 @@ const ProductAttributeEdit: NextPage = () => {
         productAttributeGroupId: idProductAttributeGroup,
       };
       updateProductAttribute(parseInt(id), productAttributeId).then((response) => {
-        handleUpdatingResponse(response, PRODUCT_ATTRIBUTE_URL);
+        handleUpdatingResponse(response);
+        router.replace(PRODUCT_ATTRIBUTE_URL);
       });
     }
   };

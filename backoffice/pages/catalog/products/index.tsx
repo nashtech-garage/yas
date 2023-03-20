@@ -12,13 +12,9 @@ import { getBrands } from '../../../modules/catalog/services/BrandService';
 import { deleteProduct, getProducts } from '../../../modules/catalog/services/ProductService';
 import styles from '../../../styles/Filter.module.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import { toast } from 'react-toastify';
-import CustomToast from '../../../common/items/CustomToast';
-import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 
 const ProductList: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
-    useDeletingContext();
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setLoading] = useState(false);
@@ -146,6 +142,9 @@ const ProductList: NextPage = () => {
           <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Is Featured</th>
+            <th>Is Allow To Order</th>
+            <th>Is Published</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -154,6 +153,9 @@ const ProductList: NextPage = () => {
             <tr key={product.id}>
               <td>{product.id}</td>
               <td>{product.name}</td>
+              <td>{product.isFeatured ? 'Yes' : 'No'}</td>
+              <td>{product.isAllowedToOrder ? 'Yes' : 'No'}</td>
+              <td>{product.isPublished ? 'Yes' : 'No'}</td>
               <td>
                 <Stack direction="horizontal" gap={3}>
                   <Link href={`/catalog/products/${product.id}/edit`}>
@@ -186,7 +188,6 @@ const ProductList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-
       <ReactPaginate
         forcePage={pageNo}
         previousLabel={'Previous'}
@@ -199,14 +200,6 @@ const ProductList: NextPage = () => {
         disabledClassName={'paginationDisabled'}
         activeClassName={'paginationActive'}
       />
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

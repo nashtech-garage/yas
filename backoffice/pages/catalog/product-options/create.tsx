@@ -6,13 +6,10 @@ import { createProductOption } from '../../../modules/catalog/services/ProductOp
 import { ProductOption } from '../../../modules/catalog/models/ProductOption';
 import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../constants/Common';
-import { useCreatingContext } from '../../../common/hooks/UseToastContext';
-import CustomToast from '../../../common/items/CustomToast';
+import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 import ProductOptionGeneralInformation from '../../../modules/catalog/components/ProductOptionGeneralInformation';
 
 const ProductOptionCreate: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleCreatingResponse } =
-    useCreatingContext();
   const router = useRouter();
   const {
     register,
@@ -25,7 +22,8 @@ const ProductOptionCreate: NextPage = () => {
       name: event.name,
     };
     let response = await createProductOption(productOption);
-    handleCreatingResponse(response, PRODUCT_OPTIONS_URL);
+    handleCreatingResponse(response);
+    router.replace(PRODUCT_OPTIONS_URL);
   };
 
   return (
@@ -48,14 +46,6 @@ const ProductOptionCreate: NextPage = () => {
           </form>
         </div>
       </div>
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
     </>
   );
 };

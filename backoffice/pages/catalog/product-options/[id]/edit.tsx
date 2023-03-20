@@ -8,14 +8,12 @@ import {
   updateProductOption,
 } from '../../../../modules/catalog/services/ProductOptionService';
 import { useRouter } from 'next/router';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-import { useUpdatingContext } from '../../../../common/hooks/UseToastContext';
+import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
 import ProductOptionGeneralInformation from '../../../../modules/catalog/components/ProductOptionGeneralInformation';
+import { toastError } from '../../../../modules/catalog/services/ToastService';
 
 const ProductOptionEdit: NextPage = () => {
-  const { handleUpdatingResponse } = useUpdatingContext();
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const { id } = router.query;
@@ -32,7 +30,8 @@ const ProductOptionEdit: NextPage = () => {
     };
     if (id) {
       updateProductOption(+id, productOption).then((response) => {
-        handleUpdatingResponse(response, PRODUCT_OPTIONS_URL);
+        handleUpdatingResponse(response);
+        router.replace(PRODUCT_OPTIONS_URL);
       });
     }
   };
@@ -44,7 +43,7 @@ const ProductOptionEdit: NextPage = () => {
           setProductOption(data);
           setLoading(false);
         } else {
-          toast(data?.detail);
+          toastError(data?.detail);
           setLoading(false);
           router.push(PRODUCT_OPTIONS_URL);
         }

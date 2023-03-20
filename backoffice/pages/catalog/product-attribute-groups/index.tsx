@@ -6,14 +6,13 @@ import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import {
   deleteProductAttributeGroup,
-  getProductAttributeGroups,
+  getPageableProductAttributeGroups,
 } from '../../../modules/catalog/services/ProductAttributeGroupService';
-import CustomToast from '../../../common/items/CustomToast';
-import { useDeletingContext } from '../../../common/hooks/UseToastContext';
+import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
+import ReactPaginate from 'react-paginate';
 
 const ProductAttrbuteGroupList: NextPage = () => {
-  const { toastVariant, toastHeader, showToast, setShowToast, handleDeletingResponse } =
-    useDeletingContext();
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
   const [isLoading, setLoading] = useState(false);
   const [isShowModalDelete, setIsShowModalDelete] = useState<boolean>(false);
@@ -21,6 +20,8 @@ const ProductAttrbuteGroupList: NextPage = () => {
     useState<string>('');
   const [productAttributeGroupIdWantToDelete, setProductAttributeGroupIdWantToDelete] =
     useState<number>(-1);
+  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
+  const [totalPage, setTotalPage] = useState<number>(1);
 
   const handleClose: any = () => setIsShowModalDelete(false);
   const handleDelete: any = () => {
@@ -28,20 +29,27 @@ const ProductAttrbuteGroupList: NextPage = () => {
     deleteProductAttributeGroup(productAttributeGroupIdWantToDelete).then((response) => {
       setIsShowModalDelete(false);
       handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
+      setPageNo(DEFAULT_PAGE_NUMBER);
       getListProductAttributeGroup();
     });
   };
 
   const getListProductAttributeGroup = () => {
-    getProductAttributeGroups().then((data) => {
-      setProductAttributeGroups(data);
+    getPageableProductAttributeGroups(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
+      setTotalPage(data.totalPages);
+      setProductAttributeGroups(data.productAttributeGroupContent);
       setLoading(false);
     });
   };
   useEffect(() => {
     setLoading(true);
     getListProductAttributeGroup();
-  }, []);
+  }, [pageNo]);
+
+  const changePage = ({ selected }: any) => {
+    setPageNo(selected);
+  };
+
   if (isLoading) return <p>Loading...</p>;
   if (!productAttributeGroups) return <p>No Product Attribute Group</p>;
   return (
@@ -99,14 +107,18 @@ const ProductAttrbuteGroupList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {showToast && (
-        <CustomToast
-          variant={toastVariant}
-          header={toastHeader}
-          show={showToast}
-          setShow={setShowToast}
-        ></CustomToast>
-      )}
+      <ReactPaginate
+        forcePage={pageNo}
+        previousLabel={'Previous'}
+        nextLabel={'Next'}
+        pageCount={totalPage}
+        onPageChange={changePage}
+        containerClassName={'paginationBtns'}
+        previousLinkClassName={'previousBtn'}
+        nextClassName={'nextBtn'}
+        disabledClassName={'paginationDisabled'}
+        activeClassName={'paginationActive'}
+      />
     </>
   );
 };

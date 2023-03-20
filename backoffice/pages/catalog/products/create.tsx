@@ -1,10 +1,9 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-
+import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 import { PRODUCT_URL } from '../../../constants/Common';
 import {
   CrossSellProduct,
@@ -21,6 +20,7 @@ import { ProductAttributeValuePost } from '../../../modules/catalog/models/Produ
 import { mapFormProductToProductPayload } from '../../../modules/catalog/models/ProductPayload';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
+import { useRouter } from 'next/router';
 
 const ProductCreate: NextPage = () => {
   const router = useRouter();

@@ -3,10 +3,13 @@ package com.yas.product.controller;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
+import com.yas.product.service.ProductAttributeGroupService;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupPostVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupVm;
+import com.yas.product.viewmodel.productattribute.ProductAttributeGroupListGetVm;
+import com.yas.product.constants.PageableConstant;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,10 +25,14 @@ import java.util.List;
 
 @RestController
 public class ProductAttributeGroupController {
+
+    private final ProductAttributeGroupService productAttributeGroupService;
     private final ProductAttributeGroupRepository productAttributeGroupRepository;
 
-    public ProductAttributeGroupController(ProductAttributeGroupRepository productAttributeGroupRepository) {
+    public ProductAttributeGroupController(ProductAttributeGroupRepository productAttributeGroupRepository,
+                                           ProductAttributeGroupService productAttributeGroupService) {
         this.productAttributeGroupRepository = productAttributeGroupRepository;
+        this.productAttributeGroupService = productAttributeGroupService;
     }
 
     @GetMapping("/backoffice/product-attribute-groups")
@@ -34,6 +41,13 @@ public class ProductAttributeGroupController {
                 .map(ProductAttributeGroupVm::fromModel)
                 .toList();
         return ResponseEntity.ok(productAttributeGroupVms);
+    }
+
+    @GetMapping({"/backoffice/product-attribute-groups/paging", "/storefront/product-attribute-groups/paging"})
+    public ResponseEntity<ProductAttributeGroupListGetVm> getPageableProductAttributeGroups(  @RequestParam(value = "pageNo", defaultValue = PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                                                    @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+
+        return ResponseEntity.ok(productAttributeGroupService.getPageableProductAttributeGroups(pageNo, pageSize));
     }
 
     @GetMapping("/backoffice/product-attribute-groups/{id}")
