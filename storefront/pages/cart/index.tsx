@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { Cart } from '../../modules/cart/models/Cart';
 import { CartItem } from '../../modules/cart/models/CartItem';
 import {
@@ -87,6 +88,46 @@ const Cart = () => {
     }
   };
 
+  const handleQuantityOnChange = (productId: number, quanity: number) => {
+    items.find((item) => item.productId === productId)!.quantity = quanity;
+  };
+
+  const handleQuantityKeyDown = (productId: number, key: string) => {
+    if (key === 'Enter') {
+      updateCart({
+        productId: productId,
+        quantity: items.find((item) => item.productId === productId)!.quantity,
+      })
+        .then(() => loadCart())
+        .catch((err) =>
+          toast.error(err, {
+            position: 'top-right',
+            autoClose: 2000,
+            closeOnClick: true,
+            pauseOnHover: false,
+            theme: 'colored',
+          })
+        );
+    }
+  };
+
+  const handleCartQuantityInputOnBlur = (productId: number, newQuantity: number) => {
+    updateCart({
+      productId: productId,
+      quantity: newQuantity,
+    })
+      .then(() => loadCart())
+      .catch(() =>
+        toast.error("Couldn't change product quantity in cart!", {
+          position: 'top-right',
+          autoClose: 2000,
+          closeOnClick: true,
+          pauseOnHover: false,
+          theme: 'colored',
+        })
+      );
+  };
+
   useEffect(() => {
     if (!loaded) {
       loadCart();
@@ -146,6 +187,16 @@ const Cart = () => {
                                   max=""
                                   name="quantity"
                                   defaultValue={item.quantity}
+                                  onBlur={(e) =>
+                                    handleCartQuantityInputOnBlur(
+                                      item.productId,
+                                      parseInt(e.target.value)
+                                    )
+                                  }
+                                  onChange={(e) =>
+                                    handleQuantityOnChange(item.productId, parseInt(e.target.value))
+                                  }
+                                  onKeyDown={(e) => handleQuantityKeyDown(item.productId, e.key)}
                                   title="Qty"
                                   className="input-text qty text"
                                 />
