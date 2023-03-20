@@ -6,7 +6,7 @@ export async function getRatingsByProductId(
   pageNo?: number,
   pageSize?: number
 ): Promise<{ ratingList: Rating[]; totalPages: number; totalElements: number }> {
-  const url = `/api/rating/storefront/ratings/products/${productId}`;
+  const url = `/api/rating/backoffice/ratings/products/${productId}`;
   const queryString = [];
   if (pageNo) {
     queryString.push(`pageNo=${pageNo}`);
