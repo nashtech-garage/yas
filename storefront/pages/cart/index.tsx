@@ -193,8 +193,10 @@ const Cart = () => {
                                       parseInt(e.target.value)
                                     )
                                   }
-                                  onChange = {(e) => handleQuantityOnChange(item.productId, parseInt(e.target.value))}
-                                  onKeyDown = {(e) => handleQuantityKeyDown(item.productId, e.key)}
+                                  onChange={(e) =>
+                                    handleQuantityOnChange(item.productId, parseInt(e.target.value))
+                                  }
+                                  onKeyDown={(e) => handleQuantityKeyDown(item.productId, e.key)}
                                   title="Qty"
                                   className="input-text qty text"
                                 />
