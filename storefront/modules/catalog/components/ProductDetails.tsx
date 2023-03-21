@@ -1,17 +1,24 @@
 import Link from 'next/link';
+
 import { formatPrice } from '../../../utils/formatPrice';
 import { AddToCartModel } from '../../cart/models/AddToCartModel';
 import { addToCart } from '../../cart/services/CartService';
 import { ProductDetail } from '../models/ProductDetail';
-import { ProductVariations } from '../models/ProductVariations';
-import { toastSuccess, toastError } from '../services/ToastService';
+import { ProductOptions } from '../models/ProductOptions';
+import { ProductVariation } from '../models/ProductVariation';
+import { toastError, toastSuccess } from '../services/ToastService';
 
 export interface ProductDetailProps {
   product: ProductDetail;
-  productVariations: ProductVariations[] | undefined;
+  productOptions?: ProductOptions[];
+  productVariations?: ProductVariation[];
 }
 
-export default function ProductDetails({ product, productVariations }: ProductDetailProps) {
+export default function ProductDetails({
+  product,
+  productOptions,
+  productVariations: _tmp,
+}: ProductDetailProps) {
   const handleAddToCart = async () => {
     let payload: AddToCartModel[] = [
       {
@@ -38,13 +45,13 @@ export default function ProductDetails({ product, productVariations }: ProductDe
         </Link>
       </div>
 
-      {/* product variation */}
-      {(productVariations || []).map((productVariation, index) => (
+      {/* product options */}
+      {(productOptions || []).map((productOption, index) => (
         <div className="mb-3" key={index}>
-          <h5 className="mb-2 fs-6">{productVariation.name}:</h5>
-          {(productVariation.value || []).map((productVariationValue, index) => (
+          <h5 className="mb-2 fs-6">{productOption.name}:</h5>
+          {(productOption.value || []).map((productOptionValue, index) => (
             <button key={index} className="btn btn-outline-primary me-2 py-1 px-2">
-              {productVariationValue}
+              {productOptionValue}
             </button>
           ))}
         </div>
