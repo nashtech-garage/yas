@@ -6,8 +6,7 @@ import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.error.ErrorVm;
-import com.yas.product.viewmodel.product.ProductVariationVm;
-import com.yas.product.viewmodel.productoption.ProductOptionValueGetVm;
+import com.yas.product.viewmodel.product.ProductOptionValueGetVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,26 +29,26 @@ public class ProductOptionValueController {
     }
 
     @GetMapping({"/backoffice/product-option-values"})
-    public ResponseEntity<List<ProductOptionValueGetVm>> listProductOptionValues() {
-        List<ProductOptionValueGetVm> productOptionGetVms = productOptionValueRepository
+    public ResponseEntity<List<com.yas.product.viewmodel.productoption.ProductOptionValueGetVm>> listProductOptionValues() {
+        List<com.yas.product.viewmodel.productoption.ProductOptionValueGetVm> productOptionGetVms = productOptionValueRepository
                 .findAll().stream()
-                .map(ProductOptionValueGetVm::fromModel)
+                .map(com.yas.product.viewmodel.productoption.ProductOptionValueGetVm::fromModel)
                 .toList();
         return ResponseEntity.ok(productOptionGetVms);
     }
 
     @GetMapping({"/storefront/product-option-values/{productId}"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = ProductOptionValueGetVm.class))),
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = com.yas.product.viewmodel.productoption.ProductOptionValueGetVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
     })
-    public ResponseEntity<List<ProductVariationVm>> listProductOptionValueOfProduct(@PathVariable("productId") Long productId) {
+    public ResponseEntity<List<ProductOptionValueGetVm>> listProductOptionValueOfProduct(@PathVariable("productId") Long productId) {
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId));
-        List<ProductVariationVm> productVariations = productOptionValueRepository
+        List<ProductOptionValueGetVm> productVariations = productOptionValueRepository
                 .findAllByProduct(product).stream()
-                .map(ProductVariationVm::fromModel)
+                .map(ProductOptionValueGetVm::fromModel)
                 .toList();
         return ResponseEntity.ok(productVariations);
     }

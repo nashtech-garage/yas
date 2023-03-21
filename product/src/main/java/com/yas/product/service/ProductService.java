@@ -83,51 +83,6 @@ public class ProductService {
         );
     }
 
-    public ProductDetailVm getProduct(String slug) {
-        Product product = productRepository
-                .findBySlugAndIsActiveTrue(slug)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, slug));
-        List<ImageVm> productImageMedias = new ArrayList<>();
-        if (null != product.getProductImages() && !product.getProductImages().isEmpty()) {
-            for (ProductImage image : product.getProductImages()) {
-                productImageMedias.add(new ImageVm(
-                        image.getId(),
-                        mediaService.getMedia(image.getImageId()).url()
-                ));
-            }
-        }
-
-        List<Category> categories = new ArrayList<>();
-        if (null != product.getProductCategories()) {
-            for (ProductCategory category : product.getProductCategories()) {
-                categories.add(category.getCategory());
-            }
-        }
-
-        return new ProductDetailVm(product.getId(),
-                product.getName(),
-                product.getShortDescription(),
-                product.getDescription(),
-                product.getRemainingQuantity(),
-                product.getSpecification(),
-                product.getSku(),
-                product.getGtin(),
-                product.getSlug(),
-                product.getIsAllowedToOrder(),
-                product.getIsPublished(),
-                product.getIsFeatured(),
-                product.getIsVisibleIndividually(),
-                product.getPrice(),
-                product.getBrand().getId(),
-                categories,
-                product.getMetaTitle(),
-                product.getMetaKeyword(),
-                product.getMetaDescription(),
-                new ImageVm(product.getThumbnailMediaId(), mediaService.getMedia(product.getThumbnailMediaId()).url()),
-                productImageMedias
-        );
-    }
-
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
         Product mainProduct = Product.builder()
                 .name(productPostVm.name())
@@ -477,6 +432,7 @@ public class ProductService {
                 product.getIsAllowedToOrder(),
                 product.getIsPublished(),
                 product.getIsFeatured(),
+                product.getHasOptions(),
                 product.getPrice(),
                 productThumbnailUrl,
                 productImageMediaUrls
@@ -520,4 +476,22 @@ public class ProductService {
         );
     }
 
+    public List<ProductVariationGetVm> getProductVariationsByParentId(Long id) {
+        Product parentProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
+        if (!parentProduct.getHasOptions()) {
+            throw new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_HAVE_VARIATION, id);
+        }
+        List<Product> productVariations = parentProduct.getProducts();
+        return productVariations.stream().map(product -> new ProductVariationGetVm(
+                product.getId(),
+                product.getName(),
+                product.getSlug(),
+                product.getSku(),
+                product.getGtin(),
+                product.getPrice(),
+                mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                product.getProductImages().stream().map(productImage -> mediaService.getMedia(productImage.getImageId()).url()).toList()
+        )).toList();
+    }
 }
