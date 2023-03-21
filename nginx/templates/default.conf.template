@@ -21,6 +21,9 @@ server {
   location /order/ {
 	proxy_pass http://order;
   }
+  location /location/ {
+  	proxy_pass http://location;
+  }
 }
 
 server {
