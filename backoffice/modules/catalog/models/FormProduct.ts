@@ -18,12 +18,12 @@ export type FormProduct = {
   isPublished?: boolean;
   isFeatured?: boolean;
   isVisibleIndividually?: boolean;
+  stockTrackingEnabled?: boolean;
   thumbnailMedia?: Media;
   productImageMedias?: Media[];
   metaTitle?: string;
   metaKeyword?: string;
   metaDescription?: string;
-  remainingQuantity?: number;
   relateProduct?: number[]; // product id
   crossSell?: number[]; // product id
   productAttributes?: ProductAttributeValue[];

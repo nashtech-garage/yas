@@ -6,4 +6,8 @@ public final class Constants {
         public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
         public static final String CUSTOMER_NOT_FOUND = "CUSTOMER_NOT_FOUND";
     }
+
+    public final class MESSAGE {
+        public static final String SUCCESS_MESSAGE = "SUCCESS";
+    }
 }

@@ -4,7 +4,6 @@ import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.*;
 import com.yas.product.repository.*;
-import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.product.*;
 import org.junit.jupiter.api.Assertions;
@@ -84,9 +83,9 @@ class ProductServiceTest {
                         .isPublished(true)
                         .isFeatured(true)
                         .isVisibleIndividually(true)
+                        .stockTrackingEnabled(true)
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
-                        .productImages(new ArrayList<>(){
+                        .productImages(new ArrayList<>() {
                             {
                                 add(ProductImage.builder()
                                         .id(1L)
@@ -103,9 +102,9 @@ class ProductServiceTest {
                         .isPublished(true)
                         .isFeatured(true)
                         .isVisibleIndividually(true)
+                        .stockTrackingEnabled(true)
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
-                        .productImages(new ArrayList<>(){
+                        .productImages(new ArrayList<>() {
                             {
                                 add(ProductImage.builder()
                                         .id(2L)
@@ -128,7 +127,6 @@ class ProductServiceTest {
                         .name("product1")
                         .slug("slug1")
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
                         .sku("sku")
                         .build(),
                 Product.builder()
@@ -137,7 +135,6 @@ class ProductServiceTest {
                         .sku("sku")
                         .slug("slug2")
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
                         .build());
         String url = "sample-url";
         int totalPage = 20;
@@ -622,5 +619,4 @@ class ProductServiceTest {
         // Assert result
         assertThat(actual.getMessage()).isEqualTo(String.format("Product %d is not found", parentId));
     }
-
 }

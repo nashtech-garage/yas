@@ -14,6 +14,11 @@ import java.util.List;
 public interface RatingRepository extends JpaRepository<Rating, Long> {
     Page<Rating> findByProductId(Long id, Pageable pageable);
 
+    @Query(value = "SELECT r FROM Rating r " +
+            "Where r.productId = :productId " +
+            "AND CONCAT(LOWER(r.firstName), ' ', LOWER(r.lastName)) LIKE %:name%")
+    Page<Rating> findByProductIdAndCustomerName(@Param("productId") Long id,@Param("name") String name, Pageable pageable);
+
     @Query(value = "SELECT SUM(r.ratingStar), COUNT(r) FROM Rating r Where r.productId = :productId")
     List<Object[]> getTotalStarsAndTotalRatings(@Param("productId") long productId);
 }

@@ -15,11 +15,11 @@ export type ProductPayload = {
   sku?: string;
   gtin?: string;
   price?: number;
-  remainingQuantity?: number;
   isAllowedToOrder?: boolean;
   isPublished?: boolean;
   isFeatured?: boolean;
   isVisibleIndividually?: boolean;
+  stockTrackingEnabled?: boolean;
   metaTitle?: string;
   metaKeyword?: string;
   metaDescription?: string;
@@ -45,12 +45,12 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
     isPublished: data.isPublished,
     isFeatured: data.isFeatured,
     isVisibleIndividually: data.isVisibleIndividually,
+    stockTrackingEnabled: data.stockTrackingEnabled,
     metaTitle: data.metaTitle,
     metaKeyword: data.metaKeyword,
     metaDescription: data.metaDescription,
     thumbnailMediaId: data.thumbnailMedia?.id,
     productImageIds: data.productImageMedias?.map((image) => image.id),
-    remainingQuantity: data?.remainingQuantity,
     variations: data.productVariations
       ? data.productVariations.map((variant) => {
           return {

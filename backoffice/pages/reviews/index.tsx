@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import { Button, Stack, Table, Form, InputGroup } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import { getProducts } from '../../modules/catalog/services/ProductService';
-import { getRatingsByProductId } from '../../modules/catalog/services/RatingService';
+import {
+  getRatingsByProductId,
+  deleteRatingById,
+} from '../../modules/catalog/services/RatingService';
 import moment from 'moment';
 import styles from '../../styles/Filter.module.css';
 import { toast } from 'react-toastify';
@@ -14,6 +17,7 @@ import { getBrands } from '../../modules/catalog/services/BrandService';
 import { FaSearch } from 'react-icons/fa';
 
 const Reviews: NextPage = () => {
+  let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [isLoading, setLoading] = useState(false);
 
   const [productList, setProductList] = useState<Product[]>([]);
@@ -25,8 +29,10 @@ const Reviews: NextPage = () => {
   const [brandList, setBrandList] = useState<Brand[]>([]);
 
   const [ratingList, setRatingList] = useState<Rating[]>([]);
+  const [customerName, setCustomerName] = useState<string>('');
   const [pageNoRating, setPageNoRating] = useState<number>(0);
   const [totalPageRating, setTotalPageRating] = useState<number>(1);
+  const [isDelete, setDelete] = useState<boolean>(false);
   const ratingPageSize = 5;
 
   useEffect(() => {
@@ -39,7 +45,7 @@ const Reviews: NextPage = () => {
   useEffect(() => {
     setLoading(true);
 
-    getProducts(pageNoProduct, '', brandName).then((data) => {
+    getProducts(pageNoProduct, productName, brandName).then((data) => {
       setTotalPageProduct(data.totalPages);
       setProductList(data.productContent);
       setLoading(false);
@@ -47,21 +53,22 @@ const Reviews: NextPage = () => {
   }, [pageNoProduct, brandName, productName]);
   useEffect(() => {
     if (productId) {
-      getRatingsByProductId(productId, pageNoRating, ratingPageSize).then((res) => {
+      getRatingsByProductId(productId, customerName, pageNoRating, ratingPageSize).then((res) => {
         setRatingList(res.ratingList);
         setTotalPageRating(res.totalPages);
       });
     }
-  }, [pageNoRating]);
+  }, [pageNoRating, customerName]);
   useEffect(() => {
     if (productId) {
-      getRatingsByProductId(productId, pageNoRating, ratingPageSize).then((res) => {
+      getRatingsByProductId(productId, customerName, pageNoRating, ratingPageSize).then((res) => {
         setRatingList(res.ratingList);
         setTotalPageRating(res.totalPages);
         setPageNoRating(0);
+        setCustomerName('');
       });
     }
-  }, [productId]);
+  }, [productId, isDelete]);
 
   const handleOnClickProduct = (productId: number) => {
     setProductId(productId);
@@ -72,6 +79,34 @@ const Reviews: NextPage = () => {
   };
   const changePageRating = ({ selected }: any) => {
     setPageNoRating(selected);
+  };
+
+  //searching handler
+  const searchingProductHandler = (e: any) => {
+    if (typingTimeOutRef) {
+      clearTimeout(typingTimeOutRef);
+    }
+    typingTimeOutRef = setTimeout(() => {
+      setProductName(e.target.value);
+      setPageNoProduct(0);
+    }, 500);
+  };
+
+  const searchingCustomerHandler = (e: any) => {
+    if (typingTimeOutRef) {
+      clearTimeout(typingTimeOutRef);
+    }
+    typingTimeOutRef = setTimeout(() => {
+      setCustomerName(e.target.value);
+      setPageNoRating(0);
+    }, 500);
+  };
+
+  const handleDeleteRating = (ratingId: number) => {
+    deleteRatingById(ratingId).then(() => {
+      toast.success('Delete rating successfully');
+      setDelete(!isDelete);
+    });
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -110,9 +145,13 @@ const Reviews: NextPage = () => {
                 id="product-name"
                 placeholder="Search name ..."
                 defaultValue={productName}
-                onChange={() => {}}
+                onChange={(e) => searchingProductHandler(e)}
               />
-              <Button id="seach-category" variant="danger" onClick={() => {}}>
+              <Button
+                id="seach-category"
+                variant="danger"
+                onClick={(e) => searchingProductHandler(e)}
+              >
                 <FaSearch />
               </Button>
             </InputGroup>
@@ -148,10 +187,10 @@ const Reviews: NextPage = () => {
                       <Form>
                         <InputGroup>
                           <Form.Control
-                            id="product-name"
+                            id="customer-name"
                             placeholder="Search customer name ..."
                             defaultValue={productName}
-                            onChange={() => {}}
+                            onChange={(e) => searchingCustomerHandler(e)}
                           />
                           <Button id="seach-category" variant="danger" onClick={() => {}}>
                             <FaSearch />
@@ -184,7 +223,11 @@ const Reviews: NextPage = () => {
 
                           <td>
                             <Stack direction="horizontal" gap={3}>
-                              <button className="btn btn-outline-danger btn-sm" type="button">
+                              <button
+                                className="btn btn-outline-danger btn-sm"
+                                type="button"
+                                onClick={() => handleDeleteRating(rating.id)}
+                              >
                                 Delete
                               </button>
                             </Stack>

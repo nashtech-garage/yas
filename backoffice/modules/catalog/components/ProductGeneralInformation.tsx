@@ -122,19 +122,6 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         }}
       />
 
-      <Input
-        labelText="Remaining Quatity"
-        field="remainingQuantity"
-        defaultValue={product?.remainingQuantity}
-        register={register}
-        error={errors.remainingQuantity?.message}
-        type="number"
-        registerOptions={{
-          required: { value: true, message: 'Remaining quantity is required' },
-          validate: { positive: (v) => v > 0 || 'Remaining quantity must be greater than 0' },
-        }}
-      />
-
       <OptionSelect
         labelText="Brand"
         field="brandId"
@@ -169,6 +156,12 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="isVisibleIndividually"
         register={register}
         defaultChecked={product?.isVisible}
+      />
+      <CheckBox
+        labelText="Stock Tracking Enabled"
+        field="stockTrackingEnabled"
+        register={register}
+        defaultChecked={product?.stockTrackingEnabled}
       />
     </>
   );
