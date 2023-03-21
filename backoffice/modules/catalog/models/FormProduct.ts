@@ -18,6 +18,7 @@ export type FormProduct = {
   isPublished?: boolean;
   isFeatured?: boolean;
   isVisibleIndividually?: boolean;
+  stockTrackingEnabled?: boolean;
   thumbnailMedia?: Media;
   productImageMedias?: Media[];
   metaTitle?: string;

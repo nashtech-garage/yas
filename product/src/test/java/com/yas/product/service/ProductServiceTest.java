@@ -84,6 +84,7 @@ class ProductServiceTest {
                         .isPublished(true)
                         .isFeatured(true)
                         .isVisibleIndividually(true)
+                        .stockTrackingEnabled(true)
                         .thumbnailMediaId(1L)
                         .build(),
                 Product.builder()
@@ -94,6 +95,7 @@ class ProductServiceTest {
                         .isPublished(true)
                         .isFeatured(true)
                         .isVisibleIndividually(true)
+                        .stockTrackingEnabled(true)
                         .thumbnailMediaId(1L)
                         .build());
 

@@ -18,6 +18,7 @@ export type Product = {
   isPublished: boolean;
   isFeatured: boolean;
   isVisible?: boolean;
+  stockTrackingEnabled: boolean;
   brandId: number;
   categories: Category[];
   thumbnailMedia: Media;

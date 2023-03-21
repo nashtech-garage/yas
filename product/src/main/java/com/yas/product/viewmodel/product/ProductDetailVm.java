@@ -18,6 +18,7 @@ public record ProductDetailVm(
         Boolean isPublished,
         Boolean isFeatured,
         Boolean isVisible,
+        Boolean stockTrackingEnabled,
         Double price,
         Long brandId,
         List<Category> categories,

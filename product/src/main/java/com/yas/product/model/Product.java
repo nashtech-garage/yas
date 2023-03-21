@@ -46,6 +46,8 @@ public class Product extends AbstractAuditEntity {
 
     private Boolean isVisibleIndividually;
 
+    private Boolean stockTrackingEnabled;
+
     private String metaTitle;
 
     private String metaKeyword;

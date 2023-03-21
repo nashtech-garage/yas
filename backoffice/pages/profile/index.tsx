@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import ProfileForm from '../../modules/customer/components/ProfileForm';
 import { NextPage } from 'next';
-import { useUpdatingContext } from '../../common/hooks/UseToastContext';
 import { UPDATE_SUCCESSFULLY } from '../../constants/Common';
 import { ProfileRequest } from '../../modules/profile/models/ProfileRequest';
 import { toast } from 'react-toastify';

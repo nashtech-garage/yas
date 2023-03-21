@@ -157,6 +157,12 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         register={register}
         defaultChecked={product?.isVisible}
       />
+      <CheckBox
+        labelText="Stock Tracking Enabled"
+        field="stockTrackingEnabled"
+        register={register}
+        defaultChecked={product?.stockTrackingEnabled}
+      />
     </>
   );
 };

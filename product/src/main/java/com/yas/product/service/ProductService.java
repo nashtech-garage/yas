@@ -116,6 +116,7 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually(),
+                product.getStockTrackingEnabled(),
                 product.getPrice(),
                 product.getBrand().getId(),
                 categories,
@@ -142,6 +143,7 @@ public class ProductService {
                 .isPublished(productPostVm.isPublished())
                 .isFeatured(productPostVm.isFeatured())
                 .isVisibleIndividually(productPostVm.isVisibleIndividually())
+                .stockTrackingEnabled(productPostVm.stockTrackingEnabled())
                 .metaTitle(productPostVm.metaTitle())
                 .metaKeyword(productPostVm.metaKeyword())
                 .metaDescription(productPostVm.description())
@@ -238,6 +240,7 @@ public class ProductService {
         product.setIsFeatured(productPutVm.isFeatured());
         product.setIsPublished(productPutVm.isPublished());
         product.setIsVisibleIndividually(productPutVm.isVisibleIndividually());
+        product.setStockTrackingEnabled(productPutVm.stockTrackingEnabled());
         product.setMetaTitle(productPutVm.metaTitle());
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
@@ -339,6 +342,7 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
+                product.getStockTrackingEnabled(),
                 product.getPrice(),
                 brandId,
                 categories,
