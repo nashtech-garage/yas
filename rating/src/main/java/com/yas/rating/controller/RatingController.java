@@ -15,7 +15,7 @@ public class RatingController {
     public RatingController(RatingService ratingService) {
         this.ratingService = ratingService;
     }
-    @GetMapping("/storefront/ratings/products/{productId}")
+    @GetMapping({"/storefront/ratings/products/{productId}", "/backoffice/ratings/products/{productId}"})
     public ResponseEntity<RatingListVm> getRatingList(
             @PathVariable Long productId,
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
