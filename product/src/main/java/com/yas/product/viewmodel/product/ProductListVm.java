@@ -1,13 +1,16 @@
 package com.yas.product.viewmodel.product;
 import com.yas.product.model.Product;
 
+import java.time.ZonedDateTime;
+
 public record ProductListVm(Long id,
                             String name,
                             String slug,
                             Boolean isAllowedToOrder,
                             Boolean isPublished,
                             Boolean isFeatured,
-                            Boolean isVisibleIndividually) {
+                            Boolean isVisibleIndividually,
+                            ZonedDateTime createdOn) {
     public static ProductListVm fromModel(Product product) {
         return new ProductListVm(
                 product.getId(),
@@ -16,8 +19,8 @@ public record ProductListVm(Long id,
                 product.getIsAllowedToOrder(),
                 product.getIsPublished(),
                 product.getIsFeatured(),
-                product.getIsVisibleIndividually()
-
+                product.getIsVisibleIndividually(),
+                product.getCreatedOn()
         );
     }
 }

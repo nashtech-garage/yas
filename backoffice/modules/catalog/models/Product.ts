@@ -23,4 +23,5 @@ export type Product = {
   categories: Category[];
   thumbnailMedia: Media;
   productImageMedias: Media[];
+  createdOn: Date;
 };
