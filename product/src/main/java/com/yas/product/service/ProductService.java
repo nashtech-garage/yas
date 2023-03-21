@@ -479,19 +479,20 @@ public class ProductService {
     public List<ProductVariationGetVm> getProductVariationsByParentId(Long id) {
         Product parentProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
-        if (!parentProduct.getHasOptions()) {
+        if (Boolean.TRUE.equals(parentProduct.getHasOptions())) {
+            List<Product> productVariations = parentProduct.getProducts();
+            return productVariations.stream().map(product -> new ProductVariationGetVm(
+                    product.getId(),
+                    product.getName(),
+                    product.getSlug(),
+                    product.getSku(),
+                    product.getGtin(),
+                    product.getPrice(),
+                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                    product.getProductImages().stream().map(productImage -> mediaService.getMedia(productImage.getImageId()).url()).toList()
+            )).toList();
+        } else {
             throw new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_HAVE_VARIATION, id);
         }
-        List<Product> productVariations = parentProduct.getProducts();
-        return productVariations.stream().map(product -> new ProductVariationGetVm(
-                product.getId(),
-                product.getName(),
-                product.getSlug(),
-                product.getSku(),
-                product.getGtin(),
-                product.getPrice(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url(),
-                product.getProductImages().stream().map(productImage -> mediaService.getMedia(productImage.getImageId()).url()).toList()
-        )).toList();
     }
 }
