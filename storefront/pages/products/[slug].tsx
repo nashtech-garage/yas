@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
@@ -12,59 +12,42 @@ import { AverageStarResponseDto } from '../../common/dtos/AverageStarResponseDto
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import {
   DetailHeader,
+  PostRatingForm,
   ProductDetails,
   RatingList,
-  PostRatingForm,
 } from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
-import { ProductOptionValueGet } from '../../modules/catalog/models/ProductOptionValueGet';
-import { ProductVariations } from '../../modules/catalog/models/ProductVariations';
+import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
+import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
 import { Rating } from '../../modules/catalog/models/Rating';
 import { RatingPost } from '../../modules/catalog/models/RatingPost';
 import {
   getProductDetail,
-  getProductVariations,
+  getProductOptionValues,
+  getProductVariationsByParentId,
 } from '../../modules/catalog/services/ProductService';
 import {
-  getRatingsByProductId,
   createRating,
   getAverageStarByProductId,
+  getRatingsByProductId,
 } from '../../modules/catalog/services/RatingService';
 import { toastError, toastSuccess } from '../../modules/catalog/services/ToastService';
 
 type Props = {
   product: ProductDetail;
-  productVariations?: ProductVariations[];
   averageStar: AverageStarResponseDto;
 };
 
-export const getServerSideProps: GetServerSideProps = async (context: any) => {
+export const getServerSideProps: GetServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
   const { slug } = context.query;
-  let product = await getProductDetail(slug);
+
+  // fetch product by slug
+  const product = await getProductDetail(slug as string);
   if (!product.id) return { notFound: true };
 
-  let productOptionValue: ProductOptionValueGet[] = (await getProductVariations(product.id)) || [];
-
-  const productVariations: ProductVariations[] = [];
-
-  if (Array.isArray(productOptionValue)) {
-    for (const option of productOptionValue) {
-      let index = productVariations.findIndex(
-        (productVariation) => productVariation.name === option.productOptionName
-      );
-      if (index > -1) {
-        productVariations.at(index)?.value.push(option.productOptionValue);
-      } else {
-        let newVariation: ProductVariations = {
-          name: option.productOptionName,
-          value: [option.productOptionValue],
-        };
-
-        productVariations.push(newVariation);
-      }
-    }
-  }
-
+  // fetch average star of product
   let averageStar: AverageStarResponseDto;
   averageStar = await getAverageStarByProductId(product.id)
     .then((result) => {
@@ -74,10 +57,10 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
       return { averageStar: 0, errorMessage: "Could't fetch average star" };
     });
 
-  return { props: { product, productVariations, averageStar } };
+  return { props: { product, averageStar } };
 };
 
-const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) => {
+const ProductDetailsPage = ({ product, averageStar }: Props) => {
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -87,6 +70,19 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
   const [ratingStar, setRatingStar] = useState<number>(5);
   const [contentRating, setContentRating] = useState<string>('');
   const [isPost, setIsPost] = useState<boolean>(false);
+
+  const [productOptions, setProductOptions] = useState<ProductOptions[] | undefined>(undefined);
+  const [productVariations, setProductVariations] = useState<ProductVariation[] | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    if (product.hasOptions) {
+      fetchProductOptions();
+      fetchProductVariations();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (averageStar.errorMessage) {
@@ -99,6 +95,7 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
       });
       averageStar.averageStar = 0;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -109,9 +106,46 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
     });
   }, [pageNo, pageSize, product.id, isPost]);
 
+  const fetchProductOptions = async () => {
+    try {
+      const productOptionsTmp: ProductOptions[] = [];
+      const productOptionValue = await getProductOptionValues(product.id);
+
+      for (const option of productOptionValue) {
+        const index = productOptionsTmp.findIndex(
+          (productOption) => productOption.name === option.productOptionName
+        );
+        if (index > -1) {
+          productOptionsTmp.at(index)?.value.push(option.productOptionValue);
+        } else {
+          const newProductOption: ProductOptions = {
+            name: option.productOptionName,
+            value: [option.productOptionValue],
+          };
+
+          productOptionsTmp.push(newProductOption);
+        }
+      }
+
+      setProductOptions([...productOptionsTmp]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchProductVariations = async () => {
+    try {
+      const response = await getProductVariationsByParentId(product.id);
+      setProductVariations(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
   };
+
   const handleChangeRating = (ratingStar: number) => {
     setRatingStar(ratingStar);
   };
@@ -175,7 +209,11 @@ const ProductDetailsPage = ({ product, productVariations, averageStar }: Props) 
         </div>
 
         <div className="col-6">
-          <ProductDetails product={product} productVariations={productVariations} />
+          <ProductDetails
+            product={product}
+            productOptions={productOptions}
+            productVariations={productVariations}
+          />
         </div>
       </div>
 

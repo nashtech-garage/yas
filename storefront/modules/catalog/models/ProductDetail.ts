@@ -16,6 +16,7 @@ export type ProductDetail = {
   isAllowedToOrder: boolean;
   isPublished: boolean;
   isFeatured: boolean;
+  hasOptions: boolean;
   price: number;
   averageStar: number;
   thumbnailMediaUrl: string;

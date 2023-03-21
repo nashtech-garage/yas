@@ -3,6 +3,7 @@ package com.yas.product.controller;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.viewmodel.product.*;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -79,22 +80,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
-    @GetMapping("/storefront/products/{slug}")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = ProductDetailVm.class))),
-            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<ProductDetailVm> getProduct(@PathVariable String slug) {
-        return ResponseEntity.ok(productService.getProduct(slug));
-    }
-
     @GetMapping("/storefront/products/list-featured")
     public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProductsById(@RequestParam("productId") List<Long> productIds) {
         return ResponseEntity.ok(productService.getFeaturedProductsById(productIds));
     }
 
     @GetMapping("/storefront/product/{slug}")
-    public ProductDetailGetVm getProductDetail(@PathVariable("slug") String slug) {
-        return productService.getProductDetail(slug);
+    public ResponseEntity<ProductDetailGetVm> getProductDetail(@PathVariable("slug") String slug) {
+        return ResponseEntity.ok(productService.getProductDetail(slug));
     }
 
     @DeleteMapping("/backoffice/products/{id}")
@@ -117,5 +110,18 @@ public class ProductController {
             @RequestParam(value = "endPrice", defaultValue = "", required = false) Double endPrice
     ) {
         return ResponseEntity.ok(productService.getProductsByMultiQuery(pageNo, pageSize, productName, categorySlug, startPrice, endPrice));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get product variations by parent id successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "404", description = "Not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
+    })
+    @GetMapping("/storefront/product-variations/{id}")
+    public ResponseEntity<List<ProductVariationGetVm>> getProductVariationsByParentId(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductVariationsByParentId(id));
     }
 }

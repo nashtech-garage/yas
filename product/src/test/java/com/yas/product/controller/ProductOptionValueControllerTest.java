@@ -6,8 +6,7 @@ import com.yas.product.model.ProductOption;
 import com.yas.product.model.ProductOptionValue;
 import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRepository;
-import com.yas.product.viewmodel.product.ProductVariationVm;
-import com.yas.product.viewmodel.productoption.ProductOptionValueGetVm;
+import com.yas.product.viewmodel.product.ProductOptionValueGetVm;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +53,7 @@ class ProductOptionValueControllerTest {
     void listProductOptionValues_ReturnListProductOptionValueGetVm_Success() {
         List<ProductOptionValue> productOptionValues = List.of(productOptionValue);
         when(productOptionValueRepository.findAll()).thenReturn(productOptionValues);
-        ResponseEntity<List<ProductOptionValueGetVm>> result = productOptionValueController.listProductOptionValues();
+        ResponseEntity<List<com.yas.product.viewmodel.productoption.ProductOptionValueGetVm>> result = productOptionValueController.listProductOptionValues();
         assertThat(result.getStatusCode(), is(HttpStatus.OK));
         assertEquals(Objects.requireNonNull(result.getBody()).size(), productOptionValues.size());
         for (int i = 0; i < productOptionValues.size(); i++) {
@@ -79,7 +78,7 @@ class ProductOptionValueControllerTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productOptionValueRepository.findAllByProduct(product)).thenReturn(productOptionValues);
 
-        ResponseEntity<List<ProductVariationVm>> result = productOptionValueController.listProductOptionValueOfProduct(1L);
+        ResponseEntity<List<ProductOptionValueGetVm>> result = productOptionValueController.listProductOptionValueOfProduct(1L);
 
         assertThat(result.getStatusCode(), is(HttpStatus.OK));
         assertEquals(Objects.requireNonNull(result.getBody()).size(), productOptionValues.size());

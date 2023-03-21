@@ -1,4 +1,4 @@
-export type ProductVariations = {
+export type ProductOptions = {
   name: string;
   value: string[];
 };
