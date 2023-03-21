@@ -9,7 +9,6 @@ import com.yas.product.service.ProductOptionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponents;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
@@ -72,8 +70,7 @@ public class ProductOptionControllerTest {
     @Test
     public void createProductOption_VaildProductOptionPostVm_Success(){
         ProductOptionPostVm productOptionPostVm = new ProductOptionPostVm("hihi");
-        var productOptionCaptor = ArgumentCaptor.forClass(ProductOption.class);
-        when(productOptionRepository.saveAndFlush(productOptionCaptor.capture())).thenReturn(productOption);
+        when(productOptionService.create(productOptionPostVm)).thenReturn(productOption);
         UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
         UriComponents uriComponents = mock(UriComponents.class);
         when(uriComponentsBuilder.replacePath("/product-options/{id}")).thenReturn(newUriComponentsBuilder);
@@ -93,7 +90,7 @@ public class ProductOptionControllerTest {
     @Test
     public void updateProductOption_ProductOptionIdIsInvalid_ThrowNotFoundException(){
         ProductOptionPostVm productOptionPostVm = new ProductOptionPostVm("hihi");
-        when(productOptionRepository.findById(1L)).thenReturn(Optional.empty());
+        when(productOptionService.update(any(), anyLong())).thenThrow(new NotFoundException("Product option 1 is not found"));
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
                 () -> productOptionController.updateProductOption(1L, productOptionPostVm, principal));
         assertThat(exception.getMessage(), is("Product option 1 is not found"));
