@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -68,9 +67,7 @@ public class ProductOptionController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
     public ResponseEntity<ProductOptionGetVm> createProductOption(@Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal, UriComponentsBuilder uriComponentsBuilder) {
-        ProductOption productOption = new ProductOption();
-        productOption.setName(productOptionPostVm.name());
-        ProductOption savedProductOption = productOptionRepository.saveAndFlush(productOption);
+        ProductOption savedProductOption = productOptionService.create(productOptionPostVm);
         ProductOptionGetVm productOptionGetVm = ProductOptionGetVm.fromModel(savedProductOption);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/product-options/{id}").buildAndExpand(savedProductOption.getId()).toUri())
                 .body(productOptionGetVm);
@@ -83,11 +80,7 @@ public class ProductOptionController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
     })
     public ResponseEntity<Void> updateProductOption(@PathVariable Long id, @Valid @RequestBody ProductOptionPostVm productOptionPostVm, Principal principal) {
-        ProductOption productOption = productOptionRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_OPTION_NOT_FOUND, id)));
-        productOption.setName(productOptionPostVm.name());
-        productOptionRepository.saveAndFlush(productOption);
+        productOptionService.update(productOptionPostVm, id);
         return ResponseEntity.noContent().build();
     }
 
