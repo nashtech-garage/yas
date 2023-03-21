@@ -24,6 +24,9 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
       case 'optionPrice':
         variant.optionPrice = +value;
         break;
+      case 'optionRemainingQuantity':
+        variant.optionRemainingQuantity = +value;
+        break;
       default:
         return;
     }
@@ -104,6 +107,20 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
                 type="text"
                 className="form-control w-100"
                 name="optionSku"
+                onChange={onChangeValue}
+              />
+            </div>
+          </div>
+          <div className="d-flex gap-4">
+            <div className="w-50">
+              <label className="form-label fw-bold">
+                Remaining Quatity (<span className="text-danger">*</span>)
+              </label>
+              <input
+                type="number"
+                min={1}
+                className="form-control w-100"
+                name="optionRemainingQuantity"
                 onChange={onChangeValue}
               />
             </div>

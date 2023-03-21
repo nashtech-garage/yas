@@ -5,6 +5,7 @@ export type ProductVariation = {
   optionSku: string;
   optionGTin: string;
   optionPrice: number;
+  optionRemainingQuantity: number;
   optionThumbnail?: Media;
   optionImages?: Media[];
 };

@@ -173,6 +173,7 @@ public class ProductService {
                                 .sku(variation.sku())
                                 .gtin(variation.gtin())
                                 .price(variation.price())
+                                .remainingQuantity(variation.remainingQuantity())
                                 .parent(mainProduct).build();
                         List<ProductImage> productVariantImageList = setProductImages(variation.productImageIds(), productVariant);
                         allProductVariantImageList.addAll(productVariantImageList);
