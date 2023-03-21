@@ -4,7 +4,6 @@ export type ProductVariationPost = {
   sku?: string;
   gtin?: string;
   price?: number;
-  remainingQuantity?: number;
   thumbnailMediaId?: number;
   productImageIds?: number[];
 };

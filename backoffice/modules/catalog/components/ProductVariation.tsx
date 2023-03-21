@@ -70,7 +70,6 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         optionGTin: getValue('gtin') || '',
         optionSku: getValue('sku') || '',
         optionPrice: getValue('price') || 0,
-        optionRemainingQuantity: getValue('price') || 0,
       });
     });
     setOptionCombines(listOptionCombine);

@@ -59,7 +59,6 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
             sku: variant.optionSku,
             gtin: variant.optionGTin,
             price: variant.optionPrice,
-            remainingQuantity: variant.optionRemainingQuantity,
             thumbnailMediaId: variant.optionThumbnail?.id,
             productImageIds: variant.optionImages?.map((image) => image.id),
           };
