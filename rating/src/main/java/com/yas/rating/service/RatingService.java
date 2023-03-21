@@ -74,7 +74,7 @@ public class RatingService {
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.RATING_NOT_FOUND, ratingId));
 
         ratingRepository.delete(rating);
-        return new ResponeStatusVm("Delete Rating", " Success", HttpStatus.OK.toString());
+        return new ResponeStatusVm("Delete Rating", Constants.MESSAGE.SUCCESS_MESSAGE, HttpStatus.OK.toString());
     }
 
     public Double calculateAverageStar(Long productId) {
