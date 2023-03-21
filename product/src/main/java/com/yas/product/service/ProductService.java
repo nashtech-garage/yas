@@ -1,7 +1,6 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.product.exception.*;
 import com.yas.product.model.*;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
@@ -83,7 +82,38 @@ public class ProductService {
         );
     }
 
+    private boolean isProductWithSlugAvailable(String slug) {
+        return productRepository.findBySlugAndIsActiveTrue(slug).isPresent();
+    }
+
+    private boolean isProductWithSkuAvailable(String sku) {
+        return productRepository.findBySkuAndIsActiveTrue(sku).isPresent();
+    }
+
+    private boolean isProductWithGtinAvailable(String gtin) {
+        return productRepository.findByGtinAndIsActiveTrue(gtin).isPresent();
+    }
+
+    private void validateIfProductWithSkuOrGtinOrSlugExist(String slug,
+                                                           String gtin,
+                                                           String sku) {
+        if (isProductWithSlugAvailable(slug))
+            throw new DuplicatedSlugException(Constants.ERROR_CODE.SLUG_ALREADY_EXITED, slug);
+
+        if (isProductWithGtinAvailable(gtin))
+            throw new DuplicatedGtinException(Constants.ERROR_CODE.GTIN_ALREADY_EXITED, gtin);
+
+        if (isProductWithSkuAvailable(sku))
+            throw new DuplicatedSkuException(Constants.ERROR_CODE.SKU_ALREADY_EXITED, sku);
+    }
+
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
+        validateIfProductWithSkuOrGtinOrSlugExist(
+                productPostVm.slug(),
+                productPostVm.gtin(),
+                productPostVm.sku()
+        );
+
         Product mainProduct = Product.builder()
                 .name(productPostVm.name())
                 .thumbnailMediaId(productPostVm.thumbnailMediaId())
@@ -121,6 +151,12 @@ public class ProductService {
             List<ProductImage> allProductVariantImageList = new ArrayList<>();
             List<Product> productVariants = productPostVm.variations().stream()
                     .map(variation -> {
+                        validateIfProductWithSkuOrGtinOrSlugExist(
+                                variation.slug(),
+                                variation.gtin(),
+                                variation.sku()
+                        );
+
                         Product productVariant = Product.builder()
                                 .name(variation.name())
                                 .thumbnailMediaId(variation.thumbnailMediaId())

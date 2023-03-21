@@ -17,10 +17,14 @@ import {
 } from '../../../modules/catalog/components';
 import { FormProduct } from '../../../modules/catalog/models/FormProduct';
 import { ProductAttributeValuePost } from '../../../modules/catalog/models/ProductAttributeValuePost';
-import { mapFormProductToProductPayload } from '../../../modules/catalog/models/ProductPayload';
+import {
+  mapFormProductToProductPayload,
+  ProductPayload,
+} from '../../../modules/catalog/models/ProductPayload';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 import { useRouter } from 'next/router';
+import { Product } from '../../../modules/catalog/models/Product';
 
 const ProductCreate: NextPage = () => {
   const router = useRouter();
@@ -45,17 +49,20 @@ const ProductCreate: NextPage = () => {
       const productResponse = await createProduct(payload);
 
       // upload product attribute
-      for (const att of data.productAttributes || []) {
-        let productAtt: ProductAttributeValuePost = {
-          ProductId: productResponse.id,
-          productAttributeId: att.id,
-          value: att.value,
-        };
-        await createProductAttributeValueOfProduct(productAtt);
+      if (productResponse.status === 201) {
+        const responseBody = await productResponse.json();
+        for (const att of data.productAttributes || []) {
+          let productAtt: ProductAttributeValuePost = {
+            ProductId: responseBody.id,
+            productAttributeId: att.id,
+            value: att.value,
+          };
+          await createProductAttributeValueOfProduct(productAtt);
+        }
+        await router.push(PRODUCT_URL);
       }
 
-      toast.success('Create product successfully');
-      await router.push(PRODUCT_URL);
+      handleCreatingResponse(productResponse);
     } catch (error) {
       toast.error('Create product failed');
     }
