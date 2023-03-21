@@ -62,7 +62,8 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         register={register}
         registerOptions={{
           required: { value: true, message: 'Product name is required' },
-          onChange: (event) => setValue('slug', slugify(event.target.value, { lower: true })),
+          onChange: (event) =>
+            setValue('slug', slugify(event.target.value, { lower: true, strict: true })),
         }}
         error={errors.name?.message}
       />

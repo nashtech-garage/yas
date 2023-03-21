@@ -115,12 +115,8 @@ const CategoryEdit: NextPage = () => {
                 required
                 onChange={(e) => {
                   let generate = slugify(e.target.value, {
-                    replacement: '-',
-                    remove: undefined,
                     lower: true,
-                    strict: false,
-                    locale: 'vi',
-                    trim: true,
+                    strict: true,
                   });
                   setSlug(generate);
                 }}
