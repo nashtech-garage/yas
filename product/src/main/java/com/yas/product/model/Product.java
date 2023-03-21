@@ -46,6 +46,8 @@ public class Product extends AbstractAuditEntity {
 
     private Boolean isVisibleIndividually;
 
+    private Boolean stockTrackingEnabled;
+
     private String metaTitle;
 
     private String metaKeyword;
@@ -55,8 +57,6 @@ public class Product extends AbstractAuditEntity {
     private Long thumbnailMediaId;
 
     private Boolean isActive;
-
-    private Integer remainingQuantity;
 
     @ManyToOne
     @JoinColumn(name = "brand_id")

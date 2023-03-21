@@ -108,7 +108,6 @@ public class ProductService {
                 product.getName(),
                 product.getShortDescription(),
                 product.getDescription(),
-                product.getRemainingQuantity(),
                 product.getSpecification(),
                 product.getSku(),
                 product.getGtin(),
@@ -117,6 +116,7 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually(),
+                product.getStockTrackingEnabled(),
                 product.getPrice(),
                 product.getBrand().getId(),
                 categories,
@@ -143,12 +143,12 @@ public class ProductService {
                 .isPublished(productPostVm.isPublished())
                 .isFeatured(productPostVm.isFeatured())
                 .isVisibleIndividually(productPostVm.isVisibleIndividually())
+                .stockTrackingEnabled(productPostVm.stockTrackingEnabled())
                 .metaTitle(productPostVm.metaTitle())
                 .metaKeyword(productPostVm.metaKeyword())
                 .metaDescription(productPostVm.description())
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
-                .remainingQuantity(productPostVm.remainingQuantity())
                 .isActive(true).build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
@@ -213,6 +213,7 @@ public class ProductService {
             productOptionValueRepository.saveAllAndFlush(productOptionValues);
             productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
         }
+
         return ProductGetDetailVm.fromModel(mainSavedProduct);
     }
 
@@ -230,7 +231,6 @@ public class ProductService {
         product.setSlug(productPutVm.slug());
         product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         product.setDescription(productPutVm.description());
-        product.setRemainingQuantity(productPutVm.remainingQuantity());
         product.setShortDescription(productPutVm.shortDescription());
         product.setSpecification(productPutVm.specification());
         product.setSku(productPutVm.sku());
@@ -240,6 +240,7 @@ public class ProductService {
         product.setIsFeatured(productPutVm.isFeatured());
         product.setIsPublished(productPutVm.isPublished());
         product.setIsVisibleIndividually(productPutVm.isVisibleIndividually());
+        product.setStockTrackingEnabled(productPutVm.stockTrackingEnabled());
         product.setMetaTitle(productPutVm.metaTitle());
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
@@ -333,7 +334,6 @@ public class ProductService {
                 product.getName(),
                 product.getShortDescription(),
                 product.getDescription(),
-                product.getRemainingQuantity(),
                 product.getSpecification(),
                 product.getSku(),
                 product.getGtin(),
@@ -342,6 +342,7 @@ public class ProductService {
                 product.getIsPublished(),
                 product.getIsFeatured(),
                 product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
+                product.getStockTrackingEnabled(),
                 product.getPrice(),
                 brandId,
                 categories,

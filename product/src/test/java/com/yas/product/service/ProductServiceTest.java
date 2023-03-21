@@ -84,8 +84,8 @@ class ProductServiceTest {
                         .isPublished(true)
                         .isFeatured(true)
                         .isVisibleIndividually(true)
+                        .stockTrackingEnabled(true)
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
                         .build(),
                 Product.builder()
                         .id(2L)
@@ -95,8 +95,8 @@ class ProductServiceTest {
                         .isPublished(true)
                         .isFeatured(true)
                         .isVisibleIndividually(true)
+                        .stockTrackingEnabled(true)
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
                         .build());
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
@@ -112,7 +112,6 @@ class ProductServiceTest {
                         .name("product1")
                         .slug("slug1")
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
                         .sku("sku")
                         .build(),
                 Product.builder()
@@ -121,7 +120,6 @@ class ProductServiceTest {
                         .sku("sku")
                         .slug("slug2")
                         .thumbnailMediaId(1L)
-                        .remainingQuantity(10)
                         .build());
         String url = "sample-url";
         int totalPage = 20;

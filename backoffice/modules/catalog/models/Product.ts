@@ -14,11 +14,11 @@ export type Product = {
   metaTitle: string;
   metaKeyword: string;
   metaDescription: string;
-  remainingQuantity: number;
   isAllowedToOrder: boolean;
   isPublished: boolean;
   isFeatured: boolean;
   isVisible?: boolean;
+  stockTrackingEnabled: boolean;
   brandId: number;
   categories: Category[];
   thumbnailMedia: Media;
