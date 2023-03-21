@@ -2,7 +2,6 @@ package com.yas.product.viewmodel.product;
 
 import com.yas.product.validation.ValidateProductPrice;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -10,7 +9,6 @@ public record ProductPutVm(
         @NotEmpty String name,
         String slug,
         @ValidateProductPrice Double price,
-        @Min(1) Integer remainingQuantity,
         Boolean isAllowedToOrder,
         Boolean isPublished,
         Boolean isFeatured,

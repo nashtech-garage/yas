@@ -23,7 +23,6 @@ export type FormProduct = {
   metaTitle?: string;
   metaKeyword?: string;
   metaDescription?: string;
-  remainingQuantity?: number;
   relateProduct?: number[]; // product id
   crossSell?: number[]; // product id
   productAttributes?: ProductAttributeValue[];

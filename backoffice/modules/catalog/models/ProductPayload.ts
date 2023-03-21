@@ -15,7 +15,6 @@ export type ProductPayload = {
   sku?: string;
   gtin?: string;
   price?: number;
-  remainingQuantity?: number;
   isAllowedToOrder?: boolean;
   isPublished?: boolean;
   isFeatured?: boolean;
@@ -50,7 +49,6 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
     metaDescription: data.metaDescription,
     thumbnailMediaId: data.thumbnailMedia?.id,
     productImageIds: data.productImageMedias?.map((image) => image.id),
-    remainingQuantity: data?.remainingQuantity,
     variations: data.productVariations
       ? data.productVariations.map((variant) => {
           return {

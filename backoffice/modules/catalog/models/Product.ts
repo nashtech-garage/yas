@@ -14,7 +14,6 @@ export type Product = {
   metaTitle: string;
   metaKeyword: string;
   metaDescription: string;
-  remainingQuantity: number;
   isAllowedToOrder: boolean;
   isPublished: boolean;
   isFeatured: boolean;
