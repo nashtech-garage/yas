@@ -75,7 +75,7 @@ const CategoryCreate: NextPage = () => {
                     'value',
                     slugify(e.target.value, {
                       lower: true,
-                      strict: false,
+                      strict: true,
                     })
                   );
                 }}
