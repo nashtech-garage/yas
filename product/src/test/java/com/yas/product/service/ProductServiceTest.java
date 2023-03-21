@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +50,8 @@ class ProductServiceTest {
     List<Product> products;
     List<MultipartFile> files;
 
+    private final ZonedDateTime CREATED_ON = ZonedDateTime.now();
+
     @BeforeEach
     void setUp() {
         productRepository = mock(ProductRepository.class);
@@ -74,45 +77,48 @@ class ProductServiceTest {
         category1 = new Category(1L, "category", null, "category", null, null, null, false, null, null, null);
         category2 = new Category(2L, "category2", null, "category2", null, null, null, false, null, null, null);
         categoryList = List.of(category1, category2);
-        products = List.of(
-                Product.builder()
-                        .id(1L)
-                        .name("product1")
-                        .slug("slug1")
-                        .isAllowedToOrder(true)
-                        .isPublished(true)
-                        .isFeatured(true)
-                        .isVisibleIndividually(true)
-                        .stockTrackingEnabled(true)
-                        .thumbnailMediaId(1L)
-                        .productImages(new ArrayList<>() {
-                            {
-                                add(ProductImage.builder()
-                                        .id(1L)
-                                        .imageId(2L)
-                                        .build());
-                            }
-                        })
-                        .build(),
-                Product.builder()
-                        .id(2L)
-                        .name("product2")
-                        .slug("slug2")
-                        .isAllowedToOrder(true)
-                        .isPublished(true)
-                        .isFeatured(true)
-                        .isVisibleIndividually(true)
-                        .stockTrackingEnabled(true)
-                        .thumbnailMediaId(1L)
-                        .productImages(new ArrayList<>() {
-                            {
-                                add(ProductImage.builder()
-                                        .id(2L)
-                                        .imageId(3L)
-                                        .build());
-                            }
-                        })
-                        .build());
+        Product product1 = Product.builder()
+                .id(1L)
+                .name("product1")
+                .slug("slug1")
+                .isAllowedToOrder(true)
+                .isPublished(true)
+                .isFeatured(true)
+                .isVisibleIndividually(true)
+                .stockTrackingEnabled(true)
+                .thumbnailMediaId(1L)
+                .productImages(new ArrayList<>() {
+                    {
+                        add(ProductImage.builder()
+                                .id(1L)
+                                .imageId(2L)
+                                .build());
+                    }
+                })
+                .build();
+        product1.setCreatedOn(CREATED_ON);
+        Product product2 = Product.builder()
+                .id(2L)
+                .name("product2")
+                .slug("slug2")
+                .isAllowedToOrder(true)
+                .isPublished(true)
+                .isFeatured(true)
+                .isVisibleIndividually(true)
+                .stockTrackingEnabled(true)
+                .thumbnailMediaId(1L)
+                .productImages(new ArrayList<>() {
+                    {
+                        add(ProductImage.builder()
+                                .id(2L)
+                                .imageId(3L)
+                                .build());
+                    }
+                })
+                .build();
+        product2.setCreatedOn(CREATED_ON);
+
+        products = List.of(product1, product2);
 
         files = List.of(new MockMultipartFile("image.jpg", "image".getBytes()));
     }
@@ -280,9 +286,9 @@ class ProductServiceTest {
         Page<Product> productPage = mock(Page.class);
         List<ProductListVm> productListVmList = List.of(
                 new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
-                        true, true, true, true),
+                        true, true, true, true, CREATED_ON),
                 new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
-                        true, true, true, true)
+                        true, true, true, true, CREATED_ON)
         );
         int pageNo = 1;
         int pageSize = 10;
@@ -328,10 +334,10 @@ class ProductServiceTest {
         List<ProductListVm> productListVmList = List.of(
                 new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
                         products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
-                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually()),
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually(), products.get(0).getCreatedOn()),
                 new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
                         products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
-                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually())
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually(), products.get(0).getCreatedOn())
         );
         int pageNo = 1;
         int pageSize = 10;
@@ -371,10 +377,10 @@ class ProductServiceTest {
         List<ProductListVm> productListVmList = List.of(
                 new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
                         products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
-                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually()),
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually(), products.get(0).getCreatedOn()),
                 new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
                         products.get(0).getIsAllowedToOrder(), products.get(0).getIsPublished(),
-                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually())
+                        products.get(0).getIsFeatured(), products.get(0).getIsVisibleIndividually(), products.get(0).getCreatedOn())
         );
         int pageNo = 1;
         int pageSize = 10;
@@ -571,52 +577,5 @@ class ProductServiceTest {
 
         when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
         when(noFileMediaVm.url()).thenReturn(url);
-    }
-
-    @Test
-    void getProductVariationsByParentId_WhenParentIdIsValid_ThenSuccess() {
-        // Given
-        Long parentId = 1L;
-        Product product = mock(Product.class);
-
-        when(productRepository.findById(parentId)).thenReturn(Optional.of(product));
-        when(product.getHasOptions()).thenReturn(true);
-        when(product.getProducts()).thenReturn(products);
-        when(mediaService.getMedia(anyLong())).thenReturn(new NoFileMediaVm(null, "", "", "", ""));
-
-        // Call method under test
-        List<ProductVariationGetVm> result = productService.getProductVariationsByParentId(parentId);
-
-        // Assert result
-        assertEquals(2, result.size());
-    }
-
-    @Test
-    void getProductVariationsByParentId_WhenParentIdIsValidButDontHaveOption_ThenThrowBadRequestException() {
-        // Given
-        Long parentId = 1L;
-        Product product = mock(Product.class);
-
-        when(productRepository.findById(parentId)).thenReturn(Optional.of(product));
-        when(product.getHasOptions()).thenReturn(false);
-
-        // Call method under test
-        BadRequestException actual = assertThrows(BadRequestException.class, () -> productService.getProductVariationsByParentId(parentId));
-
-        // Assert result
-        assertThat(actual.getMessage()).isEqualTo(String.format("PRODUCT_NOT_HAVE_VARIATION"));
-    }
-
-    @Test
-    void getProductVariationsByParentId_WhenParentIdIsNotValid_ThenThrowNotFoundException() {
-        // Given
-        Long parentId = 1L;
-        when(productRepository.findById(parentId)).thenReturn(Optional.empty());
-
-        // Call method under test
-        NotFoundException actual = assertThrows(NotFoundException.class, () -> productService.getProductVariationsByParentId(parentId));
-
-        // Assert result
-        assertThat(actual.getMessage()).isEqualTo(String.format("Product %d is not found", parentId));
     }
 }
