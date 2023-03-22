@@ -105,6 +105,7 @@ export default function ProductDetails({
       {
         productId: currentProduct.id,
         quantity: 1,
+        parentProductId: product.hasOptions ? product.id : null,
       },
     ];
     await addToCart(payload)
