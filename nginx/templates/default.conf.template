@@ -24,6 +24,9 @@ server {
   location /location/ {
   	proxy_pass http://location;
   }
+  location /inventory/ {
+  	proxy_pass http://inventory;
+  }
 }
 
 server {
