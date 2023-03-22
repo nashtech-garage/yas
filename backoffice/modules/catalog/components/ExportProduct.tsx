@@ -10,7 +10,14 @@ import styles from '../../../styles/ExportCSV.module.css';
 import { exportProducts } from '../services/ProductService';
 import { toastError } from '../services/ToastService';
 
-const CSVDownload = (props: any) => {
+type Props = {
+  key: Date;
+  filename: string;
+  headers: any;
+  data: any;
+};
+
+const CSVDownload = (props: Props) => {
   const btnRef = useRef<any>();
   useEffect(() => btnRef.current?.click(), []);
   return (
@@ -30,7 +37,10 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
         const headers =
           data?.[0] &&
           Object.keys(data?.[0]).map((key) => ({
-            label: mappingExportingProductColumnNames[key as keyof typeof mappingExportingProductColumnNames] || '',
+            label:
+              mappingExportingProductColumnNames[
+                key as keyof typeof mappingExportingProductColumnNames
+              ] || '',
             key,
           }));
 
