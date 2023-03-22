@@ -11,7 +11,7 @@ import { exportProducts } from '../services/ProductService';
 import { toastError } from '../services/ToastService';
 
 type Props = {
-  key: Date;
+  key: any;
   filename: string;
   headers: any;
   data: any;
