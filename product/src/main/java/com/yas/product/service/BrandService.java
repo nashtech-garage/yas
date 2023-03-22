@@ -1,6 +1,6 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.DuplicatedNameException;
+import com.yas.product.exception.DuplicatedException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.repository.BrandRepository;
@@ -66,7 +66,7 @@ public class BrandService {
 
     private void validateExistedName(String name, Long id) {
         if (checkExistedName(name, id)) {
-            throw new DuplicatedNameException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
+            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
         }
     }
 

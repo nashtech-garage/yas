@@ -1,6 +1,6 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.DuplicatedNameException;
+import com.yas.product.exception.DuplicatedException;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupVm;
 import com.yas.product.model.attribute.ProductAttributeGroup;
@@ -45,7 +45,7 @@ public class ProductAttributeGroupService {
 
     public void save(ProductAttributeGroup productAttributeGroup) {
         if (checkExistedName(productAttributeGroup.getName(), productAttributeGroup.getId())) {
-            throw new DuplicatedNameException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, productAttributeGroup.getName());
+            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, productAttributeGroup.getName());
         }
         productAttributeGroupRepository.save(productAttributeGroup);
     }
