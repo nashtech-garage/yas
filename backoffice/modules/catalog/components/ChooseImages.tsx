@@ -179,7 +179,7 @@ export default function ChooseImages({
         ))}
 
         <label className={styles['image-label']} htmlFor={id} style={wrapperStyle}>
-          Choose product images
+          <div>Choose product images</div>
         </label>
       </div>
     </>
