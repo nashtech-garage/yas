@@ -6,7 +6,7 @@ type Props = {
   className: string;
   children: any;
   variant: string;
-  props: any;
+  props: Object;
 };
 const AButton = ({ className = '', children, variant = 'tertiary', ...props }: Props) => {
   let As = 'button';
