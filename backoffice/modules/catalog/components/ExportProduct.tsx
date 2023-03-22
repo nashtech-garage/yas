@@ -1,5 +1,5 @@
 import { format as formatDate } from 'date-fns';
-import { useEffect, useRef, useState, HTMLInputElement } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
 import {
