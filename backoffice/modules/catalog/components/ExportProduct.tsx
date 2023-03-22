@@ -2,7 +2,6 @@ import { format as formatDate } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
-import { Button } from 'react-bootstrap';
 import {
   FORMAT_DATE_YYYY_MM_DD_HH_MM,
   mappingExportingProductColumnNames,
@@ -50,9 +49,9 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
 
   return (
     <div>
-      <Button onClick={getData}>
+      <button className="btn btn-primary" onClick={getData}>
         Export
-      </Button>
+      </button>
       <div ref={downloadRef} />
     </div>
   );
