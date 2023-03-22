@@ -1,6 +1,8 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.*;
+import com.yas.product.exception.BadRequestException;
+import com.yas.product.exception.DuplicatedException;
+import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.*;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
@@ -518,16 +520,25 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
         if (Boolean.TRUE.equals(parentProduct.getHasOptions())) {
             List<Product> productVariations = parentProduct.getProducts();
-            return productVariations.stream().map(product -> new ProductVariationGetVm(
-                    product.getId(),
-                    product.getName(),
-                    product.getSlug(),
-                    product.getSku(),
-                    product.getGtin(),
-                    product.getPrice(),
-                    mediaService.getMedia(product.getThumbnailMediaId()).url(),
-                    product.getProductImages().stream().map(productImage -> mediaService.getMedia(productImage.getImageId()).url()).toList()
-            )).toList();
+            return productVariations.stream().map(product -> {
+                List<ProductOptionCombination> productOptionCombinations =
+                        productOptionCombinationRepository.findAllByProduct(product);
+                Map<String, String> options = productOptionCombinations.stream().collect(Collectors.toMap(
+                        productOptionCombination -> productOptionCombination.getProductOption().getName(),
+                        ProductOptionCombination::getValue
+                ));
+                return new ProductVariationGetVm(
+                        product.getId(),
+                        product.getName(),
+                        product.getSlug(),
+                        product.getSku(),
+                        product.getGtin(),
+                        product.getPrice(),
+                        mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                        product.getProductImages().stream().map(productImage -> mediaService.getMedia(productImage.getImageId()).url()).toList(),
+                        options
+                );
+            }).toList();
         } else {
             throw new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_HAVE_VARIATION, id);
         }

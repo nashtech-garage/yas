@@ -1,6 +1,7 @@
 package com.yas.product.viewmodel.product;
 
 import java.util.List;
+import java.util.Map;
 
 public record ProductVariationGetVm(
         Long id,
@@ -10,6 +11,7 @@ public record ProductVariationGetVm(
         String gtin,
         Double price,
         String thumbnailMediaUrl,
-        List<String> productImageMediaUrls
+        List<String> productImageMediaUrls,
+        Map<String, String> options
 ) {
 }
