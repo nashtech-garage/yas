@@ -1,10 +1,8 @@
-import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { format as formatDate } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
-import AButton from '../../../common/items/AButton';
+import { Button } from 'react-bootstrap';
 import {
   FORMAT_DATE_YYYY_MM_DD_HH_MM,
   mappingExportingProductColumnNames,
@@ -51,11 +49,10 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
   };
 
   return (
-    <div className={styles.buttons}>
-      <AButton onClick={getData}>
-        <FontAwesomeIcon icon={faShareFromSquare} />
+    <div>
+      <Button onClick={getData}>
         Export
-      </AButton>
+      </Button>
       <div ref={downloadRef} />
     </div>
   );
