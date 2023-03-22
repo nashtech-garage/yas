@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import styles from '../../styles/AButton.module.css';
 
-const AButton = ({ className = '', children = null, variant = 'tertiary', ...props }) => {
+const AButton = ({ className = '', children = any, variant = 'tertiary', ...props }) => {
   let As = 'button';
   if (props.to) {
     As = Link;
