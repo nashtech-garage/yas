@@ -83,6 +83,44 @@ public class ProductService {
         );
     }
 
+    public List<ProductExportingDetailVm> exportProducts(String productName, String brandName) {
+//        Pageable pageable = PageRequest.of(pageNo, pageSize);
+//        Page<Product> productPage;
+
+        List<Product> productList = productRepository.getProductsWithFilter(productName.trim().toLowerCase(),
+                brandName.trim());
+
+       // List<Product> productList = productPage.getContent();
+        List<ProductExportingDetailVm> productExportingDetailVms = productList.stream()
+                .map(product -> new ProductExportingDetailVm(product.getId(),
+                        product.getName(),
+                        product.getShortDescription(),
+                        product.getDescription(),
+                        product.getSpecification(),
+                        product.getSku(),
+                        product.getGtin(),
+                        product.getSlug(),
+                        product.getIsAllowedToOrder(),
+                        product.getIsPublished(),
+                        product.getIsFeatured(),
+                        product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
+                        product.getStockTrackingEnabled(),
+                        product.getPrice(),
+       product.getBrand().getId(),
+                        product.getBrand().getName(),
+
+
+                        product.getMetaTitle(),
+                        product.getMetaKeyword(),
+                        product.getMetaDescription()
+                ))
+                .toList();
+
+
+
+        return productExportingDetailVms;
+    }
+
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
         Product mainProduct = Product.builder()
                 .name(productPostVm.name())

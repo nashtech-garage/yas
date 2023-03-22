@@ -8,6 +8,7 @@ import ReactPaginate from 'react-paginate';
 
 import type { Brand } from '../../../modules/catalog/models/Brand';
 import type { Product } from '../../../modules/catalog/models/Product';
+import { ExportProduct } from '../../../modules/catalog/components';
 import { getBrands } from '../../../modules/catalog/services/BrandService';
 import { deleteProduct, getProducts } from '../../../modules/catalog/services/ProductService';
 import styles from '../../../styles/Filter.module.css';
@@ -96,44 +97,47 @@ const ProductList: NextPage = () => {
           </Link>
         </div>
         <br />
+      </div>
 
-        {/* Filter */}
-        <div className="row mb-3">
-          <div className="col ">
-            {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
-            <Form.Select
-              id="brand-filter"
-              onChange={(e) => {
-                setPageNo(0);
-                setBrandName(e.target.value);
-              }}
-              className={styles.filterButton}
-              defaultValue={brandName || ''}
-            >
-              <option value={''}>All</option>
-              {brands.map((brand) => (
-                <option key={brand.id} value={brand.name}>
-                  {brand.name}
-                </option>
-              ))}
-            </Form.Select>
-          </div>
+      {/* Filter */}
+      <div className="row mb-5">
+        <div className="col-md-6">
+          {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
+          <Form.Select
+            id="brand-filter"
+            onChange={(e) => {
+              setPageNo(0);
+              setBrandName(e.target.value);
+            }}
+            className={styles.filterButton}
+            defaultValue={brandName || ''}
+          >
+            <option value={''}>All</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.name}>
+                {brand.name}
+              </option>
+            ))}
+          </Form.Select>
+        </div>
 
-          <div className="search-container">
-            <Form>
-              <InputGroup>
-                <Form.Control
-                  id="product-name"
-                  placeholder="Search name ..."
-                  defaultValue={productName}
-                  onChange={searchingHandler}
-                />
-                <Button id="seach-category" variant="danger" onClick={searchingHandler}>
-                  <FaSearch />
-                </Button>
-              </InputGroup>
-            </Form>
-          </div>
+        <div className="col-md-4">
+          <Form>
+            <InputGroup>
+              <Form.Control
+                id="product-name"
+                placeholder="Search name ..."
+                defaultValue={productName}
+                onChange={searchingHandler}
+              />
+              <Button id="seach-category" variant="danger" onClick={searchingHandler}>
+                <FaSearch />
+              </Button>
+            </InputGroup>
+          </Form>
+        </div>
+        <div className="col-md-2 d-flex justify-content-end">
+          <ExportProduct productName={productName} brandName={brandName} />
         </div>
       </div>
 
