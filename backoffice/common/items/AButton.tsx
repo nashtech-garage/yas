@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import styles from '../../styles/AButton.module.css';
+import { HTMLInputTypeAttribute } from 'react';
 
 type Props = {
   className: string;
