@@ -8,11 +8,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "order")
+@Table(name = "`order`")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,6 +34,6 @@ public class Order extends AbstractAuditEntity{
     private EPaymentMethod paymentMethod;
 
     @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    Set<OrderDetail> orderDetails;
+    Set<OrderItem> orderItems;
 
 }
