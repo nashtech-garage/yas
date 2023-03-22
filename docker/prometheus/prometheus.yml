@@ -33,3 +33,7 @@ scrape_configs:
     metrics_path: "/location/actuator/prometheus"
     static_configs:
       - targets: ["location"]
+  - job_name: "inventory"
+    metrics_path: "/inventory/actuator/prometheus"
+    static_configs:
+      - targets: ["inventory"]

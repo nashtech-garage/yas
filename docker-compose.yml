@@ -60,6 +60,7 @@ services:
       YAS_SERVICES_RATING: http://rating/rating
       YAS_SERVICES_ORDER: http://order/order
       YAS_SERVICES_LOCATION: http://location/location
+      YAS_SERVICES_INVENTORY: http://inventory/inventory
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
   media:
@@ -114,6 +115,14 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /location
       YAS_PUBLICURL: http://api.yas.local/location
       SERVER_PORT: "80"
+  inventory:
+    image: ghcr.io/nashtech-garage/yas-inventory:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
+      SERVER_SERVLET_CONTEXT_PATH: /inventory
+      YAS_PUBLIC_URL: http://api.yas.local/inventory
+      YAS_SERVICES_PRODUCT: http://product/product
+      SERVER_PORT: "80"
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
@@ -121,7 +130,7 @@ services:
       URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
       { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
       { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
-      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}]"
+      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'}]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:
