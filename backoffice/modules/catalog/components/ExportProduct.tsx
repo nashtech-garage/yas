@@ -12,7 +12,7 @@ import { toastError } from '../services/ToastService';
 
 const CSVDownload = (props: any) => {
   const btnRef = useRef(null);
-  useEffect(() => btnRef.current?.click(), []);
+  useEffect(() => btnRef.current.click(), []);
   return (
     <CSVLink {...props}>
       <span ref={btnRef} />
