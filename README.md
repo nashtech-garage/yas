@@ -11,6 +11,8 @@ YAS is a pet project aim to practice building a typical microservice application
 [![cart-ci](https://github.com/nashtech-garage/yas/actions/workflows/cart-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/cart-ci.yaml)
 [![customer-ci](https://github.com/nashtech-garage/yas/actions/workflows/customer-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/customer-ci.yaml)
 [![rating-ci](https://github.com/nashtech-garage/yas/actions/workflows/rating-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/rating-ci.yaml)
+[![location-ci](https://github.com/nashtech-garage/yas/actions/workflows/location-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/location-ci.yaml)
+[![order-ci](https://github.com/nashtech-garage/yas/actions/workflows/order-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/order-ci.yaml)
 
 ## Tentative technologies and frameworks
 
@@ -51,15 +53,6 @@ You might aslo want to explore:
 1. `http://api.yas.local/swagger-ui/` for all the REST API document of all the services
 1. `http://identity/` for Keycloak console, account admin/admin
 1. `http://grafana/` for observability: log, trace, matrix
-
-## Components roadmap
-- [x] Identity service
-- [x] Media service
-- [x] Product service
-- [ ] Pricing service
-- [x] Cart service
-- [ ] Order service
-- [x] Review service
 
 ## Contributing
 - Give us a star
