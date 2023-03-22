@@ -7,7 +7,7 @@ type Props = {
   className: string;
   children: any;
   variant: string;
-  props: HTMLInputTypeAttribute;
+  props?: any;
 };
 const AButton = ({ className = '', children, variant = 'tertiary', ...props }: Props) => {
   let As = 'button';
