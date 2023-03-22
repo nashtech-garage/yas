@@ -10,17 +10,13 @@ import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
 import { AverageStarResponseDto } from '../../common/dtos/AverageStarResponseDto';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import {
-  DetailHeader,
-  PostRatingForm,
-  ProductDetails,
-  RatingList,
-} from '../../modules/catalog/components';
+import { DetailHeader, PostRatingForm, ProductDetails } from '../../modules/catalog/components';
+import { RatingList } from '../../modules/rating/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
 import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
-import { Rating } from '../../modules/catalog/models/Rating';
-import { RatingPost } from '../../modules/catalog/models/RatingPost';
+import { Rating } from '../../modules/rating/models/Rating';
+import { RatingPost } from '../../modules/rating/models/RatingPost';
 import {
   getProductDetail,
   getProductOptionValues,
@@ -30,7 +26,7 @@ import {
   createRating,
   getAverageStarByProductId,
   getRatingsByProductId,
-} from '../../modules/catalog/services/RatingService';
+} from '../../modules/rating/services/RatingService';
 import { toastError, toastSuccess } from '../../modules/catalog/services/ToastService';
 
 type Props = {
