@@ -1,5 +1,5 @@
 import { format as formatDate } from 'date-fns';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, HTMLInputElement } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
 import {
@@ -11,8 +11,8 @@ import { exportProducts } from '../services/ProductService';
 import { toastError } from '../services/ToastService';
 
 const CSVDownload = (props: any) => {
-  const btnRef = useRef(null);
-  useEffect(() => btnRef.current.click(), []);
+  const btnRef = useRef<HTMLInputElement>();
+  useEffect(() => btnRef.current?.click(), []);
   return (
     <CSVLink {...props}>
       <span ref={btnRef} />
