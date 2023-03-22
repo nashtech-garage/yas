@@ -1,5 +1,8 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
 
+import { ProductImageGallery } from '../../../common/components/ProductImageGallery';
 import { formatPrice } from '../../../utils/formatPrice';
 import { AddToCartModel } from '../../cart/models/AddToCartModel';
 import { addToCart } from '../../cart/services/CartService';
@@ -7,23 +10,102 @@ import { ProductDetail } from '../models/ProductDetail';
 import { ProductOptions } from '../models/ProductOptions';
 import { ProductVariation } from '../models/ProductVariation';
 import { toastError, toastSuccess } from '../services/ToastService';
+import DetailHeader from './DetailHeader';
 
-export interface ProductDetailProps {
+type ProductDetailProps = {
   product: ProductDetail;
   productOptions?: ProductOptions[];
   productVariations?: ProductVariation[];
-}
+  pvid: string | null;
+  averageStar: number;
+  totalRating: number;
+};
+
+type CurrentSelectedOption = {
+  [key: string]: string;
+};
 
 export default function ProductDetails({
   product,
   productOptions,
-  productVariations: _tmp,
+  productVariations,
+  pvid,
+  averageStar,
+  totalRating,
 }: ProductDetailProps) {
+  const initCurrentSelectedOption = useMemo(() => {
+    if (
+      productOptions &&
+      productOptions.length > 0 &&
+      productVariations &&
+      productVariations.length > 0
+    ) {
+      if (pvid) {
+        const productVariation = productVariations?.find((item) => item.id.toString() === pvid);
+        if (productVariation) {
+          return Object.keys(productVariation.options).reduce((acc, cur) => {
+            return {
+              ...acc,
+              [cur]: productVariation.options[cur],
+            };
+          }, {});
+        }
+      }
+      return productOptions.reduce((acc, cur) => {
+        return {
+          ...acc,
+          [cur.name]: cur.value[0],
+        };
+      }, {});
+    } else {
+      return {};
+    }
+  }, [productOptions, productVariations, pvid]);
+
+  const router = useRouter();
+  const [currentSelectedOption, setCurrentSelectedOption] =
+    useState<CurrentSelectedOption>(initCurrentSelectedOption);
+  const [currentProduct, setCurrentProduct] = useState<ProductDetail | ProductVariation>(product);
+
+  useEffect(() => {
+    if (
+      productOptions &&
+      productOptions.length > 0 &&
+      productVariations &&
+      productVariations.length > 0
+    ) {
+      router.query.pvid = currentProduct.id.toString();
+      router.push(router, undefined, { shallow: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productOptions, productVariations, pvid, currentProduct.id]);
+
+  useEffect(() => {
+    if (
+      productOptions &&
+      productOptions.length > 0 &&
+      productVariations &&
+      productVariations.length > 0
+    ) {
+      const productVariation = productVariations.find((item) => {
+        return (
+          Object.keys(item.options).length === Object.keys(currentSelectedOption).length &&
+          Object.keys(item.options).every((key) => currentSelectedOption[key] === item.options[key])
+        );
+      });
+      if (productVariation) {
+        setCurrentProduct(productVariation);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(currentSelectedOption)]);
+
   const handleAddToCart = async () => {
     let payload: AddToCartModel[] = [
       {
-        productId: product.id,
+        productId: currentProduct.id,
         quantity: 1,
+        parentProductId: product.hasOptions ? product.id : null,
       },
     ];
     await addToCart(payload)
@@ -36,58 +118,91 @@ export default function ProductDetails({
       });
   };
 
+  const handleSelectOption = (optionName: string, optionValue: string) => {
+    if (
+      productOptions &&
+      productOptions.length > 0 &&
+      productVariations &&
+      productVariations.length > 0
+    ) {
+      setCurrentSelectedOption({ ...currentSelectedOption, [optionName]: optionValue });
+    }
+  };
+
   return (
     <>
-      <div className="d-flex gap-2 align-items-center mb-2">
-        <h5 className="m-0 fs-6">Brand: </h5>
-        <Link href="#" className="fs-6">
-          {product.brandName}
-        </Link>
-      </div>
+      <DetailHeader
+        productName={currentProduct.name}
+        averageStar={averageStar}
+        ratingCount={totalRating}
+      />
 
-      {/* product options */}
-      {(productOptions || []).map((productOption, index) => (
-        <div className="mb-3" key={index}>
-          <h5 className="mb-2 fs-6">{productOption.name}:</h5>
-          {(productOption.value || []).map((productOptionValue, index) => (
-            <button key={index} className="btn btn-outline-primary me-2 py-1 px-2">
-              {productOptionValue}
-            </button>
-          ))}
+      <div className="row justify-content-center">
+        <div className="col-6">
+          <ProductImageGallery listImages={product.productImageMediaUrls} />
         </div>
-      ))}
-      <h4 className="fs-3" style={{ color: 'red' }}>
-        {formatPrice(product.price)}
-      </h4>
-      <p className="py-4">{product.description}</p>
-      <div>
-        <button
-          type="submit"
-          className="btn btn-dark d-flex align-items-center justify-content-center gap-2 w-100 fs-6 fw-bold"
-          style={{ height: '56px' }}
-          disabled={!product.isAllowedToOrder}
-          onClick={handleAddToCart}
-        >
-          <span>Add to cart</span>
-        </button>
+
+        <div className="col-6">
+          <div className="d-flex gap-2 align-items-center mb-2">
+            <h5 className="m-0 fs-6">Brand: </h5>
+            <Link href="#" className="fs-6">
+              {product.brandName}
+            </Link>
+          </div>
+
+          {/* product options */}
+          {(productOptions || []).map((productOption) => (
+            <div className="mb-3" key={productOption.name}>
+              <h5 className="mb-2 fs-6">{productOption.name}:</h5>
+              {(productOption.value || []).map((productOptionValue) => (
+                <button
+                  key={productOptionValue}
+                  className={`btn me-2 py-1 px-2 ${
+                    currentSelectedOption[productOption.name] === productOptionValue
+                      ? 'btn-primary'
+                      : 'btn-outline-primary'
+                  }`}
+                  onClick={() => handleSelectOption(productOption.name, productOptionValue)}
+                >
+                  {productOptionValue}
+                </button>
+              ))}
+            </div>
+          ))}
+          <h4 className="fs-3" style={{ color: 'red' }}>
+            {formatPrice(currentProduct.price)}
+          </h4>
+          <p className="py-4">{product.description}</p>
+          <div>
+            <button
+              type="submit"
+              className="btn btn-dark d-flex align-items-center justify-content-center gap-2 w-100 fs-6 fw-bold"
+              style={{ height: '56px' }}
+              disabled={!product.isAllowedToOrder}
+              onClick={handleAddToCart}
+            >
+              <span>Add to cart</span>
+            </button>
+          </div>
+          <div className="d-flex gap-2 mt-2">
+            <button className="btn btn-primary w-100">
+              <div style={{ fontSize: '14px' }}>Installment purchase</div>
+              <div style={{ fontSize: '14px' }}>Browse profiles in 5 minutes</div>
+            </button>
+            <button className="btn btn-primary w-100">
+              <div style={{ fontSize: '14px' }}>0% installment payment via card</div>
+              <div style={{ fontSize: '14px' }}>Visa, Mastercard, JSB, Amex</div>
+            </button>
+          </div>
+          <p className="text-center my-4">
+            Call to order{' '}
+            <a className="fw-bold" href="tel:18009999">
+              1800.9999
+            </a>{' '}
+            (7:30 - 22:00)
+          </p>
+        </div>
       </div>
-      <div className="d-flex gap-2 mt-2">
-        <button className="btn btn-primary w-100">
-          <div style={{ fontSize: '14px' }}>Installment purchase</div>
-          <div style={{ fontSize: '14px' }}>Browse profiles in 5 minutes</div>
-        </button>
-        <button className="btn btn-primary w-100">
-          <div style={{ fontSize: '14px' }}>0% installment payment via card</div>
-          <div style={{ fontSize: '14px' }}>Visa, Mastercard, JSB, Amex</div>
-        </button>
-      </div>
-      <p className="text-center my-4">
-        Call to order{' '}
-        <a className="fw-bold" href="tel:18009999">
-          1800.9999
-        </a>{' '}
-        (7:30 - 22:00)
-      </p>
     </>
   );
 }
