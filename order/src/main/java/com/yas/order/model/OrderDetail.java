@@ -19,6 +19,7 @@ public class OrderDetail {
     private Long productId;
     private int quantity;
     private BigDecimal price;
+    private String note;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
