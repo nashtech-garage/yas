@@ -14,6 +14,7 @@ import { deleteProduct, getProducts } from '../../../modules/catalog/services/Pr
 import styles from '../../../styles/Filter.module.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import moment from 'moment';
 
 const ProductList: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
@@ -53,6 +54,7 @@ const ProductList: NextPage = () => {
     setLoading(true);
 
     getProducts(pageNo, productName, brandName).then((data) => {
+      console.log(data.productContent);
       setTotalPage(data.totalPages);
       setProducts(data.productContent);
       setLoading(false);
@@ -149,6 +151,7 @@ const ProductList: NextPage = () => {
             <th>Is Featured</th>
             <th>Is Allow To Order</th>
             <th>Is Published</th>
+            <th>Created Date</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -160,6 +163,9 @@ const ProductList: NextPage = () => {
               <td>{product.isFeatured ? 'Yes' : 'No'}</td>
               <td>{product.isAllowedToOrder ? 'Yes' : 'No'}</td>
               <td>{product.isPublished ? 'Yes' : 'No'}</td>
+              <td>
+                {product.createdOn != null ? moment(product.createdOn).format('DD/MM/YYYY') : ''}
+              </td>
               <td>
                 <Stack direction="horizontal" gap={3}>
                   <Link href={`/catalog/products/${product.id}/edit`}>

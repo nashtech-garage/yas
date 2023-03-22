@@ -1,7 +1,7 @@
 package com.yas.product.service;
 
 import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.DuplicatedNameException;
+import com.yas.product.exception.DuplicatedException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
@@ -88,7 +88,7 @@ public class ProductAttributeService {
 
     private void validateExistedName(String name, Long id) {
         if (checkExistedName(name, id)) {
-            throw new DuplicatedNameException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
+            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
         }
     }
 

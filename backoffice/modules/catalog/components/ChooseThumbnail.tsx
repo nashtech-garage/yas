@@ -97,7 +97,7 @@ export default function ChooseThumbnail({
     <>
       {!thumbnailURL && (
         <label className={styles['image-label']} htmlFor={id} style={wrapperStyle}>
-          Choose an image
+          <div>Choose an thumbnail</div>
         </label>
       )}
 

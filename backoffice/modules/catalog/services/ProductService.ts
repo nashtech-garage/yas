@@ -28,8 +28,8 @@ export async function createProduct(product: ProductPayload) {
     body: JSON.stringify(product),
     headers: { 'Content-Type': 'application/json' },
   });
-  if (response.status === 201) return response.json();
-  return Promise.reject(response);
+
+  return response;
 }
 
 export async function updateProduct(id: number, product: ProductPayload) {

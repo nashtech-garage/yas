@@ -1,7 +1,6 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.product.exception.*;
 import com.yas.product.model.*;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
@@ -83,45 +82,38 @@ public class ProductService {
         );
     }
 
-    public List<ProductExportingDetailVm> exportProducts(String productName, String brandName) {
-//        Pageable pageable = PageRequest.of(pageNo, pageSize);
-//        Page<Product> productPage;
+    private boolean isProductWithSlugAvailable(String slug) {
+        return productRepository.findBySlugAndIsActiveTrue(slug).isPresent();
+    }
 
-        List<Product> productList = productRepository.getProductsWithFilter(productName.trim().toLowerCase(),
-                brandName.trim());
+    private boolean isProductWithSkuAvailable(String sku) {
+        return productRepository.findBySkuAndIsActiveTrue(sku).isPresent();
+    }
 
-       // List<Product> productList = productPage.getContent();
-        List<ProductExportingDetailVm> productExportingDetailVms = productList.stream()
-                .map(product -> new ProductExportingDetailVm(product.getId(),
-                        product.getName(),
-                        product.getShortDescription(),
-                        product.getDescription(),
-                        product.getSpecification(),
-                        product.getSku(),
-                        product.getGtin(),
-                        product.getSlug(),
-                        product.getIsAllowedToOrder(),
-                        product.getIsPublished(),
-                        product.getIsFeatured(),
-                        product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
-                        product.getStockTrackingEnabled(),
-                        product.getPrice(),
-       product.getBrand().getId(),
-                        product.getBrand().getName(),
+    private boolean isProductWithGtinAvailable(String gtin) {
+        return productRepository.findByGtinAndIsActiveTrue(gtin).isPresent();
+    }
 
+    private void validateIfProductWithSkuOrGtinOrSlugExist(String slug,
+                                                           String gtin,
+                                                           String sku) {
+        if (isProductWithSlugAvailable(slug))
+            throw new DuplicatedException(Constants.ERROR_CODE.SLUG_ALREADY_EXISTED, slug);
 
-                        product.getMetaTitle(),
-                        product.getMetaKeyword(),
-                        product.getMetaDescription()
-                ))
-                .toList();
+        if (isProductWithGtinAvailable(gtin))
+            throw new DuplicatedException(Constants.ERROR_CODE.GTIN_ALREADY_EXISTED, gtin);
 
-
-
-        return productExportingDetailVms;
+        if (isProductWithSkuAvailable(sku))
+            throw new DuplicatedException(Constants.ERROR_CODE.SKU_ALREADY_EXISTED, sku);
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
+        validateIfProductWithSkuOrGtinOrSlugExist(
+                productPostVm.slug(),
+                productPostVm.gtin(),
+                productPostVm.sku()
+        );
+
         Product mainProduct = Product.builder()
                 .name(productPostVm.name())
                 .thumbnailMediaId(productPostVm.thumbnailMediaId())
@@ -159,6 +151,12 @@ public class ProductService {
             List<ProductImage> allProductVariantImageList = new ArrayList<>();
             List<Product> productVariants = productPostVm.variations().stream()
                     .map(variation -> {
+                        validateIfProductWithSkuOrGtinOrSlugExist(
+                                variation.slug(),
+                                variation.gtin(),
+                                variation.sku()
+                        );
+
                         Product productVariant = Product.builder()
                                 .name(variation.name())
                                 .thumbnailMediaId(variation.thumbnailMediaId())
@@ -533,5 +531,33 @@ public class ProductService {
         } else {
             throw new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_HAVE_VARIATION, id);
         }
+    }
+
+    public List<ProductExportingDetailVm> exportProducts(String productName, String brandName) {
+        List<Product> productList = productRepository.getExportingProducts(productName.trim().toLowerCase(),
+                brandName.trim());
+
+        return productList.stream()
+                .map(product -> new ProductExportingDetailVm(product.getId(),
+                        product.getName(),
+                        product.getShortDescription(),
+                        product.getDescription(),
+                        product.getSpecification(),
+                        product.getSku(),
+                        product.getGtin(),
+                        product.getSlug(),
+                        product.getIsAllowedToOrder(),
+                        product.getIsPublished(),
+                        product.getIsFeatured(),
+                        product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
+                        product.getStockTrackingEnabled(),
+                        product.getPrice(),
+                        product.getBrand().getId(),
+                        product.getBrand().getName(),
+                        product.getMetaTitle(),
+                        product.getMetaKeyword(),
+                        product.getMetaDescription()
+                ))
+                .toList();
     }
 }

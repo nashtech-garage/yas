@@ -86,9 +86,7 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
           </div>
           <div className="d-flex gap-4">
             <div className="w-50">
-              <label className="form-label fw-bold">
-                GTIN (<span className="text-danger">*</span>)
-              </label>
+              <label className="form-label fw-bold">GTIN</label>
               <input
                 type="text"
                 className="form-control w-100"
@@ -97,9 +95,7 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
               />
             </div>
             <div className="w-50">
-              <label className="form-label fw-bold">
-                SKU (<span className="text-danger">*</span>)
-              </label>
+              <label className="form-label fw-bold">SKU</label>
               <input
                 type="text"
                 className="form-control w-100"
@@ -119,6 +115,7 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
           wrapperStyle={{
             width: '100px',
             height: '100px',
+            fontSize: '12px',
           }}
           iconStyle={{
             fontSize: '12px',
