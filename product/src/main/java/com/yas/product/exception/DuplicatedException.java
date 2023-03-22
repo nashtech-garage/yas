@@ -2,10 +2,11 @@ package com.yas.product.exception;
 
 import com.yas.product.utils.MessagesUtils;
 
-public class DuplicatedSkuException extends RuntimeException{
+public class DuplicatedException extends RuntimeException {
+
     private String message;
 
-    public DuplicatedSkuException(String errorCode, Object... var2) {
+    public DuplicatedException(String errorCode, Object... var2) {
         this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 

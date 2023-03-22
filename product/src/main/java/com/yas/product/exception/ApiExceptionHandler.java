@@ -69,26 +69,8 @@ public class ApiExceptionHandler {
     return ResponseEntity.badRequest().body(errorVm);
   }
 
-  @ExceptionHandler(DuplicatedNameException.class)
-  protected ResponseEntity<Object> handleDuplicatedName(DuplicatedNameException e) {
-    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
-    return ResponseEntity.badRequest().body(errorVm);
-  }
-
-  @ExceptionHandler(DuplicatedSlugException.class)
-  protected ResponseEntity<Object> handleDuplicatedSlug(DuplicatedSlugException e) {
-    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
-    return ResponseEntity.badRequest().body(errorVm);
-  }
-
-  @ExceptionHandler(DuplicatedGtinException.class)
-  protected ResponseEntity<Object> handleDuplicatedGtin(DuplicatedGtinException e) {
-    ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
-    return ResponseEntity.badRequest().body(errorVm);
-  }
-
-  @ExceptionHandler(DuplicatedSkuException.class)
-  protected ResponseEntity<Object> handleDuplicatedSku(DuplicatedSkuException e) {
+  @ExceptionHandler(DuplicatedException.class)
+  protected ResponseEntity<Object> handleDuplicated(DuplicatedException e) {
     ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
     return ResponseEntity.badRequest().body(errorVm);
   }

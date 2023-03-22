@@ -1,6 +1,6 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.DuplicatedNameException;
+import com.yas.product.exception.DuplicatedException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.productoption.ProductOptionGetVm;
@@ -47,7 +47,7 @@ public class ProductOptionService {
 
     public ProductOption create(ProductOptionPostVm productOptionPostVm) {
         if (checkExistedName(productOptionPostVm.name(), null)) {
-            throw new DuplicatedNameException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, productOptionPostVm.name());
+            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, productOptionPostVm.name());
         }
         ProductOption productOption = new ProductOption();
         productOption.setName(productOptionPostVm.name());
@@ -65,7 +65,7 @@ public class ProductOptionService {
                 .orElseThrow(() -> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_OPTION_NOT_FOUND, id)));
 
         if (checkExistedName(productOptionPostVm.name(), id)) {
-            throw new DuplicatedNameException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, productOptionPostVm.name());
+            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, productOptionPostVm.name());
         }
         productOption.setName(productOptionPostVm.name());
 

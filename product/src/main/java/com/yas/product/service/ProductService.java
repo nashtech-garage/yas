@@ -98,13 +98,13 @@ public class ProductService {
                                                            String gtin,
                                                            String sku) {
         if (isProductWithSlugAvailable(slug))
-            throw new DuplicatedSlugException(Constants.ERROR_CODE.SLUG_ALREADY_EXISTED, slug);
+            throw new DuplicatedException(Constants.ERROR_CODE.SLUG_ALREADY_EXISTED, slug);
 
         if (isProductWithGtinAvailable(gtin))
-            throw new DuplicatedGtinException(Constants.ERROR_CODE.GTIN_ALREADY_EXISTED, gtin);
+            throw new DuplicatedException(Constants.ERROR_CODE.GTIN_ALREADY_EXISTED, gtin);
 
         if (isProductWithSkuAvailable(sku))
-            throw new DuplicatedSkuException(Constants.ERROR_CODE.SKU_ALREADY_EXISTED, sku);
+            throw new DuplicatedException(Constants.ERROR_CODE.SKU_ALREADY_EXISTED, sku);
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
