@@ -11,7 +11,7 @@ import { exportProducts } from '../services/ProductService';
 import { toastError } from '../services/ToastService';
 
 const CSVDownload = (props: any) => {
-  const btnRef = useRef<HTMLInputElement>();
+  const btnRef = useRef<any>();
   useEffect(() => btnRef.current?.click(), []);
   return (
     <CSVLink {...props}>
