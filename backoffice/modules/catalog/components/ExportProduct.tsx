@@ -30,7 +30,7 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
         const headers =
           data?.[0] &&
           Object.keys(data?.[0]).map((key) => ({
-            label: mappingExportingProductColumnNames[key] || '',
+            label: mappingExportingProductColumnNames[key as keyof typeof mappingExportingProductColumnNames] || '',
             key,
           }));
 
