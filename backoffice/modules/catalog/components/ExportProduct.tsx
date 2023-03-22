@@ -22,7 +22,6 @@ const CSVDownload = (props: any) => {
 
 const ExportProduct = ({ productName = '', brandName = '' }) => {
   const downloadRef = useRef();
-  const [products, setProducts] = useState<Product[]>([]);
 
   const getData = () => {
     try {
