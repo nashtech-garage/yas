@@ -11,7 +11,7 @@ import styles from '../../../styles/ExportCSV.module.css';
 import { exportProducts } from '../services/ProductService';
 import { toastError } from '../services/ToastService';
 
-const CSVDownload = (props) => {
+const CSVDownload = (props: any) => {
   const btnRef = useRef(null);
   useEffect(() => btnRef.current?.click(), []);
   return (
