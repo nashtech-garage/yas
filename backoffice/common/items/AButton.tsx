@@ -8,7 +8,7 @@ type Props = {
   variant: string;
   props: any;
 };
-const AButton = ({ className = '', children = any, variant = 'tertiary', ...props }: Props) => {
+const AButton = ({ className = '', children, variant = 'tertiary', ...props }: Props) => {
   let As = 'button';
   if (props.to) {
     As = Link;
