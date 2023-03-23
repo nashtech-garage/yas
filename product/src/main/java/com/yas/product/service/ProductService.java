@@ -543,4 +543,32 @@ public class ProductService {
             throw new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_HAVE_VARIATION, id);
         }
     }
+
+    public List<ProductExportingDetailVm> exportProducts(String productName, String brandName) {
+        List<Product> productList = productRepository.getExportingProducts(productName.trim().toLowerCase(),
+                brandName.trim());
+
+        return productList.stream()
+                .map(product -> new ProductExportingDetailVm(product.getId(),
+                        product.getName(),
+                        product.getShortDescription(),
+                        product.getDescription(),
+                        product.getSpecification(),
+                        product.getSku(),
+                        product.getGtin(),
+                        product.getSlug(),
+                        product.getIsAllowedToOrder(),
+                        product.getIsPublished(),
+                        product.getIsFeatured(),
+                        product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
+                        product.getStockTrackingEnabled(),
+                        product.getPrice(),
+                        product.getBrand().getId(),
+                        product.getBrand().getName(),
+                        product.getMetaTitle(),
+                        product.getMetaKeyword(),
+                        product.getMetaDescription()
+                ))
+                .toList();
+    }
 }

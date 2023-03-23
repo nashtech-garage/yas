@@ -14,6 +14,7 @@ import styles from '../../../styles/Filter.module.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 import moment from 'moment';
+import { ExportProduct } from '../../../modules/catalog/components';
 
 const ProductList: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
@@ -87,127 +88,130 @@ const ProductList: NextPage = () => {
   if (isLoading) return <p>Loading...</p>;
   if (!products) return <p>No product</p>;
   return (
-    <>
-      <div className="row mt-5">
-        <div className="col-md-8">
-          <h2 className="text-danger font-weight-bold mb-3">Products</h2>
-        </div>
-        <div className="col-md-4 text-right">
-          <Link href="/catalog/products/create">
-            <Button>Create Product</Button>
-          </Link>
-        </div>
-        <br />
+     <>
+       <div className="row mt-5">
+         <div className="col-md-8">
+           <h2 className="text-danger font-weight-bold mb-3">Products</h2>
+         </div>
+         <div className="col-md-4 text-right">
+           <Link href="/catalog/products/create">
+             <Button>Create Product</Button>
+           </Link>
+         </div>
+         <br />
+       </div>
 
-        {/* Filter */}
-        <div className="row mb-3">
-          <div className="col ">
-            {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
-            <Form.Select
-              id="brand-filter"
-              onChange={(e) => {
-                setPageNo(0);
-                setBrandName(e.target.value);
-              }}
-              className={styles.filterButton}
-              defaultValue={brandName || ''}
-            >
-              <option value={''}>All</option>
-              {brands.map((brand) => (
-                <option key={brand.id} value={brand.name}>
-                  {brand.name}
-                </option>
-              ))}
-            </Form.Select>
-          </div>
+       {/* Filter */}
+       <div className="row mb-5">
+         <div className="col-md-6">
+           {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
+           <Form.Select
+             id="brand-filter"
+             onChange={(e) => {
+               setPageNo(0);
+               setBrandName(e.target.value);
+             }}
+             className={styles.filterButton}
+             defaultValue={brandName || ''}
+           >
+             <option value={''}>All</option>
+             {brands.map((brand) => (
+               <option key={brand.id} value={brand.name}>
+                 {brand.name}
+               </option>
+             ))}
+           </Form.Select>
+         </div>
 
-          <div className="search-container">
-            <Form>
-              <InputGroup>
-                <Form.Control
-                  id="product-name"
-                  placeholder="Search name ..."
-                  defaultValue={productName}
-                  onChange={searchingHandler}
-                />
-                <Button id="seach-category" variant="danger" onClick={searchingHandler}>
-                  <FaSearch />
-                </Button>
-              </InputGroup>
-            </Form>
-          </div>
-        </div>
-      </div>
+         <div className="col-md-4">
+           <Form>
+             <InputGroup>
+               <Form.Control
+                 id="product-name"
+                 placeholder="Search name ..."
+                 defaultValue={productName}
+                 onChange={searchingHandler}
+               />
+               <Button id="seach-category" variant="danger" onClick={searchingHandler}>
+                 <FaSearch />
+               </Button>
+             </InputGroup>
+           </Form>
+         </div>
+         <div className="col-md-2 d-flex justify-content-end">
+           <ExportProduct productName={productName} brandName={brandName} />
+         </div>
+       </div>
 
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Is Featured</th>
-            <th>Is Allow To Order</th>
-            <th>Is Published</th>
-            <th>Created Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>{product.id}</td>
-              <td>{product.name}</td>
-              <td>{product.isFeatured ? 'Yes' : 'No'}</td>
-              <td>{product.isAllowedToOrder ? 'Yes' : 'No'}</td>
-              <td>{product.isPublished ? 'Yes' : 'No'}</td>
-              <td>
-                {product.createdOn != null ? moment(product.createdOn).format('DD/MM/YYYY') : ''}
-              </td>
-              <td>
-                <Stack direction="horizontal" gap={3}>
-                  <Link href={`/catalog/products/${product.id}/edit`}>
-                    <button className="btn btn-outline-primary btn-sm" type="button">
-                      Edit
-                    </button>
-                  </Link>
-                  &nbsp;
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    type="button"
-                    onClick={() => {
-                      setShowModalDelete(true);
-                      setProductIdWantToDelete(product.id);
-                      setProductNameWantToDelete(product.name);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </Stack>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <ModalDeleteCustom
-        showModalDelete={showModalDelete}
-        handleClose={handleClose}
-        nameWantToDelete={productNameWantToDelete}
-        handleDelete={handleDelete}
-        action="delete"
-      />
-      <ReactPaginate
-        forcePage={pageNo}
-        previousLabel={'Previous'}
-        nextLabel={'Next'}
-        pageCount={totalPage}
-        onPageChange={changePage}
-        containerClassName={'paginationBtns'}
-        previousLinkClassName={'previousBtn'}
-        nextClassName={'nextBtn'}
-        disabledClassName={'paginationDisabled'}
-        activeClassName={'paginationActive'}
-      />
-    </>
-  );
-};
+       <Table striped bordered hover>
+         <thead>
+           <tr>
+             <th>ID</th>
+             <th>Name</th>
+             <th>Is Featured</th>
+             <th>Is Allow To Order</th>
+             <th>Is Published</th>
+             <th>Created Date</th>
+             <th>Actions</th>
+           </tr>
+         </thead>
+         <tbody>
+           {products.map((product) => (
+             <tr key={product.id}>
+               <td>{product.id}</td>
+               <td>{product.name}</td>
+               <td>{product.isFeatured ? 'Yes' : 'No'}</td>
+               <td>{product.isAllowedToOrder ? 'Yes' : 'No'}</td>
+               <td>{product.isPublished ? 'Yes' : 'No'}</td>
+               <td>
+                 {product.createdOn != null ? moment(product.createdOn).format('DD/MM/YYYY') : ''}
+               </td>
+               <td>
+                 <Stack direction="horizontal" gap={3}>
+                   <Link href={`/catalog/products/${product.id}/edit`}>
+                     <button className="btn btn-outline-primary btn-sm" type="button">
+                       Edit
+                     </button>
+                   </Link>
+                   &nbsp;
+                   <button
+                     className="btn btn-outline-danger btn-sm"
+                     type="button"
+                     onClick={() => {
+                       setShowModalDelete(true);
+                       setProductIdWantToDelete(product.id);
+                       setProductNameWantToDelete(product.name);
+                     }}
+                   >
+                     Delete
+                   </button>
+                 </Stack>
+               </td>
+             </tr>
+           ))}
+         </tbody>
+       </Table>
+       <ModalDeleteCustom
+         showModalDelete={showModalDelete}
+         handleClose={handleClose}
+         nameWantToDelete={productNameWantToDelete}
+         handleDelete={handleDelete}
+         action="delete"
+       />
+       <ReactPaginate
+         forcePage={pageNo}
+         previousLabel={'Previous'}
+         nextLabel={'Next'}
+         pageCount={totalPage}
+         onPageChange={changePage}
+         containerClassName={'paginationBtns'}
+         previousLinkClassName={'previousBtn'}
+         nextClassName={'nextBtn'}
+         disabledClassName={'paginationDisabled'}
+         activeClassName={'paginationActive'}
+       />
+     </>
+   );
+ };
 
-export default ProductList;
+ export default ProductList;

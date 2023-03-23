@@ -11,6 +11,12 @@ export async function getProducts(
   return await response.json();
 }
 
+export async function exportProducts(productName: string, brandName: string) {
+  const url = `/api/product/backoffice/export/products?product-name=${productName}&brand-name=${brandName}`;
+  const response = await fetch(url);
+  return await response.json();
+}
+
 export async function getProduct(id: number) {
   const response = await fetch('/api/product/backoffice/products/' + id);
   return await response.json();
