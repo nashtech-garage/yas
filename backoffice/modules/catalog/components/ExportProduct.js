@@ -6,14 +6,14 @@ import React from 'react';
 import {
   FORMAT_DATE_YYYY_MM_DD_HH_MM,
   mappingExportingProductColumnNames,
-  EXPORT_FAILED
+  EXPORT_FAILED,
 } from '../../../constants/Common';
 import styles from '../../../styles/ExportCSV.module.css';
 import { exportProducts } from '../services/ProductService';
 import { toastError } from '../services/ToastService';
 
 const CSVDownload = (props) => {
-   const btnRef = useRef(null);
+  const btnRef = useRef(null);
   useEffect(() => btnRef.current?.click(), []);
   return (
     <CSVLink {...props}>
@@ -33,8 +33,7 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
         const headers =
           data?.[0] &&
           Object.keys(data?.[0]).map((key) => ({
-            label:
-              mappingExportingProductColumnNames[key] || '',
+            label: mappingExportingProductColumnNames[key] || '',
             key,
           }));
 
