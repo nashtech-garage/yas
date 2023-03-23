@@ -1,8 +1,7 @@
 import { format as formatDate } from 'date-fns';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
-import React from 'react';
 import {
   FORMAT_DATE_YYYY_MM_DD_HH_MM,
   mappingExportingProductColumnNames,
@@ -26,24 +25,20 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
 
   //Get list of product need export
   const getExportingProducts = () => {
-    try {
-      exportProducts(productName, brandName).then((data) => {
-        const fileName = formatDate(Date.now(), FORMAT_DATE_YYYY_MM_DD_HH_MM) + '_products.csv';
-        const headers =
-          data?.[0] &&
-          Object.keys(data?.[0]).map((key) => ({
-            label: mappingExportingProductColumnNames[key] || '',
-            key,
-          }));
+    exportProducts(productName, brandName).then((data) => {
+      const fileName = formatDate(Date.now(), FORMAT_DATE_YYYY_MM_DD_HH_MM) + '_products.csv';
+      const headers =
+        data?.[0] &&
+        Object.keys(data?.[0]).map((key) => ({
+          label: mappingExportingProductColumnNames[key] || '',
+          key,
+        }));
 
-        ReactDOM.render(
-          <CSVDownload key={Date.now()} filename={fileName} headers={headers} data={data} />,
-          downloadRef.current
-        );
-      });
-    } catch (errors) {
-      toastError(EXPORT_FAILED);
-    }
+      ReactDOM.render(
+        <CSVDownload filename={fileName} headers={headers} data={data} />,
+        downloadRef.current
+      );
+    });
   };
 
   return (
