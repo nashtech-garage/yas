@@ -1,5 +1,7 @@
 package com.yas.order.model;
 
+import com.yas.order.listener.CustomAuditingEntityListener;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +15,7 @@ import java.time.ZonedDateTime;
 @MappedSuperclass
 @Getter
 @Setter
+@EntityListeners(CustomAuditingEntityListener.class)
 public class AbstractAuditEntity {
     @CreationTimestamp
     private ZonedDateTime createdOn;
