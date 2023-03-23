@@ -1,2 +1,3 @@
 import RatingList from './RatingList';
-export { RatingList };
+import Star from './Star';
+export { RatingList, Star };

@@ -4,11 +4,9 @@ import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { toast } from 'react-toastify';
 
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import { ProductImageGallery } from '../../common/components/ProductImageGallery';
-import { AverageStarResponseDto } from '../../common/dtos/AverageStarResponseDto';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { DetailHeader, PostRatingForm, ProductDetails } from '../../modules/catalog/components';
 import { RatingList } from '../../modules/rating/components';
@@ -31,7 +29,6 @@ import { toastError, toastSuccess } from '../../modules/catalog/services/ToastSe
 
 type Props = {
   product: ProductDetail;
-  averageStar: AverageStarResponseDto;
 };
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -43,20 +40,10 @@ export const getServerSideProps: GetServerSideProps = async (
   const product = await getProductDetail(slug as string);
   if (!product.id) return { notFound: true };
 
-  // fetch average star of product
-  let averageStar: AverageStarResponseDto;
-  averageStar = await getAverageStarByProductId(product.id)
-    .then((result) => {
-      return { averageStar: result };
-    })
-    .catch((error) => {
-      return { averageStar: 0, errorMessage: "Could't fetch average star" };
-    });
-
-  return { props: { product, averageStar } };
+  return { props: { product } };
 };
 
-const ProductDetailsPage = ({ product, averageStar }: Props) => {
+const ProductDetailsPage = ({ product }: Props) => {
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -72,27 +59,19 @@ const ProductDetailsPage = ({ product, averageStar }: Props) => {
     undefined
   );
 
+  const [averageStar, setAverageStar] = useState<number>(0);
   useEffect(() => {
     if (product.hasOptions) {
       fetchProductOptions();
       fetchProductVariations();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    getAverageStarByProductId(product.id).then((res) => {
+      setAverageStar(res);
+    });
   }, []);
 
-  useEffect(() => {
-    if (averageStar.errorMessage) {
-      toast.error(averageStar.errorMessage, {
-        position: 'top-right',
-        autoClose: 2000,
-        closeOnClick: true,
-        pauseOnHover: false,
-        theme: 'colored',
-      });
-      averageStar.averageStar = 0;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
@@ -185,7 +164,6 @@ const ProductDetailsPage = ({ product, averageStar }: Props) => {
   if (product.productCategories.toString()) {
     crumb.splice(1, 0, category);
   }
-
   return (
     <>
       <Head>
@@ -195,7 +173,7 @@ const ProductDetailsPage = ({ product, averageStar }: Props) => {
 
       <DetailHeader
         productName={product.name}
-        averageStar={averageStar.averageStar}
+        averageStar={averageStar}
         ratingCount={totalElements}
       />
 
