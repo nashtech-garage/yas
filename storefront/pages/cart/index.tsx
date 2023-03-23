@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import ConfirmationDialog from '../../common/components/dialog/ConfirmationDialog';
 import { Cart } from '../../modules/cart/models/Cart';
 import { CartItem } from '../../modules/cart/models/CartItem';
 import {
@@ -24,6 +25,10 @@ const Cart = () => {
   const [items, setItems] = useState<Item[]>([]);
 
   const [loaded, setLoaded] = useState(false);
+
+  const [productIdRemove, setProductIdRemove] = useState<number>(0);
+
+  const [isOpenRemoveDialog, setIsOpenRemoveDialog] = useState(false);
 
   const [cart, setCart] = useState<Cart>({
     id: 0,
@@ -66,6 +71,7 @@ const Cart = () => {
 
   const removeProduct = (productId: number) => {
     removeProductInCart(productId).then(() => loadCart());
+    setIsOpenRemoveDialog(false);
   };
 
   const handlePlus = (productId: number) => {
@@ -126,6 +132,11 @@ const Cart = () => {
           theme: 'colored',
         })
       );
+  };
+
+  const openRemoveConfirmDialog = (productId: number) => {
+    setProductIdRemove(productId);
+    setIsOpenRemoveDialog(true);
   };
 
   useEffect(() => {
@@ -215,7 +226,9 @@ const Cart = () => {
                             {' '}
                             <button
                               className="remove_product"
-                              onClick={() => removeProduct(item.productId)}
+                              onClick={() => {
+                                openRemoveConfirmDialog(item.productId);
+                              }}
                             >
                               <i className="bi bi-x-lg"></i>
                             </button>{' '}
@@ -267,6 +280,15 @@ const Cart = () => {
             </div>
           </div>
         </div>
+        <ConfirmationDialog
+          isOpen={isOpenRemoveDialog}
+          okText="Remove"
+          cancelText="Cancel"
+          cancel={() => setIsOpenRemoveDialog(false)}
+          ok={() => removeProduct(productIdRemove)}
+        >
+          <p>Do you want to remove this Product from the cart ?</p>
+        </ConfirmationDialog>
       </div>
     </section>
   );
