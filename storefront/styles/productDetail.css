@@ -33,7 +33,7 @@
 }
 
 .product_attribute_name_th {
-  font-size: 12 px;
+  font-size: 12px;
   color: #76a6f3;
 }
 
@@ -217,6 +217,9 @@ input[type='radio'] {
 .main-image {
   transition: transform 0.3s;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .main-image:hover {

@@ -1,6 +1,5 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.*;
 import com.yas.product.repository.*;

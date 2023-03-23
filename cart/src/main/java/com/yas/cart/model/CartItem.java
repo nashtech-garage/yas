@@ -26,7 +26,7 @@ public class CartItem {
 
     private Long parentProductId;
 
-    private int Quantity;
+    private int quantity;
 
     @Override
     public boolean equals(Object o) {

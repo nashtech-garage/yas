@@ -7,4 +7,7 @@ export type ProductVariation = {
   price: number;
   thumbnailMediaUrl: string;
   productImageMediaUrls: string[];
+  options: {
+    [key: string]: string;
+  };
 };

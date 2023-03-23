@@ -76,6 +76,7 @@ public class CartService {
                 cartItem.setCart(cart);
                 cartItem.setProductId(cartItemVm.productId());
                 cartItem.setQuantity(cartItemVm.quantity());
+                cartItem.setParentProductId(cartItemVm.parentProductId());
                 cart.getCartItems().add(cartItem);
             }
         }

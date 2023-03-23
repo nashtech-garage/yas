@@ -6,10 +6,9 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
-import { ProductImageGallery } from '../../common/components/ProductImageGallery';
+
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { DetailHeader, PostRatingForm, ProductDetails } from '../../modules/catalog/components';
-import { RatingList } from '../../modules/rating/components';
+import { ProductDetails } from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
 import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
@@ -26,24 +25,70 @@ import {
   getRatingsByProductId,
 } from '../../modules/rating/services/RatingService';
 import { toastError, toastSuccess } from '../../modules/catalog/services/ToastService';
+import { RatingList, PostRatingForm } from '../../modules/rating/components';
 
 type Props = {
   product: ProductDetail;
+  productOptions?: ProductOptions[];
+  productVariations?: ProductVariation[];
+  pvid: string | null;
 };
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const { slug } = context.query;
+  const { slug, pvid } = context.query;
 
   // fetch product by slug
   const product = await getProductDetail(slug as string);
   if (!product.id) return { notFound: true };
 
-  return { props: { product } };
+  const productOptions: ProductOptions[] = [];
+  let productVariations: ProductVariation[] = [];
+
+  if (product.hasOptions) {
+    // fetch product options
+    try {
+      const productOptionValue = await getProductOptionValues(product.id);
+
+      for (const option of productOptionValue) {
+        const index = productOptions.findIndex(
+          (productOption) => productOption.name === option.productOptionName
+        );
+        if (index > -1) {
+          productOptions.at(index)?.value.push(option.productOptionValue);
+        } else {
+          const newProductOption: ProductOptions = {
+            name: option.productOptionName,
+            value: [option.productOptionValue],
+          };
+
+          productOptions.push(newProductOption);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    // fetch product variations
+    try {
+      productVariations = await getProductVariationsByParentId(product.id);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return {
+    props: {
+      product,
+      productOptions,
+      productVariations,
+      pvid: pvid !== undefined ? (pvid as string) : null,
+    },
+  };
 };
 
-const ProductDetailsPage = ({ product }: Props) => {
+const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }: Props) => {
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -54,24 +99,13 @@ const ProductDetailsPage = ({ product }: Props) => {
   const [contentRating, setContentRating] = useState<string>('');
   const [isPost, setIsPost] = useState<boolean>(false);
 
-  const [productOptions, setProductOptions] = useState<ProductOptions[] | undefined>(undefined);
-  const [productVariations, setProductVariations] = useState<ProductVariation[] | undefined>(
-    undefined
-  );
-
   const [averageStar, setAverageStar] = useState<number>(0);
-  useEffect(() => {
-    if (product.hasOptions) {
-      fetchProductOptions();
-      fetchProductVariations();
-    }
 
+  useEffect(() => {
     getAverageStarByProductId(product.id).then((res) => {
       setAverageStar(res);
     });
   }, []);
-
-  useEffect(() => {}, []);
 
   useEffect(() => {
     getRatingsByProductId(product.id, pageNo, pageSize).then((res) => {
@@ -80,42 +114,6 @@ const ProductDetailsPage = ({ product }: Props) => {
       setTotalElements(res.totalElements);
     });
   }, [pageNo, pageSize, product.id, isPost]);
-
-  const fetchProductOptions = async () => {
-    try {
-      const productOptionsTmp: ProductOptions[] = [];
-      const productOptionValue = await getProductOptionValues(product.id);
-
-      for (const option of productOptionValue) {
-        const index = productOptionsTmp.findIndex(
-          (productOption) => productOption.name === option.productOptionName
-        );
-        if (index > -1) {
-          productOptionsTmp.at(index)?.value.push(option.productOptionValue);
-        } else {
-          const newProductOption: ProductOptions = {
-            name: option.productOptionName,
-            value: [option.productOptionValue],
-          };
-
-          productOptionsTmp.push(newProductOption);
-        }
-      }
-
-      setProductOptions([...productOptionsTmp]);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchProductVariations = async () => {
-    try {
-      const response = await getProductVariationsByParentId(product.id);
-      setProductVariations(response);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
@@ -164,6 +162,7 @@ const ProductDetailsPage = ({ product }: Props) => {
   if (product.productCategories.toString()) {
     crumb.splice(1, 0, category);
   }
+
   return (
     <>
       <Head>
@@ -171,25 +170,14 @@ const ProductDetailsPage = ({ product }: Props) => {
       </Head>
       <BreadcrumbComponent props={crumb} />
 
-      <DetailHeader
-        productName={product.name}
+      <ProductDetails
+        product={product}
+        productOptions={productOptions}
+        productVariations={productVariations}
+        pvid={pvid}
         averageStar={averageStar}
-        ratingCount={totalElements}
+        totalRating={totalElements}
       />
-
-      <div className="row justify-content-center">
-        <div className="col-6">
-          <ProductImageGallery listImages={product.productImageMediaUrls} />
-        </div>
-
-        <div className="col-6">
-          <ProductDetails
-            product={product}
-            productOptions={productOptions}
-            productVariations={productVariations}
-          />
-        </div>
-      </div>
 
       <div className="container" style={{ marginTop: '70px' }}>
         <Table>
