@@ -1,10 +1,12 @@
 import Link from 'next/link';
-import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail';
-import { getFeaturedProducts } from '../../modules/catalog/services/ProductService';
-import styles from '../../styles/productList.module.css';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
+
+import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail';
 import { formatPrice } from '../../utils/formatPrice';
+import ImageWithFallBack from '../components/ImageWithFallback';
+
+import styles from '../../styles/productList.module.css';
 
 type Props = {
   products: ProductThumbnail[];
@@ -21,9 +23,9 @@ const ProductItems = ({ products }: Props) => {
               style={{ padding: '0', borderRadius: 0, margin: 0 }}
             >
               <Link href={`/products/${product.slug}`}>
-                <Card.Img
-                  variant="top"
+                <ImageWithFallBack
                   src={product.thumbnailUrl}
+                  alt={product.name}
                   style={{ width: '100%', height: '14rem', cursor: 'pointer' }}
                 />
               </Link>
