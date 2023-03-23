@@ -28,7 +28,6 @@
     "react-toastify": "^9.0.8",
     "slugify": "^1.6.5",
     "yup": "^0.32.11",
-    "date-fns": "^2.29.3",
     "react-csv": "^2.2.2"
   },
   "devDependencies": {

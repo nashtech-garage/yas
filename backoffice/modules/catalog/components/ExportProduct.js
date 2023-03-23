@@ -1,4 +1,3 @@
-import { format as formatDate } from 'date-fns';
 import { useEffect, useRef } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
