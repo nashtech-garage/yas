@@ -29,7 +29,7 @@ export const PRODUCT_URL = '/catalog/products';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;
-export const FORMAT_DATE_YYYY_MM_DD_HH_MM = 'yyyyMMddHHmm';
+export const FORMAT_DATE_YYYY_MM_DD_HH_MM = 'YYYYMMDDHHmmss';
 
 //Column header to export for product
 export const mappingExportingProductColumnNames = {

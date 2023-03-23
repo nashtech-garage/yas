@@ -21,5 +21,5 @@ public record ProductExportingDetailVm(
         String brandName,
         String metaTitle,
         String metaKeyword,
-        String metaDescription) {
-}
+        String metaDescription
+) {}

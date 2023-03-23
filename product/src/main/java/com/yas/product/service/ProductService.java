@@ -560,7 +560,7 @@ public class ProductService {
                         product.getIsAllowedToOrder(),
                         product.getIsPublished(),
                         product.getIsFeatured(),
-                        product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
+                        product.getIsVisibleIndividually(),
                         product.getStockTrackingEnabled(),
                         product.getPrice(),
                         product.getBrand().getId(),

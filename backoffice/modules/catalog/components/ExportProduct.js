@@ -2,6 +2,7 @@ import { format as formatDate } from 'date-fns';
 import { useEffect, useRef } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
+import moment, { Moment } from 'moment/moment';
 import {
   FORMAT_DATE_YYYY_MM_DD_HH_MM,
   mappingExportingProductColumnNames,
@@ -25,7 +26,7 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
   //Get list of product need export
   const getExportingProducts = () => {
     exportProducts(productName, brandName).then((data) => {
-      const fileName = formatDate(Date.now(), FORMAT_DATE_YYYY_MM_DD_HH_MM) + '_products.csv';
+      const fileName = moment(Date.now()).format(FORMAT_DATE_YYYY_MM_DD_HH_MM) + '_products.csv';
       const headers =
         data?.[0] &&
         Object.keys(data?.[0]).map((key) => ({
