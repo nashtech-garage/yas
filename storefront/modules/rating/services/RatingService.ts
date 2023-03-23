@@ -1,8 +1,6 @@
 import { Rating } from '../models/Rating';
 import { RatingPost } from '../models/RatingPost';
 import { concatQueryString } from '../../../utils/concatQueryString';
-import { toast } from 'react-toastify';
-import { AverageStarResponseDto } from '../../../common/dtos/AverageStarResponseDto';
 
 export async function getRatingsByProductId(
   productId: number,

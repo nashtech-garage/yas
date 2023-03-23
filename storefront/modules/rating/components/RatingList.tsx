@@ -2,6 +2,7 @@ import StarRatings from 'react-star-ratings';
 import Moment from 'react-moment';
 import ReactPaginate from 'react-paginate';
 import { Rating } from '../models/Rating';
+import Star from './Star';
 
 export interface Props {
   ratingList: Rating[] | null;
@@ -33,13 +34,7 @@ export default function RatingList({
                   <>
                     {rating.firstName} {rating.lastName}{' '}
                     <span className="ms-2">
-                      <StarRatings
-                        rating={rating.star}
-                        starRatedColor="#FFBF00"
-                        numberOfStars={5}
-                        starDimension="16px"
-                        starSpacing="1px"
-                      />
+                      <Star star={rating.star} />
                     </span>
                   </>
                 )}

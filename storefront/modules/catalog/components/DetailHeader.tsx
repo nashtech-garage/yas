@@ -1,4 +1,4 @@
-import StarRatings from 'react-star-ratings';
+import { Star } from '../../rating/components';
 
 export interface Props {
   productName: string;
@@ -12,14 +12,7 @@ export default function DetailHeader({ productName, averageStar, ratingCount }: 
       <div className="left">
         <h4 className="title">{productName}</h4>
         <div className="rating-star">
-          <StarRatings
-            rating={averageStar ? averageStar : 0}
-            starRatedColor="#fb6e2e"
-            numberOfStars={5}
-            starDimension="18px"
-            starSpacing="0"
-            name="rating-header"
-          />
+          <Star star={averageStar} />
         </div>
         <span className="rating-count">({ratingCount} ratings)</span>
       </div>
