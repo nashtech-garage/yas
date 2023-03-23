@@ -36,6 +36,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsWithFilter(pageNo, pageSize, productName, brandName));
     }
 
+    @GetMapping("/backoffice/export/products")
+    public ResponseEntity<List<ProductExportingDetailVm>> exportProducts(  @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
+                                                                           @RequestParam(value = "brand-name", defaultValue = "", required = false) String brandName) {
+        return ResponseEntity.ok(productService.exportProducts(productName, brandName));
+    }
 
     @PostMapping(path = "/backoffice/products", consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ApiResponses(value = {
