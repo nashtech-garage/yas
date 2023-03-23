@@ -8,7 +8,6 @@ import {
   EXPORT_FAILED,
 } from '../../../constants/Common';
 import { exportProducts } from '../services/ProductService';
-import { toastError } from '../services/ToastService';
 
 const CSVDownload = (props) => {
   const btnRef = useRef(null);
