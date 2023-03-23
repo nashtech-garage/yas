@@ -2,23 +2,18 @@ import { format as formatDate } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
+import React from 'react';
 import {
   FORMAT_DATE_YYYY_MM_DD_HH_MM,
   mappingExportingProductColumnNames,
+  EXPORT_FAILED
 } from '../../../constants/Common';
 import styles from '../../../styles/ExportCSV.module.css';
 import { exportProducts } from '../services/ProductService';
 import { toastError } from '../services/ToastService';
 
-type Props = {
-  key: any;
-  filename: string;
-  headers: any;
-  data: any;
-};
-
-const CSVDownload = (props: Props) => {
-  const btnRef = useRef<any>();
+const CSVDownload = (props) => {
+   const btnRef = useRef(null);
   useEffect(() => btnRef.current?.click(), []);
   return (
     <CSVLink {...props}>
@@ -30,7 +25,8 @@ const CSVDownload = (props: Props) => {
 const ExportProduct = ({ productName = '', brandName = '' }) => {
   const downloadRef = useRef();
 
-  const getData = () => {
+  //Get list of product need export
+  const getExportingProducts = () => {
     try {
       exportProducts(productName, brandName).then((data) => {
         const fileName = formatDate(Date.now(), FORMAT_DATE_YYYY_MM_DD_HH_MM) + '_products.csv';
@@ -38,9 +34,7 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
           data?.[0] &&
           Object.keys(data?.[0]).map((key) => ({
             label:
-              mappingExportingProductColumnNames[
-                key as keyof typeof mappingExportingProductColumnNames
-              ] || '',
+              mappingExportingProductColumnNames[key] || '',
             key,
           }));
 
@@ -50,16 +44,14 @@ const ExportProduct = ({ productName = '', brandName = '' }) => {
         );
       });
     } catch (errors) {
-      const errorMessages = errors.response?.data?.errors;
-      const errorMessage = errorMessages ? errorMessages[0]?.errorMessage : errors?.message;
-      toastError(errorMessage);
+      toastError(EXPORT_FAILED);
     }
   };
 
   return (
     <div>
-      <button className="btn btn-primary" onClick={getData}>
-        Export
+      <button className="btn btn-primary" onClick={getExportingProducts}>
+        Export Product
       </button>
       <div ref={downloadRef} />
     </div>

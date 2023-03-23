@@ -19,6 +19,7 @@ export const UPDATE_SUCCESSFULLY = 'Update successfully';
 export const CREATE_SUCCESSFULLY = 'Create successfully';
 export const UPDATE_FAILED = 'Update failed';
 export const CREATE_FAILED = 'Create failed';
+export const EXPORT_FAILED = 'Export failed';
 export const TOAST_DURATION = 4000;
 export const CATEGORIES_URL = '/catalog/categories';
 export const BRAND_URL = '/catalog/brands';
@@ -31,6 +32,7 @@ export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;
 export const FORMAT_DATE_YYYY_MM_DD_HH_MM = 'yyyyMMddHHmm';
 
+//Column header to export for product
 export const mappingExportingProductColumnNames = {
   id: 'Id',
   name: 'Product Name',
