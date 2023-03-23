@@ -2,7 +2,7 @@ import { format as formatDate } from 'date-fns';
 import { useEffect, useRef } from 'react';
 import { CSVLink } from 'react-csv';
 import ReactDOM from 'react-dom';
-import moment, { Moment } from 'moment/moment';
+import moment from 'moment';
 import {
   FORMAT_DATE_YYYY_MM_DD_HH_MM,
   mappingExportingProductColumnNames,
