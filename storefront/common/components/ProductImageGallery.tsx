@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Figure } from 'react-bootstrap';
 
+import ImageWithFallback from './ImageWithFallback';
+
 export interface IProductImageGalleryProps {
   listImages: string[];
 }
@@ -22,7 +24,10 @@ export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
     startSliderIndex = listImages.length - NO_SLIDER_IMAGE;
   }
 
-  const visibleImages = listImages.slice(startSliderIndex, startSliderIndex + NO_SLIDER_IMAGE);
+  const visibleImages =
+    listImages.length > 0
+      ? listImages.slice(startSliderIndex, startSliderIndex + NO_SLIDER_IMAGE)
+      : ['/no-image'];
 
   const handleNextClick = () => {
     if (currentIndex < listImages.length - 1) {
@@ -39,7 +44,7 @@ export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
   return (
     <>
       <Figure className="main-image">
-        <Figure.Image width={500} height={500} alt="photo" src={listImages[currentIndex]} />
+        <ImageWithFallback alt="photo" src={listImages[currentIndex]} />
       </Figure>
       <div className="image-slider">
         <button disabled={currentIndex === 0} className="slider-button" onClick={handlePrevClick}>
@@ -50,18 +55,20 @@ export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
           {visibleImages.map((item, index) => (
             <div
               className={`wrapper ${listImages[currentIndex] === item ? 'active' : ''}`}
-              key={`${item}-${index}`}
+              key={`${item}`}
               onClick={() => {
-                setCurrentIndex(listImages.indexOf(item));
+                if (listImages.length > 0 && listImages[currentIndex] !== item) {
+                  setCurrentIndex(startSliderIndex + index);
+                }
               }}
             >
-              <Figure.Image width={100} height={100} alt="photo" src={item} />
+              <ImageWithFallback width={100} height={100} alt="photo" src={item} />
             </div>
           ))}
         </Figure>
 
         <button
-          disabled={currentIndex === listImages.length - 1}
+          disabled={currentIndex === listImages.length - 1 || !listImages.length}
           className="slider-button"
           onClick={handleNextClick}
         >
