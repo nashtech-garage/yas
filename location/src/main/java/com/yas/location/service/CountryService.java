@@ -31,13 +31,14 @@ public class CountryService {
     }
 
     public Country update(CountryPostVm countryPostVm, Long id) {
+        Country country = countryRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
+
         //For the updating case we we don't need to check for the country being updated
         if (countryRepository.existsByNameNotUpdatingCountry(countryPostVm.name(), id)) {
             throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, countryPostVm.name());
         }
-        Country country = countryRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
 
         country.setName(countryPostVm.name());
         country.setCode3(countryPostVm.code3());
