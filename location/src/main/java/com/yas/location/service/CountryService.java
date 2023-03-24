@@ -24,7 +24,7 @@ public class CountryService {
     }
 
     public Country create(CountryPostVm countryPostVm) {
-      validateExistedName(countryPostVm.name(), null);
+        validateExistedName(countryPostVm.name(), null);
         return countryRepository.save(countryPostVm.toModel());
     }
 
@@ -46,6 +46,15 @@ public class CountryService {
         return countryRepository.save(country);
     }
 
+    /**
+     * Validate duplicate name when create or update a country
+     * For the updating case we we don't need to check for the country being updated
+     *
+     * @param name   The name of country need to create or update
+     * @param name   The id of country being updated
+     *
+     * @return
+     */
     private void validateExistedName(String name, Long id) {
         if (countryRepository.existsCountryName(name, id)) {
             throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
