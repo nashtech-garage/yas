@@ -2,7 +2,11 @@ package com.yas.location.model;
 
 import com.yas.location.model.StateOrProvince;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
 
 @Entity
 @Table(name = "district")
