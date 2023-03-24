@@ -33,3 +33,4 @@ public class StateOrProvince extends AbstractAuditEntity {
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 }
+

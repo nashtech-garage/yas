@@ -32,3 +32,4 @@ public class District extends AbstractAuditEntity {
     @JoinColumn(name = "state_or_province_id", nullable = false)
     private StateOrProvince stateOrProvince;
 }
+

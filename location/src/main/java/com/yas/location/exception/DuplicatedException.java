@@ -19,3 +19,4 @@ public class DuplicatedException extends RuntimeException {
         this.message = message;
     }
 }
+

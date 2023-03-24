@@ -9,3 +9,4 @@ public record CountryVm(Long id, String name, String code3, Boolean isBillingEna
                 country.getIsCityEnabled(), country.getIsZipCodeEnabled(), country.getIsDistrictEnabled());
     }
 }
+

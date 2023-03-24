@@ -6,3 +6,4 @@ public final class Constants {
 		public static final String NAME_ALREADY_EXITED = "NAME_ALREADY_EXITED";
 	}
 }
+

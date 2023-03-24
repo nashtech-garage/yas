@@ -19,3 +19,4 @@ public class BadRequestException extends RuntimeException {
         this.message = message;
     }
 }
+

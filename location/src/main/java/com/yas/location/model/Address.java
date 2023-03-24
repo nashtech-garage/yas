@@ -47,5 +47,5 @@ public class Address extends AbstractAuditEntity {
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
-
 }
+
