@@ -68,3 +68,10 @@ server {
 	proxy_pass http://grafana:3000;
   }
 }
+
+server {
+  server_name elasticsearch;
+  location / {
+	proxy_pass http://elasticsearch:9200;
+  }
+}

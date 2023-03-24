@@ -196,7 +196,20 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3009:3000"
+
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
       
 volumes:
   postgres:
   pgadmin:
+  esdata:
