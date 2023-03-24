@@ -391,13 +391,14 @@ public class ProductService {
         );
     }
 
-    public List<ProductThumbnailVm> getFeaturedProductsById(List<Long> productIds) {
+    public List<ProductThumbnailGetVm> getFeaturedProductsById(List<Long> productIds) {
         List<Product> products = productRepository.findAllByIdIn(productIds);
-        return products.stream().map(product -> new ProductThumbnailVm(
+        return products.stream().map(product -> new ProductThumbnailGetVm(
                 product.getId(),
                 product.getName(),
                 product.getSlug(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url())).toList();
+                mediaService.getMedia(product.getThumbnailMediaId()).url(),
+                product.getPrice())).toList();
     }
 
     public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int pageSize) {
@@ -570,5 +571,15 @@ public class ProductService {
                         product.getMetaDescription()
                 ))
                 .toList();
+    }
+
+    public ProductSlugGetVm getProductSlug(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
+        Product parent = product.getParent();
+        if (parent != null) {
+            return new ProductSlugGetVm(parent.getSlug(), id);
+        }
+        return new ProductSlugGetVm(product.getSlug(), null);
     }
 }

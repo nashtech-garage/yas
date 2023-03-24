@@ -86,7 +86,7 @@ public class ProductController {
     }
 
     @GetMapping("/storefront/products/list-featured")
-    public ResponseEntity<List<ProductThumbnailVm>> getFeaturedProductsById(@RequestParam("productId") List<Long> productIds) {
+    public ResponseEntity<List<ProductThumbnailGetVm>> getFeaturedProductsById(@RequestParam("productId") List<Long> productIds) {
         return ResponseEntity.ok(productService.getFeaturedProductsById(productIds));
     }
 
@@ -128,5 +128,10 @@ public class ProductController {
     @GetMapping("/storefront/product-variations/{id}")
     public ResponseEntity<List<ProductVariationGetVm>> getProductVariationsByParentId(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductVariationsByParentId(id));
+    }
+
+    @GetMapping("/storefront/productions/{id}/slug")
+    public ResponseEntity<ProductSlugGetVm> getProductSlug(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductSlug(id));
     }
 }

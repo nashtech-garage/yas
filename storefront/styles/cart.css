@@ -584,3 +584,11 @@
 .quantity.buttons_added .plus:focus {
   outline: none;
 }
+
+.product-link {
+  color: #66a8a6 !important;
+}
+
+.product-link:hover {
+  color: #273ac8 !important;
+}
