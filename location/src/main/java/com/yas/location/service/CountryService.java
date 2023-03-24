@@ -24,13 +24,17 @@ public class CountryService {
     }
 
     public Country create(CountryPostVm countryPostVm) {
-        validateExistedName(countryPostVm.name(), null);
+        if (countryRepository.existsByName(countryPostVm.name())) {
+            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, countryPostVm.name());
+        }
         return countryRepository.save(countryPostVm.toModel());
     }
 
     public Country update(CountryPostVm countryPostVm, Long id) {
-        validateExistedName(countryPostVm.name(), id);
-
+        //For the updating case we we don't need to check for the country being updated
+        if (countryRepository.existsByNameNotUpdatingCountry(countryPostVm.name(), id)) {
+            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, countryPostVm.name());
+        }
         Country country = countryRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
@@ -44,21 +48,6 @@ public class CountryService {
         country.setIsDistrictEnabled(countryPostVm.isDistrictEnabled());
 
         return countryRepository.save(country);
-    }
-
-    /**
-     * Validate duplicate name when create or update a country
-     * For the updating case we we don't need to check for the country being updated
-     *
-     * @param name   The name of country need to create or update
-     * @param name   The id of country being updated
-     *
-     * @return
-     */
-    private void validateExistedName(String name, Long id) {
-        if (countryRepository.existsCountryName(name, id)) {
-            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
-        }
     }
 }
 

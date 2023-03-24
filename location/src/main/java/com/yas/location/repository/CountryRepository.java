@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 @Repository
 public interface CountryRepository extends JpaRepository<Country, Long> {
 
-    @Query("select case when count(c)> 0 then true else false end from Country c where c.name = ?1 and (?2 is null or c.id != ?2)")
-    boolean existsCountryName(String name, Long id);
+    boolean existsByName(String name);
+    @Query("select case when count(c)> 0 then true else false end from Country c where c.name = ?1 and c.id != ?2")
+    boolean existsByNameNotUpdatingCountry(String name, Long id);
 }
