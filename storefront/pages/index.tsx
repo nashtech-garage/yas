@@ -7,6 +7,7 @@ import ProductItems from '../common/items/ProductItems';
 import { BreadcrumbModel } from '../modules/breadcrumb/model/BreadcrumbModel';
 import type { ProductThumbnail } from '../modules/catalog/models/ProductThumbnail';
 import { getFeaturedProducts } from '../modules/catalog/services/ProductService';
+import Category from '../modules/category/component/Category';
 
 const Home: NextPage = () => {
   const [products, setProduct] = useState<ProductThumbnail[]>([]);
@@ -33,6 +34,7 @@ const Home: NextPage = () => {
   return (
     <>
       <BreadcrumbComponent props={crumb} />
+      <Category />
       <h2>Featured products</h2>
       <Row xs={1} sm={1} md={2} lg={4} className="g-4">
         <ProductItems products={products} />

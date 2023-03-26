@@ -6,24 +6,29 @@ import { createCategory, getCategories } from '../../../modules/catalog/services
 import { CATEGORIES_URL } from '../../../constants/Common';
 import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
 import { useRouter } from 'next/router';
+import CategoryImage from '../../../modules/catalog/components/CategoryImage';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { Input, TextArea, CheckBox } from '../../../common/items/Input';
+import { OptionSelect } from '../../../common/items/OptionSelect';
 
 const CategoryCreate: NextPage = () => {
   const router = useRouter();
+  const { handleSubmit, setValue, register } = useForm<Category>();
   var slugify = require('slugify');
   const [categories, setCategories] = useState<Category[]>([]);
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
+  const onHandleSubmit: SubmitHandler<Category> = async (data: any, event: any) => {
     if (event.target.parentCategory.value == 0) event.target.parentCategory.value = null;
     let category: Category = {
       id: 0,
-      name: event.target.name.value,
-      slug: event.target.slug.value,
-      description: event.target.description.value,
+      name: data.name,
+      slug: data.slug,
+      description: data.description,
       parentId: event.target.parentCategory.value,
-      metaKeywords: event.target.metaKeywords.value,
-      metaDescription: event.target.metaDescription.value,
-      displayOrder: event.target.displayOrder.value,
-      isPublish: event.target.isPublish.checked,
+      metaKeywords: data.metaKeywords,
+      metaDescription: data.metaDescription,
+      displayOrder: data.displayOrder,
+      isPublish: data.isPublish,
+      imageId: data.imageId,
     };
     let response = await createCategory(category);
     handleCreatingResponse(response);
@@ -58,34 +63,36 @@ const CategoryCreate: NextPage = () => {
       <div className="row mt-5">
         <div className="col-md-8">
           <h2>Create category</h2>
-          <form onSubmit={handleSubmit} name="form">
+          <form onSubmit={handleSubmit(onHandleSubmit)} name="form">
             <div className="mb-3">
-              <label className="form-label" htmlFor="name">
-                Name
-              </label>
-              <input
-                className="form-control"
-                type="text"
-                id="name"
-                name="name"
-                required
-                onChange={(e) => {
-                  let slug = document.getElementById('slug');
-                  slug?.setAttribute(
-                    'value',
-                    slugify(e.target.value, {
-                      lower: true,
-                      strict: true,
-                    })
-                  );
+              <Input
+                labelText="Name"
+                field="name"
+                register={register}
+                registerOptions={{
+                  required: { value: true, message: 'Category name is required' },
+                  onChange: (e) => {
+                    let slug = document.getElementById('slug');
+                    slug?.setAttribute(
+                      'value',
+                      slugify(e.target.value, {
+                        lower: true,
+                        strict: true,
+                      })
+                    );
+                  },
                 }}
               />
             </div>
             <div className="mb-3">
-              <label className="form-label" htmlFor="slug">
-                Slug
-              </label>
-              <input className="form-control" type="text" id="slug" name="slug" required />
+              <Input
+                labelText="Slug"
+                field="slug"
+                register={register}
+                registerOptions={{
+                  required: { value: true, message: 'Slug is required' },
+                }}
+              />
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="parentCategory">
@@ -97,53 +104,31 @@ const CategoryCreate: NextPage = () => {
               </select>
             </div>
             <div className="mb-3">
-              <label className="form-label" htmlFor="description">
-                Description
-              </label>
-              <textarea className="form-control" id="description" name="description" />
+              <TextArea labelText="Description" field="description" register={register} />
             </div>
             <div className="mb-3">
-              <label className="form-label" htmlFor="metaKeywords">
-                Meta Keywords
-              </label>
-              <input className="form-control" type="text" id="metaKeywords" name="metaKeywords" />
+              <Input labelText="Meta Keywords" field="metaKeywords" register={register} />
             </div>
             <div className="mb-3">
-              <label className="form-label" htmlFor="metaDescription">
-                Meta Description
-              </label>
-              <textarea className="form-control" id="metaDescription" name="metaDescription" />
+              <TextArea labelText="Meta Description" field="metaDescription" register={register} />
             </div>
             <div className="mb-3">
-              <label className="form-label" htmlFor="displayOrder">
-                Display Order
-              </label>
-              <input
-                className="form-control"
-                type="number"
+              <Input
+                labelText="Display Order"
                 defaultValue={0}
-                id="displayOrder"
-                name="displayOrder"
+                field="displayOrder"
+                register={register}
               />
             </div>
             <div className="d-flex">
-              <label
-                className="form-check-label mr-3"
-                htmlFor="isPublish"
-                style={{ marginRight: '15px' }}
-              >
-                Publish
-              </label>
-              <div className="form-check form-switch mb-3">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="isPublish"
-                  name="isPublish"
-                  defaultChecked={false}
-                />
-              </div>
+              <CheckBox
+                labelText="Publish"
+                field="isPublish"
+                register={register}
+                defaultChecked={false}
+              />
             </div>
+            <CategoryImage setValue={setValue} id="category-image" image={null} />
             <button className="btn btn-primary" type="submit">
               Save
             </button>

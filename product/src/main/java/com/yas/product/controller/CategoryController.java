@@ -34,10 +34,7 @@ public class CategoryController {
 
     @GetMapping({"/backoffice/categories" , "/storefront/categories"})
     public ResponseEntity<List<CategoryGetVm>> listCategories(){
-        List<CategoryGetVm> categoryGetVms = categoryRepository.findAll().stream()
-                .map(CategoryGetVm::fromModel)
-                .toList();
-        return  ResponseEntity.ok(categoryGetVms);
+        return  ResponseEntity.ok(categoryService.getCategories());
     }
 
     @GetMapping("/backoffice/categories/{id}")
@@ -45,12 +42,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CategoryGetDetailVm> getCategory(@PathVariable Long id){
-        Category category = categoryRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
-
-        CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(category);
-        return  ResponseEntity.ok(categoryGetDetailVm);
+        return  ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @PostMapping("/backoffice/categories")

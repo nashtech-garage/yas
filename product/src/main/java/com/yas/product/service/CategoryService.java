@@ -6,9 +6,12 @@ import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.utils.Constants;
+import com.yas.product.viewmodel.ImageVm;
+import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
 import com.yas.product.viewmodel.category.CategoryListGetVm;
 import com.yas.product.viewmodel.category.CategoryPostVm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,15 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    private final MediaService mediaService;
 
     public CategoryListGetVm getPageableCategories(int pageNo, int pageSize) {
         List<CategoryGetVm> categoryGetVms = new ArrayList<>();
@@ -56,6 +59,7 @@ public class CategoryService {
         category.setMetaDescription(categoryPostVm.metaDescription());
         category.setMetaKeyword(categoryPostVm.metaKeywords());
         category.setIsPublished(categoryPostVm.isPublish());
+        category.setImageId(categoryPostVm.imageId());
         if(categoryPostVm.parentId() != null){
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
@@ -78,6 +82,7 @@ public class CategoryService {
         category.setMetaDescription(categoryPostVm.metaDescription());
         category.setMetaKeyword(categoryPostVm.metaKeywords());
         category.setIsPublished(categoryPostVm.isPublish());
+        category.setImageId(categoryPostVm.imageId());
         if(categoryPostVm.parentId() == null){
             category.setParent(null);
         } else {
@@ -90,6 +95,57 @@ public class CategoryService {
             }
             category.setParent(parentCategory);
         }
+    }
+
+    public CategoryGetDetailVm getCategoryById(Long id) {
+        Category category = categoryRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
+        ImageVm categoryImage = null;
+        if (category.getImageId() != null) {
+            categoryImage = new ImageVm(category.getImageId(), mediaService.getMedia(category.getImageId()).url());
+        }
+        Category parentCategory = category.getParent();
+        Long parentId = 0L;
+        if (parentCategory != null) {
+            parentId = parentCategory.getId();
+        }
+        return new CategoryGetDetailVm(
+                category.getId(),
+                category.getName(),
+                category.getSlug(),
+                category.getDescription(),
+                parentId,
+                category.getMetaKeyword(),
+                category.getMetaDescription(),
+                category.getDisplayOrder(),
+                category.getIsPublished(),
+                categoryImage
+        );
+    }
+
+    public List<CategoryGetVm> getCategories() {
+        List<Category> category = categoryRepository.findAll();
+        List<CategoryGetVm> categoryGetVms = new ArrayList<>();
+        category.stream().forEach(cate -> {
+            ImageVm categoryImage = null;
+            if (cate.getImageId() != null) {
+                if (cate.getImageId() != null) {
+                    categoryImage = new ImageVm(cate.getImageId(), mediaService.getMedia(cate.getImageId()).url());
+                }
+            }
+            Category parent = cate.getParent();
+            long parentId = parent == null ? -1 : parent.getId();
+            CategoryGetVm categoryGetVm = new CategoryGetVm(
+                    cate.getId(),
+                    cate.getName(),
+                    cate.getSlug(),
+                    parentId,
+                    categoryImage
+            );
+            categoryGetVms.add(categoryGetVm);
+        });
+        return categoryGetVms;
     }
 
     private boolean checkExistedName(String name, Long id) {

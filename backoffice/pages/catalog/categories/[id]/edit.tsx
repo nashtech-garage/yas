@@ -11,16 +11,31 @@ import {
 import { CATEGORIES_URL } from '../../../../constants/Common';
 
 import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { useForm } from 'react-hook-form';
+
+import { uploadMedia } from '../../../../modules/catalog/services/MediaService';
+import { toast } from 'react-toastify';
+import { isValidFile, validTypes } from '../../../../modules/catalog/components/ChooseThumbnail';
+import ChooseImageCommon from '../../../../common/components/ChooseImageCommon';
+import styles from '../../../../styles/ChooseImage.module.css';
+
+type Image = {
+  id: number;
+  url: string;
+};
 
 const CategoryEdit: NextPage = () => {
   const router = useRouter();
+  const { setValue, handleSubmit } = useForm<Category>();
   const { id } = router.query;
   var slugify = require('slugify');
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState<Category>();
   const [slug, setSlug] = useState<string>();
+  const [imageId, setImageId] = useState<number>();
+  const [categoryImage, setCategoryImage] = useState<Image | null>();
 
-  const handleSubmitEdit = async (event: any) => {
+  const handleSubmitEdit = async (data: any, event: any) => {
     event.preventDefault();
     if (event.target.parentCategory.value == 0) event.target.parentCategory.value = null;
     let category: Category = {
@@ -33,6 +48,7 @@ const CategoryEdit: NextPage = () => {
       displayOrder: event.target.displayOrder.value,
       description: event.target.description.value,
       isPublish: event.target.isPublish.checked,
+      imageId,
     };
 
     if (id) {
@@ -89,6 +105,10 @@ const CategoryEdit: NextPage = () => {
       getCategory(+id).then((data) => {
         setCategory(data);
         setSlug(data.slug);
+        if (data.categoryImage) {
+          setImageId(data.categoryImage.id);
+          setCategoryImage(data.categoryImage);
+        }
       });
   }, [id]);
 
@@ -97,11 +117,44 @@ const CategoryEdit: NextPage = () => {
       setCategories(data);
     });
   }, []);
+
+  const onChangeProductImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event) {
+      return;
+    }
+
+    const fileList = event.target.files;
+    const isAllValidImage =
+      fileList && Array.from(fileList).every((file) => isValidFile(file, validTypes));
+
+    if (!isAllValidImage) {
+      toast.error('Please select an image file (jpg or png)');
+      return;
+    }
+    try {
+      const file = fileList[0];
+      const res = await uploadMedia(file);
+      const url = URL.createObjectURL(file);
+      setValue?.('imageId', res.id);
+      setImageId(res.id);
+      setCategoryImage({
+        id: res.id,
+        url,
+      });
+    } catch (e) {
+      toast.error('Upload image failed');
+    }
+  };
+
+  const onDeleteImage = () => {
+    setCategoryImage(null);
+  };
+
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <form onSubmit={handleSubmitEdit} name="form">
+          <form onSubmit={handleSubmit(handleSubmitEdit)} name="form">
             <div className="mb-3">
               <label className="form-label" htmlFor="name">
                 Name
@@ -209,6 +262,29 @@ const CategoryEdit: NextPage = () => {
                 />
               </div>
             </div>
+            {!categoryImage && (
+              <div className="mb-3">
+                <label className={styles['image-label']} htmlFor="category-image">
+                  Choose category image
+                </label>
+              </div>
+            )}
+            <input
+              hidden
+              type="file"
+              multiple
+              id="category-image"
+              onChange={(event) => onChangeProductImage(event)}
+            />
+            {categoryImage && (
+              <div className="mb-3">
+                <ChooseImageCommon
+                  id="category-image"
+                  url={categoryImage.url}
+                  onDeleteImage={onDeleteImage}
+                />
+              </div>
+            )}
             <button className="btn btn-primary" type="submit">
               Save
             </button>
