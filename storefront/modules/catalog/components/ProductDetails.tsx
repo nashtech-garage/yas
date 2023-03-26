@@ -172,7 +172,7 @@ export default function ProductDetails({
           <h4 className="fs-3" style={{ color: 'red' }}>
             {formatPrice(currentProduct.price)}
           </h4>
-          <p className="py-4">{product.description}</p>
+          <div className="py-4" dangerouslySetInnerHTML={{ __html: product.description }}></div>
           <div>
             <button
               type="submit"
