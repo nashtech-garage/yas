@@ -11,6 +11,7 @@ import { FormProduct } from '../models/FormProduct';
 import { Product } from '../models/Product';
 import { getBrands } from '../services/BrandService';
 import { getProduct } from '../services/ProductService';
+import TextEditor from '../../../common/items/TextEditor';
 
 type Props = {
   register: UseFormRegister<FormProduct>;
@@ -88,12 +89,14 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         register={register}
         error={errors.gtin?.message}
       />
-      <TextArea
+      <TextEditor
         labelText="Description"
         field="description"
-        register={register}
-        error={errors.description?.message}
         defaultValue={product?.description}
+        error={errors.description?.message}
+        setValue={(value) => {
+          setValue('description', value);
+        }}
       />
       <TextArea
         labelText="Short Description"
@@ -102,12 +105,14 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         error={errors.shortDescription?.message}
         defaultValue={product?.shortDescription}
       />
-      <TextArea
+      <TextEditor
         labelText="Specification"
         field="specification"
-        register={register}
-        error={errors.specification?.message}
         defaultValue={product?.specification}
+        error={errors.specification?.message}
+        setValue={(value) => {
+          setValue('specification', value);
+        }}
       />
       <Input
         labelText="Price"

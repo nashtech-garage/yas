@@ -206,7 +206,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
       {/* Specification and Rating */}
       <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " fill>
         <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
-          <div className="tabs"> {product.specification}</div>
+          <div className="tabs" dangerouslySetInnerHTML={{ __html: product.specification }}></div>
         </Tab>
         <Tab eventKey="Reviews" title={`Reviews (${totalElements})`} style={{ minHeight: '200px' }}>
           <div>
