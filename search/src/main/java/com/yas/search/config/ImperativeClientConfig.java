@@ -8,8 +8,8 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "com.yas.elasticsearch.repository")
-@ComponentScan(basePackages = {"com.yas.elasticsearch.service"})
+@EnableElasticsearchRepositories(basePackages = "com.yas.search.repository")
+@ComponentScan(basePackages = "com.yas.search.service")
 public class ImperativeClientConfig extends ElasticsearchConfiguration {
     @Value("${elasticsearch.url}")
     private String ELASTICSEARCH_URL;
