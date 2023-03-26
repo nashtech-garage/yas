@@ -27,7 +27,7 @@ export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
   const visibleImages =
     listImages.length > 0
       ? listImages.slice(startSliderIndex, startSliderIndex + NO_SLIDER_IMAGE)
-      : ['/no-image'];
+      : [''];
 
   const handleNextClick = () => {
     if (currentIndex < listImages.length - 1) {
@@ -44,7 +44,10 @@ export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
   return (
     <>
       <Figure className="main-image">
-        <ImageWithFallback alt="photo" src={listImages[currentIndex]} />
+        <ImageWithFallback
+          alt="photo"
+          src={listImages.length > 0 ? listImages[currentIndex] : ''}
+        />
       </Figure>
       <div className="image-slider">
         <button disabled={currentIndex === 0} className="slider-button" onClick={handlePrevClick}>
