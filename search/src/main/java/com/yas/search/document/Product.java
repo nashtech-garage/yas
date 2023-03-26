@@ -5,6 +5,11 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(indexName = "product")
 @Builder
@@ -16,51 +21,24 @@ public class Product extends BaseDocument {
 
     private String name;
 
-//    private String shortDescription;
-//
-//    private String description;
-//
-//    private String specification;
-//
-//    private String sku;
-//
-//    private String gtin;
-//
-//    private String slug;
-//
-//    private Double price;
-//
-//    private Boolean hasOptions;
-//
-//    private Boolean isAllowedToOrder;
-//
-//    private Boolean isPublished;
-//
-//    private Boolean isFeatured;
-//
-//    private Boolean isVisibleIndividually;
-//
-//    private Boolean stockTrackingEnabled;
-//
-//    private String metaTitle;
-//
-//    private String metaKeyword;
-//
-//    private String metaDescription;
-//
-//    private Long thumbnailMediaId;
-//
-//    protected Boolean isActive;
+    private String slug;
 
-//    private Brand brand;
+    private Double price;
 
-//    private List<ProductCategory> productCategories = new ArrayList<>();
+    private Boolean isPublished;
 
-//    private List<ProductAttributeValue> attributeValues = new ArrayList<>();
+    private Boolean isVisibleIndividually;
 
-//    private List<ProductImage> productImages = new ArrayList<>();
+    private Long thumbnailMediaId;
 
-//    private Product parent;
+    protected Boolean isActive;
 
-//    private List<Product> products = new ArrayList<>();
+    @Field(type = FieldType.Nested)
+    private Brand brand;
+
+    @Field(type = FieldType.Nested)
+    private List<ProductCategory> productCategories = new ArrayList<>();
+
+    @Field(type = FieldType.Nested)
+    private List<ProductAttributeValue> attributeValues = new ArrayList<>();
 }
