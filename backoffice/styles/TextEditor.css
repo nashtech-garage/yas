@@ -1,0 +1,5 @@
+.text-editor .ql-editor {
+  min-height: 62px;
+  resize: vertical;
+  overflow: auto;
+}
