@@ -123,6 +123,13 @@ services:
       YAS_PUBLIC_URL: http://api.yas.local/inventory
       YAS_SERVICES_PRODUCT: http://product/product
       SERVER_PORT: "80"
+  search:
+    image: ghcr.io/nashtech-garage/yas-search:latest
+    entrypoint: ["./wait-for-it.sh", "elasticsearch:9200", "--timeout=180", "--", "java", "-jar", "/search-0.0.1-SNAPSHOT.jar"]
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: /search
+      YAS_PUBLIC_URL: http://api.yas.local/search
+      SERVER_PORT: "80"
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
@@ -130,7 +137,8 @@ services:
       URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
       { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
       { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
-      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'}]"
+      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
+      { url: 'http://api.yas.local/search/v3/api-docs', name: 'Search'}]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:

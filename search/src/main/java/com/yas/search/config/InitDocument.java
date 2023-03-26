@@ -6,15 +6,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class Abc {
+public class InitDocument {
     private final ProductRepository productRepository;
 
-    public Abc(ProductRepository productRepository) {
+    public InitDocument(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
     @Bean
-    public void alo() {
+    public void init() {
         Product product = Product.builder().id(1L).name("hú hú").build();
         productRepository.save(product);
     }
