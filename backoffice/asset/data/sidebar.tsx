@@ -47,7 +47,6 @@ export const menu_system_item_data = [
   },
 ];
 
-
 export const menu_other_item_data = [
   {
     id: 1,
