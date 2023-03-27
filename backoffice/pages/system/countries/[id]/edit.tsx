@@ -53,7 +53,7 @@ const CountryEdit: NextPage = () => {
         } else {
           toastError(data?.detail);
           setLoading(false);
-          router.push(BRAND_URL);
+          router.push(COUNTRY_URL);
         }
       });
     }
