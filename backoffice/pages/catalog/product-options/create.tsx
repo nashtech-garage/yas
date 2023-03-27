@@ -6,7 +6,7 @@ import { createProductOption } from '../../../modules/catalog/services/ProductOp
 import { ProductOption } from '../../../modules/catalog/models/ProductOption';
 import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../constants/Common';
-import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import ProductOptionGeneralInformation from '../../../modules/catalog/components/ProductOptionGeneralInformation';
 
 const ProductOptionCreate: NextPage = () => {

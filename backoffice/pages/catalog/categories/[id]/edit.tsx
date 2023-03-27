@@ -10,7 +10,7 @@ import {
 } from '../../../../modules/catalog/services/CategoryService';
 import { CATEGORIES_URL } from '../../../../constants/Common';
 
-import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 
 const CategoryEdit: NextPage = () => {
   const router = useRouter();

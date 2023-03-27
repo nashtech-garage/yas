@@ -5,7 +5,7 @@ import { Button, Modal, Table } from 'react-bootstrap';
 import type { Category } from '../../../modules/catalog/models/Category';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { deleteCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
-import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
 
 const CategoryList: NextPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);

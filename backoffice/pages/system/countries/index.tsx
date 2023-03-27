@@ -1,88 +1,82 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
+import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import { ProductOption } from '../../../modules/catalog/models/ProductOption';
-import {
-  deleteProductOption,
-  getPageableProductOptions,
-} from '../../../modules/catalog/services/ProductOptionService';
+import type { Country } from '../../../modules/system/models/Country';
 import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
-import ReactPaginate from 'react-paginate';
+import {
+  deleteCountry,
+  getPageableCountries,
+} from '../../../modules/system/services/CountryService';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 
-const ProductOptionList: NextPage = () => {
-  const [productOptions, setProductOptions] = useState<ProductOption[]>();
-  const [isLoading, setLoading] = useState(false);
+const CountryList: NextPage = () => {
+  const [countryIdWantToDelete, setCountryIdWantToDelete] = useState<number>(-1);
+  const [countryNameWantToDelete, setCountryNameWantToDelete] = useState<string>('');
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
-  const [productOptionNameWantToDelete, setProductOptionNameWantToDelete] = useState<string>('');
-  const [productOptionIdWantToDelete, setProductOptionIdWantToDelete] = useState<number>(-1);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [isLoading, setLoading] = useState(false);
   const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [totalPage, setTotalPage] = useState<number>(1);
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
-    if (productOptionIdWantToDelete == -1) {
+    if (countryIdWantToDelete == -1) {
       return;
     }
-    deleteProductOption(productOptionIdWantToDelete)
-      .then((response) => {
-        setShowModalDelete(false);
-        handleDeletingResponse(response, productOptionNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
-        getListProductOption();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    deleteCountry(countryIdWantToDelete).then((response) => {
+      setShowModalDelete(false);
+      handleDeletingResponse(response, countryNameWantToDelete);
+      setPageNo(DEFAULT_PAGE_NUMBER);
+      getListCountry();
+    });
   };
-
-  const getListProductOption = () => {
-    getPageableProductOptions(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
+  const getListCountry = () => {
+    getPageableCountries(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
       setTotalPage(data.totalPages);
-      setProductOptions(data.productOptionContent);
+      setCountries(data.countryContent);
       setLoading(false);
     });
   };
   useEffect(() => {
     setLoading(true);
-    getListProductOption();
+    getListCountry();
   }, [pageNo]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
   };
-
   if (isLoading) return <p>Loading...</p>;
-  if (!productOptions) return <p>No Product Options</p>;
+  if (!countries) return <p>No country</p>;
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2 className="text-danger font-weight-bold mb-3">Product Options </h2>
+          <h2 className="text-danger font-weight-bold mb-3">Countries</h2>
         </div>
         <div className="col-md-4 text-right">
-          <Link href={'/catalog/product-options/create'}>
-            <Button>Create Product Option</Button>
+          <Link href="/system/countries/create">
+            <Button>Create Country</Button>
           </Link>
         </div>
       </div>
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>Id</th>
+            <th>#</th>
             <th>Name</th>
-            <th>Actions</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {productOptions.map((productOpt) => (
-            <tr key={productOpt.id}>
-              <td>{productOpt.id}</td>
-              <td>{productOpt.name}</td>
+          {countries.map((country) => (
+            <tr key={country.id}>
+              <td>{country.id}</td>
+              <td>{country.name}</td>
               <td>
-                <Link href={`/catalog/product-options/${productOpt.id}/edit`}>
+                <Link href={`/system/countries/${country.id}/edit`}>
                   <button className="btn btn-outline-primary btn-sm" type="button">
                     Edit
                   </button>
@@ -93,8 +87,8 @@ const ProductOptionList: NextPage = () => {
                   type="button"
                   onClick={() => {
                     setShowModalDelete(true);
-                    setProductOptionIdWantToDelete(productOpt.id);
-                    setProductOptionNameWantToDelete(productOpt.name);
+                    setCountryIdWantToDelete(country.id);
+                    setCountryNameWantToDelete(country.name);
                   }}
                 >
                   Delete
@@ -107,7 +101,7 @@ const ProductOptionList: NextPage = () => {
       <ModalDeleteCustom
         showModalDelete={showModalDelete}
         handleClose={handleClose}
-        nameWantToDelete={productOptionNameWantToDelete}
+        nameWantToDelete={countryNameWantToDelete}
         handleDelete={handleDelete}
         action="delete"
       />
@@ -126,4 +120,5 @@ const ProductOptionList: NextPage = () => {
     </>
   );
 };
-export default ProductOptionList;
+
+export default CountryList;

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import { PRODUCT_URL } from '../../../constants/Common';
 import {
   CrossSellProduct,

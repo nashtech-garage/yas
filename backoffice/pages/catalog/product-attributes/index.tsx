@@ -10,7 +10,7 @@ import {
 } from '../../../modules/catalog/services/ProductAttributeService';
 import ReactPaginate from 'react-paginate';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
-import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
 
 const ProductAttributeList: NextPage = () => {
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>();

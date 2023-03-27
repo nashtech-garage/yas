@@ -1,15 +1,15 @@
 import type { NextPage } from 'next';
-import { Brand } from '../../../modules/catalog/models/Brand';
-import { createBrand } from '../../../modules/catalog/services/BrandService';
+import { Country } from '../../../modules/system/models/Country';
+import { createCountry } from '../../../modules/system/services/CountryService';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import BrandGeneralInformation from '../../../modules/catalog/components/BrandGeneralInformation';
+import CountryGeneralInformation from '../../../modules/system/components/CountryGeneralInformation';
 import { BRAND_URL } from '../../../constants/Common';
 import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
 
-const BrandCreate: NextPage = () => {
+const CountryCreate: NextPage = () => {
   const router = useRouter();
   const {
     register,
@@ -17,26 +17,30 @@ const BrandCreate: NextPage = () => {
     formState: { errors },
     setValue,
     trigger,
-  } = useForm<Brand>();
-  const handleSubmitBrand = async (event: Brand) => {
-    let brand: Brand = {
+  } = useForm<Country>();
+  const handleSubmitCountry = async (event: Country) => {
+    let country: Country = {
       id: 0,
       name: event.name,
-      slug: event.slug,
-      isPublish: event.isPublish,
+      code3: event.code3,
+      isBillingEnabled: event.isBillingEnabled,
+      isShippingEnabled: event.isShippingEnabled,
+      isCityEnabled: event.isCityEnabled,
+      isZipCodeEnabled: event.isZipCodeEnabled,
+      isDistrictEnabled: event.isDistrictEnabled,
     };
-    let response = await createBrand(brand);
+    let response = await createCountry(country);
     handleCreatingResponse(response);
-    router.replace(BRAND_URL);
+    router.replace('/system/countries');
   };
 
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2>Create brand</h2>
-          <form onSubmit={handleSubmit(handleSubmitBrand)}>
-            <BrandGeneralInformation
+          <h2>Create country</h2>
+          <form onSubmit={handleSubmit(handleSubmitCountry)}>
+            <CountryGeneralInformation
               register={register}
               errors={errors}
               setValue={setValue}
@@ -45,7 +49,7 @@ const BrandCreate: NextPage = () => {
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="/catalog/brands">
+            <Link href="/system/country">
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>
@@ -57,4 +61,4 @@ const BrandCreate: NextPage = () => {
   );
 };
 
-export default BrandCreate;
+export default CountryCreate;

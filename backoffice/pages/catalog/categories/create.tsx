@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Category } from '../../../modules/catalog/models/Category';
 import { createCategory, getCategories } from '../../../modules/catalog/services/CategoryService';
 import { CATEGORIES_URL } from '../../../constants/Common';
-import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import { useRouter } from 'next/router';
 
 const CategoryCreate: NextPage = () => {

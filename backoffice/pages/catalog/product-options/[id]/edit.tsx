@@ -9,9 +9,9 @@ import {
 } from '../../../../modules/catalog/services/ProductOptionService';
 import { useRouter } from 'next/router';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 import ProductOptionGeneralInformation from '../../../../modules/catalog/components/ProductOptionGeneralInformation';
-import { toastError } from '../../../../modules/catalog/services/ToastService';
+import { toastError } from '../../../../common/services/ToastService';
 
 const ProductOptionEdit: NextPage = () => {
   const [isLoading, setLoading] = useState(false);

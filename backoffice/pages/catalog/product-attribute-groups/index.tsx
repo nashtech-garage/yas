@@ -8,7 +8,7 @@ import {
   deleteProductAttributeGroup,
   getPageableProductAttributeGroups,
 } from '../../../modules/catalog/services/ProductAttributeGroupService';
-import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 import ReactPaginate from 'react-paginate';
 

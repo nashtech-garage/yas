@@ -9,9 +9,9 @@ import {
   updateProductAttributeGroup,
 } from '../../../../modules/catalog/services/ProductAttributeGroupService';
 import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../../constants/Common';
-import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 import ProductAttributeGroupGeneralInformation from '../../../../modules/catalog/components/ProductAttributeGroupGeneralInformation';
-import { toastError } from '../../../../modules/catalog/services/ToastService';
+import { toastError } from '../../../../common/services/ToastService';
 
 const ProductAttributeGroupEdit: NextPage = () => {
   const router = useRouter();
