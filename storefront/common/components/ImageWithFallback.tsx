@@ -1,12 +1,12 @@
 import clsx from 'clsx';
-import Image from 'next/image';
+import { Image } from 'react-bootstrap';
 import { useState } from 'react';
 
 type Props = {
   src: string;
   alt: string;
-  width?: number | `${number}`;
-  height?: number | `${number}`;
+  width?: number | string;
+  height?: number | string;
   className?: string;
   fallBack?: string;
   style?: React.CSSProperties;
