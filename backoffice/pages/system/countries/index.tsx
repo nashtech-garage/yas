@@ -6,7 +6,10 @@ import { Button, Table } from 'react-bootstrap';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import type { Country } from '../../../modules/system/models/Country';
 import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
-import { deleteCountry, getPageableCountries } from '../../../modules/system/services/CountryService';
+import {
+  deleteCountry,
+  getPageableCountries,
+} from '../../../modules/system/services/CountryService';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 
 const CountryList: NextPage = () => {

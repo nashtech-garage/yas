@@ -90,7 +90,7 @@ const Burger = ({ open, setOpen }: Props) => {
 const Menu = ({ open, setOpen }: Props) => {
   const [showCatalog, setShowCatalog] = useState(true);
   const [showCustomer, setShowCustomer] = useState(true);
-   const [showSystem, setShowSystem] = useState(true);
+  const [showSystem, setShowSystem] = useState(true);
 
   return (
     <>
@@ -126,7 +126,7 @@ const Menu = ({ open, setOpen }: Props) => {
           </h5>
           <div className="py-4">{showCustomer && <ListGroup data={menu_customer_item_data} />}</div>
 
-  {/* System */}
+          {/* System */}
           <h5 className="font-weight-black text-center text-white">
             <span>System</span>
             <span
@@ -139,7 +139,6 @@ const Menu = ({ open, setOpen }: Props) => {
             </span>
           </h5>
           <div className="py-4">{showSystem && <ListGroup data={menu_system_item_data} />}</div>
-
 
           {/* Logout */}
           <div className="d-flex justify-content-center ">

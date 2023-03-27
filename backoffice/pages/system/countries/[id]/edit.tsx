@@ -26,19 +26,19 @@ const CountryEdit: NextPage = () => {
   const handleSubmitEdit = async (event: Country) => {
     if (id) {
       let country: Country = {
-       id: 0,
-           name: event.name,
-           code3: event.code3,
-           isBillingEnabled: event.isBillingEnabled,
-           isShippingEnabled: event.isShippingEnabled,
-           isCityEnabled: event.isCityEnabled,
-           isZipCodeEnabled: event.isZipCodeEnabled,
-           isDistrictEnabled: event.isDistrictEnabled,
+        id: 0,
+        name: event.name,
+        code3: event.code3,
+        isBillingEnabled: event.isBillingEnabled,
+        isShippingEnabled: event.isShippingEnabled,
+        isCityEnabled: event.isCityEnabled,
+        isZipCodeEnabled: event.isZipCodeEnabled,
+        isDistrictEnabled: event.isDistrictEnabled,
       };
 
       editCountry(+id, country).then((response) => {
         handleUpdatingResponse(response);
-        router.replace("/system/countries");
+        router.replace('/system/countries');
       });
     }
   };

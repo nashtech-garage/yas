@@ -31,7 +31,7 @@ const CountryCreate: NextPage = () => {
     };
     let response = await createCountry(country);
     handleCreatingResponse(response);
-    router.replace("/system/countries");
+    router.replace('/system/countries');
   };
 
   return (
