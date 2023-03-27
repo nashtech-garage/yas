@@ -4,17 +4,16 @@ import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { toast } from 'react-toastify';
 
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
-import { AverageStarResponseDto } from '../../common/dtos/AverageStarResponseDto';
+
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { PostRatingForm, ProductDetails, RatingList } from '../../modules/catalog/components';
+import { ProductDetails } from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
 import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
-import { Rating } from '../../modules/catalog/models/Rating';
-import { RatingPost } from '../../modules/catalog/models/RatingPost';
+import { Rating } from '../../modules/rating/models/Rating';
+import { RatingPost } from '../../modules/rating/models/RatingPost';
 import {
   getProductDetail,
   getProductOptionValues,
@@ -24,15 +23,15 @@ import {
   createRating,
   getAverageStarByProductId,
   getRatingsByProductId,
-} from '../../modules/catalog/services/RatingService';
+} from '../../modules/rating/services/RatingService';
 import { toastError, toastSuccess } from '../../modules/catalog/services/ToastService';
+import { RatingList, PostRatingForm } from '../../modules/rating/components';
 
 type Props = {
   product: ProductDetail;
   productOptions?: ProductOptions[];
   productVariations?: ProductVariation[];
   pvid: string | null;
-  averageStar: AverageStarResponseDto;
 };
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -79,34 +78,17 @@ export const getServerSideProps: GetServerSideProps = async (
     }
   }
 
-  // fetch average star of product
-  let averageStar: AverageStarResponseDto;
-  averageStar = await getAverageStarByProductId(product.id)
-    .then((result) => {
-      return { averageStar: result };
-    })
-    .catch((_error) => {
-      return { averageStar: 0, errorMessage: "Could't fetch average star" };
-    });
-
   return {
     props: {
       product,
       productOptions,
       productVariations,
-      averageStar,
       pvid: pvid !== undefined ? (pvid as string) : null,
     },
   };
 };
 
-const ProductDetailsPage = ({
-  product,
-  productOptions,
-  productVariations,
-  averageStar,
-  pvid,
-}: Props) => {
+const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }: Props) => {
   const [pageNo, setPageNo] = useState<number>(0);
   const [ratingList, setRatingList] = useState<Rating[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -117,18 +99,12 @@ const ProductDetailsPage = ({
   const [contentRating, setContentRating] = useState<string>('');
   const [isPost, setIsPost] = useState<boolean>(false);
 
+  const [averageStar, setAverageStar] = useState<number>(0);
+
   useEffect(() => {
-    if (averageStar.errorMessage) {
-      toast.error(averageStar.errorMessage, {
-        position: 'top-right',
-        autoClose: 2000,
-        closeOnClick: true,
-        pauseOnHover: false,
-        theme: 'colored',
-      });
-      averageStar.averageStar = 0;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getAverageStarByProductId(product.id).then((res) => {
+      setAverageStar(res);
+    });
   }, []);
 
   useEffect(() => {
@@ -199,7 +175,7 @@ const ProductDetailsPage = ({
         productOptions={productOptions}
         productVariations={productVariations}
         pvid={pvid}
-        averageStar={averageStar.averageStar}
+        averageStar={averageStar}
         totalRating={totalElements}
       />
 
@@ -230,7 +206,7 @@ const ProductDetailsPage = ({
       {/* Specification and Rating */}
       <Tabs defaultActiveKey="Specification" id="product-detail-tab" className="mb-3 " fill>
         <Tab eventKey="Specification" title="Specification" style={{ minHeight: '200px' }}>
-          <div className="tabs"> {product.specification}</div>
+          <div className="tabs" dangerouslySetInnerHTML={{ __html: product.specification }}></div>
         </Tab>
         <Tab eventKey="Reviews" title={`Reviews (${totalElements})`} style={{ minHeight: '200px' }}>
           <div>

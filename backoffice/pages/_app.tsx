@@ -1,12 +1,17 @@
-import Head from 'next/head';
-import Layout from '../common/components/Layout';
-import Script from 'next/script';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/globals.css';
-import '../styles/common/style.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
-import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app';
+import Head from 'next/head';
+import Script from 'next/script';
+
+import Layout from '../common/components/Layout';
+
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-quill/dist/quill.snow.css';
+import 'react-toastify/dist/ReactToastify.css';
+
+import '../styles/common/style.css';
+import '../styles/globals.css';
+import '../styles/TextEditor.css';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
