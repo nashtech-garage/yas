@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import CountryGeneralInformation from '../../../modules/system/components/CountryGeneralInformation';
-import { BRAND_URL } from '../../../constants/Common';
+import { COUNTRY_URL } from '../../../constants/Common';
 import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
 
 const CountryCreate: NextPage = () => {
@@ -31,7 +31,7 @@ const CountryCreate: NextPage = () => {
     };
     let response = await createCountry(country);
     handleCreatingResponse(response);
-    router.replace('/system/countries');
+    router.replace(COUNTRY_URL);
   };
 
   return (

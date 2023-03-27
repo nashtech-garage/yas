@@ -6,7 +6,7 @@ import { Country } from '../../../../modules/system/models/Country';
 import { editCountry, getCountry } from '../../../../modules/system/services/CountryService';
 import CountryGeneralInformation from '../../../../modules/system/components/CountryGeneralInformation';
 import { useEffect, useState } from 'react';
-import { BRAND_URL } from '../../../../constants/Common';
+import { COUNTRY_URL } from '../../../../constants/Common';
 import { toastError } from '../../../../common/services/ToastService';
 
 import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
@@ -38,7 +38,7 @@ const CountryEdit: NextPage = () => {
 
       editCountry(+id, country).then((response) => {
         handleUpdatingResponse(response);
-        router.replace('/system/countries');
+        router.replace(COUNTRY_URL);
       });
     }
   };
@@ -78,7 +78,7 @@ const CountryEdit: NextPage = () => {
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="/system/countries">
+            <Link href="${COUNTRY_URL}">
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>

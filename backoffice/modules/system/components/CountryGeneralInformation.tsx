@@ -1,8 +1,6 @@
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
-import slugify from 'slugify';
 import { CheckBox } from '../../../common/items/Input';
-
-import { Input, Switch } from '../../../common/items/Input';
+import { Input } from '../../../common/items/Input';
 import { Country } from '../models/Country';
 
 type Props = {
@@ -36,7 +34,6 @@ const CountryGeneralInformation = ({ register, errors, setValue, trigger, countr
         }}
         error={errors.code3?.message}
       />
-
       <CheckBox
         labelText="isBillingEnabled"
         field="isBillingEnabled"

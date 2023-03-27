@@ -10,7 +10,7 @@ import {
   deleteCountry,
   getPageableCountries,
 } from '../../../modules/system/services/CountryService';
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
+import { COUNTRY_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 
 const CountryList: NextPage = () => {
   const [countryIdWantToDelete, setCountryIdWantToDelete] = useState<number>(-1);
@@ -57,7 +57,7 @@ const CountryList: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Countries</h2>
         </div>
         <div className="col-md-4 text-right">
-          <Link href="/system/countries/create">
+          <Link href={`${COUNTRY_URL}/create`}>
             <Button>Create Country</Button>
           </Link>
         </div>
@@ -76,7 +76,7 @@ const CountryList: NextPage = () => {
               <td>{country.id}</td>
               <td>{country.name}</td>
               <td>
-                <Link href={`/system/countries/${country.id}/edit`}>
+                <Link href={`${COUNTRY_URL}/${country.id}/edit`}>
                   <button className="btn btn-outline-primary btn-sm" type="button">
                     Edit
                   </button>
