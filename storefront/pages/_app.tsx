@@ -1,16 +1,18 @@
+import { ToastContainer } from 'react-toastify';
 import Head from 'next/head';
+
 import Layout from '../common/components/Layout';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 import '../styles/globals.css';
 import '../styles/cart.css';
 import '../styles/main.css';
 import '../styles/util.css';
 import '../styles/productDetail.css';
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify';
+import '../styles/Header.css';
 
 import type { AppProps } from 'next/app';
 
