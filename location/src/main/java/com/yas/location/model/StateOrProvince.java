@@ -1,7 +1,12 @@
 package com.yas.location.model;
 
+import com.yas.location.model.Country;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
 
 @Entity
 @Table(name = "state_or_province")
@@ -10,10 +15,22 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StateOrProvince {
+public class StateOrProvince extends AbstractAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id;
+
+    @Column(length = 450)
+    private String code;
+
+    @Column(nullable = false, length = 450)
     private String name;
+
+    @Column(length = 450)
+    private String type;
+
+    @ManyToOne
+    @JoinColumn(name = "country_id", nullable = false)
+    private Country country;
 }
+
