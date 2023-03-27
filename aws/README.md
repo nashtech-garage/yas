@@ -3,7 +3,7 @@ This YAS's architecture is designed to be secure, high-performing, resilient, an
 
 ## 1. Overview of solution on AWS
 ### Architecture Overview
-![Yas - Architecture Overview on AWS](https://raw.githubusercontent.com/nashtech-garage/yas/aws_design/yas-architecture-aws-design-overview.png)
+![Yas - Architecture Overview on AWS](https://raw.githubusercontent.com/nashtech-garage/yas/main/yas-architecture-aws-design-overview.png)
 
 # 2. YAS - Java microservices in internal Amazon EKS
 (On going)
@@ -32,6 +32,9 @@ This YAS's architecture is designed to be secure, high-performing, resilient, an
 # 10. YAS - Backup and Disaster recovery Design 
 (On going)
 
-# 11. YAS - Cloudformation for resources on AWS
+# 11. YAS - AWS's cost usage estimation 
+(On going)
+
+# 12. YAS - Cloudformation for resources on AWS
 (On going)
 
