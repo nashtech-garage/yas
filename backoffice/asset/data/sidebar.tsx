@@ -39,6 +39,14 @@ export const menu_customer_item_data = [
   },
 ];
 
+export const menu_system_item_data = [
+  {
+    id: 1,
+    name: 'Countries',
+    link: '/system/countries',
+  },
+];
+
 export const menu_other_item_data = [
   {
     id: 1,

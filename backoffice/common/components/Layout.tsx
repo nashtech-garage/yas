@@ -8,6 +8,7 @@ import Link from 'next/link';
 import {
   menu_catalog_item_data,
   menu_customer_item_data,
+  menu_system_item_data,
   menu_other_item_data,
 } from '../../asset/data/sidebar';
 import { AnyObject } from 'yup/lib/object';
@@ -165,6 +166,30 @@ const Sidebar = (menu: MenuProps) => {
             />
           </ul>
         </li>
+
+            <li
+                  className={menuActive == 'system' ? 'active' : ''}
+                  onClick={() => changeMenu('system')}
+                >
+                  <Link
+                    href="#systemSubmenu"
+                    data-target="#systemSubmenu"
+                    data-bs-toggle="collapse"
+                    aria-controls="systemSubmenu"
+                    aria-expanded="false"
+                    className="dropdown-toggle"
+                  >
+                    <span className="fa fa-pencil"></span> System
+                  </Link>
+                  <ul className="collapse list-unstyled" id="systemSubmenu">
+                    <ListItem
+                      data={menu_system_item_data}
+                      childActive={menu.childActive}
+                      changeChildMenu={menu.changeChildMenu}
+                    />
+                  </ul>
+                </li>
+
         <li className={menuActive == 'Other' ? 'active' : ''} onClick={() => changeMenu('Other')}>
           <Link
             href="#otherSubmenu"

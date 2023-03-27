@@ -8,6 +8,7 @@ import com.yas.location.repository.CountryRepository;
 import com.yas.location.viewmodel.country.CountryPostVm;
 import com.yas.location.viewmodel.country.CountryVm;
 import com.yas.location.viewmodel.error.ErrorVm;
+import com.yas.location.viewmodel.country.CountryListGetVm;
 import com.yas.location.utils.Constants;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,6 +33,14 @@ public class CountryController {
         this.countryRepository = countryRepository;
         this.countryService = countryService;
     }
+
+    @GetMapping({"/backoffice/country/paging"})
+    public ResponseEntity<CountryListGetVm> getPageableCountries(@RequestParam(value = "pageNo", defaultValue = Constants.PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                            @RequestParam(value = "pageSize", defaultValue = Constants.PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+
+        return ResponseEntity.ok(countryService.getPageableCountries(pageNo, pageSize));
+    }
+
 
     @GetMapping({"/backoffice/countries"})
     public ResponseEntity<List<CountryVm>> listCountries() {
