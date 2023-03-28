@@ -41,68 +41,60 @@ spring:
     activate:
       on-profile: "dev"
   cloud:
-    gateway:
-      routes:
-        - id: api_product_local
-          uri: http://localhost:8080
-          #          uri: http://api.yas.local
-          predicates:
-            - Path=/api/product/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: api_location_local
-          uri: http://localhost:8086
-          #          uri: http://api.yas.local
-          predicates:
-            - Path=/api/location/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: api_cart_local
-          uri: http://localhost:8084
-          #          uri: http://api.yas.local
-          predicates:
-            - Path=/api/cart/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: api_customer_local
-          uri: http://localhost:8088
-          #          uri: http://api.yas.local
-          predicates:
-            - Path=/api/customer/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: api_media_local
-          uri: http://localhost:8083
-          #          uri: http://api.yas.local
-          predicates:
-            - Path=/api/media/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: api_rating_local
-          uri: http://localhost:8089
-          #          uri: http://api.yas.local
-          predicates:
-            - Path=/api/rating/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: api
-          #uri: http://localhost:8080
-          uri: http://api.yas.local
-          predicates:
-            - Path=/api/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: nextjs
-          uri: http://localhost:3000
-          predicates:
-            - Path=/**
+      gateway:
+        routes:
+          - id: api_product_local
+            uri: http://localhost:8080
+            #uri: http://api.yas.local
+            predicates:
+              - Path=/api/product/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: api_cart_local
+            uri: http://localhost:8084
+            #          uri: http://api.yas.local
+            predicates:
+              - Path=/api/cart/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: api_customer_local
+            uri: http://localhost:8088
+            #          uri: http://api.yas.local
+            predicates:
+              - Path=/api/customer/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: api_media_local
+            uri: http://localhost:8083
+            #          uri: http://api.yas.local
+            predicates:
+              - Path=/api/media/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: api_rating_local
+            uri: http://localhost:8089
+            #          uri: http://api.yas.local
+            predicates:
+              - Path=/api/rating/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: api
+            #uri: http://localhost:8080
+            uri: http://api.yas.local
+            predicates:
+              - Path=/api/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: nextjs
+            uri: http://localhost:3000
+            predicates:
+              - Path=/**
 ---
 
 spring:
@@ -110,16 +102,16 @@ spring:
     activate:
       on-profile: "prod"
   cloud:
-    gateway:
-      routes:
-        - id: api
-          uri: http://product
-          predicates:
-            - Path=/api/product/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: nextjs
-          uri: http://localhost:3000
-          predicates:
-            - Path=/**
+      gateway:
+        routes:
+          - id: api
+            uri: http://product
+            predicates:
+                - Path=/api/product/**
+            filters:
+                - RewritePath=/api/(?<segment>.*), /$\{segment}
+                - TokenRelay=
+          - id: nextjs
+            uri: http://localhost:3000
+            predicates:
+                - Path=/**
