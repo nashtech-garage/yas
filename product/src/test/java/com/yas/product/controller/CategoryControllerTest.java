@@ -5,6 +5,7 @@ import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.service.CategoryService;
+import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
 import com.yas.product.viewmodel.category.CategoryPostVm;
@@ -56,10 +57,11 @@ class CategoryControllerTest {
 
     @Test
     void ListCategories_ValidListCategoryGetVM_Success() {
+        ImageVm categoryImage = new ImageVm(1L, "url");
         List<CategoryGetVm> expect = List.of(
-                new CategoryGetVm(1L, "hô hô", "ho-ho", -1)
+                new CategoryGetVm(1L, "hô hô", "ho-ho", -1, categoryImage)
         );
-        when(categoryRepository.findAll()).thenReturn(categories);
+        when(categoryService.getCategories()).thenReturn(expect);
         ResponseEntity<List<CategoryGetVm>> actual = categoryController.listCategories();
         assertThat(Objects.requireNonNull(actual.getBody()).size()).isEqualTo(expect.size());
         assertThat(actual.getBody().get(0).id()).isEqualTo(expect.get(0).id());
@@ -67,14 +69,14 @@ class CategoryControllerTest {
 
     @Test
     void getCategory_NotFoundCategoryGetDetailVM_ThrowNotFoundException() {
-        when(categoryRepository.findById(2L)).thenThrow(NotFoundException.class);
+        when(categoryService.getCategoryById(2L)).thenThrow(NotFoundException.class);
         assertThrows(NotFoundException.class, () -> categoryController.getCategory(2L));
     }
 
     @Test
     void getCategory_ValidCategoryGetDetailVM_Success() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         CategoryGetDetailVm expect = CategoryGetDetailVm.fromModel(category);
+        when(categoryService.getCategoryById(1L)).thenReturn(expect);
         ResponseEntity<CategoryGetDetailVm> actual = categoryController.getCategory(1L);
         assertEquals(Objects.requireNonNull(actual.getBody()).Id(), expect.Id());
     }
@@ -88,7 +90,9 @@ class CategoryControllerTest {
                 null,
                 "",
                 "",
-                (short) 0, false
+                (short) 0,
+                false,
+                1L
         );
         Category savedCategory = mockSavedCategory();
         when(categoryService.create(any())).thenReturn(savedCategory);
@@ -118,7 +122,9 @@ class CategoryControllerTest {
                 1L,
                 "",
                 "",
-                (short) 0, false
+                (short) 0,
+                false,
+                1L
         );
         Category savedCategory = mockSavedCategory();
         when(categoryService.create(any())).thenReturn(savedCategory);
@@ -140,7 +146,9 @@ class CategoryControllerTest {
                 2L,
                 "",
                 "",
-                (short) 0, false
+                (short) 0,
+                false,
+                1L
         );
         when(categoryService.create(any())).thenThrow(BadRequestException.class);
         assertThrows(BadRequestException.class, () -> categoryController.createCategory(categoryPostVm

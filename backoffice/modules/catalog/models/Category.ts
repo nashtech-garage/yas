@@ -8,4 +8,9 @@ export type Category = {
   metaDescription: string;
   displayOrder: number;
   isPublish: boolean;
+  imageId?: number;
+  categoryImage?: {
+    id: number;
+    url: string;
+  };
 };

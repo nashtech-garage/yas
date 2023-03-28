@@ -3,4 +3,8 @@ export type Category = {
   name: string;
   description: string;
   slug: string;
+  categoryImage?: {
+    id: number;
+    url: string;
+  };
 };

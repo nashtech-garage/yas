@@ -24,6 +24,8 @@ const crumb: BreadcrumbModel[] = [
   },
 ];
 
+const CATEGORY_SLUG = 'categorySlug';
+
 const ProductList = () => {
   const router = useRouter();
   const [products, setProduct] = useState<ProductThumbnail[]>([]);
@@ -42,6 +44,10 @@ const ProductList = () => {
   const inputEndPriceRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (Object.keys(router.query).length && router.query.categorySlug) {
+      const categorySlugValue = router.query.categorySlug as string;
+      handleFilter(CATEGORY_SLUG, categorySlugValue);
+    }
     getCategories().then((res) => {
       setCates(res);
     });
@@ -55,6 +61,9 @@ const ProductList = () => {
   }, [router.query]);
 
   useEffect(() => {
+    if (Object.keys(router.query).length && router.query.categorySlug && filters == null) {
+      return;
+    }
     let predicates = queryString.stringify({ ...filters, pageNo: pageNo });
     getProductByMultiParams(predicates).then((res) => {
       setProduct(res.productContent);
@@ -127,7 +136,7 @@ const ProductList = () => {
                           style={{ cursor: 'pointer' }}
                           className={`d-inline-block my-2 me-2 px-3 border border-secondary rounded-pill ${styles['hover-category']}`}
                           onClick={() => {
-                            handleFilter('categorySlug', cate.slug);
+                            handleFilter(CATEGORY_SLUG, cate.slug);
                           }}
                         >
                           {cate.name}

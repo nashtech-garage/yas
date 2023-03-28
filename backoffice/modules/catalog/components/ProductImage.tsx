@@ -23,7 +23,6 @@ const ProductImage = ({ product, setValue }: Props) => {
     <>
       <div className="mb-3">
         <h4 className="mb-3">Thumbnail</h4>
-
         <ChooseThumbnail
           id="main-thumbnail"
           image={

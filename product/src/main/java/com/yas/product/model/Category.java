@@ -36,6 +36,8 @@ public class Category extends AbstractAuditEntity {
 
     private Boolean isPublished;
 
+    private Long imageId;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;
