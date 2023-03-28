@@ -3,8 +3,11 @@ import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { Image } from 'react-bootstrap';
 
+import {
+  data_menu_top_no_login,
+  DATA_SEARCH_SUGGESTION,
+} from '../../../asset/data/data_header_client';
 import promoteImage from '../../images/search-promote-image.png';
-import { data_menu_top_no_login } from '../../../asset/data/data_header_client';
 
 type Props = {
   children: React.ReactNode;
@@ -15,6 +18,7 @@ const Header = ({ children }: Props) => {
 
   const formRef = useRef<HTMLFormElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isExpand, setIsExpand] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -59,8 +63,8 @@ const Header = ({ children }: Props) => {
 
         <nav className="limiter-menu-desktop container">
           {/* <!-- Logo desktop --> */}
-          <Link href="/" className="me-5">
-            <h3 className="font-weight-black text-black">Yas - Storefront</h3>
+          <Link href="/" className="header-logo me-3">
+            <h3 className="text-black">Yas - Storefront</h3>
           </Link>
 
           {/* <!-- Search --> */}
@@ -84,42 +88,27 @@ const Header = ({ children }: Props) => {
                       </div>
                     </div>
                     <div className="suggestion">
-                      <Link href={'#'} className="search-suggestion-item">
-                        <div className="icon">
-                          <i className="bi bi-search"></i>
-                        </div>
-                        <div className="keyword">Laptop</div>
-                      </Link>
-                      <Link href={'#'} className="search-suggestion-item">
-                        <div className="icon">
-                          <i className="bi bi-search"></i>
-                        </div>
-                        <div className="keyword">PC</div>
-                      </Link>
-                      <Link href={'#'} className="search-suggestion-item">
-                        <div className="icon">
-                          <i className="bi bi-search"></i>
-                        </div>
-                        <div className="keyword">Phone</div>
-                      </Link>
-                      <Link href={'#'} className="search-suggestion-item">
-                        <div className="icon">
-                          <i className="bi bi-search"></i>
-                        </div>
-                        <div className="keyword">Graphic card</div>
-                      </Link>
-                      <Link href={'#'} className="search-suggestion-item">
-                        <div className="icon">
-                          <i className="bi bi-search"></i>
-                        </div>
-                        <div className="keyword">Keyboard</div>
-                      </Link>
-                      <Link href={'#'} className="search-suggestion-item">
-                        <div className="icon">
-                          <i className="bi bi-search"></i>
-                        </div>
-                        <div className="keyword">Thinkpad</div>
-                      </Link>
+                      {DATA_SEARCH_SUGGESTION.slice(0, isExpand ? 10 : 3).map((item) => (
+                        <Link href={'#'} className="search-suggestion-item" key={item}>
+                          <div className="icon">
+                            <i className="bi bi-search"></i>
+                          </div>
+                          <div className="keyword">{item}</div>
+                        </Link>
+                      ))}
+                      <div className="search-suggestion-action">
+                        <span onClick={() => setIsExpand((prev) => !prev)}>
+                          {isExpand ? (
+                            <>
+                              Collapsed <i className="bi bi-chevron-up"></i>
+                            </>
+                          ) : (
+                            <>
+                              Expand <i className="bi bi-chevron-down"></i>
+                            </>
+                          )}
+                        </span>
+                      </div>
                     </div>
                     <div className="bottom-widgets"></div>
                   </div>
@@ -130,36 +119,11 @@ const Header = ({ children }: Props) => {
             </div>
 
             <div className="search-suggestion">
-              <Link href={'#'}>
-                <span>Laptop</span>
-              </Link>
-              <Link href={'#'}>
-                <span>PC</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Phone</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Tablet</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Print</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Mouse</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Monitor</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Keyboard</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Accessories</span>
-              </Link>
-              <Link href={'#'}>
-                <span>Laptop</span>
-              </Link>
+              {DATA_SEARCH_SUGGESTION.map((item) => (
+                <Link href={'#'} key={item}>
+                  <span>{item}</span>
+                </Link>
+              ))}
             </div>
           </div>
 
