@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function AuthenticationInfo() {
   type AuthenticatedUser = {
@@ -28,21 +28,28 @@ export default function AuthenticationInfo() {
         fetch(`/move-cart`);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="wrap-auth">
+    <>
       {authenticatedInfoVm.isAuthenticated ? (
-        <div>
+        <div className="d-flex gap-2">
           Signed in as:{' '}
-          <Link href="/profile">{authenticatedInfoVm.authenticatedUser.username}</Link>{' '}
-          <Link href="/logout">Logout</Link>
+          <Link href="/profile" className="d-block h-full">
+            {authenticatedInfoVm.authenticatedUser.username}
+          </Link>{' '}
+          <Link href="/logout" className="d-block h-full">
+            Logout
+          </Link>
         </div>
       ) : (
         <div>
-          <Link href="/oauth2/authorization/keycloak">Login</Link>
+          <Link href="/oauth2/authorization/keycloak" className="d-blockh-full">
+            Login
+          </Link>
         </div>
       )}
-    </div>
+    </>
   );
 }

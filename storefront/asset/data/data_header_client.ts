@@ -1,42 +1,3 @@
-export const data_header_client = [
-  {
-    id: 1,
-    name: 'Home',
-    active: true,
-    link: '/',
-  },
-  {
-    id: 2,
-    name: 'Products',
-    active: false,
-    link: '/products',
-  },
-  {
-    id: 3,
-    name: 'About',
-    active: false,
-    link: '/about',
-  },
-  {
-    id: 4,
-    name: 'Contact',
-    active: false,
-    link: '/contact',
-  },
-  {
-    id: 5,
-    name: 'Checkout',
-    active: false,
-    link: '/checkout',
-  },
-  {
-    id: 6,
-    name: 'History',
-    active: false,
-    link: '/history',
-  },
-];
-
 export const data_menu_top_no_login = [
   {
     id: 1,
@@ -55,4 +16,17 @@ export const data_menu_top_no_login = [
     name: 'EN',
     links: '#',
   },
+];
+
+export const DATA_SEARCH_SUGGESTION = [
+  'Laptop',
+  'Mobile',
+  'Camera',
+  'Headphone',
+  'Watch',
+  'Speaker',
+  'Smartphone',
+  'Tablet',
+  'Smartwatch',
+  'Smart TV',
 ];
