@@ -10,6 +10,6 @@ public class ProductCategory {
     @Id
     private Long id;
 
-    @Field(type = FieldType.Nested, includeInParent = true)
-    private Product product = new Product();
+    @Field(type = FieldType.Object)
+    private Category category;
 }
