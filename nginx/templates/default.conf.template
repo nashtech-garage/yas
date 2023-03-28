@@ -33,9 +33,7 @@ server {
   location /promotion/ {
   	proxy_pass http://promotion;
   }
-  location /search/ {
-    proxy_pass http://search;
-  }
+
 }
 
 server {
