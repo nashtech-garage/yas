@@ -17,7 +17,7 @@ public class ProductService {
     }
 
     public List<Product> findProduct(String name) {
-        return productRepository.findByName(name);
+        return productRepository.findByAttributeValuesValueOrBrandName(name, name);
     }
 
     public List<Product> findProductAdvance(String keyword) {
