@@ -12,9 +12,6 @@ public class ProductAttributeValue {
 
     private String value;
 
-    @Field(type = FieldType.Nested, includeInParent = true)
-    private Product product;
-
-    @Field(type = FieldType.Nested, includeInParent = true)
+    @Field(type = FieldType.Object)
     private ProductAttribute productAttribute;
 }
