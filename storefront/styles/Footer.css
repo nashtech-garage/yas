@@ -1,0 +1,93 @@
+/*==================================================================
+    TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT
+==================================================================*/
+.cl0 {
+  color: #fff;
+}
+
+.cl1 {
+  color: #717fe0;
+}
+
+.cl6 {
+  color: #888;
+}
+
+.cl7 {
+  color: #b2b2b2;
+}
+
+/*==================================================================
+   BACKGROUND BACKGROUND BACKGROUND BACKGROUND BACKGROUND BACKGROUND 
+==================================================================*/
+.bg-none {
+  background-color: transparent;
+}
+
+.bg1 {
+  background-color: #717fe0;
+}
+
+.bg3 {
+  background-color: #222;
+}
+
+/*==================================================================
+       BORDER BORDER  BORDER  BORDER  BORDER  BORDER  BORDER  BORDER
+==================================================================*/
+.bor-radius {
+  border-radius: 23px;
+}
+
+/*==================================================================
+ HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW HOW 
+==================================================================*/
+.plh1::-webkit-input-placeholder {
+  color: #b2b2b2;
+}
+.plh1:-moz-placeholder {
+  color: #b2b2b2;
+}
+.plh1::-moz-placeholder {
+  color: #b2b2b2;
+}
+.plh1:-ms-input-placeholder {
+  color: #b2b2b2;
+}
+
+/*---------------------------------------------*/
+.wrap-input {
+  position: relative;
+  border-bottom: 2px solid rgba(204, 204, 204, 0.1);
+}
+
+.input {
+  background-color: transparent;
+  width: 100%;
+}
+
+.focus-input {
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  background-color: #6774d5;
+  left: 0;
+  bottom: -2px;
+}
+
+.input:focus + .focus-input {
+  width: 100%;
+}
+
+/*//////////////////////////////////////////////////////////////////
+[ Hover ]*/
+.hov-cl:hover {
+  color: #717fe0;
+}
+
+/*---------------------------------------------*/
+.hov-btn:hover {
+  border-color: #fff;
+  background-color: #fff;
+  color: #717fe0;
+}
