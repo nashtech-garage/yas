@@ -8,8 +8,6 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Document(indexName = "product")
 @Builder
@@ -33,12 +31,12 @@ public class Product extends BaseDocument {
 
     protected Boolean isActive;
 
-    @Field(type = FieldType.Nested)
+    @Field(type = FieldType.Object)
     private Brand brand;
 
-    @Field(type = FieldType.Nested)
-    private List<ProductCategory> productCategories = new ArrayList<>();
-
-    @Field(type = FieldType.Nested)
-    private List<ProductAttributeValue> attributeValues = new ArrayList<>();
+//    @Field(type = FieldType.Nested)
+//    private List<ProductCategory> productCategories;
+//
+//    @Field(type = FieldType.Nested)
+//    private List<ProductAttributeValue> attributeValues;
 }
