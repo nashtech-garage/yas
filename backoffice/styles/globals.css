@@ -225,3 +225,10 @@ a[data-toggle='collapse'] {
   background: #f8b739 !important;
   border-color: #f8b739 !important;
 }
+
+.label {
+  width: 200px;
+  padding: 5px;
+  border-radius: 5px;
+  color: black;
+}

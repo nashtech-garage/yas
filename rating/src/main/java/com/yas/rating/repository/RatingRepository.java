@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -15,9 +18,17 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     Page<Rating> findByProductId(Long id, Pageable pageable);
 
     @Query(value = "SELECT r FROM Rating r " +
-            "Where r.productId = :productId " +
-            "AND CONCAT(LOWER(r.firstName), ' ', LOWER(r.lastName)) LIKE %:name%")
-    Page<Rating> findByProductIdAndCustomerName(@Param("productId") Long id,@Param("name") String name, Pageable pageable);
+            "Where (r.productId IN :productIds OR :productIds IS NULL) " +
+            "AND CONCAT(LOWER(r.firstName), ' ', LOWER(r.lastName)) LIKE %:customerName% " +
+            "AND LOWER(r.content) LIKE %:message% " +
+            "AND r.createdOn BETWEEN :createdFrom AND :createdTo")
+    Page<Rating> getRatingListWithFilter(
+            @Param("productIds") List<Long> productIds,
+            @Param("customerName") String customerName,
+            @Param("message") String message,
+            @Param("createdFrom") ZonedDateTime createdFrom,
+            @Param("createdTo") ZonedDateTime createdTo,
+            Pageable pageable);
 
     @Query(value = "SELECT SUM(r.ratingStar), COUNT(r) FROM Rating r Where r.productId = :productId")
     List<Object[]> getTotalStarsAndTotalRatings(@Param("productId") long productId);

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 public class RatingServiceTest {
     RatingRepository ratingRepository;
     CustomerService customerService;
+    ProductService productService;
     RatingService ratingService;
 
     RatingPostVm ratingPostVm;
@@ -30,7 +31,8 @@ public class RatingServiceTest {
     void setUp() {
         ratingRepository = mock(RatingRepository.class);
         customerService = mock(CustomerService.class);
-        ratingService = new RatingService(ratingRepository, customerService);
+        productService = mock(ProductService.class);
+        ratingService = new RatingService(ratingRepository, customerService, productService);
 
 
         ratingList = List.of(

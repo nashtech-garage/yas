@@ -7,6 +7,7 @@ import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,10 +30,12 @@ import java.util.List;
 public class RatingService {
     private final RatingRepository ratingRepository;
     private final CustomerService customerService;
+    private final ProductService productService;
 
-    public RatingService(RatingRepository ratingRepository, CustomerService customerService) {
+    public RatingService(RatingRepository ratingRepository, CustomerService customerService, ProductService productService) {
         this.ratingRepository = ratingRepository;
         this.customerService = customerService;
+        this.productService = productService;
     }
 
     public RatingListVm getRatingListByProductId(Long id, int pageNo, int pageSize) {
@@ -43,9 +50,28 @@ public class RatingService {
         return new RatingListVm(ratingVmList, ratings.getTotalElements(), ratings.getTotalPages());
     }
 
-    public RatingListVm getRatingListByProductIdAndCustomerName(Long id, String name, int pageNo, int pageSize) {
+    public RatingListVm getRatingListWithFilter(String proName, String cusName,
+                                                String message, ZonedDateTime createdFrom,
+                                                ZonedDateTime createdTo, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdOn").descending());
-        Page<Rating> ratings = ratingRepository.findByProductIdAndCustomerName(id, name.toLowerCase(), pageable);
+
+
+        List<Long> productIdList = null;
+        if (!proName.isEmpty()) {
+            ProductListGetVm productListGetVm = productService.getProductsByName(proName);
+
+            if(CollectionUtils.isNotEmpty(productListGetVm.productContent())){
+                productIdList = productListGetVm.productContent().stream()
+                        .map(product -> product.id())
+                        .collect(Collectors.toList());
+            }
+        }
+
+        Page<Rating> ratings = ratingRepository.getRatingListWithFilter(
+                productIdList,
+                cusName.toLowerCase(), message.toLowerCase(),
+                createdFrom, createdTo, pageable);
+
 
         List<RatingVm> ratingVmList = new ArrayList<>();
         for (Rating rating : ratings.getContent()) {
