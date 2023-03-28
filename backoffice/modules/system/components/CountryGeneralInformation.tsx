@@ -30,7 +30,7 @@ const CountryGeneralInformation = ({ register, errors, setValue, trigger, countr
         defaultValue={country?.code3}
         register={register}
         registerOptions={{
-          required: { value: true, message: 'Country name is required' },
+          required: { value: true, message: 'Code3 is required' },
         }}
         error={errors.code3?.message}
       />
