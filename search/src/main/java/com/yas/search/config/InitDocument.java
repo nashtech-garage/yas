@@ -2,7 +2,11 @@ package com.yas.search.config;
 
 import com.yas.search.document.Brand;
 import com.yas.search.document.Product;
+import com.yas.search.document.ProductAttribute;
+import com.yas.search.document.ProductAttributeValue;
 import com.yas.search.repository.BrandRepository;
+import com.yas.search.repository.ProductAttributeRepository;
+import com.yas.search.repository.ProductAttributeValueRepository;
 import com.yas.search.repository.ProductRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +20,18 @@ public class InitDocument {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
 
+    private final ProductAttributeRepository productAttributeRepository;
+
+    private final ProductAttributeValueRepository productAttributeValueRepository;
+
     public InitDocument(ProductRepository productRepository,
-                        BrandRepository brandRepository) {
+                        BrandRepository brandRepository,
+                        ProductAttributeRepository productAttributeRepository,
+                        ProductAttributeValueRepository productAttributeValueRepository) {
         this.productRepository = productRepository;
         this.brandRepository = brandRepository;
+        this.productAttributeRepository = productAttributeRepository;
+        this.productAttributeValueRepository = productAttributeValueRepository;
     }
 
     @Bean
@@ -35,6 +47,12 @@ public class InitDocument {
                 .isActive(false)
                 .thumbnailMediaId(1L)
                 .brand(brand1).build();
+        ProductAttribute productAttribute = ProductAttribute.builder().id(1L).name("attr1").build();
+        ProductAttributeValue productAttributeValue = ProductAttributeValue.builder().id(1L).value("prod_attr_1").productAttribute(productAttribute).build();
+        product.setAttributeValues(List.of(productAttributeValue));
+
+        productAttributeRepository.save(productAttribute);
+        productAttributeValueRepository.save(productAttributeValue);
         productRepository.save(product);
     }
 }
