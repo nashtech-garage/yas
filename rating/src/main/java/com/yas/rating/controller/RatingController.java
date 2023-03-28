@@ -6,8 +6,12 @@ import com.yas.rating.viewmodel.RatingPostVm;
 import com.yas.rating.viewmodel.RatingVm;
 import com.yas.rating.viewmodel.ResponeStatusVm;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 @RestController
 public class RatingController {
@@ -17,14 +21,20 @@ public class RatingController {
         this.ratingService = ratingService;
     }
 
-    @GetMapping("/backoffice/ratings/products/{productId}")
+    @GetMapping("/backoffice/ratings")
     public ResponseEntity<RatingListVm> getRatingListWithFilter(
-            @PathVariable Long productId,
+            @RequestParam(value = "productName", defaultValue = "", required = false)  String productName,
+            @RequestParam(value = "cusName", defaultValue = "", required = false) String cusName,
+            @RequestParam(value = "message", defaultValue = "", required = false) String message,
+            @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime createdFrom,
+            @RequestParam(value = "createdTo",  defaultValue="#{new java.util.Date()}", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime createdTo,
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize,
-            @RequestParam(value = "name", defaultValue = "", required = false) String name) {
-
-        return ResponseEntity.ok(ratingService.getRatingListByProductIdAndCustomerName(productId, name, pageNo, pageSize));
+            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize) {
+        return ResponseEntity.ok(ratingService.getRatingListWithFilter(productName, cusName,
+                message, createdFrom, createdTo,
+                pageNo, pageSize));
     }
 
     @DeleteMapping("/backoffice/ratings/{id}")

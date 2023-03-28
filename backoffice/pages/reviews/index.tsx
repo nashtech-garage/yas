@@ -3,16 +3,11 @@ import type { Brand } from '../../modules/catalog/models/Brand';
 import { useState, useEffect } from 'react';
 import { Button, Stack, Table, Form, InputGroup } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
-import { getProducts } from '../../modules/catalog/services/ProductService';
-import {
-  getRatingsByProductId,
-  deleteRatingById,
-} from '../../modules/catalog/services/RatingService';
+import { getRatings, deleteRatingById } from '../../modules/rating/services/RatingService';
 import moment from 'moment';
 import styles from '../../styles/Filter.module.css';
 import { toast } from 'react-toastify';
-import type { Product } from '../../modules/catalog/models/Product';
-import type { Rating } from '../../modules/catalog/models/Rating';
+import type { Rating } from '../../modules/rating/models/Rating';
 import { getBrands } from '../../modules/catalog/services/BrandService';
 import { FaSearch } from 'react-icons/fa';
 
@@ -20,20 +15,17 @@ const Reviews: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [isLoading, setLoading] = useState(false);
 
-  const [productList, setProductList] = useState<Product[]>([]);
-  const [pageNoProduct, setPageNoProduct] = useState<number>(0);
   const [totalPageProduct, setTotalPageProduct] = useState<number>(1);
   const [brandName, setBrandName] = useState<string>('');
   const [productName, setProductName] = useState<string>('');
-  const [productId, setProductId] = useState<number>();
   const [brandList, setBrandList] = useState<Brand[]>([]);
 
   const [ratingList, setRatingList] = useState<Rating[]>([]);
   const [customerName, setCustomerName] = useState<string>('');
-  const [pageNoRating, setPageNoRating] = useState<number>(0);
-  const [totalPageRating, setTotalPageRating] = useState<number>(1);
+  const [pageNo, setPageNo] = useState<number>(0);
+  const [totalPage, setTotalPage] = useState<number>(1);
   const [isDelete, setDelete] = useState<boolean>(false);
-  const ratingPageSize = 5;
+  const ratingPageSize = 10;
 
   useEffect(() => {
     setLoading(true);
@@ -42,43 +34,18 @@ const Reviews: NextPage = () => {
       setLoading(false);
     });
   }, []);
-  useEffect(() => {
-    setLoading(true);
 
-    getProducts(pageNoProduct, productName, brandName).then((data) => {
-      setTotalPageProduct(data.totalPages);
-      setProductList(data.productContent);
-      setLoading(false);
+  useEffect(() => {
+    getRatings('', customerName, pageNo, ratingPageSize).then((res) => {
+      setRatingList(res.ratingList);
+      setTotalPage(res.totalPages);
+      setPageNo(0);
+      setCustomerName('');
     });
-  }, [pageNoProduct, brandName, productName]);
-  useEffect(() => {
-    if (productId) {
-      getRatingsByProductId(productId, customerName, pageNoRating, ratingPageSize).then((res) => {
-        setRatingList(res.ratingList);
-        setTotalPageRating(res.totalPages);
-      });
-    }
-  }, [pageNoRating, customerName]);
-  useEffect(() => {
-    if (productId) {
-      getRatingsByProductId(productId, customerName, pageNoRating, ratingPageSize).then((res) => {
-        setRatingList(res.ratingList);
-        setTotalPageRating(res.totalPages);
-        setPageNoRating(0);
-        setCustomerName('');
-      });
-    }
-  }, [productId, isDelete]);
+  }, [isDelete, pageNo, customerName]);
 
-  const handleOnClickProduct = (productId: number) => {
-    setProductId(productId);
-  };
-
-  const changePageProduct = ({ selected }: any) => {
-    setPageNoProduct(selected);
-  };
-  const changePageRating = ({ selected }: any) => {
-    setPageNoRating(selected);
+  const handlePageChange = ({ selected }: any) => {
+    setPageNo(selected);
   };
 
   //searching handler
@@ -88,7 +55,6 @@ const Reviews: NextPage = () => {
     }
     typingTimeOutRef = setTimeout(() => {
       setProductName(e.target.value);
-      setPageNoProduct(0);
     }, 500);
   };
 
@@ -98,7 +64,7 @@ const Reviews: NextPage = () => {
     }
     typingTimeOutRef = setTimeout(() => {
       setCustomerName(e.target.value);
-      setPageNoRating(0);
+      setPageNo(0);
     }, 500);
   };
 
@@ -118,148 +84,167 @@ const Reviews: NextPage = () => {
         </div>
       </div>
       {/* Filter */}
-      <div className="row mb-1">
-        <div className="col ">
-          {/* <Form.Label htmlFor="brand-filter">Brand: </Form.Label> */}
-          <Form.Select
-            id="brand-filter"
-            onChange={(e) => {
-              setPageNoProduct(0);
-              setBrandName(e.target.value);
-            }}
-            className={styles.filterButton}
-            defaultValue={brandName || ''}
-          >
-            <option value={''}>All</option>
-            {brandList.map((brand) => (
-              <option key={brand.id} value={brand.name}>
-                {brand.name}
-              </option>
-            ))}
-          </Form.Select>
+      <div className="d-flex flex-row mb-1 gap-3">
+        <div className="col-6">
+          <div className="d-flex flex-row mb-4">
+            <Form.Label htmlFor="Created-From" className="label">
+              Created From:{' '}
+            </Form.Label>
+            <input
+              id="startDate"
+              className="form-control w-50"
+              type="date"
+              defaultValue={'1970-01-01'}
+            />
+          </div>
+          <div className="d-flex flex-row mb-4">
+            <Form.Label htmlFor="createdTo" className="label">
+              Created To:{' '}
+            </Form.Label>
+            <input
+              id="startDate"
+              className="form-control  w-50"
+              type="date"
+              defaultValue={new Date().toISOString().substr(0, 10)}
+            />
+          </div>
+          <div className="d-flex flex-row mb-4">
+            <Form.Label htmlFor="brand-filter" className="label">
+              Brand:{' '}
+            </Form.Label>
+            <Form.Select
+              id="brand-filter"
+              onChange={(e) => {
+                setPageNo(0);
+                setBrandName(e.target.value);
+              }}
+              className="w-75"
+              defaultValue={brandName || ''}
+            >
+              <option value={''}>All</option>
+              {brandList.map((brand) => (
+                <option key={brand.id} value={brand.name}>
+                  {brand.name}
+                </option>
+              ))}
+            </Form.Select>
+          </div>
         </div>
-        <div className="search-container">
-          <Form>
-            <InputGroup>
-              <Form.Control
-                id="product-name"
-                placeholder="Search name ..."
-                defaultValue={productName}
-                onChange={(e) => searchingProductHandler(e)}
-              />
-              <Button
-                id="seach-category"
-                variant="danger"
-                onClick={(e) => searchingProductHandler(e)}
-              >
-                <FaSearch />
-              </Button>
-            </InputGroup>
-          </Form>
+        <div className="col-6 ">
+          <div className="mb-4">
+            <Form className="d-flex flex-row ">
+              <Form.Label htmlFor="product" className="mx-2 pt-2">
+                Product:{' '}
+              </Form.Label>
+              <InputGroup>
+                <Form.Control
+                  id="product-name"
+                  placeholder="Search product name ..."
+                  defaultValue={productName}
+                  onChange={(e) => searchingProductHandler(e)}
+                />
+                <Button
+                  id="seach-product"
+                  variant="danger"
+                  onClick={(e) => searchingProductHandler(e)}
+                >
+                  <FaSearch />
+                </Button>
+              </InputGroup>
+            </Form>
+          </div>
+          <div className="mb-4">
+            <Form className="d-flex flex-row ">
+              <Form.Label htmlFor="cusomter" className="mx-2 pt-2">
+                Customer:{' '}
+              </Form.Label>
+              <InputGroup>
+                <Form.Control
+                  id="product-name"
+                  placeholder="Search customer name ..."
+                  defaultValue={productName}
+                  onChange={(e) => searchingProductHandler(e)}
+                />
+                <Button
+                  id="seach-customer"
+                  variant="danger"
+                  onClick={(e) => searchingProductHandler(e)}
+                >
+                  <FaSearch />
+                </Button>
+              </InputGroup>
+            </Form>
+          </div>
+          <div className="mb-4">
+            <Form className="d-flex flex-row ">
+              <Form.Label htmlFor="createdTo" className="mx-2 pt-2">
+                Message:{' '}
+              </Form.Label>
+              <InputGroup>
+                <Form.Control
+                  id="product-name"
+                  placeholder="Search message ..."
+                  defaultValue={productName}
+                  onChange={(e) => searchingProductHandler(e)}
+                />
+                <Button
+                  id="seach-customer"
+                  variant="danger"
+                  onClick={(e) => searchingProductHandler(e)}
+                >
+                  <FaSearch />
+                </Button>
+              </InputGroup>
+            </Form>
+          </div>
         </div>
       </div>
       <div className="row mt-5 my-1">
-        <div className="accordion" id="accordionExample">
-          {productList.map((product, index) => (
-            <div className="accordion-item" key={product.id}>
-              <h2 className="accordion-header" id="headingOne">
-                <button
-                  className="accordion-button"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target={`#collapse${index}`}
-                  aria-expanded="true"
-                  aria-controls={`collapse${index}`}
-                  onClick={() => handleOnClickProduct(product.id)}
-                >
-                  {product.name}
-                </button>
-              </h2>
-              <div
-                id={`collapse${index}`}
-                className="accordion-collapse collapse"
-                aria-labelledby="headingOne"
-                data-bs-parent="#accordionExample"
-              >
-                <div className="accordion-body">
-                  <div className="row mb-1">
-                    <div className="col d-flex justify-content-end mb-2 search-container">
-                      <Form>
-                        <InputGroup>
-                          <Form.Control
-                            id="customer-name"
-                            placeholder="Search customer name ..."
-                            defaultValue={productName}
-                            onChange={(e) => searchingCustomerHandler(e)}
-                          />
-                          <Button id="seach-category" variant="danger" onClick={() => {}}>
-                            <FaSearch />
-                          </Button>
-                        </InputGroup>
-                      </Form>
-                    </div>
-                  </div>
-                  <Table striped bordered hover>
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th style={{ width: '45%' }}>Content</th>
-                        <th>Customer Id</th>
-                        <th>Customer Name</th>
-                        <th>Date Post</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {ratingList.map((rating) => (
-                        <tr key={rating.id}>
-                          <td>{rating.id}</td>
-                          <td>{rating.content}</td>
-                          <td>{rating.createdBy}</td>
-                          <td>
-                            {rating.lastName} {rating.firstName}
-                          </td>
-                          <td>{moment(rating.createdOn).format('MMMM Do YYYY, h:mm:ss a')}</td>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th style={{ width: '45%' }}>Content</th>
+              <th>Customer Id</th>
+              <th>Customer Name</th>
+              <th>Date Post</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(ratingList) &&
+              ratingList.map((rating) => (
+                <tr key={rating.id}>
+                  <td>{rating.id}</td>
+                  <td>{rating.content}</td>
+                  <td>{rating.createdBy}</td>
+                  <td>
+                    {rating.lastName} {rating.firstName}
+                  </td>
+                  <td>{moment(rating.createdOn).format('MMMM Do YYYY, h:mm:ss a')}</td>
 
-                          <td>
-                            <Stack direction="horizontal" gap={3}>
-                              <button
-                                className="btn btn-outline-danger btn-sm"
-                                type="button"
-                                onClick={() => handleDeleteRating(rating.id)}
-                              >
-                                Delete
-                              </button>
-                            </Stack>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                  <ReactPaginate
-                    forcePage={pageNoRating}
-                    previousLabel={'Previous'}
-                    nextLabel={'Next'}
-                    pageCount={totalPageRating}
-                    onPageChange={changePageRating}
-                    containerClassName={'paginationBtns'}
-                    previousLinkClassName={'previousBtn'}
-                    nextClassName={'nextBtn'}
-                    disabledClassName={'paginationDisabled'}
-                    activeClassName={'paginationActive'}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                  <td>
+                    <Stack direction="horizontal" gap={3}>
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        type="button"
+                        onClick={() => handleDeleteRating(rating.id)}
+                      >
+                        Delete
+                      </button>
+                    </Stack>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </Table>
       </div>
       <ReactPaginate
-        forcePage={pageNoProduct}
+        forcePage={pageNo}
         previousLabel={'Previous'}
         nextLabel={'Next'}
         pageCount={totalPageProduct}
-        onPageChange={changePageProduct}
+        onPageChange={handlePageChange}
         containerClassName={'paginationBtns'}
         previousLinkClassName={'previousBtn'}
         nextClassName={'nextBtn'}
