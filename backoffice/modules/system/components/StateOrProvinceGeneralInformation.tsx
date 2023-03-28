@@ -1,6 +1,6 @@
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
 import slugify from 'slugify';
-import { Input } from '../../../common/items/Input';
+import { Input } from 'common/items/Input';
 import { StateOrProvince } from '../models/StateOrProvince';
 
 type Props = {

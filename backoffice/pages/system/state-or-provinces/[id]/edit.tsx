@@ -2,16 +2,16 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { StateOrProvince } from '../../../../modules/system/models/StateOrProvince';
+import { StateOrProvince } from 'modules/system/models/StateOrProvince';
 import {
   editStateOrProvince,
   getStateOrProvince,
-} from '../../../../modules/system/services/StateOrProvinceService';
-import StateOrProvinceGeneralInformation from '../../../../modules/system/components/StateOrProvinceGeneralInformation';
+} from 'modules/system/services/StateOrProvinceService';
+import StateOrProvinceGeneralInformation from 'modules/system/components/StateOrProvinceGeneralInformation';
 import { useEffect, useState } from 'react';
-import { toastError } from '../../../../common/services/ToastService';
-import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
-import { STATE_OR_PROVINCE_URL } from '../../../../constants/Common';
+import { toastError } from 'common/services/ToastService';
+import { handleUpdatingResponse } from 'common/services/ResponseStatusHandlingService';
+import { STATE_OR_PROVINCE_URL } from 'constants/Common';
 
 const StateOrProvinceEdit: NextPage = () => {
   const router = useRouter();

@@ -3,9 +3,9 @@ import Link from 'next/link';
 import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import type { Country } from '../../../modules/system/models/Country';
-import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
+import ModalDeleteCustom from 'common/items/ModalDeleteCustom';
+import type { Country } from 'modules/system/models/Country';
+import { handleDeletingResponse } from 'common/services/ResponseStatusHandlingService';
 import {
   deleteCountry,
   getPageableCountries,

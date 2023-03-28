@@ -1,6 +1,6 @@
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
-import { CheckBox } from '../../../common/items/Input';
-import { Input } from '../../../common/items/Input';
+import { CheckBox } from 'common/items/Input';
+import { Input } from 'common/items/Input';
 import { Country } from '../models/Country';
 
 type Props = {
