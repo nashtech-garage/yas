@@ -49,7 +49,7 @@ export const menu_system_item_data = [
   },
   {
     id: 2,
-    name: 'State Or Province',
+    name: 'State Or Provinces',
     link: STATE_OR_PROVINCE_URL,
   },
 ];

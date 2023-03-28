@@ -55,7 +55,6 @@ public class StateOrProvinceService {
         return stateOrProvinceRepository.save(stateOrProvince);
     }
 
-
     /**
      * Handle business and update state or province
      *

@@ -1,15 +1,10 @@
 import { StateOrProvince } from '../models/StateOrProvince';
-import { Country } from '../models/Country';
 
 export async function getStateOrProvinces(): Promise<StateOrProvince[]> {
   const response = await fetch('/api/location/backoffice/stateOrProvinces');
   return await response.json();
 }
 
-export async function getCountries(): Promise<Country[]> {
-  const response = await fetch('/api/location/backoffice/countries');
-  return await response.json();
-}
 export async function getPageableStateOrProvinces(
   pageNo: number,
   pageSize: number,
