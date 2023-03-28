@@ -27,9 +27,7 @@ server {
   location /inventory/ {
   	proxy_pass http://inventory;
   }
-  location /search/ {
-    proxy_pass http://search;
-  }
+
 }
 
 server {
