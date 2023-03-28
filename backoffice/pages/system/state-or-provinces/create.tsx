@@ -11,7 +11,7 @@ import { handleCreatingResponse } from '../../../common/services/ResponseStatusH
 
 const StateOrProvinceCreate: NextPage = () => {
   const router = useRouter();
-
+  const { countryId } = router.query;
   const {
     register,
     handleSubmit,
@@ -19,18 +19,19 @@ const StateOrProvinceCreate: NextPage = () => {
     setValue,
     trigger,
   } = useForm<StateOrProvince>();
-  const { countryId } = router.query;
   const handleSubmitStateOrProvince = async (event: StateOrProvince) => {
-    let stateOrProvince: StateOrProvince = {
-      id: 0,
-      name: event.name,
-      code: event.code,
-      type: event.type,
-      countryId:  7,
-    };
-    let response = await createStateOrProvince(stateOrProvince);
-    handleCreatingResponse(response);
-    router.replace(STATE_OR_PROVINCE_URL);
+    if (countryId) {
+      let stateOrProvince: StateOrProvince = {
+        id: 0,
+        name: event.name,
+        code: event.code,
+        type: event.type,
+        countryId: parseInt(countryId.toString()),
+      };
+      let response = await createStateOrProvince(stateOrProvince);
+      handleCreatingResponse(response);
+      router.replace(STATE_OR_PROVINCE_URL);
+    }
   };
 
   return (
