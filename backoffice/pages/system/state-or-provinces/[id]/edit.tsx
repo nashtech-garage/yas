@@ -22,7 +22,7 @@ const StateOrProvinceEdit: NextPage = () => {
   } = useForm<StateOrProvince>();
   const [stateOrProvince, setStateOrProvince] = useState<StateOrProvince>();
   const [isLoading, setLoading] = useState(false);
-  const { id } = router.query.get('countryId');
+  const { id } = router.query;
   const handleSubmitEdit = async (event: StateOrProvince) => {
     if (id) {
       let stateOrProvince: StateOrProvince = {

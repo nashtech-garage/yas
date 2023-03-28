@@ -80,11 +80,9 @@ const StateOrProvinceList: NextPage = () => {
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2 className="text-danger font-weight-bold mb-3">Products</h2>
+          <h2 className="text-danger font-weight-bold mb-3">State Or Provinces</h2>
         </div>
         <div className="col-md-4 text-right">
-
-
           <Link href={`/system/state-or-provinces/create?countryId=${countryId}`}>
             <Button>Create</Button>
           </Link>
@@ -100,11 +98,11 @@ const StateOrProvinceList: NextPage = () => {
             id="country-filter"
             onChange={(e) => {
               setPageNo(0);
-              console.log("sfsfdf", e.target);
               setCountryId(e.target.value);
+              setCountryName(e.target.value);
             }}
             className={styles.filterButton}
-            defaultValue={countryName || ''}
+            defaultValue={countryName | ''}
           >
             <option value={''}>All</option>
             {countries.map((country) => (
@@ -114,8 +112,6 @@ const StateOrProvinceList: NextPage = () => {
             ))}
           </Form.Select>
         </div>
-
-
       </div>
 
       <Table striped bordered hover>
@@ -149,8 +145,8 @@ const StateOrProvinceList: NextPage = () => {
                     type="button"
                     onClick={() => {
                       setShowModalDelete(true);
-                      setProductIdWantToDelete(stateOrProvince.id);
-                      setProductNameWantToDelete(stateOrProvince.name);
+                      setStateOrProvinceIdWantToDelete(stateOrProvince.id);
+                      setStateOrProvinceNameWantToDelete(stateOrProvince.name);
                     }}
                   >
                     Delete
