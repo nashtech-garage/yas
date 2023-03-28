@@ -55,14 +55,15 @@ public class CountryService {
         return countryRepository.save(country);
     }
     public CountryListGetVm getPageableCountries(int pageNo, int pageSize) {
-        List<CountryVm> countryVms = new ArrayList<>();
+       // List<CountryVm> countryVms = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Country> countryPage = countryRepository.findAll(pageable);
         List<Country> countryList = countryPage.getContent();
-        for (Country country : countryList) {
-            countryVms.add(CountryVm.fromModel(country));
-        }
 
+        List<CountryVm> countryVms = countryList.stream()
+                .map(CountryVm::fromModel)
+                .toList();
+        
         return new CountryListGetVm(
                 countryVms,
                 countryPage.getNumber(),
