@@ -1,13 +1,9 @@
 package com.yas.search.document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Document(indexName = "product")
+@Document(indexName = "category")
 public class Category {
     @Id
     private Long id;

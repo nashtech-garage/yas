@@ -8,7 +8,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(indexName = "product")
+@Document(indexName = "product_attribute")
 public class ProductAttribute {
     @Id
     private Long id;
