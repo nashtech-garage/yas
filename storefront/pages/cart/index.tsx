@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import ConfirmationDialog from '../../common/components/dialog/ConfirmationDialog';
+import ImageWithFallBack from '../../common/components/ImageWithFallback';
 import { Cart } from '../../modules/cart/models/Cart';
-import { CartItem } from '../../modules/cart/models/CartItem';
 import {
   addToCart,
   getCart,
@@ -20,6 +20,7 @@ const Cart = () => {
     productName: string;
     slug: string;
     thumbnailUrl: string;
+    price: number;
   };
 
   const [items, setItems] = useState<Item[]>([]);
@@ -29,6 +30,8 @@ const Cart = () => {
   const [productIdRemove, setProductIdRemove] = useState<number>(0);
 
   const [isOpenRemoveDialog, setIsOpenRemoveDialog] = useState(false);
+
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const [cart, setCart] = useState<Cart>({
     id: 0,
@@ -42,32 +45,42 @@ const Cart = () => {
     ],
   });
 
-  const getProductThumbnail = (item: CartItem) => {
-    return getCartProductThumbnail(item.productId);
+  const calculateProductPrice = (item: Item) => {
+    return item.price * item.quantity;
+  };
+
+  const getProductThumbnails = (productIds: number[]) => {
+    return getCartProductThumbnail(productIds);
   };
 
   const loadCart = () => {
     getCart().then((data) => {
       setCart(data);
       const cartDetails = data.cartDetails;
-      Promise.allSettled(cartDetails.map((item) => getProductThumbnail(item))).then(
-        (results: any) => {
-          const newItems: Item[] = [];
-          for (let i = 0; i < results.length; i++) {
-            const product = results[i].value;
-            newItems.push({
-              productId: cartDetails[i].productId,
-              quantity: cartDetails[i].quantity,
-              productName: product.name,
-              slug: product.slug,
-              thumbnailUrl: product.thumbnailUrl,
-            });
-          }
-          setItems(newItems);
-        }
-      );
+      const productIds = cartDetails.map((item) => item.productId);
+      getProductThumbnails(productIds).then((results) => {
+        const newItems: Item[] = [];
+        results.forEach((result) => {
+          newItems.push({
+            productId: result.id,
+            quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
+            productName: result.name,
+            slug: result.slug,
+            thumbnailUrl: result.thumbnailUrl,
+            price: result.price!,
+          });
+        });
+        setItems(newItems);
+      });
     });
   };
+
+  useEffect(() => {
+    const totalPrice = items
+      .map((item) => calculateProductPrice(item))
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    setTotalPrice(totalPrice);
+  }, [items]);
 
   const removeProduct = (productId: number) => {
     removeProductInCart(productId).then(() => loadCart());
@@ -169,17 +182,33 @@ const Cart = () => {
                     {items.map((item) => {
                       return (
                         <tr key={item.quantity.toString() + item.productId.toString()}>
-                          <td className="cart__product__item">
-                            <img
-                              src={item.thumbnailUrl}
-                              alt="img"
-                              style={{ width: '85px', height: '85px' }}
-                            />
-                            <div className="cart__product__item__title">
-                              <h6>{item.productName}</h6>
+                          <td className="cart__product__item d-flex align-items-center">
+                            <div className="h-100">
+                              <Link
+                                href={{
+                                  pathname: '/redirect',
+                                  query: { productId: item.productId },
+                                }}
+                              >
+                                <ImageWithFallBack
+                                  src={item.thumbnailUrl}
+                                  alt={item.productName}
+                                  style={{ width: '120px', height: '120px', cursor: 'pointer' }}
+                                />
+                              </Link>
+                            </div>
+                            <div className="cart__product__item__title pt-0">
+                              <Link
+                                href={{
+                                  pathname: '/redirect',
+                                  query: { productId: item.productId },
+                                }}
+                              >
+                                <h6 className="product-link">{item.productName}</h6>
+                              </Link>
                             </div>
                           </td>
-                          <td className="cart__price">34.500.000</td>
+                          <td className="cart__price">{item.price} ₫</td>
                           <td className="cart__quantity">
                             <div className="pro-qty">
                               <div className="quantity buttons_added">
@@ -221,7 +250,7 @@ const Cart = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="cart__total">34500000 </td>
+                          <td className="cart__total">{calculateProductPrice(item)} ₫</td>
                           <td className="cart__close">
                             {' '}
                             <button
@@ -268,10 +297,10 @@ const Cart = () => {
               <h6>Cart total</h6>
               <ul>
                 <li>
-                  Subtotal <span>$ 750.0</span>
+                  Subtotal <span>{totalPrice} ₫</span>
                 </li>
                 <li>
-                  Total <span>$ 750.0</span>
+                  Total <span>{totalPrice} ₫</span>
                 </li>
               </ul>
               <Link href="#" className="primary-btn">

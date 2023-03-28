@@ -21,8 +21,8 @@ export async function getCart(): Promise<Cart> {
   return await response.json();
 }
 
-export async function getCartProductThumbnail(id: number): Promise<ProductThumbnail> {
-  const response = await fetch('api/product/storefront/products/featured/' + id, {
+export async function getCartProductThumbnail(ids: number[]): Promise<ProductThumbnail[]> {
+  const response = await fetch(`api/product/storefront/products/list-featured?productId=` + ids, {
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
   return await response.json();
