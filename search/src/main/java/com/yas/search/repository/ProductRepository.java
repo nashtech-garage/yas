@@ -24,5 +24,6 @@ public interface ProductRepository extends ElasticsearchRepository<Product, Long
             "}")
     List<Product> findAllProductByName(String productName);
 
+    List<Product> findByName(String name);
 
 }
