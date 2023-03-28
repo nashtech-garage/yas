@@ -154,6 +154,7 @@ const Header = ({ children }: Props) => {
       </div>
 
       {showDropdown && <div className="container-layer"></div>}
+      <div className="lower-container"></div>
     </header>
   );
 };
