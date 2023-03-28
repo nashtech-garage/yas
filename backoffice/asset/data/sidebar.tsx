@@ -1,3 +1,5 @@
+import { COUNTRY_URL, STATE_OR_PROVINCE_URL } from '../../constants/Common';
+
 export const menu_catalog_item_data = [
   {
     id: 1,
@@ -37,6 +39,19 @@ export const menu_customer_item_data = [
     name: 'Customers',
     link: '/customers',
   },
+];
+
+export const menu_system_item_data = [
+  {
+    id: 1,
+    name: 'Countries',
+    link: COUNTRY_URL,
+  },
+   {
+      id: 1,
+      name: 'State Or Province',
+      link: STATE_OR_PROVINCE_URL,
+    },
 ];
 
 export const menu_other_item_data = [
