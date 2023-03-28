@@ -26,6 +26,6 @@ public interface ProductRepository extends ElasticsearchRepository<Product, Long
 
     List<Product> findByName(String name);
 
-    List<Product> findByAttributeValuesValueOrBrandName(String name, String name1);
+    List<Product> findByAttributeValuesValueOrBrandName(String value, String branchName);
 
 }
