@@ -57,7 +57,7 @@ public class CountryController {
     public ResponseEntity<CountryVm> getCountry(@PathVariable("id") Long id) {
         Country country = countryRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id));
         return ResponseEntity.ok(CountryVm.fromModel(country));
     }
 
@@ -87,7 +87,7 @@ public class CountryController {
             @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = Constants.ApiConstant.CODE_400, description = Constants.ApiConstant.BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteCountry(@PathVariable long id){
-        Country country = countryRepository.findById(id).orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
+        Country country = countryRepository.findById(id).orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id));
 
         countryRepository.deleteById(id);
         return ResponseEntity.noContent().build();

@@ -43,7 +43,7 @@ public class StateOrProvinceService {
             throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, stateOrProvincePostVm.name());
         }
         Country country = countryRepository.findById(stateOrProvincePostVm.countryId()).orElseThrow(()
-                -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, stateOrProvincePostVm.countryId()));
+                -> new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, stateOrProvincePostVm.countryId()));
 
         StateOrProvince stateOrProvince = StateOrProvince.builder()
                 .name(stateOrProvincePostVm.name())
