@@ -1,3 +1,5 @@
+import { COUNTRY_URL } from '../../constants/Common';
+
 export const menu_catalog_item_data = [
   {
     id: 1,
@@ -36,6 +38,14 @@ export const menu_customer_item_data = [
     id: 1,
     name: 'Customers',
     link: '/customers',
+  },
+];
+
+export const menu_system_item_data = [
+  {
+    id: 1,
+    name: 'Countries',
+    link: COUNTRY_URL,
   },
 ];
 

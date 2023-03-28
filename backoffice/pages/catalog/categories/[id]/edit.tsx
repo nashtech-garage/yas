@@ -9,10 +9,8 @@ import {
   updateCategory,
 } from '../../../../modules/catalog/services/CategoryService';
 import { CATEGORIES_URL } from '../../../../constants/Common';
-
-import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 import { useForm } from 'react-hook-form';
-
 import { uploadMedia } from '../../../../modules/catalog/services/MediaService';
 import { toast } from 'react-toastify';
 import { isValidFile, validTypes } from '../../../../modules/catalog/components/ChooseThumbnail';

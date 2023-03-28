@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import type { Brand } from '../../../modules/catalog/models/Brand';
-import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import { deleteBrand, getPageableBrands } from '../../../modules/catalog/services/BrandService';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
 

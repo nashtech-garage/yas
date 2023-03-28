@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../constants/Common';
-import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import ProductAttributeGroupGeneralInformation from '../../../modules/catalog/components/ProductAttributeGroupGeneralInformation';
 import { createProductAttributeGroup } from '../../../modules/catalog/services/ProductAttributeGroupService';
 

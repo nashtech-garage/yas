@@ -10,7 +10,7 @@ import {
   CREATE_SUCCESSFULLY,
   CREATE_FAILED,
   ResponseTitle,
-} from '../../../constants/Common';
+} from '../../constants/Common';
 
 //Handle deleting response message from API
 export const handleDeletingResponse = (response: any, itemName: string | number) => {

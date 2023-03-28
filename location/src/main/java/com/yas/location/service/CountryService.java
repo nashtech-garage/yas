@@ -6,9 +6,13 @@ import com.yas.location.model.Country;
 import com.yas.location.utils.Constants;
 import com.yas.location.repository.CountryRepository;
 import com.yas.location.viewmodel.country.CountryPostVm;
+import com.yas.location.viewmodel.country.CountryListGetVm;
 import com.yas.location.viewmodel.country.CountryVm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +53,25 @@ public class CountryService {
         country.setIsDistrictEnabled(countryPostVm.isDistrictEnabled());
 
         return countryRepository.save(country);
+    }
+    public CountryListGetVm getPageableCountries(int pageNo, int pageSize) {
+       // List<CountryVm> countryVms = new ArrayList<>();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Country> countryPage = countryRepository.findAll(pageable);
+        List<Country> countryList = countryPage.getContent();
+
+        List<CountryVm> countryVms = countryList.stream()
+                .map(CountryVm::fromModel)
+                .toList();
+        
+        return new CountryListGetVm(
+                countryVms,
+                countryPage.getNumber(),
+                countryPage.getSize(),
+                (int) countryPage.getTotalElements(),
+                countryPage.getTotalPages(),
+                countryPage.isLast()
+        );
     }
 }
 

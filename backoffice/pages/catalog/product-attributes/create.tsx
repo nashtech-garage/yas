@@ -7,7 +7,7 @@ import { getProductAttributeGroups } from '../../../modules/catalog/services/Pro
 import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
 import { createProductAttribute } from '../../../modules/catalog/services/ProductAttributeService';
 import { PRODUCT_ATTRIBUTE_URL } from '../../../constants/Common';
-import { handleCreatingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import { useRouter } from 'next/router';
 
 interface ProductAttributeId {

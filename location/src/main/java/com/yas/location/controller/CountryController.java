@@ -8,6 +8,7 @@ import com.yas.location.repository.CountryRepository;
 import com.yas.location.viewmodel.country.CountryPostVm;
 import com.yas.location.viewmodel.country.CountryVm;
 import com.yas.location.viewmodel.error.ErrorVm;
+import com.yas.location.viewmodel.country.CountryListGetVm;
 import com.yas.location.utils.Constants;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,6 +34,13 @@ public class CountryController {
         this.countryService = countryService;
     }
 
+    @GetMapping({"/backoffice/countries/paging"})
+    public ResponseEntity<CountryListGetVm> getPageableCountries(@RequestParam(value = "pageNo", defaultValue = Constants.PageableConstant.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+                                                                 @RequestParam(value = "pageSize", defaultValue = Constants.PageableConstant.DEFAULT_PAGE_SIZE, required = false) int pageSize) {
+
+        return ResponseEntity.ok(countryService.getPageableCountries(pageNo, pageSize));
+    }
+
     @GetMapping({"/backoffice/countries"})
     public ResponseEntity<List<CountryVm>> listCountries() {
         List<CountryVm> countryVms = countryRepository.findAll().stream()
@@ -41,7 +49,7 @@ public class CountryController {
         return ResponseEntity.ok(countryVms);
     }
 
-    @GetMapping("/backoffice/country/{id}")
+    @GetMapping("/backoffice/countries/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CountryVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
@@ -52,17 +60,17 @@ public class CountryController {
         return ResponseEntity.ok(CountryVm.fromModel(country));
     }
 
-    @PostMapping("/backoffice/country")
+    @PostMapping("/backoffice/countries")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CountryVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<CountryVm> createCountry(@Valid @RequestBody CountryPostVm countryPostVm, UriComponentsBuilder uriComponentsBuilder) {
         Country country = countryService.create(countryPostVm);
-        return ResponseEntity.created(uriComponentsBuilder.replacePath("/country/{id}").buildAndExpand(country.getId()).toUri())
+        return ResponseEntity.created(uriComponentsBuilder.replacePath("/countries/{id}").buildAndExpand(country.getId()).toUri())
                 .body(CountryVm.fromModel(country));
     }
 
-    @PutMapping("/backoffice/country/{id}")
+    @PutMapping("/backoffice/countries/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
@@ -72,7 +80,7 @@ public class CountryController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/backoffice/country/{id}")
+    @DeleteMapping("/backoffice/countries/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),

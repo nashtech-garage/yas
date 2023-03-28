@@ -18,9 +18,9 @@ import { mapFormProductToProductPayload } from '../../../../modules/catalog/mode
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
 import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-import { toastError } from '../../../../modules/catalog/services/ToastService';
+import { toastError } from '../../../../common/services/ToastService';
 import { PRODUCT_URL } from '../../../../constants/Common';
-import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 
 const EditProduct: NextPage = () => {
   //Get ID

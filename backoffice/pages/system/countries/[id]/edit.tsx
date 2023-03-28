@@ -2,16 +2,16 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { Brand } from '../../../../modules/catalog/models/Brand';
-import { editBrand, getBrand } from '../../../../modules/catalog/services/BrandService';
-import BrandGeneralInformation from '../../../../modules/catalog/components/BrandGeneralInformation';
+import { Country } from '../../../../modules/system/models/Country';
+import { editCountry, getCountry } from '../../../../modules/system/services/CountryService';
+import CountryGeneralInformation from '../../../../modules/system/components/CountryGeneralInformation';
 import { useEffect, useState } from 'react';
-import { BRAND_URL } from '../../../../constants/Common';
+import { COUNTRY_URL } from '../../../../constants/Common';
 import { toastError } from '../../../../common/services/ToastService';
 
 import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 
-const BrandEdit: NextPage = () => {
+const CountryEdit: NextPage = () => {
   const router = useRouter();
   const {
     register,
@@ -19,22 +19,26 @@ const BrandEdit: NextPage = () => {
     formState: { errors },
     setValue,
     trigger,
-  } = useForm<Brand>();
-  const [brand, setBrand] = useState<Brand>();
+  } = useForm<Country>();
+  const [country, setCountry] = useState<Country>();
   const [isLoading, setLoading] = useState(false);
   const { id } = router.query;
-  const handleSubmitEdit = async (event: Brand) => {
+  const handleSubmitEdit = async (event: Country) => {
     if (id) {
-      let brand: Brand = {
+      let country: Country = {
         id: 0,
         name: event.name,
-        slug: event.slug,
-        isPublish: event.isPublish,
+        code3: event.code3,
+        isBillingEnabled: event.isBillingEnabled,
+        isShippingEnabled: event.isShippingEnabled,
+        isCityEnabled: event.isCityEnabled,
+        isZipCodeEnabled: event.isZipCodeEnabled,
+        isDistrictEnabled: event.isDistrictEnabled,
       };
 
-      editBrand(+id, brand).then((response) => {
+      editCountry(+id, country).then((response) => {
         handleUpdatingResponse(response);
-        router.replace(BRAND_URL);
+        router.replace(COUNTRY_URL);
       });
     }
   };
@@ -42,39 +46,39 @@ const BrandEdit: NextPage = () => {
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getBrand(+id).then((data) => {
+      getCountry(+id).then((data) => {
         if (data.id) {
-          setBrand(data);
+          setCountry(data);
           setLoading(false);
         } else {
           toastError(data?.detail);
           setLoading(false);
-          router.push(BRAND_URL);
+          router.push(COUNTRY_URL);
         }
       });
     }
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;
-  if (!brand) return <></>;
+  if (!country) return <></>;
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2>Edit brand: {id}</h2>
+          <h2>Edit country: {id}</h2>
           <form onSubmit={handleSubmit(handleSubmitEdit)}>
-            <BrandGeneralInformation
+            <CountryGeneralInformation
               register={register}
               errors={errors}
               setValue={setValue}
               trigger={trigger}
-              brand={brand}
+              country={country}
             />
 
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="/catalog/brands">
+            <Link href="${COUNTRY_URL}">
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>
@@ -86,4 +90,4 @@ const BrandEdit: NextPage = () => {
   );
 };
 
-export default BrandEdit;
+export default CountryEdit;

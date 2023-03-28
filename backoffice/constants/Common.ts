@@ -26,6 +26,7 @@ export const PRODUCT_ATTRIBUTE_GROUPS_URL = '/catalog/product-attribute-groups';
 export const PRODUCT_OPTIONS_URL = '/catalog/product-options';
 export const PRODUCT_ATTRIBUTE_URL = '/catalog/product-attributes';
 export const PRODUCT_URL = '/catalog/products';
+export const COUNTRY_URL = '/system/countries';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;

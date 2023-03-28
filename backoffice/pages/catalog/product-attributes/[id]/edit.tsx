@@ -9,7 +9,7 @@ import {
   getProductAttribute,
   updateProductAttribute,
 } from '../../../../modules/catalog/services/ProductAttributeService';
-import { handleUpdatingResponse } from '../../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 import { PRODUCT_ATTRIBUTE_URL } from '../../../../constants/Common';
 
 interface ProductAttributeId {

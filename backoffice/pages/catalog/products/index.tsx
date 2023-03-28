@@ -12,7 +12,7 @@ import { getBrands } from '../../../modules/catalog/services/BrandService';
 import { deleteProduct, getProducts } from '../../../modules/catalog/services/ProductService';
 import styles from '../../../styles/Filter.module.css';
 import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import { handleDeletingResponse } from '../../../modules/catalog/services/ResponseStatusHandlingService';
+import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import moment from 'moment';
 import { ExportProduct } from '../../../modules/catalog/components';
 
