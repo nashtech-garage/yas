@@ -10,10 +10,7 @@ import type { Country } from '@systemModels/Country';
 import type { StateOrProvince } from '@systemModels/StateOrProvince';
 import { getCountries } from '@systemServices/CountryService';
 import { getPageableStateOrProvinces } from '@systemServices/StateOrProvinceService';
-import {
-  deleteStateOrProvince,
-  getStateOrProvinces,
-} from '@systemServices/StateOrProvinceService';
+import { deleteStateOrProvince, getStateOrProvinces } from '@systemServices/StateOrProvinceService';
 import styles from 'styles/Filter.module.css';
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';

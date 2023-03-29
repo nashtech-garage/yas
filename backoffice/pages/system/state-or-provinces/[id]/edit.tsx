@@ -3,10 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { StateOrProvince } from '@systemModels/StateOrProvince';
-import {
-  editStateOrProvince,
-  getStateOrProvince,
-} from '@systemServices/StateOrProvinceService';
+import { editStateOrProvince, getStateOrProvince } from '@systemServices/StateOrProvinceService';
 import StateOrProvinceGeneralInformation from '@systemComponents/StateOrProvinceGeneralInformation';
 import { useEffect, useState } from 'react';
 import { toastError } from '@commonServices/ToastService';
