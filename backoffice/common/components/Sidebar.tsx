@@ -9,8 +9,7 @@ import { FiMenu } from 'react-icons/fi';
 import { CgClose } from 'react-icons/cg';
 import { RiArrowDropDownLine } from 'react-icons/ri';
 import { GrSystem } from 'react-icons/gr';
-import { COUNTRY_URL } from '../../constants/Common';
-
+import { COUNTRY_URL, STATE_OR_PROVINCE_URL } from '../../constants/Common';
 type Props = {
   open: boolean;
   setOpen: (value: boolean) => void;
@@ -77,6 +76,13 @@ let menu_system_item_data: any = [
     name: 'Countries',
     active: false,
     link: COUNTRY_URL,
+    icon: <GrSystem />,
+  },
+  {
+    id: 2,
+    name: 'State Or Provinces',
+    active: false,
+    link: STATE_OR_PROVINCE_URL,
     icon: <GrSystem />,
   },
 ];
