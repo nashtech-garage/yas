@@ -12,6 +12,7 @@ public class ProductAttributeValue {
     @Id
     private Long id;
 
+    @Field(type = FieldType.Text)
     private String value;
 
     @Field(type = FieldType.Object)
