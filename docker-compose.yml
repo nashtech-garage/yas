@@ -213,9 +213,9 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
       - "discovery.type=single-node"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+#    ports: elasticsearch might not be exposed for security reasons
+#      - "9200:9200"
+#      - "9300:9300"
       
 volumes:
   postgres:
