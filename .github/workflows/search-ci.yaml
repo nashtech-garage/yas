@@ -54,10 +54,11 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Test
         run: mvn test -f location
+      - name: Debug CI
+        run: pwd
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: always()
-        run: pwd
         with:
           name: Unit-Test-Results
           path: "search/**/surefire-reports/*.xml"
