@@ -39,7 +39,7 @@ public class CountryService {
   }
 
   @Transactional(readOnly = true)
-  public CountryVm findById(final Long id) {
+  public CountryVm findById(final String id) {
     final Country country = countryRepository
         .findById(id)
         .orElseThrow(
@@ -56,7 +56,7 @@ public class CountryService {
   }
 
   @Transactional
-  public void update(final CountryPostVm countryPostVm, final Long id) {
+  public void update(final CountryPostVm countryPostVm, final String id) {
     final Country country = countryRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
@@ -70,7 +70,7 @@ public class CountryService {
   }
 
   @Transactional
-  public void delete(final Long id) {
+  public void delete(final String id) {
     final boolean isCountryExisted = countryRepository.existsById(id);
     if (!isCountryExisted) {
       throw new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id);

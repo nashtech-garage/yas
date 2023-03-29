@@ -47,7 +47,7 @@ public class StateOrProvinceController {
   public ResponseEntity<StateOrProvinceListGetVm> getPageableStateOrProvinces(
       @RequestParam(value = "pageNo", defaultValue = Constants.PageableConstant.DEFAULT_PAGE_NUMBER, required = false) final int pageNo,
       @RequestParam(value = "pageSize", defaultValue = Constants.PageableConstant.DEFAULT_PAGE_SIZE, required = false) final int pageSize,
-      @RequestParam(value = "countryId", required = false) final Long countryId) {
+      @RequestParam(value = "countryId", required = false) final String countryId) {
     return ResponseEntity.ok(
         stateOrProvinceService.getPageableStateOrProvinces(pageNo, pageSize, countryId));
   }

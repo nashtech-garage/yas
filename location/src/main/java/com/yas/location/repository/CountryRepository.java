@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CountryRepository extends JpaRepository<Country, Long> {
+public interface CountryRepository extends JpaRepository<Country, String> {
 
   boolean existsByName(String name);
 
@@ -19,5 +19,5 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
        WHERE c.name = ?1
        AND c.id != ?2
       """)
-  boolean existsByNameNotUpdatingCountry(String name, Long id);
+  boolean existsByNameNotUpdatingCountry(String name, String id);
 }

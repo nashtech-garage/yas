@@ -29,13 +29,13 @@ public class StateOrProvince extends AbstractAuditEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(length = 450)
+  @Column(length = 255)
   private String code;
 
   @Column(nullable = false, length = 450)
   private String name;
 
-  @Column(length = 450)
+  @Column(length = 255)
   private String type;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -2,7 +2,7 @@ package com.yas.location.viewmodel.country;
 
 import com.yas.location.model.Country;
 
-public record CountryVm(Long id, String name, String code3, Boolean isBillingEnabled,
+public record CountryVm(String id, String name, String code3, Boolean isBillingEnabled,
                         Boolean isShippingEnabled,
                         Boolean isCityEnabled, Boolean isZipCodeEnabled,
                         Boolean isDistrictEnabled) {

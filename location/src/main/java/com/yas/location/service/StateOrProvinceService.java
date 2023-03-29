@@ -125,7 +125,7 @@ public class StateOrProvinceService {
    */
   @Transactional(readOnly = true)
   public StateOrProvinceListGetVm getPageableStateOrProvinces(int pageNo, int pageSize,
-      Long countryId) {
+      String countryId) {
     final Pageable pageable = PageRequest.of(pageNo, pageSize);
     final Page<StateOrProvince> stateOrProvincePage = stateOrProvinceRepository.getStateOrProvinceByCountry(
         countryId, pageable);

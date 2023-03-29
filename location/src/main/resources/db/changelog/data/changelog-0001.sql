@@ -245,3 +245,7 @@ INSERT INTO COUNTRY (name, code3, is_billing_enabled, is_shipping_enabled, is_ci
 INSERT INTO COUNTRY (name, code3, is_billing_enabled, is_shipping_enabled, is_city_enabled, is_zip_code_enabled, is_district_enabled, created_by, created_on) VALUES (N'South Africa', N'ZAF', false, false, true, true, true, N'Dieu Nguyen', now());
 INSERT INTO COUNTRY (name, code3, is_billing_enabled, is_shipping_enabled, is_city_enabled, is_zip_code_enabled, is_district_enabled, created_by, created_on) VALUES (N'Zambia', N'ZMB', false, false, true, true, true, N'Dieu Nguyen', now());
 INSERT INTO COUNTRY (name, code3, is_billing_enabled, is_shipping_enabled, is_city_enabled, is_zip_code_enabled, is_district_enabled, created_by, created_on) VALUES (N'Zimbabwe', N'ZWE', false, false, true, true, true, N'Dieu Nguyen', now());
+
+
+--changeset dieunguyen:issue-474-4
+DELETE FROM COUNTRY;
