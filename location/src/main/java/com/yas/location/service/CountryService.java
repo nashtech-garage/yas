@@ -43,7 +43,7 @@ public class CountryService {
     final Country country = countryRepository
         .findById(id)
         .orElseThrow(
-            () -> new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id));
+            () -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
     return countryMapper.toCountryViewModelFromCountry(country);
   }
 

@@ -2,13 +2,13 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { Country } from 'modules/system/models/Country';
-import { editCountry, getCountry } from 'modules/system/services/CountryService';
-import CountryGeneralInformation from 'modules/system/components/CountryGeneralInformation';
+import { Country } from '@systemModels/Country';
+import { editCountry, getCountry } from '@systemServices/CountryService';
+import CountryGeneralInformation from '@systemComponents/CountryGeneralInformation';
 import { useEffect, useState } from 'react';
 import { COUNTRY_URL } from 'constants/Common';
-import { toastError } from 'common/services/ToastService';
-import { handleUpdatingResponse } from 'common/services/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
 const CountryEdit: NextPage = () => {
   const router = useRouter();
