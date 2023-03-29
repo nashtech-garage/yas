@@ -54,51 +54,61 @@ public interface ProductRepository extends ElasticsearchRepository<Product, Long
     @Query(query = """
             {
                 "bool": {
-                    "should": [
-                        {
-                            "query_string": {
-                                "default_operator": "or",
-                                "fields": [
-                                    "brand.name",
-                                    "name",
-                                    "productCategories.name"
-                                ],
-                                "query": "?0"
-                            }
-                        },
-                        {
-                            "nested": {
-                                "path": "attributeValues",
-                                "query": {
-                                    "bool": {
-                                        "must": [
-                                            {
-                                                "query_string": {
-                                                    "default_operator": "or",
-                                                    "fields": [
-                                                        "attributeValues.value",
-                                                        "attributeValues.productAttribute.name"
-                                                    ],
-                                                    "query": "?0"
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    ],
                     "must": [
                         {
-                            "match": {
-                                "isActive": {
-                                    "query": True
-                                }
+                            "bool": {
+                                "should": [
+                                    {
+                                        "query_string": {
+                                            "default_operator": "or",
+                                            "fields": [
+                                                "brand.name",
+                                                "name",
+                                                "productCategories.name"
+                                            ],
+                                            "query": "?0"
+                                        }
+                                    },
+                                    {
+                                        "nested": {
+                                            "path": "attributeValues",
+                                            "query": {
+                                                "bool": {
+                                                    "must": [
+                                                        {
+                                                            "query_string": {
+                                                                "default_operator": "or",
+                                                                "fields": [
+                                                                    "attributeValues.value",
+                                                                    "attributeValues.productAttribute.name"
+                                                                ],
+                                                                "query": "?0"
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         },
                         {
-                            "match": {
-                                "isVisibleIndividually": True
+                            "bool": {
+                                "must": [
+                                    {
+                                        "match": {
+                                            "isActive": {
+                                                "query": true
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "match": {
+                                            "isVisibleIndividually": true
+                                        }
+                                    }
+                                ]
                             }
                         }
                     ]
