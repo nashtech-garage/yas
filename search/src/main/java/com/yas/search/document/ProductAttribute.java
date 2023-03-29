@@ -15,6 +15,7 @@ public class ProductAttribute {
     @Id
     private Long id;
 
+    @Field(type = FieldType.Text)
     private String name;
 
     @Field(type = FieldType.Object)
