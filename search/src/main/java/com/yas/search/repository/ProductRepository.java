@@ -6,8 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
-import java.util.List;
-
 public interface ProductRepository extends ElasticsearchRepository<Product, Long> {
 
     @Query("""
@@ -51,7 +49,7 @@ public interface ProductRepository extends ElasticsearchRepository<Product, Long
                 }
             }
             """)
-    List<Product> findByProductCategoriesCategoryNameAndIsVisibleIndividuallyTrueAndIsActiveTrue(String name);
+    Page<Product> findByProductCategoriesCategoryNameAndIsVisibleIndividuallyTrueAndIsActiveTrue(String name, Pageable pageable);
 
     @Query(query = """
             {
