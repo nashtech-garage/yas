@@ -3,14 +3,14 @@ import Link from 'next/link';
 import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ModalDeleteCustom from 'common/items/ModalDeleteCustom';
-import type { Country } from 'modules/system/models/Country';
-import { handleDeletingResponse } from 'common/services/ResponseStatusHandlingService';
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
+import type { Country } from '@systemModels/Country';
+import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import {
   deleteCountry,
   getPageableCountries,
-} from '../../../modules/system/services/CountryService';
-import { COUNTRY_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
+} from '@systemServices/CountryService';
+import { COUNTRY_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
 
 const CountryList: NextPage = () => {
   const [countryIdWantToDelete, setCountryIdWantToDelete] = useState<number>(-1);

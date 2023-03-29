@@ -6,17 +6,17 @@ import Form from 'react-bootstrap/Form';
 import { FaSearch } from 'react-icons/fa';
 import ReactPaginate from 'react-paginate';
 
-import type { Country } from 'modules/system/models/Country';
-import type { StateOrProvince } from 'modules/system/models/StateOrProvince';
-import { getCountries } from 'modules/system/services/CountryService';
-import { getPageableStateOrProvinces } from 'modules/system/services/StateOrProvinceService';
+import type { Country } from '@systemModels/Country';
+import type { StateOrProvince } from '@systemModels/StateOrProvince';
+import { getCountries } from '@systemServices/CountryService';
+import { getPageableStateOrProvinces } from '@systemServices/StateOrProvinceService';
 import {
   deleteStateOrProvince,
   getStateOrProvinces,
-} from 'modules/system/services/StateOrProvinceService';
+} from '@systemServices/StateOrProvinceService';
 import styles from 'styles/Filter.module.css';
-import ModalDeleteCustom from 'common/items/ModalDeleteCustom';
-import { handleDeletingResponse } from 'common/services/ResponseStatusHandlingService';
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
+import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import moment from 'moment';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
 import { STATE_OR_PROVINCE_URL } from 'constants/Common';

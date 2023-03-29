@@ -1,13 +1,13 @@
 import type { NextPage } from 'next';
-import { StateOrProvince } from 'modules/system/models/StateOrProvince';
-import { createStateOrProvince } from 'modules/system/services/StateOrProvinceService';
+import { StateOrProvince } from '@systemModels/StateOrProvince';
+import { createStateOrProvince } from '@systemServices/StateOrProvinceService';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import StateOrProvinceGeneralInformation from 'modules/system/components/StateOrProvinceGeneralInformation';
+import StateOrProvinceGeneralInformation from '@systemComponents/StateOrProvinceGeneralInformation';
 import { STATE_OR_PROVINCE_URL } from 'constants/Common';
-import { handleCreatingResponse } from 'common/services/ResponseStatusHandlingService';
+import { handleCreatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
 const StateOrProvinceCreate: NextPage = () => {
   const router = useRouter();

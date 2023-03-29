@@ -1,6 +1,13 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "paths": {
+      "@commonServices/*": ["common/services/*"],
+      "@commonItems/*": ["common/items/*"],
+      "@systemComponents/*": ["modules/system/components/*"],
+      "@systemModels/*": ["modules/system/models/*"],
+      "@systemServices/*": ["modules/system/services/*"]
+    },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
