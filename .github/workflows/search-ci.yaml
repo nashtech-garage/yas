@@ -54,8 +54,6 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Test
         run: mvn test -f search
-      - name: Debug CI
-        run: pwd
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: always()
