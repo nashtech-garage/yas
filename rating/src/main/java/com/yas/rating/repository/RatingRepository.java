@@ -18,12 +18,12 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     Page<Rating> findByProductId(Long id, Pageable pageable);
 
     @Query(value = "SELECT r FROM Rating r " +
-            "Where (r.productId IN :productIds OR :productIds IS NULL) " +
+            "Where (LOWER(r.productName) LIKE %:productName%) " +
             "AND CONCAT(LOWER(r.firstName), ' ', LOWER(r.lastName)) LIKE %:customerName% " +
             "AND LOWER(r.content) LIKE %:message% " +
             "AND r.createdOn BETWEEN :createdFrom AND :createdTo")
     Page<Rating> getRatingListWithFilter(
-            @Param("productIds") List<Long> productIds,
+            @Param("productName") String productName,
             @Param("customerName") String customerName,
             @Param("message") String message,
             @Param("createdFrom") ZonedDateTime createdFrom,

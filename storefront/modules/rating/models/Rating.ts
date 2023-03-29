@@ -7,4 +7,5 @@ export type Rating = {
   createdOn: Date;
   lastName: string;
   firstName: string;
+  productName: string;
 };

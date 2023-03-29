@@ -32,7 +32,7 @@ public class RatingServiceTest {
         ratingRepository = mock(RatingRepository.class);
         customerService = mock(CustomerService.class);
         productService = mock(ProductService.class);
-        ratingService = new RatingService(ratingRepository, customerService, productService);
+        ratingService = new RatingService(ratingRepository, customerService);
 
 
         ratingList = List.of(
@@ -50,13 +50,11 @@ public class RatingServiceTest {
                         .build()
         );
 
-        ratingPostVm = new RatingPostVm(
-                "comment 1",
-                5,
-                1L
-        );
-
-        //Security config
+        ratingPostVm =  RatingPostVm.builder()
+                .productId(1L)
+                .content("comment 1")
+                .star(5)
+                .build();
     }
 
     @Test

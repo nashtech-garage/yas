@@ -25,6 +25,8 @@ public class Rating extends AbstractAuditEntity{
 
     private Long productId;
 
+    private String productName;
+
     private String lastName;
 
     private String firstName;

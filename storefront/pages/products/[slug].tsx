@@ -128,6 +128,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
       content: contentRating,
       star: ratingStar,
       productId: product.id,
+      productName: product.name,
     };
     createRating(ratingPost)
       .then(() => {

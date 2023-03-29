@@ -30,12 +30,10 @@ import java.util.stream.Collectors;
 public class RatingService {
     private final RatingRepository ratingRepository;
     private final CustomerService customerService;
-    private final ProductService productService;
 
-    public RatingService(RatingRepository ratingRepository, CustomerService customerService, ProductService productService) {
+    public RatingService(RatingRepository ratingRepository, CustomerService customerService) {
         this.ratingRepository = ratingRepository;
         this.customerService = customerService;
-        this.productService = productService;
     }
 
     public RatingListVm getRatingListByProductId(Long id, int pageNo, int pageSize) {
@@ -55,23 +53,10 @@ public class RatingService {
                                                 ZonedDateTime createdTo, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdOn").descending());
 
-
-        List<Long> productIdList = null;
-        if (!proName.isEmpty()) {
-            ProductListGetVm productListGetVm = productService.getProductsByName(proName);
-
-            if(CollectionUtils.isNotEmpty(productListGetVm.productContent())){
-                productIdList = productListGetVm.productContent().stream()
-                        .map(product -> product.id())
-                        .collect(Collectors.toList());
-            }
-        }
-
         Page<Rating> ratings = ratingRepository.getRatingListWithFilter(
-                productIdList,
+                proName.toLowerCase(),
                 cusName.toLowerCase(), message.toLowerCase(),
                 createdFrom, createdTo, pageable);
-
 
         List<RatingVm> ratingVmList = new ArrayList<>();
         for (Rating rating : ratings.getContent()) {
@@ -86,6 +71,7 @@ public class RatingService {
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());
         rating.setProductId(ratingPostVm.productId());
+        rating.setProductName(ratingPostVm.productName());
 
         CustomerVm customerVm = customerService.getCustomer();
         rating.setLastName(customerVm.lastName());
