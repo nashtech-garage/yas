@@ -1,14 +1,13 @@
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
-import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 
 export default function BreadcrumbComponent({ props }: any) {
   return (
-    <Breadcrumb>
+    <Breadcrumb className="mt-4">
       {props.map((page: any, index: number) => (
         <Breadcrumb.Item
           href={page.url}
           key={index}
-          active={index === props.length - 1 ? true : false}
+          active={index === props.length - 1}
         >
           {page.pageName}
         </Breadcrumb.Item>
