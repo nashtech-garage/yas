@@ -10,8 +10,5 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProductServiceTest {
     @Test
     void test() {
-        var a = 5;
-
-        assertEquals(a, 5);
     }
 }
