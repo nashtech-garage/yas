@@ -5,7 +5,6 @@ import { Button, Stack, Table, Form, InputGroup } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import { getRatings, deleteRatingById } from '../../modules/rating/services/RatingService';
 import moment from 'moment';
-import styles from '../../styles/Filter.module.css';
 import { toast } from 'react-toastify';
 import type { Rating } from '../../modules/rating/models/Rating';
 import { getBrands } from '../../modules/catalog/services/BrandService';
@@ -15,13 +14,13 @@ const Reviews: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [isLoading, setLoading] = useState(false);
 
-  const [totalPageProduct, setTotalPageProduct] = useState<number>(1);
   const [brandName, setBrandName] = useState<string>('');
   const [productName, setProductName] = useState<string>('');
+  const [customerName, setCustomerName] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
   const [brandList, setBrandList] = useState<Brand[]>([]);
 
   const [ratingList, setRatingList] = useState<Rating[]>([]);
-  const [customerName, setCustomerName] = useState<string>('');
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [isDelete, setDelete] = useState<boolean>(false);
@@ -36,13 +35,13 @@ const Reviews: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    getRatings('', customerName, pageNo, ratingPageSize).then((res) => {
+    getRatings(productName, customerName, pageNo, ratingPageSize).then((res) => {
       setRatingList(res.ratingList);
       setTotalPage(res.totalPages);
       setPageNo(0);
       setCustomerName('');
     });
-  }, [isDelete, pageNo, customerName]);
+  }, [isDelete, pageNo]);
 
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
@@ -64,6 +63,16 @@ const Reviews: NextPage = () => {
     }
     typingTimeOutRef = setTimeout(() => {
       setCustomerName(e.target.value);
+      setPageNo(0);
+    }, 500);
+  };
+
+  const searchingMessageHandler = (e: any) => {
+    if (typingTimeOutRef) {
+      clearTimeout(typingTimeOutRef);
+    }
+    typingTimeOutRef = setTimeout(() => {
+      setMessage(e.target.value);
       setPageNo(0);
     }, 500);
   };
@@ -160,15 +169,15 @@ const Reviews: NextPage = () => {
               </Form.Label>
               <InputGroup>
                 <Form.Control
-                  id="product-name"
+                  id="customer-name"
                   placeholder="Search customer name ..."
-                  defaultValue={productName}
-                  onChange={(e) => searchingProductHandler(e)}
+                  defaultValue={customerName}
+                  onChange={(e) => searchingCustomerHandler(e)}
                 />
                 <Button
                   id="seach-customer"
                   variant="danger"
-                  onClick={(e) => searchingProductHandler(e)}
+                  onClick={(e) => searchingCustomerHandler(e)}
                 >
                   <FaSearch />
                 </Button>
@@ -177,20 +186,20 @@ const Reviews: NextPage = () => {
           </div>
           <div className="mb-4">
             <Form className="d-flex flex-row ">
-              <Form.Label htmlFor="createdTo" className="mx-2 pt-2">
+              <Form.Label htmlFor="message" className="mx-2 pt-2">
                 Message:{' '}
               </Form.Label>
               <InputGroup>
                 <Form.Control
-                  id="product-name"
+                  id="search-message"
                   placeholder="Search message ..."
-                  defaultValue={productName}
-                  onChange={(e) => searchingProductHandler(e)}
+                  defaultValue={message}
+                  onChange={(e) => searchingMessageHandler(e)}
                 />
                 <Button
-                  id="seach-customer"
+                  id="seach-message"
                   variant="danger"
-                  onClick={(e) => searchingProductHandler(e)}
+                  onClick={(e) => searchingMessageHandler(e)}
                 >
                   <FaSearch />
                 </Button>
@@ -204,7 +213,8 @@ const Reviews: NextPage = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th style={{ width: '45%' }}>Content</th>
+              <th style={{ width: '35%' }}>Content</th>
+              <th>Product Name</th>
               <th>Customer Id</th>
               <th>Customer Name</th>
               <th>Date Post</th>
@@ -217,6 +227,7 @@ const Reviews: NextPage = () => {
                 <tr key={rating.id}>
                   <td>{rating.id}</td>
                   <td>{rating.content}</td>
+                  <td>{rating.productName}</td>
                   <td>{rating.createdBy}</td>
                   <td>
                     {rating.lastName} {rating.firstName}
@@ -243,7 +254,7 @@ const Reviews: NextPage = () => {
         forcePage={pageNo}
         previousLabel={'Previous'}
         nextLabel={'Next'}
-        pageCount={totalPageProduct}
+        pageCount={totalPage}
         onPageChange={handlePageChange}
         containerClassName={'paginationBtns'}
         previousLinkClassName={'previousBtn'}
