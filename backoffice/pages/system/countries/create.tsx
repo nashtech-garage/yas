@@ -1,13 +1,13 @@
 import type { NextPage } from 'next';
-import { Country } from 'modules/system/models/Country';
-import { createCountry } from 'modules/system/services/CountryService';
+import { Country } from '@systemModels/Country';
+import { createCountry } from '@systemServices/CountryService';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import CountryGeneralInformation from 'modules/system/components/CountryGeneralInformation';
+import CountryGeneralInformation from '@systemComponents/CountryGeneralInformation';
 import { COUNTRY_URL } from 'constants/Common';
-import { handleCreatingResponse } from 'common/services/ResponseStatusHandlingService';
+import { handleCreatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
 const CountryCreate: NextPage = () => {
   const router = useRouter();

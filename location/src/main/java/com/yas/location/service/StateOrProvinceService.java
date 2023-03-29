@@ -48,13 +48,13 @@ public class StateOrProvinceService {
     final Long countryId = stateOrProvincePostVm.countryId();
     final boolean isCountryExisted = countryRepository.existsById(countryId);
     if (!isCountryExisted) {
-      throw new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, countryId);
+      throw new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, countryId);
     }
 
     final StateOrProvince stateOrProvince = StateOrProvince.builder()
         .name(stateOrProvincePostVm.name())
         .code(stateOrProvincePostVm.code())
-        .code(stateOrProvincePostVm.type())
+        .type(stateOrProvincePostVm.type())
         .country(countryRepository.getReferenceById(countryId))
         .build();
 
@@ -93,7 +93,7 @@ public class StateOrProvinceService {
   public void delete(final Long id) {
     final boolean isStateOrProvinceExisted = stateOrProvinceRepository.existsById(id);
     if (!isStateOrProvinceExisted) {
-      throw new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id);
+      throw new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id);
     }
     stateOrProvinceRepository.deleteById(id);
   }
@@ -102,7 +102,7 @@ public class StateOrProvinceService {
   public StateOrProvinceVm findById(final Long id) {
     final StateOrProvince stateOrProvince = stateOrProvinceRepository
         .findById(id)
-        .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
+        .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id));
     return stateOrProvinceMapper.toStateOrProvinceViewModelFromStateOrProvince(stateOrProvince);
   }
 
