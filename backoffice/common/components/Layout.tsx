@@ -166,7 +166,10 @@ const Sidebar = (menu: MenuProps) => {
             />
           </ul>
         </li>
-        <li className={menuActive == 'location' ? 'active' : ''} onClick={() => changeMenu('location')}>
+        <li
+          className={menuActive == 'location' ? 'active' : ''}
+          onClick={() => changeMenu('location')}
+        >
           <Link
             href="#locationSubmenu"
             data-target="#locationSubmenu"
