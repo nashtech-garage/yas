@@ -11,8 +11,7 @@ public class TaxApplication {
   public static void main(String[] args) {
     SpringApplication.run(TaxApplication.class, args);
   }
-
-
+  
   @Bean
   public ZipkinSpanExporter zipkinSpanExporter() {
     return ZipkinSpanExporter.builder()
