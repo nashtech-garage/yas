@@ -1,13 +1,11 @@
 package com.yas.rating.service;
 
-import com.yas.rating.exception.BadRequestException;
 import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,21 +14,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @Transactional
 public class RatingService {
-    final static DateTimeFormatter formatter  = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss a z");
     private final RatingRepository ratingRepository;
     private final CustomerService customerService;
 

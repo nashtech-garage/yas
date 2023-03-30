@@ -1,5 +1,5 @@
 databaseChangeLog:
   - includeAll:
-      path: classpath*:db/changelog/ddl/
+      path: db/changelog/ddl/
   - includeAll:
       path: db/changelog/data/
