@@ -1,13 +1,11 @@
 import { Form, InputGroup } from 'react-bootstrap';
 import { RatingSearchForm } from '../models/RatingSearchForm';
 import { UseFormRegister } from 'react-hook-form';
-import { Brand } from 'modules/catalog/models/Brand';
 type Props = {
-  brandList: Brand[];
   register: UseFormRegister<RatingSearchForm>;
 };
 
-const RatingSearch = ({ brandList, register }: Props) => {
+const RatingSearch = ({ register }: Props) => {
   return (
     <>
       <div className="row">
@@ -33,8 +31,7 @@ const RatingSearch = ({ brandList, register }: Props) => {
               className="form-control "
               type="datetime-local"
               {...register('createdTo')}
-              defaultValue="2024-01-01T19:30"
-              // defaultValue={new Date().toISOString().slice(0, -8)}
+              defaultValue={new Date().toISOString().slice(0, -8)}
             />
           </div>
         </div>

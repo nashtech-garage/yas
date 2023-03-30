@@ -1,5 +1,4 @@
 import type { NextPage } from 'next';
-import type { Brand } from '../../modules/catalog/models/Brand';
 import { useState, useEffect } from 'react';
 import { Stack, Table } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
@@ -7,16 +6,14 @@ import { getRatings, deleteRatingById } from '../../modules/rating/services/Rati
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import type { Rating } from '../../modules/rating/models/Rating';
-import { getBrands } from '../../modules/catalog/services/BrandService';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { RatingSearchForm } from 'modules/rating/models/RatingSearchForm';
 import RatingSearch from 'modules/rating/components/RatingSearch';
 import queryString from 'query-string';
 
 const Reviews: NextPage = () => {
-  const { register, watch, handleSubmit, reset } = useForm<RatingSearchForm>();
+  const { register, watch, handleSubmit } = useForm<RatingSearchForm>();
   const [isLoading, setLoading] = useState(false);
-  const [brandList, setBrandList] = useState<Brand[]>([]);
 
   const [ratingList, setRatingList] = useState<Rating[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
@@ -26,57 +23,29 @@ const Reviews: NextPage = () => {
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
 
+  const handleGetRating = () => {
+    getRatings(
+      queryString.stringify({
+        ...watchAllFields,
+        pageNo: pageNo,
+        pageSize: ratingPageSize,
+        createdFrom: moment(watchAllFields.createdFrom).format(),
+        createdTo: moment(watchAllFields.createdTo).format(),
+      })
+    ).then((res) => {
+      setRatingList(res.ratingList);
+      setTotalPage(res.totalPages);
+    });
+  };
+
   useEffect(() => {
     setLoading(true);
-    getBrands().then((data) => {
-      setBrandList(data);
-      setLoading(false);
-    });
-    getRatings(
-      queryString.stringify({
-        ...watchAllFields,
-        pageNo: pageNo,
-        pageSize: ratingPageSize,
-        createdFrom: moment(watchAllFields.createdFrom).format(),
-        createdTo: moment(watchAllFields.createdTo).format(),
-      })
-    ).then((res) => {
-      setRatingList(res.ratingList);
-      setTotalPage(res.totalPages);
-    });
-  }, []);
-
-  useEffect(() => {
-    getRatings(
-      queryString.stringify({
-        ...watchAllFields,
-        pageNo: pageNo,
-        pageSize: ratingPageSize,
-        createdFrom: moment(watchAllFields.createdFrom).format(),
-        createdTo: moment(watchAllFields.createdTo).format(),
-      })
-    ).then((res) => {
-      setRatingList(res.ratingList);
-      setTotalPage(res.totalPages);
-    });
+    handleGetRating();
+    setLoading(false);
   }, [pageNo, isDelete]);
 
-  const handlePageChange = ({ selected }: any) => {
-    setPageNo(selected);
-  };
   const onSubmitSearch: SubmitHandler<RatingSearchForm> = async (data) => {
-    getRatings(
-      queryString.stringify({
-        ...data,
-        pageNo: pageNo,
-        pageSize: ratingPageSize,
-        createdFrom: moment(data.createdFrom).format(),
-        createdTo: moment(data.createdTo).format(),
-      })
-    ).then((res) => {
-      setRatingList(res.ratingList);
-      setTotalPage(res.totalPages);
-    });
+    handleGetRating();
     setPageNo(0);
   };
 
@@ -85,6 +54,10 @@ const Reviews: NextPage = () => {
       toast.success('Delete rating successfully');
       setDelete(!isDelete);
     });
+  };
+
+  const handlePageChange = ({ selected }: any) => {
+    setPageNo(selected);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -119,7 +92,7 @@ const Reviews: NextPage = () => {
           >
             <div className="accordion-body">
               <form onSubmit={handleSubmit(onSubmitSearch)}>
-                <RatingSearch brandList={brandList} register={register} />
+                <RatingSearch register={register} />
               </form>
             </div>
           </div>
