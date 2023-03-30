@@ -65,8 +65,6 @@ const Reviews: NextPage = () => {
     setPageNo(selected);
   };
   const onSubmitSearch: SubmitHandler<RatingSearchForm> = async (data) => {
-    console.log({ ...data });
-
     getRatings(
       queryString.stringify({
         ...data,
