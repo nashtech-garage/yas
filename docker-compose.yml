@@ -9,7 +9,7 @@ services:
     ports:
       - "80:80"
   identity:
-    image: quay.io/keycloak/keycloak:21.0.1
+    image: quay.io/keycloak/keycloak:21.0.2
     command: [ 'start-dev --import-realm' ]
     environment:
       KEYCLOAK_ADMIN: admin
