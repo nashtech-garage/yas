@@ -13,3 +13,6 @@ INSERT INTO product_image (image_id,product_id) VALUES (2,1), (4,2);
 update product set thumbnail_media_id = 1 where id = 1;
 update product set thumbnail_media_id = 3 where id = 2;
 
+--changeset khoahd7621:issue-540
+update product set thumbnail_media_id = 8 where id = 1;
+update product set thumbnail_media_id = 9 where id = 2;
