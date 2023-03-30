@@ -4,9 +4,9 @@
     "paths": {
       "@commonServices/*": ["common/services/*"],
       "@commonItems/*": ["common/items/*"],
-      "@systemComponents/*": ["modules/system/components/*"],
-      "@systemModels/*": ["modules/system/models/*"],
-      "@systemServices/*": ["modules/system/services/*"]
+      "@locationComponents/*": ["modules/location/components/*"],
+      "@locationModels/*": ["modules/location/models/*"],
+      "@locationServices/*": ["modules/location/services/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
