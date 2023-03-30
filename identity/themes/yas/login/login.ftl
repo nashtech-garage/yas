@@ -45,7 +45,7 @@
                 </@linkPrimary.kw>
             </div>
         </#if>
-      <div>
+        <div>
             <p class="copyright">&copy; copyright - yas.nashtech-garage ${.now?string('yyyy')}</p>
         </div>
     </#if>
