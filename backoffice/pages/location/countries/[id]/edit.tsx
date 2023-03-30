@@ -2,15 +2,15 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { StateOrProvince } from '@systemModels/StateOrProvince';
-import { editStateOrProvince, getStateOrProvince } from '@systemServices/StateOrProvinceService';
-import StateOrProvinceGeneralInformation from '@systemComponents/StateOrProvinceGeneralInformation';
+import { Country } from '@locationModels/Country';
+import { editCountry, getCountry } from '@locationServices/CountryService';
+import CountryGeneralInformation from '@locationComponents/CountryGeneralInformation';
 import { useEffect, useState } from 'react';
+import { COUNTRY_URL } from 'constants/Common';
 import { toastError } from '@commonServices/ToastService';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
-import { STATE_OR_PROVINCE_URL } from 'constants/Common';
 
-const StateOrProvinceEdit: NextPage = () => {
+const CountryEdit: NextPage = () => {
   const router = useRouter();
   const {
     register,
@@ -18,23 +18,27 @@ const StateOrProvinceEdit: NextPage = () => {
     formState: { errors },
     setValue,
     trigger,
-  } = useForm<StateOrProvince>();
-  const [stateOrProvince, setStateOrProvince] = useState<StateOrProvince>();
+  } = useForm<Country>();
+  const [country, setCountry] = useState<Country>();
   const [isLoading, setLoading] = useState(false);
   const { id } = router.query;
-  const handleSubmitEdit = async (event: StateOrProvince) => {
+  const handleSubmitEdit = async (event: Country) => {
     if (id) {
-      let stateOrProvince: StateOrProvince = {
+      let country: Country = {
         id: 0,
+        code2: event.code2,
         name: event.name,
-        code: event.code,
-        type: event.type,
-        countryId: 0,
+        code3: event.code3,
+        isBillingEnabled: event.isBillingEnabled,
+        isShippingEnabled: event.isShippingEnabled,
+        isCityEnabled: event.isCityEnabled,
+        isZipCodeEnabled: event.isZipCodeEnabled,
+        isDistrictEnabled: event.isDistrictEnabled,
       };
 
-      editStateOrProvince(+id, stateOrProvince).then((response) => {
+      editCountry(+id, country).then((response) => {
         handleUpdatingResponse(response);
-        router.replace(STATE_OR_PROVINCE_URL);
+        router.replace(COUNTRY_URL);
       });
     }
   };
@@ -42,39 +46,39 @@ const StateOrProvinceEdit: NextPage = () => {
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getStateOrProvince(+id).then((data) => {
+      getCountry(+id).then((data) => {
         if (data.id) {
-          setStateOrProvince(data);
+          setCountry(data);
           setLoading(false);
         } else {
           toastError(data?.detail);
           setLoading(false);
-          router.push(STATE_OR_PROVINCE_URL);
+          router.push(COUNTRY_URL);
         }
       });
     }
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;
-  if (!stateOrProvince) return <></>;
+  if (!country) return <></>;
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2>Edit stateOrProvince: {id}</h2>
+          <h2>Edit country: {id}</h2>
           <form onSubmit={handleSubmit(handleSubmitEdit)}>
-            <StateOrProvinceGeneralInformation
+            <CountryGeneralInformation
               register={register}
               errors={errors}
               setValue={setValue}
               trigger={trigger}
-              stateOrProvince={stateOrProvince}
+              country={country}
             />
 
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href={`${STATE_OR_PROVINCE_URL}`}>
+            <Link href="${COUNTRY_URL}">
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>
@@ -86,4 +90,4 @@ const StateOrProvinceEdit: NextPage = () => {
   );
 };
 
-export default StateOrProvinceEdit;
+export default CountryEdit;

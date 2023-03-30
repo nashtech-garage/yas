@@ -1,4 +1,3 @@
-import StarRatings from 'react-star-ratings';
 import Moment from 'react-moment';
 import ReactPaginate from 'react-paginate';
 import { Rating } from '../models/Rating';
@@ -57,11 +56,11 @@ export default function RatingList({
             nextLabel={'Next'}
             pageCount={totalPages}
             onPageChange={handlePageChange}
-            containerClassName={'paginationBtns'}
-            previousLinkClassName={'previousBtn'}
-            nextClassName={'nextBtn'}
-            disabledClassName={'paginationDisabled'}
-            activeClassName={'paginationActive'}
+            containerClassName={'pagination-container'}
+            previousClassName={'previous-btn'}
+            nextClassName={'next-btn'}
+            disabledClassName={'pagination-disabled'}
+            activeClassName={'pagination-active'}
           />
         </>
       )}

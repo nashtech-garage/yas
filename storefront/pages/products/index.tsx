@@ -2,8 +2,10 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import queryString from 'query-string';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { Container } from 'react-bootstrap';
 import Row from 'react-bootstrap/Row';
 import ReactPaginate from 'react-paginate';
+
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 import ProductItems from '../../common/items/ProductItems';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
@@ -11,6 +13,7 @@ import { Category } from '../../modules/catalog/models/Category';
 import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail';
 import { getCategories } from '../../modules/catalog/services/CategoryService';
 import { getProductByMultiParams } from '../../modules/catalog/services/ProductService';
+
 import styles from '../../styles/productList.module.css';
 
 const crumb: BreadcrumbModel[] = [
@@ -51,6 +54,7 @@ const ProductList = () => {
     getCategories().then((res) => {
       setCates(res);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -69,6 +73,7 @@ const ProductList = () => {
       setProduct(res.productContent);
       setTotalPage(res.totalPages);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const changePage = ({ selected }: any) => {
@@ -108,7 +113,7 @@ const ProductList = () => {
   };
 
   return (
-    <>
+    <Container>
       <Head>
         <title>Product List</title>
       </Head>
@@ -209,7 +214,7 @@ const ProductList = () => {
               </div>
               <div className="products-list" style={{ marginTop: 10 }}>
                 {/* PRODUCT VIEW */}
-                <Row xs={1} sm={1} md={2} lg={3} className="g-2">
+                <Row xs={5}>
                   <ProductItems products={products} />
                 </Row>
                 {/* PAGINATION */}
@@ -219,18 +224,18 @@ const ProductList = () => {
                   nextLabel={'Next'}
                   pageCount={totalPage}
                   onPageChange={changePage}
-                  containerClassName={'paginationBtns'}
-                  previousLinkClassName={'previousBtn'}
-                  nextClassName={'nextBtn'}
-                  disabledClassName={'paginationDisabled'}
-                  activeClassName={'paginationActive'}
+                  containerClassName={'pagination-container'}
+                  previousClassName={'previous-btn'}
+                  nextClassName={'next-btn'}
+                  disabledClassName={'pagination-disabled'}
+                  activeClassName={'pagination-active'}
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </Container>
   );
 };
 

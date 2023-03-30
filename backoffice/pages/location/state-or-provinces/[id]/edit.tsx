@@ -2,15 +2,15 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { Country } from '@systemModels/Country';
-import { editCountry, getCountry } from '@systemServices/CountryService';
-import CountryGeneralInformation from '@systemComponents/CountryGeneralInformation';
+import { StateOrProvince } from '@locationModels/StateOrProvince';
+import { editStateOrProvince, getStateOrProvince } from '@locationServices/StateOrProvinceService';
+import StateOrProvinceGeneralInformation from '@locationComponents/StateOrProvinceGeneralInformation';
 import { useEffect, useState } from 'react';
-import { COUNTRY_URL } from 'constants/Common';
 import { toastError } from '@commonServices/ToastService';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { STATE_OR_PROVINCE_URL } from 'constants/Common';
 
-const CountryEdit: NextPage = () => {
+const StateOrProvinceEdit: NextPage = () => {
   const router = useRouter();
   const {
     register,
@@ -18,27 +18,23 @@ const CountryEdit: NextPage = () => {
     formState: { errors },
     setValue,
     trigger,
-  } = useForm<Country>();
-  const [country, setCountry] = useState<Country>();
+  } = useForm<StateOrProvince>();
+  const [stateOrProvince, setStateOrProvince] = useState<StateOrProvince>();
   const [isLoading, setLoading] = useState(false);
   const { id } = router.query;
-  const handleSubmitEdit = async (event: Country) => {
+  const handleSubmitEdit = async (event: StateOrProvince) => {
     if (id) {
-      let country: Country = {
+      let stateOrProvince: StateOrProvince = {
         id: 0,
-        code2: event.code2,
         name: event.name,
-        code3: event.code3,
-        isBillingEnabled: event.isBillingEnabled,
-        isShippingEnabled: event.isShippingEnabled,
-        isCityEnabled: event.isCityEnabled,
-        isZipCodeEnabled: event.isZipCodeEnabled,
-        isDistrictEnabled: event.isDistrictEnabled,
+        code: event.code,
+        type: event.type,
+        countryId: 0,
       };
 
-      editCountry(+id, country).then((response) => {
+      editStateOrProvince(+id, stateOrProvince).then((response) => {
         handleUpdatingResponse(response);
-        router.replace(COUNTRY_URL);
+        router.replace(STATE_OR_PROVINCE_URL);
       });
     }
   };
@@ -46,39 +42,39 @@ const CountryEdit: NextPage = () => {
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getCountry(+id).then((data) => {
+      getStateOrProvince(+id).then((data) => {
         if (data.id) {
-          setCountry(data);
+          setStateOrProvince(data);
           setLoading(false);
         } else {
           toastError(data?.detail);
           setLoading(false);
-          router.push(COUNTRY_URL);
+          router.push(STATE_OR_PROVINCE_URL);
         }
       });
     }
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;
-  if (!country) return <></>;
+  if (!stateOrProvince) return <></>;
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
-          <h2>Edit country: {id}</h2>
+          <h2>Edit stateOrProvince: {id}</h2>
           <form onSubmit={handleSubmit(handleSubmitEdit)}>
-            <CountryGeneralInformation
+            <StateOrProvinceGeneralInformation
               register={register}
               errors={errors}
               setValue={setValue}
               trigger={trigger}
-              country={country}
+              stateOrProvince={stateOrProvince}
             />
 
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="${COUNTRY_URL}">
+            <Link href={`${STATE_OR_PROVINCE_URL}`}>
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>
@@ -90,4 +86,4 @@ const CountryEdit: NextPage = () => {
   );
 };
 
-export default CountryEdit;
+export default StateOrProvinceEdit;

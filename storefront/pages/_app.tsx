@@ -11,6 +11,7 @@ import '../styles/cart.css';
 import '../styles/Footer.css';
 import '../styles/globals.css';
 import '../styles/Header.css';
+import '../styles/HomePage.css';
 import '../styles/productDetail.css';
 import '../styles/util.css';
 

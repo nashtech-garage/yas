@@ -9,7 +9,7 @@ import {
   menu_catalog_item_data,
   menu_customer_item_data,
   menu_other_item_data,
-  menu_system_item_data,
+  menu_location_item_data,
 } from '../../asset/data/sidebar';
 import { AnyObject } from 'yup/lib/object';
 
@@ -166,20 +166,20 @@ const Sidebar = (menu: MenuProps) => {
             />
           </ul>
         </li>
-        <li className={menuActive == 'system' ? 'active' : ''} onClick={() => changeMenu('system')}>
+        <li className={menuActive == 'location' ? 'active' : ''} onClick={() => changeMenu('location')}>
           <Link
-            href="#systemSubmenu"
-            data-target="#systemSubmenu"
+            href="#locationSubmenu"
+            data-target="#locationSubmenu"
             data-bs-toggle="collapse"
-            aria-controls="systemSubmenu"
+            aria-controls="locationSubmenu"
             aria-expanded="false"
             className="dropdown-toggle"
           >
-            <span className="fa fa-pencil"></span> System
+            <span className="fa fa-location-arrow"></span> Location
           </Link>
-          <ul className="collapse list-unstyled" id="systemSubmenu">
+          <ul className="collapse list-unstyled" id="locationSubmenu">
             <ListItem
-              data={menu_system_item_data}
+              data={menu_location_item_data}
               childActive={menu.childActive}
               changeChildMenu={menu.changeChildMenu}
             />

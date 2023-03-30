@@ -2,6 +2,7 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Container } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { UPDATE_SUCCESSFULLY } from '../../common/constants/Common';
@@ -30,13 +31,13 @@ const Profile: NextPage = () => {
       lastName: event.target.lastName.value,
       email: event.target.email.value,
     };
-    updateCustomer(request).then(async (res) => {
+    updateCustomer(request).then(async (_res) => {
       toast.success(UPDATE_SUCCESSFULLY);
     });
   };
 
   return (
-    <>
+    <Container>
       <Head>
         <title>Profile</title>
       </Head>
@@ -82,7 +83,7 @@ const Profile: NextPage = () => {
           </div>
         </div>
       </div>
-    </>
+    </Container>
   );
 };
 
