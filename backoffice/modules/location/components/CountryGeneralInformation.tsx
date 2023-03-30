@@ -15,6 +15,16 @@ const CountryGeneralInformation = ({ register, errors, setValue, trigger, countr
   return (
     <>
       <Input
+        labelText="Code2"
+        field="code2"
+        defaultValue={country?.code2}
+        register={register}
+        registerOptions={{
+          required: { value: true, message: 'Code2 is required' },
+        }}
+        error={errors.code2?.message}
+      />
+      <Input
         labelText="Name"
         field="name"
         defaultValue={country?.name}
@@ -24,16 +34,8 @@ const CountryGeneralInformation = ({ register, errors, setValue, trigger, countr
         }}
         error={errors.name?.message}
       />
-      <Input
-        labelText="Code3"
-        field="code3"
-        defaultValue={country?.code3}
-        register={register}
-        registerOptions={{
-          required: { value: true, message: 'Code3 is required' },
-        }}
-        error={errors.code3?.message}
-      />
+
+      <Input labelText="Code3" field="code3" defaultValue={country?.code3} register={register} />
       <CheckBox
         labelText="isBillingEnabled"
         field="isBillingEnabled"

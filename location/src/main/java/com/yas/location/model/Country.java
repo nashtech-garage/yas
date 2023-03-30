@@ -32,7 +32,10 @@ public class Country extends AbstractAuditEntity {
   @Column(nullable = false, length = 450)
   private String name;
 
-  @Column(nullable = false, length = 450)
+  @Column(length = 3)
+  private String code2;
+
+  @Column(length = 3)
   private String code3;
 
   private Boolean isBillingEnabled;

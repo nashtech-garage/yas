@@ -35,20 +35,12 @@ const StateOrProvinceGeneralInformation = ({
         field="code"
         defaultValue={stateOrProvince?.code}
         register={register}
-        registerOptions={{
-          required: { value: true, message: 'The code is required' },
-        }}
-        error={errors.code?.message}
       />
       <Input
         labelText="Type"
         field="type"
         defaultValue={stateOrProvince?.type}
         register={register}
-        registerOptions={{
-          required: { value: true, message: 'The type is required' },
-        }}
-        error={errors.type?.message}
       />
     </>
   );

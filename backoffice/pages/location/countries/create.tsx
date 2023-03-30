@@ -1,11 +1,11 @@
 import type { NextPage } from 'next';
-import { Country } from '@systemModels/Country';
-import { createCountry } from '@systemServices/CountryService';
+import { Country } from '@locationModels/Country';
+import { createCountry } from '@locationServices/CountryService';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import CountryGeneralInformation from '@systemComponents/CountryGeneralInformation';
+import CountryGeneralInformation from '@locationComponents/CountryGeneralInformation';
 import { COUNTRY_URL } from 'constants/Common';
 import { handleCreatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
@@ -21,6 +21,7 @@ const CountryCreate: NextPage = () => {
   const handleSubmitCountry = async (event: Country) => {
     let country: Country = {
       id: 0,
+      code2: event.code2,
       name: event.name,
       code3: event.code3,
       isBillingEnabled: event.isBillingEnabled,

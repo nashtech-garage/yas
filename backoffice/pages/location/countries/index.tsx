@@ -4,9 +4,9 @@ import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
-import type { Country } from '@systemModels/Country';
+import type { Country } from '@locationModels/Country';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
-import { deleteCountry, getPageableCountries } from '@systemServices/CountryService';
+import { deleteCountry, getPageableCountries } from '@locationServices/CountryService';
 import { COUNTRY_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
 
 const CountryList: NextPage = () => {

@@ -80,7 +80,6 @@ public class CountryService {
 
   @Transactional(readOnly = true)
   public CountryListGetVm getPageableCountries(final int pageNo, final int pageSize) {
-    // List<CountryVm> countryVms = new ArrayList<>();
     final Pageable pageable = PageRequest.of(pageNo, pageSize);
     final Page<Country> countryPage = countryRepository.findAll(pageable);
     final List<Country> countryList = countryPage.getContent();

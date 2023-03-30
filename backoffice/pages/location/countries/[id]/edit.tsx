@@ -2,9 +2,9 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
-import { Country } from '@systemModels/Country';
-import { editCountry, getCountry } from '@systemServices/CountryService';
-import CountryGeneralInformation from '@systemComponents/CountryGeneralInformation';
+import { Country } from '@locationModels/Country';
+import { editCountry, getCountry } from '@locationServices/CountryService';
+import CountryGeneralInformation from '@locationComponents/CountryGeneralInformation';
 import { useEffect, useState } from 'react';
 import { COUNTRY_URL } from 'constants/Common';
 import { toastError } from '@commonServices/ToastService';
@@ -26,6 +26,7 @@ const CountryEdit: NextPage = () => {
     if (id) {
       let country: Country = {
         id: 0,
+        code2: event.code2,
         name: event.name,
         code3: event.code3,
         isBillingEnabled: event.isBillingEnabled,

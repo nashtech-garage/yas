@@ -14,6 +14,7 @@ public interface CountryMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "name", source = "name")
+  @Mapping(target = "code2", source = "code2")
   @Mapping(target = "code3", source = "code3")
   @Mapping(target = "isBillingEnabled", source = "isBillingEnabled")
   @Mapping(target = "isShippingEnabled", source = "isShippingEnabled")
