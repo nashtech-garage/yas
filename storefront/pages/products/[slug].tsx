@@ -1,7 +1,7 @@
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { Table } from 'react-bootstrap';
+import { Container, Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 
@@ -105,6 +105,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
     getAverageStarByProductId(product.id).then((res) => {
       setAverageStar(res);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -165,7 +166,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
   }
 
   return (
-    <>
+    <Container>
       <Head>
         <title>{product.name}</title>
       </Head>
@@ -237,7 +238,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
           </div>
         </Tab>
       </Tabs>
-    </>
+    </Container>
   );
 };
 
