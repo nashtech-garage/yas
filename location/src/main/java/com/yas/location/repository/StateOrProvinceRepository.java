@@ -32,6 +32,6 @@ public interface StateOrProvinceRepository extends JpaRepository<StateOrProvince
        WHERE sop.country.id = :countryId
        ORDER BY sop.lastModifiedOn DESC
       """)
-  Page<StateOrProvince> getStateOrProvinceByCountry(@Param("countryId") final String countryId,
+  Page<StateOrProvince> getStateOrProvinceByCountry(@Param("countryId") final Long countryId,
       final Pageable pageable);
 }

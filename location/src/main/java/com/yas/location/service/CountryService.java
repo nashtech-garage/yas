@@ -39,7 +39,7 @@ public class CountryService {
   }
 
   @Transactional(readOnly = true)
-  public CountryVm findById(final String id) {
+  public CountryVm findById(final Long id) {
     final Country country = countryRepository
         .findById(id)
         .orElseThrow(
@@ -56,7 +56,7 @@ public class CountryService {
   }
 
   @Transactional
-  public void update(final CountryPostVm countryPostVm, final String id) {
+  public void update(final CountryPostVm countryPostVm, final Long id) {
     final Country country = countryRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
@@ -70,7 +70,7 @@ public class CountryService {
   }
 
   @Transactional
-  public void delete(final String id) {
+  public void delete(final Long id) {
     final boolean isCountryExisted = countryRepository.existsById(id);
     if (!isCountryExisted) {
       throw new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id);
@@ -80,7 +80,6 @@ public class CountryService {
 
   @Transactional(readOnly = true)
   public CountryListGetVm getPageableCountries(final int pageNo, final int pageSize) {
-    // List<CountryVm> countryVms = new ArrayList<>();
     final Pageable pageable = PageRequest.of(pageNo, pageSize);
     final Page<Country> countryPage = countryRepository.findAll(pageable);
     final List<Country> countryList = countryPage.getContent();

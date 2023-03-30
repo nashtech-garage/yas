@@ -26,11 +26,14 @@ import lombok.Setter;
 public class Country extends AbstractAuditEntity {
 
   @Id
-  @Column(length = 2)
-  private String id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
   @Column(nullable = false, length = 450)
   private String name;
+
+  @Column(length = 3)
+  private String code2;
 
   @Column(length = 3)
   private String code3;

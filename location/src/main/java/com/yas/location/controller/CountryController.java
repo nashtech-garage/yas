@@ -51,7 +51,7 @@ public class CountryController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_200, description = Constants.ApiConstant.OK, content = @Content(schema = @Schema(implementation = CountryVm.class))),
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-  public ResponseEntity<CountryVm> getCountry(@PathVariable("id") final String id) {
+  public ResponseEntity<CountryVm> getCountry(@PathVariable("id") final Long id) {
     return ResponseEntity.ok(countryService.findById(id));
   }
 
@@ -76,7 +76,7 @@ public class CountryController {
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_204, description = Constants.ApiConstant.NO_CONTENT, content = @Content()),
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorVm.class))),
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_400, description = Constants.ApiConstant.BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-  public ResponseEntity<Void> updateCountry(@PathVariable final String id,
+  public ResponseEntity<Void> updateCountry(@PathVariable final Long id,
       @Valid @RequestBody final CountryPostVm countryPostVm) {
     countryService.update(countryPostVm, id);
     return ResponseEntity.noContent().build();
@@ -87,7 +87,7 @@ public class CountryController {
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_204, description = Constants.ApiConstant.NO_CONTENT, content = @Content()),
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorVm.class))),
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_400, description = Constants.ApiConstant.BAD_REQUEST, content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-  public ResponseEntity<Void> deleteCountry(@PathVariable(name = "id") final String id) {
+  public ResponseEntity<Void> deleteCountry(@PathVariable(name = "id") final Long id) {
     countryService.delete(id);
     return ResponseEntity.noContent().build();
   }

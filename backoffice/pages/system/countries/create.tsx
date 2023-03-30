@@ -21,6 +21,7 @@ const CountryCreate: NextPage = () => {
   const handleSubmitCountry = async (event: Country) => {
     let country: Country = {
       id: 0,
+      code2: event.code2,
       name: event.name,
       code3: event.code3,
       isBillingEnabled: event.isBillingEnabled,

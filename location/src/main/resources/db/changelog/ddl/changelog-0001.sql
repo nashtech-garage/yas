@@ -63,3 +63,8 @@ alter table if exists district add constraint FK2y94svpmqttx80mshyny85wqr foreig
 alter table if exists address add constraint FK2y94svpmqttx80mshyny85wqr foreign key (state_or_province_id) references state_or_province;
 alter table if exists address add constraint FK2y94svpmqttx80mshyny85wqa foreign key (country_id) references country;
 alter table if exists address add constraint FK2y94svpmqttx80mshyny85wqs foreign key (district_id) references district;
+
+--changeset dieunguyen:issue-474-5
+alter table if exists country add column code2 char(3);
+alter table if exists country alter column code3 type char(3);
+alter table if exists state_or_province alter column code drop not null;
