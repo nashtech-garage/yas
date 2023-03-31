@@ -13,3 +13,6 @@ insert into category (name, slug, display_order, parent_id) values ('Macbook', '
 update category set image_id = 5 where id = 1;
 update category set name = 'Phone', image_id = 6 where id = 2;
 update category set image_id = 7 where id = 3;
+
+--changeset khoahd7621:issue-540
+insert into category (name, slug, display_order, image_id) values ('Tablet', 'tablet', 100, 10);
