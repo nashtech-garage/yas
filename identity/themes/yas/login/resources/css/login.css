@@ -100,8 +100,8 @@ input {
   text-align: center;
   color: #ffffff;
   border-style: none;
-  margin-top: 60px;
-  margin-bottom: 60px;
+  margin-top: 5rem;
+  margin-bottom: 4rem;
 }
 .login-content .box .visibility {
   position: relative;
@@ -204,4 +204,39 @@ a {
   margin-left: 16px;
   margin-top: 5px;
   border-style: 1px solid black;
+}
+
+.backtologin {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.register-submit {
+  width: 320px;
+  height: 36px;
+  border-radius: 2px;
+  background-color: #00754a;
+  font-family: Muli;
+  font-size: 14px;
+  font-weight: bold;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #ffffff;
+  border-style: none;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.error-message {
+  color: red;
 }

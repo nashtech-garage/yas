@@ -1040,6 +1040,7 @@
         "http://localhost:8088/*",
         "http://localhost:8089/*",
         "http://localhost:8090/*",
+        "http://localhost:8091/*",
         "http://localhost:8092/*"
       ],
       "webOrigins": [
@@ -1052,6 +1053,8 @@
         "http://localhost:8088",
         "http://localhost:8089",
         "http://localhost:8090",
+        "http://localhost:8090",
+        "http://localhost:8091",
         "http://localhost:8092"
       ],
       "notBefore": 0,
