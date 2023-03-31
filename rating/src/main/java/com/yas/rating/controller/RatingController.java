@@ -24,12 +24,12 @@ public class RatingController {
     @GetMapping("/backoffice/ratings")
     public ResponseEntity<RatingListVm> getRatingListWithFilter(
             @RequestParam(value = "productName", defaultValue = "", required = false)  String productName,
-            @RequestParam(value = "cusName", defaultValue = "", required = false) String cusName,
+            @RequestParam(value = "customerName", defaultValue = "", required = false) String cusName,
             @RequestParam(value = "message", defaultValue = "", required = false) String message,
             @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime createdFrom,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
             @RequestParam(value = "createdTo",  defaultValue="#{new java.util.Date()}", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime createdTo,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(ratingService.getRatingListWithFilter(productName, cusName,
