@@ -1,0 +1,23 @@
+package com.yas.order.controller;
+
+import com.yas.order.service.OrderService;
+import com.yas.order.viewmodel.OrderPostVm;
+import com.yas.order.viewmodel.OrderVm;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class OrderController {
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @PostMapping("/storefront/orders")
+    public ResponseEntity<OrderVm> createOrder(@Valid @RequestBody OrderPostVm orderPostVm) {
+        return ResponseEntity.ok(orderService.createOrder(orderPostVm));
+    }
+
+}
