@@ -35,11 +35,6 @@ const ProductList = () => {
   const [cates, setCates] = useState<Category[]>([]);
   const [totalPage, setTotalPage] = useState<number>(0);
   const [pageNo, setPageNo] = useState<number>(0);
-  // const [categorySlug, setCategorySlug] = useState<string>();
-  // const [startPrice, setStartPrice] = useState<number>();
-  // const [endPrice, setEndPrice] = useState<number>();
-  // const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
-  // const productName = useDebounce(searchTerm, 500);
 
   const [filters, setFilters] = useState<any>(null);
   const inputSearchRef = useRef<HTMLInputElement>(null);

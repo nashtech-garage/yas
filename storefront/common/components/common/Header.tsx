@@ -8,6 +8,8 @@ import {
   DATA_SEARCH_SUGGESTION,
 } from '../../../asset/data/data_header_client';
 import promoteImage from '../../images/search-promote-image.png';
+import { getCategories } from 'modules/catalog/services/CategoryService';
+import { Category } from 'modules/catalog/models/Category';
 
 type Props = {
   children: React.ReactNode;
@@ -15,6 +17,7 @@ type Props = {
 
 const Header = ({ children }: Props) => {
   const router = useRouter();
+  const [cates, setCates] = useState<Category[]>([]);
 
   const formRef = useRef<HTMLFormElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -33,6 +36,15 @@ const Header = ({ children }: Props) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    getCategories().then((res) => {
+      setCates(res);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  console.log(cates);
 
   const handleInputFocus = () => {
     setShowDropdown(true);
@@ -88,12 +100,16 @@ const Header = ({ children }: Props) => {
                       </div>
                     </div>
                     <div className="suggestion">
-                      {DATA_SEARCH_SUGGESTION.slice(0, isExpand ? 10 : 3).map((item) => (
-                        <Link href={'#'} className="search-suggestion-item" key={item}>
+                      {cates.slice(0, isExpand ? 10 : 3).map((item) => (
+                        <Link
+                          href={`/products?categorySlug=${item.slug}`}
+                          className="search-suggestion-item"
+                          key={item.slug}
+                        >
                           <div className="icon">
                             <i className="bi bi-search"></i>
                           </div>
-                          <div className="keyword">{item}</div>
+                          <div className="keyword">{item.name}</div>
                         </Link>
                       ))}
                       <div className="search-suggestion-action">
@@ -119,9 +135,9 @@ const Header = ({ children }: Props) => {
             </div>
 
             <div className="search-suggestion">
-              {DATA_SEARCH_SUGGESTION.map((item) => (
-                <Link href={'#'} key={item}>
-                  <span>{item}</span>
+              {cates.map((item) => (
+                <Link href={`/products?categorySlug=${item.slug}`} key={item.slug}>
+                  <span>{item.name}</span>
                 </Link>
               ))}
             </div>
