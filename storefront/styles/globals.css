@@ -222,3 +222,42 @@ a {
   background-color: #fff;
   cursor: default;
 }
+
+/*---------------------
+  banner
+-----------------------*/
+
+.banner-section {
+  display: flex;
+  align-items: center;
+  padding: 45px 0 40px;
+  background-image: url('../common/images/bg_banner.jpg');
+}
+
+.banner__text h2 {
+  font-size: 46px;
+
+  font-weight: 700;
+}
+
+.banner__option a {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 700;
+  margin-right: 20px;
+  position: relative;
+}
+
+.banner__option a:after {
+  position: absolute;
+  right: -12px;
+  top: 13px;
+  height: 1px;
+  width: 10px;
+  content: '';
+}
+
+.banner__option span {
+  display: inline-block;
+  font-size: 16px;
+}
