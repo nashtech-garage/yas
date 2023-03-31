@@ -231,19 +231,18 @@ a {
   display: flex;
   align-items: center;
   padding: 45px 0 40px;
-  background-image: url('../common/images/bg.png');
+  background-image: url('../common/images/bg_banner.jpg');
 }
 
 .banner__text h2 {
   font-size: 46px;
-  color: #ffffff;
+
   font-weight: 700;
 }
 
 .banner__option a {
   display: inline-block;
   font-size: 16px;
-  color: #ffffff;
   font-weight: 700;
   margin-right: 20px;
   position: relative;
@@ -261,5 +260,4 @@ a {
 .banner__option span {
   display: inline-block;
   font-size: 16px;
-  color: #ffffff;
 }

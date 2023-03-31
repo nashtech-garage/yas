@@ -9,10 +9,10 @@ const Banner = ({ title }: Props) => {
         <div className="container">
           <div className="row">
             <div className="col-lg-12 text-center">
-              <div className="banner__text">
+              <div className="banner__text ">
                 <h2>{title}</h2>
                 <div className="banner__option">
-                  <a href="./">Home &nbsp;</a>
+                  <a href="./">Home &nbsp; &nbsp;- </a>
                   <span>{title}</span>
                 </div>
               </div>
