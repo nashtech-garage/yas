@@ -26,9 +26,12 @@ server {
   }
   location /inventory/ {
   	proxy_pass http://inventory;
-  }
+  }  
   location /tax/ {
     proxy_pass http://tax;
+  }
+  location /promotion/ {
+  	proxy_pass http://promotion;
   }
 }
 

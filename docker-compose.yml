@@ -62,6 +62,7 @@ services:
       YAS_SERVICES_LOCATION: http://location/location
       YAS_SERVICES_INVENTORY: http://inventory/inventory
       YAS_SERVICES_TAX: http://tax/tax
+      YAS_SERVICES_PROMOTION: http://promotion/promotion
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
   media:
@@ -124,6 +125,13 @@ services:
       YAS_PUBLIC_URL: http://api.yas.local/inventory
       YAS_SERVICES_PRODUCT: http://product/product
       SERVER_PORT: "80"
+  promotion:
+    image: ghcr.io/nashtech-garage/yas-promotion:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/promotion
+      SERVER_SERVLET_CONTEXT_PATH: /promotion
+      YAS_PUBLIC_URL: http://api.yas.local/promotion
+      YAS_SERVICES_PRODUCT: http://product/product
   tax:
     image: ghcr.io/nashtech-garage/yas-tax:latest
     environment:
@@ -135,11 +143,16 @@ services:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
       BASE_URL: /swagger-ui
-      URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },{ url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
-      { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
-      { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
-      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
-      { url: 'http://api.yas.local/tax/v3/api-docs', name: 'tax' }]"
+      URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },
+      { url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
+      { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, 
+      { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
+      { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, 
+      { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
+      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, 
+      { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
+      { url: 'http://api.yas.local/tax/v3/api-docs', name: 'Tax' },
+      { url: 'http://api.yas.local/promotion/v3/api-docs', name: 'Promotion'}]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:
