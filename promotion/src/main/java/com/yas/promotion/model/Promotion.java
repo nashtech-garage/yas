@@ -24,11 +24,30 @@ public class Promotion extends AbstractAuditEntity{
 
     private String couponCode;
 
+    private Long value;
+
+    private Long amount;
+
+    private boolean isActive=false;
+
     private ZonedDateTime startDate;
 
     private ZonedDateTime endDate;
 
-    private Long value;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Promotion)) {
+            return false;
+        }
+        return id != null && id.equals(((Promotion) o).id);
+    }
 
-    private Long amount;
+    @Override
+    public int hashCode() {
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
+    }
 }
