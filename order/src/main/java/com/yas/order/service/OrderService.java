@@ -30,9 +30,6 @@ public class OrderService {
 
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
-        Validate.notNull(orderPostVm, "Order cannot be null");
-        Validate.notNull(orderPostVm.orderItemPostVms(), "Order Items cannot be null");
-
 //        TO-DO: handle check inventory when inventory is complete
 //        ************
 

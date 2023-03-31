@@ -3,12 +3,12 @@ package com.yas.order.viewmodel;
 import com.yas.order.model.enumeration.EDeliveryMethod;
 import com.yas.order.model.enumeration.EDeliveryStatus;
 import com.yas.order.model.enumeration.EPaymentMethod;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
 public record OrderPostVm(
-        Long id,
         String phone,
         String address,
         String note,
@@ -20,6 +20,7 @@ public record OrderPostVm(
         EDeliveryMethod deliveryMethod,
         EDeliveryStatus deliveryStatus,
         EPaymentMethod paymentMethod,
+        @NotNull
         Set<OrderItemPostVm> orderItemPostVms
 ) {
 }
