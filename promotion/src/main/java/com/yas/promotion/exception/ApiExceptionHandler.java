@@ -68,7 +68,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrityViolationException(
+    public ResponseEntity<Object> handleDataIntegrityViolationException(
             DataIntegrityViolationException e) {
         String message = NestedExceptionUtils.getMostSpecificCause(e).getMessage();
         ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(),

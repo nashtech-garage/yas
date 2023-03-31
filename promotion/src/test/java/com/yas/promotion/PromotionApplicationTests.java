@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
-public class PromotionApplicationTests {
+class PromotionApplicationTests {
 	@BeforeEach
 	void setUp() {
 
