@@ -1126,7 +1126,8 @@
         "http://localhost:8084/*",
         "http://localhost:8085/*",
         "http://localhost:8086/*",
-        "http://localhost:8090/*"
+        "http://localhost:8090/*",
+        "http://localhost:8091/*"
       ],
       "webOrigins": [
         "http://localhost:8084",
@@ -1137,7 +1138,8 @@
         "http://localhost:8089",
         "http://localhost:8085",
         "http://localhost:8086",
-        "http://localhost:8090"
+        "http://localhost:8090",
+        "http://localhost:8091"
       ],
       "notBefore": 0,
       "bearerOnly": false,
