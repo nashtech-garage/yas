@@ -10,6 +10,7 @@ type InputProps<T extends FieldValues> = {
   registerOptions?: RegisterOptions;
   defaultValue?: number | string | string[];
   disabled?: boolean;
+  placeholder?: string;
 };
 
 export const Input = <T extends FieldValues>({
@@ -21,6 +22,7 @@ export const Input = <T extends FieldValues>({
   defaultValue,
   type = 'text',
   disabled = false,
+  placeholder,
 }: InputProps<T>) => (
   <div className="mb-3">
     <label className="form-label" htmlFor={field}>
@@ -33,7 +35,8 @@ export const Input = <T extends FieldValues>({
       {...register(field, registerOptions)}
       defaultValue={defaultValue}
       disabled={disabled}
+      placeholder={placeholder}
     />
-    <p className="error-field mt-1">{error}</p>
+    <p className="error-field mt-1 text-danger">{error}</p>
   </div>
 );

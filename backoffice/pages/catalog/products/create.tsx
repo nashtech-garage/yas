@@ -17,14 +17,10 @@ import {
 } from '../../../modules/catalog/components';
 import { FormProduct } from '../../../modules/catalog/models/FormProduct';
 import { ProductAttributeValuePost } from '../../../modules/catalog/models/ProductAttributeValuePost';
-import {
-  mapFormProductToProductPayload,
-  ProductPayload,
-} from '../../../modules/catalog/models/ProductPayload';
+import { mapFormProductToProductPayload } from '../../../modules/catalog/models/ProductPayload';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 import { useRouter } from 'next/router';
-import { Product } from '../../../modules/catalog/models/Product';
 
 const ProductCreate: NextPage = () => {
   const router = useRouter();
