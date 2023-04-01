@@ -41,11 +41,11 @@ public class Product {
 
     private Boolean isActive;
 
-    @Field(type = FieldType.Object)
-    private Brand brand;
+    @Field(type = FieldType.Keyword)
+    private String brand;
 
-    @Field(type = FieldType.Nested)
-    private List<ProductCategory> productCategories;
+    @Field(type = FieldType.Keyword)
+    private List<String> productCategories;
 
     @Field(type = FieldType.Nested)
     private List<ProductAttributeValue> attributeValues;

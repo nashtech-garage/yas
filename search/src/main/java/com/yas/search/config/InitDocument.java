@@ -95,11 +95,12 @@ public class InitDocument {
                 .name("Dell XPS 15 9550")
                 .slug("dell-xps-15-9550")
                 .price(100000.0)
-                .brand(brand1)
+                .brand("Apple")
                 .isPublished(true)
                 .isActive(true)
                 .isVisibleIndividually(true)
                 .thumbnailMediaId(1L)
+                .productCategories(List.of("A", "B"))
                 .build();
         Product product2 = Product.builder().id(2L)
                 .name("iPad Pro Wi-Fi 4G 128GB")
@@ -109,7 +110,18 @@ public class InitDocument {
                 .isActive(true)
                 .isVisibleIndividually(true)
                 .thumbnailMediaId(3L)
-                .brand(brand2).build();
-        productRepository.saveAll(List.of(product1, product2));
+                .productCategories(List.of("A", "C"))
+                .brand("Samsung").build();
+        Product product3 = Product.builder().id(3L)
+                .name("iPad Pro Wi-Fi 4G 128GB")
+                .slug("ipad-pro-wi-fi-4g-128gb-gold")
+                .price(100000.0)
+                .isPublished(true)
+                .isActive(true)
+                .isVisibleIndividually(true)
+                .thumbnailMediaId(3L)
+                .productCategories(List.of("A", "B"))
+                .brand("Samsung").build();
+        productRepository.saveAll(List.of(product1, product2, product3));
     }
 }
