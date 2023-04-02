@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 
-import { Category } from '../models/Category';
-import { FormProduct } from '../models/FormProduct';
-import { Product } from '../models/Product';
-import { getCategories } from '../services/CategoryService';
+import { Category } from '@catalogModels/Category';
+import { FormProduct } from '@catalogModels/FormProduct';
+import { Product } from '@catalogModels/Product';
+import { getCategories } from '@catalogServices/CategoryService';
 
 type Props = {
   product?: Product;
@@ -12,7 +12,7 @@ type Props = {
   getValue: UseFormGetValues<FormProduct>;
 };
 
-const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
+const ProductCategoryMapping = ({ product, setValue, getValue: _getValue }: Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   let [checkCategory, setCheckCategory] = useState<string[]>([]);
   let listCheckCategory: string[] = [];
@@ -32,6 +32,7 @@ const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
       }
     });
   }, []);
+
   function findChildrenOfCategoryId(id: number) {
     for (let value of categories) {
       if (value.parentId === id) {
@@ -40,6 +41,7 @@ const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
       }
     }
   }
+
   function findParentCategoryOfProduct(id: number) {
     for (let value of categories) {
       if (value?.id === id) {
@@ -48,17 +50,19 @@ const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
       }
     }
   }
+
   function checkedTrue(id: number) {
     const found = checkCategory.find((element) => element === id.toString());
     if (found === undefined) return false;
     return true;
   }
+
   function CategoriesHierarchy(id: number): string | undefined {
     const category = categories.find((element) => element.id === id);
     const parentCategory = categories.find((element) => element.id === category?.parentId);
     if (parentCategory === undefined) return category?.name.toString();
     let categoryHierarchy = category?.name.toString();
-    let idParent: number | undefined = parentCategory.id;
+    let idParent: number | null | undefined = parentCategory.id;
     while (true) {
       const parent = categories.find((element) => element.id === idParent);
       categoryHierarchy = parent?.name + ' >>' + categoryHierarchy;
@@ -70,6 +74,7 @@ const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
     }
     return categoryHierarchy;
   }
+
   const onSaveUpdateCategory = (e: any) => {
     if (e.target.checked) {
       setCheckCategory([e.target.value, ...checkCategory]);
@@ -105,37 +110,36 @@ const ProductCategoryMapping = ({ product, setValue, getValue }: Props) => {
       ? setValue('categoryIds', categoryIds)
       : setValue('categoryIds', defaultCategoryIds);
   };
+
   return (
-    <>
-      <div className="choice-category">
-        <ul style={{ listStyleType: 'none' }}>
-          {categories.map((category, index) => (
-            <li key={category.id}>
-              <input
-                value={category.id || ''}
-                type="checkbox"
-                name="category"
-                checked={checkedTrue(category.id) === true ? true : false}
-                id={`checkbox-${category.id}`}
-                onChange={onSaveUpdateCategory}
-              />
-              <label
-                htmlFor={`checkbox-${category.id}`}
-                style={{
-                  paddingLeft: '15px',
-                  fontSize: '1rem',
-                  paddingTop: '10px',
-                  paddingBottom: '5px',
-                }}
-              >
-                {' '}
-                {CategoriesHierarchy(category.id)}
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </>
+    <div className="choice-category">
+      <ul style={{ listStyleType: 'none' }}>
+        {categories.map((category, index) => (
+          <li key={category.id}>
+            <input
+              value={category.id || ''}
+              type="checkbox"
+              name="category"
+              checked={checkedTrue(category.id) === true ? true : false}
+              id={`checkbox-${category.id}`}
+              onChange={onSaveUpdateCategory}
+            />
+            <label
+              htmlFor={`checkbox-${category.id}`}
+              style={{
+                paddingLeft: '15px',
+                fontSize: '1rem',
+                paddingTop: '10px',
+                paddingBottom: '5px',
+              }}
+            >
+              {' '}
+              {CategoriesHierarchy(category.id)}
+            </label>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
