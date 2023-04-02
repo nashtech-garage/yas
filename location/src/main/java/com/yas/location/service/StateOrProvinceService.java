@@ -10,6 +10,8 @@ import com.yas.location.utils.Constants;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceListGetVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvincePostVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -143,5 +145,12 @@ public class StateOrProvinceService {
         stateOrProvincePage.getTotalPages(),
         stateOrProvincePage.isLast()
     );
+  }
+
+  @Transactional(readOnly = true)
+  public List<StateOrProvinceVm> getAllByCountryId(Long countryId) {
+    return stateOrProvinceRepository.findAllByCountryId(countryId).stream()
+            .map(stateOrProvinceMapper::toStateOrProvinceViewModelFromStateOrProvince)
+            .toList();
   }
 }

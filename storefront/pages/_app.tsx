@@ -13,7 +13,7 @@ import '../styles/globals.css';
 import '../styles/Header.css';
 import '../styles/productDetail.css';
 import '../styles/util.css';
-import '../styles/form.css';
+import '../styles/form.css'
 
 import type { AppProps } from 'next/app';
 

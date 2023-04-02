@@ -9,6 +9,9 @@ import { Input } from '../../common/items/Input';
 import { Customer } from '../../modules/profile/models/Customer';
 import { ProfileRequest } from '../../modules/profile/models/ProfileRequest';
 import { getMyProfile, updateCustomer } from '../../modules/profile/services/ProfileService';
+import styles from '../../styles/address.module.css';
+import { FaArrowRight } from 'react-icons/fa';
+import clsx from 'clsx';
 
 const Profile: NextPage = () => {
   const { handleSubmit, register } = useForm<Customer>();
@@ -40,7 +43,19 @@ const Profile: NextPage = () => {
       <Head>
         <title>Profile</title>
       </Head>
-      <h2>User Profile</h2>
+      <div className="d-flex justify-content-between">
+        <h2>User Profile</h2>
+        <button className="btn btn-primary p-0">
+          <Link
+            style={{ width: '100%', display: 'inline-block' }}
+            className={clsx(styles['link-redirect'], 'p-2', 'd-flex', 'align-items-center')}
+            href={{ pathname: '/address' }}
+          >
+            <span style={{ padding: '0 5px 0 0' }}>Go to address list</span>
+            <FaArrowRight />
+          </Link>
+        </button>
+      </div>
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-6">
