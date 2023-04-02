@@ -60,9 +60,9 @@ const CategoryCreate: NextPage = () => {
   };
 
   return (
-    <div className="row mt-5">
+    <div className="row my-5">
       <div className="col-md-8">
-        <h2>Create category</h2>
+        <h2 className="mb-3">Create category</h2>
         <form onSubmit={handleSubmit(onHandleSubmit)} name="form">
           <div className="mb-3">
             <Input
