@@ -30,6 +30,9 @@ server {
   location /tax/ {
     proxy_pass http://tax;
   }
+  location /search/ {
+    proxy_pass http://search;
+  }
 }
 
 server {

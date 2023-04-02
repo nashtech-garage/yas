@@ -62,6 +62,7 @@ services:
       YAS_SERVICES_LOCATION: http://location/location
       YAS_SERVICES_INVENTORY: http://inventory/inventory
       YAS_SERVICES_TAX: http://tax/tax
+      YAS_SERVICES_SEARCH: http://search/search
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
   media:
@@ -131,6 +132,13 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /tax
       YAS_PUBLIC_URL: http://api.yas.local/tax
       SERVER_PORT: "80"
+  search:
+    image: ghcr.io/nashtech-garage/yas-search:latest
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: /search
+      YAS_PUBLIC_URL: http://api.yas.local/search
+      SERVER_PORT: "80"
+
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
@@ -139,11 +147,31 @@ services:
       { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
       { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
       { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
-      { url: 'http://api.yas.local/tax/v3/api-docs', name: 'tax' }]"
+      { url: 'http://api.yas.local/tax/v3/api-docs', name: 'tax' }, { url: 'http://api.yas.local/search/v3/api-docs', name: 'search' }]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
+
+
+  zookeeper:
+    image: debezium/zookeeper:1.0
+    restart: always
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+
+  kafka:
+    image: debezium/kafka:1.0
+    restart: always
+    ports:
+      - 9092:9092
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+
   postgres:
-    image: postgres:14.5
+    image: debezium/postgres:11
     ports:
       - "5432:5432"
     volumes:
@@ -152,6 +180,8 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
+      POSTGRES_DATABASE: test_db
+
   pgadmin:
     image: dpage/pgadmin4:6.20
     volumes:
@@ -159,6 +189,34 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@yas.com
       PGADMIN_DEFAULT_PASSWORD: admin
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.2
+    restart: always
+    ports:
+      - 9200:9200
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  connect:
+    build: ./debezium-jdbc-es
+    restart: always
+    ports:
+      - 8083:8083
+      - 5005:5005
+    links:
+      - kafka
+      - postgres
+      - elasticsearch
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+
   tempo:
     image: grafana/tempo:main-0c1eb27
     extra_hosts: ['host.docker.internal:host-gateway']
@@ -205,7 +263,7 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3009:3000"
-      
+
 volumes:
   postgres:
   pgadmin:
