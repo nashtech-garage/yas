@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PromotionService {
     private final PromotionRepository promotionRepository;
 
-    public PromotionDetailVm create(PromotionPostVm promotionPostVm) {
+    public PromotionDetailVm createPromotion(PromotionPostVm promotionPostVm) {
         validateIfPromotionExistedSlug(promotionPostVm.slug());
 
         Promotion promotion = Promotion.builder()
@@ -35,12 +35,8 @@ public class PromotionService {
     }
 
     private void validateIfPromotionExistedSlug(String slug) {
-        if (isPromotionWithSlugAvailable(slug)) {
+        if (promotionRepository.findBySlugAndIsActiveTrue(slug).isPresent()) {
             throw new DuplicatedException(String.format(Constants.ERROR_CODE.SLUG_ALREADY_EXITED, slug));
         }
-    }
-
-    private boolean isPromotionWithSlugAvailable(String slug) {
-        return promotionRepository.findBySlugAndIsActiveTrue(slug).isPresent();
     }
 }

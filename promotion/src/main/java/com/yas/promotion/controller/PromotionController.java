@@ -28,7 +28,7 @@ public class PromotionController {
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<PromotionDetailVm> createPromotion(@Valid @RequestBody PromotionPostVm promotionPostVm) {
-        PromotionDetailVm promotionDetailVm = promotionService.create(promotionPostVm);
+        PromotionDetailVm promotionDetailVm = promotionService.createPromotion(promotionPostVm);
         return new ResponseEntity<>(promotionDetailVm, HttpStatus.CREATED);
     }
 }
