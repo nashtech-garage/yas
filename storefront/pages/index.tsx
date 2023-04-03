@@ -1,10 +1,12 @@
 import { NextPage } from 'next';
 
-import { Category, FeaturedProduct } from 'modules/home/components';
+import { Banner, Category, FeaturedProduct } from 'modules/home/components';
 
 const Home: NextPage = () => {
   return (
     <div className="homepage-container">
+      <Banner />
+
       <Category />
 
       <FeaturedProduct />
