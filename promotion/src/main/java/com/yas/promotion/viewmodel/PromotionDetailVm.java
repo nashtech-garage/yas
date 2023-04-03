@@ -11,8 +11,8 @@ public record PromotionDetailVm(Long id,
                                 String slug,
                                 String description,
                                 String couponCode,
-                                Long value,
-                                Long amount,
+                                Long discountPercentage,
+                                Long discountAmount,
                                 Boolean isActive,
                                 ZonedDateTime startDate,
                                 ZonedDateTime endDate
@@ -23,8 +23,8 @@ public record PromotionDetailVm(Long id,
                 .name(promotion.getName())
                 .slug(promotion.getSlug())
                 .description(promotion.getDescription())
-                .value(promotion.getValue())
-                .amount(promotion.getAmount())
+                .discountPercentage(promotion.getDiscountPercentage())
+                .discountAmount(promotion.getDiscountAmount())
                 .isActive(promotion.getIsActive())
                 .startDate(promotion.getStartDate())
                 .endDate(promotion.getEndDate())

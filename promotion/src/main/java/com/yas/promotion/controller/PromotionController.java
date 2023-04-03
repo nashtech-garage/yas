@@ -2,6 +2,7 @@ package com.yas.promotion.controller;
 
 import com.yas.promotion.service.PromotionService;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
+import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionVm;
 import com.yas.promotion.viewmodel.error.ErrorVm;
@@ -24,19 +25,18 @@ import java.util.List;
 public class PromotionController {
     private final PromotionService promotionService;
 
-    @GetMapping({"/backoffice/promotions"})
-    public ResponseEntity<List<PromotionVm>> listPromotions(
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize,
-            @RequestParam(value = "promotionName", defaultValue = "", required = false) String promotionName,
-            @RequestParam(value = "couponCode", defaultValue = "", required = false) String couponCode,
-            @RequestParam(value = "startDate", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime startDate,
-            @RequestParam(value = "endDate",  defaultValue="#{new java.util.Date()}", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime endDate
-    ){
-        return null;
+    @GetMapping("/backoffice/promotions")
+    public ResponseEntity<PromotionListVm> listPromotions(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "5") int pageSize,
+            @RequestParam(defaultValue = "") String promotionName,
+            @RequestParam(defaultValue = "") String couponCode,
+            @RequestParam(defaultValue = "#{T(java.time.ZonedDateTime).of(1970, 1, 1, 0, 0, 0, 0, T(java.time.ZoneId).systemDefault())}") ZonedDateTime startDate,
+            @RequestParam(defaultValue = "#{T(java.time.ZonedDateTime).now(T(java.time.ZoneId).systemDefault())}") ZonedDateTime endDate
+    ) {
+        return ResponseEntity.ok(promotionService.getPromotions(pageNo, pageSize, promotionName, couponCode, startDate, endDate));
     }
+
 
     @PostMapping("/backoffice/promotions")
     @ApiResponses(value = {
