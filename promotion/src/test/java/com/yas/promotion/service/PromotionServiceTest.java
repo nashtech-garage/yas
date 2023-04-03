@@ -67,7 +67,7 @@ class PromotionServiceTest {
         when(promotionRepository.findBySlugAndIsActiveTrue(slug)).thenReturn(Optional.empty());
         when(promotionRepository.saveAndFlush(any(Promotion.class))).thenReturn(promotion);
 
-        PromotionDetailVm result = promotionService.create(promotionPostVm);
+        PromotionDetailVm result = promotionService.createPromotion(promotionPostVm);
 
         assertEquals(slug, result.slug());
         assertEquals(true, result.isActive());
@@ -81,7 +81,7 @@ class PromotionServiceTest {
                 .build();
 
         when(promotionRepository.findBySlugAndIsActiveTrue(slug)).thenReturn(Optional.of(new Promotion()));
-        assertThrows(DuplicatedException.class, () -> promotionService.create(promotionPostVm),
+        assertThrows(DuplicatedException.class, () -> promotionService.createPromotion(promotionPostVm),
                 String.format(Constants.ERROR_CODE.SLUG_ALREADY_EXITED, slug));
 
     }
