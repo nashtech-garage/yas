@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Builder
-public class Promotion extends AbstractAuditEntity{
+public class Promotion extends AbstractAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,15 +20,36 @@ public class Promotion extends AbstractAuditEntity{
     @Column(nullable = false, length = 450)
     private String name;
 
+    private String slug;
+
     private String description;
 
     private String couponCode;
+
+    private Long value;
+
+    private Long amount;
+
+    private Boolean isActive;
 
     private ZonedDateTime startDate;
 
     private ZonedDateTime endDate;
 
-    private Long value;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Promotion)) {
+            return false;
+        }
+        return id != null && id.equals(((Promotion) o).id);
+    }
 
-    private Long amount;
+    @Override
+    public int hashCode() {
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
+    }
 }
