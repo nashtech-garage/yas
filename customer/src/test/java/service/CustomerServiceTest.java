@@ -1,9 +1,9 @@
-package com.yas.promotion;
+package service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class PromotionApplicationTests {
+public class CustomerServiceTest {
     @BeforeEach
     void setUp() {
 
@@ -12,5 +12,4 @@ class PromotionApplicationTests {
     @Test
     void Test() {
     }
-
 }

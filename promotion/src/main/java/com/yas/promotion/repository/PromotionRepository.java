@@ -15,10 +15,10 @@ import java.util.Optional;
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     Optional<Promotion> findBySlugAndIsActiveTrue(String slug);
 
-    @Query("SELECT p FROM Promotion p "+
-            "WHERE p.name LIKE %:name% "+
-            "AND p.couponCode LIKE %:couponCode% "+
-            "AND p.startDate >= :startDate "+
+    @Query("SELECT p FROM Promotion p " +
+            "WHERE p.name LIKE %:name% " +
+            "AND p.couponCode LIKE %:couponCode% " +
+            "AND p.startDate >= :startDate " +
             "AND p.endDate <= :endDate")
     Page<Promotion> findPromotions(@Param("name") String name,
                                    @Param("couponCode") String couponCode,

@@ -7,14 +7,14 @@ import java.time.ZonedDateTime;
 
 @Builder
 public record PromotionVm(Long id,
-                        String name,
-                        String slug,
-                        String couponCode,
-                        Long discountPercentage,
-                        Long discountAmount,
-                        Boolean isActive,
-                        ZonedDateTime startDate,
-                        ZonedDateTime endDate
+                          String name,
+                          String slug,
+                          String couponCode,
+                          Long discountPercentage,
+                          Long discountAmount,
+                          Boolean isActive,
+                          ZonedDateTime startDate,
+                          ZonedDateTime endDate
 ) {
     public static PromotionVm fromModel(Promotion promotion) {
         return PromotionVm.builder()

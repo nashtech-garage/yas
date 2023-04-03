@@ -24,7 +24,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.postgresql.hostchooser.HostRequirement.any;
 
 
 class PromotionServiceTest {
@@ -35,7 +34,7 @@ class PromotionServiceTest {
     private Promotion promotion1;
     private Promotion promotion2;
     private PromotionPostVm promotionPostVm;
-    private  List<Promotion> promotionList;
+    private List<Promotion> promotionList;
 
     @BeforeEach
     void setUp() {
