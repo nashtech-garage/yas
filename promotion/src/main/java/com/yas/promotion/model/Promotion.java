@@ -12,13 +12,15 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Builder
-public class Promotion extends AbstractAuditEntity{
+public class Promotion extends AbstractAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 450)
     private String name;
+
+    private String slug;
 
     private String description;
 
@@ -28,7 +30,7 @@ public class Promotion extends AbstractAuditEntity{
 
     private Long amount;
 
-    private boolean isActive=false;
+    private Boolean isActive;
 
     private ZonedDateTime startDate;
 

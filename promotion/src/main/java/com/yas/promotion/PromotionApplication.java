@@ -11,14 +11,14 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(ServiceUrlConfig.class)
 public class PromotionApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PromotionApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PromotionApplication.class, args);
+    }
 
-	@Bean
-	public ZipkinSpanExporter zipkinSpanExporter() {
-		return ZipkinSpanExporter.builder()
-				.setEndpoint("http://tempo:9411/api/v2/spans")
-				.build();
-	}
+    @Bean
+    public ZipkinSpanExporter zipkinSpanExporter() {
+        return ZipkinSpanExporter.builder()
+                .setEndpoint("http://tempo:9411/api/v2/spans")
+                .build();
+    }
 }

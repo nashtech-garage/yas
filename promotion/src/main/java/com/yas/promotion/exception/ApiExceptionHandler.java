@@ -3,8 +3,6 @@ package com.yas.promotion.exception;
 import com.yas.promotion.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,6 +13,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @ControllerAdvice
 @Slf4j

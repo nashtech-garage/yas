@@ -2,7 +2,7 @@ package com.yas.promotion.exception;
 
 import com.yas.promotion.utils.MessagesUtils;
 
-public class NotFoundException extends RuntimeException{
+public class NotFoundException extends RuntimeException {
 
     private String message;
 

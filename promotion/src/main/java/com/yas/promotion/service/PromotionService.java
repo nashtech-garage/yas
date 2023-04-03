@@ -4,6 +4,7 @@ import com.yas.promotion.exception.DuplicatedException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.utils.Constants;
+import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,30 +16,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class PromotionService {
     private final PromotionRepository promotionRepository;
 
-    public Promotion create(PromotionPostVm promotionPostVm){
-        validateExistedName(promotionPostVm.name(), null);
+    public PromotionDetailVm create(PromotionPostVm promotionPostVm) {
+        validateIfPromotionExistedSlug(promotionPostVm.slug());
 
         Promotion promotion = Promotion.builder()
                 .name(promotionPostVm.name())
+                .slug(promotionPostVm.slug())
                 .description(promotionPostVm.description())
                 .couponCode(promotionPostVm.couponCode())
                 .value(promotionPostVm.value())
                 .amount(promotionPostVm.amount())
-                .isActive(promotionPostVm.isActive())
+                .isActive(true)
                 .startDate(promotionPostVm.startDate())
                 .endDate(promotionPostVm.endDate())
                 .build();
 
-        return promotionRepository.saveAndFlush(promotion);
+        return PromotionDetailVm.fromModel(promotionRepository.saveAndFlush(promotion));
     }
 
-    private void validateExistedName(String name, Long id){
-        if(checkExistedName(name, id)){
-            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
+    private void validateIfPromotionExistedSlug(String slug) {
+        if (isPromotionWithSlugAvailable(slug)) {
+            throw new DuplicatedException(String.format(Constants.ERROR_CODE.SLUG_ALREADY_EXITED, slug));
         }
     }
 
-    private boolean checkExistedName(String name, Long id){
-        return promotionRepository.findExistedName(name, id) != null;
+    private boolean isPromotionWithSlugAvailable(String slug) {
+        return promotionRepository.findBySlugAndIsActiveTrue(slug).isPresent();
     }
 }
