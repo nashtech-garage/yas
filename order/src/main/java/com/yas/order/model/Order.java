@@ -32,7 +32,6 @@ public class Order extends AbstractAuditEntity{
     private EDeliveryMethod deliveryMethod;
     private EDeliveryStatus deliveryStatus;
     private EPaymentMethod paymentMethod;
-
     @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     Set<OrderItem> orderItems;
 
