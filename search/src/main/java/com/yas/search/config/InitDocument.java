@@ -100,7 +100,7 @@ public class InitDocument {
                 .isActive(true)
                 .isVisibleIndividually(true)
                 .thumbnailMediaId(1L)
-                .productCategories(List.of("A", "B"))
+                .categories(List.of("A", "B"))
                 .build();
         Product product2 = Product.builder().id(2L)
                 .name("iPad Pro Wi-Fi 4G 128GB")
@@ -110,7 +110,7 @@ public class InitDocument {
                 .isActive(true)
                 .isVisibleIndividually(true)
                 .thumbnailMediaId(3L)
-                .productCategories(List.of("A", "C"))
+                .categories(List.of("A", "C"))
                 .brand("Samsung").build();
         Product product3 = Product.builder().id(3L)
                 .name("iPad Pro Wi-Fi 4G 128GB")
@@ -120,7 +120,7 @@ public class InitDocument {
                 .isActive(true)
                 .isVisibleIndividually(true)
                 .thumbnailMediaId(3L)
-                .productCategories(List.of("A", "B"))
+                .categories(List.of("A", "B"))
                 .brand("Samsung").build();
         productRepository.saveAll(List.of(product1, product2, product3));
     }

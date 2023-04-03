@@ -16,10 +16,10 @@ public class ProductController {
     }
 
     @GetMapping("/storefront/product")
-    public ResponseEntity<Object> findProductByCategory(@RequestParam String categorySlug,
+    public ResponseEntity<Object> findProductByKeyword(@RequestParam String keyword,
                                                         @RequestParam(defaultValue = "0") Integer page,
                                                         @RequestParam(defaultValue = "5") Integer size) {
-        return ResponseEntity.ok(productService.findByCategoryName(categorySlug, page, size));
+        return ResponseEntity.ok(productService.findProductByKeyword(keyword, page, size));
     }
 
     @GetMapping("/storefront/product_advance")

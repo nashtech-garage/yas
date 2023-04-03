@@ -8,48 +8,71 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
 public interface ProductRepository extends ElasticsearchRepository<Product, Long> {
 
-    @Query("""
+    @Query(query = """
             {
                 "bool": {
                     "must": [
                         {
-                            "nested": {
-                                "path": "productCategories",
-                                "query": {
-                                    "query_string": {
-                                        "default_operator": "and",
-                                        "fields": [
-                                            "productCategories.category.slug"
-                                        ],
-                                        "query": "?0"
+                            "bool": {
+                                "should": [
+                                    {
+                                        "query_string": {
+                                            "default_operator": "or",
+                                            "fields": [
+                                                "brand",
+                                                "name",
+                                                "categories"
+                                            ],
+                                            "query": "?0"
+                                        }
+                                    },
+                                    {
+                                        "nested": {
+                                            "path": "attributes",
+                                            "query": {
+                                                "bool": {
+                                                    "must": [
+                                                        {
+                                                            "query_string": {
+                                                                "default_operator": "or",
+                                                                "fields": [
+                                                                    "attributes.value",
+                                                                    "attributes.name"
+                                                                ],
+                                                                "query": "?0"
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
                                     }
-                                },
-                                "score_mode": "avg"
+                                ]
                             }
                         },
                         {
-                            "query_string": {
-                                "default_operator": "and",
-                                "fields": [
-                                    "isVisibleIndividually"
-                                ],
-                                "query": "true"
-                            }
-                        },
-                        {
-                            "query_string": {
-                                "default_operator": "and",
-                                "fields": [
-                                    "isActive"
-                                ],
-                                "query": "true"
+                            "bool": {
+                                "must": [
+                                    {
+                                        "match": {
+                                            "isActive": {
+                                                "query": true
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "match": {
+                                            "isVisibleIndividually": true
+                                        }
+                                    }
+                                ]
                             }
                         }
                     ]
                 }
             }
             """)
-    Page<Product> findByProductCategoriesCategoryNameAndIsVisibleIndividuallyTrueAndIsActiveTrue(String name, Pageable pageable);
+    Page<Product> findByName(String name, Pageable pageable);
 
     @Query(query = """
             {

@@ -9,7 +9,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-
 @Document(indexName = "product")
 @Builder
 @Getter
@@ -20,7 +19,7 @@ public class Product {
     @Id
     private Long id;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "case_insensitive")
     private String name;
 
     @Field(type = FieldType.Text)
@@ -41,14 +40,14 @@ public class Product {
 
     private Boolean isActive;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, analyzer = "case_insensitive")
     private String brand;
 
-    @Field(type = FieldType.Keyword)
-    private List<String> productCategories;
+    @Field(type = FieldType.Keyword, analyzer = "case_insensitive")
+    private List<String> categories;
 
-    @Field(type = FieldType.Nested)
-    private List<ProductAttributeValue> attributeValues;
+    @Field(type = FieldType.Keyword)
+    private List<String> attributes;
 
     @Field(type = FieldType.Date)
     private ZonedDateTime createdOn;

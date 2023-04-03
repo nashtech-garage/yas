@@ -18,10 +18,10 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public ProductListGetVm findByCategoryName(String name, int page, int size) {
+    public ProductListGetVm findProductByKeyword(String keyword, int page, int size) {
         Page<Product> productPage = productRepository
-                .findByProductCategoriesCategoryNameAndIsVisibleIndividuallyTrueAndIsActiveTrue(
-                        name,
+                .findByName(
+                        keyword,
                         PageRequest.of(page, size)
                 );
 
