@@ -3,6 +3,7 @@ package com.yas.promotion.service;
 import com.yas.promotion.exception.DuplicatedException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.repository.PromotionRepository;
+import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,8 +12,11 @@ import org.junit.jupiter.api.Test;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 class PromotionServiceTest {
@@ -23,7 +27,7 @@ class PromotionServiceTest {
     @BeforeEach
     void setUp() {
         promotionRepository = mock(PromotionRepository.class);
-        promotionService = mock(PromotionService.class);
+        promotionService = new PromotionService(promotionRepository);
     }
 
     @Test
@@ -65,8 +69,8 @@ class PromotionServiceTest {
 
         PromotionDetailVm result = promotionService.create(promotionPostVm);
 
-//        assertEquals(slug, result.slug());
-//        assertEquals(true, result.isActive());
+        assertEquals(slug, result.slug());
+        assertEquals(true, result.isActive());
     }
 
     @Test
@@ -77,7 +81,8 @@ class PromotionServiceTest {
                 .build();
 
         when(promotionRepository.findBySlugAndIsActiveTrue(slug)).thenReturn(Optional.of(new Promotion()));
-        doThrow(DuplicatedException.class).when(promotionService).create(promotionPostVm);
+        assertThrows(DuplicatedException.class, () -> promotionService.create(promotionPostVm),
+                String.format(Constants.ERROR_CODE.SLUG_ALREADY_EXITED, slug));
 
     }
 }
