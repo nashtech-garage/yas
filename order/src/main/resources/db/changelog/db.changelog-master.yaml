@@ -1,5 +1,5 @@
 databaseChangeLog:
-  - includeAll:
-      path: db/changelog/ddl/
-  - includeAll:
-      path: db/changelog/data/
+  - include:
+      file: db/changelog/ddl/changelog-0001.sql
+  - include:
+      file: db/changelog/data/changelog-0001.sql

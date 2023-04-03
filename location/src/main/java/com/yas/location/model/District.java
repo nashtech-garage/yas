@@ -38,5 +38,5 @@ public class District extends AbstractAuditEntity {
 
   @ManyToOne
   @JoinColumn(name = "state_or_province_id", nullable = false)
-  private StateOrProvince stateProvince;
+  private StateOrProvince stateOrProvince;
 }

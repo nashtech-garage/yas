@@ -80,7 +80,6 @@ class PromotionServiceTest {
                 .startDate(ZonedDateTime.now().plusDays(60))
                 .endDate(ZonedDateTime.now().plusDays(90))
                 .build();
-
     }
 
     @Test
@@ -125,7 +124,6 @@ class PromotionServiceTest {
         when(promotionRepository.findPromotions(anyString(), anyString(), any(ZonedDateTime.class), any(ZonedDateTime.class), any(Pageable.class)))
                 .thenReturn(promotionPage);
 
-        // invoke the service method
         PromotionListVm result = promotionService.getPromotions(0, 5, "Promotion", "code", ZonedDateTime.now(), ZonedDateTime.now().plusDays(30));
 
         assertEquals(2, result.promotionDetailVmList().size());

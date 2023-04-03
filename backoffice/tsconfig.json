@@ -6,10 +6,7 @@
       "@commonItems/*": ["common/items/*"],
       "@locationComponents/*": ["modules/location/components/*"],
       "@locationModels/*": ["modules/location/models/*"],
-      "@locationServices/*": ["modules/location/services/*"],
-      "@catalogComponents/*": ["modules/catalog/components/*"],
-      "@catalogServices/*": ["modules/catalog/services/*"],
-      "@catalogModels/*": ["modules/catalog/models/*"]
+      "@locationServices/*": ["modules/location/services/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

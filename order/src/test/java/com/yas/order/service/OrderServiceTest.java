@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
-class OrderServiceTest {
+public class OrderServiceTest {
     @BeforeEach
     void setUp() {
 

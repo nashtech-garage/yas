@@ -62,9 +62,6 @@ public class OrderService {
                 .collect(Collectors.toList());
         orderItemRepository.saveAll(orderItems);
 
- //        TO-DO: delete Item in Cart
-//        ************
-
 //        TO-DO: decrement inventory when inventory is complete
 //        ************
 

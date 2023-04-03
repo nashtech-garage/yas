@@ -43,14 +43,6 @@ spring:
   cloud:
       gateway:
         routes:
-        - id: api_location_local
-          uri: http://localhost:8086
-#          uri: http://api.yas.local
-          predicates:
-            - Path=/api/location/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
         - id: api_product_local
           uri: http://localhost:8080
 #          uri: http://api.yas.local

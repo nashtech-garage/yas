@@ -261,9 +261,3 @@ a {
   display: inline-block;
   font-size: 16px;
 }
-
-.form-select:focus,
-.form-select:focus-visible {
-  border-color: #ced4da;
-  box-shadow: inherit;
-}

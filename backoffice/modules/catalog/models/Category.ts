@@ -3,7 +3,7 @@ export type Category = {
   name: string;
   description: string;
   slug: string;
-  parentId: number | null;
+  parentId: number;
   metaKeywords: string;
   metaDescription: string;
   displayOrder: number;

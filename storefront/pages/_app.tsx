@@ -15,7 +15,6 @@ import '../styles/Header.css';
 import '../styles/HomePage.css';
 import '../styles/productDetail.css';
 import '../styles/util.css';
-import '../styles/form.css';
 
 import type { AppProps } from 'next/app';
 

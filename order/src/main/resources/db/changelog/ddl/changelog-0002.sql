@@ -19,7 +19,6 @@ create table order_item (
    quantity integer,
    price decimal(19,2),
    note varchar(255),
-   order_id bigserial not null, 
    PRIMARY KEY (id),
    CONSTRAINT FK_OrderOrderItem FOREIGN KEY (order_id) REFERENCES "order" (id)
 );
