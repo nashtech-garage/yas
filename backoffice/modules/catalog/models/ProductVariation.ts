@@ -8,3 +8,17 @@ export type ProductVariation = {
   optionThumbnail?: Media;
   optionImages?: Media[];
 };
+
+export type Variantion = {
+  id: number;
+  name: string;
+  slug: string;
+  sku: string;
+  gtin: string;
+  price: number;
+  thumbnail: Media;
+  productImages: Media[];
+  options: {
+    [key: string]: string;
+  };
+};

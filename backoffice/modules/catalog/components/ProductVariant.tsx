@@ -80,6 +80,7 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
                 min={1}
                 className="form-control w-100"
                 name="optionPrice"
+                defaultValue={variant.optionPrice}
                 onChange={onChangeValue}
               />
             </div>
@@ -91,6 +92,7 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
                 type="text"
                 className="form-control w-100"
                 name="optionGtin"
+                defaultValue={variant.optionGTin}
                 onChange={onChangeValue}
               />
             </div>
@@ -100,6 +102,7 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
                 type="text"
                 className="form-control w-100"
                 name="optionSku"
+                defaultValue={variant.optionSku}
                 onChange={onChangeValue}
               />
             </div>

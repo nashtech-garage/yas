@@ -535,8 +535,9 @@ public class ProductService {
                         product.getSku(),
                         product.getGtin(),
                         product.getPrice(),
-                        mediaService.getMedia(product.getThumbnailMediaId()).url(),
-                        product.getProductImages().stream().map(productImage -> mediaService.getMedia(productImage.getImageId()).url()).toList(),
+                        new ImageVm(product.getThumbnailMediaId(), mediaService.getMedia(product.getThumbnailMediaId()).url()),
+                        product.getProductImages().stream()
+                                .map(productImage -> new ImageVm(productImage.getImageId(), mediaService.getMedia(productImage.getImageId()).url())).toList(),
                         options
                 );
             }).toList();

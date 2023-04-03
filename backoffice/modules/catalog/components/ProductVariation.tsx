@@ -1,3 +1,5 @@
+import { getVariationsByProductId } from '@catalogServices/ProductService';
+import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 import Select, { SingleValue } from 'react-select';
@@ -15,10 +17,41 @@ type Props = {
 };
 
 const ProductVariations = ({ getValue, setValue }: Props) => {
+  const router = useRouter();
+  const { id } = router.query;
+
   const [currentOption, setCurrentOption] = useState<SingleValue<ProductOption>>(null);
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [optionCombines, setOptionCombines] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (id) {
+      loadExistingVariant(+id);
+    }
+  }, [id]);
+
+  const loadExistingVariant = (id: number) => {
+    getVariationsByProductId(id).then((results) => {
+      if (results) {
+        const listOptionCombine: string[] = [];
+        const productVariants: ProductVariation[] = [];
+        results.forEach((item) => {
+          listOptionCombine.push(item.name || '');
+          productVariants.push({
+            optionName: item.name || '',
+            optionGTin: item.gtin || '',
+            optionSku: item.sku || '',
+            optionPrice: item.price || 0,
+            optionThumbnail: item.thumbnail,
+            optionImages: item.productImages,
+          });
+        });
+        setOptionCombines(listOptionCombine);
+        setValue('productVariations', productVariants);
+      }
+    });
+  };
 
   const options = useMemo(() => {
     return productOptions.map((option) => ({ value: option.name, label: option.name }));
@@ -58,7 +91,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
   const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-
+    let productVar = getValue('productVariations') || [];
     const result = generateProductOptionCombinations();
 
     const listOptionCombine: string[] = [];
@@ -73,7 +106,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       });
     });
     setOptionCombines(listOptionCombine);
-    setValue('productVariations', productVariants);
+    setValue('productVariations', [...productVar, ...productVariants]);
   };
 
   const generateProductOptionCombinations = (): string[] => {

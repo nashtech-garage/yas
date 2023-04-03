@@ -1,5 +1,7 @@
 package com.yas.product.viewmodel.product;
 
+import com.yas.product.viewmodel.ImageVm;
+
 import java.util.List;
 import java.util.Map;
 
@@ -10,8 +12,8 @@ public record ProductVariationGetVm(
         String sku,
         String gtin,
         Double price,
-        String thumbnailMediaUrl,
-        List<String> productImageMediaUrls,
+        ImageVm thumbnail,
+        List<ImageVm> productImages,
         Map<String, String> options
 ) {
 }

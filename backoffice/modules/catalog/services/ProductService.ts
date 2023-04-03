@@ -1,3 +1,4 @@
+import { Variantion } from '@catalogModels/ProductVariation';
 import { ProductPayload } from '../models/ProductPayload';
 import { Products } from '../models/Products';
 
@@ -48,4 +49,10 @@ export async function deleteProduct(id: number) {
   });
   if (response.status === 204) return response;
   else return await response.json();
+}
+
+export async function getVariationsByProductId(productId: number): Promise<Variantion[]> {
+  const res = await fetch(`/api/product/product-variations/${productId}`);
+  if (res.status >= 200 && res.status < 300) return res.json();
+  return Promise.reject(res);
 }
