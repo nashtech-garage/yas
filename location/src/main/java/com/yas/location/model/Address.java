@@ -34,10 +34,10 @@ public class Address extends AbstractAuditEntity {
   @Column(length = 25)
   private String phone;
 
-  @Column(length = 450)
+  @Column(length = 450, name = "address_line_1")
   private String addressLine1;
 
-  @Column(length = 450)
+  @Column(length = 450, name = "address_line_2")
   private String addressLine2;
 
   @Column(length = 450)

@@ -1,0 +1,27 @@
+.link-redirect {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.link-redirect:hover {
+  color: #ffffff;
+}
+
+.remove-address:hover {
+  cursor: pointer;
+}
+
+.card-wrapper {
+  width: 100%;
+  margin-bottom: 22px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.card-layout {
+  font-size: 20px;
+  height: 100%;
+  border-radius: 5px;
+}
