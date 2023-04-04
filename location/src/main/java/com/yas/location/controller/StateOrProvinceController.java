@@ -54,9 +54,9 @@ public class StateOrProvinceController {
   }
 
   @GetMapping
-  public ResponseEntity<List<StateOrProvinceVm>> getStateOrProvincesByCountry( @RequestParam(value = "countryId", required = false) final Long countryId) {
+  public ResponseEntity<List<StateOrProvinceVm>> getAllByCountryId( @RequestParam(value = "countryId", required = false) final Long countryId) {
     return ResponseEntity.ok(
-            stateOrProvinceService.getStateOrProvincesByCountry(countryId));
+            stateOrProvinceService.getAllByCountryId(countryId));
   }
 
   @GetMapping("/{id}")

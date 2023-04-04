@@ -39,12 +39,8 @@ public interface StateOrProvinceRepository extends JpaRepository<StateOrProvince
                                                              final Pageable pageable);
   List<StateOrProvince> findByIdIn(@Param("stateOrProvinceIds") final List<Long> stateOrProvinceIds);
 
-  @Query(value = """
-       SELECT sop
-       FROM StateOrProvince sop
-       WHERE sop.country.id = :countryId
-       ORDER BY sop.lastModifiedOn DESC
-      """)
-  List<StateOrProvince> getStateOrProvincesByCountry(@Param("countryId") final Long countryId);
+  Page<StateOrProvince> getStateOrProvinceByCountry(@Param("countryId") final Long countryId,
+      final Pageable pageable);
 
+  List<StateOrProvince> findAllByCountryId(Long countryId);
 }

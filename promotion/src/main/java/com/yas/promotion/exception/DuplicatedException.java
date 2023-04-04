@@ -2,11 +2,11 @@ package com.yas.promotion.exception;
 
 import com.yas.promotion.utils.MessagesUtils;
 
-public class DuplicatedException extends RuntimeException{
+public class DuplicatedException extends RuntimeException {
 
     private String message;
 
-    public DuplicatedException(String message, Object... var2){
+    public DuplicatedException(String message, Object... var2) {
         this.message = MessagesUtils.getMessage(message, var2);
     }
 

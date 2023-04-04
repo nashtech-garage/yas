@@ -3,18 +3,14 @@ package com.yas.promotion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
-
 class PromotionApplicationTests {
-	@BeforeEach
-	void setUp() {
+    @BeforeEach
+    void setUp() {
 
-	}
+    }
 
-	@Test
-	void Test() {
-	}
+    @Test
+    void Test() {
+    }
 
 }
