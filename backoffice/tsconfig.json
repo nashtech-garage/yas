@@ -14,7 +14,6 @@
       "@catalogModels/*": ["modules/catalog/models/*"],
       "@catalogServices/*": ["modules/catalog/services/*"],
       "@catalogComponents/*": ["modules/catalog/components/*"]
-
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

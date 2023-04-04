@@ -39,9 +39,9 @@ const TaxRateGeneralInformation = ({ register, errors, setValue, trigger, taxRat
   }, []);
 
   useEffect(() => {
-      getStateOrProvincesByCountry(countryId).then((data) => {
-        setStateOrProvinces(data);
-      });
+    getStateOrProvincesByCountry(countryId).then((data) => {
+      setStateOrProvinces(data);
+    });
   }, [countryId]);
 
   return (
