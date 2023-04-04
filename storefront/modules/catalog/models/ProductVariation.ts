@@ -1,3 +1,5 @@
+import { Media } from './Media';
+
 export type ProductVariation = {
   id: number;
   name: string;
@@ -5,8 +7,8 @@ export type ProductVariation = {
   sku: string;
   gtin: string;
   price: number;
-  thumbnailMediaUrl: string;
-  productImageMediaUrls: string[];
+  thumbnail: Media;
+  productImages: Media[];
   options: {
     [key: string]: string;
   };

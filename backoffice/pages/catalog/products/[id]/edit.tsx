@@ -10,6 +10,7 @@ import {
   ProductGeneralInformation,
   ProductImage,
   ProductSEO,
+  ProductVariation,
   RelatedProduct,
 } from '../../../../modules/catalog/components';
 import { FormProduct } from '../../../../modules/catalog/models/FormProduct';
@@ -17,7 +18,6 @@ import { Product } from '../../../../modules/catalog/models/Product';
 import { mapFormProductToProductPayload } from '../../../../modules/catalog/models/ProductPayload';
 import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
 import ProductAttributes from '../[id]/productAttributes';
-import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
 import { toastError } from '../../../../common/services/ToastService';
 import { PRODUCT_URL } from '../../../../constants/Common';
 import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
@@ -81,7 +81,9 @@ const EditProduct: NextPage = () => {
             <Tab eventKey={'image'} title="Product Images">
               <ProductImage product={product} setValue={setValue} />
             </Tab>
-            <Tab eventKey={'variation'} title="Product Variations"></Tab>
+            <Tab eventKey={'variation'} title="Product Variations">
+              <ProductVariation getValue={getValues} setValue={setValue} />
+            </Tab>
             <Tab eventKey={'attribute'} title="Product Attributes">
               <ProductAttributes />
             </Tab>

@@ -54,7 +54,6 @@ const ProductList: NextPage = () => {
     setLoading(true);
 
     getProducts(pageNo, productName, brandName).then((data) => {
-      console.log(data.productContent);
       setTotalPage(data.totalPages);
       setProducts(data.productContent);
       setLoading(false);
