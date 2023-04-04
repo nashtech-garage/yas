@@ -1,6 +1,7 @@
 .product {
   display: block;
   margin-top: 16px;
+  padding: 0;
 }
 
 .product .product-card {
@@ -26,14 +27,28 @@
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   width: 100%;
-  overflow: hidden;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product .product-card .image-wrapper img {
   width: 100%;
-  height: 100%;
+  max-height: 150px;
   object-fit: contain;
+}
+
+@media (min-width: 1200px) {
+  .product .product-card .image-wrapper img {
+    max-height: 220px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .product .product-card .image-wrapper img {
+    max-height: 270px;
+  }
 }
 
 .product .product-card .info-wrapper {

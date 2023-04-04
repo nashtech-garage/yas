@@ -25,7 +25,7 @@ const FeaturedProduct = () => {
   return (
     <Container className="featured-product-container">
       <div className="title">Featured products</div>
-      <Row xs={6}>
+      <Row xs={6} style={{ gap: '16px' }}>
         <ProductItems products={products} />
       </Row>
       <ReactPaginate
