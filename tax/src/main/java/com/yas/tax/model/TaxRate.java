@@ -36,10 +36,10 @@ public class TaxRate extends AbstractAuditEntity {
   private String zipCode;
 
   @Column(nullable = false)
-  private Long state_or_province_id;
+  private Long stateOrProvinceId;
 
   @Column(nullable = false)
-  private Long country_id;
+  private Long countryId;
 
   @ManyToOne
   @JoinColumn(name = "tax_class_id", nullable = false)

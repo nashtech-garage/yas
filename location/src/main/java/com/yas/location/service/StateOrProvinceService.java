@@ -10,6 +10,7 @@ import com.yas.location.utils.Constants;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceListGetVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvincePostVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;
+import com.yas.location.viewmodel.stateorprovince.StateOrProvinceAndCountryGetNameVm;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -107,6 +108,15 @@ public class StateOrProvinceService {
   }
 
   @Transactional(readOnly = true)
+  public List<StateOrProvinceAndCountryGetNameVm> getStateOrProvinceAndCountryNames(final List<Long> stateOrProvinceIds) {
+    List<StateOrProvince> stateOrProvinces = stateOrProvinceRepository.findByIdIn(stateOrProvinceIds);
+
+    return stateOrProvinces.stream()
+            .map(StateOrProvinceAndCountryGetNameVm::fromModel)
+            .toList();
+  }
+
+  @Transactional(readOnly = true)
   public List<StateOrProvinceVm> findAll() {
     return stateOrProvinceRepository
         .findAll()
@@ -127,7 +137,7 @@ public class StateOrProvinceService {
   public StateOrProvinceListGetVm getPageableStateOrProvinces(int pageNo, int pageSize,
       Long countryId) {
     final Pageable pageable = PageRequest.of(pageNo, pageSize);
-    final Page<StateOrProvince> stateOrProvincePage = stateOrProvinceRepository.getStateOrProvinceByCountry(
+    final Page<StateOrProvince> stateOrProvincePage = stateOrProvinceRepository.getPageableStateOrProvincesByCountry(
         countryId, pageable);
     final List<StateOrProvince> stateOrProvinceList = stateOrProvincePage.getContent();
 
@@ -143,5 +153,16 @@ public class StateOrProvinceService {
         stateOrProvincePage.getTotalPages(),
         stateOrProvincePage.isLast()
     );
+  }
+
+  @Transactional(readOnly = true)
+  public List<StateOrProvinceVm> getStateOrProvincesByCountry(Long countryId) {
+    final List<StateOrProvince> stateOrProvinces = stateOrProvinceRepository.getStateOrProvincesByCountry(countryId);
+
+    final List<StateOrProvinceVm> stateOrProvinceVms = stateOrProvinces.stream()
+            .map(StateOrProvinceVm::fromModel)
+            .toList();
+
+    return stateOrProvinceVms;
   }
 }

@@ -73,7 +73,7 @@ public class CountryService {
   public void delete(final Long id) {
     final boolean isCountryExisted = countryRepository.existsById(id);
     if (!isCountryExisted) {
-      throw new NotFoundException(Constants.ERROR_CODE.STATE_OR_PROVINCE_NOT_FOUND, id);
+      throw new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id);
     }
     countryRepository.deleteById(id);
   }

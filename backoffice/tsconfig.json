@@ -7,9 +7,14 @@
       "@locationComponents/*": ["modules/location/components/*"],
       "@locationModels/*": ["modules/location/models/*"],
       "@locationServices/*": ["modules/location/services/*"],
-      "@catalogComponents/*": ["modules/catalog/components/*"],
+      "@taxServices/*": ["modules/tax/services/*"],
+      "@taxComponents/*": ["modules/tax/components/*"],
+      "@taxModels/*": ["modules/tax/models/*"],
+      "@constants/*": ["constants/*"],
+      "@catalogModels/*": ["modules/catalog/models/*"],
       "@catalogServices/*": ["modules/catalog/services/*"],
-      "@catalogModels/*": ["modules/catalog/models/*"]
+      "@catalogComponents/*": ["modules/catalog/components/*"]
+
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

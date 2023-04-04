@@ -2,6 +2,8 @@ import { Button } from 'react-bootstrap';
 import { FaMicrosoft, FaMobileAlt, FaTasks, FaUsers } from 'react-icons/fa';
 import { AiOutlineGroup } from 'react-icons/ai';
 import { SiBrandfolder, SiAnydesk } from 'react-icons/si';
+import { TbReceiptTax } from 'react-icons/tb';
+
 import styles from '../../styles/Sidebar.module.css';
 import ListGroup from '../items/ListGroup';
 import { useRef, useState } from 'react';
@@ -9,7 +11,7 @@ import { FiMenu } from 'react-icons/fi';
 import { CgClose } from 'react-icons/cg';
 import { RiArrowDropDownLine } from 'react-icons/ri';
 import { MdLocationCity } from 'react-icons/md';
-import { COUNTRY_URL, STATE_OR_PROVINCE_URL } from '../../constants/Common';
+import { COUNTRY_URL, STATE_OR_PROVINCE_URL, TAX_CLASS_URL, TAX_RATE_URL } from '@constants/Common';
 type Props = {
   open: boolean;
   setOpen: (value: boolean) => void;
@@ -87,6 +89,23 @@ let menu_location_item_data: any = [
   },
 ];
 
+let menu_tax_item_data: any = [
+  {
+    id: 1,
+    name: 'taxClasses',
+    active: false,
+    link: TAX_CLASS_URL,
+    icon: <TbReceiptTax />,
+  },
+  {
+    id: 2,
+    name: 'taxRates',
+    active: false,
+    link: TAX_RATE_URL,
+    icon: <TbReceiptTax />,
+  },
+];
+
 const Burger = ({ open, setOpen }: Props) => {
   return (
     <span id={styles.burgerButton} onClick={() => setOpen(!open)}>
@@ -99,6 +118,7 @@ const Menu = ({ open, setOpen }: Props) => {
   const [showCatalog, setShowCatalog] = useState(true);
   const [showCustomer, setShowCustomer] = useState(true);
   const [showLocation, setShowLocation] = useState(true);
+  const [showTax, setShowTax] = useState(true);
 
   return (
     <>
@@ -147,6 +167,20 @@ const Menu = ({ open, setOpen }: Props) => {
             </span>
           </h5>
           <div className="py-4">{showLocation && <ListGroup data={menu_location_item_data} />}</div>
+
+          {/* Tax */}
+          <h5 className="font-weight-black text-center text-white">
+            <span>Tax</span>
+            <span
+              id={styles.burgerButton}
+              onClick={() => {
+                setShowTax(!showTax);
+              }}
+            >
+              <RiArrowDropDownLine className={`${!showTax ? styles.rotateButton180 : ''}`} />
+            </span>
+          </h5>
+          <div className="py-4">{showTax && <ListGroup data={menu_tax_item_data} />}</div>
 
           {/* Logout */}
           <div className="d-flex justify-content-center ">
