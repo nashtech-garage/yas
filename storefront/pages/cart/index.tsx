@@ -12,6 +12,7 @@ import {
   removeProductInCart,
   updateCart,
 } from '../../modules/cart/services/CartService';
+import { formatPrice } from 'utils/formatPrice';
 
 const Cart = () => {
   type Item = {
@@ -46,7 +47,7 @@ const Cart = () => {
   });
 
   const calculateProductPrice = (item: Item) => {
-    return item.price * item.quantity;
+    return formatPrice(item.price * item.quantity);
   };
 
   const getProductThumbnails = (productIds: number[]) => {
@@ -77,7 +78,7 @@ const Cart = () => {
 
   useEffect(() => {
     const totalPrice = items
-      .map((item) => calculateProductPrice(item))
+      .map((item) => item.price * item.quantity)
       .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
     setTotalPrice(totalPrice);
   }, [items]);
@@ -208,7 +209,7 @@ const Cart = () => {
                               </Link>
                             </div>
                           </td>
-                          <td className="cart__price">{item.price} ₫</td>
+                          <td className="cart__price">{formatPrice(item.price)}</td>
                           <td className="cart__quantity">
                             <div className="pro-qty">
                               <div className="quantity buttons_added">
@@ -250,7 +251,7 @@ const Cart = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="cart__total">{calculateProductPrice(item)} ₫</td>
+                          <td className="cart__total">{calculateProductPrice(item)}</td>
                           <td className="cart__close">
                             {' '}
                             <button
@@ -297,10 +298,10 @@ const Cart = () => {
               <h6>Cart total</h6>
               <ul>
                 <li>
-                  Subtotal <span>{totalPrice} ₫</span>
+                  Subtotal <span>{formatPrice(totalPrice)}</span>
                 </li>
                 <li>
-                  Total <span>{totalPrice} ₫</span>
+                  Total <span>{formatPrice(totalPrice)}</span>
                 </li>
               </ul>
               <Link href="#" className="primary-btn">
