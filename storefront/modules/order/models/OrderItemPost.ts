@@ -1,6 +1,10 @@
 export type OrderItemPost = {
   productId: number;
+  productName: string;
   quantity: number;
-  price: number;
+  productPrice: number;
   note?: string;
+  discountAmount?: number;
+  taxAmount?: number;
+  taxPercent?: number;
 };

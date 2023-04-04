@@ -19,5 +19,8 @@ public class OrderController {
     public ResponseEntity<OrderVm> createOrder(@Valid @RequestBody OrderPostVm orderPostVm) {
         return ResponseEntity.ok(orderService.createOrder(orderPostVm));
     }
-
+    @GetMapping("/backoffice/orders/{id}")
+    public ResponseEntity<OrderVm> getOrderWithItemsById(@PathVariable long id) {
+        return ResponseEntity.ok(orderService.getOrderWithItemsById(id));
+    }
 }

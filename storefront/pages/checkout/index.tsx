@@ -1,6 +1,3 @@
-import Head from 'next/head';
-import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
-import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { Container } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -8,19 +5,17 @@ import OrderForm from 'modules/order/components/OrderForm';
 import { OrderPost } from 'modules/order/models/OrderPost';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import Banner from 'common/items/Banner';
+import { OrderItemPost } from '@/modules/order/models/OrderItemPost';
+import { useEffect, useState } from 'react';
 
-const crumb: BreadcrumbModel[] = [
-  {
-    pageName: 'Home',
-    url: '/',
-  },
-  {
-    pageName: 'Checkout',
-    url: '/checkout',
-  },
-];
+type Props = {
+  orderItems: OrderItemPost[];
+  couponCode?: string;
+};
 
-const Checkout = () => {
+const Checkout = ({ orderItems, couponCode }: Props) => {
+  console.log(orderItems);
+
   const {
     handleSubmit,
     register,
@@ -28,6 +23,8 @@ const Checkout = () => {
   } = useForm<OrderPost>();
 
   const onSubmitForm: SubmitHandler<OrderPost> = async (data) => {
+    console.log(data);
+
     toast.error('Place Order Failed');
   };
 

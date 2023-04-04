@@ -1,9 +1,7 @@
 package com.yas.order.model;
 
 
-import com.yas.order.model.enumeration.EDeliveryMethod;
-import com.yas.order.model.enumeration.EDeliveryStatus;
-import com.yas.order.model.enumeration.EPaymentMethod;
+import com.yas.order.model.enumeration.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,16 +20,20 @@ public class Order extends AbstractAuditEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String phone;
-    private String address;
+    private String email;
+    private Long addressId;
     private String note;
     private float tax;
     private float discount;
     private int numberItem;
+    private String couponCode;
     private BigDecimal totalPrice;
     private BigDecimal deliveryFee;
+    private EOrderStatus orderStatus;
     private EDeliveryMethod deliveryMethod;
     private EDeliveryStatus deliveryStatus;
     private EPaymentMethod paymentMethod;
+    private EPaymentStatus paymentStatus;
     @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     Set<OrderItem> orderItems;
 

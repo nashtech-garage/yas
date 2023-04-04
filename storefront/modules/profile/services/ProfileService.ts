@@ -11,5 +11,10 @@ export async function updateCustomer(profile: ProfileRequest) {
     body: JSON.stringify(profile),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return response;
+
+  if (response.status >= 200 && response.status < 300) {
+    return await response.json();
+  }
+
+  return Promise.reject(response.status);
 }
