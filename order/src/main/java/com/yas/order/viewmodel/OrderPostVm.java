@@ -13,7 +13,8 @@ import java.util.Set;
 public record OrderPostVm(
         String phone,
         String email,
-        Long addressId,
+        Long shippingAddressId,
+        Long billingAddressId,
         String note,
         float tax,
         float discount,

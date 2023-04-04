@@ -303,17 +303,7 @@ const Cart = () => {
                   Total <span>{totalPrice} ₫</span>
                 </li>
               </ul>
-              <Link
-                href={{
-                  pathname: '/redirect/checkout',
-                  query: {
-                    items: JSON.stringify(items),
-                    couponCode: null,
-                  },
-                }}
-                as={'/checkout'}
-                className="primary-btn"
-              >
+              <Link href="/checkout" className="primary-btn">
                 Proceed to checkout
               </Link>
             </div>

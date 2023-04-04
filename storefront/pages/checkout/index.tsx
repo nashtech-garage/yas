@@ -4,17 +4,45 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import OrderForm from 'modules/order/components/OrderForm';
 import { OrderPost } from 'modules/order/models/OrderPost';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
-import Banner from 'common/items/Banner';
 import { OrderItemPost } from '@/modules/order/models/OrderItemPost';
 import { useEffect, useState } from 'react';
+import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
+import AddressCheckoutSection from 'modules/order/components/OrderForm';
 
-type Props = {
-  orderItems: OrderItemPost[];
-  couponCode?: string;
-};
+const Checkout = () => {
+  const [orderItems, setOrderItems] = useState<OrderItemPost[]>([]);
 
-const Checkout = ({ orderItems, couponCode }: Props) => {
-  console.log(orderItems);
+  const [loaded, setLoaded] = useState(false);
+
+  const loadItems = () => {
+    getCart().then((data) => {
+      const cartDetails = data.cartDetails;
+      const productIds = cartDetails.map((item) => item.productId);
+      getProductThumbnails(productIds).then((results) => {
+        const newItems: OrderItemPost[] = [];
+        results.forEach((result) => {
+          newItems.push({
+            productId: result.id,
+            quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
+            productName: result.name,
+            productPrice: result.price!,
+          });
+        });
+        setOrderItems(newItems);
+      });
+    });
+  };
+
+  const getProductThumbnails = (productIds: number[]) => {
+    return getCartProductThumbnail(productIds);
+  };
+
+  useEffect(() => {
+    if (!loaded) {
+      loadItems();
+      setLoaded(true);
+    }
+  }, []);
 
   const {
     handleSubmit,
@@ -30,27 +58,17 @@ const Checkout = ({ orderItems, couponCode }: Props) => {
 
   return (
     <>
-      <Banner title="Checkout" />
       <Container>
         <section className="checkout spad">
           <div className="container">
-            <div className="row">
-              <div className="col-lg-12">
-                <h6>
-                  <span className="icon_tag_alt"></span> Have a coupon? <a href="#">Click here</a>{' '}
-                  to enter your code
-                </h6>
-              </div>
-            </div>
             <div className="checkout__form">
-              <h4>Billing Details</h4>
               <form onSubmit={handleSubmit(onSubmitForm)}>
                 <div className="row">
                   <div className="col-lg-8 col-md-6">
-                    <OrderForm register={register} errors={errors} />
+                    <AddressCheckoutSection register={register} errors={errors} />
                   </div>
                   <div className="col-lg-4 col-md-6">
-                    <CheckOutDetail />
+                    <CheckOutDetail orderItems={orderItems} />
                   </div>
                 </div>
               </form>

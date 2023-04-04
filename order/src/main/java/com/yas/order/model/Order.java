@@ -21,7 +21,8 @@ public class Order extends AbstractAuditEntity{
     private Long id;
     private String phone;
     private String email;
-    private Long addressId;
+    private Long shippingAddressId;
+    private Long billingAddressId;
     private String note;
     private float tax;
     private float discount;

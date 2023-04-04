@@ -18,7 +18,8 @@ public record OrderVm(
         Long id,
         String phone,
         String email,
-        Long addressId,
+        Long shippingAddressId,
+        Long billingAddressId,
         String note,
         float tax,
         float discount,
@@ -55,7 +56,8 @@ public record OrderVm(
                 .id(order.getId())
                 .phone(order.getPhone())
                 .email(order.getEmail())
-                .addressId(order.getAddressId())
+                .shippingAddressId(order.getShippingAddressId())
+                .billingAddressId(order.getBillingAddressId())
                 .note(order.getNote())
                 .tax(order.getTax())
                 .discount(order.getDiscount())

@@ -2,7 +2,8 @@ alter table if exists "order"
 add column order_status varchar(255),
 add column payment_status varchar(255),
 add column coupon_code varchar(255),
-add column address_id bigserial not null,
+add column shipping_address_id bigserial not null,
+add column billing_address_id bigserial not null,
 add column email varchar(255),
 drop column address;
 

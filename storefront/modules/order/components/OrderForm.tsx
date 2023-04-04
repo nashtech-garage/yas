@@ -5,14 +5,18 @@ import { getMyProfile } from '@/modules/profile/services/ProfileService';
 import { Customer } from '@/modules/profile/models/Customer';
 import { useEffect, useState } from 'react';
 import { toastError } from '@/modules/catalog/services/ToastService';
+import AddressForm from '@/modules/address/components/AddressFormV2';
 
 type Props = {
   register: UseFormRegister<OrderPost>;
   errors: FieldErrorsImpl<OrderPost>;
 };
 
-const OrderForm = ({ register, errors }: Props) => {
+const AddressCheckoutSection = ({ register, errors }: Props) => {
   const [customer, setCustomer] = useState<Customer>();
+  const [addAddressShipping, setAddAddressShipping] = useState<boolean>(false);
+  const [addAddressBilling, setAddAddressBilling] = useState<boolean>(false);
+  const [sameAddress, setSameAddress] = useState<boolean>(true);
 
   useEffect(() => {
     getMyProfile()
@@ -24,116 +28,117 @@ const OrderForm = ({ register, errors }: Props) => {
       });
   }, []);
 
+  const handleSelectBillingAddress = (e: any) => {
+    if (e.target.checked) {
+      setSameAddress(true);
+      setAddAddressBilling(false);
+    } else {
+      setSameAddress(false);
+    }
+  };
+
   return (
     <>
-      <div className="row">
-        <div className="col-lg-6">
-          <div className="checkout__input">
-            <div className="mb-3">
-              <label className="form-label" htmlFor="firstName">
-                First Name <span className="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                className={`form-control`}
-                defaultValue={customer?.firstName}
-                disabled={true}
-              />
+      <h4>Shipping Address</h4>
+      <div className="checkout__input">
+        <button
+          type="button"
+          className="btn btn-outline-primary  fw-bold btn-sm me-2"
+          onClick={() => setAddAddressShipping(false)}
+        >
+          Change address <i className="bi bi-plus-circle-fill"></i>
+        </button>
+        <button
+          type="button"
+          className={`btn btn-outline-primary  fw-bold btn-sm ${
+            addAddressShipping ? `active` : ``
+          }`}
+          onClick={() => setAddAddressShipping(true)}
+        >
+          Add new address <i className="bi bi-plus-circle-fill"></i>
+        </button>
+      </div>
+      <div className={`shipping_address ${addAddressShipping ? `d-none` : ``}`}>
+        <div className="row">
+          <div className="col-lg-6">
+            <div className="checkout__input">
+              <div className="mb-3">
+                <label className="form-label" htmlFor="firstName">
+                  Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  className={`form-control`}
+                  defaultValue={`This feild will update when "User address book is ready"`}
+                  disabled={true}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-6">
+            <div className="checkout__input">
+              <div className="mb-3">
+                <label className="form-label" htmlFor="firstName">
+                  Phone <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  className={`form-control`}
+                  defaultValue={`This feild will update when "User address book is ready"`}
+                  disabled={true}
+                />
+              </div>
             </div>
           </div>
         </div>
-        <div className="col-lg-6">
-          <div className="checkout__input">
-            <div className="mb-3">
-              <label className="form-label" htmlFor="firstName">
-                Last Name <span className="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                className={`form-control`}
-                defaultValue={customer?.lastName}
-                disabled={true}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="checkout__input">
-        <Input
-          labelText="Address"
-          field="addressId"
-          register={register}
-          registerOptions={{
-            required: { value: true, message: 'This field is required' },
-          }}
-          placeholder="Apartment, suite, unite ect, ..v.v"
-          error={errors.addressId?.message}
-        />
-      </div>
-      <div className="checkout__input">
-        <div className="mb-3">
-          <label className="form-label" htmlFor="stateOrProvince">
-            State or Province <span className="text-danger">*</span>
-          </label>
-          <input type="text" className={`form-control`} defaultValue={customer?.firstName} />
-        </div>
-      </div>
-      <div className="checkout__input">
-        <div className="mb-3">
-          <label className="form-label" htmlFor="district">
-            District <span className="text-danger">*</span>
-          </label>
-          <input type="text" className={`form-control`} defaultValue={customer?.firstName} />
-        </div>
-      </div>
-      <div className="checkout__input">
-        <div className="mb-3">
-          <label className="form-label" htmlFor="country">
-            Country <span className="text-danger">*</span>
-          </label>
-          <input type="text" className={`form-control`} defaultValue={customer?.firstName} />
-        </div>
-      </div>
-      <div className="checkout__input">
-        <div className="mb-3">
-          <label className="form-label" htmlFor="postalCode">
-            Postcode / ZIP <span className="text-danger">*</span>
-          </label>
-          <input type="text" className={`form-control`} defaultValue={customer?.firstName} />
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-lg-6">
-          <div className="checkout__input">
-            <Input
-              labelText="Phone"
-              field="phone"
-              register={register}
-              registerOptions={{
-                required: { value: true, message: 'This field is required' },
-              }}
-              error={errors.phone?.message}
-              defaultValue={customer?.email}
-            />
-          </div>
-        </div>
-        <div className="col-lg-6">
-          <div className="checkout__input">
-            <Input
-              type="email"
-              labelText="Email"
-              field="email"
-              register={register}
-              registerOptions={{
-                required: { value: true, message: 'This field is required' },
-              }}
-              defaultValue={customer?.firstName}
-              error={errors.email?.message}
+        <div className="checkout__input">
+          <div className="mb-3">
+            <label className="form-label" htmlFor="firstName">
+              Address <span className="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              className={`form-control`}
+              defaultValue={`This feild will update when "User address book is ready"`}
+              disabled={true}
             />
           </div>
         </div>
       </div>
+      <AddressForm isDisplay={addAddressShipping} />
 
+      <h4>Billing Address</h4>
+      <div className="row mb-4">
+        <div className="col-lg-6">
+          <div className="checkout__input__checkbox">
+            <label htmlFor="same_as_shipping">
+              Selected Shipping Address same as Billing Address
+              <input
+                type="checkbox"
+                id="same_as_shipping"
+                onChange={handleSelectBillingAddress}
+                checked={sameAddress}
+              />
+              <span className="checkmark"></span>
+            </label>
+          </div>
+        </div>
+        <div className="col-lg-6">
+          <button
+            type="button"
+            className={`btn btn-outline-primary  fw-bold btn-sm ${
+              addAddressBilling ? `active` : ``
+            }`}
+            onClick={() => {
+              setAddAddressBilling(true);
+              setSameAddress(false);
+            }}
+          >
+            Add new address <i className="bi bi-plus-circle-fill"></i>
+          </button>
+        </div>
+      </div>
+      <AddressForm isDisplay={addAddressBilling} />
       <div className="checkout__input">
         <Input
           type="text"
@@ -148,4 +153,4 @@ const OrderForm = ({ register, errors }: Props) => {
   );
 };
 
-export default OrderForm;
+export default AddressCheckoutSection;
