@@ -51,7 +51,33 @@ const Address: NextPage = () => {
       })
       .then((data) => setAddresses(data));
   }, []);
-  if (addresses.length == 0) return <>No address</>;
+  if (addresses.length == 0) {
+    return (
+      <>
+        <Head>
+          <title>Address</title>
+        </Head>
+        <div style={{ minHeight: '550px' }}>
+          <div className="container mb-4 pt-5 d-flex justify-content-between">
+            <h2 className="mb-3">Address list</h2>
+            <button className="p-0 btn btn-primary">
+              <Link
+                href={'/address/create'}
+                className={clsx(styles['link-redirect'], 'd-flex', 'align-items-center', 'p-2')}
+                style={{ display: 'inline-block', width: '100%' }}
+              >
+                <BiPlusMedical />
+                <span style={{ padding: '0 0 0 5px' }}>Create address</span>
+              </Link>
+            </button>
+          </div>
+          <div className="container">
+            <p>No address</p>
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <Head>
