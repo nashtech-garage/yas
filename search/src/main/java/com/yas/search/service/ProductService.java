@@ -18,27 +18,8 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public ProductListGetVm findByCategoryName(String name, int page, int size) {
-        Page<Product> productPage = productRepository
-                .findByProductCategoriesCategoryNameAndIsVisibleIndividuallyTrueAndIsActiveTrue(
-                        name,
-                        PageRequest.of(page, size)
-                );
-
-        List<ProductListVm> productListVmList = productPage.stream().map(ProductListVm::fromModel).toList();
-
-        return new ProductListGetVm(
-                productListVmList,
-                productPage.getNumber(),
-                productPage.getSize(),
-                (int) productPage.getTotalElements(),
-                productPage.getTotalPages(),
-                productPage.isLast()
-        );
-    }
-
     public ProductListGetVm findProductAdvance(String keyword, int page, int size) {
-        Page<Product> productPage = productRepository.findByAttributeOrBrandOrNameOrCategory(keyword, PageRequest.of(page, size));
+        Page<Product> productPage = productRepository.findAllByName(keyword, PageRequest.of(page, size));
 
         List<ProductListVm> productListVmList = productPage.getContent().stream().map(ProductListVm::fromModel).toList();
 

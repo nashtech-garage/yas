@@ -47,8 +47,8 @@ public class Product {
     @Field(type = FieldType.Keyword)
     private List<String> productCategories;
 
-    @Field(type = FieldType.Nested)
-    private List<ProductAttributeValue> attributeValues;
+    @Field(type = FieldType.Keyword)
+    private List<String> attributeValues;
 
     @Field(type = FieldType.Date)
     private ZonedDateTime createdOn;
