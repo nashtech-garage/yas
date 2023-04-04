@@ -10,14 +10,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ElasticsearchApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ElasticsearchApplication.class, args);
+    }
 
-	@Bean
-	public ZipkinSpanExporter zipkinSpanExporter() {
-		return ZipkinSpanExporter.builder()
-				.setEndpoint("http://tempo:9411/api/v2/spans")
-				.build();
-	}
+    @Bean
+    public ZipkinSpanExporter zipkinSpanExporter() {
+        return ZipkinSpanExporter.builder()
+                .setEndpoint("http://tempo:9411/api/v2/spans")
+                .build();
+    }
 }

@@ -12,12 +12,12 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @ComponentScan(basePackages = "com.yas.search.service")
 public class ImperativeClientConfig extends ElasticsearchConfiguration {
     @Value("${elasticsearch.url}")
-    private String ELASTICSEARCH_URL;
+    private String elasticSearchUrl;
 
     @Override
     public ClientConfiguration clientConfiguration() {
-        return  ClientConfiguration.builder()
-                .connectedTo(ELASTICSEARCH_URL)
+        return ClientConfiguration.builder()
+                .connectedTo(elasticSearchUrl)
                 .build();
     }
 }

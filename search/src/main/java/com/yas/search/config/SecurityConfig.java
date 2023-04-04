@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
                 .authorizeHttpRequests()
                 .requestMatchers("/storefront/**").permitAll()
@@ -33,7 +32,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers("/actuator/prometheus","/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
+        return web -> web.ignoring().requestMatchers("/actuator/prometheus", "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
     }
 
     @Bean

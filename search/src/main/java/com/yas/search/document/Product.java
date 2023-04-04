@@ -9,7 +9,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-
 @Document(indexName = "product")
 @Builder
 @Getter
@@ -45,10 +44,10 @@ public class Product {
     private String brand;
 
     @Field(type = FieldType.Keyword)
-    private List<String> productCategories;
+    private List<String> categories;
 
     @Field(type = FieldType.Keyword)
-    private List<String> attributeValues;
+    private List<String> attributes;
 
     @Field(type = FieldType.Date)
     private ZonedDateTime createdOn;

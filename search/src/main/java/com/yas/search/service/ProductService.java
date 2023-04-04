@@ -29,7 +29,6 @@ public class ProductService {
                 productPage.getSize(),
                 (int) productPage.getTotalElements(),
                 productPage.getTotalPages(),
-                productPage.isLast()
-        );
+                productPage.isLast());
     }
 }
