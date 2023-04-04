@@ -10,6 +10,7 @@ import com.yas.location.utils.Constants;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceListGetVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvincePostVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;
+import com.yas.location.viewmodel.stateorprovince.StateOrProvinceAndCountryGetNameVm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,6 +110,15 @@ public class StateOrProvinceService {
   }
 
   @Transactional(readOnly = true)
+  public List<StateOrProvinceAndCountryGetNameVm> getStateOrProvinceAndCountryNames(final List<Long> stateOrProvinceIds) {
+    List<StateOrProvince> stateOrProvinces = stateOrProvinceRepository.findByIdIn(stateOrProvinceIds);
+
+    return stateOrProvinces.stream()
+            .map(StateOrProvinceAndCountryGetNameVm::fromModel)
+            .toList();
+  }
+
+  @Transactional(readOnly = true)
   public List<StateOrProvinceVm> findAll() {
     return stateOrProvinceRepository
         .findAll()
@@ -129,7 +139,7 @@ public class StateOrProvinceService {
   public StateOrProvinceListGetVm getPageableStateOrProvinces(int pageNo, int pageSize,
       Long countryId) {
     final Pageable pageable = PageRequest.of(pageNo, pageSize);
-    final Page<StateOrProvince> stateOrProvincePage = stateOrProvinceRepository.getStateOrProvinceByCountry(
+    final Page<StateOrProvince> stateOrProvincePage = stateOrProvinceRepository.getPageableStateOrProvincesByCountry(
         countryId, pageable);
     final List<StateOrProvince> stateOrProvinceList = stateOrProvincePage.getContent();
 
@@ -147,7 +157,6 @@ public class StateOrProvinceService {
     );
   }
 
-  @Transactional(readOnly = true)
   public List<StateOrProvinceVm> getAllByCountryId(Long countryId) {
     return stateOrProvinceRepository.findAllByCountryId(countryId).stream()
             .map(stateOrProvinceMapper::toStateOrProvinceViewModelFromStateOrProvince)

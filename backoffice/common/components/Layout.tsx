@@ -10,6 +10,7 @@ import {
   menu_customer_item_data,
   menu_other_item_data,
   menu_location_item_data,
+  menu_tax_item_data,
 } from '../../asset/data/sidebar';
 import { AnyObject } from 'yup/lib/object';
 
@@ -188,6 +189,27 @@ const Sidebar = (menu: MenuProps) => {
             />
           </ul>
         </li>
+
+        <li className={menuActive == 'tax' ? 'active' : ''} onClick={() => changeMenu('tax')}>
+          <Link
+            href="#taxSubmenu"
+            data-target="#taxSubmenu"
+            data-bs-toggle="collapse"
+            aria-controls="taxSubmenu"
+            aria-expanded="false"
+            className="dropdown-toggle"
+          >
+            <span className="fa fa-percent"></span> Tax
+          </Link>
+          <ul className="collapse list-unstyled" id="taxSubmenu">
+            <ListItem
+              data={menu_tax_item_data}
+              childActive={menu.childActive}
+              changeChildMenu={menu.changeChildMenu}
+            />
+          </ul>
+        </li>
+
         <li className={menuActive == 'Other' ? 'active' : ''} onClick={() => changeMenu('Other')}>
           <Link
             href="#otherSubmenu"

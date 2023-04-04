@@ -1,7 +1,8 @@
 import { StateOrProvince } from '../models/StateOrProvince';
 
-export async function getStateOrProvinces(): Promise<StateOrProvince[]> {
-  const response = await fetch('/api/location/backoffice/stateOrProvinces');
+export async function getStateOrProvincesByCountry(countryId: number): Promise<StateOrProvince[]> {
+  const url = `/api/location/backoffice/state-or-provinces?countryId=${countryId}`;
+  const response = await fetch(url);
   return await response.json();
 }
 
