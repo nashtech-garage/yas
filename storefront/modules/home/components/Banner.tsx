@@ -2,9 +2,9 @@ import ImageWithFallBack from 'common/components/ImageWithFallback';
 import Link from 'next/link';
 import { Carousel, Container } from 'react-bootstrap';
 
-import mainBanner1 from '../../../asset/images/main-banner-1.png';
-import mainBanner2 from '../../../asset/images/main-banner-2.png';
-import mainBanner3 from '../../../asset/images/main-banner-3.png';
+import mainBanner1 from '../../../asset/images/main-banner-1.jpg';
+import mainBanner2 from '../../../asset/images/main-banner-2.jpg';
+import mainBanner3 from '../../../asset/images/main-banner-3.jpg';
 import subBanner from '../../../asset/images/sub-banner.jpg';
 
 const listMainBanner = [mainBanner1.src, mainBanner2.src, mainBanner3.src];
