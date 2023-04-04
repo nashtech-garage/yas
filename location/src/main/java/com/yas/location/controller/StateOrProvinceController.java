@@ -7,6 +7,7 @@ import com.yas.location.viewmodel.error.ErrorVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceListGetVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvincePostVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;
+import com.yas.location.viewmodel.stateorprovince.StateOrProvinceAndCountryGetNameVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -53,8 +54,9 @@ public class StateOrProvinceController {
   }
 
   @GetMapping
-  public ResponseEntity<List<StateOrProvinceVm>> listStateOrProvinces() {
-    return ResponseEntity.ok(stateOrProvinceService.findAll());
+  public ResponseEntity<List<StateOrProvinceVm>> getAllByCountryId( @RequestParam(value = "countryId", required = false) final Long countryId) {
+    return ResponseEntity.ok(
+            stateOrProvinceService.getAllByCountryId(countryId));
   }
 
   @GetMapping("/{id}")
@@ -63,6 +65,20 @@ public class StateOrProvinceController {
       @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
   public ResponseEntity<StateOrProvinceVm> getStateOrProvince(@PathVariable("id") final Long id) {
     return ResponseEntity.ok(stateOrProvinceService.findById(id));
+  }
+
+  /**
+   * API Get list names for state and country by list of state or province ids
+   *
+   * @param   stateOrProvinceIds    The list of state or province ids
+   * @return  StateOrProvinceAndCountryGetNameVm   The list of state and country names
+   */
+  @GetMapping("state-country-names")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = Constants.ApiConstant.CODE_200, description = Constants.ApiConstant.OK, content = @Content(schema = @Schema(implementation = StateOrProvinceVm.class))),
+          @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+  public ResponseEntity<List<StateOrProvinceAndCountryGetNameVm>> getStateOrProvinceAndCountryNames(@RequestParam(value = "stateOrProvinceIds") final List<Long> stateOrProvinceIds) {
+    return ResponseEntity.ok(stateOrProvinceService.getStateOrProvinceAndCountryNames(stateOrProvinceIds));
   }
 
   /**

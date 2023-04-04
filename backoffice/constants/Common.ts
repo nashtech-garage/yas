@@ -28,6 +28,8 @@ export const PRODUCT_ATTRIBUTE_URL = '/catalog/product-attributes';
 export const PRODUCT_URL = '/catalog/products';
 export const COUNTRY_URL = '/location/countries';
 export const STATE_OR_PROVINCE_URL = '/location/state-or-provinces';
+export const TAX_CLASS_URL = '/tax/tax-classes';
+export const TAX_RATE_URL = '/tax/tax-rates';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;
