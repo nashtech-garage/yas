@@ -112,7 +112,7 @@ const AddressCheckoutSection = ({ register, errors }: Props) => {
         <div className="col-lg-6">
           <div className="checkout__input__checkbox">
             <label htmlFor="same_as_shipping">
-              Selected Shipping Address same as Billing Address
+              Selected Billing Address same as Shipping Address
               <input
                 type="checkbox"
                 id="same_as_shipping"

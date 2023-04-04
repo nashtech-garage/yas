@@ -1,13 +1,13 @@
 import { Container } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import OrderForm from 'modules/order/components/OrderForm';
+import OrderForm from '@/modules/order/components/AddressCheckoutSection';
 import { OrderPost } from 'modules/order/models/OrderPost';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItemPost } from '@/modules/order/models/OrderItemPost';
 import { useEffect, useState } from 'react';
 import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
-import AddressCheckoutSection from 'modules/order/components/OrderForm';
+import AddressCheckoutSection from '@/modules/order/components/AddressCheckoutSection';
 
 const Checkout = () => {
   const [orderItems, setOrderItems] = useState<OrderItemPost[]>([]);
