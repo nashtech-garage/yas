@@ -16,3 +16,6 @@ alter table if exists "order"
 ADD CONSTRAINT FK_BillingAddress FOREIGN KEY (billing_address_id) REFERENCES order_address (id),
 ADD CONSTRAINT FKk_ShippingAddress FOREIGN KEY (shipping_address_id) REFERENCES order_address (id),
 drop column phone;
+
+alter table if exists order_item
+add column discount_amount decimal(19,2);
