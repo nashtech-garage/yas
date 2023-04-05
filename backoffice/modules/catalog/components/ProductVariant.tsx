@@ -1,8 +1,11 @@
+import ConfirmationDialog from 'common/components/ConfirmationDialog';
 import styles from '../../../styles/ProductVariant.module.css';
 
 import { ProductVariation } from '../models/ProductVariation';
 import ChooseImages from './ChooseImages';
 import ChooseThumbnail from './ChooseThumbnail';
+import { useState } from 'react';
+import { deleteProduct } from '@catalogServices/ProductService';
 
 type ProductVariantProps = {
   index: number;
@@ -11,6 +14,20 @@ type ProductVariantProps = {
 };
 
 export default function ProductVariant({ variant, index, onDelete }: ProductVariantProps) {
+  const [isOpenRemoveDialog, setIsOpenRemoveDialog] = useState<boolean>(false);
+
+  const deleteVariation = () => {
+    if (variant.id) {
+      setIsOpenRemoveDialog(true);
+    } else {
+      onDelete(variant);
+    }
+  };
+
+  const deleteExistingVariation = () => {
+    deleteProduct(variant.id!).then(() => onDelete(variant));
+  };
+
   const onChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
 
@@ -31,7 +48,7 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
 
   return (
     <div className={styles['product-variant']}>
-      <span className={styles['delete-button']} onClick={() => onDelete(variant)}>
+      <span className={styles['delete-button']} onClick={() => deleteVariation()}>
         <i className="bi bi-x"></i>
       </span>
       <div className={styles['main']}>
@@ -131,6 +148,15 @@ export default function ProductVariant({ variant, index, onDelete }: ProductVari
           }}
         />
       </div>
+      <ConfirmationDialog
+        isOpen={isOpenRemoveDialog}
+        okText="Yes"
+        cancelText="No"
+        cancel={() => setIsOpenRemoveDialog(false)}
+        ok={() => deleteExistingVariation()}
+      >
+        <p>Do you want to remove variant {variant.optionName} ?</p>
+      </ConfirmationDialog>
     </div>
   );
 }
