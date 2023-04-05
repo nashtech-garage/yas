@@ -12,9 +12,13 @@ import java.math.BigDecimal;
 public record OrderItemVm(
         Long id,
         Long productId,
+        String productName,
         int quantity,
-        BigDecimal price,
+        BigDecimal productPrice,
         String note,
+        BigDecimal discountAmount,
+        BigDecimal taxAmount,
+        BigDecimal taxPercent,
         Long orderId) {
 
 

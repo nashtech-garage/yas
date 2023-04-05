@@ -304,7 +304,7 @@ const Cart = () => {
                   Total <span>{formatPrice(totalPrice)}</span>
                 </li>
               </ul>
-              <Link href="#" className="primary-btn">
+              <Link href="/checkout" className="primary-btn">
                 Proceed to checkout
               </Link>
             </div>

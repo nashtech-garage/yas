@@ -1,8 +1,7 @@
 package com.yas.order.model.enumeration;
 
-public enum EDeliveryStatus {
+public enum EPaymentStatus {
     PENDING,
-    DELIVERING,
-    DELIVERED,
+    COMPLETED,
     CANCELLED
 }
