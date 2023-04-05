@@ -33,6 +33,9 @@ server {
   location /promotion/ {
   	proxy_pass http://promotion;
   }
+  location /search/ {
+  	proxy_pass http://search;
+  }
 }
 
 server {
@@ -72,5 +75,12 @@ server {
   server_name grafana;
   location / {
 	proxy_pass http://grafana:3000;
+  }
+}
+
+server {
+  server_name elasticsearch;
+  location / {
+	proxy_pass http://elasticsearch:9200;
   }
 }

@@ -140,6 +140,13 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /tax
       YAS_PUBLIC_URL: http://api.yas.local/tax
       SERVER_PORT: "80"
+  search:
+    image: ghcr.io/nashtech-garage/yas-search:latest
+    entrypoint: ["./wait-for-it.sh", "elasticsearch:9200", "--timeout=180", "--", "java", "-jar", "/search-0.0.1-SNAPSHOT.jar"]
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: /search
+      YAS_PUBLIC_URL: http://api.yas.local/search
+      SERVER_PORT: "80"
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
@@ -153,7 +160,8 @@ services:
       { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, 
       { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
       { url: 'http://api.yas.local/tax/v3/api-docs', name: 'Tax' },
-      { url: 'http://api.yas.local/promotion/v3/api-docs', name: 'Promotion'}]"
+      { url: 'http://api.yas.local/promotion/v3/api-docs', name: 'Promotion'},
+      { url: 'http://api.yas.local/search/v3/api-docs', name: 'Search'}]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   postgres:
@@ -220,7 +228,20 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3009:3000"
+
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+#    ports: elasticsearch might not be exposed for security reasons
+#      - "9200:9200"
+#      - "9300:9300"
       
 volumes:
   postgres:
   pgadmin:
+  esdata:
