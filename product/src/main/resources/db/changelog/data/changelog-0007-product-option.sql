@@ -11,3 +11,6 @@ insert into product_option (name) values ('RAM')
 
 --changeset vonhu:product-option4
 insert into product_option (name) values ('OS')
+
+--changeset khoahd7621:issue-586
+insert into product_option (name) values ('Storage')

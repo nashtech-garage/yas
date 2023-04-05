@@ -16,3 +16,14 @@ update product set thumbnail_media_id = 3 where id = 2;
 --changeset khoahd7621:issue-540
 update product set thumbnail_media_id = 8 where id = 1;
 update product set thumbnail_media_id = 9 where id = 2;
+
+--changeset khoahd7621:issue-586
+update product set brand_id = 3, has_options = true, price = 16500000 where id = 1;
+update product set brand_id = 1, has_options = true, price = 30990000 where id = 2;
+insert into product (name,slug,price,parent_id) values
+    ('iPad Pro Wi-Fi 4G 128GB Gold','ipad-pro-wi-fi-4g-128gb-gold',22000000,2),
+    ('iPad Pro Wi-Fi 4G 256GB Gold','ipad-pro-wi-fi-4g-256gb-gold',25440000,2),
+    ('iPad Pro Wi-Fi 4G 512GB Gold','ipad-pro-wi-fi-4g-512gb-gold',29330000,2),
+    ('iPad Pro Wi-Fi 4G 128GB Black','ipad-pro-wi-fi-4g-128gb-black',21990000,2),
+    ('iPad Pro Wi-Fi 4G 256GB Black','ipad-pro-wi-fi-4g-256gb-black',24990000,2),
+    ('iPad Pro Wi-Fi 4G 512GB Black','ipad-pro-wi-fi-4g-512gb-black',28990000,2);
