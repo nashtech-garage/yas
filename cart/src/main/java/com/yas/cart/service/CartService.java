@@ -12,10 +12,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -141,5 +144,13 @@ public class CartService {
         validateCart(currentCart, productId);
 
         cartItemRepository.deleteByCartIdAndProductId(currentCart.id(), productId);
+    }
+
+    public Flux<Integer> countNumberItemInCart(String customerId) {
+        return Flux.interval(Duration.ofSeconds(1)).map((i) -> {
+            Optional<Cart> cartOp = cartRepository.findByCustomerId(customerId)
+                    .stream().reduce((first, second) -> second);
+            return cartOp.isPresent() ? cartItemRepository.countItemInCart(cartOp.get().getId()) : 0;
+        });
     }
 }

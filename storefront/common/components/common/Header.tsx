@@ -8,6 +8,7 @@ import {
   DATA_SEARCH_SUGGESTION,
 } from '../../../asset/data/data_header_client';
 import promoteImage from '../../images/search-promote-image.png';
+import { cartEventSource } from 'modules/cart/services/CartService';
 
 type Props = {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ const Header = ({ children }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isExpand, setIsExpand] = useState(false);
+  const [numberItemIncart, setNumberItemIncart] = useState(0);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -32,6 +34,12 @@ const Header = ({ children }: Props) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    cartEventSource((numberItem) => {
+      setNumberItemIncart(numberItem);
+    });
   }, []);
 
   const handleInputFocus = () => {
@@ -146,7 +154,7 @@ const Header = ({ children }: Props) => {
             <div className="icon-cart">
               <i className="bi bi-cart3"></i>
             </div>
-            <div className="quantity-cart">0</div>
+            <div className="quantity-cart">{numberItemIncart}</div>
           </Link>
         </nav>
 
