@@ -18,8 +18,16 @@ update product set thumbnail_media_id = 8 where id = 1;
 update product set thumbnail_media_id = 9 where id = 2;
 
 --changeset khoahd7621:issue-586
-update product set brand_id = 3, has_options = true, price = 16500000 where id = 1;
-update product set brand_id = 1, has_options = true, price = 30990000 where id = 2;
+update product set brand_id = 3, price = 16500000 where id = 1;
+update product
+set brand_id = 1,
+    has_options = true,
+    price = 30990000,
+    thumbnail_media_id = 11,
+    name = 'iPad Pro Wi-Fi 4G',
+    slug = 'ipad-pro-wi-fi-4g',
+    description = 'Ipad Pro 11 Wi-Fi 4G with a breakthrough and modern design in addition to powerful configuration meets both entertainment and work needs. This iPad promises to bring many great experiences to users.'
+where id = 2;
 insert into product (name,slug,price,parent_id) values
     ('iPad Pro Wi-Fi 4G 128GB Gold','ipad-pro-wi-fi-4g-128gb-gold',22000000,2),
     ('iPad Pro Wi-Fi 4G 256GB Gold','ipad-pro-wi-fi-4g-256gb-gold',25440000,2),
