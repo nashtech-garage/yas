@@ -1,18 +1,26 @@
+import clsx from 'clsx';
 import Link from 'next/link';
 
 import { ProductThumbnail } from 'modules/catalog/models/ProductThumbnail';
-import ImageWithFallBack from './ImageWithFallback';
 import { formatPrice } from 'utils/formatPrice';
+import ImageWithFallBack from './ImageWithFallback';
 
 import styles from 'styles/ProductCard.module.css';
 
 export interface Props {
   product: ProductThumbnail;
+  className?: string[];
 }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product, className }: Props) {
   return (
-    <Link className={styles['product']} href={`/products/${product.slug}`}>
+    <Link
+      className={clsx(
+        styles['product'],
+        className?.map((item) => styles[item])
+      )}
+      href={`/products/${product.slug}`}
+    >
       <div className={styles['product-card']}>
         <div className={styles['image-wrapper']}>
           <ImageWithFallBack src={product.thumbnailUrl} alt={product.name} />

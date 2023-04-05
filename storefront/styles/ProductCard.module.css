@@ -43,11 +43,19 @@
   .product .product-card .image-wrapper img {
     max-height: 220px;
   }
+
+  .product.products-page .product-card .image-wrapper img {
+    max-height: 180px;
+  }
 }
 
 @media (min-width: 1400px) {
   .product .product-card .image-wrapper img {
     max-height: 270px;
+  }
+
+  .product.products-page .product-card .image-wrapper img {
+    max-height: 220px;
   }
 }
 
