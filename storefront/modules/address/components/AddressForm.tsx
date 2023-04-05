@@ -63,7 +63,7 @@ const AddressForm = ({ register, errors, address }: AddressFormProps) => {
   if (id && (countries.length == 0 || statesOrProvinces.length == 0 || districts.length == 0))
     return <></>;
   return (
-    <div className="container">
+    <div className="container p-0">
       <div className="row">
         <div className="col-lg-6 col-md-12">
           <Input

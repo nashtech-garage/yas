@@ -59,11 +59,11 @@ const CreateAddress: NextPage = () => {
       <Head>
         <title>Create Address</title>
       </Head>
-      <div className="container p-5">
+      <div className="container pt-5" style={{ minHeight: '550px' }}>
         <h2 className="mb-3">Create Address</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <AddressForm register={register} errors={errors} address={undefined} />
-          <div className="container" style={{ textAlign: 'end' }}>
+          <div className="container p-0" style={{ textAlign: 'end' }}>
             <button className="btn btn-primary" type="submit">
               Save
             </button>

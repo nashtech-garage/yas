@@ -8,8 +8,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import { UPDATE_SUCCESSFULLY } from '../../../common/constants/Common';
-import clsx from 'clsx';
-import styles from '../../../styles/address.module.css';
 
 const EditAddress: NextPage = () => {
   const {
@@ -25,8 +23,9 @@ const EditAddress: NextPage = () => {
 
   useEffect(() => {
     if (id) {
-      getAddress(id as string).then((data) => {
-        setAddress(data);
+      getAddress(id as string).then((res) => {
+        if (res.title && res.title == 'Not Found') return;
+        setAddress(res);
       });
     }
   }, [id]);
@@ -61,17 +60,29 @@ const EditAddress: NextPage = () => {
   };
 
   if (!id) return <></>;
-  if (id && !address) return <p>No address</p>;
+  if (id && !address) {
+    return (
+      <>
+        <Head>
+          <title>Edit Address</title>
+        </Head>
+        <div className="container pt-5" style={{ minHeight: '550px' }}>
+          <h2 className="mb-3">Edit Address</h2>
+          <p>Address not found</p>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <Head>
         <title>Edit Address</title>
       </Head>
-      <div className="container p-5">
+      <div className="container p-5" style={{ minHeight: '550px' }}>
         <h2 className="mb-3">Edit Address</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <AddressForm register={register} errors={errors} address={address} />
-          <div className="container" style={{ textAlign: 'end' }}>
+          <div className="container p-0" style={{ textAlign: 'end' }}>
             <button className="btn btn-primary" type="submit">
               Save
             </button>
