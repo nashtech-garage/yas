@@ -7,13 +7,13 @@ import Row from 'react-bootstrap/Row';
 import ReactPaginate from 'react-paginate';
 
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
-import ProductItems from '../../common/items/ProductItems';
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
 import { Category } from '../../modules/catalog/models/Category';
 import { ProductThumbnail } from '../../modules/catalog/models/ProductThumbnail';
 import { getCategories } from '../../modules/catalog/services/CategoryService';
 import { getProductByMultiParams } from '../../modules/catalog/services/ProductService';
 
+import ProductCard from 'common/components/ProductCard';
 import styles from '../../styles/productList.module.css';
 
 const crumb: BreadcrumbModel[] = [
@@ -35,11 +35,6 @@ const ProductList = () => {
   const [cates, setCates] = useState<Category[]>([]);
   const [totalPage, setTotalPage] = useState<number>(0);
   const [pageNo, setPageNo] = useState<number>(0);
-  // const [categorySlug, setCategorySlug] = useState<string>();
-  // const [startPrice, setStartPrice] = useState<number>();
-  // const [endPrice, setEndPrice] = useState<number>();
-  // const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
-  // const productName = useDebounce(searchTerm, 500);
 
   const [filters, setFilters] = useState<any>(null);
   const inputSearchRef = useRef<HTMLInputElement>(null);
@@ -214,8 +209,15 @@ const ProductList = () => {
               </div>
               <div className="products-list" style={{ marginTop: 10 }}>
                 {/* PRODUCT VIEW */}
-                <Row xs={5}>
-                  <ProductItems products={products} />
+                <Row xs={5} style={{ padding: '0 10px' }}>
+                  {products.length > 0 &&
+                    products.map((product) => (
+                      <ProductCard
+                        className={['products-page']}
+                        product={product}
+                        key={product.id}
+                      />
+                    ))}
                 </Row>
                 {/* PAGINATION */}
                 <ReactPaginate

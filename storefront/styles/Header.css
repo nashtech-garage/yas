@@ -45,8 +45,20 @@
   display: flex;
   align-items: center;
   background-color: transparent;
-  gap: 12px;
+  gap: 56px;
   min-width: 1000px;
+}
+
+@media screen and (max-width: 1200px) {
+  .limiter-menu-desktop {
+    gap: 32px;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .limiter-menu-desktop {
+    gap: 8px;
+  }
 }
 
 /*------------------------------------------------------------------
@@ -121,7 +133,6 @@
 .header-search .search-form .search-button {
   padding: 0 16px;
   color: #0a68ff;
-  margin-left: 10px;
   position: relative;
   font-size: 14px;
 }
@@ -145,7 +156,7 @@
 .header-search .search-form .search-auto-complete {
   position: absolute;
   background: #fff;
-  box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+  box-shadow: rgba(9, 30, 66, 0.25) 0 1px 1px, rgba(9, 30, 66, 0.13) 0 0 1px 1px;
   top: 100%;
   left: 0;
   right: 0;
@@ -211,7 +222,7 @@
  [ Search suggestion ]*/
 
 .header-search .search-suggestion {
-  margin: 8px 0;
+  margin: 8px 0 4px;
   font-size: 14px;
   height: 21px;
   overflow: hidden;
@@ -219,53 +230,12 @@
 
 .header-search .search-suggestion a {
   display: inline-block;
-  margin: 0 8px;
+  margin: 0 6px;
+  font-size: 12px;
 }
 
 .header-search .search-suggestion a:first-child {
   margin-left: 0;
-}
-
-/*==================================================================
- [ Action ]*/
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-left: 18px;
-  font-size: 16px;
-}
-
-.header-actions .action-item {
-  display: flex;
-  padding: 8px 12px;
-  gap: 8px;
-  border-radius: 8px;
-}
-
-.header-actions .action-item.active {
-  color: #0a68ff;
-}
-
-.header-actions .action-item:hover {
-  background-color: rgba(10, 104, 255, 0.2);
-  color: #808089;
-}
-
-.header-actions .action-item.active:hover {
-  color: #0a68ff;
-}
-
-.header-actions .action-item + .action-item {
-  margin-left: 8px;
-}
-
-.header-action .icon-action {
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
 }
 
 /*==================================================================
@@ -275,17 +245,7 @@
   padding: 8px 12px;
   border-radius: 8px;
   color: rgb(10, 104, 255);
-  margin-left: 12px;
   position: relative;
-}
-
-.header-cart::before {
-  content: '';
-  position: absolute;
-  height: 60%;
-  border-left: 1px solid #dddde3;
-  line-height: 100%;
-  left: -12px;
 }
 
 .header-cart:hover {

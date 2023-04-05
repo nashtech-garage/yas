@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { Image } from 'react-bootstrap';
 
@@ -15,8 +14,6 @@ type Props = {
 };
 
 const Header = ({ children }: Props) => {
-  const router = useRouter();
-
   const formRef = useRef<HTMLFormElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isExpand, setIsExpand] = useState(false);
@@ -133,20 +130,6 @@ const Header = ({ children }: Props) => {
                 </Link>
               ))}
             </div>
-          </div>
-
-          <div className="header-actions">
-            {/* <!-- Wishlist --> */}
-            <Link className={`action-item ${router.pathname === '/' && 'active'}`} href="/">
-              <div className="icon-action">
-                {router.pathname === '/' ? (
-                  <i className="bi bi-house-fill"></i>
-                ) : (
-                  <i className="bi bi-house"></i>
-                )}
-              </div>
-              <div>Home</div>
-            </Link>
           </div>
 
           {/* <!-- Cart --> */}
