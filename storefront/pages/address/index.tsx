@@ -4,24 +4,33 @@ import React, { useEffect, useState } from 'react';
 
 import { Address } from '../../modules/address/models/AddressModel';
 import { deleteAddress, getAddresses } from '../../modules/address/services/AddressService';
-import { deleteUserAddress, getAddressIds } from '../../modules/customer/services/CustomerService';
+import {
+  chooseDefaultAddress,
+  deleteUserAddress,
+  getAddressIds,
+} from '../../modules/customer/services/CustomerService';
 import ModalDeleteCustom from '../../common/items/ModalDeleteCustom';
 import { TiContacts } from 'react-icons/ti';
 import { HiCheckCircle } from 'react-icons/hi';
 import { FiEdit } from 'react-icons/fi';
 import { BiPlusMedical } from 'react-icons/bi';
 import { toast } from 'react-toastify';
-import { DELETE_SUCCESSFULLY } from '../../common/constants/Common';
+import { DELETE_SUCCESSFULLY, UPDATE_SUCCESSFULLY } from '../../common/constants/Common';
 import { FaTrash } from 'react-icons/fa';
 import Link from 'next/link';
 import styles from '../../styles/address.module.css';
 import clsx from 'clsx';
+import ModalChooseDefaultAddress from 'common/items/ModalChooseDefaultAddress';
 
 const Address: NextPage = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
 
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [addressIdWantToDelete, setAddressIdWantToDelete] = useState<number>(0);
+  const [showModalChooseDefaultAddress, setShowModalChooseDefaultAddress] =
+    useState<boolean>(false);
+  const [defaultAddress, setDefaultAddress] = useState<number>(0);
+  const [currentDefaultAddress, setCurrentDefaultAddress] = useState<number>(0);
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -44,10 +53,29 @@ const Address: NextPage = () => {
       });
   };
 
+  const handleCloseModalChooseDefaultAddress: any = () => setShowModalChooseDefaultAddress(false);
+  const handleChoose: any = () => {
+    chooseDefaultAddress(defaultAddress)
+      .then(() => {
+        {
+          setShowModalChooseDefaultAddress(false);
+          toast.success(UPDATE_SUCCESSFULLY);
+          setCurrentDefaultAddress(defaultAddress);
+        }
+      })
+      .catch((e) => console.log(e));
+  };
   useEffect(() => {
     getAddressIds()
       .then((data) => {
-        return getAddresses(data);
+        const ids = [];
+        for (let i = 0; i < data.length; i++) {
+          ids.push(data[i].id);
+          if (data[i].isActive) {
+            setCurrentDefaultAddress(data[i].id);
+          }
+        }
+        return getAddresses(ids);
       })
       .then((data) => setAddresses(data));
   }, []);
@@ -126,16 +154,18 @@ const Address: NextPage = () => {
                         }}
                       >
                         <div>
-                          {/* <div className="m-2" style={{ float: 'right' }}>
-                            <div
-                              style={{
-                                width: '15px',
-                                height: '15px',
-                                borderRadius: '50%',
-                                background: '#0eea5d',
-                              }}
-                            ></div>
-                          </div> */}
+                          {address.id == currentDefaultAddress && (
+                            <div className="m-2" style={{ float: 'right' }}>
+                              <div
+                                style={{
+                                  width: '15px',
+                                  height: '15px',
+                                  borderRadius: '50%',
+                                  background: '#0eea5d',
+                                }}
+                              ></div>
+                            </div>
+                          )}
                           <p style={{ fontSize: '14px' }}>Contact name: {address.contactName}</p>
                           <p
                             style={{
@@ -151,9 +181,20 @@ const Address: NextPage = () => {
                           className="d-flex justify-content-end"
                           style={{ position: 'relative', bottom: '0' }}
                         >
-                          {/* <div className="m-1" data-toggle="tooltip" title="Active">
+                          <div
+                            className="m-1"
+                            data-toggle="tooltip"
+                            title="Active"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              setShowModalChooseDefaultAddress(true);
+                              setDefaultAddress(address.id || 0);
+                              if (defaultAddress != 0) {
+                              }
+                            }}
+                          >
                             <HiCheckCircle />
-                          </div> */}
+                          </div>
                           <div className="m-1" data-toggle="tooltip" title="Edit">
                             <Link href={{ pathname: `/address/${address.id}/edit` }}>
                               <FiEdit />
@@ -185,6 +226,11 @@ const Address: NextPage = () => {
         handleClose={handleClose}
         handleDelete={handleDelete}
         action="delete"
+      />
+      <ModalChooseDefaultAddress
+        showModalChooseDefaultAddress={showModalChooseDefaultAddress}
+        handleClose={handleCloseModalChooseDefaultAddress}
+        handleChoose={handleChoose}
       />
     </>
   );
