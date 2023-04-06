@@ -20,9 +20,9 @@ public class OrderAddress {
     private String addressLine2;
     private String city;
     private String zipCode;
-    private Long district;
-    private Long stateOrProvince;
-    private Long country;
+    private Long districtId;
+    private Long stateOrProvinceId;
+    private Long countryId;
     @OneToOne(mappedBy = "billingAddressId")
     private Order billingOrderId;
 

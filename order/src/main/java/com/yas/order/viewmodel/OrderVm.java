@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @Builder
 public record OrderVm(
         Long id,
-        String phone,
         String email,
         OrderAddressVm shippingAddressVm,
         OrderAddressVm billingAddressVm,

@@ -30,7 +30,7 @@ export const OptionSelect = <T extends FieldValues>({
 }: OptionSelectProps<T>) => (
   <div className="mb-3">
     <label className="form-label" htmlFor={`select-option-${field}`}>
-      {labelText}
+      {labelText} {registerOptions?.required && <span className="text-danger">*</span>}
     </label>
     <select
       id={`select-option-${field}`}
