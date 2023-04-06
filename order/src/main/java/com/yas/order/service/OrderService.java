@@ -2,11 +2,15 @@ package com.yas.order.service;
 
 import com.yas.order.exception.NotFoundException;
 import com.yas.order.model.Order;
+import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.EOrderStatus;
+import com.yas.order.repository.OrderAddressRepository;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.Constants;
+import com.yas.order.viewmodel.OrderAddressPostVm;
+import com.yas.order.viewmodel.OrderAddressVm;
 import com.yas.order.viewmodel.OrderPostVm;
 import com.yas.order.viewmodel.OrderVm;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +29,12 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderAddressRepository orderAddressRepository;
 
-
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, OrderAddressRepository orderAddressRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.orderAddressRepository = orderAddressRepository;
     }
 
 
@@ -40,11 +45,34 @@ public class OrderService {
 //        TO-DO: handle payment
 //        ************
 
+        OrderAddressPostVm billingAddressPostVm = orderPostVm.billingAddressPostVm();
+        OrderAddress billOrderAddress = OrderAddress.builder()
+                .phone(billingAddressPostVm.phone())
+                .contactName(billingAddressPostVm.contactName())
+                .addressLine1(billingAddressPostVm.addressLine1())
+                .addressLine2(billingAddressPostVm.addressLine2())
+                .city(billingAddressPostVm.city())
+                .zipCode(billingAddressPostVm.zipCode())
+                .district(billingAddressPostVm.district())
+                .stateOrProvince(billingAddressPostVm.stateOrProvince())
+                .country(billingAddressPostVm.country())
+                .build();
+
+        OrderAddressPostVm shipOrderAddressPostVm = orderPostVm.shippingAddressPostVm();
+        OrderAddress shippOrderAddress = OrderAddress.builder()
+                .phone(shipOrderAddressPostVm.phone())
+                .contactName(shipOrderAddressPostVm.contactName())
+                .addressLine1(shipOrderAddressPostVm.addressLine1())
+                .addressLine2(shipOrderAddressPostVm.addressLine2())
+                .city(shipOrderAddressPostVm.city())
+                .zipCode(shipOrderAddressPostVm.zipCode())
+                .district(shipOrderAddressPostVm.district())
+                .stateOrProvince(shipOrderAddressPostVm.stateOrProvince())
+                .country(shipOrderAddressPostVm.country())
+                .build();
+
         Order order = Order.builder()
-                .phone(orderPostVm.phone())
                 .email(orderPostVm.email())
-                .shippingAddressId(orderPostVm.shippingAddressId())
-                .billingAddressId(orderPostVm.billingAddressId())
                 .note(orderPostVm.note())
                 .tax(orderPostVm.tax())
                 .discount(orderPostVm.discount())
@@ -57,8 +85,12 @@ public class OrderService {
                 .deliveryStatus(orderPostVm.deliveryStatus())
                 .paymentMethod(orderPostVm.paymentMethod())
                 .paymentStatus(orderPostVm.paymentStatus())
+                .shippingAddressId(shippOrderAddress)
+                .billingAddressId(billOrderAddress)
                 .build();
         orderRepository.save(order);
+
+
 
         Set<OrderItem> orderItems = orderPostVm.orderItemPostVms().stream()
                 .map(item -> OrderItem.builder()

@@ -11,10 +11,9 @@ import java.util.List;
 import java.util.Set;
 
 public record OrderPostVm(
-        String phone,
         String email,
-        Long shippingAddressId,
-        Long billingAddressId,
+        OrderAddressPostVm shippingAddressPostVm,
+        OrderAddressPostVm billingAddressPostVm,
         String note,
         float tax,
         float discount,
