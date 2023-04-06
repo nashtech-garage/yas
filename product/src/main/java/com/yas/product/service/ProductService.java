@@ -520,7 +520,7 @@ public class ProductService {
         Product parentProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
         if (Boolean.TRUE.equals(parentProduct.getHasOptions())) {
-            List<Product> productVariations = parentProduct.getProducts();
+            List<Product> productVariations = parentProduct.getProducts().stream().filter(Product::getIsActive).toList();
             return productVariations.stream().map(product -> {
                 List<ProductOptionCombination> productOptionCombinations =
                         productOptionCombinationRepository.findAllByProduct(product);

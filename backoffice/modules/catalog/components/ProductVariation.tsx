@@ -39,6 +39,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         results.forEach((item) => {
           listOptionCombine.push(item.name || '');
           productVariants.push({
+            id: item.id,
             optionName: item.name || '',
             optionGTin: item.gtin || '',
             optionSku: item.sku || '',

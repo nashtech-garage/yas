@@ -1,6 +1,7 @@
 import { Media } from './Media';
 
 export type ProductVariation = {
+  id?: number;
   optionName: string;
   optionSku: string;
   optionGTin: string;
