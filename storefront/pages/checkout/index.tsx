@@ -12,7 +12,17 @@ import { Input } from 'common/items/Input';
 import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
 import { createOrder } from '@/modules/order/services/OrderService';
-import { toastError } from '@/modules/catalog/services/ToastService';
+import * as yup from 'yup';
+
+const addressSchema = yup.object().shape({
+  contactName: yup.string().required('Contact name is required'),
+  phone: yup.string().required('Phone number is required'),
+  countryId: yup.string().required('Country is required'),
+  stateOrProvinceId: yup.string().required('State or province is required'),
+  districtId: yup.string().required('District is required'),
+  addressLine1: yup.string().required('Address is required'),
+  zipCode: yup.string().required('Zip code is required'),
+});
 
 const Checkout = () => {
   const router = useRouter();
@@ -80,32 +90,39 @@ const Checkout = () => {
     return getCartProductThumbnail(productIds);
   };
 
-  const handleSaveNewShippingAddress: SubmitHandler<Address> = (data: Address) => {
-    //call api to save new address
+  const handleSaveNewShippingAddress = (data: Address) => {
+    // call api to save new address
     console.log('save shipping address');
   };
 
-  const handleSaveNewBillingAddress: SubmitHandler<Address> = (data: Address) => {
-    //call api to save new address
+  const handleSaveNewBillingAddress = (data: Address) => {
+    // call api to save new address
     console.log('save billing address');
   };
 
   const onSubmitForm: SubmitHandler<Order> = async (data) => {
     //handle ShippAddress
-    if (addShippingAddress) {
-      order.shippingAddressPostVm = watchShippingAddress();
+    if (addShippingAddress && (await addressSchema.isValid(watchShippingAddress()))) {
       handleSaveNewShippingAddress(watchShippingAddress());
+      order.shippingAddressPostVm = watchShippingAddress();
+    } else if (addShippingAddress) {
+      toast.error("Please fill in shipping address's information");
+      return;
     }
 
     //handle BillingAddress
-    if (addBillingAddress) {
-      order.billingAddressPostVm = watchBillingAddress();
+    if (addBillingAddress && (await addressSchema.isValid(watchBillingAddress()))) {
       handleSaveNewBillingAddress(watchBillingAddress());
+      order.billingAddressPostVm = watchBillingAddress();
+    } else if (addBillingAddress) {
+      toast.error("Please fill in billing address's information");
+      return;
     } else if (sameAddress) {
       order.billingAddressPostVm = watchShippingAddress();
     }
 
     order.email = 'Test@gmail.com';
+    order.note = data.note;
     order.tax = 0;
     order.discount = 0;
     order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
@@ -120,7 +137,7 @@ const Checkout = () => {
     order.paymentStatus = 'PENDING';
     order.orderItemPostVms = orderItems;
     console.log(order);
-    createOrder(order)
+    await createOrder(order)
       .then(() => {
         toast.success('Place order successfully');
       })
@@ -207,7 +224,7 @@ const Checkout = () => {
                     <AddressForm
                       isDisplay={addShippingAddress}
                       register={registerShippingAddress}
-                      errors={errorsShippingAddress}
+                      errors={errors}
                       address={undefined}
                     />
 
