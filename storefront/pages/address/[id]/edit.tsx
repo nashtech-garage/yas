@@ -78,7 +78,7 @@ const EditAddress: NextPage = () => {
       <Head>
         <title>Edit Address</title>
       </Head>
-      <div className="container p-5" style={{ minHeight: '550px' }}>
+      <div className="container pt-5" style={{ minHeight: '550px' }}>
         <h2 className="mb-3">Edit Address</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <AddressForm register={register} errors={errors} address={address} />

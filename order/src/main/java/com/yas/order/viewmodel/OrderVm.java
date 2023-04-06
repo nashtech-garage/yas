@@ -1,6 +1,7 @@
 package com.yas.order.viewmodel;
 
 import com.yas.order.model.Order;
+import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.*;
 import jakarta.persistence.CascadeType;
@@ -18,8 +19,8 @@ public record OrderVm(
         Long id,
         String phone,
         String email,
-        Long shippingAddressId,
-        Long billingAddressId,
+        OrderAddressVm shippingAddressVm,
+        OrderAddressVm billingAddressVm,
         String note,
         float tax,
         float discount,
@@ -37,27 +38,14 @@ public record OrderVm(
 ) {
     public static OrderVm fromModel(Order order) {
         Set<OrderItemVm> orderItemVms = order.getOrderItems().stream().map(
-                item -> OrderItemVm.builder()
-                        .id(item.getId())
-                        .productId(item.getProductId())
-                        .productName(item.getProductName())
-                        .quantity(item.getQuantity())
-                        .productPrice(item.getProductPrice())
-                        .note(item.getNote())
-                        .discountAmount(item.getDiscountAmount())
-                        .taxPercent(item.getTaxPercent())
-                        .taxAmount(item.getTaxAmount())
-                        .orderId(item.getOrderId().getId())
-                        .build())
+                item -> OrderItemVm.fromModel(item))
                 .collect(Collectors.toSet());
-
 
         return OrderVm.builder()
                 .id(order.getId())
-                .phone(order.getPhone())
                 .email(order.getEmail())
-                .shippingAddressId(order.getShippingAddressId())
-                .billingAddressId(order.getBillingAddressId())
+                .shippingAddressVm(OrderAddressVm.fromModel(order.getShippingAddressId()))
+                .billingAddressVm(OrderAddressVm.fromModel(order.getBillingAddressId()))
                 .note(order.getNote())
                 .tax(order.getTax())
                 .discount(order.getDiscount())

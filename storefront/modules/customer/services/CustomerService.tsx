@@ -16,3 +16,10 @@ export async function deleteUserAddress(id: number) {
   });
   return await response;
 }
+
+export async function chooseDefaultAddress(id: number) {
+  const response = await fetch(`/api/customer/storefront/user-address/${id}`, {
+    method: 'PUT',
+  });
+  return await response;
+}

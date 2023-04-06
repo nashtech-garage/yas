@@ -19,10 +19,15 @@ public class Order extends AbstractAuditEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String phone;
     private String email;
-    private Long shippingAddressId;
-    private Long billingAddressId;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "shipping_address_id", referencedColumnName = "id")
+    private OrderAddress shippingAddressId;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "billing_address_id", referencedColumnName = "id")
+    private OrderAddress billingAddressId;
     private String note;
     private float tax;
     private float discount;
