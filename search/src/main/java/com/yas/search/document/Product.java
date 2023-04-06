@@ -22,7 +22,6 @@ public class Product {
     @Field(type = FieldType.Text)
     private String name;
 
-    @Field(type = FieldType.Text)
     private String slug;
 
     @Field(type = FieldType.Double)
@@ -40,7 +39,7 @@ public class Product {
 
     private Boolean isActive;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Text)
     private String brand;
 
     @Field(type = FieldType.Keyword)
