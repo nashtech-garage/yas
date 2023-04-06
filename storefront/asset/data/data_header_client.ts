@@ -30,3 +30,5 @@ export const DATA_SEARCH_SUGGESTION = [
   'Smartwatch',
   'Smart TV',
 ];
+
+export const SUGGESTION_NUMBER = 5;

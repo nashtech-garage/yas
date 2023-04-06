@@ -5,6 +5,7 @@ import { Image } from 'react-bootstrap';
 import {
   data_menu_top_no_login,
   DATA_SEARCH_SUGGESTION,
+  SUGGESTION_NUMBER,
 } from '../../../asset/data/data_header_client';
 import promoteImage from '../../images/search-promote-image.png';
 import { cartEventSource } from 'modules/cart/services/CartService';
@@ -18,6 +19,8 @@ const Header = ({ children }: Props) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isExpand, setIsExpand] = useState(false);
   const [numberItemIncart, setNumberItemIncart] = useState(0);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>(["1", "2", "3"]);
+  const [searchInput, setSearchInput] = useState<string>('');
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,6 +45,16 @@ const Header = ({ children }: Props) => {
   const handleInputFocus = () => {
     setShowDropdown(true);
   };
+
+  const handleSearchInput = (e: any) => {
+    setSearchInput(e.target.value)
+
+  }
+
+  const handleSearchInputLostFocus = () => {
+    setSearchInput("");
+    setSearchSuggestions([]);
+  }
 
   return (
     <header>
@@ -79,11 +92,16 @@ const Header = ({ children }: Props) => {
                 <label htmlFor="header-search" className="search-icon">
                   <i className="bi bi-search"></i>
                 </label>
-                <input id="header-search" className="search-input" onFocus={handleInputFocus} />
-
-                {showDropdown && (
+                <input
+                  id="header-search"
+                  className="search-input"
+                  onBlur={handleSearchInputLostFocus}
+                  onFocus={handleInputFocus}
+                  onChange={handleSearchInput}
+                />
+                {searchInput.length && showDropdown && (
                   <div className="search-auto-complete">
-                    <div className="top-widgets">
+                    {/* <div className="top-widgets">
                       <div className="item-promos">
                         <Link href={''} className="item-promos-link" />
                         <div className="item-promos-keyword">Super product Galaxy A 2023</div>
@@ -91,9 +109,9 @@ const Header = ({ children }: Props) => {
                           <Image src={promoteImage.src} alt="promote image" />
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                     <div className="suggestion">
-                      {DATA_SEARCH_SUGGESTION.slice(0, isExpand ? 10 : 3).map((item) => (
+                      {searchSuggestions.slice(0, SUGGESTION_NUMBER).map((item) => (
                         <Link href={'#'} className="search-suggestion-item" key={item}>
                           <div className="icon">
                             <i className="bi bi-search"></i>
@@ -101,7 +119,7 @@ const Header = ({ children }: Props) => {
                           <div className="keyword">{item}</div>
                         </Link>
                       ))}
-                      <div className="search-suggestion-action">
+                      {/* <div className="search-suggestion-action">
                         <span onClick={() => setIsExpand((prev) => !prev)}>
                           {isExpand ? (
                             <>
@@ -113,7 +131,7 @@ const Header = ({ children }: Props) => {
                             </>
                           )}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="bottom-widgets"></div>
                   </div>
@@ -123,13 +141,13 @@ const Header = ({ children }: Props) => {
               </form>
             </div>
 
-            <div className="search-suggestion">
-              {DATA_SEARCH_SUGGESTION.map((item) => (
+            {/* <div className="search-suggestion">
+              {searchSuggestions.map((item) => (
                 <Link href={'#'} key={item}>
                   <span>{item}</span>
                 </Link>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* <!-- Cart --> */}
@@ -144,7 +162,7 @@ const Header = ({ children }: Props) => {
         <nav className="limiter-menu-desktop container"></nav>
       </div>
 
-      {showDropdown && <div className="container-layer"></div>}
+      {searchInput.length && showDropdown && <div className="container-layer"></div>}
       <div className="lower-container"></div>
     </header>
   );
