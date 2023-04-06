@@ -44,7 +44,7 @@ const Profile: NextPage = () => {
       <Head>
         <title>Profile</title>
       </Head>
-      <div className="d-flex justify-content-between">
+      <div className="d-flex justify-content-between pt-5">
         <h2>User Profile</h2>
         <button className="btn btn-primary p-0">
           <Link
