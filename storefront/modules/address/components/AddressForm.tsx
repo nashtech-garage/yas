@@ -139,6 +139,7 @@ const AddressForm = ({ register, errors, address, isDisplay }: AddressFormProps)
                 labelText="City"
                 register={register}
                 field="city"
+                placeholder="Please skip this field if you are not in a city"
                 defaultValue={address?.city}
               />
             </div>

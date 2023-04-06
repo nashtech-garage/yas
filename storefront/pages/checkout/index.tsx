@@ -224,7 +224,7 @@ const Checkout = () => {
                     <AddressForm
                       isDisplay={addShippingAddress}
                       register={registerShippingAddress}
-                      errors={errors}
+                      errors={errorsShippingAddress}
                       address={undefined}
                     />
 
