@@ -1,6 +1,6 @@
-import { SearchSuggestion } from "@/modules/rating/models/SearchSuggestion";
+import { ProductSearchSuggestions } from './../../rating/models/ProductSearchSuggestions';
 
-export async function getSuggestions(keyword: string): Promise<SearchSuggestion[] | null> {
+export async function getSuggestions(keyword: string): Promise<ProductSearchSuggestions> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_PATH}/search/storefront/search_suggest?keyword=${keyword}`,
     {
@@ -11,6 +11,6 @@ export async function getSuggestions(keyword: string): Promise<SearchSuggestion[
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
-  
+
   return Promise.reject(response.status);
 }

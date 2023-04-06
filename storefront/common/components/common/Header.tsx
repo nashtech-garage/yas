@@ -1,14 +1,10 @@
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import { Image } from 'react-bootstrap';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  data_menu_top_no_login,
-  DATA_SEARCH_SUGGESTION,
-  SUGGESTION_NUMBER,
-} from '../../../asset/data/data_header_client';
-import promoteImage from '../../images/search-promote-image.png';
+import { data_menu_top_no_login, SUGGESTION_NUMBER } from '../../../asset/data/data_header_client';
 import { cartEventSource } from 'modules/cart/services/CartService';
+import { getSuggestions } from '@/modules/search/services/SearchService';
+import { SearchSuggestion } from '@/modules/rating/models/SearchSuggestion';
 
 type Props = {
   children: React.ReactNode;
@@ -17,10 +13,10 @@ type Props = {
 const Header = ({ children }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isExpand, setIsExpand] = useState(false);
   const [numberItemIncart, setNumberItemIncart] = useState(0);
-  const [searchSuggestions, setSearchSuggestions] = useState<string[]>(["1", "2", "3"]);
+  const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
+  const _ = require('lodash');
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,19 +38,33 @@ const Header = ({ children }: Props) => {
     });
   }, []);
 
+  const debounceDropDown = useCallback(
+    _.debounce((keyword: string) => fetchSearchSuggestions(keyword), 200),
+    []
+  );
+
+  const fetchSearchSuggestions = (keyword: string) => {
+    getSuggestions(keyword)
+      .then((suggestions) => {
+        setSearchSuggestions(suggestions.productNames);
+      })
+      .catch((err) => {
+        console.error(`Failed to get search suggestions. ${err}`);
+      });
+  };
+
   const handleInputFocus = () => {
     setShowDropdown(true);
   };
 
   const handleSearchInput = (e: any) => {
-    setSearchInput(e.target.value)
-
-  }
+    setSearchInput(e.target.value);
+    debounceDropDown(e.target.value);
+  };
 
   const handleSearchInputLostFocus = () => {
-    setSearchInput("");
-    setSearchSuggestions([]);
-  }
+    setShowDropdown(false);
+  };
 
   return (
     <header>
@@ -99,39 +109,17 @@ const Header = ({ children }: Props) => {
                   onFocus={handleInputFocus}
                   onChange={handleSearchInput}
                 />
-                {searchInput.length && showDropdown && (
+                {searchInput !== '' && showDropdown && (
                   <div className="search-auto-complete">
-                    {/* <div className="top-widgets">
-                      <div className="item-promos">
-                        <Link href={''} className="item-promos-link" />
-                        <div className="item-promos-keyword">Super product Galaxy A 2023</div>
-                        <div className="item-promos-image">
-                          <Image src={promoteImage.src} alt="promote image" />
-                        </div>
-                      </div>
-                    </div> */}
                     <div className="suggestion">
-                      {searchSuggestions.slice(0, SUGGESTION_NUMBER).map((item) => (
-                        <Link href={'#'} className="search-suggestion-item" key={item}>
+                      {searchSuggestions?.slice(0, SUGGESTION_NUMBER).map((item) => (
+                        <Link href={'#'} className="search-suggestion-item" key={item.name}>
                           <div className="icon">
                             <i className="bi bi-search"></i>
                           </div>
-                          <div className="keyword">{item}</div>
+                          <div className="keyword">{item.name}</div>
                         </Link>
                       ))}
-                      {/* <div className="search-suggestion-action">
-                        <span onClick={() => setIsExpand((prev) => !prev)}>
-                          {isExpand ? (
-                            <>
-                              Collapsed <i className="bi bi-chevron-up"></i>
-                            </>
-                          ) : (
-                            <>
-                              Expand <i className="bi bi-chevron-down"></i>
-                            </>
-                          )}
-                        </span>
-                      </div> */}
                     </div>
                     <div className="bottom-widgets"></div>
                   </div>
@@ -140,14 +128,6 @@ const Header = ({ children }: Props) => {
                 <button className="search-button">Search</button>
               </form>
             </div>
-
-            {/* <div className="search-suggestion">
-              {searchSuggestions.map((item) => (
-                <Link href={'#'} key={item}>
-                  <span>{item}</span>
-                </Link>
-              ))}
-            </div> */}
           </div>
 
           {/* <!-- Cart --> */}
@@ -162,7 +142,7 @@ const Header = ({ children }: Props) => {
         <nav className="limiter-menu-desktop container"></nav>
       </div>
 
-      {searchInput.length && showDropdown && <div className="container-layer"></div>}
+      {searchInput !== '' && showDropdown && <div className="container-layer"></div>}
       <div className="lower-container"></div>
     </header>
   );
