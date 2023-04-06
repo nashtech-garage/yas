@@ -1,8 +1,7 @@
 package com.yas.customer.controller;
 
 import com.yas.customer.service.UserAddressService;
-import com.yas.customer.viewmodel.AddressGetListResponseVm;
-import com.yas.customer.viewmodel.AddressVm;
+import com.yas.customer.viewmodel.AddressGetVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +20,7 @@ public class UserAddressController {
     private final UserAddressService userAddressService;
 
     @GetMapping("/storefront/user-address")
-    public ResponseEntity<List<AddressGetListResponseVm>> getUserAddresses() {
+    public ResponseEntity<List<AddressGetVm>> getUserAddresses() {
         return ResponseEntity.ok(userAddressService.getUserAddressList());
     }
 

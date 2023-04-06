@@ -4,7 +4,7 @@ import com.yas.customer.exception.NotFoundException;
 import com.yas.customer.model.UserAddress;
 import com.yas.customer.repository.UserAddressRepository;
 import com.yas.customer.utils.Constants;
-import com.yas.customer.viewmodel.AddressGetListResponseVm;
+import com.yas.customer.viewmodel.AddressGetVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,13 +19,13 @@ import java.util.List;
 public class UserAddressService {
     private final UserAddressRepository userAddressRepository;
 
-    public List<AddressGetListResponseVm> getUserAddressList() {
+    public List<AddressGetVm> getUserAddressList() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         return userAddressList.stream()
                 .map(userAddress -> {
-                    AddressGetListResponseVm addressGetListResponseVm = new AddressGetListResponseVm(
+                    AddressGetVm addressGetListResponseVm = new AddressGetVm(
                             userAddress.getId(), userAddress.getIsActive());
                     return addressGetListResponseVm;
                 })
