@@ -62,8 +62,8 @@ const Header = ({ children }: Props) => {
     debounceDropDown(e.target.value);
   };
 
-  const handleSearchInputLostFocus = () => {
-    setShowDropdown(false);
+  const handleSuggestionOnClick = (content: string) => {
+    setSearchInput(content);
   };
 
   return (
@@ -105,20 +105,24 @@ const Header = ({ children }: Props) => {
                 <input
                   id="header-search"
                   className="search-input"
-                  onBlur={handleSearchInputLostFocus}
                   onFocus={handleInputFocus}
                   onChange={handleSearchInput}
+                  value={searchInput}
                 />
                 {searchInput !== '' && showDropdown && (
                   <div className="search-auto-complete">
                     <div className="suggestion">
                       {searchSuggestions?.slice(0, SUGGESTION_NUMBER).map((item) => (
-                        <Link href={'#'} className="search-suggestion-item" key={item.name}>
+                        <div
+                          className="search-suggestion-item"
+                          key={item.name}
+                          onClick={() => handleSuggestionOnClick(item.name)}
+                        >
                           <div className="icon">
                             <i className="bi bi-search"></i>
                           </div>
                           <div className="keyword">{item.name}</div>
-                        </Link>
+                        </div>
                       ))}
                     </div>
                     <div className="bottom-widgets"></div>
