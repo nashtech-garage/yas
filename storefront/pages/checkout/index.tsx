@@ -102,21 +102,25 @@ const Checkout = () => {
 
   const onSubmitForm: SubmitHandler<Order> = async (data) => {
     //handle ShippAddress
-    if (addShippingAddress && (await addressSchema.isValid(watchShippingAddress()))) {
-      handleSaveNewShippingAddress(watchShippingAddress());
-      order.shippingAddressPostVm = watchShippingAddress();
-    } else if (addShippingAddress) {
-      toast.error("Please fill in shipping address's information");
-      return;
+    if (addShippingAddress) {
+      if (await addressSchema.isValid(watchShippingAddress())) {
+        handleSaveNewShippingAddress(watchShippingAddress());
+        order.shippingAddressPostVm = watchShippingAddress();
+      } else {
+        toast.error("Please fill in shipping address's information");
+        return;
+      }
     }
 
     //handle BillingAddress
-    if (addBillingAddress && (await addressSchema.isValid(watchBillingAddress()))) {
-      handleSaveNewBillingAddress(watchBillingAddress());
-      order.billingAddressPostVm = watchBillingAddress();
-    } else if (addBillingAddress) {
-      toast.error("Please fill in billing address's information");
-      return;
+    if (addBillingAddress) {
+      if (await addressSchema.isValid(watchBillingAddress())) {
+        handleSaveNewBillingAddress(watchBillingAddress());
+        order.billingAddressPostVm = watchBillingAddress();
+      } else {
+        toast.error("Please fill in billing address's information");
+        return;
+      }
     } else if (sameAddress) {
       order.billingAddressPostVm = watchShippingAddress();
     }
