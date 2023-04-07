@@ -14,14 +14,16 @@ import AddressForm from '@/modules/address/components/AddressForm';
 import { createOrder } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 const addressSchema = yup.object().shape({
-  contactName: yup.string().required('Contact name is required'),
-  phone: yup.string().required('Phone number is required'),
-  countryId: yup.string().required('Country is required'),
-  stateOrProvinceId: yup.string().required('State or province is required'),
-  districtId: yup.string().required('District is required'),
-  addressLine1: yup.string().required('Address is required'),
   zipCode: yup.string().required('Zip code is required'),
+  addressLine1: yup.string().required('Address is required'),
+  districtId: yup.string().required('District is required'),
+  stateOrProvinceId: yup.string().required('State or province is required'),
+  countryId: yup.string().required('Country is required'),
+  phone: yup.string().matches(phoneRegExp, 'Phone number is not valid'),
+  contactName: yup.string().required('Contact name is required'),
 });
 
 const Checkout = () => {
@@ -102,52 +104,61 @@ const Checkout = () => {
 
   const onSubmitForm: SubmitHandler<Order> = async (data) => {
     //handle ShippAddress
+    let isValidate = true;
     if (addShippingAddress) {
-      if (await addressSchema.isValid(watchShippingAddress())) {
-        handleSaveNewShippingAddress(watchShippingAddress());
-        order.shippingAddressPostVm = watchShippingAddress();
-      } else {
-        toast.error("Please fill in shipping address's information");
-        return;
-      }
+      await addressSchema
+        .validate(watchShippingAddress())
+        .then(() => {
+          handleSaveNewShippingAddress(watchShippingAddress());
+          order.shippingAddressPostVm = watchShippingAddress();
+        })
+        .catch((error) => {
+          toast.error(error.message);
+          isValidate = false;
+        });
     }
 
     //handle BillingAddress
     if (addBillingAddress) {
-      if (await addressSchema.isValid(watchBillingAddress())) {
-        handleSaveNewBillingAddress(watchBillingAddress());
-        order.billingAddressPostVm = watchBillingAddress();
-      } else {
-        toast.error("Please fill in billing address's information");
-        return;
-      }
+      await addressSchema
+        .validate(watchBillingAddress())
+        .then(() => {
+          handleSaveNewBillingAddress(watchBillingAddress());
+          order.billingAddressPostVm = watchBillingAddress();
+        })
+        .catch((error) => {
+          toast.error(error.message);
+          isValidate = false;
+        });
     } else if (sameAddress) {
       order.billingAddressPostVm = watchShippingAddress();
     }
 
-    order.email = 'Test@gmail.com';
-    order.note = data.note;
-    order.tax = 0;
-    order.discount = 0;
-    order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
-    order.totalPrice = orderItems.reduce(
-      (result, item) => result + item.quantity * item.productPrice!,
-      0
-    );
-    order.deliveryFee = 0;
-    order.couponCode = '';
-    order.deliveryMethod = 'YAS_EXPRESS';
-    order.paymentMethod = 'COD';
-    order.paymentStatus = 'PENDING';
-    order.orderItemPostVms = orderItems;
-    console.log(order);
-    await createOrder(order)
-      .then(() => {
-        toast.success('Place order successfully');
-      })
-      .catch(() => {
-        toast.error('Place order failed');
-      });
+    if (isValidate) {
+      order.email = 'Test@gmail.com';
+      order.note = data.note;
+      order.tax = 0;
+      order.discount = 0;
+      order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
+      order.totalPrice = orderItems.reduce(
+        (result, item) => result + item.quantity * item.productPrice!,
+        0
+      );
+      order.deliveryFee = 0;
+      order.couponCode = '';
+      order.deliveryMethod = 'YAS_EXPRESS';
+      order.paymentMethod = 'COD';
+      order.paymentStatus = 'PENDING';
+      order.orderItemPostVms = orderItems;
+      console.log(order);
+      await createOrder(order)
+        .then(() => {
+          toast.success('Place order successfully');
+        })
+        .catch(() => {
+          toast.error('Place order failed');
+        });
+    }
   };
 
   return (
