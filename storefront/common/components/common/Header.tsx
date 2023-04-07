@@ -1,13 +1,10 @@
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import { Image } from 'react-bootstrap';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  data_menu_top_no_login,
-  DATA_SEARCH_SUGGESTION,
-} from '../../../asset/data/data_header_client';
-import promoteImage from '../../images/search-promote-image.png';
+import { data_menu_top_no_login, SUGGESTION_NUMBER } from '../../../asset/data/data_header_client';
 import { cartEventSource } from 'modules/cart/services/CartService';
+import { getSuggestions } from '@/modules/search/services/SearchService';
+import { SearchSuggestion } from '@/modules/rating/models/SearchSuggestion';
 
 type Props = {
   children: React.ReactNode;
@@ -16,8 +13,10 @@ type Props = {
 const Header = ({ children }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isExpand, setIsExpand] = useState(false);
   const [numberItemIncart, setNumberItemIncart] = useState(0);
+  const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
+  const [searchInput, setSearchInput] = useState<string>('');
+  const _ = require('lodash');
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -39,8 +38,32 @@ const Header = ({ children }: Props) => {
     });
   }, []);
 
+  const debounceDropDown = useCallback(
+    _.debounce((keyword: string) => fetchSearchSuggestions(keyword), 200),
+    []
+  );
+
+  const fetchSearchSuggestions = (keyword: string) => {
+    getSuggestions(keyword)
+      .then((suggestions) => {
+        setSearchSuggestions(suggestions.productNames);
+      })
+      .catch((err) => {
+        console.error(`Failed to get search suggestions. ${err}`);
+      });
+  };
+
   const handleInputFocus = () => {
     setShowDropdown(true);
+  };
+
+  const handleSearchInput = (e: any) => {
+    setSearchInput(e.target.value);
+    debounceDropDown(e.target.value);
+  };
+
+  const handleSuggestionOnClick = (content: string) => {
+    setSearchInput(content);
   };
 
   return (
@@ -79,41 +102,28 @@ const Header = ({ children }: Props) => {
                 <label htmlFor="header-search" className="search-icon">
                   <i className="bi bi-search"></i>
                 </label>
-                <input id="header-search" className="search-input" onFocus={handleInputFocus} />
-
-                {showDropdown && (
+                <input
+                  id="header-search"
+                  className="search-input"
+                  onFocus={handleInputFocus}
+                  onChange={handleSearchInput}
+                  value={searchInput}
+                />
+                {searchInput !== '' && showDropdown && (
                   <div className="search-auto-complete">
-                    <div className="top-widgets">
-                      <div className="item-promos">
-                        <Link href={''} className="item-promos-link" />
-                        <div className="item-promos-keyword">Super product Galaxy A 2023</div>
-                        <div className="item-promos-image">
-                          <Image src={promoteImage.src} alt="promote image" />
-                        </div>
-                      </div>
-                    </div>
                     <div className="suggestion">
-                      {DATA_SEARCH_SUGGESTION.slice(0, isExpand ? 10 : 3).map((item) => (
-                        <Link href={'#'} className="search-suggestion-item" key={item}>
+                      {searchSuggestions?.slice(0, SUGGESTION_NUMBER).map((item) => (
+                        <div
+                          className="search-suggestion-item"
+                          key={item.name}
+                          onClick={() => handleSuggestionOnClick(item.name)}
+                        >
                           <div className="icon">
                             <i className="bi bi-search"></i>
                           </div>
-                          <div className="keyword">{item}</div>
-                        </Link>
+                          <div className="keyword">{item.name}</div>
+                        </div>
                       ))}
-                      <div className="search-suggestion-action">
-                        <span onClick={() => setIsExpand((prev) => !prev)}>
-                          {isExpand ? (
-                            <>
-                              Collapsed <i className="bi bi-chevron-up"></i>
-                            </>
-                          ) : (
-                            <>
-                              Expand <i className="bi bi-chevron-down"></i>
-                            </>
-                          )}
-                        </span>
-                      </div>
                     </div>
                     <div className="bottom-widgets"></div>
                   </div>
@@ -121,14 +131,6 @@ const Header = ({ children }: Props) => {
 
                 <button className="search-button">Search</button>
               </form>
-            </div>
-
-            <div className="search-suggestion">
-              {DATA_SEARCH_SUGGESTION.map((item) => (
-                <Link href={'#'} key={item}>
-                  <span>{item}</span>
-                </Link>
-              ))}
             </div>
           </div>
 
@@ -144,7 +146,7 @@ const Header = ({ children }: Props) => {
         <nav className="limiter-menu-desktop container"></nav>
       </div>
 
-      {showDropdown && <div className="container-layer"></div>}
+      {searchInput !== '' && showDropdown && <div className="container-layer"></div>}
       <div className="lower-container"></div>
     </header>
   );
