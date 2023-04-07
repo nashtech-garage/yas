@@ -2,7 +2,6 @@ package com.yas.customer.controller;
 
 import com.yas.customer.service.UserAddressService;
 import com.yas.customer.viewmodel.Address.AddressActiveVm;
-import com.yas.customer.viewmodel.Address.AddressGetVm;
 import com.yas.customer.viewmodel.Address.AddressPostVm;
 import com.yas.customer.viewmodel.UserAddress.UserAddressVm;
 import jakarta.validation.Valid;
@@ -25,8 +24,7 @@ public class UserAddressController {
 
     @PostMapping("/storefront/user-address")
     public ResponseEntity<UserAddressVm> createAddress(@Valid @RequestBody AddressPostVm addressPostVm) {
-        userAddressService.createAddress(addressPostVm);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(userAddressService.createAddress(addressPostVm));
     }
 
     @DeleteMapping("/storefront/user-address/{id}")

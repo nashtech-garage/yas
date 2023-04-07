@@ -8,23 +8,26 @@ import com.yas.customer.viewmodel.Address.AddressActiveVm;
 import com.yas.customer.viewmodel.Address.AddressGetVm;
 import com.yas.customer.viewmodel.Address.AddressPostVm;
 import com.yas.customer.viewmodel.UserAddress.UserAddressVm;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class UserAddressService {
     private final UserAddressRepository userAddressRepository;
     private final LocationService locationService;
+
+    public UserAddressService(UserAddressRepository userAddressRepository, LocationService locationService) {
+        this.userAddressRepository = userAddressRepository;
+        this.locationService = locationService;
+    }
+
     public List<AddressActiveVm> getUserAddressList() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
@@ -47,12 +50,15 @@ public class UserAddressService {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         AddressGetVm addressGetVm = locationService.createAddress(addressPostVm);
+
         UserAddress userAddress = UserAddress.builder()
                 .userId(userId)
                 .addressId(addressGetVm.id())
                 .isActive(false)
                 .build();
-       return UserAddressVm.fromModel(userAddressRepository.save(userAddress), addressGetVm);
+
+        return UserAddressVm.fromModel(userAddressRepository.save(userAddress), addressGetVm);
+
     }
 
     public void deleteAddress(Long id) {
