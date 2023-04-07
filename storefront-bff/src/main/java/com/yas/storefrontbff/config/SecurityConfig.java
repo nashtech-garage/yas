@@ -28,6 +28,7 @@ public class SecurityConfig {
         http
                 .authorizeExchange()
                 .pathMatchers("/profile/**").authenticated()
+                .pathMatchers("/address/**").authenticated()
                 .anyExchange().permitAll()
                 .and()
                 .oauth2Login()
