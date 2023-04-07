@@ -8,16 +8,16 @@ import com.yas.search.constant.enums.ESortType;
 import com.yas.search.document.Product;
 import com.yas.search.viewmodel.ProductGetVm;
 import com.yas.search.viewmodel.ProductListGetVm;
+import com.yas.search.viewmodel.ProductNameGetVm;
+import com.yas.search.viewmodel.ProductNameListVm;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHitSupport;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.SearchPage;
+import org.springframework.data.elasticsearch.core.*;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -138,5 +138,23 @@ public class ProductService {
         });
 
         return aggregationsMap;
+    }
+
+    public ProductNameListVm autoCompleteProductName(final String keyword) {
+        NativeQuery matchQuery = NativeQuery.builder()
+                .withQuery(
+                        q -> q.matchPhrasePrefix(
+                                mPP -> mPP.field("name").query(keyword)
+                        )
+                )
+                .withSourceFilter(new FetchSourceFilter(
+                        new String[]{"name"},
+                        null)
+                )
+                .build();
+        SearchHits<Product> result = elasticsearchOperations.search(matchQuery, Product.class);
+        List<Product> products = result.stream().map(SearchHit::getContent).toList();
+
+        return new ProductNameListVm(products.stream().map(ProductNameGetVm::fromModel).toList());
     }
 }

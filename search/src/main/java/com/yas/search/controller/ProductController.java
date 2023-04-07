@@ -3,6 +3,7 @@ package com.yas.search.controller;
 import com.yas.search.constant.enums.ESortType;
 import com.yas.search.service.ProductService;
 import com.yas.search.viewmodel.ProductListGetVm;
+import com.yas.search.viewmodel.ProductNameListVm;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,5 +27,10 @@ public class ProductController {
                                                                @RequestParam(required = false) Double maxPrice,
                                                                @RequestParam(defaultValue = "DEFAULT") ESortType sortType) {
         return ResponseEntity.ok(productService.findProductAdvance(keyword, page, size, category, attribute, minPrice, maxPrice, sortType));
+    }
+
+    @GetMapping("/storefront/search_suggest")
+    public ResponseEntity<ProductNameListVm> productSearchAutoComplete(@RequestParam String keyword) {
+        return ResponseEntity.ok(productService.autoCompleteProductName(keyword));
     }
 }

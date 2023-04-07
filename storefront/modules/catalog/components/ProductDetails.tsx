@@ -2,10 +2,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { ProductImageGallery } from '../../../common/components/ProductImageGallery';
-import { formatPrice } from '../../../utils/formatPrice';
-import { AddToCartModel } from '../../cart/models/AddToCartModel';
-import { addToCart } from '../../cart/services/CartService';
+import { ProductImageGallery } from '@/common/components/ProductImageGallery';
+import { AddToCartModel } from '@/modules/cart/models/AddToCartModel';
+import { addToCart } from '@/modules/cart/services/CartService';
+import { formatPrice } from '@/utils/formatPrice';
 import { ProductDetail } from '../models/ProductDetail';
 import { ProductOptions } from '../models/ProductOptions';
 import { ProductVariation } from '../models/ProductVariation';
@@ -51,12 +51,7 @@ export default function ProductDetails({
           }, {});
         }
       }
-      return productOptions.reduce((acc, cur) => {
-        return {
-          ...acc,
-          [cur.name]: cur.value[0],
-        };
-      }, {});
+      return productVariations[0].options;
     } else {
       return {};
     }

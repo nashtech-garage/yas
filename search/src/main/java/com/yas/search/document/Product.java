@@ -5,11 +5,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
 @Document(indexName = "product")
+@Setting(settingPath = "esconfig/elastic-analyzer.json")
 @Builder
 @Getter
 @Setter
@@ -19,7 +21,7 @@ public class Product {
     @Id
     private Long id;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "autocomplete_index", searchAnalyzer = "autocomplete_search")
     private String name;
 
     private String slug;

@@ -35,7 +35,7 @@ export async function getProductVariationsByParentId(
   parentId: number
 ): Promise<ProductVariation[]> {
   const res = await fetch(
-    process.env.NEXT_PUBLIC_API_BASE_PATH + `/product/product-variations/${parentId}`
+    process.env.NEXT_PUBLIC_API_BASE_PATH + `/product/storefront/product-variations/${parentId}`
   );
   if (res.status >= 200 && res.status < 300) return res.json();
   return Promise.reject(res);

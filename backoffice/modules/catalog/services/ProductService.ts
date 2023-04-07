@@ -52,7 +52,7 @@ export async function deleteProduct(id: number) {
 }
 
 export async function getVariationsByProductId(productId: number): Promise<Variantion[]> {
-  const res = await fetch(`/api/product/product-variations/${productId}`);
+  const res = await fetch(`/api/product/backoffice/product-variations/${productId}`);
   if (res.status >= 200 && res.status < 300) return res.json();
   return Promise.reject(res);
 }
