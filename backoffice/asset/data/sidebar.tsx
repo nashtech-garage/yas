@@ -39,6 +39,11 @@ export const menu_customer_item_data = [
     name: 'Customers',
     link: '/customers',
   },
+  {
+    id: 2,
+    name: 'Product Reviews',
+    link: '/reviews',
+  },
 ];
 
 export const menu_location_item_data = [
@@ -64,13 +69,5 @@ export const menu_tax_item_data = [
     id: 2,
     name: 'Tax Rate',
     link: TAX_RATE_URL,
-  },
-];
-
-export const menu_other_item_data = [
-  {
-    id: 1,
-    name: 'Product Reviews',
-    link: '/reviews',
   },
 ];
