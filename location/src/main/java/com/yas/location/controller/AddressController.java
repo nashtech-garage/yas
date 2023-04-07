@@ -7,13 +7,7 @@ import com.yas.location.viewmodel.address.AddressPostVm;
 import com.yas.location.viewmodel.address.RequestAddressGetListVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,8 +17,8 @@ public class AddressController {
     private final AddressService addressService;
 
     @PostMapping("/storefront/address")
-    public ResponseEntity<Long> createAddress(@RequestBody AddressPostVm dto) {
-        return ResponseEntity.ok(addressService.createAddress(dto).getId());
+    public ResponseEntity<AddressGetVm> createAddress(@RequestBody AddressPostVm dto) {
+        return ResponseEntity.ok(addressService.createAddress(dto));
     }
 
     @PutMapping("/storefront/address/{id}")
@@ -34,13 +28,13 @@ public class AddressController {
     }
 
     @GetMapping("/storefront/address/{id}")
-    public ResponseEntity<AddressGetVm> getAddress(@PathVariable Long id) {
+    public ResponseEntity<AddressGetVm> getAddressById(@PathVariable Long id) {
         return ResponseEntity.ok(addressService.getAddress(id));
     }
 
-    @PostMapping("/storefront/addresses")
-    public ResponseEntity<List<AddressResponseMapper>> getAddressList(@RequestBody RequestAddressGetListVm dto) {
-        return ResponseEntity.ok(addressService.getAddressList(dto.ids()));
+    @GetMapping("/storefront/addresses")
+    public ResponseEntity<List<AddressGetVm>> getAddressList(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok(addressService.getAddressList(ids));
     }
 
     @DeleteMapping("/storefront/address/{id}")

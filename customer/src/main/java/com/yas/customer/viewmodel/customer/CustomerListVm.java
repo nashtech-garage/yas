@@ -1,4 +1,4 @@
-package com.yas.customer.viewmodel;
+package com.yas.customer.viewmodel.Customer;
 
 import java.util.List;
 

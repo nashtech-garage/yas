@@ -1,15 +1,14 @@
 package com.yas.customer.controller;
 
 import com.yas.customer.service.UserAddressService;
-import com.yas.customer.viewmodel.AddressGetVm;
+import com.yas.customer.viewmodel.Address.AddressActiveVm;
+import com.yas.customer.viewmodel.Address.AddressGetVm;
+import com.yas.customer.viewmodel.Address.AddressPostVm;
+import com.yas.customer.viewmodel.UserAddress.UserAddressVm;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,13 +19,13 @@ public class UserAddressController {
     private final UserAddressService userAddressService;
 
     @GetMapping("/storefront/user-address")
-    public ResponseEntity<List<AddressGetVm>> getUserAddresses() {
+    public ResponseEntity<List<AddressActiveVm>> getUserAddresses() {
         return ResponseEntity.ok(userAddressService.getUserAddressList());
     }
 
-    @PostMapping("/storefront/user-address/{id}")
-    public ResponseEntity createAddress(@PathVariable Long id) {
-        userAddressService.createAddress(id);
+    @PostMapping("/storefront/user-address")
+    public ResponseEntity<UserAddressVm> createAddress(@Valid @RequestBody AddressPostVm addressPostVm) {
+        userAddressService.createAddress(addressPostVm);
         return ResponseEntity.ok().build();
     }
 
