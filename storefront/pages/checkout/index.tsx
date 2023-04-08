@@ -15,7 +15,7 @@ import { createOrder } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 
 const phoneRegExp =
-  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+  /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
 const addressSchema = yup.object().shape({
   zipCode: yup.string().required('Zip code is required'),
   addressLine1: yup.string().required('Address is required'),
