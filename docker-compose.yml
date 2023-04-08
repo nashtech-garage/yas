@@ -84,6 +84,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/customer
       SERVER_SERVLET_CONTEXT_PATH: /customer
+      YAS_SERVICES_LOCATION: http://location/location
       SERVER_PORT: "80"
   cart:
     image: ghcr.io/nashtech-garage/yas-cart:latest
@@ -237,9 +238,9 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
       - "discovery.type=single-node"
-#    ports: elasticsearch might not be exposed for security reasons
-#      - "9200:9200"
-#      - "9300:9300"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
       
 volumes:
   postgres:
