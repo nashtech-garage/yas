@@ -53,9 +53,9 @@ public class OrderService {
                 .addressLine2(billingAddressPostVm.addressLine2())
                 .city(billingAddressPostVm.city())
                 .zipCode(billingAddressPostVm.zipCode())
-                .district(billingAddressPostVm.district())
-                .stateOrProvince(billingAddressPostVm.stateOrProvince())
-                .country(billingAddressPostVm.country())
+                .districtId(billingAddressPostVm.districtId())
+                .stateOrProvinceId(billingAddressPostVm.stateOrProvinceId())
+                .countryId(billingAddressPostVm.countryId())
                 .build();
 
         OrderAddressPostVm shipOrderAddressPostVm = orderPostVm.shippingAddressPostVm();
@@ -66,9 +66,9 @@ public class OrderService {
                 .addressLine2(shipOrderAddressPostVm.addressLine2())
                 .city(shipOrderAddressPostVm.city())
                 .zipCode(shipOrderAddressPostVm.zipCode())
-                .district(shipOrderAddressPostVm.district())
-                .stateOrProvince(shipOrderAddressPostVm.stateOrProvince())
-                .country(shipOrderAddressPostVm.country())
+                .districtId(shipOrderAddressPostVm.districtId())
+                .stateOrProvinceId(shipOrderAddressPostVm.stateOrProvinceId())
+                .countryId(shipOrderAddressPostVm.countryId())
                 .build();
 
         Order order = Order.builder()
@@ -82,7 +82,6 @@ public class OrderService {
                 .orderStatus(EOrderStatus.PENDING)
                 .deliveryFee(orderPostVm.deliveryFee())
                 .deliveryMethod(orderPostVm.deliveryMethod())
-                .deliveryStatus(orderPostVm.deliveryStatus())
                 .paymentMethod(orderPostVm.paymentMethod())
                 .paymentStatus(orderPostVm.paymentStatus())
                 .shippingAddressId(shippOrderAddress)

@@ -22,7 +22,6 @@ public record OrderPostVm(
         BigDecimal deliveryFee,
         String couponCode,
         EDeliveryMethod deliveryMethod,
-        EDeliveryStatus deliveryStatus,
         EPaymentMethod paymentMethod,
         EPaymentStatus paymentStatus,
         @NotNull
