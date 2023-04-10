@@ -25,7 +25,7 @@ services:
       - ./identity/themes:/opt/keycloak/themes
   backoffice:
     image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=180", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
     environment:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
@@ -42,7 +42,7 @@ services:
     image: ghcr.io/nashtech-garage/yas-backoffice:latest
   storefront:
     image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=180", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
     environment:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
