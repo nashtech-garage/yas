@@ -1,22 +1,38 @@
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Image } from 'react-bootstrap';
 
-import { data_menu_top_no_login, SUGGESTION_NUMBER } from '../../../asset/data/data_header_client';
-import { cartEventSource } from 'modules/cart/services/CartService';
-import { getSuggestions } from '@/modules/search/services/SearchService';
+import { SEARCH_URL } from '@/common/constants/Common';
 import { SearchSuggestion } from '@/modules/rating/models/SearchSuggestion';
+import { getSuggestions } from '@/modules/search/services/SearchService';
+import { useDebounce } from '@/utils/useDebounce';
+import { cartEventSource } from 'modules/cart/services/CartService';
+import {
+  DATA_SEARCH_SUGGESTION,
+  data_menu_top_no_login,
+} from '../../../asset/data/data_header_client';
+import promoteImage from '../../images/search-promote-image.png';
+import { useRouter } from 'next/router';
 
 type Props = {
   children: React.ReactNode;
 };
 
+const SUGGESTION_MIN = 3;
+const SUGGESTION_MAX = 10;
+
 const Header = ({ children }: Props) => {
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isExpand, setIsExpand] = useState(false);
   const [numberItemIncart, setNumberItemIncart] = useState(0);
+
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
-  const _ = require('lodash');
+
+  const keyword = useDebounce(searchInput, 500);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,10 +54,13 @@ const Header = ({ children }: Props) => {
     });
   }, []);
 
-  const debounceDropDown = useCallback(
-    _.debounce((keyword: string) => fetchSearchSuggestions(keyword), 200),
-    []
-  );
+  useEffect(() => {
+    if (keyword) {
+      fetchSearchSuggestions(keyword);
+    } else {
+      setSearchSuggestions([]);
+    }
+  }, [keyword]);
 
   const fetchSearchSuggestions = (keyword: string) => {
     getSuggestions(keyword)
@@ -57,13 +76,13 @@ const Header = ({ children }: Props) => {
     setShowDropdown(true);
   };
 
-  const handleSearchInput = (e: any) => {
-    setSearchInput(e.target.value);
-    debounceDropDown(e.target.value);
-  };
-
-  const handleSuggestionOnClick = (content: string) => {
-    setSearchInput(content);
+  const handleSubmitSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      router.push(`${SEARCH_URL}/?keyword=${searchInput}`);
+    }
+    setShowDropdown(false);
+    inputRef.current?.blur();
   };
 
   return (
@@ -98,39 +117,82 @@ const Header = ({ children }: Props) => {
           {/* <!-- Search --> */}
           <div className="header-search flex-grow-1">
             <div className="search-wrapper">
-              <form className="search-form" ref={formRef}>
+              <form onSubmit={handleSubmitSearch} className="search-form" ref={formRef}>
                 <label htmlFor="header-search" className="search-icon">
                   <i className="bi bi-search"></i>
                 </label>
                 <input
                   id="header-search"
+                  ref={inputRef}
                   className="search-input"
+                  placeholder="What you will find today?"
                   onFocus={handleInputFocus}
-                  onChange={handleSearchInput}
                   value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                 />
-                {searchInput !== '' && showDropdown && (
+
+                {showDropdown && (
                   <div className="search-auto-complete">
-                    <div className="suggestion">
-                      {searchSuggestions?.slice(0, SUGGESTION_NUMBER).map((item) => (
-                        <div
-                          className="search-suggestion-item"
-                          key={item.name}
-                          onClick={() => handleSuggestionOnClick(item.name)}
-                        >
-                          <div className="icon">
-                            <i className="bi bi-search"></i>
-                          </div>
-                          <div className="keyword">{item.name}</div>
+                    <div className="top-widgets">
+                      <div className="item-promos">
+                        <Link href={''} className="item-promos-link" />
+                        <div className="item-promos-keyword">Super product Galaxy A 2023</div>
+                        <div className="item-promos-image">
+                          <Image src={promoteImage.src} alt="promote image" />
                         </div>
-                      ))}
+                      </div>
+                    </div>
+                    <div className="suggestion">
+                      {searchSuggestions
+                        .slice(0, isExpand ? SUGGESTION_MAX : SUGGESTION_MIN)
+                        .map((item) => (
+                          <Link
+                            href={`${SEARCH_URL}/?keyword=${item.name}`}
+                            className="search-suggestion-item"
+                            key={item.name}
+                            onClick={() => {
+                              setSearchInput(item.name);
+                              setShowDropdown(false);
+                            }}
+                          >
+                            <div className="icon">
+                              <i className="bi bi-search"></i>
+                            </div>
+                            <div className="keyword">{item.name}</div>
+                          </Link>
+                        ))}
+                      {searchSuggestions.length > SUGGESTION_MIN && (
+                        <div className="search-suggestion-action">
+                          <span onClick={() => setIsExpand((prev) => !prev)}>
+                            {isExpand ? (
+                              <>
+                                Collapsed <i className="bi bi-chevron-up"></i>
+                              </>
+                            ) : (
+                              <>
+                                Expand <i className="bi bi-chevron-down"></i>
+                              </>
+                            )}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="bottom-widgets"></div>
                   </div>
                 )}
 
-                <button className="search-button">Search</button>
+                <button type="submit" className="search-button">
+                  Search
+                </button>
               </form>
+            </div>
+
+            <div className="search-suggestion">
+              {DATA_SEARCH_SUGGESTION.map((item) => (
+                <Link href={`${SEARCH_URL}/?keyword=${item.toLocaleLowerCase()}`} key={item}>
+                  <span>{item}</span>
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -146,7 +208,7 @@ const Header = ({ children }: Props) => {
         <nav className="limiter-menu-desktop container"></nav>
       </div>
 
-      {searchInput !== '' && showDropdown && <div className="container-layer"></div>}
+      {showDropdown && <div className="container-layer"></div>}
       <div className="lower-container"></div>
     </header>
   );
