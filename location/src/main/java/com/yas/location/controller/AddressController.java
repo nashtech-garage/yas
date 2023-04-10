@@ -22,18 +22,18 @@ import java.util.List;
 public class AddressController {
     private final AddressService addressService;
 
-    @PostMapping("/storefront/address")
+    @PostMapping("/storefront/addresses")
     public ResponseEntity<Long> createAddress(@RequestBody AddressPostVm dto) {
         return ResponseEntity.ok(addressService.createAddress(dto).getId());
     }
 
-    @PutMapping("/storefront/address/{id}")
+    @PutMapping("/storefront/addresses/{id}")
     public ResponseEntity updateAddress(@PathVariable Long id, @RequestBody AddressPostVm dto) {
         addressService.updateAddress(id, dto);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/storefront/address/{id}")
+    @GetMapping("/storefront/addresses/{id}")
     public ResponseEntity<AddressGetVm> getAddress(@PathVariable Long id) {
         return ResponseEntity.ok(addressService.getAddress(id));
     }
@@ -43,7 +43,7 @@ public class AddressController {
         return ResponseEntity.ok(addressService.getAddressList(dto.ids()));
     }
 
-    @DeleteMapping("/storefront/address/{id}")
+    @DeleteMapping("/storefront/addresses/{id}")
     public ResponseEntity deleteAddress(@PathVariable Long id) {
         addressService.deleteAddress(id);
         return ResponseEntity.ok().build();
