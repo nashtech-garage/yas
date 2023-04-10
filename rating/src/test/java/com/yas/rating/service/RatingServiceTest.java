@@ -24,6 +24,8 @@ public class RatingServiceTest {
     ProductService productService;
     RatingService ratingService;
 
+    OrderService orderService;
+
     RatingPostVm ratingPostVm;
     List<Rating> ratingList;
 
@@ -32,7 +34,8 @@ public class RatingServiceTest {
         ratingRepository = mock(RatingRepository.class);
         customerService = mock(CustomerService.class);
         productService = mock(ProductService.class);
-        ratingService = new RatingService(ratingRepository, customerService);
+        orderService = mock(OrderService.class);
+        ratingService = new RatingService(ratingRepository, customerService, orderService);
 
 
         ratingList = List.of(
@@ -50,7 +53,7 @@ public class RatingServiceTest {
                         .build()
         );
 
-        ratingPostVm =  RatingPostVm.builder()
+        ratingPostVm = RatingPostVm.builder()
                 .productId(1L)
                 .content("comment 1")
                 .star(5)

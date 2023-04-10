@@ -138,7 +138,10 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
         toastSuccess('Post a review succesfully');
       })
       .catch((err) => {
-        if (err == 403) toastError('Please login to post a review');
+        if (err == 403)
+          toastError(
+            "You are not authorized to rate this product since you are not logged in or have not purchased it"
+          );
         else {
           toastError('Some thing went wrong. Try again after a few seconds');
         }

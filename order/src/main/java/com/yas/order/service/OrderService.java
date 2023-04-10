@@ -11,6 +11,7 @@ import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.OrderAddressPostVm;
+import com.yas.order.viewmodel.OrderExistsByProductAndUserGetVm;
 import com.yas.order.viewmodel.OrderPostVm;
 import com.yas.order.viewmodel.OrderVm;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,17 +123,19 @@ public class OrderService {
         return OrderVm.fromModel(order);
     }
 
-    public boolean isOrderByUserIdWithStatusExist(final String status) {
+    public OrderExistsByProductAndUserGetVm isOrderByUserIdWithStatusExist(final String status, final Long productId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(authentication instanceof AnonymousAuthenticationToken) {
+        if (authentication instanceof AnonymousAuthenticationToken) {
             throw new SignInRequiredException(Constants.ERROR_CODE.SIGN_IN_REQUIRED);
         }
 
-        KeycloakAuthenticationToken contextHolder = (KeycloakAuthenticationToken) authentication;
+        JwtAuthenticationToken contextHolder = (JwtAuthenticationToken) authentication;
 
-        String userId = contextHolder.getAccount().getKeycloakSecurityContext().getIdToken().getSubject();
+        String userId = contextHolder.getToken().getSubject();
 
-        return orderRepository.existsByCreatedByAndOrderStatus(userId, status);
+        return new OrderExistsByProductAndUserGetVm(
+                orderRepository.existsByCreatedByAndOrderStatusAndProductId(userId, productId)
+        );
     }
 }

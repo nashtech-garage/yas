@@ -1,14 +1,34 @@
 package com.yas.order.repository;
 
 import com.yas.order.model.Order;
+import com.yas.order.model.enumeration.EOrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    boolean existsByCreatedByAndOrderStatus(
+    @Query("SELECT EXISTS (" +
+            "SELECT 1 FROM Order o INNER JOIN OrderItem oi ON o.id=oi.orderId " +
+            "WHERE o.createdBy=:createdBy " +
+            "       AND o.orderStatus=:orderStatus " +
+            "       AND oi.productId=:productId" +
+            ")")
+    boolean existsByCreatedByAndOrderStatusAndProductId(
             String createdBy,
-            String orderStatus
+            EOrderStatus orderStatus,
+            Long productId
+    );
+
+    @Query("SELECT EXISTS (" +
+            "SELECT 1 FROM Order o INNER JOIN OrderItem oi ON o.id=oi.orderId " +
+            "WHERE o.createdBy=:createdBy " +
+//            "       AND o.orderStatus=com.yas.order.model.enumeration.EOrderStatus.COMPLETED " +
+            "       AND oi.productId=:productId" +
+            ")")
+    boolean existsByCreatedByAndOrderStatusAndProductId(
+            String createdBy,
+            Long productId
     );
 }

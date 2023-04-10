@@ -1,5 +1,6 @@
 package com.yas.rating.service;
 
+import com.yas.rating.exception.AccessDeniedException;
 import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +27,14 @@ public class RatingService {
     private final RatingRepository ratingRepository;
     private final CustomerService customerService;
 
-    public RatingService(RatingRepository ratingRepository, CustomerService customerService) {
+    private final OrderService orderService;
+
+    public RatingService(RatingRepository ratingRepository,
+                         CustomerService customerService,
+                         OrderService orderService) {
         this.ratingRepository = ratingRepository;
         this.customerService = customerService;
+        this.orderService = orderService;
     }
 
     public RatingListVm getRatingListByProductId(Long id, int pageNo, int pageSize) {
@@ -61,6 +68,13 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
+        if (!orderService.checkOrderExistsByProductAndUserWithStatus(
+                "COMPLETED",
+                ratingPostVm.productId()
+        ).isPresent()) {
+            throw new AccessDeniedException("Lack of authorities to perform this action");
+        }
+
         Rating rating = new Rating();
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());
