@@ -1,4 +1,4 @@
-package com.yas.customer.viewmodel.Address;
+package com.yas.customer.viewmodel.address;
 
 public record ActiveAddressVm(
         Long id,

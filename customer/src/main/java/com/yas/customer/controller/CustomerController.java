@@ -1,6 +1,6 @@
 package com.yas.customer.controller;
 
-import com.yas.customer.viewmodel.Customer.CustomerProfileRequestVm;
+import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yas.customer.service.CustomerService;
-import com.yas.customer.viewmodel.Customer.CustomerAdminVm;
-import com.yas.customer.viewmodel.Customer.CustomerListVm;
-import com.yas.customer.viewmodel.Customer.CustomerVm;
+import com.yas.customer.viewmodel.customer.CustomerAdminVm;
+import com.yas.customer.viewmodel.customer.CustomerListVm;
+import com.yas.customer.viewmodel.customer.CustomerVm;
 import com.yas.customer.viewmodel.ErrorVm;
-import com.yas.customer.viewmodel.Customer.GuestUserVm;
+import com.yas.customer.viewmodel.customer.GuestUserVm;
 
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

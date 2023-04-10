@@ -1,7 +1,7 @@
-package com.yas.customer.viewmodel.UserAddress;
+package com.yas.customer.viewmodel.user_address;
 
 import com.yas.customer.model.UserAddress;
-import com.yas.customer.viewmodel.Address.AddressVm;
+import com.yas.customer.viewmodel.address.AddressVm;
 import lombok.Builder;
 
 @Builder

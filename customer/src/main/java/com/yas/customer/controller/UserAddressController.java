@@ -1,16 +1,13 @@
 package com.yas.customer.controller;
 
 import com.yas.customer.service.UserAddressService;
-import com.yas.customer.viewmodel.Address.ActiveAddressVm;
-import com.yas.customer.viewmodel.Address.AddressListVm;
-import com.yas.customer.viewmodel.Address.AddressPostVm;
-import com.yas.customer.viewmodel.UserAddress.UserAddressVm;
+import com.yas.customer.viewmodel.address.AddressListVm;
+import com.yas.customer.viewmodel.address.AddressPostVm;
+import com.yas.customer.viewmodel.user_address.UserAddressVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

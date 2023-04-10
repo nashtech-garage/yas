@@ -2,8 +2,8 @@ package com.yas.customer.service;
 
 
 import com.yas.customer.config.ServiceUrlConfig;
-import com.yas.customer.viewmodel.Address.AddressVm;
-import com.yas.customer.viewmodel.Address.AddressPostVm;
+import com.yas.customer.viewmodel.address.AddressVm;
+import com.yas.customer.viewmodel.address.AddressPostVm;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
