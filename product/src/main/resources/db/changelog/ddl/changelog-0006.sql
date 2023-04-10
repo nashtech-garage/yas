@@ -1,0 +1,1 @@
+alter table if exists product DROP COLUMN is_active;
