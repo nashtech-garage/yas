@@ -38,7 +38,7 @@ YAS is a pet project aim to practice building a typical microservice application
 
 1. Get the latest source code
 1. Add the following records to your host file: 
-`
+```
 127.0.0.1 identity
 127.0.0.1 api.yas.local
 127.0.0.1 pgadmin.yas.local
@@ -47,7 +47,8 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 loki
 127.0.0.1 tempo
 127.0.0.1 grafana
-`
+127.0.0.1 elasticsearch
+```
 1. Open terminal of your choice, go to `yas` directory and run `docker compose up` and wait for all the containers up and running
 1. Open your browser, now you can access the websites via `http://storefront/`; `http://backoffice/` login with admin/password
 
@@ -56,6 +57,7 @@ You might aslo want to explore:
 1. `http://api.yas.local/swagger-ui/` for all the REST API document of all the services
 1. `http://identity/` for Keycloak console, account admin/admin
 1. `http://grafana/` for observability: log, trace, matrix
+1. `http://elasticsearch/` for calling Elasticsearch APIs
 
 ## Contributing
 - Give us a star
