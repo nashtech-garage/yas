@@ -40,3 +40,11 @@ insert into product (name,slug,price,parent_id) values
     ('iPad Pro Wi-Fi 4G 128GB Black','ipad-pro-wi-fi-4g-128gb-black',21990000,2),
     ('iPad Pro Wi-Fi 4G 256GB Black','ipad-pro-wi-fi-4g-256gb-black',24990000,2),
     ('iPad Pro Wi-Fi 4G 512GB Black','ipad-pro-wi-fi-4g-512gb-black',28990000,2);
+
+--changeset khoahd7621:issue-update-isactive-product-variant-liquibase
+update product set is_published = true where id = 3;
+update product set is_published = true where id = 4;
+update product set is_published = true where id = 5;
+update product set is_published = true where id = 6;
+update product set is_published = true where id = 7;
+update product set is_published = true where id = 8;
