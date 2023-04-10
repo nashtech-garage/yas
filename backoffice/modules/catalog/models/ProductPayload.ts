@@ -4,6 +4,8 @@ import { FormProduct } from './FormProduct';
 import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariationPost } from './ProductVariationPost';
 
+export type ProductVariationPut = ProductVariationPost & { id?: number };
+
 export type ProductPayload = {
   name?: string;
   slug?: string;
@@ -25,7 +27,7 @@ export type ProductPayload = {
   metaDescription?: string;
   thumbnailMediaId?: number;
   productImageIds?: number[];
-  variations?: ProductVariationPost[];
+  variations?: ProductVariationPost[] | ProductVariationPut[];
   productOptionValues?: ProductOptionValuePost[];
 };
 
@@ -54,6 +56,7 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
     variations: data.productVariations
       ? data.productVariations.map((variant) => {
           return {
+            id: variant.id,
             name: variant.optionName,
             slug: slugify(variant.optionName),
             sku: variant.optionSku,
