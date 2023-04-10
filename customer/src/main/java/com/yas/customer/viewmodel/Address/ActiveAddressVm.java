@@ -1,6 +1,6 @@
 package com.yas.customer.viewmodel.Address;
 
-public record AddressActiveVm(
+public record ActiveAddressVm(
         Long id,
         String contactName,
         String phone,

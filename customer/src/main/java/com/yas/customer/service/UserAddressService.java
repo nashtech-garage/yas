@@ -1,21 +1,23 @@
 package com.yas.customer.service;
 
+import com.yas.customer.exception.AccessDeniedException;
 import com.yas.customer.exception.NotFoundException;
 import com.yas.customer.model.UserAddress;
 import com.yas.customer.repository.UserAddressRepository;
 import com.yas.customer.utils.Constants;
-import com.yas.customer.viewmodel.Address.AddressActiveVm;
-import com.yas.customer.viewmodel.Address.AddressGetVm;
+import com.yas.customer.viewmodel.Address.ActiveAddressVm;
+import com.yas.customer.viewmodel.Address.AddressListVm;
+import com.yas.customer.viewmodel.Address.AddressVm;
 import com.yas.customer.viewmodel.Address.AddressPostVm;
 import com.yas.customer.viewmodel.UserAddress.UserAddressVm;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @Transactional
@@ -28,29 +30,54 @@ public class UserAddressService {
         this.locationService = locationService;
     }
 
-    public List<AddressActiveVm> getUserAddressList() {
+    public AddressListVm getUserAddressList(int pageNo, int pageSize) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
+        if(userId == "anonymousUser")
+            throw new AccessDeniedException("Please login");
 
-        List<AddressGetVm> addressGetVms = locationService.getAddressesByIdList(userAddressList.stream()
+        List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
+        List<AddressVm> addressVmList = locationService.getAddressesByIdList(userAddressList.stream()
                 .map(userAddress -> userAddress.getAddressId()).toList());
 
-        return IntStream.range(0, userAddressList.size())
-                .mapToObj(i -> new AddressActiveVm(addressGetVms.get(i).id(),
-                        addressGetVms.get(i).contactName(), addressGetVms.get(i).phone(),
-                        addressGetVms.get(i).addressLine1(), addressGetVms.get(i).city(),
-                        addressGetVms.get(i).zipCode(), addressGetVms.get(i).districtId(),
-                        addressGetVms.get(i).stateOrProvinceId(), addressGetVms.get(i).countryId(),
-                        userAddressList.get(i).getIsActive()))
-                .collect(Collectors.toList());
+        List<ActiveAddressVm> addressActiveVms = new ArrayList<>();
+        for (UserAddress userAddress : userAddressList) {
+            for (AddressVm addressVm : addressVmList) {
+                if (userAddress.getAddressId().equals(addressVm.id())) {
+                    addressActiveVms.add(new ActiveAddressVm(
+                            addressVm.id(),
+                            addressVm.contactName(),
+                            addressVm.phone(),
+                            addressVm.addressLine1(),
+                            addressVm.city(),
+                            addressVm.zipCode(),
+                            addressVm.districtId(),
+                            addressVm.stateOrProvinceId(),
+                            addressVm.countryId(),
+                            userAddress.getIsActive()
+                    ));
+                    //remove element to reduce the number of iterations
+                    addressVmList.remove(addressVm);
+                    break;
+                }
+            }
+        }
 
+        Sort sort = Sort.by("isActive").descending();
+        Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
+        addressActiveVms.sort(comparator);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        int start = (int)pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), addressActiveVms.size());
+        Page<ActiveAddressVm> page = new PageImpl<>(addressActiveVms.subList(start, end), pageable, addressActiveVms.size());
+
+        return new AddressListVm(page.getContent(), page.getTotalElements(), page.getTotalPages());
     }
 
     public UserAddressVm createAddress(AddressPostVm addressPostVm) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        AddressGetVm addressGetVm = locationService.createAddress(addressPostVm);
-
+        AddressVm addressGetVm = locationService.createAddress(addressPostVm);
         UserAddress userAddress = UserAddress.builder()
                 .userId(userId)
                 .addressId(addressGetVm.id())

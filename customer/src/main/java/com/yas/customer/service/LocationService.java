@@ -2,14 +2,17 @@ package com.yas.customer.service;
 
 
 import com.yas.customer.config.ServiceUrlConfig;
-import com.yas.customer.viewmodel.Address.AddressGetVm;
+import com.yas.customer.viewmodel.Address.AddressVm;
 import com.yas.customer.viewmodel.Address.AddressPostVm;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.yas.customer.exception.NotFoundException;
+import com.yas.customer.exception.AccessDeniedException;
 
 import java.net.URI;
 import java.util.List;
@@ -24,7 +27,7 @@ public class LocationService {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
-    public List<AddressGetVm> getAddressesByIdList(List<Long> ids) {
+    public List<AddressVm> getAddressesByIdList(List<Long> ids) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.location())
@@ -37,11 +40,14 @@ public class LocationService {
                 .uri(url)
                 .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<AddressGetVm>>() {})
+                .onStatus(
+                        HttpStatus.UNAUTHORIZED::equals,
+                        response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
+                .bodyToMono(new ParameterizedTypeReference<List<AddressVm>>() {})
                 .block();
     }
 
-    public AddressGetVm createAddress(AddressPostVm addressPostVm) {
+    public AddressVm createAddress(AddressPostVm addressPostVm) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.location())
@@ -54,7 +60,19 @@ public class LocationService {
                 .headers(h->h.setBearerAuth(jwt))
                 .bodyValue(addressPostVm)
                 .retrieve()
-                .bodyToMono(AddressGetVm.class)
+                .onStatus(
+                        HttpStatus.UNAUTHORIZED::equals,
+                        response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
+                .onStatus(
+                        HttpStatus.FORBIDDEN::equals,
+                        response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
+                .onStatus(
+                        HttpStatus.BAD_REQUEST::equals,
+                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
+                .onStatus(
+                        HttpStatus.NOT_FOUND::equals,
+                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
+                .bodyToMono(AddressVm.class)
                 .block();
     }
 }

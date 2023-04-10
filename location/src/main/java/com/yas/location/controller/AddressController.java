@@ -1,10 +1,8 @@
 package com.yas.location.controller;
 
-import com.yas.location.mapper.AddressResponseMapper;
 import com.yas.location.service.AddressService;
 import com.yas.location.viewmodel.address.AddressGetVm;
 import com.yas.location.viewmodel.address.AddressPostVm;
-import com.yas.location.viewmodel.address.RequestAddressGetListVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
