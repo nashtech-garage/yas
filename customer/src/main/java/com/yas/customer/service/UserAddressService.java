@@ -32,7 +32,7 @@ public class UserAddressService {
 
     public AddressListVm getUserAddressList(int pageNo, int pageSize) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if(userId == "anonymousUser")
+        if(userId.equals("anonymousUser"))
             throw new AccessDeniedException("Please login");
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
