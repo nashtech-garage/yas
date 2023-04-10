@@ -23,4 +23,9 @@ public class OrderController {
     public ResponseEntity<OrderVm> getOrderWithItemsById(@PathVariable long id) {
         return ResponseEntity.ok(orderService.getOrderWithItemsById(id));
     }
+
+    @GetMapping("/storefront/test")
+    public void test(@RequestParam String status) {
+        orderService.isOrderByUserIdWithStatusExist(status);
+    }
 }

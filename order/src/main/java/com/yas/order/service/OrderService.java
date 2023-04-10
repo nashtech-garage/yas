@@ -1,6 +1,7 @@
 package com.yas.order.service;
 
 import com.yas.order.exception.NotFoundException;
+import com.yas.order.exception.SignInRequiredException;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
@@ -10,16 +11,16 @@ import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.OrderAddressPostVm;
-import com.yas.order.viewmodel.OrderAddressVm;
 import com.yas.order.viewmodel.OrderPostVm;
 import com.yas.order.viewmodel.OrderVm;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.lang3.Validate;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -90,7 +91,6 @@ public class OrderService {
         orderRepository.save(order);
 
 
-
         Set<OrderItem> orderItems = orderPostVm.orderItemPostVms().stream()
                 .map(item -> OrderItem.builder()
                         .productId(item.productId())
@@ -105,7 +105,7 @@ public class OrderService {
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
 
- //        TO-DO: delete Item in Cart
+        //        TO-DO: delete Item in Cart
 //        ************
 
 //        TO-DO: decrement inventory when inventory is complete
@@ -119,5 +119,19 @@ public class OrderService {
                 -> new NotFoundException(Constants.ERROR_CODE.ORDER_NOT_FOUND, id));
 
         return OrderVm.fromModel(order);
+    }
+
+    public boolean isOrderByUserIdWithStatusExist(final String status) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication instanceof AnonymousAuthenticationToken) {
+            throw new SignInRequiredException(Constants.ERROR_CODE.SIGN_IN_REQUIRED);
+        }
+
+        KeycloakAuthenticationToken contextHolder = (KeycloakAuthenticationToken) authentication;
+
+        String userId = contextHolder.getAccount().getKeycloakSecurityContext().getIdToken().getSubject();
+
+        return orderRepository.existsByCreatedByAndOrderStatus(userId, status);
     }
 }

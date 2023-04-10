@@ -2,7 +2,7 @@ package com.yas.order.model.enumeration;
 
 public enum EOrderStatus {
     PENDING,
-    ACCEPED,
+    ACCEPTED,
     PENDING_PAYMENT,
     SHIPPING,
     COMPLETED,
