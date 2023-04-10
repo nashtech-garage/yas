@@ -1,0 +1,8 @@
+{
+  "name": "es-sink-brand",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "topics": "connect.brand",
+    "connection.url": "http://elasticsearch:9200"
+  }
+}

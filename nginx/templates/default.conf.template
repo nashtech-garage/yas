@@ -12,26 +12,8 @@ server {
   location /customer/ {
 	proxy_pass http://customer;
   }
-  location /cart/ {
-	proxy_pass http://cart;
-  }
-  location /rating/ {
-	proxy_pass http://rating;
-  }
-  location /order/ {
-	proxy_pass http://order;
-  }
   location /location/ {
-  	proxy_pass http://location;
-  }
-  location /inventory/ {
-  	proxy_pass http://inventory;
-  }  
-  location /tax/ {
-    proxy_pass http://tax;
-  }
-  location /promotion/ {
-  	proxy_pass http://promotion;
+    proxy_pass http://location;
   }
 }
 
@@ -39,13 +21,6 @@ server {
   server_name backoffice;
   location / {
 	proxy_pass http://backoffice;
-  }
-}
-
-server {
-  server_name storefront;
-  location / {
-	proxy_pass http://storefront;
   }
 }
 

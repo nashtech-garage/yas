@@ -1,0 +1,10 @@
+{
+  "name": "source-postgres-connector",
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "database.hostname": "postgres",
+  "database.port": "5432",
+  "database.user": "admin",
+  "database.password": "admin",
+  "database.dbname": "product",
+  "topic.prefix": "product"
+}

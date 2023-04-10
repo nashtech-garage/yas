@@ -45,3 +45,12 @@ scrape_configs:
     metrics_path: "/tax/actuator/prometheus"
     static_configs:
       - targets: ["tax"]
+#    # Scrape Kafka Connect /metrics
+#  - job_name: 'kafka-connect-host'
+#    metrics_path: "/kafka-connect-host/actuator/prometheus"
+#    static_configs:
+#      - targets: [ "kafka-connect-host" ]
+#    # Scrape Kafka Connect /metrics
+#  - job_name: 'kafka-connect-host'
+#    static_configs:
+#      - targets: ['kafka-connect:9876']
