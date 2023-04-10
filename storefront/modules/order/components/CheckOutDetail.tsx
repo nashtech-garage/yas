@@ -1,9 +1,9 @@
 import { formatPrice } from '@/utils/formatPrice';
-import { OrderItemPost } from '../models/OrderItemPost';
+import { OrderItem } from '../models/OrderItem';
 import { useEffect, useState } from 'react';
 
 type Props = {
-  orderItems: OrderItemPost[];
+  orderItems: OrderItem[];
 };
 
 const CheckOutDetail = ({ orderItems }: Props) => {
@@ -17,7 +17,7 @@ const CheckOutDetail = ({ orderItems }: Props) => {
     setTotalPrice(totalPrice);
   }, [orderItems]);
 
-  const calculateProductPrice = (item: OrderItemPost) => {
+  const calculateProductPrice = (item: OrderItem) => {
     return item.productPrice * item.quantity;
   };
 
@@ -42,8 +42,8 @@ const CheckOutDetail = ({ orderItems }: Props) => {
         {orderItems?.map((item) => (
           <div key={item.productId} className="row">
             <div className="col-lg-6">{item.productName} </div>
-            <div className="col-lg-4 d-flex justify-content-center">{item.quantity}</div>
-            <div className="col-lg-2"> {formatPrice(item.productPrice)}</div>
+            <div className="col-lg-3 d-flex justify-content-center">{item.quantity}</div>
+            <div className="col-lg-3"> {formatPrice(item.productPrice)}</div>
           </div>
         ))}
 

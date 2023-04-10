@@ -9,9 +9,7 @@ public record OrderAddressPostVm(
         String addressLine2,
         String city,
         String zipCode,
-        Long district,
-        Long stateOrProvince,
-        Long country,
-        Long billingOrderId,
-        Long shippingOrderId) {
+        Long districtId,
+        Long stateOrProvinceId,
+        Long countryId) {
 }

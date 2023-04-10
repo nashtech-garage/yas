@@ -267,3 +267,7 @@ a {
   border-color: #ced4da;
   box-shadow: inherit;
 }
+
+.form-select {
+  height: 50px;
+}

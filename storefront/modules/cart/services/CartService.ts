@@ -17,7 +17,8 @@ export async function getCart(): Promise<Cart> {
   const response = await fetch('/api/cart/storefront/carts', {
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return await response.json();
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(response);
 }
 
 export async function getCartProductThumbnail(ids: number[]): Promise<ProductThumbnail[]> {
