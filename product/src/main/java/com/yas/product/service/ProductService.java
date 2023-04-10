@@ -86,15 +86,15 @@ public class ProductService {
     }
 
     private boolean isProductWithSlugAvailable(String slug) {
-        return productRepository.findBySlugAndIsActiveTrue(slug).isPresent();
+        return productRepository.findBySlugAndIsPublishedTrue(slug).isPresent();
     }
 
     private boolean isProductWithSkuAvailable(String sku) {
-        return productRepository.findBySkuAndIsActiveTrue(sku).isPresent();
+        return productRepository.findBySkuAndIsPublishedTrue(sku).isPresent();
     }
 
     private boolean isProductWithGtinAvailable(String gtin) {
-        return productRepository.findByGtinAndIsActiveTrue(gtin).isPresent();
+        return productRepository.findByGtinAndIsPublishedTrue(gtin).isPresent();
     }
 
     private void validateIfProductWithSkuOrGtinOrSlugExist(String slug,
@@ -137,7 +137,7 @@ public class ProductService {
                 .metaDescription(productPostVm.description())
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
-                .isActive(true).build();
+                .build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
 
@@ -167,6 +167,7 @@ public class ProductService {
                                 .sku(variation.sku())
                                 .gtin(variation.gtin())
                                 .price(variation.price())
+                                .isPublished(productPostVm.isPublished())
                                 .parent(mainProduct).build();
                         List<ProductImage> productVariantImageList = setProductImages(variation.productImageIds(), productVariant);
                         allProductVariantImageList.addAll(productVariantImageList);
@@ -460,7 +461,7 @@ public class ProductService {
         Brand brand = brandRepository
                 .findBySlug(brandSlug)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, brandSlug));
-        List<Product> products = productRepository.findAllByBrandAndIsActiveTrue(brand);
+        List<Product> products = productRepository.findAllByBrandAndIsPublishedTrue(brand);
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailVm(
                     product.getId(),
@@ -526,7 +527,7 @@ public class ProductService {
     }
 
     public ProductDetailGetVm getProductDetail(String slug) {
-        Product product = productRepository.findBySlugAndIsActiveTrue(slug)
+        Product product = productRepository.findBySlugAndIsPublishedTrue(slug)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, slug));
 
         Long productThumbnailMediaId = product.getThumbnailMediaId();
@@ -591,7 +592,7 @@ public class ProductService {
         Product product = productRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
-        product.setIsActive(false);
+        product.setIsPublished(false);
         productRepository.save(product);
     }
 
@@ -628,7 +629,8 @@ public class ProductService {
         Product parentProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
         if (Boolean.TRUE.equals(parentProduct.getHasOptions())) {
-            List<Product> productVariations = parentProduct.getProducts().stream().toList();
+            List<Product> productVariations = parentProduct.getProducts().stream().filter(Product::getIsPublished).toList();
+            
             return productVariations.stream().map(product -> {
                 List<ProductOptionCombination> productOptionCombinations =
                         productOptionCombinationRepository.findAllByProduct(product);
