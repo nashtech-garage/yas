@@ -23,16 +23,6 @@ export async function getAddress(id: string) {
   return await response.json();
 }
 
-export async function getAddresses(ids: number[]) {
-  const data = { ids };
-  const response = await fetch(`/api/location/storefront/addresses`, {
-    method: 'POST',
-    headers: { 'Content-type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  return await response.json();
-}
-
 export async function deleteAddress(id: number) {
   const response = await fetch(`/api/location/storefront/address/${id}`, {
     method: 'DELETE',

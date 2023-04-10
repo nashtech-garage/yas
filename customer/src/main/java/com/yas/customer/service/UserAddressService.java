@@ -62,6 +62,7 @@ public class UserAddressService {
             }
         }
 
+        //handle pageable
         Sort sort = Sort.by("isActive").descending();
         Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
         addressActiveVms.sort(comparator);
@@ -69,6 +70,9 @@ public class UserAddressService {
 
         int start = (int)pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), addressActiveVms.size());
+        if (start > addressActiveVms.size() || start > end)
+            return new AddressListVm(null, addressActiveVms.size(), addressActiveVms.size()/pageSize);
+
         Page<ActiveAddressVm> page = new PageImpl<>(addressActiveVms.subList(start, end), pageable, addressActiveVms.size());
 
         return new AddressListVm(page.getContent(), page.getTotalElements(), page.getTotalPages());

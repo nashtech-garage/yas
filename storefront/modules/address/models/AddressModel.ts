@@ -9,4 +9,5 @@ export type Address = {
   districtId: number;
   stateOrProvinceId: number;
   countryId: number;
+  isActive?: boolean;
 };

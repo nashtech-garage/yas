@@ -3,13 +3,10 @@ import Head from 'next/head';
 import { useForm } from 'react-hook-form';
 import AddressForm from '../../modules/address/components/AddressForm';
 import { Address } from '../../modules/address/models/AddressModel';
-import { createAddress } from '../../modules/address/services/AddressService';
 import { createUserAddress } from '../../modules/customer/services/CustomerService';
 import { toast } from 'react-toastify';
 import { CREATE_SUCCESSFULLY } from '../../common/constants/Common';
 import { useRouter } from 'next/router';
-import styles from '../../styles/address.module.css';
-import clsx from 'clsx';
 
 const CreateAddress: NextPage = () => {
   const {
@@ -41,10 +38,7 @@ const CreateAddress: NextPage = () => {
       stateOrProvinceId: parseInt(stateOrProvinceId),
       countryId: parseInt(countryId),
     };
-    createAddress(request)
-      .then((data) => {
-        createUserAddress(data);
-      })
+    createUserAddress(request)
       .then(() => {
         toast.success(CREATE_SUCCESSFULLY);
         router.push('/address');

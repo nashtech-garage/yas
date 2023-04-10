@@ -1,12 +1,16 @@
-export async function createUserAddress(id: number) {
-  const response = await fetch(`/api/customer/storefront/user-address/${id}`, {
+import { Address } from '@/modules/address/models/AddressModel';
+
+export async function createUserAddress(address: Address) {
+  const response = await fetch(`/api/customer/storefront/user-address`, {
     method: 'POST',
+    headers: { 'Content-type': 'application/json' },
+    body: JSON.stringify(address),
   });
-  return response;
+  return response.json();
 }
 
-export async function getAddressIds() {
-  const response = await fetch(`/api/customer/storefront/user-address`);
+export async function getUserAddress(params: string) {
+  const response = await fetch(`/api/customer/storefront/user-address?${params}`);
   return response.json();
 }
 
