@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Image } from 'react-bootstrap';
 
 import { SEARCH_URL } from '@/common/constants/Common';
-import { SearchSuggestion } from '@/modules/rating/models/SearchSuggestion';
+import { SearchSuggestion } from '@/modules/search/models/SearchSuggestion';
 import { getSuggestions } from '@/modules/search/services/SearchService';
 import { useDebounce } from '@/utils/useDebounce';
 import { cartEventSource } from 'modules/cart/services/CartService';

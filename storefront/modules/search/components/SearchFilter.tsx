@@ -32,6 +32,9 @@ export default function SearchFilter(_props: SearchFilterProps) {
         </div>
         <button className={styles['filter-group__button']}>Apply</button>
       </div>
+      <div className={styles['filter-group']}>
+        <button className={styles['filter-group__button']}>Clear All</button>
+      </div>
     </div>
   );
 }
