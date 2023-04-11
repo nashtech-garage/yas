@@ -142,6 +142,11 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
           toastError(
             "You are not authorized to rate this product since you are not logged in or have not purchased it"
           );
+        else if (err == 409) {
+          toastError(
+            "You have rated this product before"
+          );
+        }
         else {
           toastError('Some thing went wrong. Try again after a few seconds');
         }

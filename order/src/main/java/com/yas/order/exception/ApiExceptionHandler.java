@@ -64,7 +64,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex) {
         String message = ex.getMessage();
         ErrorVm errorVm = new ErrorVm("403", "Authentication required", message);
-        return ResponseEntity.badRequest().body(errorVm);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorVm);
     }
 
 

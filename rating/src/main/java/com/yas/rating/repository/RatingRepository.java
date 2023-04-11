@@ -29,4 +29,6 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     @Query(value = "SELECT SUM(r.ratingStar), COUNT(r) FROM Rating r Where r.productId = :productId")
     List<Object[]> getTotalStarsAndTotalRatings(@Param("productId") long productId);
+
+    boolean existsByCreatedByAndProductId(String createdBy, Long productId);
 }

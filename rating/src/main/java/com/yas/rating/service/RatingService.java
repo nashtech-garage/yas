@@ -2,9 +2,12 @@ package com.yas.rating.service;
 
 import com.yas.rating.exception.AccessDeniedException;
 import com.yas.rating.exception.NotFoundException;
+import com.yas.rating.exception.ResourceExistedException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
+import com.yas.rating.utils.AuthenticationUtils;
 import com.yas.rating.utils.Constants;
+import com.yas.rating.utils.MessagesUtils;
 import com.yas.rating.viewmodel.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -68,11 +71,16 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
+        String userId = AuthenticationUtils.extractUserId();
+
         if (!orderService.checkOrderExistsByProductAndUserWithStatus(
                 "COMPLETED",
                 ratingPostVm.productId()
         ).isPresent()) {
-            throw new AccessDeniedException("Lack of authorities to perform this action");
+            throw new AccessDeniedException(Constants.ERROR_CODE.ACCESS_DENIED);
+        }
+        if (ratingRepository.existsByCreatedByAndProductId(userId, ratingPostVm.productId())) {
+            throw new ResourceExistedException(Constants.ERROR_CODE.RESOURCE_ALREADY_EXISTED);
         }
 
         Rating rating = new Rating();

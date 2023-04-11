@@ -20,15 +20,4 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             EOrderStatus orderStatus,
             Long productId
     );
-
-    @Query("SELECT EXISTS (" +
-            "SELECT 1 FROM Order o INNER JOIN OrderItem oi ON o.id=oi.orderId " +
-            "WHERE o.createdBy=:createdBy " +
-//            "       AND o.orderStatus=com.yas.order.model.enumeration.EOrderStatus.COMPLETED " +
-            "       AND oi.productId=:productId" +
-            ")")
-    boolean existsByCreatedByAndOrderStatusAndProductId(
-            String createdBy,
-            Long productId
-    );
 }

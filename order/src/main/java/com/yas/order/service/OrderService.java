@@ -15,7 +15,6 @@ import com.yas.order.viewmodel.OrderExistsByProductAndUserGetVm;
 import com.yas.order.viewmodel.OrderPostVm;
 import com.yas.order.viewmodel.OrderVm;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -135,7 +134,7 @@ public class OrderService {
         String userId = contextHolder.getToken().getSubject();
 
         return new OrderExistsByProductAndUserGetVm(
-                orderRepository.existsByCreatedByAndOrderStatusAndProductId(userId, productId)
+                orderRepository.existsByCreatedByAndOrderStatusAndProductId(userId, EOrderStatus.of(status), productId)
         );
     }
 }

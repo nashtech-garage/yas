@@ -36,6 +36,13 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(errorVm);
     }
 
+    @ExceptionHandler(ResourceExistedException.class)
+    public ResponseEntity<ErrorVm> handleResourceExistedException(ResourceExistedException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.CONFLICT.toString(), "Resource has existed", message);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorVm);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult()
