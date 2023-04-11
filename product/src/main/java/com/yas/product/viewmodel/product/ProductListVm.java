@@ -16,10 +16,10 @@ public record ProductListVm(Long id,
                 product.getId(),
                 product.getName(),
                 product.getSlug(),
-                product.getIsAllowedToOrder(),
-                product.getIsPublished(),
-                product.getIsFeatured(),
-                product.getIsVisibleIndividually(),
+                product.isAllowedToOrder(),
+                product.isPublished(),
+                product.isFeatured(),
+                product.isVisibleIndividually(),
                 product.getCreatedOn()
         );
     }
