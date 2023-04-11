@@ -722,7 +722,6 @@ public class ProductService {
                 product.getIsAllowedToOrder(),
                 product.getIsFeatured(),
                 thumbnailMediaId,
-                true,
                 brandName,
                 categoryNames,
                 attributeNames

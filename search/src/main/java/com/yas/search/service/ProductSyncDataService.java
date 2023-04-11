@@ -50,7 +50,6 @@ public class ProductSyncDataService {
         product.setIsAllowedToOrder(productESDetailVm.isAllowedToOrder());
         product.setIsFeatured(productESDetailVm.isFeatured());
         product.setThumbnailMediaId(productESDetailVm.thumbnailMediaId());
-        product.setIsActive(productESDetailVm.isActive());
         product.setBrand(productESDetailVm.brand());
         product.setCategories(productESDetailVm.categories());
         product.setAttributes(productESDetailVm.attributes());
@@ -70,7 +69,6 @@ public class ProductSyncDataService {
                 .isAllowedToOrder(productESDetailVm.isAllowedToOrder())
                 .isFeatured(productESDetailVm.isFeatured())
                 .thumbnailMediaId(productESDetailVm.thumbnailMediaId())
-                .isActive(productESDetailVm.isActive())
                 .brand(productESDetailVm.brand())
                 .categories(productESDetailVm.categories())
                 .attributes(productESDetailVm.attributes())

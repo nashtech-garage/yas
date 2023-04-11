@@ -23,13 +23,13 @@ public class ProductSyncDataConsumer {
 
     @KafkaListener(topics = "${product.topic.name}")
     public void listen(ConsumerRecord<?, ?> consumerRecord) {
+
         if(consumerRecord != null){
             JsonObject convertedObject = new Gson().fromJson((String) consumerRecord.key(), JsonObject.class);
             if(convertedObject != null){
                 JsonObject convertedObjectRoot = new Gson().fromJson((String) consumerRecord.value(), JsonObject.class);
                 if(convertedObjectRoot != null){
                     String action = String.valueOf(convertedObjectRoot.get("op")).replaceAll("\"", "");
-                    LOGGER.info("ACTION= {} ", action);
                     Long id = convertedObject.get("id").getAsLong();
 
                     switch (action) {

@@ -12,7 +12,6 @@ public record ProductESDetailVm(
         Boolean isAllowedToOrder,
         Boolean isFeatured,
         Long thumbnailMediaId,
-        Boolean isActive,
         String brand,
         List<String> categories,
         List<String> attributes) {
