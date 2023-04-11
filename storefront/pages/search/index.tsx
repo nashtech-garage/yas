@@ -72,9 +72,9 @@ const SearchPage = () => {
   const fetchSearchResult = (data: SearchParams) => {
     searchProducts(data)
       .then((res) => {
-        setProducts(res.product);
+        setProducts(res.products);
       })
-      .catch((err) => {
+      .catch((_err) => {
         toast.error('Something went wrong, please try again later');
       });
   };

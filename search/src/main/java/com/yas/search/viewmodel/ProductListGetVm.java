@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public record ProductListGetVm(
-        List<ProductGetVm> product,
+        List<ProductGetVm> products,
         int pageNo,
         int pageSize,
         long totalElements,

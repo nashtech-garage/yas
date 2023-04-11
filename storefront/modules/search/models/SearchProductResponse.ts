@@ -1,7 +1,7 @@
 import { ProductSearchResult } from './ProductSearchResult';
 
 export type SearchProductResponse = {
-  product: ProductSearchResult[];
+  products: ProductSearchResult[];
   pageNo: number;
   pageSize: number;
   totalElements: number;
