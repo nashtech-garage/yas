@@ -1,18 +1,15 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { Image } from 'react-bootstrap';
 
+import { DATA_SEARCH_SUGGESTION, data_menu_top_no_login } from '@/asset/data/data_header_client';
 import { SEARCH_URL } from '@/common/constants/Common';
 import { SearchSuggestion } from '@/modules/search/models/SearchSuggestion';
 import { getSuggestions } from '@/modules/search/services/SearchService';
 import { useDebounce } from '@/utils/useDebounce';
 import { cartEventSource } from 'modules/cart/services/CartService';
-import {
-  DATA_SEARCH_SUGGESTION,
-  data_menu_top_no_login,
-} from '../../../asset/data/data_header_client';
 import promoteImage from '../../images/search-promote-image.png';
-import { useRouter } from 'next/router';
 
 type Props = {
   children: React.ReactNode;
@@ -23,6 +20,7 @@ const SUGGESTION_MAX = 10;
 
 const Header = ({ children }: Props) => {
   const router = useRouter();
+  const { keyword: keywordParams } = router.query;
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -32,7 +30,7 @@ const Header = ({ children }: Props) => {
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
 
-  const keyword = useDebounce(searchInput, 500);
+  const keyword = useDebounce(searchInput, 300);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,6 +51,12 @@ const Header = ({ children }: Props) => {
       setNumberItemIncart(numberItem);
     });
   }, []);
+
+  useEffect(() => {
+    if (keywordParams) {
+      setSearchInput(keywordParams as string);
+    }
+  }, [keywordParams]);
 
   useEffect(() => {
     if (keyword) {
