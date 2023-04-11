@@ -1,24 +1,25 @@
 package com.yas.rating.service;
 
-import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
+import com.yas.rating.utils.AuthenticationUtils;
 import com.yas.rating.viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-public class RatingServiceTest {
+class RatingServiceTest {
     RatingRepository ratingRepository;
     CustomerService customerService;
     ProductService productService;
@@ -91,16 +92,28 @@ public class RatingServiceTest {
     void createProduct_WhenProductIsExist_ShouldReturnSuccess() {
         Rating savedRating = mock(Rating.class);
         var ratingCaptor = ArgumentCaptor.forClass(Rating.class);
-        when(customerService.getCustomer()).thenReturn(mock(CustomerVm.class));
-        when(ratingRepository.saveAndFlush(ratingCaptor.capture())).thenReturn(savedRating);
 
+        try (MockedStatic<AuthenticationUtils> utilities = Mockito.mockStatic(AuthenticationUtils.class)) {
+            utilities.when(AuthenticationUtils::extractUserId).thenReturn("id");
 
-        RatingVm actualResponse = ratingService.createRating(ratingPostVm);
+            when(orderService.checkOrderExistsByProductAndUserWithStatus(
+                    "COMPLETED",
+                    ratingPostVm.productId()
+            )).thenReturn(new OrderExistsByProductAndUserGetVm(true));
+            when(ratingRepository.existsByCreatedByAndProductId(
+                    "id",
+                    ratingPostVm.productId()
+            )).thenReturn(false);
+            when(customerService.getCustomer()).thenReturn(mock(CustomerVm.class));
+            when(ratingRepository.saveAndFlush(ratingCaptor.capture())).thenReturn(savedRating);
 
-        verify(ratingRepository).saveAndFlush(ratingCaptor.capture());
-        Rating ratingValue = ratingCaptor.getValue();
-        assertThat(ratingValue.getContent()).isEqualTo(ratingPostVm.content());
-        assertThat(ratingValue.getRatingStar()).isEqualTo(ratingPostVm.star());
-        assertThat(ratingValue.getProductId()).isEqualTo(ratingPostVm.productId());
+            RatingVm actualResponse = ratingService.createRating(ratingPostVm);
+
+            verify(ratingRepository).saveAndFlush(ratingCaptor.capture());
+            Rating ratingValue = ratingCaptor.getValue();
+            assertThat(ratingValue.getContent()).isEqualTo(ratingPostVm.content());
+            assertThat(ratingValue.getRatingStar()).isEqualTo(ratingPostVm.star());
+            assertThat(ratingValue.getProductId()).isEqualTo(ratingPostVm.productId());
+        }
     }
 }
