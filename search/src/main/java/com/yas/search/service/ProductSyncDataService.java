@@ -29,7 +29,7 @@ public class ProductSyncDataService {
     }
 
     public ProductESDetailVm getProductESDetailById(Long id) {
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product()).path("/storefront/products/{id}").buildAndExpand(id).toUri();
+        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product()).path("/storefront/products-es/{id}").buildAndExpand(id).toUri();
         return webClient.get()
                 .uri(url)
                 .retrieve()
