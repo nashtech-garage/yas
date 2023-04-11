@@ -350,7 +350,6 @@ public class ProductService {
             }
         }
     }
-
     public List<ProductImage> setProductImages(List<Long> imageMediaIds, Product product) {
         List<ProductImage> productImages = new ArrayList<>();
         if (CollectionUtils.isEmpty(imageMediaIds)) {
@@ -690,5 +689,50 @@ public class ProductService {
             return new ProductSlugGetVm(parent.getSlug(), id);
         }
         return new ProductSlugGetVm(product.getSlug(), null);
+    }
+
+    public ProductESDetailVm getProductESDetailById(long productId) {
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() ->
+                        new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId)
+                );
+//        List<ImageVm> productImageMedias = new ArrayList<>();
+//        if (null != product.getProductImages()) {
+//            for (ProductImage image : product.getProductImages()) {
+//                productImageMedias.add(new ImageVm(image.getImageId(), mediaService.getMedia(image.getImageId()).url()));
+//            }
+//        }
+        Long thumbnailMediaId = null;
+        if (null != product.getThumbnailMediaId()) {
+            thumbnailMediaId = product.getThumbnailMediaId();
+        }
+        List<String> categoryNames = product.getProductCategories().stream().map(productCategory -> productCategory.getCategory().getName()).toList();
+        List<String> attributeNames = product.getAttributeValues().stream().map(attributeValue -> attributeValue.getProductAttribute().getName()).toList();
+//        List<Category> categories = new ArrayList<>();
+//        if (null != product.getProductCategories()) {
+//            for (ProductCategory category : product.getProductCategories()) {
+//                categories.add(category.getCategory());
+//            }
+//        }
+        String brandName = null;
+        if (null != product.getBrand()) {
+            brandName = product.getBrand().getName();
+        }
+
+        return new ProductESDetailVm(product.getId(),
+                product.getName(),
+                product.getSlug(),
+                product.getPrice(),
+                product.getIsPublished(),
+                product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
+                product.getIsAllowedToOrder(),
+                product.getIsFeatured(),
+                thumbnailMediaId,
+                product.getIsActive(),
+                brandName,
+                categoryNames,
+                attributeNames
+        );
     }
 }

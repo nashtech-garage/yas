@@ -12,30 +12,7 @@ server {
   location /customer/ {
 	proxy_pass http://customer;
   }
-  location /cart/ {
-	proxy_pass http://cart;
-  }
-  location /rating/ {
-	proxy_pass http://rating;
-  }
-  location /order/ {
-	proxy_pass http://order;
-  }
-  location /location/ {
-  	proxy_pass http://location;
-  }
-  location /inventory/ {
-  	proxy_pass http://inventory;
-  }  
-  location /tax/ {
-    proxy_pass http://tax;
-  }
-  location /promotion/ {
-  	proxy_pass http://promotion;
-  }
-  location /search/ {
-  	proxy_pass http://search;
-  }
+
 }
 
 server {
@@ -45,12 +22,7 @@ server {
   }
 }
 
-server {
-  server_name storefront;
-  location / {
-	proxy_pass http://storefront;
-  }
-}
+
 
 server {
   server_name pgadmin.yas.local;
