@@ -9,8 +9,8 @@ export async function createUserAddress(address: Address) {
   return response.json();
 }
 
-export async function getUserAddress(params: string) {
-  const response = await fetch(`/api/customer/storefront/user-address?${params}`);
+export async function getUserAddress() {
+  const response = await fetch(`/api/customer/storefront/user-address`);
   return response.json();
 }
 

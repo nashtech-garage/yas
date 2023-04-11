@@ -6,7 +6,6 @@ import com.yas.customer.model.UserAddress;
 import com.yas.customer.repository.UserAddressRepository;
 import com.yas.customer.utils.Constants;
 import com.yas.customer.viewmodel.address.ActiveAddressVm;
-import com.yas.customer.viewmodel.address.AddressListVm;
 import com.yas.customer.viewmodel.address.AddressVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import com.yas.customer.viewmodel.user_address.UserAddressVm;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,7 +30,7 @@ public class UserAddressService {
         this.locationService = locationService;
     }
 
-    public AddressListVm getUserAddressList(int pageNo, int pageSize) {
+    public List<ActiveAddressVm> getUserAddressList() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         if(userId.equals("anonymousUser"))
             throw new AccessDeniedException("Please login");
@@ -62,20 +62,9 @@ public class UserAddressService {
             }
         }
 
-        //handle pageable
-        Sort sort = Sort.by("isActive").descending();
+        //sort by isActive
         Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
-        addressActiveVms.sort(comparator);
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-
-        int start = (int)pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), addressActiveVms.size());
-        if (start > addressActiveVms.size() || start > end)
-            return new AddressListVm(null, addressActiveVms.size(), addressActiveVms.size()/pageSize);
-
-        Page<ActiveAddressVm> page = new PageImpl<>(addressActiveVms.subList(start, end), pageable, addressActiveVms.size());
-
-        return new AddressListVm(page.getContent(), page.getTotalElements(), page.getTotalPages());
+        return addressActiveVms.stream().sorted( comparator ).collect(Collectors.toList());
     }
 
     public UserAddressVm createAddress(AddressPostVm addressPostVm) {

@@ -21,7 +21,6 @@ import Link from 'next/link';
 import styles from '../../styles/address.module.css';
 import clsx from 'clsx';
 import ModalChooseDefaultAddress from 'common/items/ModalChooseDefaultAddress';
-import ReactPaginate from 'react-paginate';
 
 const Address: NextPage = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -33,10 +32,6 @@ const Address: NextPage = () => {
   const [defaultAddress, setDefaultAddress] = useState<number>(0);
   const [currentDefaultAddress, setCurrentDefaultAddress] = useState<number>(0);
 
-  const [pageNo, setPageNo] = useState<number>(0);
-  const pageSize = 9;
-  const [totalPage, setTotalPage] = useState<number>(0);
-
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
     if (addressIdWantToDelete == 0) {
@@ -45,9 +40,8 @@ const Address: NextPage = () => {
     deleteUserAddress(addressIdWantToDelete || 0)
       .then(() => {
         deleteAddress(addressIdWantToDelete || 0);
-        let params = queryString.stringify({ pageNo: pageNo, pageSize: pageSize });
-        getUserAddress(params).then((res) => {
-          setAddresses(res.addressList);
+        getUserAddress().then((res) => {
+          setAddresses(res);
         });
         setShowModalDelete(false);
         toast.success(DELETE_SUCCESSFULLY);
@@ -70,20 +64,12 @@ const Address: NextPage = () => {
       .catch((e) => console.log(e));
   };
   useEffect(() => {
-    let params = queryString.stringify({ pageNo: pageNo, pageSize: pageSize });
-    getUserAddress(params).then((res) => {
-      setAddresses(res.addressList);
-      setTotalPage(res.totalPages);
-
-      setCurrentDefaultAddress(
-        res.addressList.find((address: any) => address.isActive == true)?.id
-      );
+    getUserAddress().then((res) => {
+      setAddresses(res);
+      setCurrentDefaultAddress(res.find((address: any) => address.isActive == true)?.id);
     });
-  }, [pageNo]);
+  }, []);
 
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
   return (
     <>
       <Head>
@@ -200,18 +186,6 @@ const Address: NextPage = () => {
                 );
               })
             )}
-            <ReactPaginate
-              forcePage={pageNo}
-              previousLabel={'Previous'}
-              nextLabel={'Next'}
-              pageCount={totalPage}
-              onPageChange={changePage}
-              containerClassName={'pagination-container'}
-              previousClassName={'previous-btn'}
-              nextClassName={'next-btn'}
-              disabledClassName={'pagination-disabled'}
-              activeClassName={'pagination-active'}
-            />
           </div>
         </div>
       </div>

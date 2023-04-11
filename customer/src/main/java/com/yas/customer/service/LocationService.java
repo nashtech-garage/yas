@@ -51,7 +51,7 @@ public class LocationService {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.location())
-                .path("/storefront/address")
+                .path("/storefront/addresses")
                 .buildAndExpand()
                 .toUri();
 
