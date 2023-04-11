@@ -124,7 +124,7 @@ public class ProductService {
     private Map<String, Map<String, Long>> getAggregations(SearchHits<Product> searchHits) {
         List<org.springframework.data.elasticsearch.client.elc.Aggregation> aggregations = new ArrayList<>();
         if (searchHits.hasAggregations()) {
-            ((List<ElasticsearchAggregation>) searchHits.getAggregations().aggregations())
+            ((List<ElasticsearchAggregation>) searchHits.getAggregations().aggregations()) //NOSONAR
                     .forEach(elsAgg -> aggregations.add(elsAgg.aggregation()));
         }
 
