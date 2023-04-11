@@ -1,7 +1,6 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
-import queryString from 'query-string';
 import { Address } from '../../modules/address/models/AddressModel';
 import { deleteAddress } from '../../modules/address/services/AddressService';
 import {
@@ -10,7 +9,6 @@ import {
   getUserAddress,
 } from '../../modules/customer/services/CustomerService';
 import ModalDeleteCustom from '../../common/items/ModalDeleteCustom';
-import { TiContacts } from 'react-icons/ti';
 import { HiCheckCircle } from 'react-icons/hi';
 import { FiEdit } from 'react-icons/fi';
 import { BiPlusMedical } from 'react-icons/bi';
@@ -21,8 +19,12 @@ import Link from 'next/link';
 import styles from '../../styles/address.module.css';
 import clsx from 'clsx';
 import ModalChooseDefaultAddress from 'common/items/ModalChooseDefaultAddress';
+import { useRouter } from 'next/router';
+import UserProfileLeftSideBar from '@/common/components/UserProfileLeftSideBar';
+import { TiContacts } from 'react-icons/ti';
 
 const Address: NextPage = () => {
+  const router = useRouter();
   const [addresses, setAddresses] = useState<Address[]>([]);
 
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
@@ -70,122 +72,182 @@ const Address: NextPage = () => {
     });
   }, []);
 
+  if (addresses.length == 0) {
+    return (
+      <>
+        <div className="container">
+          <div className="row">
+            <Head>
+              <title>Address</title>
+            </Head>
+            <div style={{ minHeight: '550px' }}>
+              <div
+                className="pt-5 d-flex justify-content-between col-md-12 mb-2"
+                style={{ height: '100px' }}
+              >
+                <h2 className="mb-3">Address list</h2>
+                <button className="p-0 btn btn-primary">
+                  <Link
+                    href={'/address/create'}
+                    className={clsx(styles['link-redirect'], 'd-flex', 'align-items-center', 'p-2')}
+                    style={{ display: 'inline-block', width: '100%' }}
+                  >
+                    <BiPlusMedical />
+                    <span style={{ padding: '0 0 0 5px' }}>Create address</span>
+                  </Link>
+                </button>
+              </div>
+              <div className="container p-0">
+                <div className="row">
+                  <div className="col-md-3">
+                    <UserProfileLeftSideBar type={'address'} />
+                  </div>
+                  <div className="col-md-9">
+                    <p>No address</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <Head>
         <title>Address</title>
       </Head>
-      <div style={{ minHeight: '550px' }}>
-        <div className="container d-flex justify-content-between mb-4 pt-5">
-          <h2 className="mb-3">Address list</h2>
-          <button className="btn btn-primary p-0">
-            <Link
-              style={{ width: '100%', display: 'inline-block' }}
-              className={clsx(styles['link-redirect'], 'p-2', 'd-flex', 'align-items-center')}
-              href={'/address/create'}
+      <div className="container">
+        <div className="row">
+          <Head>
+            <title>Address</title>
+          </Head>
+          <div style={{ minHeight: '550px' }}>
+            <div
+              className="pt-5 d-flex justify-content-between col-md-12 mb-2"
+              style={{ height: '100px' }}
             >
-              <BiPlusMedical />
-              <span style={{ padding: '0 0 0 5px' }}>Create address</span>
-            </Link>
-          </button>
-        </div>
-        <div className="container">
-          <div className="row">
-            {addresses.length == 0 ? (
-              <>No address found</>
-            ) : (
-              addresses.map((address) => {
-                return (
-                  <div className="col-lg-4 col-md-6 col-sm-12" key={address.id}>
-                    <div className={styles['card-wrapper']}>
-                      <div className={clsx(styles['card-layout'], 'd-flex')}>
-                        <div
-                          className="d-flex justify-content-center align-items-center"
-                          style={{
-                            width: '100px',
-                            background: '#ea1161',
-                            borderRadius: '5px 0 0 5px',
-                            filter: 'brightness(90%)',
-                          }}
-                        >
-                          <div style={{ fontSize: '50px' }}>
-                            <TiContacts style={{ color: '#ffffff' }} />
-                          </div>
-                        </div>
-                        <div
-                          className="p-2"
-                          style={{
-                            background: '#ea1161',
-                            borderRadius: '0 5px 5px 0',
-                            width: '100%',
-                          }}
-                        >
-                          <div>
-                            {address.id == currentDefaultAddress && (
-                              <div className="m-2" style={{ float: 'right' }}>
+              <h2 className="mb-3">Address list</h2>
+              <button className="p-0 btn btn-primary">
+                <Link
+                  href={'/address/create'}
+                  className={clsx(styles['link-redirect'], 'd-flex', 'align-items-center', 'p-2')}
+                  style={{ display: 'inline-block', width: '100%' }}
+                >
+                  <BiPlusMedical />
+                  <span style={{ padding: '0 0 0 5px' }}>Create address</span>
+                </Link>
+              </button>
+            </div>
+            <div className="container p-0">
+              <div className="row">
+                <div className="col-md-3">
+                  <UserProfileLeftSideBar type={'address'} />
+                </div>
+                <div className="col-md-9">
+                  <div className="container p-0">
+                    <div className="row">
+                      {addresses.map((address) => {
+                        return (
+                          <div className="col-lg-4 col-md-6 col-sm-12" key={address.id}>
+                            <div className={styles['card-wrapper']}>
+                              <div className={clsx(styles['card-layout'], 'd-flex')}>
                                 <div
+                                  className="d-flex justify-content-center align-items-center"
                                   style={{
-                                    width: '15px',
-                                    height: '15px',
-                                    borderRadius: '50%',
-                                    background: '#0eea5d',
+                                    width: '100px',
+                                    background: '#ea1161',
+                                    borderRadius: '5px 0 0 5px',
+                                    filter: 'brightness(90%)',
                                   }}
-                                ></div>
+                                >
+                                  <div style={{ fontSize: '50px' }}>
+                                    <TiContacts style={{ color: '#ffffff' }} />
+                                  </div>
+                                </div>
+                                <div
+                                  className="p-2"
+                                  style={{
+                                    background: '#ea1161',
+                                    borderRadius: '0 5px 5px 0',
+                                    width: '100%',
+                                  }}
+                                >
+                                  <div>
+                                    {address.id == currentDefaultAddress && (
+                                      <div className="m-2" style={{ float: 'right' }}>
+                                        <div
+                                          style={{
+                                            width: '15px',
+                                            height: '15px',
+                                            borderRadius: '50%',
+                                            background: '#0eea5d',
+                                          }}
+                                        ></div>
+                                      </div>
+                                    )}
+                                    <p style={{ fontSize: '14px' }}>
+                                      Contact name: {address.contactName}
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: '14px',
+                                        wordBreak: 'break-word',
+                                      }}
+                                    >
+                                      Address: {address.addressLine1}
+                                    </p>
+                                    <p style={{ fontSize: '14px' }}>
+                                      Phone number: {address.phone}
+                                    </p>
+                                  </div>
+                                  <div
+                                    className="d-flex justify-content-end"
+                                    style={{ position: 'relative', bottom: '0' }}
+                                  >
+                                    <div
+                                      className="m-1"
+                                      data-toggle="tooltip"
+                                      title="Active"
+                                      style={{ cursor: 'pointer' }}
+                                      onClick={() => {
+                                        setShowModalChooseDefaultAddress(true);
+                                        setDefaultAddress(address.id || 0);
+                                        if (defaultAddress != 0) {
+                                        }
+                                      }}
+                                    >
+                                      <HiCheckCircle />
+                                    </div>
+                                    <div className="m-1" data-toggle="tooltip" title="Edit">
+                                      <Link href={{ pathname: `/address/${address.id}/edit` }}>
+                                        <FiEdit />
+                                      </Link>
+                                    </div>
+                                    <div
+                                      className="m-1"
+                                      data-toggle="tooltip"
+                                      title="Delete"
+                                      onClick={() => {
+                                        setShowModalDelete(true);
+                                        setAddressIdWantToDelete(address.id || 0);
+                                      }}
+                                    >
+                                      <FaTrash className={styles['remove-address']} />
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
-                            )}
-                            <p style={{ fontSize: '14px' }}>Contact name: {address.contactName}</p>
-                            <p
-                              style={{
-                                fontSize: '14px',
-                                wordBreak: 'break-word',
-                              }}
-                            >
-                              Address: {address.addressLine1}
-                            </p>
-                            <p style={{ fontSize: '14px' }}>Phone number: {address.phone}</p>
-                          </div>
-                          <div
-                            className="d-flex justify-content-end"
-                            style={{ position: 'relative', bottom: '0' }}
-                          >
-                            <div
-                              className="m-1"
-                              data-toggle="tooltip"
-                              title="Active"
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => {
-                                setShowModalChooseDefaultAddress(true);
-                                setDefaultAddress(address.id || 0);
-                                if (defaultAddress != 0) {
-                                }
-                              }}
-                            >
-                              <HiCheckCircle />
-                            </div>
-                            <div className="m-1" data-toggle="tooltip" title="Edit">
-                              <Link href={{ pathname: `/address/${address.id}/edit` }}>
-                                <FiEdit />
-                              </Link>
-                            </div>
-                            <div
-                              className="m-1"
-                              data-toggle="tooltip"
-                              title="Delete"
-                              onClick={() => {
-                                setShowModalDelete(true);
-                                setAddressIdWantToDelete(address.id || 0);
-                              }}
-                            >
-                              <FaTrash className={styles['remove-address']} />
                             </div>
                           </div>
-                        </div>
-                      </div>
+                        );
+                      })}
                     </div>
                   </div>
-                );
-              })
-            )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -271,3 +271,22 @@ a {
 .form-select {
   height: 50px;
 }
+
+#drawer {
+  bottom: 0;
+  max-width: 300px;
+  z-index: 100;
+  min-height: 350px;
+  box-shadow: var(--box-shadow);
+  background-color: #343a3f;
+  transform: translateX(0);
+  transition: all 0.3s linear;
+}
+
+.left-menu-element {
+  border-bottom: 1px solid #fafafa;
+}
+
+.left-menu-element:hover {
+  background-color: red;
+}
