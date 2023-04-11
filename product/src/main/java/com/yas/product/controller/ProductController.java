@@ -134,4 +134,9 @@ public class ProductController {
     public ResponseEntity<ProductSlugGetVm> getProductSlug(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductSlug(id));
     }
+
+    @GetMapping("/storefront/products/{productId}")
+    public ResponseEntity<ProductESDetailVm> getProductESDetailById(@PathVariable long productId) {
+        return ResponseEntity.ok(productService.getProductESDetailById(productId));
+    }
 }
