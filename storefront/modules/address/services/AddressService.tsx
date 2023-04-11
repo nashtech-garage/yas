@@ -1,7 +1,7 @@
 import { Address } from '../models/AddressModel';
 
 export async function createAddress(address: Address) {
-  const response = await fetch(`/api/location/storefront/address`, {
+  const response = await fetch(`/api/location/storefront/addresses`, {
     method: 'POST',
     headers: { 'Content-type': 'application/json' },
     body: JSON.stringify(address),
@@ -10,7 +10,7 @@ export async function createAddress(address: Address) {
 }
 
 export async function updateAddress(id: string, address: Address) {
-  const response = await fetch(`/api/location/storefront/address/${id}`, {
+  const response = await fetch(`/api/location/storefront/addresses/${id}`, {
     method: 'PUT',
     headers: { 'Content-type': 'application/json' },
     body: JSON.stringify(address),
@@ -19,22 +19,12 @@ export async function updateAddress(id: string, address: Address) {
 }
 
 export async function getAddress(id: string) {
-  const response = await fetch(`/api/location/storefront/address/${id}`);
-  return await response.json();
-}
-
-export async function getAddresses(ids: number[]) {
-  const data = { ids };
-  const response = await fetch(`/api/location/storefront/addresses`, {
-    method: 'POST',
-    headers: { 'Content-type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+  const response = await fetch(`/api/location/storefront/addresses/${id}`);
   return await response.json();
 }
 
 export async function deleteAddress(id: number) {
-  const response = await fetch(`/api/location/storefront/address/${id}`, {
+  const response = await fetch(`/api/location/storefront/addresses/${id}`, {
     method: 'DELETE',
   });
   return response;

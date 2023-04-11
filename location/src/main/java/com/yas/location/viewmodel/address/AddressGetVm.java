@@ -1,12 +1,22 @@
 package com.yas.location.viewmodel.address;
 
 import com.yas.location.model.Address;
+import lombok.Builder;
 
-public record AddressGetVm(String contactName, String phone, String addressLine1, String city, String zipCode,
+@Builder
+public record AddressGetVm(Long id, String contactName, String phone, String addressLine1, String city, String zipCode,
                            Long districtId, Long stateOrProvinceId, Long countryId) {
     public static AddressGetVm fromModel(Address address) {
-        return new AddressGetVm(address.getContactName(), address.getPhone(), address.getAddressLine1(),
-                address.getCity(), address.getZipCode(), address.getDistrict().getId(),
-                address.getStateOrProvince().getId(), address.getCountry().getId());
+        return AddressGetVm.builder()
+                .id(address.getId())
+                .contactName(address.getContactName())
+                .phone(address.getPhone())
+                .addressLine1(address.getAddressLine1())
+                .city(address.getCity())
+                .districtId(address.getDistrict().getId())
+                .stateOrProvinceId(address.getStateOrProvince().getId())
+                .countryId(address.getCountry().getId())
+                .zipCode(address.getZipCode())
+                .build();
     }
 }

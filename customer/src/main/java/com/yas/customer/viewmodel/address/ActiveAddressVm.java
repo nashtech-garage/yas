@@ -1,15 +1,16 @@
-package com.yas.order.viewmodel;
-import lombok.Builder;
+package com.yas.customer.viewmodel.address;
 
-@Builder
-public record OrderAddressPostVm(
+public record ActiveAddressVm(
+        Long id,
         String contactName,
         String phone,
         String addressLine1,
-        String addressLine2,
         String city,
         String zipCode,
         Long districtId,
         Long stateOrProvinceId,
-        Long countryId) {
+        Long countryId,
+        Boolean isActive
+) {
+
 }

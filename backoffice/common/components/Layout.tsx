@@ -8,11 +8,9 @@ import Link from 'next/link';
 import {
   menu_catalog_item_data,
   menu_customer_item_data,
-  menu_other_item_data,
   menu_location_item_data,
   menu_tax_item_data,
 } from '../../asset/data/sidebar';
-import { AnyObject } from 'yup/lib/object';
 
 interface DataProps {
   id: number;
@@ -204,26 +202,6 @@ const Sidebar = (menu: MenuProps) => {
           <ul className="collapse list-unstyled" id="taxSubmenu">
             <ListItem
               data={menu_tax_item_data}
-              childActive={menu.childActive}
-              changeChildMenu={menu.changeChildMenu}
-            />
-          </ul>
-        </li>
-
-        <li className={menuActive == 'Other' ? 'active' : ''} onClick={() => changeMenu('Other')}>
-          <Link
-            href="#otherSubmenu"
-            data-target="#otherSubmenu"
-            data-bs-toggle="collapse"
-            aria-controls="otherSubmenu"
-            aria-expanded="false"
-            className="dropdown-toggle"
-          >
-            <span className="fa fa-search-plus"></span> Other
-          </Link>
-          <ul className="collapse list-unstyled" id="otherSubmenu">
-            <ListItem
-              data={menu_other_item_data}
               childActive={menu.childActive}
               changeChildMenu={menu.changeChildMenu}
             />

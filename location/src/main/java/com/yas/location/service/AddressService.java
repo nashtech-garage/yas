@@ -27,14 +27,14 @@ public class AddressService {
     private final CountryRepository countryRepository;
     private final DistrictRepository districtRepository;
 
-    public Address createAddress(AddressPostVm dto) {
+    public AddressGetVm createAddress(AddressPostVm dto) {
         Address address = AddressPostVm.fromModel(dto);
         stateOrProvinceRepository.findById(dto.stateOrProvinceId()).ifPresent(address::setStateOrProvince);
         Country country = countryRepository.findById(dto.countryId())
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, dto.countryId()));
         address.setCountry(country);
         districtRepository.findById(dto.districtId()).ifPresent(address::setDistrict);
-        return addressRepository.save(address);
+        return AddressGetVm.fromModel(addressRepository.save(address));
     }
 
     public void updateAddress(Long id, AddressPostVm dto) {
@@ -53,8 +53,9 @@ public class AddressService {
         addressRepository.saveAndFlush(address);
     }
 
-    public List<AddressResponseMapper> getAddressList(List<Long> ids) {
-        return addressRepository.findAllByIdIn(ids);
+    public List<AddressGetVm> getAddressList(List<Long> ids) {
+        List<Address> addressList = addressRepository.findAllByIdIn(ids);
+        return addressList.stream().map(address -> AddressGetVm.fromModel(address)).toList();
     }
 
     public AddressGetVm getAddress(Long id) {

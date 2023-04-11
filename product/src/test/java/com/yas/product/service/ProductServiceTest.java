@@ -182,7 +182,7 @@ class ProductServiceTest {
         NoFileMediaVm noFileMediaVm = mock(NoFileMediaVm.class);
 
         when(brandRepository.findBySlug(brandSlug)).thenReturn(Optional.of(existingBrand));
-        when(productRepository.findAllByBrandAndIsActiveTrue(existingBrand)).thenReturn(products);
+        when(productRepository.findAllByBrandAndIsPublishedTrue(existingBrand)).thenReturn(products);
         when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
         when(noFileMediaVm.url()).thenReturn(url);
 
@@ -515,7 +515,7 @@ class ProductServiceTest {
         assertEquals(productId, capturedId);
 
         verify(productRepository).save(product);
-        assertFalse(product.getIsActive());
+        assertFalse(product.getIsPublished());
     }
 
     @Test
