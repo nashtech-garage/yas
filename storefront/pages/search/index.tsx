@@ -174,7 +174,7 @@ const SearchPage = () => {
               <Image
                 src={noResultImg.src}
                 alt="No result"
-                style={{ width: '134px', height: '134ps' }}
+                style={{ width: '134px', height: '134px' }}
               />
               <h5 className="text-black mb-2">No result is found</h5>
               <h5 className="mb-5">Try using more generic keywords</h5>

@@ -49,16 +49,16 @@ public class ProductService {
                 .withQuery(q -> q
                         .bool(b -> b
                                 .should(s -> s
-                                        .fuzzy(f -> f
+                                        .match(m -> m
                                                 .field(ProductField.NAME)
-                                                .value(keyword)
+                                                .query(keyword)
                                                 .fuzziness(Fuzziness.ONE.asString())
                                         )
                                 )
                                 .should(s -> s
-                                        .fuzzy(f -> f
+                                        .match(m -> m
                                                 .field(ProductField.BRAND)
-                                                .value(keyword)
+                                                .query(keyword)
                                                 .fuzziness(Fuzziness.ONE.asString())
                                         )
                                 )
