@@ -1,6 +1,8 @@
 import clsx from 'clsx';
 import Link from 'next/link';
+import { useLayoutEffect, useState } from 'react';
 
+import { getMediaById } from '@/modules/media/services/MediaService';
 import { ProductThumbnail } from 'modules/catalog/models/ProductThumbnail';
 import { formatPrice } from 'utils/formatPrice';
 import ImageWithFallBack from './ImageWithFallback';
@@ -9,10 +11,30 @@ import styles from 'styles/ProductCard.module.css';
 
 export interface Props {
   product: ProductThumbnail;
+  thumbnailId?: number;
   className?: string[];
 }
 
-export default function ProductCard({ product, className }: Props) {
+export default function ProductCard({ product, className, thumbnailId }: Props) {
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>(thumbnailId ? '' : product.thumbnailUrl);
+
+  useLayoutEffect(() => {
+    if (thumbnailId) {
+      fetchMediaUrl(thumbnailId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [thumbnailId]);
+
+  const fetchMediaUrl = (mediaId: number) => {
+    getMediaById(mediaId)
+      .then((response) => {
+        setThumbnailUrl(response.url);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <Link
       className={clsx(
@@ -23,7 +45,7 @@ export default function ProductCard({ product, className }: Props) {
     >
       <div className={styles['product-card']}>
         <div className={styles['image-wrapper']}>
-          <ImageWithFallBack src={product.thumbnailUrl} alt={product.name} />
+          <ImageWithFallBack src={thumbnailUrl} alt={product.name} />
         </div>
         <div className={styles['info-wrapper']}>
           <h3 className={styles['prod-name']}>{product.name}</h3>
