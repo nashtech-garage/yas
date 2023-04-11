@@ -25,12 +25,12 @@ public class ProductSyncDataConsumer {
     public void listen(ConsumerRecord<?, ?> consumerRecord) {
 
         if(consumerRecord != null){
-            JsonObject convertedObject = new Gson().fromJson((String) consumerRecord.key(), JsonObject.class);
-            if(convertedObject != null){
-                JsonObject convertedObjectRoot = new Gson().fromJson((String) consumerRecord.value(), JsonObject.class);
-                if(convertedObjectRoot != null){
-                    String action = String.valueOf(convertedObjectRoot.get("op")).replaceAll("\"", "");
-                    Long id = convertedObject.get("id").getAsLong();
+            JsonObject keyObject = new Gson().fromJson((String) consumerRecord.key(), JsonObject.class);
+            if(keyObject != null){
+                JsonObject valueObject = new Gson().fromJson((String) consumerRecord.value(), JsonObject.class);
+                if(valueObject != null){
+                    String action = String.valueOf(valueObject.get("op")).replaceAll("\"", "");
+                    Long id = keyObject.get("id").getAsLong();
 
                     switch (action) {
                         case Action.CREATE:
