@@ -12,20 +12,28 @@ type SearchSortProps = {
   keyword: string;
   searchParams: SearchParams;
   setSearchParams: (_searchParams: SearchParams) => void;
+  setPageNo: (_pageNo: number) => void;
 };
 
-const SearchSort = ({ totalElements, searchParams, setSearchParams }: SearchSortProps) => {
+const SearchSort = ({
+  totalElements,
+  searchParams,
+  setSearchParams,
+  setPageNo,
+}: SearchSortProps) => {
   const router = useRouter();
   const [sortType, setSortType] = useState<ESortType | undefined>(searchParams.sortType);
 
   useEffect(() => {
-    setSearchParams({ ...searchParams, sortType });
+    setSearchParams({ ...searchParams, sortType, page: undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortType]);
 
   const handleSelectSortType = (sortType: ESortType) => {
     setSortType(sortType);
+    setPageNo(0);
     router.query.sortType = SortType[sortType];
+    delete router.query.page;
     router.push(router, undefined, { shallow: true });
   };
 

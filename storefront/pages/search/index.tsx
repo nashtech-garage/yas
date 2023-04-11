@@ -10,6 +10,7 @@ import ProductCard from '@/common/components/ProductCard';
 import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
 import SearchFilter from '@/modules/search/components/SearchFilter';
 import SearchSort from '@/modules/search/components/SearchSort';
+import { Aggregations } from '@/modules/search/models/Aggregations';
 import { ProductSearchResult } from '@/modules/search/models/ProductSearchResult';
 import { SearchParams } from '@/modules/search/models/SearchParams';
 import { ESortType, SortType } from '@/modules/search/models/SortType';
@@ -34,7 +35,7 @@ const handleSortType = (sortType: string | string[] | undefined) => {
 
 const SearchPage = () => {
   const router = useRouter();
-  const { keyword, category, attribute, minPrice, maxPrice, sortType } = router.query;
+  const { keyword, category, attribute, minPrice, maxPrice, sortType, page } = router.query;
 
   const [searchParams, setSearchParams] = useState<SearchParams>({
     keyword: '',
@@ -43,11 +44,13 @@ const SearchPage = () => {
     minPrice: undefined,
     maxPrice: undefined,
     sortType: undefined,
+    page: undefined,
   });
   const [products, setProducts] = useState<ProductSearchResult[]>([]);
   const [totalElements, setTotalElements] = useState<number>(0);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(0);
+  const [aggregations, setAggregations] = useState<Aggregations>({});
 
   useEffect(() => {
     setSearchParams({
@@ -57,8 +60,9 @@ const SearchPage = () => {
       minPrice: minPrice && +minPrice > 0 ? +minPrice : undefined,
       maxPrice: maxPrice && +maxPrice > 0 ? +maxPrice : undefined,
       sortType: handleSortType(sortType),
+      page: page ? +page : undefined,
     });
-  }, [keyword, category, attribute, minPrice, maxPrice, sortType]);
+  }, [keyword, category, attribute, minPrice, maxPrice, sortType, page]);
 
   useEffect(() => {
     if (searchParams.keyword) {
@@ -72,15 +76,17 @@ const SearchPage = () => {
     searchParams.minPrice,
     searchParams.maxPrice,
     searchParams.sortType,
+    searchParams.page,
   ]);
 
   const fetchSearchResult = (data: SearchParams) => {
-    searchProducts(data)
+    searchProducts({ ...data, keyword: data.keyword.trim().toLowerCase() })
       .then((res) => {
         setProducts(res.products);
         setPageNo(res.pageNo);
         setTotalPage(res.totalPages);
         setTotalElements(res.totalElements);
+        setAggregations(res.aggregations);
       })
       .catch((_error) => {
         toast.error('Something went wrong, please try again later');
@@ -106,7 +112,12 @@ const SearchPage = () => {
         <div className={styles['search-wrapper']}>
           {products.length > 0 && (
             <>
-              <SearchFilter />
+              <SearchFilter
+                aggregations={aggregations}
+                searchParams={searchParams}
+                setSearchParams={setSearchParams}
+                setPageNo={setPageNo}
+              />
 
               <div className={styles['search-result']}>
                 <SearchSort
@@ -114,6 +125,7 @@ const SearchPage = () => {
                   keyword={searchParams.keyword}
                   searchParams={searchParams}
                   setSearchParams={setSearchParams}
+                  setPageNo={setPageNo}
                 />
 
                 <Row xs={4} xl={5} className={styles['search-result__list']}>
@@ -125,7 +137,7 @@ const SearchPage = () => {
                           id: product.id,
                           name: product.name,
                           price: product.price,
-                          thumbnailUrl: 'https://picsum.photos/200/300',
+                          thumbnailUrl: '',
                           slug: product.slug,
                         }}
                         thumbnailId={product.thumbnailId}
@@ -142,6 +154,9 @@ const SearchPage = () => {
                     pageCount={totalPage}
                     onPageChange={({ selected }) => {
                       setPageNo(selected);
+                      setSearchParams({ ...searchParams, page: selected });
+                      router.query.page = selected.toString();
+                      router.push(router, undefined, { shallow: true });
                     }}
                     containerClassName={'pagination-container'}
                     previousClassName={'previous-btn'}

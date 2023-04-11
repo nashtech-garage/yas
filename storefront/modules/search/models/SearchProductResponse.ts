@@ -1,3 +1,4 @@
+import { Aggregations } from './Aggregations';
 import { ProductSearchResult } from './ProductSearchResult';
 
 export type SearchProductResponse = {
@@ -7,9 +8,5 @@ export type SearchProductResponse = {
   totalElements: number;
   totalPages: number;
   isLast: boolean;
-  aggregations: {
-    [key: string]: {
-      [key: string]: number;
-    };
-  };
+  aggregations: Aggregations;
 };
