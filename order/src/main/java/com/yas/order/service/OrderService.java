@@ -39,7 +39,7 @@ public class OrderService {
 
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
-//        TO-DO: handle check inventory
+//        TO-DO: handle check inventory when inventory is complete
 //        ************
 
 //        TO-DO: handle payment
@@ -108,7 +108,7 @@ public class OrderService {
  //        TO-DO: delete Item in Cart
 //        ************
 
-//        TO-DO: decrement inventory
+// TO-DO: decrement inventory when inventory is complete
 //        ************
 
         return OrderVm.fromModel(order);

@@ -61,7 +61,7 @@ public class LocationService {
                 .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
                 .onStatus(
-                        HttpStatus.UNAUTHORIZED::equals,
+                        HttpStatus.NOT_FOUND::equals,
                         response -> response.bodyToMono(String.class).map(NotFoundException::new))
                 .bodyToMono(AddressDetailVm.class)
                 .block();
