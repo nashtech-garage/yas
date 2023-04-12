@@ -14,7 +14,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "       AND o.orderStatus=COMPLETED " +
             "       AND oi.productId=:productId" +
             ")")
-    boolean existsByCreatedByAndOrderStatusAndProductId(
+    boolean existsByCreatedByAndProductIdAndOrderStatusCompleted(
             String createdBy,
             Long productId
     );

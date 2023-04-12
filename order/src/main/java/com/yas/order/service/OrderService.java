@@ -122,7 +122,7 @@ public class OrderService {
         return OrderVm.fromModel(order);
     }
 
-    public OrderExistsByProductAndUserGetVm isOrderByUserIdWithStatusExist(final Long productId) {
+    public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof AnonymousAuthenticationToken) {
@@ -134,7 +134,7 @@ public class OrderService {
         String userId = contextHolder.getToken().getSubject();
 
         return new OrderExistsByProductAndUserGetVm(
-                orderRepository.existsByCreatedByAndOrderStatusAndProductId(userId, productId)
+                orderRepository.existsByCreatedByAndProductIdAndOrderStatusCompleted(userId, productId)
         );
     }
 }
