@@ -25,10 +25,10 @@ public class Product {
     private String slug;
     @Field(type = FieldType.Double)
     private Double price;
-    private boolean isPublished;
-    private boolean isVisibleIndividually;
-    private boolean isAllowedToOrder;
-    private boolean isFeatured;
+    private Boolean isPublished;
+    private Boolean isVisibleIndividually;
+    private Boolean isAllowedToOrder;
+    private Boolean isFeatured;
     private Long thumbnailMediaId;
     @Field(type = FieldType.Text)
     private String brand;

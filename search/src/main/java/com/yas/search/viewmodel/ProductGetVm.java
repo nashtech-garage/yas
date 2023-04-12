@@ -21,10 +21,10 @@ public record ProductGetVm(Long id,
                 product.getSlug(),
                 product.getThumbnailMediaId(),
                 product.getPrice(),
-                product.isAllowedToOrder(),
-                product.isPublished(),
-                product.isFeatured(),
-                product.isVisibleIndividually(),
+                product.getIsAllowedToOrder(),
+                product.getIsPublished(),
+                product.getIsFeatured(),
+                product.getIsVisibleIndividually(),
                 product.getCreatedOn()
         );
     }
