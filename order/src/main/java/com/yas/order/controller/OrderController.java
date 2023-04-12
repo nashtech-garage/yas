@@ -26,10 +26,9 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderWithItemsById(id));
     }
 
-    @GetMapping("/storefront/orders")
+    @GetMapping("/storefront/orders/completed")
     public ResponseEntity<OrderExistsByProductAndUserGetVm> checkOrderExistsByProductIdAndUserIdWithStatus(
-            @RequestParam String status,
             @RequestParam Long productId) {
-        return ResponseEntity.ok(orderService.isOrderByUserIdWithStatusExist(status, productId));
+        return ResponseEntity.ok(orderService.isOrderByUserIdWithStatusExist(productId));
     }
 }

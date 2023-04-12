@@ -20,13 +20,11 @@ public class OrderService {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
-    public OrderExistsByProductAndUserGetVm checkOrderExistsByProductAndUserWithStatus(final String status,
-                                                           final Long productId) {
+    public OrderExistsByProductAndUserGetVm checkOrderExistsByProductAndUserWithStatus(final Long productId) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.order())
-                .path("/storefront/orders")
-                .queryParam("status", status)
+                .path("/storefront/orders/completed")
                 .queryParam("productId", productId.toString())
                 .buildAndExpand()
                 .toUri();

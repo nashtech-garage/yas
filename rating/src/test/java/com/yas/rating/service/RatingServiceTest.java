@@ -97,7 +97,6 @@ class RatingServiceTest {
             utilities.when(AuthenticationUtils::extractUserId).thenReturn("id");
 
             when(orderService.checkOrderExistsByProductAndUserWithStatus(
-                    "COMPLETED",
                     ratingPostVm.productId()
             )).thenReturn(new OrderExistsByProductAndUserGetVm(true));
             when(ratingRepository.existsByCreatedByAndProductId(

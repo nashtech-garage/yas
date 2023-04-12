@@ -7,7 +7,6 @@ import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.utils.AuthenticationUtils;
 import com.yas.rating.utils.Constants;
-import com.yas.rating.utils.MessagesUtils;
 import com.yas.rating.viewmodel.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -74,7 +73,6 @@ public class RatingService {
         String userId = AuthenticationUtils.extractUserId();
 
         if (!orderService.checkOrderExistsByProductAndUserWithStatus(
-                "COMPLETED",
                 ratingPostVm.productId()
         ).isPresent()) {
             throw new AccessDeniedException(Constants.ERROR_CODE.ACCESS_DENIED);
