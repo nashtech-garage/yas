@@ -339,7 +339,7 @@ public class ProductService {
             productPutVm.variations().forEach(variant -> {
                 if (variant.id() != null) {
                     Product variantInDB = existingVariants.stream().filter(
-                                pVariant -> variant.id().equals(pVariant.getId()))
+                                    pVariant -> variant.id().equals(pVariant.getId()))
                             .findFirst().orElse(null);
                     setValuesForVariantExisting(newProductImages, variant, variantInDB);
                 }
@@ -360,7 +360,7 @@ public class ProductService {
                 variant.productImageIds().forEach(imageId -> {
                     if (productImages.stream().noneMatch(pImage -> imageId.equals(pImage.getImageId()))) {
                         newProductImages.add(ProductImage.builder()
-                                .imageId(imageId) .product(variantInDB).build());
+                                .imageId(imageId).product(variantInDB).build());
                     }
                 });
             }
@@ -645,7 +645,7 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
         if (Boolean.TRUE.equals(parentProduct.isHasOptions())) {
             List<Product> productVariations = parentProduct.getProducts().stream().filter(Product::isPublished).toList();
-            
+
             return productVariations.stream().map(product -> {
                 List<ProductOptionCombination> productOptionCombinations =
                         productOptionCombinationRepository.findAllByProduct(product);
@@ -707,5 +707,42 @@ public class ProductService {
             return new ProductSlugGetVm(parent.getSlug(), id);
         }
         return new ProductSlugGetVm(product.getSlug(), null);
+    }
+
+    public List<ProductListVm> getRelatedProductsBackoffice(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
+        List<ProductRelated> relatedProducts = product.getRelatedProducts();
+        return relatedProducts.stream()
+                .map(productRelated ->
+                        new ProductListVm(
+                                productRelated.getRelatedProduct().getId(),
+                                productRelated.getRelatedProduct().getName(),
+                                productRelated.getRelatedProduct().getSlug(),
+                                productRelated.getRelatedProduct().isAllowedToOrder(),
+                                productRelated.getRelatedProduct().isPublished(),
+                                productRelated.getRelatedProduct().isFeatured(),
+                                productRelated.getRelatedProduct().isVisibleIndividually(),
+                                productRelated.getRelatedProduct().getCreatedOn()
+                        )
+                ).toList();
+    }
+
+    public List<ProductThumbnailGetVm> getRelatedProductsStorefront(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
+        List<ProductRelated> relatedProducts = product.getRelatedProducts();
+        return relatedProducts.stream()
+                .filter(productRelated -> productRelated.getRelatedProduct().isPublished())
+                .map(productRelated -> {
+                    Product relatedProduct = productRelated.getRelatedProduct();
+                    return new ProductThumbnailGetVm(
+                            relatedProduct.getId(),
+                            relatedProduct.getName(),
+                            relatedProduct.getSlug(),
+                            mediaService.getMedia(relatedProduct.getThumbnailMediaId()).url(),
+                            relatedProduct.getPrice());
+                })
+                .toList();
     }
 }

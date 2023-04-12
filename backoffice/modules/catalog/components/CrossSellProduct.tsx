@@ -40,6 +40,7 @@ const CrossSellProduct = ({ setValue, getValue }: Props) => {
         onHide={() => setModalShow(false)}
         onSelected={onProductSelected}
         label="Add Cross - Sell Product"
+        selectedProduct={selectedProduct}
       />
       {selectedProduct.length > 0 && (
         <Table>

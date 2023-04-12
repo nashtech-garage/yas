@@ -134,4 +134,14 @@ public class ProductController {
     public ResponseEntity<ProductSlugGetVm> getProductSlug(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductSlug(id));
     }
+
+    @GetMapping("/backoffice/products/related-products/{id}")
+    public ResponseEntity<List<ProductListVm>> getRelatedProductsBackoffice(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getRelatedProductsBackoffice(id));
+    }
+
+    @GetMapping("/storefront/products/related-products/{id}")
+    public ResponseEntity<List<ProductThumbnailGetVm>> getRelatedProductsStorefront(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getRelatedProductsStorefront(id));
+    }
 }
