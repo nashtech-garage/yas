@@ -20,7 +20,7 @@ public class Brand extends AbstractAuditEntity {
 
   private String slug;
 
-  private Boolean isPublished;
+  private boolean isPublished;
 
   @OneToMany(mappedBy = "brand")
   List<Product> products;

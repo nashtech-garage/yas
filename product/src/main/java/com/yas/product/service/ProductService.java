@@ -226,10 +226,10 @@ public class ProductService {
         product.setSku(productPutVm.sku());
         product.setGtin(productPutVm.gtin());
         product.setPrice(productPutVm.price());
-        product.setIsAllowedToOrder(productPutVm.isAllowedToOrder());
-        product.setIsFeatured(productPutVm.isFeatured());
-        product.setIsPublished(productPutVm.isPublished());
-        product.setIsVisibleIndividually(productPutVm.isVisibleIndividually());
+        product.setAllowedToOrder(productPutVm.isAllowedToOrder());
+        product.setFeatured(productPutVm.isFeatured());
+        product.setPublished(productPutVm.isPublished());
+        product.setVisibleIndividually(productPutVm.isVisibleIndividually());
         product.setStockTrackingEnabled(productPutVm.stockTrackingEnabled());
         product.setMetaTitle(productPutVm.metaTitle());
         product.setMetaKeyword(productPutVm.metaKeyword());
@@ -440,11 +440,11 @@ public class ProductService {
                 product.getSku(),
                 product.getGtin(),
                 product.getSlug(),
-                product.getIsAllowedToOrder(),
-                product.getIsPublished(),
-                product.getIsFeatured(),
-                product.getIsVisibleIndividually() != null || product.getIsVisibleIndividually(),
-                product.getStockTrackingEnabled(),
+                product.isAllowedToOrder(),
+                product.isPublished(),
+                product.isFeatured(),
+                product.isVisibleIndividually(),
+                product.isStockTrackingEnabled(),
                 product.getPrice(),
                 brandId,
                 categories,
@@ -578,10 +578,10 @@ public class ProductService {
                 product.getShortDescription(),
                 product.getDescription(),
                 product.getSpecification(),
-                product.getIsAllowedToOrder(),
-                product.getIsPublished(),
-                product.getIsFeatured(),
-                product.getHasOptions(),
+                product.isAllowedToOrder(),
+                product.isPublished(),
+                product.isFeatured(),
+                product.isHasOptions(),
                 product.getPrice(),
                 productThumbnailUrl,
                 productImageMediaUrls
@@ -592,7 +592,7 @@ public class ProductService {
         Product product = productRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
-        product.setIsPublished(false);
+        product.setPublished(false);
         productRepository.save(product);
     }
 
@@ -628,8 +628,8 @@ public class ProductService {
     public List<ProductVariationGetVm> getProductVariationsByParentId(Long id) {
         Product parentProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
-        if (Boolean.TRUE.equals(parentProduct.getHasOptions())) {
-            List<Product> productVariations = parentProduct.getProducts().stream().filter(Product::getIsPublished).toList();
+        if (Boolean.TRUE.equals(parentProduct.isHasOptions())) {
+            List<Product> productVariations = parentProduct.getProducts().stream().filter(Product::isPublished).toList();
             
             return productVariations.stream().map(product -> {
                 List<ProductOptionCombination> productOptionCombinations =
@@ -669,11 +669,11 @@ public class ProductService {
                         product.getSku(),
                         product.getGtin(),
                         product.getSlug(),
-                        product.getIsAllowedToOrder(),
-                        product.getIsPublished(),
-                        product.getIsFeatured(),
-                        product.getIsVisibleIndividually(),
-                        product.getStockTrackingEnabled(),
+                        product.isAllowedToOrder(),
+                        product.isPublished(),
+                        product.isFeatured(),
+                        product.isVisibleIndividually(),
+                        product.isStockTrackingEnabled(),
                         product.getPrice(),
                         product.getBrand().getId(),
                         product.getBrand().getName(),

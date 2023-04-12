@@ -59,7 +59,7 @@ public class BrandService {
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, id));
         brand.setSlug(brandPostVm.slug());
         brand.setName(brandPostVm.name());
-        brand.setIsPublished(brandPostVm.isPublish());
+        brand.setPublished(brandPostVm.isPublish());
 
         return brandRepository.save(brand);
     }
