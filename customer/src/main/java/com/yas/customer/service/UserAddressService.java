@@ -6,6 +6,7 @@ import com.yas.customer.model.UserAddress;
 import com.yas.customer.repository.UserAddressRepository;
 import com.yas.customer.utils.Constants;
 import com.yas.customer.viewmodel.address.ActiveAddressVm;
+import com.yas.customer.viewmodel.address.AddressDetailVm;
 import com.yas.customer.viewmodel.address.AddressVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import com.yas.customer.viewmodel.user_address.UserAddressVm;
@@ -36,27 +37,30 @@ public class UserAddressService {
             throw new AccessDeniedException("Please login");
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
-        List<AddressVm> addressVmList = locationService.getAddressesByIdList(userAddressList.stream()
+        List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(userAddressList.stream()
                 .map(userAddress -> userAddress.getAddressId()).toList());
 
         List<ActiveAddressVm> addressActiveVms = new ArrayList<>();
         for (UserAddress userAddress : userAddressList) {
-            for (AddressVm addressVm : addressVmList) {
-                if (userAddress.getAddressId().equals(addressVm.id())) {
+            for (AddressDetailVm addressDetailVm : addressVmList) {
+                if (userAddress.getAddressId().equals(addressDetailVm.id())) {
                     addressActiveVms.add(new ActiveAddressVm(
-                            addressVm.id(),
-                            addressVm.contactName(),
-                            addressVm.phone(),
-                            addressVm.addressLine1(),
-                            addressVm.city(),
-                            addressVm.zipCode(),
-                            addressVm.districtId(),
-                            addressVm.stateOrProvinceId(),
-                            addressVm.countryId(),
+                            addressDetailVm.id(),
+                            addressDetailVm.contactName(),
+                            addressDetailVm.phone(),
+                            addressDetailVm.addressLine1(),
+                            addressDetailVm.city(),
+                            addressDetailVm.zipCode(),
+                            addressDetailVm.districtId(),
+                            addressDetailVm.districtName(),
+                            addressDetailVm.stateOrProvinceId(),
+                            addressDetailVm.stateOrProvinceName(),
+                            addressDetailVm.countryId(),
+                            addressDetailVm.countryName(),
                             userAddress.getIsActive()
                     ));
                     //remove element to reduce the number of iterations
-                    addressVmList.remove(addressVm);
+                    addressVmList.remove(addressDetailVm);
                     break;
                 }
             }

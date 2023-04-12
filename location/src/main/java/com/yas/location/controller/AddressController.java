@@ -1,6 +1,7 @@
 package com.yas.location.controller;
 
 import com.yas.location.service.AddressService;
+import com.yas.location.viewmodel.address.AddressDetailVm;
 import com.yas.location.viewmodel.address.AddressGetVm;
 import com.yas.location.viewmodel.address.AddressPostVm;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class AddressController {
     }
 
     @GetMapping("/storefront/addresses")
-    public ResponseEntity<List<AddressGetVm>> getAddressList(@RequestParam List<Long> ids) {
+    public ResponseEntity<List<AddressDetailVm>> getAddressList(@RequestParam List<Long> ids) {
         return ResponseEntity.ok(addressService.getAddressList(ids));
     }
 

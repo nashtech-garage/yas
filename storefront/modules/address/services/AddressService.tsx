@@ -18,7 +18,7 @@ export async function updateAddress(id: string, address: Address) {
   return response;
 }
 
-export async function getAddress(id: string) {
+export async function getAddress(id: string): Promise<Address> {
   const response = await fetch(`/api/location/storefront/addresses/${id}`);
   return await response.json();
 }

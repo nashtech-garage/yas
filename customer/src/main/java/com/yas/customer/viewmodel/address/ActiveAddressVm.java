@@ -8,8 +8,11 @@ public record ActiveAddressVm(
         String city,
         String zipCode,
         Long districtId,
+        String districtName,
         Long stateOrProvinceId,
+        String stateOrProvinceName,
         Long countryId,
+        String countryName,
         Boolean isActive
 ) {
 

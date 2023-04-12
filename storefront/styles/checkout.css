@@ -201,3 +201,20 @@
   width: 100%;
   margin-top: 10px;
 }
+
+.address-card {
+  cursor: pointer;
+  color: #27272a;
+  box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px, rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+  background-color: #fff;
+  border-radius: 3px;
+  flex-direction: column;
+}
+
+.address-card:hover {
+  color: #27272a;
+  transition: all 0.15s ease-in-out;
+  border-color: #ee4d2d;
+  transform: translateY(-2px);
+  box-shadow: rgba(50, 50, 93, 0.25) 0 13px 27px -5px, rgba(0, 0, 0, 0.3) 0 8px 16px -8px;
+}
