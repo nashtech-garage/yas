@@ -1,8 +1,11 @@
 package com.yas.rating.service;
 
+import com.yas.rating.exception.AccessDeniedException;
 import com.yas.rating.exception.NotFoundException;
+import com.yas.rating.exception.ResourceExistedException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
+import com.yas.rating.utils.AuthenticationUtils;
 import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.*;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +29,14 @@ public class RatingService {
     private final RatingRepository ratingRepository;
     private final CustomerService customerService;
 
-    public RatingService(RatingRepository ratingRepository, CustomerService customerService) {
+    private final OrderService orderService;
+
+    public RatingService(RatingRepository ratingRepository,
+                         CustomerService customerService,
+                         OrderService orderService) {
         this.ratingRepository = ratingRepository;
         this.customerService = customerService;
+        this.orderService = orderService;
     }
 
     public RatingListVm getRatingListByProductId(Long id, int pageNo, int pageSize) {
@@ -61,6 +70,17 @@ public class RatingService {
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
+        String userId = AuthenticationUtils.extractUserId();
+
+        if (!orderService.checkOrderExistsByProductAndUserWithStatus(
+                ratingPostVm.productId()
+        ).isPresent()) {
+            throw new AccessDeniedException(Constants.ERROR_CODE.ACCESS_DENIED);
+        }
+        if (ratingRepository.existsByCreatedByAndProductId(userId, ratingPostVm.productId())) {
+            throw new ResourceExistedException(Constants.ERROR_CODE.RESOURCE_ALREADY_EXISTED);
+        }
+
         Rating rating = new Rating();
         rating.setRatingStar(ratingPostVm.star());
         rating.setContent(ratingPostVm.content());

@@ -24,6 +24,7 @@
 		<sonar.organization>nashtech-garage</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.projectKey>nashtech-garage_yas-order</sonar.projectKey>
+		<keycloak-spring-security-adapter.version>21.0.2</keycloak-spring-security-adapter.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -111,7 +112,12 @@
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-spring-security-adapter</artifactId>
+			<version>${keycloak-spring-security-adapter.version}</version>
+        </dependency>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
