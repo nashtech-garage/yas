@@ -48,3 +48,11 @@ update product set is_published = true where id = 5;
 update product set is_published = true where id = 6;
 update product set is_published = true where id = 7;
 update product set is_published = true where id = 8;
+
+--changeset nguyenvanhadncntt:issue-615-1
+update product set is_published = false where is_published is null;
+update product set has_options = false where has_options is null;
+update product set is_allowed_to_order = false where is_allowed_to_order is null;
+update product set is_featured = false where is_featured is null;
+update product set is_visible_individually = false where is_visible_individually is null;
+update product set stock_tracking_enabled = false where stock_tracking_enabled is null;

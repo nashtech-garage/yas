@@ -36,17 +36,17 @@ public class Product extends AbstractAuditEntity {
 
     private Double price;
 
-    private Boolean hasOptions;
+    private boolean hasOptions;
 
-    private Boolean isAllowedToOrder;
+    private boolean isAllowedToOrder;
 
-    private Boolean isPublished;
+    private boolean isPublished;
 
-    private Boolean isFeatured;
+    private boolean isFeatured;
 
-    private Boolean isVisibleIndividually;
+    private boolean isVisibleIndividually;
 
-    private Boolean stockTrackingEnabled;
+    private boolean stockTrackingEnabled;
 
     private String metaTitle;
 
