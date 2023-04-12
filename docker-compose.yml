@@ -216,7 +216,7 @@ services:
       - "9200:9200"
       - "9300:9300"
   kafka-connect:
-    build: ./debezium-jdbc-es
+    image: debezium/connect:1.0
     restart: always
     ports:
       - 8083:8083
