@@ -108,7 +108,7 @@ public class OrderService {
  //        TO-DO: delete Item in Cart
 //        ************
 
-// TO-DO: decrement inventory when inventory is complete
+//        TO-DO: decrement inventory when inventory is complete
 //        ************
 
         return OrderVm.fromModel(order);
