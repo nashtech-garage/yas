@@ -3,8 +3,7 @@ import slugify from 'slugify';
 import { FormProduct } from './FormProduct';
 import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariationPost } from './ProductVariationPost';
-
-export type ProductVariationPut = ProductVariationPost & { id?: number };
+import { ProductVariationPut } from './ProductVariationPut';
 
 export type ProductPayload = {
   name?: string;
@@ -29,6 +28,7 @@ export type ProductPayload = {
   productImageIds?: number[];
   variations?: ProductVariationPost[] | ProductVariationPut[];
   productOptionValues?: ProductOptionValuePost[];
+  relatedProductIds?: number[];
 };
 
 export function mapFormProductToProductPayload(data: FormProduct): ProductPayload {
@@ -68,5 +68,6 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
         })
       : [],
     productOptionValues: data.productOptions?.map((option) => ({ ...option, displayOrder: 1 })),
+    relatedProductIds: data.relateProduct,
   };
 }
