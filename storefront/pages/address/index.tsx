@@ -82,15 +82,15 @@ const Address: NextPage = () => {
             </Head>
             <div style={{ minHeight: '550px' }}>
               <div
-                className="pt-5 d-flex justify-content-between col-md-12 mb-2"
+                className="pt-5 col-md-12 mb-2 d-flex justify-content-between"
                 style={{ height: '100px' }}
               >
                 <h2 className="mb-3">Address list</h2>
-                <button className="p-0 btn btn-primary">
+                <button className="btn btn-primary p-0 ">
                   <Link
                     href={'/address/create'}
-                    className={clsx(styles['link-redirect'], 'd-flex', 'align-items-center', 'p-2')}
-                    style={{ display: 'inline-block', width: '100%' }}
+                    className={clsx(styles['link-redirect'], 'align-items-center', 'd-flex', 'p-2')}
+                    style={{ width: '100%', display: 'inline-block' }}
                   >
                     <BiPlusMedical />
                     <span style={{ padding: '0 0 0 5px' }}>Create address</span>
