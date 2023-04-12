@@ -2,9 +2,9 @@ package com.yas.product.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yas.product.model.attribute.ProductAttributeValue;
+import jakarta.persistence.*;
 import lombok.*;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +77,9 @@ public class Product extends AbstractAuditEntity {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST})
+    List<ProductRelated> relatedProducts = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

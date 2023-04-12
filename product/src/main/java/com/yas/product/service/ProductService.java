@@ -40,6 +40,7 @@ public class ProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionValueRepository productOptionValueRepository;
     private final ProductOptionCombinationRepository productOptionCombinationRepository;
+    private final ProductRelatedRepository productRelatedRepository;
 
     private static final String NONE_GROUP = "None group";
 
@@ -51,7 +52,8 @@ public class ProductService {
                           ProductImageRepository productImageRepository,
                           ProductOptionRepository productOptionRepository,
                           ProductOptionValueRepository productOptionValueRepository,
-                          ProductOptionCombinationRepository productOptionCombinationRepository) {
+                          ProductOptionCombinationRepository productOptionCombinationRepository,
+                          ProductRelatedRepository productRelatedRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
@@ -61,6 +63,7 @@ public class ProductService {
         this.productOptionRepository = productOptionRepository;
         this.productOptionValueRepository = productOptionValueRepository;
         this.productOptionCombinationRepository = productOptionCombinationRepository;
+        this.productRelatedRepository = productRelatedRepository;
     }
 
     public ProductListGetVm getProductsWithFilter(int pageNo, int pageSize, String productName, String brandName) {
@@ -148,6 +151,18 @@ public class ProductService {
         Product mainSavedProduct = productRepository.saveAndFlush(mainProduct);
         productImageRepository.saveAllAndFlush(productImageList);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
+
+        // Save related products
+        if (CollectionUtils.isNotEmpty(productPostVm.relatedProductIds())) {
+            List<Product> relatedProducts = productRepository.findAllById(productPostVm.relatedProductIds());
+            List<ProductRelated> productRelatedList = relatedProducts.stream()
+                    .map(relatedProduct -> ProductRelated.builder()
+                            .product(mainSavedProduct)
+                            .relatedProduct(relatedProduct)
+                            .build())
+                    .toList();
+            productRelatedRepository.saveAllAndFlush(productRelatedList);
+        }
 
         // Save product variations, product option values, and product option combinations
         if (CollectionUtils.isNotEmpty(productPostVm.variations()) && CollectionUtils.isNotEmpty(productPostVm.productOptionValues())) {
