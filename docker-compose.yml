@@ -221,7 +221,7 @@ services:
     ports:
       - 8083:8083
       - 5005:5005
-    links:
+    depends_on:
       - kafka
       - postgres
       - elasticsearch
@@ -244,7 +244,7 @@ services:
                   url: "http://kafka-connect:8083/"
     ports:
       - 8089:8080
-    links:
+    depends_on:
       - kafka
       - kafka-connect
   tempo:
