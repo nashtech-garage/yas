@@ -166,7 +166,7 @@ services:
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
   zookeeper:
-    image: debezium/zookeeper:1.0
+    image: debezium/zookeeper:latest
     restart: always
     ports:
       - 2181:2181
@@ -187,7 +187,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
   postgres:
-    image: debezium/postgres:11
+    image: debezium/postgres:15-alpine
     ports:
       - "5432:5432"
     volumes:
@@ -216,7 +216,7 @@ services:
       - "9200:9200"
       - "9300:9300"
   kafka-connect:
-    image: debezium/connect:1.0
+    image: debezium/connect:latest
     restart: always
     ports:
       - 8083:8083
@@ -231,7 +231,7 @@ services:
       - CONFIG_STORAGE_TOPIC=kafka_connect_configs
       - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
   akhq:
-    image: tchiotludo/akhq:0.19.0
+    image: tchiotludo/akhq:latest
     environment:
       AKHQ_CONFIGURATION: |
         akhq:
