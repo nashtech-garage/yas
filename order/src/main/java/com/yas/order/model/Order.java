@@ -35,6 +35,8 @@ public class Order extends AbstractAuditEntity{
     private String couponCode;
     private BigDecimal totalPrice;
     private BigDecimal deliveryFee;
+
+    @Enumerated(EnumType.STRING)
     private EOrderStatus orderStatus;
     private EDeliveryMethod deliveryMethod;
     private EDeliveryStatus deliveryStatus;

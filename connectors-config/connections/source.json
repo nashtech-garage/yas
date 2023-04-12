@@ -1,0 +1,14 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "topic.prefix": "dbserver1",
+  "database.user": "admin",
+  "database.dbname": "product",
+  "database.hostname": "postgres",
+  "database.password": "admin",
+  "key.converter.schemas.enable": "false",
+  "value.converter.schemas.enable": "false",
+  "name": "product-connector",
+  "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "database.port": "5432"
+}

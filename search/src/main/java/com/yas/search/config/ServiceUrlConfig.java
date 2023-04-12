@@ -1,8 +1,7 @@
-package com.yas.rating.config;
+package com.yas.search.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "yas.services")
-public record ServiceUrlConfig(
-        String product, String customer, String order) {
+public record ServiceUrlConfig(String product) {
 }

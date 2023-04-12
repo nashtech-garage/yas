@@ -36,6 +36,13 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(errorVm);
     }
 
+    @ExceptionHandler(ResourceExistedException.class)
+    public ResponseEntity<ErrorVm> handleResourceExistedException(ResourceExistedException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.CONFLICT.toString(), "Resource has existed", message);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorVm);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult()
@@ -48,7 +55,7 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(errorVm);
     }
 
-    @ExceptionHandler({ ConstraintViolationException.class })
+    @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
         List<String> errors = new ArrayList<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
@@ -58,6 +65,15 @@ public class ApiExceptionHandler {
 
         ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
         return ResponseEntity.badRequest().body(errorVm);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.FORBIDDEN.toString(), "Access Denied", message);
+        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(errorVm, HttpStatus.FORBIDDEN);
     }
 
 
