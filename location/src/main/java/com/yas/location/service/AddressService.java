@@ -59,10 +59,10 @@ public class AddressService {
         return addressList.stream().map(address -> AddressDetailVm.fromModel(address)).toList();
     }
 
-    public AddressGetVm getAddress(Long id) {
+    public AddressDetailVm getAddress(Long id) {
         Address address = addressRepository.findById(id).orElseThrow(() ->
                 new NotFoundException(Constants.ERROR_CODE.ADDRESS_NOT_FOUND, id));
-        return AddressGetVm.fromModel(address);
+        return AddressDetailVm.fromModel(address);
     }
 
     public void deleteAddress(Long id) {

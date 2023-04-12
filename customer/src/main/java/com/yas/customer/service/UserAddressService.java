@@ -33,8 +33,8 @@ public class UserAddressService {
 
     public List<ActiveAddressVm> getUserAddressList() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if(userId.equals("anonymousUser"))
-            throw new AccessDeniedException("Please login");
+        if (userId.equals("anonymousUser"))
+            throw new AccessDeniedException(Constants.ERROR_CODE.UNAUTHENTICATED);
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(userAddressList.stream()
@@ -68,7 +68,19 @@ public class UserAddressService {
 
         //sort by isActive
         Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
-        return addressActiveVms.stream().sorted( comparator ).collect(Collectors.toList());
+        return addressActiveVms.stream().sorted(comparator).collect(Collectors.toList());
+    }
+
+    public AddressDetailVm getAddressDefault() {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (userId.equals("anonymousUser"))
+            throw new AccessDeniedException(Constants.ERROR_CODE.UNAUTHENTICATED);
+
+        UserAddress userAddress = userAddressRepository.findByIsActiveTrue().orElseThrow(()
+                -> new NotFoundException(Constants.ERROR_CODE.USER_ADDRESS_NOT_FOUND));
+
+        AddressDetailVm addressVmList = locationService.getAddressById(userAddress.getAddressId());
+        return addressVmList;
     }
 
     public UserAddressVm createAddress(AddressPostVm addressPostVm) {

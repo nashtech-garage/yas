@@ -11,8 +11,8 @@ const AddressCard = ({ address }: Props) => {
       <span className="fw-bold mb-1">Name: {address.contactName} </span>
       <span>Phone: {address.phone} </span>
       <span>
-        Address: {address.addressLine1} {address.districtId} {address?.city}{' '}
-        {address.stateOrProvinceId} {address.countryId}
+        Address: {address.addressLine1} {address.districtName} {address?.city}{' '}
+        {address.stateOrProvinceName} {address.countryName}
       </span>
     </div>
   );

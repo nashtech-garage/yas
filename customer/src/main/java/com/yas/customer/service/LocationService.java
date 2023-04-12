@@ -48,6 +48,25 @@ public class LocationService {
                 .block();
     }
 
+    public AddressDetailVm getAddressById(Long id) {
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+        final URI url = UriComponentsBuilder
+                .fromHttpUrl(serviceUrlConfig.location())
+                .path("/storefront/addresses/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return webClient.get()
+                .uri(url)
+                .headers(h->h.setBearerAuth(jwt))
+                .retrieve()
+                .onStatus(
+                        HttpStatus.UNAUTHORIZED::equals,
+                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
+                .bodyToMono(AddressDetailVm.class)
+                .block();
+    }
+
     public AddressVm createAddress(AddressPostVm addressPostVm) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder

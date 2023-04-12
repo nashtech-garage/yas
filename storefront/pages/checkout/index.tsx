@@ -13,9 +13,11 @@ import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
 import { createOrder } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
-import { createUserAddress } from '@/modules/customer/services/CustomerService';
+import {
+  createUserAddress,
+  getUserAddressDefault,
+} from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
-import { getAddress } from '@/modules/address/services/AddressService';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -78,7 +80,7 @@ const Checkout = () => {
         router.push({ pathname: `/login` });
       });
 
-    getAddress('2').then((res) => setShippingAddress(res));
+    getUserAddressDefault().then((res) => setShippingAddress(res));
   }, []);
 
   const loadItems = () => {
@@ -149,7 +151,7 @@ const Checkout = () => {
           isValidate = false;
         });
     } else if (sameAddress) {
-      order.billingAddressPostVm = watchShippingAddress();
+      order.billingAddressPostVm = order.shippingAddressPostVm;
     } else if (billingAddress) {
       order.billingAddressPostVm = billingAddress;
     }
@@ -183,6 +185,11 @@ const Checkout = () => {
 
   return (
     <>
+      {console.log(
+        `${billingAddress?.addressLine1 ?? ''} ${billingAddress?.districtName ?? ''}  ${
+          billingAddress?.city ?? ''
+        }  ${billingAddress?.stateOrProvinceName ?? ''}  ${billingAddress?.countryName ?? ''}`
+      )}
       <Container>
         <section className="checkout spad">
           <div className="container">
@@ -254,10 +261,10 @@ const Checkout = () => {
                             type="text"
                             className={`form-control`}
                             defaultValue={`${shippingAddress?.addressLine1 ?? ''} ${
-                              shippingAddress?.districtId ?? ''
+                              shippingAddress?.districtName ?? ''
                             }  ${shippingAddress?.city ?? ''}  ${
-                              shippingAddress?.stateOrProvinceId ?? ''
-                            }  ${shippingAddress?.countryId ?? ''}`}
+                              shippingAddress?.stateOrProvinceName ?? ''
+                            }  ${shippingAddress?.countryName ?? ''}`}
                             disabled={true}
                           />
                         </div>
@@ -351,10 +358,10 @@ const Checkout = () => {
                             type="text"
                             className={`form-control`}
                             defaultValue={`${billingAddress?.addressLine1 ?? ''} ${
-                              billingAddress?.districtId ?? ''
+                              billingAddress?.districtName ?? ''
                             }  ${billingAddress?.city ?? ''}  ${
-                              billingAddress?.stateOrProvinceId ?? ''
-                            }  ${billingAddress?.countryId ?? ''}`}
+                              billingAddress?.stateOrProvinceName ?? ''
+                            }  ${billingAddress?.countryName ?? ''}`}
                             disabled={true}
                           />
                         </div>

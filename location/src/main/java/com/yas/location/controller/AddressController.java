@@ -28,7 +28,7 @@ public class AddressController {
     }
 
     @GetMapping("/storefront/addresses/{id}")
-    public ResponseEntity<AddressGetVm> getAddressById(@PathVariable Long id) {
+    public ResponseEntity<AddressDetailVm> getAddressById(@PathVariable Long id) {
         return ResponseEntity.ok(addressService.getAddress(id));
     }
 
