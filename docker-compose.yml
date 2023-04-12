@@ -165,8 +165,29 @@ services:
       { url: 'http://api.yas.local/search/v3/api-docs', name: 'Search'}]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
+  zookeeper:
+    image: debezium/zookeeper:latest
+    restart: always
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
   postgres:
-    image: postgres:14.5
+    image: debezium/postgres:15-alpine
     ports:
       - "5432:5432"
     volumes:
@@ -183,6 +204,49 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@yas.com
       PGADMIN_DEFAULT_PASSWORD: admin
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  kafka-connect:
+    image: debezium/connect:latest
+    restart: always
+    ports:
+      - 8083:8083
+      - 5005:5005
+    depends_on:
+      - kafka
+      - postgres
+      - elasticsearch
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:29092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=kafka_connect_configs
+      - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
+  akhq:
+    image: tchiotludo/akhq:latest
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: 'kafka:29092'
+              connect:
+                - name: "kafka-connect"
+                  url: "http://kafka-connect:8083/"
+    ports:
+      - 8089:8080
+    depends_on:
+      - kafka
+      - kafka-connect
   tempo:
     image: grafana/tempo:main-0c1eb27
     extra_hosts: ['host.docker.internal:host-gateway']
@@ -229,18 +293,6 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3009:3000"
-
-  elasticsearch:
-    image: elasticsearch:8.6.2
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
-      - "discovery.type=single-node"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
       
 volumes:
   postgres:
