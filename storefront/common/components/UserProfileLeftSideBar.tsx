@@ -14,9 +14,9 @@ const UserProfileLeftSideBar = ({ type }: Props) => {
         onClick={() => {
           router.push('/profile');
         }}
-        style={{ cursor: 'pointer', height: '70px', background: type == 'profile' ? 'red' : '' }}
+        style={{ cursor: 'pointer', background: type == 'profile' ? '#eeeeee' : '' }}
       >
-        <CgProfile style={{ fontSize: '30px', marginRight: '10px' }} />
+        <CgProfile style={{ fontSize: '30px', marginRight: '10px', color: '#666666' }} />
         <h5>User Profile</h5>
       </div>
       <div
@@ -24,9 +24,9 @@ const UserProfileLeftSideBar = ({ type }: Props) => {
         onClick={() => {
           router.push('/address');
         }}
-        style={{ cursor: 'pointer', height: '70px', background: type == 'address' ? 'red' : '' }}
+        style={{ cursor: 'pointer', background: type == 'address' ? '#eeeeee' : '' }}
       >
-        <TiContacts style={{ fontSize: '30px', marginRight: '10px' }} />
+        <TiContacts style={{ fontSize: '30px', marginRight: '10px', color: '#666666' }} />
         <h5>Address</h5>
       </div>
     </aside>
