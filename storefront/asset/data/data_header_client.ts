@@ -18,4 +18,15 @@ export const data_menu_top_no_login = [
   },
 ];
 
-export const SUGGESTION_NUMBER = 5;
+export const DATA_SEARCH_SUGGESTION = [
+  'Laptop',
+  'Mobile',
+  'Camera',
+  'Headphone',
+  'Watch',
+  'Speaker',
+  'Smartphone',
+  'Tablet',
+  'Smartwatch',
+  'Smart TV',
+];

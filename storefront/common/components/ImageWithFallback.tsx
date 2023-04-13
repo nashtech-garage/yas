@@ -1,6 +1,6 @@
 import clsx from 'clsx';
+import { useEffect, useState } from 'react';
 import { Image } from 'react-bootstrap';
-import { useState } from 'react';
 
 type Props = {
   src: string;
@@ -23,6 +23,12 @@ const ImageWithFallBack = ({
   ...props
 }: Props) => {
   const [fallBack, setFallBack] = useState<string | null>(null);
+  const [srcUrl, setSrcUrl] = useState<string>(src);
+
+  useEffect(() => {
+    setSrcUrl(src);
+    setFallBack(null);
+  }, [src]);
 
   return (
     <Image
@@ -30,7 +36,7 @@ const ImageWithFallBack = ({
       height={height}
       style={style}
       className={clsx(className)}
-      src={fallBack || src}
+      src={fallBack || srcUrl}
       alt={alt}
       {...props}
       onError={(event) => {
