@@ -10,9 +10,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import com.yas.search.service.ProductSyncDataService;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.yas.search.constants.Action;
-
 
 @Service
 public class ProductSyncDataConsumer {
@@ -33,7 +31,7 @@ public class ProductSyncDataConsumer {
                     Long id = keyObject.get("id").getAsLong();
 
                     switch (action) {
-                        case Action.CREATE:
+                        case Action.CREATE, Action.READ:
                             productSyncDataService.createProduct(id);
                             break;
                         case Action.UPDATE:
