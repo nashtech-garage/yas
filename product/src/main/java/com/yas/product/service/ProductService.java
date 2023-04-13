@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -299,12 +300,44 @@ public class ProductService {
             productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
         }
 
+        List<ProductRelated> newProductRelatedList;
+        List<ProductRelated> removeProductRelatedList;
+
+        List<Long> newRelatedProductIds = productPutVm.relatedProductIds();
+        List<ProductRelated> oldRelatedProducts = product.getRelatedProducts();
+        Set<Long> oldRelatedProductIds = oldRelatedProducts.stream()
+                .map(productRelated -> productRelated.getRelatedProduct().getId())
+                .collect(Collectors.toSet());
+
+        Set<Long> removeRelatedProductIds = oldRelatedProductIds.stream()
+                .filter(id -> !newRelatedProductIds.contains(id))
+                .collect(Collectors.toSet());
+
+        Set<Long> addRelatedProductIds = newRelatedProductIds.stream()
+                .filter(id -> !oldRelatedProductIds.contains(id))
+                .collect(Collectors.toSet());
+
+        removeProductRelatedList = oldRelatedProducts.stream()
+                .filter(productRelated -> removeRelatedProductIds.contains(productRelated.getRelatedProduct().getId()))
+                .toList();
+
+        List<Product> addRelatedProducts = productRepository.findAllById(addRelatedProductIds);
+        newProductRelatedList = addRelatedProducts.stream()
+                .map(addRelatedProduct -> ProductRelated.builder()
+                        .product(product)
+                        .relatedProduct(addRelatedProduct)
+                        .build())
+                .toList();
+
         productRepository.saveAllAndFlush(existingVariants);
         productImageRepository.saveAllAndFlush(newProductImages);
 
         productRepository.saveAndFlush(product);
         productImageRepository.saveAllAndFlush(productImageList);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
+
+        productRelatedRepository.deleteAll(removeProductRelatedList);
+        productRelatedRepository.saveAllAndFlush(newProductRelatedList);
     }
 
     private static Function<Product, ProductOptionCombination> mapToOptionCombination(Map<Long, ProductOption> productOptionMap, Long optionValue, String value, Integer optionValue1) {

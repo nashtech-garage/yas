@@ -25,12 +25,17 @@ const RelatedProduct = ({ setValue, getValue }: Props) => {
     if (id) {
       fetchRelatedProduct(+id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchRelatedProduct = (productId: number) => {
     getRelatedProductByProductId(productId)
       .then((results) => {
         setSelectedRelatedProduct(results);
+        setValue(
+          'relateProduct',
+          results.map((product) => product.id)
+        );
       })
       .catch((error) => {
         console.log(error);

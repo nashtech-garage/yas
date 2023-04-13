@@ -78,7 +78,7 @@ public class Product extends AbstractAuditEntity {
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST})
+    @OneToMany(mappedBy = "product")
     List<ProductRelated> relatedProducts = new ArrayList<>();
 
     @Override

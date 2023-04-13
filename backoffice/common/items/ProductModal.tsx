@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Table } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
+import { useRouter } from 'next/router';
 
 import { Product } from '@catalogModels/Product';
 import { getProducts } from '@catalogServices/ProductService';
@@ -14,6 +15,9 @@ type Props = {
 };
 
 const ShowProductModel = (props: Props) => {
+  const router = useRouter();
+  const { id } = router.query;
+
   const [selectedProduct, setSelectedProduct] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
@@ -21,10 +25,15 @@ const ShowProductModel = (props: Props) => {
 
   useEffect(() => {
     getProducts(pageNo, '', '').then((data) => {
-      setProducts(data.productContent);
+      if (id) {
+        let filterProduct = data.productContent.filter((product) => product.id !== +id);
+        setProducts(filterProduct);
+      } else {
+        setProducts(data.productContent);
+      }
       setTotalPage(data.totalPages);
     });
-  }, [pageNo]);
+  }, [pageNo, id]);
 
   useEffect(() => {
     setSelectedProduct(props.selectedProduct);
