@@ -31,8 +31,7 @@ public class ProductSyncDataConsumer {
                     Long id = keyObject.get("id").getAsLong();
 
                     switch (action) {
-                        case Action.CREATE:
-                        case Action.READ:
+                        case Action.CREATE, Action.READ:
                             productSyncDataService.createProduct(id);
                             break;
                         case Action.UPDATE:
