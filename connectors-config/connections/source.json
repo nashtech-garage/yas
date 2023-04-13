@@ -1,6 +1,6 @@
 {
   "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-  "topic.prefix": "DBProduct",
+  "topic.prefix": "dbproduct",
   "database.user": "admin",
   "database.dbname": "product",
   "database.hostname": "postgres",
