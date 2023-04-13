@@ -32,6 +32,5 @@ public class Warehouse extends AbstractAuditEntity {
   @Column(nullable = false, length = 450)
   private String name;
 
-  @Column(nullable = false)
   private Long addressId;
 }

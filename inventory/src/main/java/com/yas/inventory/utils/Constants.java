@@ -1,13 +1,9 @@
-package com.yas.location.utils;
+package com.yas.inventory.utils;
 
 public final class Constants {
 
   public final class ERROR_CODE {
 
-    public static final String COUNTRY_NOT_FOUND = "COUNTRY_NOT_FOUND";
-    public static final String NAME_ALREADY_EXITED = "NAME_ALREADY_EXITED";
-    public static final String STATE_OR_PROVINCE_NOT_FOUND = "STATE_OR_PROVINCE_NOT_FOUND";
-    public static final String ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND";
   }
 
   public final class PageableConstant {
@@ -18,13 +14,9 @@ public final class Constants {
 
   public final class ApiConstant {
 
-    public static final String STATE_OR_PROVINCES_URL = "/backoffice/state-or-provinces";
+    public static final String WAREHOUSE_URL = "/backoffice/warehouses";
 
-    public static final String STATE_OR_PROVINCES_STOREFRONT_URL = "/storefront/state-or-provinces";
-
-    public static final String COUNTRIES_URL = "/backoffice/countries";
-
-    public static final String COUNTRIES_STOREFRONT_URL = "/storefront/countries";
+    public static final String STOCK_URL = "/backoffice/stocks";
 
     public static final String CODE_200 = "200";
     public static final String OK = "Ok";

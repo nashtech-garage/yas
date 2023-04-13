@@ -1,6 +1,6 @@
-package com.yas.location.listener;
+package com.yas.inventory.listener;
 
-import com.yas.location.model.AbstractAuditEntity;
+import com.yas.inventory.model.AbstractAuditEntity;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import org.springframework.beans.factory.ObjectFactory;

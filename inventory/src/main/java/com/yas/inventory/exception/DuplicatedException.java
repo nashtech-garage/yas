@@ -1,6 +1,6 @@
-package com.yas.location.exception;
+package com.yas.inventory.exception;
 
-import com.yas.location.utils.MessagesUtils;
+import com.yas.inventory.utils.MessagesUtils;
 
 public class DuplicatedException extends RuntimeException {
 

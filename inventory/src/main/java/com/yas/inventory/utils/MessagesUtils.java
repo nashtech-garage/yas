@@ -1,4 +1,4 @@
-package com.yas.location.utils;
+package com.yas.inventory.utils;
 
 import java.util.Locale;
 import java.util.MissingResourceException;

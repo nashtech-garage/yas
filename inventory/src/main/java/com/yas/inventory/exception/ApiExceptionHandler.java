@@ -1,6 +1,6 @@
-package com.yas.location.exception;
+package com.yas.inventory.exception;
 
-import com.yas.location.viewmodel.error.ErrorVm;
+import com.yas.inventory.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
