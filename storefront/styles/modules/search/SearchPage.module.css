@@ -1,0 +1,117 @@
+.search-page {
+  background-color: #f5f5f5;
+}
+
+.search-container {
+  min-width: 1000px;
+}
+
+.search-container .search-wrapper {
+  display: flex;
+  margin-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Result */
+.search-container .search-result {
+  flex: 1;
+}
+
+.search-container .search-result .search-result__sort {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  padding: 13px 20px;
+  background-color: #00000008;
+}
+
+.search-container .search-result .search-result__sort .search-result__total {
+  font-size: 14px;
+  color: #555555;
+}
+
+.search-container .search-result .search-result__sort .search-result__action {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-container
+  .search-result
+  .search-result__sort
+  .search-result__action
+  .search-result__action-sort {
+  position: relative;
+  width: 180px;
+  background-color: #fff;
+  padding: 4px 8px;
+  cursor: default;
+}
+
+.search-container
+  .search-result
+  .search-result__sort
+  .search-result__action
+  .search-result__action-sort
+  .search-result__current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-container
+  .search-result
+  .search-result__sort
+  .search-result__action
+  .search-result__dropdown {
+  position: absolute;
+  background-color: #fff;
+  top: 100%;
+  width: 100%;
+  left: 0;
+  display: none;
+}
+
+.search-container
+  .search-result
+  .search-result__sort
+  .search-result__action
+  .search-result__action-sort:hover
+  > .search-result__dropdown {
+  display: block;
+}
+
+.search-container
+  .search-result
+  .search-result__sort
+  .search-result__action
+  .search-result__dropdown
+  .search-result__dropdown-item {
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.search-container
+  .search-result
+  .search-result__sort
+  .search-result__action
+  .search-result__dropdown
+  .search-result__dropdown-item.active {
+  color: #ee4d2d;
+}
+
+.search-container
+  .search-result
+  .search-result__sort
+  .search-result__action
+  .search-result__dropdown
+  .search-result__dropdown-item:hover {
+  color: #ee4d2d;
+}
+
+/* Result list */
+.search-container .search-result .search-result__list {
+  margin-bottom: 24px;
+}

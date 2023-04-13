@@ -1,13 +1,15 @@
 package com.yas.search.viewmodel;
 
 import java.util.List;
+import java.util.Map;
 
 public record ProductListGetVm(
-        List<ProductListVm> productContent,
+        List<ProductGetVm> products,
         int pageNo,
         int pageSize,
-        int totalElements,
+        long totalElements,
         int totalPages,
-        boolean isLast
+        boolean isLast,
+        Map<String, Map<String, Long>> aggregations
 ) {
 }
