@@ -28,17 +28,16 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
         <div className="body">
           <div className="row">
             {addresses.map((address) => (
-              <>
-                <div
-                  className="col-lg-6 mb-2"
-                  onClick={() => {
-                    handleSelectAddress(address);
-                    handleClose();
-                  }}
-                >
-                  <AddressCard address={address} />
-                </div>
-              </>
+              <div
+                className="col-lg-6 mb-2"
+                onClick={() => {
+                  handleSelectAddress(address);
+                  handleClose();
+                }}
+                key={address.id}
+              >
+                <AddressCard address={address} />
+              </div>
             ))}
           </div>
         </div>

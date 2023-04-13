@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
 import { useRouter } from 'next/router';
 import { getMyProfile } from '@/modules/profile/services/ProfileService';
@@ -18,6 +18,7 @@ import {
   getUserAddressDefault,
 } from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
+import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -54,18 +55,25 @@ const Checkout = () => {
   const [loaded, setLoaded] = useState(false);
   const [email, setEmail] = useState<string>('');
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [sameAddress, setSameAddress] = useState<boolean>(true);
   let order = watch();
 
   const [shippingAddress, setShippingAddress] = useState<Address>();
   const [billingAddress, setBillingAddress] = useState<Address>();
+
+  const [sameAddress, setSameAddress] = useState<boolean>(true);
   const [addShippingAddress, setAddShippingAddress] = useState<boolean>(false);
   const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
-
   const [showModalShipping, setModalShipping] = useState<boolean>(false);
   const [showModalBilling, setModalBilling] = useState<boolean>(false);
   const handleCloseModalShipping = () => setModalShipping(false);
   const handleCloseModalBilling = () => setModalBilling(false);
+
+  const fetchAddress = useCallback(() => {
+    getUserAddressDefault().then((res) => {
+      setShippingAddress(res);
+      setBillingAddress(res);
+    });
+  }, []);
 
   useEffect(() => {
     getMyProfile()
@@ -80,8 +88,8 @@ const Checkout = () => {
         router.push({ pathname: `/login` });
       });
 
-    getUserAddressDefault().then((res) => setShippingAddress(res));
-  }, []);
+    fetchAddress();
+  }, [fetchAddress]);
 
   const loadItems = () => {
     getCart().then((data) => {
@@ -115,12 +123,11 @@ const Checkout = () => {
 
   const handleSaveNewAddress = (data: Address) => {
     createUserAddress(data).catch((e) => {
-      console.log(e);
+      toast.error('Save new address failed!');
     });
   };
 
   const onSubmitForm: SubmitHandler<Order> = async (data) => {
-    //handle ShippAddress
     let isValidate = true;
 
     if (addShippingAddress) {
@@ -185,11 +192,6 @@ const Checkout = () => {
 
   return (
     <>
-      {console.log(
-        `${billingAddress?.addressLine1 ?? ''} ${billingAddress?.districtName ?? ''}  ${
-          billingAddress?.city ?? ''
-        }  ${billingAddress?.stateOrProvinceName ?? ''}  ${billingAddress?.countryName ?? ''}`
-      )}
       <Container>
         <section className="checkout spad">
           <div className="container">
@@ -219,57 +221,7 @@ const Checkout = () => {
                         Add new address <i className="bi bi-plus-circle-fill"></i>
                       </button>
                     </div>
-                    <div className={`shipping_address ${addShippingAddress ? `d-none` : ``}`}>
-                      <div className="row">
-                        <div className="col-lg-6">
-                          <div className="checkout__input">
-                            <div className="mb-3">
-                              <label className="form-label" htmlFor="firstName">
-                                Name <span className="text-danger">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                className={`form-control`}
-                                defaultValue={`${shippingAddress?.contactName ?? ''}`}
-                                disabled={true}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="checkout__input">
-                            <div className="mb-3">
-                              <label className="form-label" htmlFor="firstName">
-                                Phone <span className="text-danger">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                className={`form-control`}
-                                defaultValue={`${shippingAddress?.phone ?? ''}`}
-                                disabled={true}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="checkout__input">
-                        <div className="mb-3">
-                          <label className="form-label" htmlFor="firstName">
-                            Address <span className="text-danger">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className={`form-control`}
-                            defaultValue={`${shippingAddress?.addressLine1 ?? ''} ${
-                              shippingAddress?.districtName ?? ''
-                            }  ${shippingAddress?.city ?? ''}  ${
-                              shippingAddress?.stateOrProvinceName ?? ''
-                            }  ${shippingAddress?.countryName ?? ''}`}
-                            disabled={true}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <CheckOutAddress address={shippingAddress!} isDisplay={!addShippingAddress} />
                     <AddressForm
                       isDisplay={addShippingAddress}
                       register={registerShippingAddress}
@@ -312,61 +264,12 @@ const Checkout = () => {
                         </button>
                       </div>
                     </div>
-                    <div
-                      className={`billing_address ${
-                        !sameAddress && !addBillingAddress ? `` : `d-none`
-                      }`}
-                    >
-                      <div className="row">
-                        <div className="col-lg-6">
-                          <div className="checkout__input">
-                            <div className="mb-3">
-                              <label className="form-label" htmlFor="firstName">
-                                Name <span className="text-danger">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                className={`form-control`}
-                                defaultValue={`${billingAddress?.contactName ?? ''}`}
-                                disabled={true}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="checkout__input">
-                            <div className="mb-3">
-                              <label className="form-label" htmlFor="firstName">
-                                Phone <span className="text-danger">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                className={`form-control`}
-                                defaultValue={`${billingAddress?.phone ?? ''}`}
-                                disabled={true}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="checkout__input">
-                        <div className="mb-3">
-                          <label className="form-label" htmlFor="firstName">
-                            Address <span className="text-danger">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className={`form-control`}
-                            defaultValue={`${billingAddress?.addressLine1 ?? ''} ${
-                              billingAddress?.districtName ?? ''
-                            }  ${billingAddress?.city ?? ''}  ${
-                              billingAddress?.stateOrProvinceName ?? ''
-                            }  ${billingAddress?.countryName ?? ''}`}
-                            disabled={true}
-                          />
-                        </div>
-                      </div>
-                    </div>
+
+                    <CheckOutAddress
+                      address={billingAddress!}
+                      isDisplay={!sameAddress && !addBillingAddress}
+                    />
+
                     <AddressForm
                       isDisplay={addBillingAddress}
                       register={registerBillingAddress}
