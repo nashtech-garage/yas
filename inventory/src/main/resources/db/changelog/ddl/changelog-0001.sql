@@ -11,5 +11,3 @@ create table stock_history (id bigserial not null, warehouse_id bigserial not nu
 
 alter table if exists stock add constraint FKkud35ls1d40wpjb5htpp14yuas foreign key (warehouse_id) references warehouse;
 alter table if exists stock_history add constraint FKkud35ls1d40wpjb5htpp14yuh foreign key (warehouse_id) references warehouse;
-
-
