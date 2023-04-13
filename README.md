@@ -51,7 +51,7 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 kafka
 ```
 1. Open terminal of your choice, go to `yas` directory and run `docker compose up` and wait for all the containers up and running
-2. Start source connectors by run script: ./start-source-connectors.sh
+2. All the containers up and running then we start source connectors by run script, open any terminal window... go to the YAS root folder and type: ./start-source-connectors.sh
 3. Open your browser, now you can access the websites via `http://storefront/`; `http://backoffice/` login with admin/password
 
 You might aslo want to explore:
