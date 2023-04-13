@@ -236,7 +236,7 @@ services:
       - CONFIG_STORAGE_TOPIC=kafka_connect_configs
       - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
   akhq:
-    image: tchiotludo/akhq:0.19.0
+    image: tchiotludo/akhq:latest
     environment:
       AKHQ_CONFIGURATION: |
         akhq:
