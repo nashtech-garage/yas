@@ -13,10 +13,15 @@ import { getMyProfile, updateCustomer } from '../../modules/profile/services/Pro
 import styles from '../../styles/address.module.css';
 import { FaArrowRight } from 'react-icons/fa';
 import clsx from 'clsx';
+import { useRouter } from 'next/router';
+import { TiContacts } from 'react-icons/ti';
+import { CgProfile } from 'react-icons/cg';
+import UserProfileLeftSideBar from '@/common/components/UserProfileLeftSideBar';
 
 const Profile: NextPage = () => {
   const { handleSubmit, register } = useForm<Customer>();
   const [customer, setCustomer] = useState<Customer>();
+  const router = useRouter();
 
   useEffect(() => {
     getMyProfile()
@@ -44,21 +49,17 @@ const Profile: NextPage = () => {
       <Head>
         <title>Profile</title>
       </Head>
-      <div className="d-flex justify-content-between pt-5">
+      <div
+        className="d-flex justify-content-between pt-5 col-md-12 mb-2"
+        style={{ height: '100px' }}
+      >
         <h2>User Profile</h2>
-        <button className="btn btn-primary p-0">
-          <Link
-            style={{ width: '100%', display: 'inline-block' }}
-            className={clsx(styles['link-redirect'], 'p-2', 'd-flex', 'align-items-center')}
-            href={{ pathname: '/address' }}
-          >
-            <span style={{ padding: '0 5px 0 0' }}>Go to address list</span>
-            <FaArrowRight />
-          </Link>
-        </button>
       </div>
       <div className="container">
-        <div className="row justify-content-center">
+        <div className="row">
+          <div className="col-md-3 p-0">
+            <UserProfileLeftSideBar type={'profile'} />
+          </div>
           <div className="col-md-6">
             <form onSubmit={handleSubmit(onSubmit)}>
               <Input
