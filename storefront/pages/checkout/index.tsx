@@ -68,13 +68,6 @@ const Checkout = () => {
   const handleCloseModalShipping = () => setModalShipping(false);
   const handleCloseModalBilling = () => setModalBilling(false);
 
-  const fetchAddress = useCallback(() => {
-    getUserAddressDefault().then((res) => {
-      setShippingAddress(res);
-      setBillingAddress(res);
-    });
-  }, []);
-
   useEffect(() => {
     getMyProfile()
       .then((res) => {
@@ -88,8 +81,11 @@ const Checkout = () => {
         router.push({ pathname: `/login` });
       });
 
-    fetchAddress();
-  }, [fetchAddress]);
+    getUserAddressDefault().then((res) => {
+      setShippingAddress(res);
+      setBillingAddress(res);
+    });
+  }, []);
 
   const loadItems = () => {
     getCart().then((data) => {
