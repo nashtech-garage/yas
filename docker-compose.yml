@@ -175,6 +175,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
+    hostname: kafka
     depends_on:
       - zookeeper
     ports:
