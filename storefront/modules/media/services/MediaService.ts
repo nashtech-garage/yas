@@ -1,7 +1,7 @@
 import { Media } from '../models/Media';
 
 export const getMediaById = async (id: number): Promise<Media> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_PATH}/media/medias/${id}`, {
+  const response = await fetch(`/api/media/medias/${id}`, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
