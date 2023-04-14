@@ -37,8 +37,8 @@ public class ProductController {
     }
 
     @GetMapping("/backoffice/export/products")
-    public ResponseEntity<List<ProductExportingDetailVm>> exportProducts(  @RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
-                                                                           @RequestParam(value = "brand-name", defaultValue = "", required = false) String brandName) {
+    public ResponseEntity<List<ProductExportingDetailVm>> exportProducts(@RequestParam(value = "product-name", defaultValue = "", required = false) String productName,
+                                                                         @RequestParam(value = "brand-name", defaultValue = "", required = false) String brandName) {
         return ResponseEntity.ok(productService.exportProducts(productName, brandName));
     }
 
@@ -135,13 +135,28 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductSlug(id));
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get related products by product id successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
+            @ApiResponse(responseCode = "404", description = "Not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
+    })
     @GetMapping("/backoffice/products/related-products/{id}")
     public ResponseEntity<List<ProductListVm>> getRelatedProductsBackoffice(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getRelatedProductsBackoffice(id));
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get related products by product id successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
+            @ApiResponse(responseCode = "404", description = "Not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
+    })
     @GetMapping("/storefront/products/related-products/{id}")
-    public ResponseEntity<List<ProductThumbnailGetVm>> getRelatedProductsStorefront(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getRelatedProductsStorefront(id));
+    public ResponseEntity<ProductsGetVm> getRelatedProductsStorefront(
+            @PathVariable Long id,
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize) {
+        return ResponseEntity.ok(productService.getRelatedProductsStorefront(id, pageNo, pageSize));
     }
 }

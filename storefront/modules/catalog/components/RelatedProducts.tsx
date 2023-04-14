@@ -19,11 +19,10 @@ const RelatedProduct = ({ productId }: RelatedProductProps) => {
 
   const fetchRelatedProducts = () => {
     getRelatedProductsByProductId(productId)
-      .then((response) => setProducts(response))
+      .then((response) => setProducts(response.productContent))
       .catch((error) => console.log(error));
   };
 
-  console.log('>>> Related products:', products);
   return (
     <div className="my-5">
       <h4 className="mb-2 text-black">Related products</h4>

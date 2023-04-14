@@ -761,11 +761,11 @@ public class ProductService {
                 ).toList();
     }
 
-    public List<ProductThumbnailGetVm> getRelatedProductsStorefront(Long id) {
+    public ProductsGetVm getRelatedProductsStorefront(Long id, int pageNo, int pageSize) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
-        List<ProductRelated> relatedProducts = product.getRelatedProducts();
-        return relatedProducts.stream()
+        Page<ProductRelated> relatedProductsPage = productRelatedRepository.findAllByProduct(product, PageRequest.of(pageNo, pageSize));
+        List<ProductThumbnailGetVm> productThumbnailVms = relatedProductsPage.stream()
                 .filter(productRelated -> productRelated.getRelatedProduct().isPublished())
                 .map(productRelated -> {
                     Product relatedProduct = productRelated.getRelatedProduct();
@@ -777,5 +777,13 @@ public class ProductService {
                             relatedProduct.getPrice());
                 })
                 .toList();
+        return new ProductsGetVm(
+                productThumbnailVms,
+                relatedProductsPage.getNumber(),
+                relatedProductsPage.getSize(),
+                (int) relatedProductsPage.getTotalElements(),
+                relatedProductsPage.getTotalPages(),
+                relatedProductsPage.isLast()
+        );
     }
 }

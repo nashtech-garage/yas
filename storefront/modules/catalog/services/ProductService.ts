@@ -2,8 +2,8 @@ import { ProductSlug } from '../../cart/models/ProductSlug';
 import { ProductDetail } from '../models/ProductDetail';
 import { ProductAll, ProductFeature } from '../models/ProductFeature';
 import { ProductOptionValueGet } from '../models/ProductOptionValueGet';
-import { ProductThumbnail } from '../models/ProductThumbnail';
 import { ProductVariation } from '../models/ProductVariation';
+import { ProductsGet } from '../models/ProductsGet';
 
 export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
   const response = await fetch(`api/product/storefront/products/featured?pageNo=${pageNo}`);
@@ -50,9 +50,7 @@ export async function getProductSlug(productId: number): Promise<ProductSlug> {
   return Promise.reject(res);
 }
 
-export async function getRelatedProductsByProductId(
-  productId: number
-): Promise<ProductThumbnail[]> {
+export async function getRelatedProductsByProductId(productId: number): Promise<ProductsGet> {
   const res = await fetch(
     process.env.NEXT_PUBLIC_API_BASE_PATH +
       `/product/storefront/products/related-products/${productId}`,
