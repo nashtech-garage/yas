@@ -9,5 +9,7 @@
   "key.converter.schemas.enable": "false",
   "value.converter.schemas.enable": "false",
   "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-  "key.converter": "org.apache.kafka.connect.json.JsonConverter"
+  "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "schema.include.list": "public",
+  "table.include.list": "public.product"
 }
