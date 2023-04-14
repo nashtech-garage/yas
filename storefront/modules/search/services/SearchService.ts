@@ -3,13 +3,10 @@ import { SearchParams } from '../models/SearchParams';
 import { SearchProductResponse } from '../models/SearchProductResponse';
 
 export async function getSuggestions(keyword: string): Promise<ProductSearchSuggestions> {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_PATH}/search/storefront/search_suggest?keyword=${keyword}`,
-    {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  );
+  const response = await fetch(`/api/search/storefront/search_suggest?keyword=${keyword}`, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  });
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
@@ -18,7 +15,7 @@ export async function getSuggestions(keyword: string): Promise<ProductSearchSugg
 }
 
 export async function searchProducts(params: SearchParams): Promise<SearchProductResponse> {
-  let url = `${process.env.NEXT_PUBLIC_API_BASE_PATH}/search/storefront/catalog-search?keyword=${params.keyword}`;
+  let url = `api/search/storefront/catalog-search?keyword=${params.keyword}`;
   if (params.category) {
     url += `&category=${params.category}`;
   }

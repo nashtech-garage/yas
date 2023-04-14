@@ -54,9 +54,7 @@ export function cartEventSource(
   connect?: () => void,
   handleError?: () => void
 ): void {
-  const eventSource = new EventSource(
-    `${process.env.NEXT_PUBLIC_API_BASE_PATH}/cart/storefront/count-cart-items`
-  );
+  const eventSource = new EventSource('/api/cart/storefront/count-cart-items');
 
   eventSource.onopen = (event) => {
     if (connect) {
