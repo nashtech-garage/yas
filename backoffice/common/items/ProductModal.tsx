@@ -10,7 +10,7 @@ type Props = {
   show: boolean;
   onHide: () => void;
   label: string;
-  onSelected: (event: React.MouseEvent<HTMLElement>, product: Product) => void;
+  onSelected: (product: Product) => void;
   selectedProduct: Product[];
 };
 
@@ -65,7 +65,7 @@ const ShowProductModel = (props: Props) => {
                     id={product.slug}
                     className="form-check-input"
                     style={{ cursor: 'pointer' }}
-                    onClick={(event) => props.onSelected(event, product)}
+                    onClick={() => props.onSelected(product)}
                     checked={selectedProduct.some((_product) => _product.id === product.id)}
                   />
                 </td>

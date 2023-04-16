@@ -42,16 +42,26 @@ const RelatedProduct = ({ setValue, getValue }: Props) => {
       });
   };
 
-  const onProductSelected = (event: React.MouseEvent<HTMLElement>, product: Product) => {
-    event.preventDefault();
+  const onProductSelected = (product: Product) => {
     let relatedProduct = getValue('relateProduct') || [];
-    let index = relatedProduct.indexOf(product.id);
+    const index = relatedProduct.indexOf(product.id);
     if (index === -1) {
       relatedProduct.push(product.id);
       setSelectedRelatedProduct([...selectedRelatedProduct, product]);
     } else {
       relatedProduct = relatedProduct.filter((item) => item !== product.id);
-      let filterRelated = selectedRelatedProduct.filter((_product) => _product.id !== product.id);
+      const filterRelated = selectedRelatedProduct.filter((_product) => _product.id !== product.id);
+      setSelectedRelatedProduct([...filterRelated]);
+    }
+    setValue('relateProduct', relatedProduct);
+  };
+
+  const onProductDeleted = (product: Product) => {
+    const relatedProduct = getValue('relateProduct') || [];
+    const index = relatedProduct.indexOf(product.id);
+    if (index !== -1) {
+      relatedProduct.splice(index, 1);
+      const filterRelated = selectedRelatedProduct.filter((_product) => _product.id !== product.id);
       setSelectedRelatedProduct([...filterRelated]);
     }
     setValue('relateProduct', relatedProduct);
@@ -77,6 +87,7 @@ const RelatedProduct = ({ setValue, getValue }: Props) => {
             <tr>
               <th style={{ width: '20%' }}>Selected product id</th>
               <th>Product Name</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -84,6 +95,11 @@ const RelatedProduct = ({ setValue, getValue }: Props) => {
               <tr key={product.id}>
                 <td>{product.id}</td>
                 <td>{product.name}</td>
+                <td>
+                  <Button variant="danger" onClick={() => onProductDeleted(product)}>
+                    Delete
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
