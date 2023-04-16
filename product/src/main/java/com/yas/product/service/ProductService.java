@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -137,6 +138,7 @@ public class ProductService {
                 .metaDescription(productPostVm.description())
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
+                .productCategories(Arrays.asList())
                 .build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
@@ -289,6 +291,8 @@ public class ProductService {
 
         productRepository.saveAndFlush(product);
         productImageRepository.saveAllAndFlush(productImageList);
+        List<ProductCategory> productCategories = productCategoryRepository.findAllByProductId(productId);
+        productCategoryRepository.deleteAllInBatch(productCategories);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
     }
 
