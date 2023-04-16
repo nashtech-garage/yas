@@ -37,7 +37,7 @@ export default function ProductCard({ product, className }: Props) {
             </div>
           </div>
 
-          <div className={styles['price']}>{product?.price && formatPrice(product?.price)}</div>
+          <div className={styles['price']}>{formatPrice(product.price)}</div>
 
           <hr />
 
