@@ -6,6 +6,7 @@ import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.*;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
+import com.yas.product.model.enumeration.FilterExistInWHSelection;
 import com.yas.product.repository.*;
 import com.yas.product.utils.Constants;
 import com.yas.product.utils.StringUtils;
@@ -726,5 +727,11 @@ public class ProductService {
                 categoryNames,
                 attributeNames
         );
+    }
+
+    public List<ProductInfoVm> getProductsForWarehouse(
+            String name, String sku, List<Long> productIds, FilterExistInWHSelection selection) {
+        return productRepository.findProductForWarehouse(name, sku, productIds, selection.name())
+                .stream().map(ProductInfoVm::fromProduct).toList();
     }
 }

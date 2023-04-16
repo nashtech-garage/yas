@@ -8,6 +8,7 @@ import Link from 'next/link';
 import {
   menu_catalog_item_data,
   menu_customer_item_data,
+  menu_inventory_item_data,
   menu_location_item_data,
   menu_tax_item_data,
 } from '../../asset/data/sidebar';
@@ -182,6 +183,29 @@ const Sidebar = (menu: MenuProps) => {
           <ul className="collapse list-unstyled" id="locationSubmenu">
             <ListItem
               data={menu_location_item_data}
+              childActive={menu.childActive}
+              changeChildMenu={menu.changeChildMenu}
+            />
+          </ul>
+        </li>
+
+        <li
+          className={menuActive == 'inventory' ? 'active' : ''}
+          onClick={() => changeMenu('inventory')}
+        >
+          <Link
+            href="#inventorySubmenu"
+            data-target="#inventorySubmenu"
+            data-bs-toggle="collapse"
+            aria-controls="inventorySubmenu"
+            aria-expanded="false"
+            className="dropdown-toggle"
+          >
+            <span className="fa fa-archive"></span> Inventory
+          </Link>
+          <ul className="collapse list-unstyled" id="inventorySubmenu">
+            <ListItem
+              data={menu_inventory_item_data}
               childActive={menu.childActive}
               changeChildMenu={menu.changeChildMenu}
             />

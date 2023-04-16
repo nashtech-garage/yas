@@ -3,7 +3,8 @@ package com.yas.inventory.utils;
 public final class Constants {
 
   public final class ERROR_CODE {
-
+    public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
+    public static final String WAREHOUSE_NOT_FOUND = "WAREHOUSE_NOT_FOUND";
   }
 
   public final class PageableConstant {

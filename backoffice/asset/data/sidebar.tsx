@@ -1,4 +1,10 @@
-import { COUNTRY_URL, STATE_OR_PROVINCE_URL, TAX_CLASS_URL, TAX_RATE_URL } from '@constants/Common';
+import {
+  COUNTRY_URL,
+  INVENTORY_WAREHOUSE_PRODUCTS_URL,
+  STATE_OR_PROVINCE_URL,
+  TAX_CLASS_URL,
+  TAX_RATE_URL,
+} from '@constants/Common';
 
 export const menu_catalog_item_data = [
   {
@@ -69,5 +75,13 @@ export const menu_tax_item_data = [
     id: 2,
     name: 'Tax Rate',
     link: TAX_RATE_URL,
+  },
+];
+
+export const menu_inventory_item_data = [
+  {
+    id: 1,
+    name: 'Manage Warehouse Products',
+    link: INVENTORY_WAREHOUSE_PRODUCTS_URL,
   },
 ];

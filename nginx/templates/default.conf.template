@@ -19,22 +19,22 @@ server {
 	proxy_pass http://rating;
   }
   location /order/ {
-	proxy_pass http://order;
+  	proxy_pass http://order;
   }
   location /location/ {
-  	proxy_pass http://location;
+    proxy_pass http://location;
   }
   location /inventory/ {
-  	proxy_pass http://inventory;
+    proxy_pass http://inventory;
   }
   location /tax/ {
     proxy_pass http://tax;
   }
   location /promotion/ {
-  	proxy_pass http://promotion;
+    proxy_pass http://promotion;
   }
   location /search/ {
-  	proxy_pass http://search;
+    proxy_pass http://search;
   }
 }
 
@@ -98,3 +98,4 @@ server {
 	proxy_pass http://akhq:8080;
   }
 }
+
