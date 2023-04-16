@@ -26,7 +26,7 @@ server {
   }
   location /inventory/ {
   	proxy_pass http://inventory;
-  }  
+  }
   location /tax/ {
     proxy_pass http://tax;
   }
@@ -82,5 +82,12 @@ server {
   server_name elasticsearch;
   location / {
 	proxy_pass http://elasticsearch:9200;
+  }
+}
+
+server {
+  server_name kafka;
+  location / {
+	proxy_pass http://kafka:9092;
   }
 }

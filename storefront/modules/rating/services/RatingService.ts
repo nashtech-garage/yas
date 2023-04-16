@@ -7,7 +7,7 @@ export async function getRatingsByProductId(
   pageNo?: number,
   pageSize?: number
 ): Promise<{ ratingList: Rating[]; totalPages: number; totalElements: number }> {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_PATH}/rating/storefront/ratings/products/${productId}`;
+  const url = `/api/rating/storefront/ratings/products/${productId}`;
   const queryString = [];
   if (pageNo) {
     queryString.push(`pageNo=${pageNo}`);
@@ -22,14 +22,11 @@ export async function getRatingsByProductId(
 }
 
 export async function createRating(rating: RatingPost): Promise<Rating | null> {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_PATH}/rating/storefront/ratings`,
-    {
-      method: 'POST',
-      body: JSON.stringify(rating),
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  );
+  const response = await fetch('/api/rating/storefront/ratings', {
+    method: 'POST',
+    body: JSON.stringify(rating),
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  });
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
@@ -37,7 +34,7 @@ export async function createRating(rating: RatingPost): Promise<Rating | null> {
 }
 
 export async function getAverageStarByProductId(productId: number): Promise<number> {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_PATH}/rating/storefront/ratings/product/${productId}/average-star`;
+  const url = `/api/rating/storefront/ratings/product/${productId}/average-star`;
 
   const response = await fetch(url);
 

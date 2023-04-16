@@ -742,6 +742,40 @@ public class ProductService {
         return new ProductSlugGetVm(product.getSlug(), null);
     }
 
+    public ProductESDetailVm getProductESDetailById(long productId) {
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() ->
+                        new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, productId)
+                );
+
+        Long thumbnailMediaId = null;
+        if (null != product.getThumbnailMediaId()) {
+            thumbnailMediaId = product.getThumbnailMediaId();
+        }
+        List<String> categoryNames = product.getProductCategories().stream().map(productCategory -> productCategory.getCategory().getName()).toList();
+        List<String> attributeNames = product.getAttributeValues().stream().map(attributeValue -> attributeValue.getProductAttribute().getName()).toList();
+
+        String brandName = null;
+        if (null != product.getBrand()) {
+            brandName = product.getBrand().getName();
+        }
+
+        return new ProductESDetailVm(product.getId(),
+                product.getName(),
+                product.getSlug(),
+                product.getPrice(),
+                product.isPublished(),
+                product.isVisibleIndividually(),
+                product.isAllowedToOrder(),
+                product.isFeatured(),
+                thumbnailMediaId,
+                brandName,
+                categoryNames,
+                attributeNames
+        );
+    }
+
     public List<ProductListVm> getRelatedProductsBackoffice(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));

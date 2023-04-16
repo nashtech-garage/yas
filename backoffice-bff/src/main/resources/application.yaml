@@ -110,7 +110,7 @@ spring:
           uri: http://localhost:8092
           #          uri: http://api.yas.local
           predicates:
-            - Path=/api/tax/**
+            - Path=/api/search/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
             - TokenRelay=

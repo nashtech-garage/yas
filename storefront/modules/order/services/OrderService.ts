@@ -1,7 +1,7 @@
 import { Order } from '../models/Order';
 
 export async function createOrder(order: Order): Promise<Order | null> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_PATH}/order/storefront/orders`, {
+  const response = await fetch('/api/order/storefront/orders', {
     method: 'POST',
     body: JSON.stringify(order),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
