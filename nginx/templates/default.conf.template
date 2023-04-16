@@ -91,3 +91,10 @@ server {
 	proxy_pass http://kafka:9092;
   }
 }
+
+server {
+  server_name akhq;
+  location / {
+	proxy_pass http://akhq:8080;
+  }
+}
