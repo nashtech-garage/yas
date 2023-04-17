@@ -17,6 +17,19 @@ import { useRouter } from 'next/router';
 import { TiContacts } from 'react-icons/ti';
 import { CgProfile } from 'react-icons/cg';
 import UserProfileLeftSideBar from '@/common/components/UserProfileLeftSideBar';
+import ProfileLayout from '@/common/components/ProfileLayout';
+import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
+
+const crumb: BreadcrumbModel[] = [
+  {
+    pageName: 'Home',
+    url: '/',
+  },
+  {
+    pageName: 'Profile',
+    url: '#',
+  },
+];
 
 const Profile: NextPage = () => {
   const { handleSubmit, register } = useForm<Customer>();
@@ -45,61 +58,38 @@ const Profile: NextPage = () => {
   };
 
   return (
-    <Container>
-      <Head>
-        <title>Profile</title>
-      </Head>
-      <div
-        className="d-flex justify-content-between pt-5 col-md-12 mb-2"
-        style={{ height: '100px' }}
-      >
-        <h2>User Profile</h2>
-      </div>
-      <div className="container">
-        <div className="row">
-          <div className="col-md-3 p-0">
-            <UserProfileLeftSideBar type={'profile'} />
-          </div>
-          <div className="col-md-6">
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Input
-                labelText="Username"
-                field="username"
-                defaultValue={customer?.username}
-                register={register}
-                disabled
-              />
-              <Input
-                labelText="First name"
-                field="firstName"
-                defaultValue={customer?.firstName}
-                register={register}
-              />
-              <Input
-                labelText="Last name"
-                field="lastName"
-                defaultValue={customer?.lastName}
-                register={register}
-              />
-              <Input
-                labelText="Email"
-                field="email"
-                defaultValue={customer?.email}
-                register={register}
-              />
-              <div className="text-center">
-                <button className="btn btn-primary" type="submit">
-                  Update
-                </button>
-                <Link href="/">
-                  <button className="btn btn-secondary m-3">Cancel</button>
-                </Link>
-              </div>
-            </form>
-          </div>
+    <ProfileLayout breakcrumb={crumb} title="Profile" menuActive="profile">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-75">
+        <Input
+          labelText="Username"
+          field="username"
+          defaultValue={customer?.username}
+          register={register}
+          disabled
+        />
+        <Input
+          labelText="First name"
+          field="firstName"
+          defaultValue={customer?.firstName}
+          register={register}
+        />
+        <Input
+          labelText="Last name"
+          field="lastName"
+          defaultValue={customer?.lastName}
+          register={register}
+        />
+        <Input labelText="Email" field="email" defaultValue={customer?.email} register={register} />
+        <div className="text-center">
+          <button className="btn btn-primary" type="submit">
+            Update
+          </button>
+          <Link href="/">
+            <button className="btn btn-secondary m-3">Cancel</button>
+          </Link>
         </div>
-      </div>
-    </Container>
+      </form>
+    </ProfileLayout>
   );
 };
 
