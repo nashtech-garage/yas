@@ -66,6 +66,12 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/storefront/cart-item/multi-delete")
+    public ResponseEntity<Void> removeCartItemListByProductIdList(@RequestParam List<Long> productIds) {
+        cartService.removeCartItemListByProductIdList(productIds);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping(path = "/storefront/count-cart-items")
     public Flux<Integer> getNumberItemInCart(Principal principal) {
         if (principal == null)

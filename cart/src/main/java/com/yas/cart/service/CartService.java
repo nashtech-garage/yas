@@ -146,6 +146,14 @@ public class CartService {
         cartItemRepository.deleteByCartIdAndProductId(currentCart.id(), productId);
     }
 
+    @Transactional
+    public void removeCartItemListByProductIdList(List<Long> productIdList) {
+        CartGetDetailVm currentCart = getLastCart();
+        productIdList.stream().forEach(id -> validateCart(currentCart, id));
+
+        cartItemRepository.deleteByCartIdAndProductIdIn(currentCart.id(), productIdList);
+    }
+
     public Flux<Integer> countNumberItemInCart(String customerId) {
         return Flux.interval(Duration.ofSeconds(1)).map((i) -> {
             Optional<Cart> cartOp = cartRepository.findByCustomerId(customerId)

@@ -15,6 +15,7 @@ import com.yas.order.viewmodel.OrderExistsByProductAndUserGetVm;
 import com.yas.order.viewmodel.OrderPostVm;
 import com.yas.order.viewmodel.OrderVm;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,12 +32,12 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final OrderAddressRepository orderAddressRepository;
+    private final CartService cartService;
 
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, OrderAddressRepository orderAddressRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartService cartService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
-        this.orderAddressRepository = orderAddressRepository;
+        this.cartService = cartService;
     }
 
 
@@ -106,8 +107,12 @@ public class OrderService {
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
 
-        //        TO-DO: delete Item in Cart
-//        ************
+        // delete Item in Cart
+        try{
+            cartService.deleteCartItemByProductId(orderItems.stream().map(i-> i.getProductId()).toList());
+        }catch (Exception ex){
+            log.error("Delete products in cart fail: " + ex.getMessage());
+        }
 
 //        TO-DO: decrement inventory when inventory is complete
 //        ************
