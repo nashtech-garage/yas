@@ -7,7 +7,10 @@ export type Address = {
   city?: string;
   zipCode?: string;
   districtId: number;
+  districtName?: string;
   stateOrProvinceId: number;
+  stateOrProvinceName?: string;
   countryId: number;
+  countryName?: string;
   isActive?: boolean;
 };

@@ -14,6 +14,11 @@ export async function getUserAddress() {
   return response.json();
 }
 
+export async function getUserAddressDefault(): Promise<Address> {
+  const response = await fetch(`/api/customer/storefront/user-address/default-address`);
+  return response.json();
+}
+
 export async function deleteUserAddress(id: number) {
   const response = await fetch(`/api/customer/storefront/user-address/${id}`, {
     method: 'DELETE',

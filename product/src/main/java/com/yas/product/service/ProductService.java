@@ -6,6 +6,7 @@ import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.*;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
+import com.yas.product.model.enumeration.FilterExistInWHSelection;
 import com.yas.product.repository.*;
 import com.yas.product.utils.Constants;
 import com.yas.product.utils.StringUtils;
@@ -22,10 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -141,6 +139,7 @@ public class ProductService {
                 .metaDescription(productPostVm.description())
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
+                .productCategories(Arrays.asList())
                 .build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
@@ -334,6 +333,8 @@ public class ProductService {
 
         productRepository.saveAndFlush(product);
         productImageRepository.saveAllAndFlush(productImageList);
+        List<ProductCategory> productCategories = productCategoryRepository.findAllByProductId(productId);
+        productCategoryRepository.deleteAllInBatch(productCategories);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
 
         productRelatedRepository.deleteAll(removeProductRelatedList);
@@ -819,5 +820,11 @@ public class ProductService {
                 relatedProductsPage.getTotalPages(),
                 relatedProductsPage.isLast()
         );
+    }
+
+    public List<ProductInfoVm> getProductsForWarehouse(
+            String name, String sku, List<Long> productIds, FilterExistInWHSelection selection) {
+        return productRepository.findProductForWarehouse(name, sku, productIds, selection.name())
+                .stream().map(ProductInfoVm::fromProduct).toList();
     }
 }

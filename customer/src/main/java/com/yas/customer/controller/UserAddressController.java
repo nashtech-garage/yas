@@ -2,6 +2,7 @@ package com.yas.customer.controller;
 
 import com.yas.customer.service.UserAddressService;
 import com.yas.customer.viewmodel.address.ActiveAddressVm;
+import com.yas.customer.viewmodel.address.AddressDetailVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import com.yas.customer.viewmodel.user_address.UserAddressVm;
 import jakarta.validation.Valid;
@@ -20,6 +21,11 @@ public class UserAddressController {
     @GetMapping("/storefront/user-address")
     public ResponseEntity<List<ActiveAddressVm>> getUserAddresses() {
         return ResponseEntity.ok(userAddressService.getUserAddressList());
+    }
+
+    @GetMapping("/storefront/user-address/default-address")
+    public ResponseEntity<AddressDetailVm> getDefaultAddress() {
+        return ResponseEntity.ok(userAddressService.getAddressDefault());
     }
 
     @PostMapping("/storefront/user-address")

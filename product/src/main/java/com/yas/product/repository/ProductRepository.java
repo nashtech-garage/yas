@@ -2,6 +2,7 @@ package com.yas.product.repository;
 
 import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
+import com.yas.product.model.enumeration.FilterExistInWHSelection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -58,4 +59,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                                                   @Param("startPrice") Double startPrice,
                                                                   @Param("endPrice") Double endPrice,
                                                                   Pageable pageable);
+
+    @Query(value = "SELECT p FROM Product p " +
+            "WHERE (LOWER(p.name) LIKE concat('%', LOWER(:name), '%') " +
+            "OR LOWER(p.sku) LIKE concat('%', LOWER(:sku), '%')) " +
+            "AND ((:selection = 'ALL') " +
+            "OR ((:selection = 'YES' and p.id in :productIds ) " +
+            "OR (:selection = 'NO' and ((coalesce(:productIds) is null) or p.id not in :productIds)))) ")
+    List<Product> findProductForWarehouse(@Param("name") String name, @Param("sku") String sku,
+                                          @Param("productIds") List<Long> productIds,
+                                          @Param("selection") String selection);
 }

@@ -15,6 +15,8 @@ YAS is a pet project aim to practice building a typical microservice application
 [![order-ci](https://github.com/nashtech-garage/yas/actions/workflows/order-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/order-ci.yaml)
 [![inventory-ci](https://github.com/nashtech-garage/yas/actions/workflows/inventory-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/inventory-ci.yaml)
 [![tax-ci](https://github.com/nashtech-garage/yas/actions/workflows/tax-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/tax-ci.yaml)
+[![search-ci](https://github.com/nashtech-garage/yas/actions/workflows/search-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/search-ci.yaml)
+[![promotion-ci](https://github.com/nashtech-garage/yas/actions/workflows/promotion-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/promotion-ci.yaml)
 
 ## Tentative technologies and frameworks
 
@@ -49,6 +51,7 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 grafana
 127.0.0.1 elasticsearch
 127.0.0.1 kafka
+127.0.0.1 akhq
 ```
 1. Open terminal of your choice, go to `yas` directory and run `docker compose up` and wait for all the containers up and running
 2. All the containers up and running then we start source connectors by run script, open any terminal window... go to the YAS root folder and type: ./start-source-connectors.sh

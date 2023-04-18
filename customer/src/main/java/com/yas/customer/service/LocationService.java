@@ -2,6 +2,7 @@ package com.yas.customer.service;
 
 
 import com.yas.customer.config.ServiceUrlConfig;
+import com.yas.customer.viewmodel.address.AddressDetailVm;
 import com.yas.customer.viewmodel.address.AddressVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import org.springframework.core.ParameterizedTypeReference;
@@ -27,7 +28,7 @@ public class LocationService {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
-    public List<AddressVm> getAddressesByIdList(List<Long> ids) {
+    public List<AddressDetailVm> getAddressesByIdList(List<Long> ids) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.location())
@@ -43,7 +44,26 @@ public class LocationService {
                 .onStatus(
                         HttpStatus.UNAUTHORIZED::equals,
                         response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
-                .bodyToMono(new ParameterizedTypeReference<List<AddressVm>>() {})
+                .bodyToMono(new ParameterizedTypeReference<List<AddressDetailVm>>() {})
+                .block();
+    }
+
+    public AddressDetailVm getAddressById(Long id) {
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+        final URI url = UriComponentsBuilder
+                .fromHttpUrl(serviceUrlConfig.location())
+                .path("/storefront/addresses/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return webClient.get()
+                .uri(url)
+                .headers(h->h.setBearerAuth(jwt))
+                .retrieve()
+                .onStatus(
+                        HttpStatus.NOT_FOUND::equals,
+                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
+                .bodyToMono(AddressDetailVm.class)
                 .block();
     }
 

@@ -1,5 +1,6 @@
 package com.yas.product.controller;
 
+import com.yas.product.model.enumeration.FilterExistInWHSelection;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.viewmodel.product.*;
@@ -163,5 +164,12 @@ public class ProductController {
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(productService.getRelatedProductsStorefront(id, pageNo, pageSize));
+    }
+
+    @GetMapping("/backoffice/products/for-warehouse")
+    public ResponseEntity<List<ProductInfoVm>> getProductsForWarehouse(
+            @RequestParam String name, @RequestParam String sku,
+            @RequestParam(required = false) List<Long> productIds, @RequestParam(required = false) FilterExistInWHSelection selection) {
+        return ResponseEntity.ok(productService.getProductsForWarehouse(name, sku, productIds, selection));
     }
 }
