@@ -13,7 +13,9 @@
       "@constants/*": ["constants/*"],
       "@catalogModels/*": ["modules/catalog/models/*"],
       "@catalogServices/*": ["modules/catalog/services/*"],
-      "@catalogComponents/*": ["modules/catalog/components/*"]
+      "@catalogComponents/*": ["modules/catalog/components/*"],
+      "@inventoryService/*": ["modules/inventory/services/*"],
+      "@inventoryModels/*": ["modules/inventory/models/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

@@ -11,3 +11,8 @@ create table stock_history (id bigserial not null, warehouse_id bigserial not nu
 
 alter table if exists stock add constraint FKkud35ls1d40wpjb5htpp14yuas foreign key (warehouse_id) references warehouse;
 alter table if exists stock_history add constraint FKkud35ls1d40wpjb5htpp14yuh foreign key (warehouse_id) references warehouse;
+
+--changeset nguyenvanhadncntt:issue-629-1
+ALTER TABLE warehouse RENAME COLUMN addressId TO address_id;
+ALTER TABLE stock RENAME COLUMN productId TO product_id;
+ALTER TABLE stock_history RENAME COLUMN productId TO product_id;
