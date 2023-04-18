@@ -22,8 +22,19 @@ public class StockController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/backoffice/stocks/{warehouseId}")
-    public ResponseEntity<List<StockVm>> getStocksByWarehouseId(@PathVariable Long warehouseId) {
-        return ResponseEntity.ok(stockService.getStocksByWarehouseId(warehouseId));
+//    @GetMapping
+//    public ResponseEntity<List<StockVm>> getStocksByWarehouseId(@RequestParam Long warehouseId) {
+//        return ResponseEntity.ok(stockService.getStocksByWarehouseId(warehouseId));
+//    }
+
+    @GetMapping
+    public ResponseEntity<List<StockVm>> getStocksByWarehouseIdAndProductNameAndSku(@RequestParam(name = "warehouseId") Long warehouseId,
+                                                                                    @RequestParam(required = false) String productName,
+                                                                                    @RequestParam(required = false) String productSku) {
+        return ResponseEntity.ok(stockService.getStocksByWarehouseIdAndProductNameAndSku(
+                warehouseId,
+                productName,
+                productSku
+        ));
     }
 }

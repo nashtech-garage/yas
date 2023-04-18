@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,22 +72,25 @@ public class StockService {
     public List<StockVm> getStocksByWarehouseIdAndProductNameAndSku(Long warehouseId,
                                                                     String productName,
                                                                     String productSku) {
-        Set<ProductInfoVm> productInfoVmList = new HashSet<>(warehouseService.getProductWarehouse(
-                warehouseId,
-                productName,
-                productSku,
-                FilterExistInWHSelection.YES));
-//                .sorted(Comparator.comparingLong(ProductInfoVm::id)).toList();
+        HashMap<Long, ProductInfoVm> productInfoVmHashMap = (HashMap<Long, ProductInfoVm>) warehouseService.getProductWarehouse(
+                        warehouseId,
+                        productName,
+                        productSku,
+                        FilterExistInWHSelection.YES)
+                .stream()
+                .collect(Collectors.toMap(ProductInfoVm::id, productInfoVm -> productInfoVm));
 
         List<Stock> stocks = stockRepository.findByWarehouseIdAndProductIdIn(
                 warehouseId,
-                productInfoVmList.stream().map(ProductInfoVm::id).toList()
+                productInfoVmHashMap.values().stream().map(ProductInfoVm::id).toList()
         );
 
         return stocks.stream().map(
                 stock -> {
-                    ProductInfoVm productInfoVm = productInfoVmList.stream().filter(productInfoVm1 -> productInfoVm1.id() == stock.getId()).findFirst().get();
+                    ProductInfoVm productInfoVm = productInfoVmHashMap.get(stock.getProductId());
+
+                    return StockVm.fromModel(stock, productInfoVm);
                 }
-        )
+        ).toList();
     }
 }
