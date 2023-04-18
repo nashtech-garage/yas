@@ -6,6 +6,7 @@ import com.yas.customer.model.UserAddress;
 import com.yas.customer.repository.UserAddressRepository;
 import com.yas.customer.utils.Constants;
 import com.yas.customer.viewmodel.address.ActiveAddressVm;
+import com.yas.customer.viewmodel.address.AddressDetailVm;
 import com.yas.customer.viewmodel.address.AddressVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import com.yas.customer.viewmodel.user_address.UserAddressVm;
@@ -32,39 +33,50 @@ public class UserAddressService {
 
     public List<ActiveAddressVm> getUserAddressList() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if(userId.equals("anonymousUser"))
-            throw new AccessDeniedException("Please login");
+        if (userId.equals("anonymousUser"))
+            throw new AccessDeniedException(Constants.ERROR_CODE.UNAUTHENTICATED);
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
-        List<AddressVm> addressVmList = locationService.getAddressesByIdList(userAddressList.stream()
-                .map(userAddress -> userAddress.getAddressId()).toList());
+        List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(
+                userAddressList.stream()
+                        .map(UserAddress::getAddressId)
+                        .collect(Collectors.toList()));
 
-        List<ActiveAddressVm> addressActiveVms = new ArrayList<>();
-        for (UserAddress userAddress : userAddressList) {
-            for (AddressVm addressVm : addressVmList) {
-                if (userAddress.getAddressId().equals(addressVm.id())) {
-                    addressActiveVms.add(new ActiveAddressVm(
-                            addressVm.id(),
-                            addressVm.contactName(),
-                            addressVm.phone(),
-                            addressVm.addressLine1(),
-                            addressVm.city(),
-                            addressVm.zipCode(),
-                            addressVm.districtId(),
-                            addressVm.stateOrProvinceId(),
-                            addressVm.countryId(),
-                            userAddress.getIsActive()
-                    ));
-                    //remove element to reduce the number of iterations
-                    addressVmList.remove(addressVm);
-                    break;
-                }
-            }
-        }
+        List<ActiveAddressVm> addressActiveVms = userAddressList.stream()
+                .flatMap(userAddress -> addressVmList.stream()
+                        .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id()))
+                        .map(addressDetailVm -> new ActiveAddressVm(
+                                addressDetailVm.id(),
+                                addressDetailVm.contactName(),
+                                addressDetailVm.phone(),
+                                addressDetailVm.addressLine1(),
+                                addressDetailVm.city(),
+                                addressDetailVm.zipCode(),
+                                addressDetailVm.districtId(),
+                                addressDetailVm.districtName(),
+                                addressDetailVm.stateOrProvinceId(),
+                                addressDetailVm.stateOrProvinceName(),
+                                addressDetailVm.countryId(),
+                                addressDetailVm.countryName(),
+                                userAddress.getIsActive()
+                        ))
+                ).collect(Collectors.toList());
 
         //sort by isActive
         Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
-        return addressActiveVms.stream().sorted( comparator ).collect(Collectors.toList());
+        return addressActiveVms.stream().sorted(comparator).collect(Collectors.toList());
+    }
+
+    public AddressDetailVm getAddressDefault() {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (userId.equals("anonymousUser"))
+            throw new AccessDeniedException(Constants.ERROR_CODE.UNAUTHENTICATED);
+
+        UserAddress userAddress = userAddressRepository.findByIsActiveTrue().orElseThrow(()
+                -> new NotFoundException(Constants.ERROR_CODE.USER_ADDRESS_NOT_FOUND));
+
+        AddressDetailVm addressVmList = locationService.getAddressById(userAddress.getAddressId());
+        return addressVmList;
     }
 
     public UserAddressVm createAddress(AddressPostVm addressPostVm) {

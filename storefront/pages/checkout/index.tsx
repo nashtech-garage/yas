@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
 import { useRouter } from 'next/router';
 import { getMyProfile } from '@/modules/profile/services/ProfileService';
@@ -13,6 +13,12 @@ import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
 import { createOrder } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
+import {
+  createUserAddress,
+  getUserAddressDefault,
+} from '@/modules/customer/services/CustomerService';
+import ModalAddressList from '@/modules/order/components/ModalAddressList';
+import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -35,31 +41,38 @@ const Checkout = () => {
     watch,
   } = useForm<Order>();
   const {
-    handleSubmit: handleSubmitShippingAddress,
     register: registerShippingAddress,
     formState: { errors: errorsShippingAddress },
     watch: watchShippingAddress,
   } = useForm<Address>();
 
   const {
-    handleSubmit: handleSubmitBillingAddress,
     register: registerBillingAddress,
     formState: { errors: errorsBillingAddress },
     watch: watchBillingAddress,
   } = useForm<Address>();
 
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [sameAddress, setSameAddress] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>('');
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   let order = watch();
 
+  const [shippingAddress, setShippingAddress] = useState<Address>();
+  const [billingAddress, setBillingAddress] = useState<Address>();
+
+  const [sameAddress, setSameAddress] = useState<boolean>(true);
   const [addShippingAddress, setAddShippingAddress] = useState<boolean>(false);
   const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
+  const [showModalShipping, setModalShipping] = useState<boolean>(false);
+  const [showModalBilling, setModalBilling] = useState<boolean>(false);
+  const handleCloseModalShipping = () => setModalShipping(false);
+  const handleCloseModalBilling = () => setModalBilling(false);
 
   useEffect(() => {
     getMyProfile()
-      .then(() => {
+      .then((res) => {
         if (!loaded) {
+          setEmail(res.email);
           loadItems();
           setLoaded(true);
         }
@@ -67,6 +80,11 @@ const Checkout = () => {
       .catch(() => {
         router.push({ pathname: `/login` });
       });
+
+    getUserAddressDefault().then((res) => {
+      setShippingAddress(res);
+      setBillingAddress(res);
+    });
   }, []);
 
   const loadItems = () => {
@@ -92,30 +110,35 @@ const Checkout = () => {
     return getCartProductThumbnail(productIds);
   };
 
-  const handleSaveNewShippingAddress = (data: Address) => {
-    // call api to save new address
-    console.log('save shipping address');
+  const handleSelectShippingAddress = (address: Address) => {
+    setShippingAddress(address);
+  };
+  const handleSelectBillingAddress = (address: Address) => {
+    setBillingAddress(address);
   };
 
-  const handleSaveNewBillingAddress = (data: Address) => {
-    // call api to save new address
-    console.log('save billing address');
+  const handleSaveNewAddress = (data: Address) => {
+    createUserAddress(data).catch((e) => {
+      toast.error('Save new address failed!');
+    });
   };
 
   const onSubmitForm: SubmitHandler<Order> = async (data) => {
-    //handle ShippAddress
     let isValidate = true;
+
     if (addShippingAddress) {
       await addressSchema
         .validate(watchShippingAddress())
         .then(() => {
-          handleSaveNewShippingAddress(watchShippingAddress());
+          handleSaveNewAddress(watchShippingAddress());
           order.shippingAddressPostVm = watchShippingAddress();
         })
         .catch((error) => {
           toast.error(error.message);
           isValidate = false;
         });
+    } else if (shippingAddress) {
+      order.shippingAddressPostVm = shippingAddress;
     }
 
     //handle BillingAddress
@@ -123,7 +146,7 @@ const Checkout = () => {
       await addressSchema
         .validate(watchBillingAddress())
         .then(() => {
-          handleSaveNewBillingAddress(watchBillingAddress());
+          handleSaveNewAddress(watchBillingAddress());
           order.billingAddressPostVm = watchBillingAddress();
         })
         .catch((error) => {
@@ -131,11 +154,13 @@ const Checkout = () => {
           isValidate = false;
         });
     } else if (sameAddress) {
-      order.billingAddressPostVm = watchShippingAddress();
+      order.billingAddressPostVm = order.shippingAddressPostVm;
+    } else if (billingAddress) {
+      order.billingAddressPostVm = billingAddress;
     }
 
     if (isValidate) {
-      order.email = 'Test@gmail.com';
+      order.email = email;
       order.note = data.note;
       order.tax = 0;
       order.discount = 0;
@@ -175,7 +200,10 @@ const Checkout = () => {
                       <button
                         type="button"
                         className="btn btn-outline-primary  fw-bold btn-sm me-2"
-                        onClick={() => setAddShippingAddress(false)}
+                        onClick={() => {
+                          setAddShippingAddress(false);
+                          setModalShipping(true);
+                        }}
                       >
                         Change address <i className="bi bi-plus-circle-fill"></i>
                       </button>
@@ -189,53 +217,7 @@ const Checkout = () => {
                         Add new address <i className="bi bi-plus-circle-fill"></i>
                       </button>
                     </div>
-                    <div className={`shipping_address ${addShippingAddress ? `d-none` : ``}`}>
-                      <div className="row">
-                        <div className="col-lg-6">
-                          <div className="checkout__input">
-                            <div className="mb-3">
-                              <label className="form-label" htmlFor="firstName">
-                                Name <span className="text-danger">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                className={`form-control`}
-                                defaultValue={`This feild will update when "User address book is ready"`}
-                                disabled={true}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="checkout__input">
-                            <div className="mb-3">
-                              <label className="form-label" htmlFor="firstName">
-                                Phone <span className="text-danger">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                className={`form-control`}
-                                defaultValue={`This feild will update when "User address book is ready"`}
-                                disabled={true}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="checkout__input">
-                        <div className="mb-3">
-                          <label className="form-label" htmlFor="firstName">
-                            Address <span className="text-danger">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className={`form-control`}
-                            defaultValue={`This feild will update when "User address book is ready"`}
-                            disabled={true}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <CheckOutAddress address={shippingAddress!} isDisplay={!addShippingAddress} />
                     <AddressForm
                       isDisplay={addShippingAddress}
                       register={registerShippingAddress}
@@ -255,6 +237,7 @@ const Checkout = () => {
                               onChange={() => {
                                 setSameAddress(!sameAddress);
                                 setAddBillingAddress(false);
+                                if (sameAddress && !addBillingAddress) setModalBilling(true);
                               }}
                               checked={sameAddress}
                             />
@@ -277,6 +260,12 @@ const Checkout = () => {
                         </button>
                       </div>
                     </div>
+
+                    <CheckOutAddress
+                      address={billingAddress!}
+                      isDisplay={!sameAddress && !addBillingAddress}
+                    />
+
                     <AddressForm
                       isDisplay={addBillingAddress}
                       register={registerBillingAddress}
@@ -299,7 +288,7 @@ const Checkout = () => {
                         labelText="Email"
                         field="email"
                         register={register}
-                        defaultValue="Test@gmail.com"
+                        defaultValue={email}
                         error={errors.note?.message}
                         disabled={true}
                       />
@@ -310,6 +299,16 @@ const Checkout = () => {
                   </div>
                 </div>
               </form>
+              <ModalAddressList
+                showModal={showModalShipping}
+                handleClose={handleCloseModalShipping}
+                handleSelectAddress={handleSelectShippingAddress}
+              />
+              <ModalAddressList
+                showModal={showModalBilling}
+                handleClose={handleCloseModalBilling}
+                handleSelectAddress={handleSelectBillingAddress}
+              />
             </div>
           </div>
         </section>

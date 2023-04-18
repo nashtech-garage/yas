@@ -9,6 +9,7 @@ import com.yas.location.repository.CountryRepository;
 import com.yas.location.repository.DistrictRepository;
 import com.yas.location.repository.StateOrProvinceRepository;
 import com.yas.location.utils.Constants;
+import com.yas.location.viewmodel.address.AddressDetailVm;
 import com.yas.location.viewmodel.address.AddressGetVm;
 import com.yas.location.viewmodel.address.AddressPostVm;
 import lombok.RequiredArgsConstructor;
@@ -53,15 +54,15 @@ public class AddressService {
         addressRepository.saveAndFlush(address);
     }
 
-    public List<AddressGetVm> getAddressList(List<Long> ids) {
+    public List<AddressDetailVm> getAddressList(List<Long> ids) {
         List<Address> addressList = addressRepository.findAllByIdIn(ids);
-        return addressList.stream().map(address -> AddressGetVm.fromModel(address)).toList();
+        return addressList.stream().map(address -> AddressDetailVm.fromModel(address)).toList();
     }
 
-    public AddressGetVm getAddress(Long id) {
+    public AddressDetailVm getAddress(Long id) {
         Address address = addressRepository.findById(id).orElseThrow(() ->
                 new NotFoundException(Constants.ERROR_CODE.ADDRESS_NOT_FOUND, id));
-        return AddressGetVm.fromModel(address);
+        return AddressDetailVm.fromModel(address);
     }
 
     public void deleteAddress(Long id) {
