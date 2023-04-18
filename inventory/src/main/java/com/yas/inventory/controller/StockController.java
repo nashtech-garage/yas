@@ -3,6 +3,7 @@ package com.yas.inventory.controller;
 import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.service.StockService;
 import com.yas.inventory.viewmodel.stock.StockPostVM;
+import com.yas.inventory.viewmodel.stock.StockVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,4 +22,8 @@ public class StockController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/backoffice/stocks/{warehouseId}")
+    public ResponseEntity<List<StockVm>> getStocksByWarehouseId(@PathVariable Long warehouseId) {
+        return ResponseEntity.ok(stockService.getStocksByWarehouseId(warehouseId));
     }
+}
