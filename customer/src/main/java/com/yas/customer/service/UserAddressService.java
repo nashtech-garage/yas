@@ -37,34 +37,30 @@ public class UserAddressService {
             throw new AccessDeniedException(Constants.ERROR_CODE.UNAUTHENTICATED);
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
-        List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(userAddressList.stream()
-                .map(userAddress -> userAddress.getAddressId()).toList());
+        List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(
+                userAddressList.stream()
+                        .map(UserAddress::getAddressId)
+                        .collect(Collectors.toList()));
 
-        List<ActiveAddressVm> addressActiveVms = new ArrayList<>();
-        for (UserAddress userAddress : userAddressList) {
-            for (AddressDetailVm addressDetailVm : addressVmList) {
-                if (userAddress.getAddressId().equals(addressDetailVm.id())) {
-                    addressActiveVms.add(new ActiveAddressVm(
-                            addressDetailVm.id(),
-                            addressDetailVm.contactName(),
-                            addressDetailVm.phone(),
-                            addressDetailVm.addressLine1(),
-                            addressDetailVm.city(),
-                            addressDetailVm.zipCode(),
-                            addressDetailVm.districtId(),
-                            addressDetailVm.districtName(),
-                            addressDetailVm.stateOrProvinceId(),
-                            addressDetailVm.stateOrProvinceName(),
-                            addressDetailVm.countryId(),
-                            addressDetailVm.countryName(),
-                            userAddress.getIsActive()
-                    ));
-                    //remove element to reduce the number of iterations
-                    addressVmList.remove(addressDetailVm);
-                    break;
-                }
-            }
-        }
+        List<ActiveAddressVm> addressActiveVms = userAddressList.stream()
+                .flatMap(userAddress -> addressVmList.stream()
+                        .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id()))
+                        .map(addressDetailVm -> new ActiveAddressVm(
+                                addressDetailVm.id(),
+                                addressDetailVm.contactName(),
+                                addressDetailVm.phone(),
+                                addressDetailVm.addressLine1(),
+                                addressDetailVm.city(),
+                                addressDetailVm.zipCode(),
+                                addressDetailVm.districtId(),
+                                addressDetailVm.districtName(),
+                                addressDetailVm.stateOrProvinceId(),
+                                addressDetailVm.stateOrProvinceName(),
+                                addressDetailVm.countryId(),
+                                addressDetailVm.countryName(),
+                                userAddress.getIsActive()
+                        ))
+                ).collect(Collectors.toList());
 
         //sort by isActive
         Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
