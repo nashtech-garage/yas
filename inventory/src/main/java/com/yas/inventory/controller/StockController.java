@@ -22,11 +22,6 @@ public class StockController {
         return ResponseEntity.noContent().build();
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<StockVm>> getStocksByWarehouseId(@RequestParam Long warehouseId) {
-//        return ResponseEntity.ok(stockService.getStocksByWarehouseId(warehouseId));
-//    }
-
     @GetMapping
     public ResponseEntity<List<StockVm>> getStocksByWarehouseIdAndProductNameAndSku(@RequestParam(name = "warehouseId") Long warehouseId,
                                                                                     @RequestParam(required = false) String productName,
