@@ -295,3 +295,20 @@ a {
 .left-menu-element:hover {
   background-color: #eeeeee;
 }
+
+.btn-create-address {
+  background-color: rgb(255, 255, 255);
+  font-size: 15px;
+  height: 60px;
+  border: 1px dashed rgb(216, 216, 216);
+  margin: 0px 0px 10px;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+}
+
+.btn-create-address:hover {
+  color: #0070f3;
+}

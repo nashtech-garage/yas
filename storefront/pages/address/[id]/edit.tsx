@@ -8,6 +8,23 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import { UPDATE_SUCCESSFULLY } from '../../../common/constants/Common';
+import ProfileLayout from '@/common/components/ProfileLayout';
+import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
+
+const crumb: BreadcrumbModel[] = [
+  {
+    pageName: 'Home',
+    url: '/',
+  },
+  {
+    pageName: 'Address',
+    url: '/address',
+  },
+  {
+    pageName: 'Edit',
+    url: '#',
+  },
+];
 
 const EditAddress: NextPage = () => {
   const {
@@ -74,22 +91,16 @@ const EditAddress: NextPage = () => {
     );
   }
   return (
-    <>
-      <Head>
-        <title>Edit Address</title>
-      </Head>
-      <div className="container pt-5" style={{ minHeight: '550px' }}>
-        <h2 className="mb-3">Edit Address</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <AddressForm register={register} errors={errors} address={address} isDisplay={true} />
-          <div className="container p-0" style={{ textAlign: 'end' }}>
-            <button className="btn btn-primary" type="submit">
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+    <ProfileLayout breadcrumb={crumb} title="Edit Address" menuActive="address">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <AddressForm register={register} errors={errors} address={address} isDisplay={true} />
+        <div className="container p-0" style={{ textAlign: 'end' }}>
+          <button className="btn btn-primary" type="submit">
+            Save
+          </button>
+        </div>
+      </form>
+    </ProfileLayout>
   );
 };
 
