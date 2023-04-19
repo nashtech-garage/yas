@@ -1,11 +1,11 @@
 package com.yas.inventory.service;
 
+import com.yas.inventory.constants.MessageCode;
 import com.yas.inventory.exception.NotFoundException;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
-import com.yas.inventory.utils.Constants;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.stock.StockPostVM;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +28,13 @@ public class StockService {
             ProductInfoVm product = productService.getProduct(postVM.productId());
 
             if (product == null) {
-                throw new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, postVM.productId());
+                throw new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, postVM.productId());
             }
 
             Optional<Warehouse> warehouseOp = warehouseRepository.findById(postVM.warehouseId());
 
             if (warehouseOp.isEmpty()) {
-                throw new NotFoundException(Constants.ERROR_CODE.WAREHOUSE_NOT_FOUND, postVM.warehouseId());
+                throw new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, postVM.warehouseId());
             }
 
             return Stock.builder()

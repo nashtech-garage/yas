@@ -17,6 +17,7 @@ import {
   STATE_OR_PROVINCE_URL,
   TAX_CLASS_URL,
   TAX_RATE_URL,
+  WAREHOUSE_URL,
 } from '@constants/Common';
 type Props = {
   open: boolean;
@@ -120,6 +121,13 @@ let menu_inventory_item_data: any = [
     link: INVENTORY_WAREHOUSE_PRODUCTS_URL,
     icon: <TbBuildingStore />,
   },
+  {
+    id: 2,
+    name: 'manageWarehouses',
+    active: false,
+    link: WAREHOUSE_URL,
+    icon: <TbBuildingStore />,
+  },
 ];
 
 const Burger = ({ open, setOpen }: Props) => {
@@ -207,10 +215,12 @@ const Menu = ({ open, setOpen }: Props) => {
                 setShowInventory(!showInventory);
               }}
             >
-              <RiArrowDropDownLine className={`${!showTax ? styles.rotateButton180 : ''}`} />
+              <RiArrowDropDownLine className={`${!showInventory ? styles.rotateButton180 : ''}`} />
             </span>
           </h5>
-          <div className="py-4">{showTax && <ListGroup data={menu_inventory_item_data} />}</div>
+          <div className="py-4">
+            {showInventory && <ListGroup data={menu_inventory_item_data} />}
+          </div>
 
           {/* Logout */}
           <div className="d-flex justify-content-center ">

@@ -31,6 +31,7 @@ export const STATE_OR_PROVINCE_URL = '/location/state-or-provinces';
 export const TAX_CLASS_URL = '/tax/tax-classes';
 export const TAX_RATE_URL = '/tax/tax-rates';
 export const INVENTORY_WAREHOUSE_PRODUCTS_URL = '/inventory/warehouse-products';
+export const WAREHOUSE_URL = '/inventory/warehouses';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;

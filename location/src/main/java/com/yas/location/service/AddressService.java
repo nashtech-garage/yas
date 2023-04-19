@@ -44,6 +44,7 @@ public class AddressService {
 
         address.setContactName(dto.contactName());
         address.setAddressLine1(dto.addressLine1());
+        address.setAddressLine2(dto.addressLine2());
         address.setPhone(dto.phone());
         address.setCity(dto.city());
         address.setZipCode(dto.zipCode());
