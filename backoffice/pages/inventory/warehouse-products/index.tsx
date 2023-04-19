@@ -4,13 +4,13 @@ import {
   FilterExistInWHSelection,
   getProductInWarehouse,
   getWarehouses,
-} from '@inventoryService/WarehouseService';
+} from '@inventoryServices/WarehouseService';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Button, Table } from 'react-bootstrap';
 import { StockPostVM } from '@inventoryModels/Stock';
-import { addProductIntoWarehouse } from '@inventoryService/StockService';
+import { addProductIntoWarehouse } from '@inventoryServices/StockService';
 import { Console } from 'console';
 
 const WarehouseProducts: NextPage = () => {

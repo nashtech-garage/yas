@@ -47,3 +47,8 @@ export async function editStateOrProvince(id: number, stateOrProvince: StateOrPr
   if (response.status === 204) return response;
   else return await response.json();
 }
+
+export async function getStatesOrProvinces(id: number) {
+  const response = await fetch(`/api/location/storefront/state-or-provinces/${id}`);
+  return response.json();
+}
