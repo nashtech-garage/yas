@@ -67,6 +67,12 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorVm);
     }
 
+    @ExceptionHandler({ QuantityOutOfStockException.class })
+    public ResponseEntity<Object> handleQuantityOutOfStock(QuantityOutOfStockException ex) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorVm);
+    }
 
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;

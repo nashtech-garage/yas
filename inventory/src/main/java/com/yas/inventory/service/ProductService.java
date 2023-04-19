@@ -3,6 +3,8 @@ package com.yas.inventory.service;
 import com.yas.inventory.config.ServiceUrlConfig;
 import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -40,6 +42,7 @@ public class ProductService {
 
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
                                           List<Long> productIds, FilterExistInWHSelection selection) {
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
         params.add("name", productName);
@@ -57,6 +60,7 @@ public class ProductService {
                 .toUri();
         return webClient.get()
                 .uri(url)
+                .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
                 .bodyToFlux(ProductInfoVm.class)
                 .collectList()
