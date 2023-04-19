@@ -3,7 +3,10 @@ package com.yas.inventory.controller;
 import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
 import com.yas.inventory.service.WarehouseService;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
-import com.yas.inventory.viewmodel.warehouse.*;
+import com.yas.inventory.viewmodel.warehouse.WarehouseDetailVm;
+import com.yas.inventory.viewmodel.warehouse.WarehouseListGetVm;
+import com.yas.inventory.viewmodel.warehouse.WarehouseGetVm;
+import com.yas.inventory.viewmodel.warehouse.WarehousePostVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.yas.inventory.model.Warehouse;
@@ -97,3 +100,4 @@ public class WarehouseController {
         return ResponseEntity.noContent().build();
     }
 }
+
