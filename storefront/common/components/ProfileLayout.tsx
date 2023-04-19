@@ -5,12 +5,12 @@ import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
 import BreadcrumbComponent from './BreadcrumbComponent';
 type Props = {
   children: React.ReactNode;
-  breakcrumb: BreadcrumbModel[];
+  breadcrumb: BreadcrumbModel[];
   title?: string;
   menuActive: string;
 };
 
-export default function ProfileLayout({ children, breakcrumb, title, menuActive }: Props) {
+export default function ProfileLayout({ children, breadcrumb, title, menuActive }: Props) {
   return (
     <Container>
       <Head>
@@ -20,7 +20,7 @@ export default function ProfileLayout({ children, breakcrumb, title, menuActive 
         className="d-flex justify-content-between pt-5 col-md-12 mb-2"
         style={{ height: '100px' }}
       >
-        <BreadcrumbComponent props={breakcrumb} />
+        <BreadcrumbComponent props={breadcrumb} />
       </div>
       <div className="container mb-5">
         <div className="row">

@@ -1,5 +1,4 @@
 import { NextPage } from 'next';
-import Head from 'next/head';
 import { useForm } from 'react-hook-form';
 import AddressForm from '../../modules/address/components/AddressForm';
 import { Address } from '../../modules/address/models/AddressModel';
@@ -66,7 +65,7 @@ const CreateAddress: NextPage = () => {
   };
 
   return (
-    <ProfileLayout breakcrumb={crumb} title="Create Address" menuActive="address">
+    <ProfileLayout breadcrumb={crumb} title="Create Address" menuActive="address">
       <form onSubmit={handleSubmit(onSubmit)}>
         <AddressForm isDisplay={true} register={register} errors={errors} address={undefined} />
         <div className="container p-0" style={{ textAlign: 'end' }}>

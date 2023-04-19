@@ -10,13 +10,7 @@ import { Input } from '../../common/items/Input';
 import { Customer } from '../../modules/profile/models/Customer';
 import { ProfileRequest } from '../../modules/profile/models/ProfileRequest';
 import { getMyProfile, updateCustomer } from '../../modules/profile/services/ProfileService';
-import styles from '../../styles/address.module.css';
-import { FaArrowRight } from 'react-icons/fa';
-import clsx from 'clsx';
 import { useRouter } from 'next/router';
-import { TiContacts } from 'react-icons/ti';
-import { CgProfile } from 'react-icons/cg';
-import UserProfileLeftSideBar from '@/common/components/UserProfileLeftSideBar';
 import ProfileLayout from '@/common/components/ProfileLayout';
 import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
 
@@ -34,7 +28,6 @@ const crumb: BreadcrumbModel[] = [
 const Profile: NextPage = () => {
   const { handleSubmit, register } = useForm<Customer>();
   const [customer, setCustomer] = useState<Customer>();
-  const router = useRouter();
 
   useEffect(() => {
     getMyProfile()
@@ -58,7 +51,7 @@ const Profile: NextPage = () => {
   };
 
   return (
-    <ProfileLayout breakcrumb={crumb} title="Profile" menuActive="profile">
+    <ProfileLayout breadcrumb={crumb} title="Profile" menuActive="profile">
       <form onSubmit={handleSubmit(onSubmit)} className="w-75">
         <Input
           labelText="Username"

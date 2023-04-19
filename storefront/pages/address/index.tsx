@@ -20,7 +20,6 @@ import styles from '../../styles/address.module.css';
 import clsx from 'clsx';
 import ModalChooseDefaultAddress from 'common/items/ModalChooseDefaultAddress';
 import { useRouter } from 'next/router';
-import UserProfileLeftSideBar from '@/common/components/UserProfileLeftSideBar';
 import { TiContacts } from 'react-icons/ti';
 import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
 import ProfileLayout from '@/common/components/ProfileLayout';
@@ -86,7 +85,7 @@ const Address: NextPage = () => {
   }, []);
 
   return (
-    <ProfileLayout breakcrumb={crumb} title="Address" menuActive="address">
+    <ProfileLayout breadcrumb={crumb} title="Address" menuActive="address">
       <div className="d-grid gap-2">
         <button className="btn-create-address" onClick={() => router.push('address/create')}>
           <BiPlusMedical />
