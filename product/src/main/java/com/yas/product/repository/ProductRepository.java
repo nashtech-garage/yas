@@ -27,12 +27,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
+
     @Query(value = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:productName% " +
             "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = '')) " +
             "AND p.isVisibleIndividually = TRUE " +
             "AND p.isPublished = TRUE " +
             "ORDER BY p.lastModifiedOn DESC")
     List<Product> getExportingProducts(@Param("productName") String productName, @Param("brandName") String brandName);
+
     List<Product> findAllByIdIn(List<Long> productIds);
 
     Optional<Product> findByGtinAndIsPublishedTrue(String gtin);

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Container, Row } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 
-import ProductItems from 'common/items/ProductItems';
+import ProductCard from '@/common/components/ProductCard';
 import { ProductThumbnail } from 'modules/catalog/models/ProductThumbnail';
 import { getFeaturedProducts } from 'modules/catalog/services/ProductService';
 
@@ -25,8 +25,13 @@ const FeaturedProduct = () => {
   return (
     <Container className="featured-product-container">
       <div className="title">Featured products</div>
-      <Row xs={6} style={{ gap: '16px' }}>
-        <ProductItems products={products} />
+      <Row xs={5} xxl={6}>
+        {products.length > 0 &&
+          products.map((product) => (
+            <Col key={product.id}>
+              <ProductCard product={product} />
+            </Col>
+          ))}
       </Row>
       <ReactPaginate
         forcePage={pageNo}

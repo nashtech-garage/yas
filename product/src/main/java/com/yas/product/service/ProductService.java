@@ -23,10 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,6 +39,7 @@ public class ProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionValueRepository productOptionValueRepository;
     private final ProductOptionCombinationRepository productOptionCombinationRepository;
+    private final ProductRelatedRepository productRelatedRepository;
 
     private static final String NONE_GROUP = "None group";
 
@@ -53,7 +51,8 @@ public class ProductService {
                           ProductImageRepository productImageRepository,
                           ProductOptionRepository productOptionRepository,
                           ProductOptionValueRepository productOptionValueRepository,
-                          ProductOptionCombinationRepository productOptionCombinationRepository) {
+                          ProductOptionCombinationRepository productOptionCombinationRepository,
+                          ProductRelatedRepository productRelatedRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.brandRepository = brandRepository;
@@ -63,6 +62,7 @@ public class ProductService {
         this.productOptionRepository = productOptionRepository;
         this.productOptionValueRepository = productOptionValueRepository;
         this.productOptionCombinationRepository = productOptionCombinationRepository;
+        this.productRelatedRepository = productRelatedRepository;
     }
 
     public ProductListGetVm getProductsWithFilter(int pageNo, int pageSize, String productName, String brandName) {
@@ -151,6 +151,18 @@ public class ProductService {
         Product mainSavedProduct = productRepository.saveAndFlush(mainProduct);
         productImageRepository.saveAllAndFlush(productImageList);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
+
+        // Save related products
+        if (CollectionUtils.isNotEmpty(productPostVm.relatedProductIds())) {
+            List<Product> relatedProducts = productRepository.findAllById(productPostVm.relatedProductIds());
+            List<ProductRelated> productRelatedList = relatedProducts.stream()
+                    .map(relatedProduct -> ProductRelated.builder()
+                            .product(mainSavedProduct)
+                            .relatedProduct(relatedProduct)
+                            .build())
+                    .toList();
+            productRelatedRepository.saveAllAndFlush(productRelatedList);
+        }
 
         // Save product variations, product option values, and product option combinations
         if (CollectionUtils.isNotEmpty(productPostVm.variations()) && CollectionUtils.isNotEmpty(productPostVm.productOptionValues())) {
@@ -287,6 +299,35 @@ public class ProductService {
             productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
         }
 
+        List<ProductRelated> newProductRelatedList;
+        List<ProductRelated> removeProductRelatedList;
+
+        List<Long> newRelatedProductIds = productPutVm.relatedProductIds();
+        List<ProductRelated> oldRelatedProducts = product.getRelatedProducts();
+        Set<Long> oldRelatedProductIds = oldRelatedProducts.stream()
+                .map(productRelated -> productRelated.getRelatedProduct().getId())
+                .collect(Collectors.toSet());
+
+        Set<Long> removeRelatedProductIds = oldRelatedProductIds.stream()
+                .filter(id -> !newRelatedProductIds.contains(id))
+                .collect(Collectors.toSet());
+
+        Set<Long> addRelatedProductIds = newRelatedProductIds.stream()
+                .filter(id -> !oldRelatedProductIds.contains(id))
+                .collect(Collectors.toSet());
+
+        removeProductRelatedList = oldRelatedProducts.stream()
+                .filter(productRelated -> removeRelatedProductIds.contains(productRelated.getRelatedProduct().getId()))
+                .toList();
+
+        List<Product> addRelatedProducts = productRepository.findAllById(addRelatedProductIds);
+        newProductRelatedList = addRelatedProducts.stream()
+                .map(addRelatedProduct -> ProductRelated.builder()
+                        .product(product)
+                        .relatedProduct(addRelatedProduct)
+                        .build())
+                .toList();
+
         productRepository.saveAllAndFlush(existingVariants);
         productImageRepository.saveAllAndFlush(newProductImages);
 
@@ -295,6 +336,9 @@ public class ProductService {
         List<ProductCategory> productCategories = productCategoryRepository.findAllByProductId(productId);
         productCategoryRepository.deleteAllInBatch(productCategories);
         productCategoryRepository.saveAllAndFlush(productCategoryList);
+
+        productRelatedRepository.deleteAll(removeProductRelatedList);
+        productRelatedRepository.saveAllAndFlush(newProductRelatedList);
     }
 
     private static Function<Product, ProductOptionCombination> mapToOptionCombination(Map<Long, ProductOption> productOptionMap, Long optionValue, String value, Integer optionValue1) {
@@ -329,7 +373,7 @@ public class ProductService {
             productPutVm.variations().forEach(variant -> {
                 if (variant.id() != null) {
                     Product variantInDB = existingVariants.stream().filter(
-                                pVariant -> variant.id().equals(pVariant.getId()))
+                                    pVariant -> variant.id().equals(pVariant.getId()))
                             .findFirst().orElse(null);
                     setValuesForVariantExisting(newProductImages, variant, variantInDB);
                 }
@@ -350,7 +394,7 @@ public class ProductService {
                 variant.productImageIds().forEach(imageId -> {
                     if (productImages.stream().noneMatch(pImage -> imageId.equals(pImage.getImageId()))) {
                         newProductImages.add(ProductImage.builder()
-                                .imageId(imageId) .product(variantInDB).build());
+                                .imageId(imageId).product(variantInDB).build());
                     }
                 });
             }
@@ -635,7 +679,7 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
         if (Boolean.TRUE.equals(parentProduct.isHasOptions())) {
             List<Product> productVariations = parentProduct.getProducts().stream().filter(Product::isPublished).toList();
-            
+
             return productVariations.stream().map(product -> {
                 List<ProductOptionCombination> productOptionCombinations =
                         productOptionCombinationRepository.findAllByProduct(product);
@@ -730,6 +774,51 @@ public class ProductService {
                 brandName,
                 categoryNames,
                 attributeNames
+        );
+    }
+
+    public List<ProductListVm> getRelatedProductsBackoffice(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
+        List<ProductRelated> relatedProducts = product.getRelatedProducts();
+        return relatedProducts.stream()
+                .map(productRelated ->
+                        new ProductListVm(
+                                productRelated.getRelatedProduct().getId(),
+                                productRelated.getRelatedProduct().getName(),
+                                productRelated.getRelatedProduct().getSlug(),
+                                productRelated.getRelatedProduct().isAllowedToOrder(),
+                                productRelated.getRelatedProduct().isPublished(),
+                                productRelated.getRelatedProduct().isFeatured(),
+                                productRelated.getRelatedProduct().isVisibleIndividually(),
+                                productRelated.getRelatedProduct().getCreatedOn()
+                        )
+                ).toList();
+    }
+
+    public ProductsGetVm getRelatedProductsStorefront(Long id, int pageNo, int pageSize) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_NOT_FOUND, id));
+        Page<ProductRelated> relatedProductsPage = productRelatedRepository.findAllByProduct(product, PageRequest.of(pageNo, pageSize));
+        List<ProductThumbnailGetVm> productThumbnailVms = relatedProductsPage.stream()
+                .filter(productRelated -> productRelated.getRelatedProduct().isPublished())
+                .map(productRelated -> {
+                    Product relatedProduct = productRelated.getRelatedProduct();
+                    return new ProductThumbnailGetVm(
+                            relatedProduct.getId(),
+                            relatedProduct.getName(),
+                            relatedProduct.getSlug(),
+                            mediaService.getMedia(relatedProduct.getThumbnailMediaId()).url(),
+                            relatedProduct.getPrice());
+                })
+                .toList();
+        return new ProductsGetVm(
+                productThumbnailVms,
+                relatedProductsPage.getNumber(),
+                relatedProductsPage.getSize(),
+                (int) relatedProductsPage.getTotalElements(),
+                relatedProductsPage.getTotalPages(),
+                relatedProductsPage.isLast()
         );
     }
 

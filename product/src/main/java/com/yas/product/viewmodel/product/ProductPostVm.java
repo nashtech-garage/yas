@@ -28,5 +28,6 @@ public record ProductPostVm(
         Long thumbnailMediaId,
         List<Long> productImageIds,
         List<ProductVariationPostVm> variations,
-        List<ProductOptionValuePostVm> productOptionValues) {
+        List<ProductOptionValuePostVm> productOptionValues,
+        List<Long> relatedProductIds) {
 }
