@@ -8,6 +8,7 @@ import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.utils.Constants;
 import com.yas.cart.viewmodel.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String customerId = auth.getName();
 
-        Cart cart = cartRepository.findByCustomerId(customerId).stream().findFirst().orElse(null);
+        Cart cart = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId).stream().findFirst().orElse(null);
         Set<CartItem> existedCartItems = new HashSet<>();
 
         if (cart == null) {
@@ -91,7 +92,7 @@ public class CartService {
 
     public CartGetDetailVm getLastCart() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return cartRepository.findByCustomerId(auth.getName())
+        return cartRepository.findByCustomerIdAndOrderIdIsNull(auth.getName())
                 .stream().reduce((first, second) -> second)
                 .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
     }
@@ -125,6 +126,17 @@ public class CartService {
         }
     }
 
+    public ResponeStatusVm addOrderIdInToCart(Long orderId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String customerId = auth.getName();
+        Cart cart = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId).stream().findFirst()
+                .orElseThrow(()
+                        -> new NotFoundException(Constants.ERROR_CODE.NOT_FOUND_CART));
+        cart.setOrderId(orderId);
+        cartRepository.save(cart);
+        return new ResponeStatusVm("Action success", "Action success", HttpStatus.OK.toString());
+    }
+
     private void validateCart(CartGetDetailVm cart, Long productId) {
         if (cart.cartDetails().isEmpty()) {
             throw new BadRequestException(Constants.ERROR_CODE.NOT_EXISTING_ITEM_IN_CART);
@@ -148,7 +160,7 @@ public class CartService {
 
     public Flux<Integer> countNumberItemInCart(String customerId) {
         return Flux.interval(Duration.ofSeconds(1)).map((i) -> {
-            Optional<Cart> cartOp = cartRepository.findByCustomerId(customerId)
+            Optional<Cart> cartOp = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
                     .stream().reduce((first, second) -> second);
             return cartOp.isPresent() ? cartItemRepository.countItemInCart(cartOp.get().getId()) : 0;
         });

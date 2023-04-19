@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final OrderAddressRepository orderAddressRepository;
+    private final CartService cartService;
 
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, OrderAddressRepository orderAddressRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartService cartService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
-        this.orderAddressRepository = orderAddressRepository;
+        this.cartService = cartService;
     }
 
 
@@ -106,12 +106,16 @@ public class OrderService {
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
 
-        //        TO-DO: delete Item in Cart
-//        ************
+        try{
+            cartService.addOrderIdIntoCart(order.getId());
+        }catch (Exception ex){
+            log.error("Add orderId into Cart fail: " + ex.getMessage());
+        }
 
 //        TO-DO: decrement inventory when inventory is complete
 //        ************
 
+        log.info("Order Success: " + order);
         return OrderVm.fromModel(order);
     }
 
