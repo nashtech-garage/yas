@@ -1,3 +1,4 @@
+import { ProductQuantityInStock } from './../models/ProductQuantityInStock';
 import { StockPostVM } from '@inventoryModels/Stock';
 import { StockInfo } from '@inventoryModels/StockInfo';
 
@@ -23,6 +24,18 @@ export async function fetchStocksInWarehouseByProductNameAndProductSku(
       headers: { 'Content-Type': 'application/json' },
     }
   );
+
+  return response;
+}
+
+export async function updateProductQuantityInStock(
+  productQuantityInStock: ProductQuantityInStock[]
+) {
+  const response = await fetch(`/api/inventory/backoffice/stocks`, {
+    method: 'PUT',
+    body: JSON.stringify(productQuantityInStock),
+    headers: { 'Content-Type': 'application/json' },
+  });
 
   return response;
 }

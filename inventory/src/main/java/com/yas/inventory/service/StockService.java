@@ -9,7 +9,8 @@ import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.stock.StockPostVM;
-import com.yas.inventory.viewmodel.stock.StockQuantityPostVm;
+import com.yas.inventory.viewmodel.stock.StockQuantityUpdateVm;
+import com.yas.inventory.viewmodel.stock.StockQuantityVm;
 import com.yas.inventory.viewmodel.stock.StockVm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,14 +29,18 @@ public class StockService {
 
     private final WarehouseService warehouseService;
 
+    private final StockHistoryService stockHistoryService;
+
     public StockService(WarehouseRepository warehouseRepository,
                         StockRepository stockRepository,
                         ProductService productService,
-                        WarehouseService warehouseService) {
+                        WarehouseService warehouseService,
+                        StockHistoryService stockHistoryService) {
         this.warehouseRepository = warehouseRepository;
         this.stockRepository = stockRepository;
         this.productService = productService;
         this.warehouseService = warehouseService;
+        this.stockHistoryService = stockHistoryService;
     }
 
     public void addProductIntoWarehouse(List<StockPostVM> postVMs) {
@@ -103,11 +108,12 @@ public class StockService {
         ).toList();
     }
 
-    public void updateProductQuantityInStock(final List<StockQuantityPostVm> stockQuantityPostVms) {
-        List<Stock> stocks = stockRepository.findAllById(stockQuantityPostVms.stream().map(StockQuantityPostVm::stockId).toList());
+    public void updateProductQuantityInStock(final StockQuantityUpdateVm requestBody) {
+        List<StockQuantityVm> stockQuantityVms = requestBody.stockQuantityVmList();
+        List<Stock> stocks = stockRepository.findAllById(stockQuantityVms.stream().map(StockQuantityVm::stockId).toList());
 
         for (final Stock stock : stocks) {
-            StockQuantityPostVm stockQuantityVm = stockQuantityPostVms
+            StockQuantityVm stockQuantityVm = stockQuantityVms
                     .stream()
                     .filter(stockQuantityPostVm -> stockQuantityPostVm.stockId().equals(stock.getId()))
                     .findFirst()
@@ -117,9 +123,10 @@ public class StockService {
                 continue;
             }
 
-            Long adjustedQuantity = stockQuantityVm.quantity();
+            Long adjustedQuantity = stockQuantityVm.quantity() != null ? stockQuantityVm.quantity() : 0;
             stock.setQuantity(stock.getQuantity() + adjustedQuantity);
         }
         stockRepository.saveAllAndFlush(stocks);
+        stockHistoryService.createStockHistories(stocks, stockQuantityVms);
     }
 }

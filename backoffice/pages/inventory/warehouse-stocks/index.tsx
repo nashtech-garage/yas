@@ -19,19 +19,24 @@ import { Console } from 'console';
 import { StockInfo } from '@inventoryModels/StockInfo';
 import { toast } from 'react-toastify';
 import { toastError } from '@commonServices/ToastService';
+import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
+import { number } from 'yup';
 
 type ProductAdjustedQuantity = {
-  productId: number;
   adjustedQuantity: number;
+  note: string;
 };
 
 const warehouseStocks: NextPage = () => {
   const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [warehouseStocks, setwarehouseStocks] = useState<StockInfo[]>([]);
+  const [warehouseStocks, setWarehouseStocks] = useState<StockInfo[]>([]);
   const [productName, setProductName] = useState<string>('');
   const [productSku, setProductSku] = useState<string>('');
-  const [productAdjustedQuantity, setProductAdjustedQuantity] = useState<Map<number, number>>();
+  const [productAdjustedQuantity, setProductAdjustedQuantity] = useState<Map<number, number>>(
+    new Map()
+  );
+  const [productAdjustedNote, setProductAdjustedNote] = useState<Map<number, string>>(new Map());
 
   useEffect(() => {
     fetchWarehouses();
@@ -55,8 +60,8 @@ const warehouseStocks: NextPage = () => {
         } else {
           let rs: StockInfo[] = await result.json();
           let productQuantityMap: Map<number, number> = new Map();
-          setwarehouseStocks(rs);
-          rs.forEach((stock) => productQuantityMap.set(stock.productId, stock.quantity));
+          setWarehouseStocks(rs);
+          rs.forEach((stock) => productQuantityMap.set(stock.id, stock.quantity));
           setProductAdjustedQuantity(productQuantityMap);
         }
       })
@@ -74,6 +79,22 @@ const warehouseStocks: NextPage = () => {
   //   });
   //   setwarehouseStocks(shallowProducts);
   // };
+
+  const updateProductQuantityInStock = () => {
+    let requestBody: ProductQuantityInStock[] = [];
+
+    warehouseStocks.forEach((stock) => {
+      if (productAdjustedQuantity.has(stock.id)) {
+        requestBody.push({
+          stockId: stock.id,
+          quantity: productAdjustedQuantity.get(stock.id) ?? 0,
+          note: productAdjustedNote.get(stock.id) ?? '',
+        });
+      }
+    });
+
+    updateProductQuantityInStock();
+  };
 
   return (
     <>
@@ -136,6 +157,7 @@ const warehouseStocks: NextPage = () => {
               <th>SKU</th>
               <th>Current Quantity</th>
               <th>(+/-)Adjusted Quantity</th>
+              <th>Note</th>
               <th>Stock History</th>
             </tr>
           </thead>
@@ -148,13 +170,27 @@ const warehouseStocks: NextPage = () => {
                 <td>
                   <form>
                     <Form.Control
+                      id="product-adjusted-quantity"
+                      placeholder="Adjusted quantity"
+                      defaultValue={0}
+                      onChange={(event) => {
+                        var newMap = new Map(productAdjustedNote);
+                        newMap.set(stockInfo.id, event.target.value);
+                        setProductAdjustedNote(newMap);
+                      }}
+                    />
+                  </form>
+                </td>
+                <td>
+                  <form>
+                    <Form.Control
                       type="number"
                       id="product-adjusted-quantity"
                       placeholder="Adjusted quantity"
                       defaultValue={0}
                       onChange={(event) => {
                         var newMap = new Map(productAdjustedQuantity);
-                        newMap.set(stockInfo.productId, Number(event.target.value));
+                        newMap.set(stockInfo.id, Number(event.target.value));
                         setProductAdjustedQuantity(newMap);
                       }}
                     />
@@ -166,7 +202,9 @@ const warehouseStocks: NextPage = () => {
           </tbody>
         </Table>
         <div style={{ display: 'flex', justifyContent: 'end' }}>
-          <Button variant="primary">Save</Button>
+          <Button variant="primary" onClick={updateProductQuantityInStock}>
+            Save
+          </Button>
         </div>
       </div>
     </>

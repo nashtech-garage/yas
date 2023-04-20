@@ -3,7 +3,8 @@ package com.yas.inventory.controller;
 import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.service.StockService;
 import com.yas.inventory.viewmodel.stock.StockPostVM;
-import com.yas.inventory.viewmodel.stock.StockQuantityPostVm;
+import com.yas.inventory.viewmodel.stock.StockQuantityUpdateVm;
+import com.yas.inventory.viewmodel.stock.StockQuantityVm;
 import com.yas.inventory.viewmodel.stock.StockVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class StockController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateProductQuantityInStock(@RequestBody List<StockQuantityPostVm> requestBody) {
+    public ResponseEntity<Void> updateProductQuantityInStock(@RequestBody StockQuantityUpdateVm requestBody) {
         stockService.updateProductQuantityInStock(requestBody);
 
         return ResponseEntity.ok().build();

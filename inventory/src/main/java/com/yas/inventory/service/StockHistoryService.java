@@ -3,7 +3,7 @@ package com.yas.inventory.service;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.StockHistory;
 import com.yas.inventory.repository.StockHistoryRepository;
-import com.yas.inventory.viewmodel.stock.StockQuantityPostVm;
+import com.yas.inventory.viewmodel.stock.StockQuantityVm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,25 +20,25 @@ public class StockHistoryService {
     }
 
     public void createStockHistories(final List<Stock> stocks,
-                                     final List<StockQuantityPostVm> stockQuantityPostVms) {
+                                     final List<StockQuantityVm> stockQuantityVms) {
         List<StockHistory> stockHistories = new ArrayList<>();
 
         for (final Stock stock : stocks) {
-            StockQuantityPostVm stockQuantityPostVm = stockQuantityPostVms
+            StockQuantityVm stockQuantityVm = stockQuantityVms
                     .stream()
-                    .filter(stockQuantityPostVm1 -> stockQuantityPostVm1.stockId().equals(stock.getQuantity()))
+                    .filter(stockQuantityVm1 -> stockQuantityVm1.stockId().equals(stock.getQuantity()))
                     .findFirst()
                     .orElse(null);
 
-            if (stockQuantityPostVm == null) {
+            if (stockQuantityVm == null) {
                 continue;
             }
 
             stockHistories.add(
                     StockHistory.builder()
                             .productId(stock.getProductId())
-                            .note(stockQuantityPostVm.note())
-                            .adjustedQuantity(stockQuantityPostVm.quantity())
+                            .note(stockQuantityVm.note())
+                            .adjustedQuantity(stockQuantityVm.quantity())
                             .warehouse(stock.getWarehouse())
                             .build()
             );
