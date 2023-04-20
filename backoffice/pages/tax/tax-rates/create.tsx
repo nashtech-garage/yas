@@ -50,7 +50,7 @@ const TaxRateCreate: NextPage = () => {
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="/tax/tax-rates">
+            <Link href={`${TAX_RATE_URL}`}>
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>

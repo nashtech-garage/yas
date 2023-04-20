@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DistrictRepository extends JpaRepository<District, Long> {
-    List<DistrictGetVm> findAllByStateProvinceId(Long stateProvinceId);
+    List<DistrictGetVm> findAllByStateProvinceIdOrderByNameAsc(Long stateProvinceId);
 }

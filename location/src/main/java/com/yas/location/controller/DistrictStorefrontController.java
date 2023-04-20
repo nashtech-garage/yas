@@ -15,7 +15,7 @@ import java.util.List;
 public class DistrictStorefrontController {
     private final DistrictService districtService;
 
-    @GetMapping("/storefront/district/{id}")
+    @GetMapping({"/storefront/district/{id}", "/backoffice/district/{id}"})
     public ResponseEntity<List<DistrictGetVm>> getList(@PathVariable Long id) {
         return ResponseEntity.ok(districtService.getList(id));
     }

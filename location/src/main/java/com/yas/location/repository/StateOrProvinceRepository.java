@@ -42,5 +42,5 @@ public interface StateOrProvinceRepository extends JpaRepository<StateOrProvince
   Page<StateOrProvince> getStateOrProvinceByCountry(@Param("countryId") final Long countryId,
       final Pageable pageable);
 
-  List<StateOrProvince> findAllByCountryId(Long countryId);
+  List<StateOrProvince> findAllByCountryIdOrderByNameAsc(Long countryId);
 }

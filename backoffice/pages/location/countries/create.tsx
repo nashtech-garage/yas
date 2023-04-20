@@ -50,7 +50,7 @@ const CountryCreate: NextPage = () => {
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="/system/country">
+            <Link href={`${COUNTRY_URL}`}>
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>
