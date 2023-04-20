@@ -36,25 +36,7 @@ public class PayPalService {
                 .userAction("CONTINUE")
                 .shippingPreference("NO_SHIPPING");
 
-        List<PurchaseUnitRequest> purchaseUnits = new ArrayList<>();
-        PurchaseUnitRequest purchaseUnit = new PurchaseUnitRequest()
-                .amountWithBreakdown(new AmountWithBreakdown()
-                        .currencyCode("USD")
-                        .value("10.00"))
-                .description("Your purchase description");
-        List<Item> items = new ArrayList<>();
-        // Add items to the purchase unit
-        Item item1 = new Item();
-        item1.name("Item 1").description("Item 1 description").quantity("1").unitAmount(new Money().currencyCode("USD").value("5.00"));
-        Item item2 = new Item();
-        item2.name("Item 2").description("Item 2 description").quantity("2").unitAmount(new Money().currencyCode("USD").value("2.50"));
-        items.add(item1);
-        items.add(item2);
-        purchaseUnit.items(items);
-
-        purchaseUnits.add(purchaseUnit);
-
-        orderRequest.applicationContext(applicationContext).purchaseUnits(purchaseUnits);
+        orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
         try {
