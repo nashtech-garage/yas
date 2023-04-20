@@ -9,8 +9,8 @@ import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.stock.StockPostVM;
+import com.yas.inventory.viewmodel.stock.StockQuantityPostVm;
 import com.yas.inventory.viewmodel.stock.StockVm;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +21,22 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class StockService {
     private final WarehouseRepository warehouseRepository;
     private final StockRepository stockRepository;
     private final ProductService productService;
 
     private final WarehouseService warehouseService;
+
+    public StockService(WarehouseRepository warehouseRepository,
+                        StockRepository stockRepository,
+                        ProductService productService,
+                        WarehouseService warehouseService) {
+        this.warehouseRepository = warehouseRepository;
+        this.stockRepository = stockRepository;
+        this.productService = productService;
+        this.warehouseService = warehouseService;
+    }
 
     public void addProductIntoWarehouse(List<StockPostVM> postVMs) {
 
@@ -92,5 +101,25 @@ public class StockService {
                     return StockVm.fromModel(stock, productInfoVm);
                 }
         ).toList();
+    }
+
+    public void updateProductQuantityInStock(final List<StockQuantityPostVm> stockQuantityPostVms) {
+        List<Stock> stocks = stockRepository.findAllById(stockQuantityPostVms.stream().map(StockQuantityPostVm::stockId).toList());
+
+        for (final Stock stock : stocks) {
+            StockQuantityPostVm stockQuantityVm = stockQuantityPostVms
+                    .stream()
+                    .filter(stockQuantityPostVm -> stockQuantityPostVm.stockId().equals(stock.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (stockQuantityVm == null) {
+                continue;
+            }
+
+            Long adjustedQuantity = stockQuantityVm.quantity();
+            stock.setQuantity(stock.getQuantity() + adjustedQuantity);
+        }
+        stockRepository.saveAllAndFlush(stocks);
     }
 }

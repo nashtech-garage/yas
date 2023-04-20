@@ -7,22 +7,31 @@ import {
 } from '@inventoryService/WarehouseService';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import Form from 'react-bootstrap/Form';
 import { Button, Table } from 'react-bootstrap';
 import { StockPostVM } from '@inventoryModels/Stock';
-import { addProductIntoWarehouse } from '@inventoryService/StockService';
+import {
+  addProductIntoWarehouse,
+  fetchStocksInWarehouseByProductNameAndProductSku,
+} from '@inventoryService/StockService';
 import { Console } from 'console';
+import { StockInfo } from '@inventoryModels/StockInfo';
+import { toast } from 'react-toastify';
+import { toastError } from '@commonServices/ToastService';
 
-const WarehouseProducts: NextPage = () => {
+type ProductAdjustedQuantity = {
+  productId: number;
+  adjustedQuantity: number;
+};
+
+const warehouseStocks: NextPage = () => {
   const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [warehouseProducts, setWarehouseProducts] = useState<ProductInfoVm[]>([]);
+  const [warehouseStocks, setwarehouseStocks] = useState<StockInfo[]>([]);
   const [productName, setProductName] = useState<string>('');
   const [productSku, setProductSku] = useState<string>('');
-  const [existStatusSelected, setExistStatusSelected] = useState<string>(
-    FilterExistInWHSelection.ALL
-  );
-  const existSelections = Object.keys(FilterExistInWHSelection);
+  const [productAdjustedQuantity, setProductAdjustedQuantity] = useState<Map<number, number>>();
 
   useEffect(() => {
     fetchWarehouses();
@@ -30,46 +39,41 @@ const WarehouseProducts: NextPage = () => {
 
   useEffect(() => {
     if (warehouseIdSelected) {
-      fetchProductsInWarehouse();
+      fetchStocksInWarehouse();
     }
-  }, [warehouseIdSelected, productName, productSku, existStatusSelected]);
+  }, [warehouseIdSelected, productName, productSku]);
 
   const fetchWarehouses = () => {
     getWarehouses().then((results) => setWarehouses(results));
   };
 
-  const fetchProductsInWarehouse = () => {
-    getProductInWarehouse(warehouseIdSelected, productName, productSku, existStatusSelected).then(
-      (results) => {
-        setWarehouseProducts(() => results.map((result) => ({ ...result, isSelected: false })));
-      }
-    );
+  const fetchStocksInWarehouse = () => {
+    fetchStocksInWarehouseByProductNameAndProductSku(warehouseIdSelected, productName, productSku)
+      .then(async (result) => {
+        if (result.status !== 200) {
+          toastError('Something wrong has just happened');
+        } else {
+          let rs: StockInfo[] = await result.json();
+          let productQuantityMap: Map<number, number> = new Map();
+          setwarehouseStocks(rs);
+          rs.forEach((stock) => productQuantityMap.set(stock.productId, stock.quantity));
+          setProductAdjustedQuantity(productQuantityMap);
+        }
+      })
+      .catch(() => {
+        toastError('Something wrong has just happened');
+      });
   };
 
-  const selectProductIntoWarehouse = (event: any, index: number) => {
-    const shallowProducts = warehouseProducts.map((product, i) => {
-      if (i === index) {
-        product.isSelected = event.target.checked;
-      }
-      return product;
-    });
-    setWarehouseProducts(shallowProducts);
-  };
-
-  const addIntoWarehouse = () => {
-    if (warehouseIdSelected && warehouseProducts.length) {
-      const stockPostVms: StockPostVM[] = warehouseProducts
-        .filter((productInfo) => productInfo.isSelected)
-        .map((productInfo) => {
-          return {
-            productId: productInfo.id,
-            warehouseId: warehouseIdSelected,
-          };
-        });
-
-      addProductIntoWarehouse(stockPostVms).then(() => fetchProductsInWarehouse());
-    }
-  };
+  // const selectProductIntoWarehouse = (event: any, index: number) => {
+  //   const shallowProducts = warehouseStocks.map((product, i) => {
+  //     if (i === index) {
+  //       product.isSelected = event.target.checked;
+  //     }
+  //     return product;
+  //   });
+  //   setwarehouseStocks(shallowProducts);
+  // };
 
   return (
     <>
@@ -101,23 +105,6 @@ const WarehouseProducts: NextPage = () => {
                 ))}
               </Form.Select>
             </div>
-            <div className="row col-md-6">
-              <label className="col mt-1">Exist in Warehouse</label>
-              <Form.Select
-                id="exist-selection"
-                onChange={(e) => {
-                  setExistStatusSelected(e.target.value);
-                }}
-                className="col"
-                disabled={!warehouseIdSelected}
-              >
-                {existSelections.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </Form.Select>
-            </div>
           </div>
           <div className="row col-md-12 mt-3">
             <div className="col-md">
@@ -142,41 +129,48 @@ const WarehouseProducts: NextPage = () => {
         </Form>
       </div>
       <div className="mt-3">
-        <div>
-          <Button variant="primary" onClick={addIntoWarehouse}>
-            Add Into Warehouse
-          </Button>
-        </div>
         <Table striped bordered hover className="mt-2">
           <thead>
             <tr>
               <th>Name</th>
               <th>SKU</th>
-              <th>Exist In Warehouse</th>
+              <th>Current Quantity</th>
+              <th>(+/-)Adjusted Quantity</th>
+              <th>Stock History</th>
             </tr>
           </thead>
           <tbody>
-            {warehouseProducts.map((productInfo, index) => (
-              <tr key={productInfo.id}>
-                <td>{productInfo.name}</td>
-                <td>{productInfo.sku}</td>
+            {warehouseStocks.map((stockInfo, index) => (
+              <tr key={stockInfo.id}>
+                <td>{stockInfo.productName}</td>
+                <td>{stockInfo.productSku}</td>
+                <td>{stockInfo.quantity}</td>
                 <td>
-                  <Form.Check
-                    type="checkbox"
-                    id={'checkbox-product-' + productInfo.id + '-warehouse-' + warehouseIdSelected}
-                    className="mx-4 my-2 font-weight-bold"
-                    checked={productInfo.existInWH || productInfo.isSelected}
-                    disabled={productInfo.existInWH}
-                    onChange={(event) => selectProductIntoWarehouse(event, index)}
-                  />
+                  <form>
+                    <Form.Control
+                      type="number"
+                      id="product-adjusted-quantity"
+                      placeholder="Adjusted quantity"
+                      defaultValue={0}
+                      onChange={(event) => {
+                        var newMap = new Map(productAdjustedQuantity);
+                        newMap.set(stockInfo.productId, Number(event.target.value));
+                        setProductAdjustedQuantity(newMap);
+                      }}
+                    />
+                  </form>
                 </td>
+                <td>put a link here</td>
               </tr>
             ))}
           </tbody>
         </Table>
+        <div style={{ display: 'flex', justifyContent: 'end' }}>
+          <Button variant="primary">Save</Button>
+        </div>
       </div>
     </>
   );
 };
 
-export default WarehouseProducts;
+export default warehouseStocks;
