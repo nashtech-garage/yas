@@ -7,86 +7,60 @@ import com.paypal.base.rest.PayPalRESTException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+
+@Service
 public class PayPalService {
-
-    String clientId = "AYSq3RDGsmBLJE-otTkBtM-jBRd1TCQwFf9RGfwddNXWz0uFU9ztymylOhRS";
-    String clientSecret = "EGnHDxD_qRPdaLdZz8iCr8N7_MzF-YHPTkjs6NKYQvQSBngp4PTTVWkPZRbL";
-
     @Autowired
-    PayPalService(){}
+    private APIContext apiContext;
 
-    public Map<String, Object> createPayment(String sum){
-        Map<String, Object> response = new HashMap<String, Object>();
-        Amount amount = new Amount();
-        amount.setCurrency("USD");
-        amount.setTotal(sum);
+    public Payment createPayment(Double total, String currency, String method,
+                                 String intent, String description, String cancelUrl, String successUrl) throws PayPalRESTException {
+        Amount theAmount = new Amount();
+        theAmount.setCurrency(currency);
+        total = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        theAmount.setTotal(String.format("%.2f", total));
+
         Transaction transaction = new Transaction();
-        transaction.setAmount(amount);
-        List<Transaction> transactions = new ArrayList<Transaction>();
-        transactions.add(transaction);
+        transaction.setDescription(description);
+        transaction.setAmount(theAmount);
 
-        Payer payer = new Payer();
-        payer.setPaymentMethod("paypal");
+        List<Transaction> theTransactions = new ArrayList<>();
+        theTransactions.add(transaction);
 
-        Payment payment = new Payment();
-        payment.setIntent("sale");
-        payment.setPayer(payer);
-        payment.setTransactions(transactions);
+        Payer thePayer = new Payer();
+        thePayer.setPaymentMethod(method.toString());
 
-        RedirectUrls redirectUrls = new RedirectUrls();
-        redirectUrls.setCancelUrl("http://localhost:4200/cancel");
-        redirectUrls.setReturnUrl("http://localhost:4200");
-        payment.setRedirectUrls(redirectUrls);
-        Payment createdPayment;
-        try {
-            String redirectUrl = "";
-            APIContext context = new APIContext(clientId, clientSecret, "sandbox");
-            createdPayment = payment.create(context);
-            if(createdPayment!=null){
-                List<Links> links = createdPayment.getLinks();
-                for (Links link:links) {
-                    if(link.getRel().equals("approval_url")){
-                        redirectUrl = link.getHref();
-                        break;
-                    }
-                }
-                response.put("status", "success");
-                response.put("redirect_url", redirectUrl);
-            }
-        } catch (PayPalRESTException e) {
-            System.out.println("Error happened during payment creation!");
-        }
-        return response;
+        RedirectUrls theRedirectUrls = new RedirectUrls();
+        theRedirectUrls.setCancelUrl(cancelUrl);
+        theRedirectUrls.setReturnUrl(cancelUrl);
+
+        Payment thePayment = new Payment();
+        thePayment.setIntent(intent);
+        thePayment.setTransactions(theTransactions);
+        thePayment.setPayer(thePayer);
+        thePayment.setRedirectUrls(theRedirectUrls);
+
+        return thePayment.create(apiContext);
     }
 
+    public Payment executePayment(String paymentId, String payerId) throws PayPalRESTException {
 
-    public Map<String, Object> completePayment(HttpServletRequest req){
-        Map<String, Object> response = new HashMap();
-        Payment payment = new Payment();
-        payment.setId(req.getParameter("paymentId"));
-        PaymentExecution paymentExecution = new PaymentExecution();
-        paymentExecution.setPayerId(req.getParameter("payerId"));
-        try {
-            APIContext context = new APIContext(clientId, clientSecret, "sandbox");
-            Payment createdPayment = payment.execute(context, paymentExecution);
-            if(createdPayment!=null){
-                response.put("status", "success");
-                response.put("payment", createdPayment);
-            }
-        } catch (PayPalRESTException e) {
-            System.err.println(e.getDetails());
-        }
-        return response;
+        Payment thePayment = new Payment();
+        thePayment.setId(paymentId);
+
+        PaymentExecution thPaymentExecution = new PaymentExecution();
+        thPaymentExecution.setPayerId(payerId);
+
+        return thePayment.execute(apiContext, thPaymentExecution);
     }
-
-
-
 }

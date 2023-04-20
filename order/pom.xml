@@ -120,9 +120,10 @@
 		<dependency>
 			<groupId>com.paypal.sdk</groupId>
 			<artifactId>rest-api-sdk</artifactId>
-			<version>1.13.1</version>
+			<version>1.14.0</version>
 		</dependency>
-    </dependencies>
+
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
