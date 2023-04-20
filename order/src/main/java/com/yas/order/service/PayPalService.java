@@ -1,66 +1,90 @@
 package com.yas.order.service;
 
 
-import com.paypal.api.payments.*;
-import com.paypal.base.rest.APIContext;
-import com.paypal.base.rest.PayPalRESTException;
-import jakarta.servlet.http.HttpServletRequest;
+import com.paypal.core.PayPalHttpClient;
+import com.paypal.http.HttpResponse;
+import com.paypal.orders.*;
+import com.yas.order.viewmodel.CompletedOrder;
+import com.yas.order.viewmodel.PaymentOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
+import java.util.NoSuchElementException;
 
 @Service
+@Slf4j
 public class PayPalService {
     @Autowired
-    private APIContext apiContext;
+    private PayPalHttpClient payPalHttpClient;
 
-    public Payment createPayment(Double total, String currency, String method,
-                                 String intent, String description, String cancelUrl, String successUrl) throws PayPalRESTException {
-        Amount theAmount = new Amount();
-        theAmount.setCurrency(currency);
-        total = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP).doubleValue();
-        theAmount.setTotal(String.format("%.2f", total));
+    public PaymentOrder createPayment(BigDecimal fee) {
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.checkoutPaymentIntent("CAPTURE");
+        AmountWithBreakdown amountBreakdown = new AmountWithBreakdown().currencyCode("USD").value(fee.toString());
+        PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountBreakdown);
+        orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
+        ApplicationContext applicationContext = new ApplicationContext()
+                .returnUrl("https://localhost:4200/capture")
+                .cancelUrl("https://localhost:4200/cancel")
+                .brandName("Your brand name")
+                .landingPage("BILLING")
+                .userAction("CONTINUE")
+                .shippingPreference("NO_SHIPPING");
 
-        Transaction transaction = new Transaction();
-        transaction.setDescription(description);
-        transaction.setAmount(theAmount);
+        List<PurchaseUnitRequest> purchaseUnits = new ArrayList<>();
+        PurchaseUnitRequest purchaseUnit = new PurchaseUnitRequest()
+                .amountWithBreakdown(new AmountWithBreakdown()
+                        .currencyCode("USD")
+                        .value("10.00"))
+                .description("Your purchase description");
+        List<Item> items = new ArrayList<>();
+        // Add items to the purchase unit
+        Item item1 = new Item();
+        item1.name("Item 1").description("Item 1 description").quantity("1").unitAmount(new Money().currencyCode("USD").value("5.00"));
+        Item item2 = new Item();
+        item2.name("Item 2").description("Item 2 description").quantity("2").unitAmount(new Money().currencyCode("USD").value("2.50"));
+        items.add(item1);
+        items.add(item2);
+        purchaseUnit.items(items);
 
-        List<Transaction> theTransactions = new ArrayList<>();
-        theTransactions.add(transaction);
+        purchaseUnits.add(purchaseUnit);
 
-        Payer thePayer = new Payer();
-        thePayer.setPaymentMethod(method.toString());
+        orderRequest.applicationContext(applicationContext).purchaseUnits(purchaseUnits);
+        OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
-        RedirectUrls theRedirectUrls = new RedirectUrls();
-        theRedirectUrls.setCancelUrl(cancelUrl);
-        theRedirectUrls.setReturnUrl(cancelUrl);
+        try {
+            HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
+            Order order = orderHttpResponse.result();
 
-        Payment thePayment = new Payment();
-        thePayment.setIntent(intent);
-        thePayment.setTransactions(theTransactions);
-        thePayment.setPayer(thePayer);
-        thePayment.setRedirectUrls(theRedirectUrls);
+            String redirectUrl = order.links().stream()
+                    .filter(link -> "approve".equals(link.rel()))
+                    .findFirst()
+                    .orElseThrow(NoSuchElementException::new)
+                    .href();
 
-        return thePayment.create(apiContext);
+            return new PaymentOrder("success", order.id(), redirectUrl);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            return new PaymentOrder("Error");
+        }
     }
 
-    public Payment executePayment(String paymentId, String payerId) throws PayPalRESTException {
 
-        Payment thePayment = new Payment();
-        thePayment.setId(paymentId);
-
-        PaymentExecution thPaymentExecution = new PaymentExecution();
-        thPaymentExecution.setPayerId(payerId);
-
-        return thePayment.execute(apiContext, thPaymentExecution);
+    public CompletedOrder completePayment(String token) {
+        OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
+        try {
+            HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
+            if (httpResponse.result().status() != null) {
+                return new CompletedOrder("success", token);
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+        return new CompletedOrder("error");
     }
 }
