@@ -9,6 +9,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.net.URI;
 import java.util.List;
@@ -25,6 +27,8 @@ public class ProductService {
     }
 
     public ProductInfoVm getProduct(Long id) {
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())
                 .path("/backoffice/products/" + id)
@@ -32,6 +36,7 @@ public class ProductService {
                 .toUri();
         return webClient.get()
                 .uri(url)
+                .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
                 .bodyToFlux(ProductInfoVm.class)
                 .single()
@@ -40,6 +45,8 @@ public class ProductService {
 
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
                                           List<Long> productIds, FilterExistInWHSelection selection) {
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
         params.add("name", productName);
@@ -57,6 +64,7 @@ public class ProductService {
                 .toUri();
         return webClient.get()
                 .uri(url)
+                .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
                 .bodyToFlux(ProductInfoVm.class)
                 .collectList()
