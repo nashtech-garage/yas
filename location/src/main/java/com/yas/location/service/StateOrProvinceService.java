@@ -158,7 +158,7 @@ public class StateOrProvinceService {
   }
 
   public List<StateOrProvinceVm> getAllByCountryId(Long countryId) {
-    return stateOrProvinceRepository.findAllByCountryId(countryId).stream()
+    return stateOrProvinceRepository.findAllByCountryIdOrderByNameAsc(countryId).stream()
             .map(stateOrProvinceMapper::toStateOrProvinceViewModelFromStateOrProvince)
             .toList();
   }

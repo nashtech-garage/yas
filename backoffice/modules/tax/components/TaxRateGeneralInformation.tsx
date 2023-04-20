@@ -10,6 +10,7 @@ import { getCountries } from '@locationServices/CountryService';
 import { getTaxClasses } from '@taxServices/TaxClassService';
 import { getStateOrProvincesByCountry } from '@locationServices/StateOrProvinceService';
 import { OptionSelect } from '@commonItems/OptionSelect';
+import { useRouter } from 'next/router';
 
 type Props = {
   register: UseFormRegister<TaxRate>;
@@ -20,6 +21,8 @@ type Props = {
 };
 
 const TaxRateGeneralInformation = ({ register, errors, setValue, trigger, taxRate }: Props) => {
+  const router = useRouter();
+  const { id } = router.query;
   const [taxClasses, setTaxClasses] = useState<TaxClass[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [stateOrProvinces, setStateOrProvinces] = useState<StateOrProvince[]>([]);
@@ -34,16 +37,25 @@ const TaxRateGeneralInformation = ({ register, errors, setValue, trigger, taxRat
   useEffect(() => {
     getCountries().then((data) => {
       setCountries(data);
-      setCountryId(data[0].id);
     });
   }, []);
 
   useEffect(() => {
-    getStateOrProvincesByCountry(countryId).then((data) => {
+    if (taxRate) {
+      getStateOrProvincesByCountry(taxRate.countryId).then((data) => {
+        setStateOrProvinces(data);
+      });
+    }
+  }, [id]);
+
+  const onCountryChange = async (event: any) => {
+    getStateOrProvincesByCountry(event.target.value).then((data) => {
       setStateOrProvinces(data);
     });
-  }, [countryId]);
+  };
 
+  if (id && !taxRate) return <p>No tax rate</p>;
+  if (id && (taxClasses.length == 0 || countries.length == 0)) return <></>;
   return (
     <>
       <OptionSelect
@@ -62,7 +74,10 @@ const TaxRateGeneralInformation = ({ register, errors, setValue, trigger, taxRat
         placeholder="Select country"
         options={countries}
         register={register}
-        registerOptions={{ required: { value: true, message: 'Please select country' } }}
+        registerOptions={{
+          required: { value: true, message: 'Please select country' },
+          onChange: onCountryChange,
+        }}
         error={errors.countryId?.message}
         defaultValue={taxRate?.countryId}
       />
