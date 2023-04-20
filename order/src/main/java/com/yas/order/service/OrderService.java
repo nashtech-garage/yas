@@ -10,10 +10,8 @@ import com.yas.order.repository.OrderAddressRepository;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.Constants;
-import com.yas.order.viewmodel.OrderAddressPostVm;
-import com.yas.order.viewmodel.OrderExistsByProductAndUserGetVm;
-import com.yas.order.viewmodel.OrderPostVm;
-import com.yas.order.viewmodel.OrderVm;
+import com.yas.order.viewmodel.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,24 +19,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartService cartService;
-
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartService cartService) {
-        this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
-        this.cartService = cartService;
-    }
-
+    private final ProductService productService;
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
 //        TO-DO: handle check inventory when inventory is complete
@@ -137,8 +134,17 @@ public class OrderService {
 
         String userId = contextHolder.getToken().getSubject();
 
+        List<ProductVariationVM> productVariations = productService.getProductVariations(productId);
+
+        List<Long> productIds;
+        if (CollectionUtils.isEmpty(productVariations)) {
+            productIds = Collections.singletonList(productId);
+        } else {
+            productIds = productVariations.stream().map(ProductVariationVM::id).toList();
+        }
+
         return new OrderExistsByProductAndUserGetVm(
-                orderRepository.existsByCreatedByAndProductIdAndOrderStatusCompleted(userId, productId)
+                orderRepository.existsByCreatedByAndInProductIdAndOrderStatusCompleted(userId, productIds)
         );
     }
 }
