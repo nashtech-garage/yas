@@ -71,18 +71,6 @@ public class StockService {
 
     }
 
-    public List<StockVm> getStocksByWarehouseId(Long warehouseId) {
-        List<Stock> stocks = stockRepository.findByWarehouseId(warehouseId);
-
-        return stocks.stream().map(
-                stock -> {
-                    ProductInfoVm productInfoVm = productService.getProduct(stock.getProductId());
-
-                    return StockVm.fromModel(stock, productInfoVm);
-                }
-        ).toList();
-    }
-
     public List<StockVm> getStocksByWarehouseIdAndProductNameAndSku(Long warehouseId,
                                                                     String productName,
                                                                     String productSku) {
@@ -109,7 +97,7 @@ public class StockService {
     }
 
     public void updateProductQuantityInStock(final StockQuantityUpdateVm requestBody) {
-        List<StockQuantityVm> stockQuantityVms = requestBody.stockQuantityVmList();
+        List<StockQuantityVm> stockQuantityVms = requestBody.stockQuantityList();
         List<Stock> stocks = stockRepository.findAllById(stockQuantityVms.stream().map(StockQuantityVm::stockId).toList());
 
         for (final Stock stock : stocks) {

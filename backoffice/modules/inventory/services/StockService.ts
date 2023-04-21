@@ -33,7 +33,7 @@ export async function updateProductQuantityInStock(
 ) {
   const response = await fetch(`/api/inventory/backoffice/stocks`, {
     method: 'PUT',
-    body: JSON.stringify(productQuantityInStock),
+    body: JSON.stringify({ stockQuantityList: productQuantityInStock }),
     headers: { 'Content-Type': 'application/json' },
   });
 

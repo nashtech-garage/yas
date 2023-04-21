@@ -1,31 +1,16 @@
-import { ProductInfoVm } from '@inventoryModels/ProductInfoVm';
 import { Warehouse } from '@inventoryModels/Warehouse';
-import {
-  FilterExistInWHSelection,
-  getProductInWarehouse,
-  getWarehouses,
-} from '@inventoryService/WarehouseService';
+import { getWarehouses } from '@inventoryService/WarehouseService';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import Form from 'react-bootstrap/Form';
 import { Button, Table } from 'react-bootstrap';
-import { StockPostVM } from '@inventoryModels/Stock';
 import {
-  addProductIntoWarehouse,
   fetchStocksInWarehouseByProductNameAndProductSku,
+  updateProductQuantityInStock,
 } from '@inventoryService/StockService';
-import { Console } from 'console';
 import { StockInfo } from '@inventoryModels/StockInfo';
-import { toast } from 'react-toastify';
 import { toastError } from '@commonServices/ToastService';
 import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
-import { number } from 'yup';
-
-type ProductAdjustedQuantity = {
-  adjustedQuantity: number;
-  note: string;
-};
 
 const warehouseStocks: NextPage = () => {
   const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
@@ -61,7 +46,7 @@ const warehouseStocks: NextPage = () => {
           let rs: StockInfo[] = await result.json();
           let productQuantityMap: Map<number, number> = new Map();
           setWarehouseStocks(rs);
-          rs.forEach((stock) => productQuantityMap.set(stock.id, stock.quantity));
+          rs.forEach((stock) => productQuantityMap.set(stock.id, 0));
           setProductAdjustedQuantity(productQuantityMap);
         }
       })
@@ -80,7 +65,7 @@ const warehouseStocks: NextPage = () => {
   //   setwarehouseStocks(shallowProducts);
   // };
 
-  const updateProductQuantityInStock = () => {
+  const updateProductQuantityInStockOnClick = () => {
     let requestBody: ProductQuantityInStock[] = [];
 
     warehouseStocks.forEach((stock) => {
@@ -93,7 +78,28 @@ const warehouseStocks: NextPage = () => {
       }
     });
 
-    updateProductQuantityInStock();
+    updateProductQuantityInStock(requestBody)
+      .then((rs) => {
+        if (rs.ok) {
+          updateProductQuantityInStockAfterSaved();
+        }
+      })
+      .catch((err) => toastError('Something went wrong'));
+  };
+
+  const updateProductQuantityInStockAfterSaved = () => {
+    let newStocks = [...warehouseStocks];
+    let newMap = new Map();
+
+    newStocks.forEach((stock) => {
+      if (productAdjustedQuantity.has(stock.id)) {
+        stock.quantity += productAdjustedQuantity.get(stock.id) ?? 0;
+        productAdjustedQuantity.set(stock.id, 0);
+      }
+      newMap.set(stock.id, 0);
+    });
+    setProductAdjustedQuantity(newMap);
+    setWarehouseStocks(newStocks);
   };
 
   return (
@@ -170,20 +176,6 @@ const warehouseStocks: NextPage = () => {
                 <td>
                   <form>
                     <Form.Control
-                      id="product-adjusted-quantity"
-                      placeholder="Adjusted quantity"
-                      defaultValue={0}
-                      onChange={(event) => {
-                        var newMap = new Map(productAdjustedNote);
-                        newMap.set(stockInfo.id, event.target.value);
-                        setProductAdjustedNote(newMap);
-                      }}
-                    />
-                  </form>
-                </td>
-                <td>
-                  <form>
-                    <Form.Control
                       type="number"
                       id="product-adjusted-quantity"
                       placeholder="Adjusted quantity"
@@ -196,13 +188,26 @@ const warehouseStocks: NextPage = () => {
                     />
                   </form>
                 </td>
+                <td>
+                  <form>
+                    <Form.Control
+                      id="product-adjusted-note"
+                      placeholder="Adjusted note"
+                      onChange={(event) => {
+                        var newMap = new Map(productAdjustedNote);
+                        newMap.set(stockInfo.id, event.target.value);
+                        setProductAdjustedNote(newMap);
+                      }}
+                    />
+                  </form>
+                </td>
                 <td>put a link here</td>
               </tr>
             ))}
           </tbody>
         </Table>
         <div style={{ display: 'flex', justifyContent: 'end' }}>
-          <Button variant="primary" onClick={updateProductQuantityInStock}>
+          <Button variant="primary" onClick={updateProductQuantityInStockOnClick}>
             Save
           </Button>
         </div>
