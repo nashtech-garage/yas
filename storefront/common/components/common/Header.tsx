@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
-import { Image } from 'react-bootstrap';
 
 import { DATA_SEARCH_SUGGESTION, data_menu_top_no_login } from '@/asset/data/data_header_client';
 import { SEARCH_URL } from '@/common/constants/Common';
@@ -9,7 +8,6 @@ import { SearchSuggestion } from '@/modules/search/models/SearchSuggestion';
 import { getSuggestions } from '@/modules/search/services/SearchService';
 import { useDebounce } from '@/utils/useDebounce';
 import { cartEventSource } from 'modules/cart/services/CartService';
-import promoteImage from '../../images/search-promote-image.png';
 
 type Props = {
   children: React.ReactNode;
@@ -135,17 +133,8 @@ const Header = ({ children }: Props) => {
                   onChange={(e) => setSearchInput(e.target.value)}
                 />
 
-                {showDropdown && (
+                {showDropdown && searchSuggestions.length > 0 && (
                   <div className="search-auto-complete">
-                    <div className="top-widgets">
-                      <div className="item-promos">
-                        <Link href={''} className="item-promos-link" />
-                        <div className="item-promos-keyword">Super product Galaxy A 2023</div>
-                        <div className="item-promos-image">
-                          <Image src={promoteImage.src} alt="promote image" />
-                        </div>
-                      </div>
-                    </div>
                     <div className="suggestion">
                       {searchSuggestions
                         .slice(0, isExpand ? SUGGESTION_MAX : SUGGESTION_MIN)
