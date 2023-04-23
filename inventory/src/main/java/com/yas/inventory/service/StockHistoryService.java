@@ -3,6 +3,9 @@ package com.yas.inventory.service;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.StockHistory;
 import com.yas.inventory.repository.StockHistoryRepository;
+import com.yas.inventory.viewmodel.StockHistory.StockHistoryListVm;
+import com.yas.inventory.viewmodel.StockHistory.StockHistoryVm;
+import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityVm;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +18,12 @@ import java.util.List;
 public class StockHistoryService {
     private final StockHistoryRepository stockHistoryRepository;
 
-    public StockHistoryService(StockHistoryRepository stockHistoryRepository) {
+    private final ProductService productService;
+
+    public StockHistoryService(StockHistoryRepository stockHistoryRepository,
+                               ProductService productService) {
         this.stockHistoryRepository = stockHistoryRepository;
+        this.productService = productService;
     }
 
     public void createStockHistories(final List<Stock> stocks,
@@ -44,5 +51,23 @@ public class StockHistoryService {
             );
         }
         stockHistoryRepository.saveAllAndFlush(stockHistories);
+    }
+
+    public StockHistoryListVm getStockHistories(final Long productId,
+                                                final Long warehouseId) {
+        List<StockHistory> stockHistories = stockHistoryRepository.findByProductIdAndWarehouseId(
+                productId,
+                warehouseId
+        );
+        ProductInfoVm productInfoVm = productService.getProduct(productId);
+
+        return new StockHistoryListVm(
+                stockHistories.stream().map(
+                        stockHistory -> StockHistoryVm.fromModel(
+                                stockHistory,
+                                productInfoVm
+                        )
+                ).toList()
+        );
     }
 }
