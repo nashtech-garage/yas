@@ -15,7 +15,6 @@ export function CartProvider({ children }: React.PropsWithChildren) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //Handle deleting response message from API
   const fetchNumberCartItems = useCallback(() => {
     getNumberCartItems()
       .then((res) => setNumberCartItems(res))
