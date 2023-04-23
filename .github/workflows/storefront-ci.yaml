@@ -36,7 +36,7 @@ jobs:
         working-directory: storefront
       - name: SonarCloud Scan
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v1.9.1
         with:
           projectBaseDir: storefront
         env:
