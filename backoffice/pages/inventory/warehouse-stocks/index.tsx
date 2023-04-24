@@ -173,7 +173,7 @@ const WarehouseStocks: NextPage = () => {
                       placeholder="Adjusted quantity"
                       defaultValue={0}
                       onChange={(event) => {
-                        var newMap = new Map(productAdjustedQuantity);
+                        let newMap = new Map(productAdjustedQuantity);
                         newMap.set(stockInfo.id, Number(event.target.value));
                         setProductAdjustedQuantity(newMap);
                       }}
@@ -186,7 +186,7 @@ const WarehouseStocks: NextPage = () => {
                       id="product-adjusted-note"
                       placeholder="Adjusted note"
                       onChange={(event) => {
-                        var newMap = new Map(productAdjustedNote);
+                        let newMap = new Map(productAdjustedNote);
                         newMap.set(stockInfo.id, event.target.value);
                         setProductAdjustedNote(newMap);
                       }}
