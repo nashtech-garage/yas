@@ -42,7 +42,7 @@ public class PayPalService {
 
         RedirectUrls theRedirectUrls = new RedirectUrls();
         theRedirectUrls.setCancelUrl(cancelUrl);
-        theRedirectUrls.setReturnUrl(cancelUrl);
+        theRedirectUrls.setReturnUrl(successUrl);
 
         Payment thePayment = new Payment();
         thePayment.setIntent(intent);

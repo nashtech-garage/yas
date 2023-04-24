@@ -23,8 +23,8 @@ public class PayPalController {
     @Autowired
     private PayPalService paypalService;
 
-    public static final String successUrl = "http://localhost:8080/pay/success";
-    public static final String cancelUrl = "http://localhost:8080/pay/cancel";
+    public static final String successUrl = "http://localhost:8085/order/paypal/success";
+    public static final String cancelUrl = "http://localhost:8085/order/paypal/cancel";
 
     @PostMapping("/pay")
     public String payment(@Valid @RequestBody  PaymentRequest request) throws PayPalRESTException {
