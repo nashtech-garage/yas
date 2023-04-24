@@ -32,8 +32,8 @@ public class PayPalService {
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl("http://localhost:8085/order/paypal/capture")
-                .cancelUrl("http://localhost:8085/order/paypal/cancel")
+                .returnUrl("http://api.yas.local/order/paypal/capture")
+                .cancelUrl("http://api.yas.local/order/paypal/cancel")
                 .brandName(Constants.YAS.BRANDNAME)
                 .landingPage("BILLING")
                 .userAction("PAY_NOW")
