@@ -10,4 +10,8 @@ public final class Constants {
     public final class MESSAGE {
         public static final String SUCCESS_MESSAGE = "SUCCESS";
     }
+
+    public final class YAS {
+        public static final String BRANDNAME = "YAS";
+    }
 }

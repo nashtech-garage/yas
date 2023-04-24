@@ -4,6 +4,7 @@ import com.yas.order.service.PayPalService;
 import com.yas.order.viewmodel.paypalpayment.CompletedOrder;
 import com.yas.order.viewmodel.paypalpayment.PaymentOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -20,8 +21,13 @@ public class PayPalController {
         return paypalService.createPayment(sum);
     }
 
-    @PostMapping(value = "/capture")
+    @GetMapping(value = "/capture")
     public CompletedOrder completePayment(@RequestParam("token") String token) {
         return paypalService.completePayment(token);
+    }
+
+    @GetMapping(value = "/cancel")
+    public ResponseEntity<String> cancelPayment() {
+        return ResponseEntity.ok("Payment cancelled");
     }
 }

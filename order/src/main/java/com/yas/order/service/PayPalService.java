@@ -4,6 +4,8 @@ package com.yas.order.service;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
+import com.yas.order.utils.Constants;
+import com.yas.order.viewmodel.OrderItemPostVm;
 import com.yas.order.viewmodel.paypalpayment.CompletedOrder;
 import com.yas.order.viewmodel.paypalpayment.PaymentOrder;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -24,15 +27,16 @@ public class PayPalService {
     public PaymentOrder createPayment(BigDecimal fee) {
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
-        AmountWithBreakdown amountBreakdown = new AmountWithBreakdown().currencyCode("USD").value(fee.toString());
-        PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountBreakdown);
+
+        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(fee.toString());
+        PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl("https://localhost:8085/order/paypal/capture")
-                .cancelUrl("https://localhost:8085/order/paypal/cancel")
-                .brandName("Yas Project")
+                .returnUrl("http://localhost:8085/order/paypal/capture")
+                .cancelUrl("http://localhost:8085/order/paypal/cancel")
+                .brandName(Constants.YAS.BRANDNAME)
                 .landingPage("BILLING")
-                .userAction("CONTINUE")
+                .userAction("PAY_NOW")
                 .shippingPreference("NO_SHIPPING");
 
         orderRequest.applicationContext(applicationContext);
@@ -41,7 +45,6 @@ public class PayPalService {
         try {
             HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
             Order order = orderHttpResponse.result();
-
             String redirectUrl = order.links().stream()
                     .filter(link -> "approve".equals(link.rel()))
                     .findFirst()
@@ -51,7 +54,7 @@ public class PayPalService {
             return new PaymentOrder("success", order.id(), redirectUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
-            return new PaymentOrder("Error", null ,null);
+            return new PaymentOrder("Error" + e.getMessage(), null ,null);
         }
     }
 
