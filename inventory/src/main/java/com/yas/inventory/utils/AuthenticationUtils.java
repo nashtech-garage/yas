@@ -1,5 +1,6 @@
 package com.yas.inventory.utils;
 
+import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.exception.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,7 +17,7 @@ public class AuthenticationUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new AccessDeniedException(Constants.ERROR_CODE.ACCESS_DENIED);
+            throw new AccessDeniedException(ApiConstant.ACCESS_DENIED);
         }
 
         JwtAuthenticationToken contextHolder = (JwtAuthenticationToken) authentication;

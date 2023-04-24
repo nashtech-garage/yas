@@ -1,22 +1,17 @@
 import { Warehouse } from '@inventoryModels/Warehouse';
-import { getWarehouses } from '@inventoryService/WarehouseService';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Button, Table } from 'react-bootstrap';
-import {
-  fetchStocksInWarehouseByProductNameAndProductSku,
-  updateProductQuantityInStock,
-} from '@inventoryService/StockService';
 import { StockInfo } from '@inventoryModels/StockInfo';
 import { toastError } from '@commonServices/ToastService';
 import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
-import { getStockHistories } from '@inventoryService/StockHistoryService';
 import path from 'path';
 import { useRouter } from 'next/router';
 import { string } from 'yup';
 import { StockHistory } from '@inventoryModels/StockHistory';
 import { StockHistoryList } from '@inventoryModels/StockHistoryList';
+import { getStockHistories } from '@inventoryServices/StockHistoryService';
 
 const WarehouseStocksHistories: NextPage = () => {
   const router = useRouter();

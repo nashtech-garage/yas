@@ -1,17 +1,14 @@
 import { Warehouse } from '@inventoryModels/Warehouse';
-import { getWarehouses } from '@inventoryService/WarehouseService';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Button, Table } from 'react-bootstrap';
-import {
-  fetchStocksInWarehouseByProductNameAndProductSku,
-  updateProductQuantityInStock,
-} from '@inventoryService/StockService';
 import { StockInfo } from '@inventoryModels/StockInfo';
 import { toastError, toastSuccess } from '@commonServices/ToastService';
 import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
 import { INVENTORY_WAREHOUSE_STOCKS_HISTORIES_URL } from '@constants/Common';
+import { getWarehouses } from '@inventoryServices/WarehouseService';
+import { fetchStocksInWarehouseByProductNameAndProductSku, updateProductQuantityInStock } from '@inventoryServices/StockService';
 
 const WarehouseStocks: NextPage = () => {
   const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
