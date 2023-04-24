@@ -1,16 +1,15 @@
-import { toastSuccess, toastError } from './ToastService';
+import { toastError, toastSuccess } from './ToastService';
 
 import {
-  ResponseStatus,
-  ToastVariant,
-  HAVE_BEEN_DELETED,
-  DELETE_FAILED,
-  UPDATE_SUCCESSFULLY,
-  UPDATE_FAILED,
-  CREATE_SUCCESSFULLY,
   CREATE_FAILED,
+  CREATE_SUCCESSFULLY,
+  DELETE_FAILED,
+  HAVE_BEEN_DELETED,
+  ResponseStatus,
   ResponseTitle,
-} from '../../constants/Common';
+  UPDATE_FAILED,
+  UPDATE_SUCCESSFULLY,
+} from '@constants/Common';
 
 //Handle deleting response message from API
 export const handleDeletingResponse = (response: any, itemName: string | number) => {
