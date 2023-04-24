@@ -4,15 +4,14 @@ package com.yas.order.service;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
-import com.yas.order.viewmodel.CompletedOrder;
-import com.yas.order.viewmodel.PaymentOrder;
+import com.yas.order.viewmodel.paypalpayment.CompletedOrder;
+import com.yas.order.viewmodel.paypalpayment.PaymentOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -29,9 +28,9 @@ public class PayPalService {
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl("https://localhost:4200/capture")
-                .cancelUrl("https://localhost:4200/cancel")
-                .brandName("Your brand name")
+                .returnUrl("https://localhost:8085/order/paypal/capture")
+                .cancelUrl("https://localhost:8085/order/paypal/cancel")
+                .brandName("Yas Project")
                 .landingPage("BILLING")
                 .userAction("CONTINUE")
                 .shippingPreference("NO_SHIPPING");
@@ -52,7 +51,7 @@ public class PayPalService {
             return new PaymentOrder("success", order.id(), redirectUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
-            return new PaymentOrder("Error");
+            return new PaymentOrder("Error", null ,null);
         }
     }
 
@@ -67,6 +66,6 @@ public class PayPalService {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-        return new CompletedOrder("error");
+        return new CompletedOrder("error",null);
     }
 }
