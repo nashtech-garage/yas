@@ -33,7 +33,7 @@ public class StockHistoryService {
         for (final Stock stock : stocks) {
             StockQuantityVm stockQuantityVm = stockQuantityVms
                     .stream()
-                    .filter(stockQuantityVm1 -> stockQuantityVm1.stockId().equals(stock.getQuantity()))
+                    .filter(stockQuantityVm1 -> stockQuantityVm1.stockId().equals(stock.getId()))
                     .findFirst()
                     .orElse(null);
 
@@ -50,7 +50,7 @@ public class StockHistoryService {
                             .build()
             );
         }
-        stockHistoryRepository.saveAllAndFlush(stockHistories);
+        stockHistoryRepository.saveAll(stockHistories);
     }
 
     public StockHistoryListVm getStockHistories(final Long productId,

@@ -9,10 +9,11 @@ import {
   updateProductQuantityInStock,
 } from '@inventoryService/StockService';
 import { StockInfo } from '@inventoryModels/StockInfo';
-import { toastError } from '@commonServices/ToastService';
+import { toastError, toastSuccess } from '@commonServices/ToastService';
 import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
+import { INVENTORY_WAREHOUSE_STOCKS_HISTORIES_URL } from '@constants/Common';
 
-const warehouseStocks: NextPage = () => {
+const WarehouseStocks: NextPage = () => {
   const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [warehouseStocks, setWarehouseStocks] = useState<StockInfo[]>([]);
@@ -55,16 +56,6 @@ const warehouseStocks: NextPage = () => {
       });
   };
 
-  // const selectProductIntoWarehouse = (event: any, index: number) => {
-  //   const shallowProducts = warehouseStocks.map((product, i) => {
-  //     if (i === index) {
-  //       product.isSelected = event.target.checked;
-  //     }
-  //     return product;
-  //   });
-  //   setwarehouseStocks(shallowProducts);
-  // };
-
   const updateProductQuantityInStockOnClick = () => {
     let requestBody: ProductQuantityInStock[] = [];
 
@@ -82,6 +73,7 @@ const warehouseStocks: NextPage = () => {
       .then((rs) => {
         if (rs.ok) {
           updateProductQuantityInStockAfterSaved();
+          toastSuccess('Stock quantity has been changed successfully');
         }
       })
       .catch((err) => toastError('Something went wrong'));
@@ -106,7 +98,7 @@ const warehouseStocks: NextPage = () => {
     <>
       <div className="row mt-5">
         <div className="col-md-5">
-          <h2 className="text-danger font-weight-bold mb-3">Manage Warehouse Products</h2>
+          <h2 className="text-danger font-weight-bold mb-3">Manage Warehouse Stocks</h2>
         </div>
       </div>
 
@@ -201,7 +193,15 @@ const warehouseStocks: NextPage = () => {
                     />
                   </form>
                 </td>
-                <td>put a link here</td>
+                <td>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <a
+                      href={`${INVENTORY_WAREHOUSE_STOCKS_HISTORIES_URL}?warehouseId=${stockInfo.warehouseId}&productId=${stockInfo.productId}`}
+                    >
+                      View History
+                    </a>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -216,4 +216,4 @@ const warehouseStocks: NextPage = () => {
   );
 };
 
-export default warehouseStocks;
+export default WarehouseStocks;
