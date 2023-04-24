@@ -1,9 +1,6 @@
-import { ProductAttribute } from '../models/ProductAttribute';
+import { ProductAttribute } from '@catalogModels/ProductAttribute';
+import { ProductAttributeForm } from '@catalogModels/ProductAttributeForm';
 
-interface ProductAttributeId {
-  name: string;
-  productAttributeGroupId: string;
-}
 export async function getProductAttributes(): Promise<ProductAttribute[]> {
   const response = await fetch('/api/product/backoffice/product-attribute');
   return await response.json();
@@ -15,19 +12,23 @@ export async function getPageableProductAttributes(pageNo: number, pageSize: num
   return await response.json();
 }
 
-export async function createProductAttribute(productAttributePost: ProductAttributeId) {
+export async function createProductAttribute(productAttributePost: ProductAttributeForm) {
   const response = await fetch('/api/product/backoffice/product-attribute', {
     method: 'POST',
     body: JSON.stringify(productAttributePost),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  return response;
+  if (response.status >= 200 && response.status < 300) return response;
+  else return Promise.reject();
 }
 
-export async function updateProductAttribute(id: number, productAttributeId: ProductAttributeId) {
+export async function updateProductAttribute(
+  id: number,
+  productAttributePut: ProductAttributeForm
+) {
   const response = await fetch('/api/product/backoffice/product-attribute/' + id, {
     method: 'PUT',
-    body: JSON.stringify(productAttributeId),
+    body: JSON.stringify(productAttributePut),
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
   if (response.status === 204) return response;
@@ -36,7 +37,8 @@ export async function updateProductAttribute(id: number, productAttributeId: Pro
 
 export async function getProductAttribute(id: number): Promise<ProductAttribute> {
   const response = await fetch('/api/product/backoffice/product-attribute/' + id);
-  return await response.json();
+  if (response.status >= 200 && response.status < 300) return response.json();
+  else return Promise.reject();
 }
 
 export async function deleteProductAttribute(id: number) {
