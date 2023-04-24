@@ -48,6 +48,8 @@ public class Product extends AbstractAuditEntity {
 
     private boolean stockTrackingEnabled;
 
+    private Long stockQuantity;
+
     private String metaTitle;
 
     private String metaKeyword;

@@ -172,4 +172,15 @@ public class ProductController {
             @RequestParam(required = false) List<Long> productIds, @RequestParam(required = false) FilterExistInWHSelection selection) {
         return ResponseEntity.ok(productService.getProductsForWarehouse(name, sku, productIds, selection));
     }
+
+    @PutMapping(path = "/backoffice/products/update-quantity")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Updated"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> updateProductQuantity(@Valid @RequestBody List<ProductQuantityPostVm> productQuantityPostVms) {
+        productService.updateProductQuantity(productQuantityPostVms);
+
+        return ResponseEntity.noContent().build();
+    }
 }
