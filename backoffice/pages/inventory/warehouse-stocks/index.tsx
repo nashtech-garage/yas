@@ -8,7 +8,10 @@ import { toastError, toastSuccess } from '@commonServices/ToastService';
 import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
 import { INVENTORY_WAREHOUSE_STOCKS_HISTORIES_URL } from '@constants/Common';
 import { getWarehouses } from '@inventoryServices/WarehouseService';
-import { fetchStocksInWarehouseByProductNameAndProductSku, updateProductQuantityInStock } from '@inventoryServices/StockService';
+import {
+  fetchStocksInWarehouseByProductNameAndProductSku,
+  updateProductQuantityInStock,
+} from '@inventoryServices/StockService';
 
 const WarehouseStocks: NextPage = () => {
   const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
