@@ -10,4 +10,6 @@ import com.yas.cart.model.Cart;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findByCustomerId(String customerId);
+
+    List<Cart> findByCustomerIdAndOrderIdIsNull(String customerId);
 }

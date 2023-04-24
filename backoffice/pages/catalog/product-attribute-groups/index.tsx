@@ -113,11 +113,11 @@ const ProductAttrbuteGroupList: NextPage = () => {
         nextLabel={'Next'}
         pageCount={totalPage}
         onPageChange={changePage}
-        containerClassName={'paginationBtns'}
-        previousLinkClassName={'previousBtn'}
-        nextClassName={'nextBtn'}
-        disabledClassName={'paginationDisabled'}
-        activeClassName={'paginationActive'}
+        containerClassName={'pagination-container'}
+        previousClassName={'previous-btn'}
+        nextClassName={'next-btn'}
+        disabledClassName={'pagination-disabled'}
+        activeClassName={'pagination-active'}
       />
     </>
   );

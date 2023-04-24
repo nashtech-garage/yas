@@ -187,13 +187,14 @@
 .featured-product-container {
   margin-top: 20px;
   min-width: 1000px;
+  padding: 0;
 }
 
 .featured-product-container .title {
   text-align: center;
   background-color: #fff;
-  margin: 0 -12px;
   font-weight: bold;
   border-bottom: 4px solid #ee4d2d;
   color: #ee4d2d;
+  padding: 0;
 }

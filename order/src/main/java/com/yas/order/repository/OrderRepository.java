@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -12,10 +14,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "SELECT 1 FROM Order o INNER JOIN OrderItem oi ON o.id=oi.orderId " +
             "WHERE o.createdBy=:createdBy " +
             "       AND o.orderStatus=COMPLETED " +
-            "       AND oi.productId=:productId" +
+            "       AND oi.productId in :productId" +
             ")")
-    boolean existsByCreatedByAndProductIdAndOrderStatusCompleted(
+    boolean existsByCreatedByAndInProductIdAndOrderStatusCompleted(
             String createdBy,
-            Long productId
+            List<Long> productId
     );
 }

@@ -8,24 +8,24 @@ import Tabs from 'react-bootstrap/Tabs';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { ProductDetails } from '../../modules/catalog/components';
+import { ProductDetails, RelatedProduct } from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
 import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
-import { Rating } from '../../modules/rating/models/Rating';
-import { RatingPost } from '../../modules/rating/models/RatingPost';
 import {
   getProductDetail,
   getProductOptionValues,
   getProductVariationsByParentId,
 } from '../../modules/catalog/services/ProductService';
+import { toastError, toastSuccess } from '../../modules/catalog/services/ToastService';
+import { PostRatingForm, RatingList } from '../../modules/rating/components';
+import { Rating } from '../../modules/rating/models/Rating';
+import { RatingPost } from '../../modules/rating/models/RatingPost';
 import {
   createRating,
   getAverageStarByProductId,
   getRatingsByProductId,
 } from '../../modules/rating/services/RatingService';
-import { toastError, toastSuccess } from '../../modules/catalog/services/ToastService';
-import { RatingList, PostRatingForm } from '../../modules/rating/components';
 
 type Props = {
   product: ProductDetail;
@@ -186,6 +186,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
         totalRating={totalElements}
       />
 
+      {/* Product Attributes */}
       <div className="container" style={{ marginTop: '70px' }}>
         <Table>
           {product.productAttributeGroups.map((attributeGroup) => (
@@ -243,6 +244,9 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
           </div>
         </Tab>
       </Tabs>
+
+      {/* Related products */}
+      <RelatedProduct productId={product.id} />
     </Container>
   );
 };

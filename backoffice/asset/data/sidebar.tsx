@@ -4,6 +4,7 @@ import {
   STATE_OR_PROVINCE_URL,
   TAX_CLASS_URL,
   TAX_RATE_URL,
+  WAREHOUSE_URL,
 } from '@constants/Common';
 
 export const menu_catalog_item_data = [
@@ -83,5 +84,10 @@ export const menu_inventory_item_data = [
     id: 1,
     name: 'Manage Warehouse Products',
     link: INVENTORY_WAREHOUSE_PRODUCTS_URL,
+  },
+  {
+    id: 2,
+    name: 'Manage Warehouses',
+    link: WAREHOUSE_URL,
   },
 ];

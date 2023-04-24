@@ -42,13 +42,13 @@ class CartServiceTest {
                 cartItemRepository,
                 productService);
 
-        cartGetDetailVm = new CartGetDetailVm(1L, "customerId", null);
+        cartGetDetailVm = new CartGetDetailVm(1L, "customerId",null, null);
 
         HashSet<CartItem> cartItemList = new HashSet<>();
         cartItemList.add(new CartItem(1L, null, 1L, null, 1));
         cartItemList.add(new CartItem(2L, null, 2L, null, 2));
-        cart1 = new Cart(1L, "customer-1", cartItemList);
-        cart2 = new Cart(2L, "customer-2", null);
+        cart1 = new Cart(1L, "customer-1", null,cartItemList);
+        cart2 = new Cart(2L, "customer-2",null, null);
         carts = List.of(cart1, cart2);
 
         //Security config

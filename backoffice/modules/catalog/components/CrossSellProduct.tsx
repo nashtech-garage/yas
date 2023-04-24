@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
@@ -16,7 +16,7 @@ const CrossSellProduct = ({ setValue, getValue }: Props) => {
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product[]>([]);
 
-  const onProductSelected = (_event: React.MouseEvent<HTMLElement>, product: Product) => {
+  const onProductSelected = (product: Product) => {
     let temp = getValue('crossSell') || [];
     let index = temp.indexOf(product.id);
     if (index === -1) {
@@ -40,6 +40,7 @@ const CrossSellProduct = ({ setValue, getValue }: Props) => {
         onHide={() => setModalShow(false)}
         onSelected={onProductSelected}
         label="Add Cross - Sell Product"
+        selectedProduct={selectedProduct}
       />
       {selectedProduct.length > 0 && (
         <Table>

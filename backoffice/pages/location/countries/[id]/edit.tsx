@@ -78,7 +78,7 @@ const CountryEdit: NextPage = () => {
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="${COUNTRY_URL}">
+            <Link href={`${COUNTRY_URL}`}>
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>

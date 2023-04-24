@@ -14,6 +14,6 @@ import java.util.List;
 public class DistrictService {
     private final DistrictRepository districtRepository;
     public List<DistrictGetVm> getList(Long id) {
-        return districtRepository.findAllByStateProvinceId(id);
+        return districtRepository.findAllByStateProvinceIdOrderByNameAsc(id);
     }
 }

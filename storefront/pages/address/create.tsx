@@ -1,5 +1,4 @@
 import { NextPage } from 'next';
-import Head from 'next/head';
 import { useForm } from 'react-hook-form';
 import AddressForm from '../../modules/address/components/AddressForm';
 import { Address } from '../../modules/address/models/AddressModel';
@@ -7,6 +6,23 @@ import { createUserAddress } from '../../modules/customer/services/CustomerServi
 import { toast } from 'react-toastify';
 import { CREATE_SUCCESSFULLY } from '../../common/constants/Common';
 import { useRouter } from 'next/router';
+import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
+import ProfileLayout from '@/common/components/ProfileLayout';
+
+const crumb: BreadcrumbModel[] = [
+  {
+    pageName: 'Home',
+    url: '/',
+  },
+  {
+    pageName: 'Address',
+    url: '/address',
+  },
+  {
+    pageName: 'Create',
+    url: '#',
+  },
+];
 
 const CreateAddress: NextPage = () => {
   const {
@@ -49,22 +65,16 @@ const CreateAddress: NextPage = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>Create Address</title>
-      </Head>
-      <div className="container pt-5" style={{ minHeight: '550px' }}>
-        <h2 className="mb-3">Create Address</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <AddressForm isDisplay={true} register={register} errors={errors} address={undefined} />
-          <div className="container p-0" style={{ textAlign: 'end' }}>
-            <button className="btn btn-primary" type="submit">
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+    <ProfileLayout breadcrumb={crumb} title="Create Address" menuActive="address">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <AddressForm isDisplay={true} register={register} errors={errors} address={undefined} />
+        <div className="container p-0" style={{ textAlign: 'end' }}>
+          <button className="btn btn-primary" type="submit">
+            Save
+          </button>
+        </div>
+      </form>
+    </ProfileLayout>
   );
 };
 
