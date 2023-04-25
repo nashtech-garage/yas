@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 
 import java.security.Principal;
 import java.util.List;
@@ -72,10 +71,10 @@ public class CartController {
     }
 
     @GetMapping(path = "/storefront/count-cart-items")
-    public Flux<Integer> getNumberItemInCart(Principal principal) {
+    public ResponseEntity<Integer> getNumberItemInCart(Principal principal) {
         if (principal == null)
-            return Flux.empty();
-        return cartService.countNumberItemInCart(principal.getName());
+            return ResponseEntity.ok().body(0);
+        return ResponseEntity.ok().body(cartService.countNumberItemInCart(principal.getName()));
     }
 
 }

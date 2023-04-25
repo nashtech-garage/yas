@@ -1,8 +1,12 @@
 package com.yas.inventory.service;
 
 import com.yas.inventory.config.ServiceUrlConfig;
+import com.yas.inventory.exception.AccessDeniedException;
+import com.yas.inventory.exception.NotFoundException;
 import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
+import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -68,6 +72,36 @@ public class ProductService {
                 .retrieve()
                 .bodyToFlux(ProductInfoVm.class)
                 .collectList()
+                .block();
+    }
+
+    public Void updateProductQuantity(List<ProductQuantityPostVm> productQuantityPostVms) {
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+
+        final URI url = UriComponentsBuilder
+                .fromHttpUrl(serviceUrlConfig.product())
+                .path("/backoffice/products/update-quantity")
+                .buildAndExpand()
+                .toUri();
+
+        return webClient.put()
+                .uri(url)
+                .headers(h->h.setBearerAuth(jwt))
+                .bodyValue(productQuantityPostVms)
+                .retrieve()
+                .onStatus(
+                        HttpStatus.UNAUTHORIZED::equals,
+                        response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
+                .onStatus(
+                        HttpStatus.FORBIDDEN::equals,
+                        response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
+                .onStatus(
+                        HttpStatus.BAD_REQUEST::equals,
+                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
+                .onStatus(
+                        HttpStatus.NOT_FOUND::equals,
+                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
+                .bodyToMono(void.class)
                 .block();
     }
 }

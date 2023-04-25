@@ -827,4 +827,18 @@ public class ProductService {
         return productRepository.findProductForWarehouse(name, sku, productIds, selection.name())
                 .stream().map(ProductInfoVm::fromProduct).toList();
     }
+
+    public void updateProductQuantity(List<ProductQuantityPostVm> productQuantityPostVms) {
+
+        List<Long> productIds = productQuantityPostVms.stream().map(ProductQuantityPostVm::productId).toList();
+        List<Product> products = productRepository.findAllByIdIn(productIds);
+        products.parallelStream().forEach(product -> {
+            ProductQuantityPostVm productQuantityPostVm = productQuantityPostVms.parallelStream()
+                    .filter(productPostVm -> product.getId().equals(productPostVm.productId())).findFirst().get();
+
+            product.setStockQuantity(product.getStockQuantity() + productQuantityPostVm.adjustedQuantity());
+        });
+
+        productRepository.saveAll(products);
+    }
 }

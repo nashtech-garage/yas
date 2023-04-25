@@ -13,9 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -158,11 +156,9 @@ public class CartService {
         cartItemRepository.deleteByCartIdAndProductId(currentCart.id(), productId);
     }
 
-    public Flux<Integer> countNumberItemInCart(String customerId) {
-        return Flux.interval(Duration.ofSeconds(1)).map((i) -> {
-            Optional<Cart> cartOp = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
-                    .stream().reduce((first, second) -> second);
-            return cartOp.isPresent() ? cartItemRepository.countItemInCart(cartOp.get().getId()) : 0;
-        });
+    public Integer countNumberItemInCart(String customerId) {
+        Optional<Cart> cartOp = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
+                .stream().reduce((first, second) -> second);
+        return cartOp.isPresent() ? cartItemRepository.countItemInCart(cartOp.get().getId()) : 0;
     }
 }

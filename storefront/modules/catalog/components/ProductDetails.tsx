@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 
 import { ProductImageGallery } from '@/common/components/ProductImageGallery';
+import { useCartContext } from '@/context/CartContext';
 import { AddToCartModel } from '@/modules/cart/models/AddToCartModel';
 import { addToCart } from '@/modules/cart/services/CartService';
 import { formatPrice } from '@/utils/formatPrice';
@@ -61,6 +62,7 @@ export default function ProductDetails({
   const [currentSelectedOption, setCurrentSelectedOption] =
     useState<CurrentSelectedOption>(initCurrentSelectedOption);
   const [currentProduct, setCurrentProduct] = useState<ProductDetail | ProductVariation>(product);
+  const { fetchNumberCartItems } = useCartContext();
 
   useEffect(() => {
     if (
@@ -106,6 +108,7 @@ export default function ProductDetails({
     await addToCart(payload)
       .then((_response) => {
         toastSuccess('Add to cart success');
+        fetchNumberCartItems();
       })
       .catch((error) => {
         if (error.status === 403) toastError('You need to log in before add to cart');
