@@ -35,14 +35,12 @@ public class Order extends AbstractAuditEntity{
     private String couponCode;
     private BigDecimal totalPrice;
     private BigDecimal deliveryFee;
-
     @Enumerated(EnumType.STRING)
     private EOrderStatus orderStatus;
     private EDeliveryMethod deliveryMethod;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "payment", referencedColumnName = "id")
-    private Payment payment;
+    private EDeliveryStatus deliveryStatus;
+    private EPaymentMethod paymentMethod;
+    private EPaymentStatus paymentStatus;
 
     @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     Set<OrderItem> orderItems;
