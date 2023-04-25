@@ -1,6 +1,6 @@
 package com.yas.payment.exception;
 
-import com.yas.order.viewmodel.ErrorVm;
+import com.yas.payment.viewmodel.ErrorVm;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -58,13 +58,6 @@ public class ApiExceptionHandler {
 
         ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
         return ResponseEntity.badRequest().body(errorVm);
-    }
-
-    @ExceptionHandler({ SignInRequiredException.class })
-    public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex) {
-        String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm("403", "Authentication required", message);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorVm);
     }
 
 

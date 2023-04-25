@@ -1,6 +1,6 @@
 package com.yas.payment.exception;
 
-import com.yas.order.utils.MessagesUtils;
+import com.yas.payment.utils.MessagesUtils;
 
 public class BadRequestException extends RuntimeException {
 
