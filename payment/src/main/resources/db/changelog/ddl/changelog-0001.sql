@@ -9,6 +9,6 @@ create table payment (
    payment_method varchar(255),
    payment_status varchar(255),
    created_on timestamp(6),
-   last_modified_on timestamp(6);
+   last_modified_on timestamp(6),
    PRIMARY KEY (id),
 );
