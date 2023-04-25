@@ -108,6 +108,11 @@
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-spring-security-adapter</artifactId>
 			<version>${keycloak-spring-security-adapter.version}</version>
