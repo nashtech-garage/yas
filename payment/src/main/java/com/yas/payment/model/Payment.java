@@ -1,6 +1,8 @@
-package com.yas.order.model;
+package com.yas.payment.model;
 
-import com.yas.order.model.enumeration.*;
+
+import com.yas.payment.model.enumeration.EPaymentMethod;
+import com.yas.payment.model.enumeration.EPaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,7 +10,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.Set;
 
 @Entity
 @Table(name = "payment")
@@ -21,14 +22,12 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(mappedBy = "payment")
-    private Order order;
+    private Long orderId;
     private BigDecimal amount;
     private BigDecimal paymentFee;
     private EPaymentMethod paymentMethod;
     private EPaymentStatus paymentStatus;
     private String failureMessage;
-
     @CreationTimestamp
     private ZonedDateTime createdOn;
     @UpdateTimestamp

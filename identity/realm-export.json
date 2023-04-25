@@ -1033,6 +1033,7 @@
       "redirectUris": [
         "http://api.yas.local/*",
         "http://localhost:8080/*",
+        "http://localhost:8081/*",
         "http://localhost:8083/*",
         "http://localhost:8084/*",
         "http://localhost:8085/*",
@@ -1046,13 +1047,13 @@
       "webOrigins": [
         "http://api.yas.local",
         "http://localhost:8080",
+        "http://localhost:8081",
         "http://localhost:8083",
         "http://localhost:8084",
         "http://localhost:8085",
         "http://localhost:8086",
         "http://localhost:8088",
         "http://localhost:8089",
-        "http://localhost:8090",
         "http://localhost:8090",
         "http://localhost:8091",
         "http://localhost:8092"
