@@ -36,6 +36,9 @@ server {
   location /search/ {
     proxy_pass http://search;
   }
+  location /shipment/ {
+    proxy_pass http://shipment;
+  }
 }
 
 server {

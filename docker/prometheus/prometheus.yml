@@ -45,3 +45,7 @@ scrape_configs:
     metrics_path: "/tax/actuator/prometheus"
     static_configs:
       - targets: ["tax"]
+  - job_name: "shipment"
+    metrics_path: "/shipment/actuator/prometheus"
+    static_configs:
+      - targets: ["shipment"]
