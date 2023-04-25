@@ -1,6 +1,7 @@
 package com.yas.order.repository;
 
 import com.yas.order.model.Order;
+import com.yas.order.model.enumeration.EOrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,4 +21,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             String createdBy,
             List<Long> productId
     );
+
+    @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.orderItems " +
+            "WHERE o.createdBy=:userId " +
+                "AND (:orderStatus is null or o.orderStatus=:orderStatus) " +
+                "AND o.id in (select oi.orderId.id from OrderItem oi " +
+                    "where (:productName = '' OR lower(oi.productName) like concat('%', lower(:productName), '%'))) " +
+            "ORDER BY o.createdOn DESC")
+    List<Order> findMyOrders(String userId, String productName, EOrderStatus orderStatus);
 }
