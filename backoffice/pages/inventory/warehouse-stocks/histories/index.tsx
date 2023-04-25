@@ -1,14 +1,8 @@
-import { Warehouse } from '@inventoryModels/Warehouse';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
-import Form from 'react-bootstrap/Form';
-import { Button, Table } from 'react-bootstrap';
-import { StockInfo } from '@inventoryModels/StockInfo';
+import { Table } from 'react-bootstrap';
 import { toastError } from '@commonServices/ToastService';
-import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
-import path from 'path';
 import { useRouter } from 'next/router';
-import { string } from 'yup';
 import { StockHistory } from '@inventoryModels/StockHistory';
 import { StockHistoryList } from '@inventoryModels/StockHistoryList';
 import { getStockHistories } from '@inventoryServices/StockHistoryService';
@@ -36,8 +30,6 @@ const WarehouseStocksHistories: NextPage = () => {
         })
         .catch(() => toastError('Something wrong has just happened'));
     }
-
-    return;
   };
 
   return (

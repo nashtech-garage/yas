@@ -14,11 +14,11 @@ import {
 } from '@inventoryServices/StockService';
 
 const WarehouseStocks: NextPage = () => {
-  const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
+  const [selectedWhId, setSelectedWhId] = useState<number>(0);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [warehouseStocks, setWarehouseStocks] = useState<StockInfo[]>([]);
-  const [productName, setProductName] = useState<string>('');
-  const [productSku, setProductSku] = useState<string>('');
+  const [productNameKw, setProductNameKw] = useState<string>('');
+  const [productSkuKw, setProductSkuKw] = useState<string>('');
   const [productAdjustedQuantity, setProductAdjustedQuantity] = useState<Map<number, number>>(
     new Map()
   );
@@ -29,21 +29,19 @@ const WarehouseStocks: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (warehouseIdSelected) {
+    if (selectedWhId) {
       fetchStocksInWarehouse();
     }
-  }, [warehouseIdSelected, productName, productSku]);
+  }, [selectedWhId, productNameKw, productSkuKw]);
 
   const fetchWarehouses = () => {
     getWarehouses().then((results) => setWarehouses(results));
   };
 
   const fetchStocksInWarehouse = () => {
-    fetchStocksInWarehouseByProductNameAndProductSku(warehouseIdSelected, productName, productSku)
+    fetchStocksInWarehouseByProductNameAndProductSku(selectedWhId, productNameKw, productSkuKw)
       .then(async (result) => {
-        if (result.status !== 200) {
-          toastError('Something wrong has just happened');
-        } else {
+        if (result.status === 200) {
           let rs: StockInfo[] = await result.json();
           let productQuantityMap: Map<number, number> = new Map();
           setWarehouseStocks(rs);
@@ -76,7 +74,7 @@ const WarehouseStocks: NextPage = () => {
           toastSuccess('Stock quantity has been changed successfully');
         }
       })
-      .catch((err) => toastError('Something went wrong'));
+      .catch(() => toastError('Something went wrong'));
   };
 
   const updateProductQuantityInStockAfterSaved = () => {
@@ -94,6 +92,18 @@ const WarehouseStocks: NextPage = () => {
     setWarehouseStocks(newStocks);
   };
 
+  const onChangeAdjustedQuantity = (event: any, stockId: number) => {
+    let newMap = new Map(productAdjustedQuantity);
+    newMap.set(stockId, Number(event.target.value));
+    setProductAdjustedQuantity(newMap);
+  };
+
+  const onChangeAdjustedNote = (event: any, stockId: number) => {
+    let newMap = new Map(productAdjustedNote);
+    newMap.set(stockId, event.target.value);
+    setProductAdjustedNote(newMap);
+  };
+
   return (
     <>
       <div className="row mt-5">
@@ -109,9 +119,9 @@ const WarehouseStocks: NextPage = () => {
               <Form.Select
                 id="warehouse-selection"
                 onChange={(e) => {
-                  setWarehouseIdSelected(Number(e.target.value));
+                  setSelectedWhId(Number(e.target.value));
                 }}
-                style={!warehouseIdSelected ? { color: '#838d8d' } : {}}
+                style={!selectedWhId ? { color: '#838d8d' } : {}}
                 placeholder="Select Warehouse..."
               >
                 <option key="all" style={{ color: '#838d8d' }} value={undefined}>
@@ -130,18 +140,18 @@ const WarehouseStocks: NextPage = () => {
               <Form.Control
                 id="product-name"
                 placeholder="Search product name ..."
-                defaultValue={productName}
-                onChange={(event) => setProductName(event.target.value)}
-                disabled={!warehouseIdSelected}
+                defaultValue={productNameKw}
+                onChange={(event) => setProductNameKw(event.target.value)}
+                disabled={!selectedWhId}
               />
             </div>
             <div className="col-md">
               <Form.Control
                 id="product-sku"
                 placeholder="Search product SKU ..."
-                defaultValue={productSku}
-                onChange={(event) => setProductSku(event.target.value)}
-                disabled={!warehouseIdSelected}
+                defaultValue={productSkuKw}
+                onChange={(event) => setProductSkuKw(event.target.value)}
+                disabled={!selectedWhId}
               />
             </div>
           </div>
@@ -172,11 +182,7 @@ const WarehouseStocks: NextPage = () => {
                       id="product-adjusted-quantity"
                       placeholder="Adjusted quantity"
                       defaultValue={0}
-                      onChange={(event) => {
-                        let newMap = new Map(productAdjustedQuantity);
-                        newMap.set(stockInfo.id, Number(event.target.value));
-                        setProductAdjustedQuantity(newMap);
-                      }}
+                      onChange={(event) => onChangeAdjustedQuantity(event, stockInfo.id)}
                     />
                   </form>
                 </td>
@@ -186,9 +192,7 @@ const WarehouseStocks: NextPage = () => {
                       id="product-adjusted-note"
                       placeholder="Adjusted note"
                       onChange={(event) => {
-                        let newMap = new Map(productAdjustedNote);
-                        newMap.set(stockInfo.id, event.target.value);
-                        setProductAdjustedNote(newMap);
+                        onChangeAdjustedNote(event, stockInfo.id);
                       }}
                     />
                   </form>

@@ -1,6 +1,5 @@
 import { ProductQuantityInStock } from './../models/ProductQuantityInStock';
 import { StockPostVM } from '@inventoryModels/Stock';
-import { StockInfo } from '@inventoryModels/StockInfo';
 
 export async function addProductIntoWarehouse(stocks: StockPostVM[]) {
   const response = await fetch('/api/inventory/backoffice/stocks', {
