@@ -2,16 +2,18 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import ConfirmationDialog from '../../common/components/dialog/ConfirmationDialog';
-import ImageWithFallBack from '../../common/components/ImageWithFallback';
-import { Cart } from '../../modules/cart/models/Cart';
+
+import ImageWithFallBack from '@/common/components/ImageWithFallback';
+import ConfirmationDialog from '@/common/components/dialog/ConfirmationDialog';
+import { useCartContext } from '@/context/CartContext';
+import { Cart as CartModel } from '@/modules/cart/models/Cart';
 import {
   addToCart,
   getCart,
   getCartProductThumbnail,
   removeProductInCart,
   updateCart,
-} from '../../modules/cart/services/CartService';
+} from '@/modules/cart/services/CartService';
 import { formatPrice } from 'utils/formatPrice';
 
 const Cart = () => {
@@ -34,7 +36,7 @@ const Cart = () => {
 
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const [cart, setCart] = useState<Cart>({
+  const [cart, setCart] = useState<CartModel>({
     id: 0,
     customerId: '',
     cartDetails: [
@@ -45,6 +47,7 @@ const Cart = () => {
       },
     ],
   });
+  const { fetchNumberCartItems } = useCartContext();
 
   const calculateProductPrice = (item: Item) => {
     return formatPrice(item.price * item.quantity);
@@ -57,6 +60,7 @@ const Cart = () => {
   const loadCart = () => {
     getCart().then((data) => {
       setCart(data);
+      fetchNumberCartItems();
       const cartDetails = data.cartDetails;
       const productIds = cartDetails.map((item) => item.productId);
       getProductThumbnails(productIds).then((results) => {
@@ -68,7 +72,7 @@ const Cart = () => {
             productName: result.name,
             slug: result.slug,
             thumbnailUrl: result.thumbnailUrl,
-            price: result.price!,
+            price: result.price,
           });
         });
         setItems(newItems);
@@ -158,7 +162,8 @@ const Cart = () => {
       loadCart();
       setLoaded(true);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded]);
 
   return (
     <section className="shop-cart spad">

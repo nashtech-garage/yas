@@ -24,9 +24,6 @@ export default function AuthenticationInfo() {
   useEffect(() => {
     getAuthenticationInfo().then((data) => {
       setAuthenticatedInfoVm(data);
-      if (data.isAuthenticated) {
-        fetch(`/move-cart`);
-      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

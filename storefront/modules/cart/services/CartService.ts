@@ -33,7 +33,7 @@ export async function removeProductInCart(productId: number) {
     method: 'DELETE',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   });
-  if (response.status === 204) return await response;
+  if (response.status === 204) return response;
   else return await response.json();
 }
 
@@ -49,27 +49,10 @@ export async function updateCart(updateCartBody: AddToCartModel): Promise<Update
   return Promise.reject(response);
 }
 
-export function cartEventSource(
-  onRecievedData: (numberItem: number) => void,
-  connect?: () => void,
-  handleError?: () => void
-): void {
-  const eventSource = new EventSource('/api/cart/storefront/count-cart-items');
-
-  eventSource.onopen = (event) => {
-    if (connect) {
-      connect();
-    }
-  };
-
-  eventSource.onmessage = (event) => {
-    onRecievedData(event.data);
-  };
-
-  eventSource.onerror = (event) => {
-    if (handleError) {
-      handleError();
-    }
-    eventSource.close();
-  };
+export async function getNumberCartItems(): Promise<number> {
+  const response = await fetch('/api/cart/storefront/count-cart-items', {
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  });
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(response);
 }

@@ -5,10 +5,10 @@ import { Image } from 'react-bootstrap';
 
 import { DATA_SEARCH_SUGGESTION, data_menu_top_no_login } from '@/asset/data/data_header_client';
 import { SEARCH_URL } from '@/common/constants/Common';
+import { useCartContext } from '@/context/CartContext';
 import { SearchSuggestion } from '@/modules/search/models/SearchSuggestion';
 import { getSuggestions } from '@/modules/search/services/SearchService';
 import { useDebounce } from '@/utils/useDebounce';
-import { cartEventSource } from 'modules/cart/services/CartService';
 import promoteImage from '../../images/search-promote-image.png';
 
 type Props = {
@@ -25,7 +25,7 @@ const Header = ({ children }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isExpand, setIsExpand] = useState(false);
-  const [numberItemIncart, setNumberItemIncart] = useState(0);
+  const { numberCartItems } = useCartContext();
 
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
@@ -44,12 +44,6 @@ const Header = ({ children }: Props) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-
-  useEffect(() => {
-    cartEventSource((numberItem) => {
-      setNumberItemIncart(numberItem);
-    });
   }, []);
 
   useEffect(() => {
@@ -205,7 +199,7 @@ const Header = ({ children }: Props) => {
             <div className="icon-cart">
               <i className="bi bi-cart3"></i>
             </div>
-            <div className="quantity-cart">{numberItemIncart}</div>
+            <div className="quantity-cart">{numberCartItems}</div>
           </Link>
         </nav>
 
