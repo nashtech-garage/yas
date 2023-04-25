@@ -30,8 +30,6 @@ public record OrderVm(
         EOrderStatus orderStatus,
         EDeliveryMethod deliveryMethod,
         EDeliveryStatus deliveryStatus,
-        EPaymentMethod paymentMethod,
-        EPaymentStatus paymentStatus,
         Set<OrderItemVm> orderItemVms
 
 ) {
@@ -55,8 +53,6 @@ public record OrderVm(
                 .deliveryFee(order.getDeliveryFee())
                 .deliveryMethod(order.getDeliveryMethod())
                 .deliveryStatus(order.getDeliveryStatus())
-                .paymentMethod(order.getPaymentMethod())
-                .paymentStatus(order.getPaymentStatus())
                 .orderItemVms(orderItemVms)
                 .build();
     }

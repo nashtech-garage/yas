@@ -81,8 +81,6 @@ public class OrderService {
                 .orderStatus(EOrderStatus.PENDING)
                 .deliveryFee(orderPostVm.deliveryFee())
                 .deliveryMethod(orderPostVm.deliveryMethod())
-                .paymentMethod(orderPostVm.paymentMethod())
-                .paymentStatus(orderPostVm.paymentStatus())
                 .shippingAddressId(shippOrderAddress)
                 .billingAddressId(billOrderAddress)
                 .build();
