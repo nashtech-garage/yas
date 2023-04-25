@@ -113,6 +113,7 @@ services:
       YAS_SERVICES_CART: http://cart/cart
       YAS_SERVICES_CUSTOMER: http://customer/customer
       YAS_SERVICES_PRODUCT: http://product/product
+      YAS_SERVICES_TAX: http://tax/tax
       SERVER_PORT: "80"
   location:
     image: ghcr.io/nashtech-garage/yas-location:latest
