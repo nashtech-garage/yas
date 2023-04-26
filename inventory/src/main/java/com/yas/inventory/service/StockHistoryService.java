@@ -55,7 +55,7 @@ public class StockHistoryService {
 
     public StockHistoryListVm getStockHistories(final Long productId,
                                                 final Long warehouseId) {
-        List<StockHistory> stockHistories = stockHistoryRepository.findByProductIdAndWarehouseId(
+        List<StockHistory> stockHistories = stockHistoryRepository.findByProductIdAndWarehouseIdOrderByCreatedOnDesc(
                 productId,
                 warehouseId
         );
