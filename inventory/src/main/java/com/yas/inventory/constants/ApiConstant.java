@@ -3,6 +3,8 @@ package com.yas.inventory.constants;
 public final class ApiConstant {
     public static final String WAREHOUSE_URL = "/backoffice/warehouses";
 
+    public static final String STOCK_HISTORY_URL = "/backoffice/stocks/histories";
+
     public static final String STOCK_URL = "/backoffice/stocks";
     public static final String CODE_200 = "200";
     public static final String OK = "Ok";
@@ -14,4 +16,6 @@ public final class ApiConstant {
     public static final String BAD_REQUEST = "Bad request";
     public static final String CODE_204 = "204";
     public static final String NO_CONTENT = "No content";
+
+    public static final String ACCESS_DENIED = "ACCESS_DENIED";
 }

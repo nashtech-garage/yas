@@ -4,6 +4,7 @@ import com.yas.inventory.config.ServiceUrlConfig;
 import com.yas.inventory.exception.AccessDeniedException;
 import com.yas.inventory.exception.NotFoundException;
 import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
+import com.yas.inventory.utils.AuthenticationUtils;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class ProductService {
     }
 
     public ProductInfoVm getProduct(Long id) {
-        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+        String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())
@@ -40,7 +41,7 @@ public class ProductService {
                 .toUri();
         return webClient.get()
                 .uri(url)
-                .headers(h->h.setBearerAuth(jwt))
+                .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .bodyToFlux(ProductInfoVm.class)
                 .single()
@@ -48,11 +49,10 @@ public class ProductService {
     }
 
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
-                                          List<Long> productIds, FilterExistInWHSelection selection) {
-        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+                                              List<Long> productIds, FilterExistInWHSelection selection) {
+        String jwt = AuthenticationUtils.extractJwt();
 
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("name", productName);
         params.add("sku", productSku);
         params.add("selection", selection.name());
@@ -68,7 +68,7 @@ public class ProductService {
                 .toUri();
         return webClient.get()
                 .uri(url)
-                .headers(h->h.setBearerAuth(jwt))
+                .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .bodyToFlux(ProductInfoVm.class)
                 .collectList()

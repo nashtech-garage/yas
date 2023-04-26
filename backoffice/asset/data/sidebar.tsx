@@ -1,6 +1,7 @@
 import {
   COUNTRY_URL,
   INVENTORY_WAREHOUSE_PRODUCTS_URL,
+  INVENTORY_WAREHOUSE_STOCKS_URL,
   STATE_OR_PROVINCE_URL,
   TAX_CLASS_URL,
   TAX_RATE_URL,
@@ -89,5 +90,10 @@ export const menu_inventory_item_data = [
     id: 2,
     name: 'Manage Warehouses',
     link: WAREHOUSE_URL,
+  },
+  {
+    id: 3,
+    name: 'Manage Warehouse Stocks',
+    link: INVENTORY_WAREHOUSE_STOCKS_URL,
   },
 ];
