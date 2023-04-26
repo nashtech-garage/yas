@@ -50,6 +50,8 @@ public class Product extends AbstractAuditEntity {
 
     private Long stockQuantity;
 
+    private Long taxClassId;
+
     private String metaTitle;
 
     private String metaKeyword;
