@@ -37,7 +37,7 @@ public class TaxRateService {
   /**
    * handle business and create state or province
    *
-   * @param TaxRatePostVm The state or province post Dto
+   * @param taxRatePostVm The state or province post Dto
    * @return TaxRate
    */
   @Transactional
@@ -63,7 +63,7 @@ public class TaxRateService {
   /**
    * Handle business and update state or province
    *
-   * @param TaxRatePostVm The state or province post Dto
+   * @param taxRatePostVm The state or province post Dto
    * @param id                    The id of TaxRate need to update
    */
   @Transactional
@@ -160,5 +160,15 @@ public class TaxRateService {
             taxRatePage.getTotalPages(),
             taxRatePage.isLast()
     );
+  }
+
+  public double getTaxPercent(Long taxClassId, Long countryId, Long stateOrProvinceId, String zipCode)
+  {
+    Double taxPercent = taxRateRepository.getTaxPercent(countryId, stateOrProvinceId, zipCode, taxClassId);
+    if(taxPercent != null){
+      return taxPercent;
+    }
+    
+    return 0;
   }
 }
