@@ -79,12 +79,12 @@ public class StockService {
                         productName,
                         productSku,
                         FilterExistInWHSelection.YES)
-                .stream()
+                .parallelStream()
                 .collect(Collectors.toMap(ProductInfoVm::id, productInfoVm -> productInfoVm));
 
         List<Stock> stocks = stockRepository.findByWarehouseIdAndProductIdIn(
                 warehouseId,
-                productInfoVmHashMap.values().stream().map(ProductInfoVm::id).toList()
+                productInfoVmHashMap.values().parallelStream().map(ProductInfoVm::id).toList()
         );
 
         return stocks.stream().map(
@@ -98,11 +98,11 @@ public class StockService {
 
     public void updateProductQuantityInStock(final StockQuantityUpdateVm requestBody) {
         List<StockQuantityVm> stockQuantityVms = requestBody.stockQuantityList();
-        List<Stock> stocks = stockRepository.findAllById(stockQuantityVms.stream().map(StockQuantityVm::stockId).toList());
+        List<Stock> stocks = stockRepository.findAllById(stockQuantityVms.parallelStream().map(StockQuantityVm::stockId).toList());
 
         for (final Stock stock : stocks) {
             StockQuantityVm stockQuantityVm = stockQuantityVms
-                    .stream()
+                    .parallelStream()
                     .filter(stockQuantityPostVm -> stockQuantityPostVm.stockId().equals(stock.getId()))
                     .findFirst()
                     .orElse(null);
