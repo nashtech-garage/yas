@@ -836,7 +836,7 @@ public class ProductService {
             ProductQuantityPostVm productQuantityPostVm = productQuantityPostVms.parallelStream()
                     .filter(productPostVm -> product.getId().equals(productPostVm.productId())).findFirst().get();
 
-            product.setStockQuantity(product.getStockQuantity() + productQuantityPostVm.adjustedQuantity());
+            product.setStockQuantity(productQuantityPostVm.stockQuantity());
         });
 
         productRepository.saveAll(products);

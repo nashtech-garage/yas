@@ -8,6 +8,7 @@ import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
 import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
+import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
 import com.yas.inventory.viewmodel.stock.StockPostVM;
 import com.yas.inventory.viewmodel.stock.StockQuantityUpdateVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityVm;
@@ -116,5 +117,13 @@ public class StockService {
         }
         stockRepository.saveAllAndFlush(stocks);
         stockHistoryService.createStockHistories(stocks, stockQuantityVms);
+
+        //Update stock quantity for product
+        List<ProductQuantityPostVm> productQuantityPostVms = stocks.parallelStream()
+                .map(ProductQuantityPostVm::fromModel)
+                .toList();
+        if (!productQuantityPostVms.isEmpty()) {
+            productService.updateProductQuantity(productQuantityPostVms);
+        }
     }
 }
