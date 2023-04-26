@@ -85,6 +85,8 @@ public class Product extends AbstractAuditEntity {
     @OneToMany(mappedBy = "product")
     List<ProductRelated> relatedProducts = new ArrayList<>();
 
+    private boolean taxIncluded;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
