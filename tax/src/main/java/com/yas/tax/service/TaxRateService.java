@@ -162,9 +162,13 @@ public class TaxRateService {
     );
   }
 
-  public Double getTaxPercent(Long taxClassId, Long countryId, Long stateOrProvinceId, String zipCode)
+  public double getTaxPercent(Long taxClassId, Long countryId, Long stateOrProvinceId, String zipCode)
   {
-
-    return taxRateRepository.getTaxPercent(countryId, stateOrProvinceId, zipCode, taxClassId);
+    Double taxPercent = taxRateRepository.getTaxPercent(countryId, stateOrProvinceId, zipCode, taxClassId);
+    if(taxPercent != null){
+      return taxPercent;
+    }
+    
+    return 0;
   }
 }
