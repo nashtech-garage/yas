@@ -13,6 +13,7 @@ import { getBrands } from '../services/BrandService';
 import { getProduct } from '../services/ProductService';
 import TextEditor from '../../../common/items/TextEditor';
 import { getTaxClasses } from '@taxServices/TaxClassService';
+import { TaxClass } from '@taxModels/TaxClass';
 
 type Props = {
   register: UseFormRegister<FormProduct>;
