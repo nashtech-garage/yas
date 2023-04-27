@@ -1,4 +1,6 @@
+import { EOrderStatus } from '../models/EOrderStatus';
 import { Order } from '../models/Order';
+import { OrderGetVm } from '../models/OrderGetVm';
 
 export async function createOrder(order: Order): Promise<Order | null> {
   const response = await fetch('/api/order/storefront/orders', {
@@ -10,4 +12,17 @@ export async function createOrder(order: Order): Promise<Order | null> {
     return await response.json();
   }
   return Promise.reject(response.status);
+}
+
+export async function getMyOrders(
+  productName: string,
+  orderStatus: EOrderStatus | null
+): Promise<OrderGetVm[]> {
+  const res = await fetch(
+    `/api/order/storefront/orders/my-orders?productName=${productName}&orderStatus=${
+      orderStatus ?? ''
+    }`
+  );
+  if (res.status >= 200 && res.status < 300) return res.json();
+  return Promise.reject(res);
 }

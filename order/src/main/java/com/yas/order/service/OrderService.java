@@ -1,27 +1,21 @@
 package com.yas.order.service;
 
 import com.yas.order.exception.NotFoundException;
-import com.yas.order.exception.SignInRequiredException;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.EOrderStatus;
-import com.yas.order.repository.OrderAddressRepository;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
+import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -92,6 +86,7 @@ public class OrderService {
         Set<OrderItem> orderItems = orderPostVm.orderItemPostVms().stream()
                 .map(item -> OrderItem.builder()
                         .productId(item.productId())
+                        .productName(item.productName())
                         .quantity(item.quantity())
                         .productPrice(item.productPrice())
                         .note(item.note())
@@ -124,15 +119,8 @@ public class OrderService {
     }
 
     public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new SignInRequiredException(Constants.ERROR_CODE.SIGN_IN_REQUIRED);
-        }
-
-        JwtAuthenticationToken contextHolder = (JwtAuthenticationToken) authentication;
-
-        String userId = contextHolder.getToken().getSubject();
+        String userId = AuthenticationUtils.getCurrentUserId();
 
         List<ProductVariationVM> productVariations = productService.getProductVariations(productId);
 
@@ -146,5 +134,11 @@ public class OrderService {
         return new OrderExistsByProductAndUserGetVm(
                 orderRepository.existsByCreatedByAndInProductIdAndOrderStatusCompleted(userId, productIds)
         );
+    }
+
+    public List<OrderGetVm> getMyOrders(String productName, EOrderStatus orderStatus) {
+        String userId = AuthenticationUtils.getCurrentUserId();
+        List<Order> orders = orderRepository.findMyOrders(userId, productName, orderStatus);
+        return orders.stream().map(OrderGetVm::fromModel).toList();
     }
 }

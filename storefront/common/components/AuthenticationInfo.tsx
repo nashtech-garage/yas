@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Dropdown } from 'react-bootstrap';
 
 export default function AuthenticationInfo() {
   type AuthenticatedUser = {
@@ -31,15 +32,33 @@ export default function AuthenticationInfo() {
   return (
     <>
       {authenticatedInfoVm.isAuthenticated ? (
-        <div className="d-flex gap-2">
-          Signed in as:{' '}
-          <Link href="/profile" className="d-block h-full">
-            {authenticatedInfoVm.authenticatedUser.username}
-          </Link>{' '}
-          <Link href="/logout" className="d-block h-full">
-            Logout
-          </Link>
-        </div>
+        <Dropdown>
+          <Dropdown.Toggle
+            id="user-dropdown"
+            className="bg-transparent"
+            style={{ border: 'none', color: '#b2b2b2' }}
+          >
+            Signed in as:{' ' + authenticatedInfoVm.authenticatedUser.username}
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu variant="dark" style={{ backgroundColor: '#222' }}>
+            <Dropdown.Item>
+              <Link href="/profile" className="d-block h-full">
+                Profile
+              </Link>
+            </Dropdown.Item>
+            <Dropdown.Item>
+              <Link href="/my-orders" className="d-block h-full">
+                My orders
+              </Link>
+            </Dropdown.Item>
+            <Dropdown.Item>
+              <Link href="/logout" className="d-block h-full">
+                Logout
+              </Link>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       ) : (
         <div>
           <Link href="/oauth2/authorization/keycloak" className="d-blockh-full">
