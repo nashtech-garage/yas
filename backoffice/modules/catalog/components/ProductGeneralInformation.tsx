@@ -168,6 +168,12 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         register={register}
         defaultChecked={product?.stockTrackingEnabled}
       />
+      <CheckBox
+        labelText="Tax Included"
+        field="taxIncluded"
+        register={register}
+        defaultChecked={product?.taxIncluded}
+      />
     </>
   );
 };

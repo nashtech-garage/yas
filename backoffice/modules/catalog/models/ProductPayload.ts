@@ -21,6 +21,7 @@ export type ProductPayload = {
   isFeatured?: boolean;
   isVisibleIndividually?: boolean;
   stockTrackingEnabled?: boolean;
+  taxIncluded?: boolean;
   metaTitle?: string;
   metaKeyword?: string;
   metaDescription?: string;
@@ -48,6 +49,7 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
     isFeatured: data.isFeatured,
     isVisibleIndividually: data.isVisibleIndividually,
     stockTrackingEnabled: data.stockTrackingEnabled,
+    taxIncluded: data.taxIncluded,
     metaTitle: data.metaTitle,
     metaKeyword: data.metaKeyword,
     metaDescription: data.metaDescription,
