@@ -140,6 +140,7 @@ public class ProductService {
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
                 .productCategories(Arrays.asList())
+                .taxClassId(productPostVm.taxClassId())
                 .build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
@@ -249,6 +250,7 @@ public class ProductService {
         product.setMetaTitle(productPutVm.metaTitle());
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
+        product.setTaxClassId(productPutVm.taxClassId());
 
         List<ProductImage> newProductImages = new ArrayList<>();
         List<Product> existingVariants = product.getProducts();
@@ -501,7 +503,8 @@ public class ProductService {
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
                 thumbnailMedia,
-                productImageMedias
+                productImageMedias,
+                product.getTaxClassId()
         );
     }
 
@@ -791,7 +794,8 @@ public class ProductService {
                                 productRelated.getRelatedProduct().isPublished(),
                                 productRelated.getRelatedProduct().isFeatured(),
                                 productRelated.getRelatedProduct().isVisibleIndividually(),
-                                productRelated.getRelatedProduct().getCreatedOn()
+                                productRelated.getRelatedProduct().getCreatedOn(),
+                                productRelated.getRelatedProduct().getTaxClassId()
                         )
                 ).toList();
     }

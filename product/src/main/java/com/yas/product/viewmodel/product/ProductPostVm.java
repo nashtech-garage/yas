@@ -29,5 +29,6 @@ public record ProductPostVm(
         List<Long> productImageIds,
         List<ProductVariationPostVm> variations,
         List<ProductOptionValuePostVm> productOptionValues,
-        List<Long> relatedProductIds) {
+        List<Long> relatedProductIds,
+        Long taxClassId) {
 }

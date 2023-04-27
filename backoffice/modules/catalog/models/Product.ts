@@ -24,4 +24,5 @@ export type Product = {
   thumbnailMedia: Media;
   productImageMedias: Media[];
   createdOn: Date;
+  taxClassId: number;
 };
