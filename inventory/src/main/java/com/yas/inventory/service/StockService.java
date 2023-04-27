@@ -1,6 +1,8 @@
 package com.yas.inventory.service;
 
+import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.constants.MessageCode;
+import com.yas.inventory.exception.BadRequestException;
 import com.yas.inventory.exception.NotFoundException;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
@@ -112,6 +114,11 @@ public class StockService {
             }
 
             Long adjustedQuantity = stockQuantityVm.quantity() != null ? stockQuantityVm.quantity() : 0;
+
+            if (adjustedQuantity < 0 && adjustedQuantity > stock.getQuantity()) {
+                throw new BadRequestException(ApiConstant.INVALID_ADJUSTED_QUANTITY);
+            }
+
             stock.setQuantity(stock.getQuantity() + adjustedQuantity);
         }
         stockRepository.saveAllAndFlush(stocks);

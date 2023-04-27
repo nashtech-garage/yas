@@ -134,6 +134,7 @@ public class ProductService {
                 .isFeatured(productPostVm.isFeatured())
                 .isVisibleIndividually(productPostVm.isVisibleIndividually())
                 .stockTrackingEnabled(productPostVm.stockTrackingEnabled())
+                .taxIncluded(productPostVm.taxIncluded())
                 .metaTitle(productPostVm.metaTitle())
                 .metaKeyword(productPostVm.metaKeyword())
                 .metaDescription(productPostVm.description())

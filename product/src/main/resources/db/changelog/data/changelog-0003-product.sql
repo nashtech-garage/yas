@@ -56,3 +56,6 @@ update product set is_allowed_to_order = false where is_allowed_to_order is null
 update product set is_featured = false where is_featured is null;
 update product set is_visible_individually = false where is_visible_individually is null;
 update product set stock_tracking_enabled = false where stock_tracking_enabled is null;
+
+--changeset lnghia:issue-658-2
+update product set tax_included = false where tax_included is null;
