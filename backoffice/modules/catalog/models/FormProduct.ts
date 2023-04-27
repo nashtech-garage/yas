@@ -30,4 +30,5 @@ export type FormProduct = {
   productAttributes?: ProductAttributeValue[];
   productVariations?: ProductVariation[];
   productOptions?: ProductOptionValuePost[];
+  taxClassId?: number;
 };

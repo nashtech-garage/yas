@@ -97,6 +97,7 @@ class ProductServiceTest {
                                 .build());
                     }
                 })
+                .taxClassId(1L)
                 .build();
         product1.setCreatedOn(CREATED_ON);
         Product product2 = Product.builder()
@@ -117,6 +118,7 @@ class ProductServiceTest {
                                 .build());
                     }
                 })
+                .taxClassId(1L)
                 .build();
         product2.setCreatedOn(CREATED_ON);
 
@@ -288,9 +290,9 @@ class ProductServiceTest {
         Page<Product> productPage = mock(Page.class);
         List<ProductListVm> productListVmList = List.of(
                 new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
-                        true, true, true, true, CREATED_ON, 1L),
+                        true, true, true, true, CREATED_ON, products.get(0).getTaxClassId()),
                 new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
-                        true, true, true, true, CREATED_ON, 1L)
+                        true, true, true, true, CREATED_ON, products.get(0).getTaxClassId())
         );
         int pageNo = 1;
         int pageSize = 10;
@@ -336,10 +338,10 @@ class ProductServiceTest {
         List<ProductListVm> productListVmList = List.of(
                 new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
                         products.get(0).isAllowedToOrder(), products.get(0).isPublished(),
-                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), 1L),
+                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), products.get(0).getTaxClassId()),
                 new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
                         products.get(0).isAllowedToOrder(), products.get(0).isPublished(),
-                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), 1L)
+                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), products.get(0).getTaxClassId())
         );
         int pageNo = 1;
         int pageSize = 10;
@@ -379,10 +381,10 @@ class ProductServiceTest {
         List<ProductListVm> productListVmList = List.of(
                 new ProductListVm(products.get(0).getId(), products.get(0).getName(), products.get(0).getSlug(),
                         products.get(0).isAllowedToOrder(), products.get(0).isPublished(),
-                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), 1L),
+                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), products.get(0).getTaxClassId()),
                 new ProductListVm(products.get(1).getId(), products.get(1).getName(), products.get(1).getSlug(),
                         products.get(0).isAllowedToOrder(), products.get(0).isPublished(),
-                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), 1L)
+                        products.get(0).isFeatured(), products.get(0).isVisibleIndividually(), products.get(0).getCreatedOn(), products.get(0).getTaxClassId())
         );
         int pageNo = 1;
         int pageSize = 10;
