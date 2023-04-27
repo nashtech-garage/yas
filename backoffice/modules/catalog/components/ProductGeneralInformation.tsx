@@ -37,9 +37,9 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
     getBrands().then((data) => {
       setBrands(data);
     });
-      getTaxClasses().then((data) => {
-          setTaxClasses(data);
-        });
+    getTaxClasses().then((data) => {
+      setTaxClasses(data);
+    });
   }, []);
 
   useEffect(() => {
@@ -175,21 +175,21 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         defaultChecked={product?.stockTrackingEnabled}
       />
 
-      <OptionSelect
-              labelText={product?.taxClassId}
-              field="taxClassId"
-              placeholder="Select tax class"
-              options={taxClasses}
-              register={register}
-              registerOptions={{ required: { value: true, message: 'Please select tax class' } }}
-              error={errors.taxClassId?.message}
-              defaultValue={product?.taxClassId}
-            />
       <CheckBox
         labelText="Tax Included"
         field="taxIncluded"
         register={register}
         defaultChecked={product?.taxIncluded}
+      />
+      <OptionSelect
+        labelText="Tax Class"
+        field="taxClassId"
+        placeholder="Select tax class"
+        options={taxClasses}
+        register={register}
+        registerOptions={{ required: { value: true, message: 'Please select tax class' } }}
+        error={errors.taxClassId?.message}
+        defaultValue={product?.taxClassId}
       />
     </>
   );
