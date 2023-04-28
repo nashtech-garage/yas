@@ -26,5 +26,6 @@ public record ProductDetailVm(
         String metaKeyword,
         String metaDescription,
         ImageVm thumbnailMedia,
-        List<ImageVm> productImageMedias) {
+        List<ImageVm> productImageMedias,
+        Long taxClassId) {
 }
