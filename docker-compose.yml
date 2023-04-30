@@ -63,6 +63,7 @@ services:
       YAS_SERVICES_INVENTORY: http://inventory/inventory
       YAS_SERVICES_TAX: http://tax/tax
       YAS_SERVICES_PROMOTION: http://promotion/promotion
+      YAS_SERVICES_SHIPMENT: http://shipment/shipment
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
   media:
@@ -115,6 +116,14 @@ services:
       YAS_SERVICES_PRODUCT: http://product/product
       YAS_SERVICES_TAX: http://tax/tax
       SERVER_PORT: "80"
+  shipment:
+    image: ghcr.io/nashtech-garage/yas-shipment:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shipment
+      SERVER_SERVLET_CONTEXT_PATH: /shipment
+      YAS_PUBLIC_URL: http://api.yas.local/shipment
+      YAS_SERVICES_ORDER: http://order/order
+      SERVER_PORT: "80"
   location:
     image: ghcr.io/nashtech-garage/yas-location:latest
     environment:
@@ -166,6 +175,7 @@ services:
       { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
       { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, 
       { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
+      { url: 'http://api.yas.local/shipment/v3/api-docs', name: 'Shipment'},
       { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, 
       { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
       { url: 'http://api.yas.local/tax/v3/api-docs', name: 'Tax' },
