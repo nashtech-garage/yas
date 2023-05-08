@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -42,7 +43,6 @@ public class Order extends AbstractAuditEntity{
     private EDeliveryStatus deliveryStatus;
     private EPaymentMethod paymentMethod;
     private EPaymentStatus paymentStatus;
-    @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    Set<OrderItem> orderItems;
-
+    @OneToMany(mappedBy = "orderId")
+    private Set<OrderItem> orderItems;
 }

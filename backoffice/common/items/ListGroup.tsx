@@ -15,6 +15,7 @@ export default function ListGroup({ data }: Props) {
     <ListGroupBootstrap id={styles.listGroup} as="ul">
       {data.map((e: any, index: number) => (
         <>
+          {console.log(e)}
           <Link href={e.link} key={e.id.toString()}>
             <a
               className={router.pathname === e.link ? styles.appActiveLink : ' app-not-active-link'}

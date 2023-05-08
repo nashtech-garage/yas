@@ -1,6 +1,7 @@
 import {
   COUNTRY_URL,
   INVENTORY_WAREHOUSE_PRODUCTS_URL,
+  INVOICE_URL,
   STATE_OR_PROVINCE_URL,
   TAX_CLASS_URL,
   TAX_RATE_URL,
@@ -89,5 +90,13 @@ export const menu_inventory_item_data = [
     id: 2,
     name: 'Manage Warehouses',
     link: WAREHOUSE_URL,
+  },
+];
+
+export const menu_invoice_item_data = [
+  {
+    id: 1,
+    name: 'Manage Invoices',
+    link: INVOICE_URL,
   },
 ];

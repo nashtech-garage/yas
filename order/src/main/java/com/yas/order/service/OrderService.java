@@ -2,6 +2,7 @@ package com.yas.order.service;
 
 import com.yas.order.exception.NotFoundException;
 import com.yas.order.exception.SignInRequiredException;
+import com.yas.order.mapper.OrderMapper;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
@@ -12,9 +13,13 @@ import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.OrderAddressPostVm;
 import com.yas.order.viewmodel.OrderExistsByProductAndUserGetVm;
+import com.yas.order.viewmodel.OrderListGetVm;
 import com.yas.order.viewmodel.OrderPostVm;
 import com.yas.order.viewmodel.OrderVm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +27,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -106,9 +113,9 @@ public class OrderService {
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
 
-        try{
+        try {
             cartService.addOrderIdIntoCart(order.getId());
-        }catch (Exception ex){
+        } catch (Exception ex) {
             log.error("Add orderId into Cart fail: " + ex.getMessage());
         }
 
@@ -139,6 +146,19 @@ public class OrderService {
 
         return new OrderExistsByProductAndUserGetVm(
                 orderRepository.existsByCreatedByAndProductIdAndOrderStatusCompleted(userId, productId)
+        );
+    }
+
+    public OrderListGetVm getOrderList(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<OrderMapper> orderPage = orderRepository.findAllProjectedBy(pageable);
+        return new OrderListGetVm(
+                orderPage.getContent(),
+                orderPage.getNumber(),
+                orderPage.getSize(),
+                (int) orderPage.getTotalElements(),
+                orderPage.getTotalPages(),
+                orderPage.isLast()
         );
     }
 }

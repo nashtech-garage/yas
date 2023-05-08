@@ -11,6 +11,7 @@ import {
   menu_inventory_item_data,
   menu_location_item_data,
   menu_tax_item_data,
+  menu_invoice_item_data,
 } from '../../asset/data/sidebar';
 
 interface DataProps {
@@ -226,6 +227,26 @@ const Sidebar = (menu: MenuProps) => {
           <ul className="collapse list-unstyled" id="taxSubmenu">
             <ListItem
               data={menu_tax_item_data}
+              childActive={menu.childActive}
+              changeChildMenu={menu.changeChildMenu}
+            />
+          </ul>
+        </li>
+
+        <li className={menuActive == 'invoices' ? 'active' : ''} onClick={() => changeMenu('invoices')}>
+          <Link
+            href="#invoiceSubmenu"
+            data-target="#invoiceSubmenu"
+            data-bs-toggle="collapse"
+            aria-controls="invoiceSubmenu"
+            aria-expanded="false"
+            className="dropdown-toggle"
+          >
+            <span className="fa fa-file"></span> Invoices
+          </Link>
+          <ul className="collapse list-unstyled" id="invoiceSubmenu">
+            <ListItem
+              data={menu_invoice_item_data}
               childActive={menu.childActive}
               changeChildMenu={menu.changeChildMenu}
             />
