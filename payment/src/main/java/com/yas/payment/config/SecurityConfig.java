@@ -22,6 +22,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests()
+                .requestMatchers("/paypal/capture").permitAll()
                 .requestMatchers("/storefront/**").permitAll()
                 .requestMatchers("/backoffice/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
