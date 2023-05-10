@@ -110,12 +110,12 @@ const Checkout = () => {
     return getCartProductThumbnail(productIds);
   };
 
-  const handleSelectShippingAddress = useCallback((address: Address) => {
+  const handleSelectShippingAddress = (address: Address) => {
     setShippingAddress(address);
-  }, []);
-  const handleSelectBillingAddress = useCallback((address: Address) => {
-    setShippingAddress(address);
-  }, []);
+  };
+  const handleSelectBillingAddress = (address: Address) => {
+    setBillingAddress(address);
+  };
 
   const handleSaveNewAddress = (data: Address) => {
     createUserAddress(data).catch((e) => {
