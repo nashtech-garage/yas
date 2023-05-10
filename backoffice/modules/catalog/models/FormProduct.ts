@@ -19,6 +19,7 @@ export type FormProduct = {
   isFeatured?: boolean;
   isVisibleIndividually?: boolean;
   stockTrackingEnabled?: boolean;
+  taxIncluded?: boolean;
   thumbnailMedia?: Media;
   productImageMedias?: Media[];
   metaTitle?: string;
@@ -29,4 +30,5 @@ export type FormProduct = {
   productAttributes?: ProductAttributeValue[];
   productVariations?: ProductVariation[];
   productOptions?: ProductOptionValuePost[];
+  taxClassId?: number;
 };

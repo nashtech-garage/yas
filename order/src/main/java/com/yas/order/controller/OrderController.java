@@ -1,12 +1,16 @@
 package com.yas.order.controller;
 
+import com.yas.order.model.enumeration.EOrderStatus;
 import com.yas.order.service.OrderService;
 import com.yas.order.viewmodel.OrderExistsByProductAndUserGetVm;
+import com.yas.order.viewmodel.OrderGetVm;
 import com.yas.order.viewmodel.OrderPostVm;
 import com.yas.order.viewmodel.OrderVm;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class OrderController {
@@ -30,5 +34,11 @@ public class OrderController {
     public ResponseEntity<OrderExistsByProductAndUserGetVm> checkOrderExistsByProductIdAndUserIdWithStatus(
             @RequestParam Long productId) {
         return ResponseEntity.ok(orderService.isOrderCompletedWithUserIdAndProductId(productId));
+    }
+
+    @GetMapping("/storefront/orders/my-orders")
+    public ResponseEntity<List<OrderGetVm>> getMyOrders(@RequestParam String productName,
+                                                        @RequestParam(required = false) EOrderStatus orderStatus) {
+        return ResponseEntity.ok(orderService.getMyOrders(productName, orderStatus));
     }
 }

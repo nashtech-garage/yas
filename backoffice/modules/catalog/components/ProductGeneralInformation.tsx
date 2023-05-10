@@ -12,6 +12,8 @@ import { Product } from '../models/Product';
 import { getBrands } from '../services/BrandService';
 import { getProduct } from '../services/ProductService';
 import TextEditor from '../../../common/items/TextEditor';
+import { getTaxClasses } from '@taxServices/TaxClassService';
+import { TaxClass } from '@taxModels/TaxClass';
 
 type Props = {
   register: UseFormRegister<FormProduct>;
@@ -29,10 +31,14 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
   //Get product detail
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
+  const [taxClasses, setTaxClasses] = useState<TaxClass[]>([]);
 
   useEffect(() => {
     getBrands().then((data) => {
       setBrands(data);
+    });
+    getTaxClasses().then((data) => {
+      setTaxClasses(data);
     });
   }, []);
 
@@ -167,6 +173,23 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="stockTrackingEnabled"
         register={register}
         defaultChecked={product?.stockTrackingEnabled}
+      />
+
+      <CheckBox
+        labelText="Tax Included"
+        field="taxIncluded"
+        register={register}
+        defaultChecked={product?.taxIncluded}
+      />
+      <OptionSelect
+        labelText="Tax Class"
+        field="taxClassId"
+        placeholder="Select tax class"
+        options={taxClasses}
+        register={register}
+        registerOptions={{ required: { value: true, message: 'Please select tax class' } }}
+        error={errors.taxClassId?.message}
+        defaultValue={product?.taxClassId}
       />
     </>
   );

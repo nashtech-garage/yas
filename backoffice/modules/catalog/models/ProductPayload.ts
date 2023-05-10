@@ -21,6 +21,7 @@ export type ProductPayload = {
   isFeatured?: boolean;
   isVisibleIndividually?: boolean;
   stockTrackingEnabled?: boolean;
+  taxIncluded?: boolean;
   metaTitle?: string;
   metaKeyword?: string;
   metaDescription?: string;
@@ -29,6 +30,7 @@ export type ProductPayload = {
   variations?: ProductVariationPost[] | ProductVariationPut[];
   productOptionValues?: ProductOptionValuePost[];
   relatedProductIds?: number[];
+  taxClassId?: number;
 };
 
 export function mapFormProductToProductPayload(data: FormProduct): ProductPayload {
@@ -48,6 +50,7 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
     isFeatured: data.isFeatured,
     isVisibleIndividually: data.isVisibleIndividually,
     stockTrackingEnabled: data.stockTrackingEnabled,
+    taxIncluded: data.taxIncluded,
     metaTitle: data.metaTitle,
     metaKeyword: data.metaKeyword,
     metaDescription: data.metaDescription,
@@ -69,5 +72,6 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
       : [],
     productOptionValues: data.productOptions?.map((option) => ({ ...option, displayOrder: 1 })),
     relatedProductIds: data.relateProduct,
+    taxClassId: data.taxClassId,
   };
 }

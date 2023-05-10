@@ -88,4 +88,13 @@ public class ApiExceptionHandler {
     ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
     return servletRequest.getRequest().getServletPath();
   }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+    String message = ex.getMessage();
+    ErrorVm errorVm = new ErrorVm(HttpStatus.FORBIDDEN.toString(), "Access Denied", message);
+    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
+    log.debug(ex.toString());
+    return new ResponseEntity<>(errorVm, HttpStatus.FORBIDDEN);
+  }
 }

@@ -134,12 +134,14 @@ public class ProductService {
                 .isFeatured(productPostVm.isFeatured())
                 .isVisibleIndividually(productPostVm.isVisibleIndividually())
                 .stockTrackingEnabled(productPostVm.stockTrackingEnabled())
+                .taxIncluded(productPostVm.taxIncluded())
                 .metaTitle(productPostVm.metaTitle())
                 .metaKeyword(productPostVm.metaKeyword())
                 .metaDescription(productPostVm.description())
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
                 .productCategories(Arrays.asList())
+                .taxClassId(productPostVm.taxClassId())
                 .build();
 
         setProductBrand(productPostVm.brandId(), mainProduct);
@@ -249,6 +251,7 @@ public class ProductService {
         product.setMetaTitle(productPutVm.metaTitle());
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
+        product.setTaxClassId(productPutVm.taxClassId());
 
         List<ProductImage> newProductImages = new ArrayList<>();
         List<Product> existingVariants = product.getProducts();
@@ -501,7 +504,8 @@ public class ProductService {
                 product.getMetaKeyword(),
                 product.getMetaDescription(),
                 thumbnailMedia,
-                productImageMedias
+                productImageMedias,
+                product.getTaxClassId()
         );
     }
 
@@ -791,7 +795,8 @@ public class ProductService {
                                 productRelated.getRelatedProduct().isPublished(),
                                 productRelated.getRelatedProduct().isFeatured(),
                                 productRelated.getRelatedProduct().isVisibleIndividually(),
-                                productRelated.getRelatedProduct().getCreatedOn()
+                                productRelated.getRelatedProduct().getCreatedOn(),
+                                productRelated.getRelatedProduct().getTaxClassId()
                         )
                 ).toList();
     }
@@ -836,7 +841,7 @@ public class ProductService {
             ProductQuantityPostVm productQuantityPostVm = productQuantityPostVms.parallelStream()
                     .filter(productPostVm -> product.getId().equals(productPostVm.productId())).findFirst().get();
 
-            product.setStockQuantity(product.getStockQuantity() + productQuantityPostVm.adjustedQuantity());
+            product.setStockQuantity(productQuantityPostVm.stockQuantity());
         });
 
         productRepository.saveAll(products);

@@ -3,6 +3,9 @@ package com.yas.inventory.controller;
 import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.service.StockService;
 import com.yas.inventory.viewmodel.stock.StockPostVM;
+import com.yas.inventory.viewmodel.stock.StockQuantityUpdateVm;
+import com.yas.inventory.viewmodel.stock.StockQuantityVm;
+import com.yas.inventory.viewmodel.stock.StockVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,4 +24,21 @@ public class StockController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping
+    public ResponseEntity<List<StockVm>> getStocksByWarehouseIdAndProductNameAndSku(@RequestParam(name = "warehouseId") Long warehouseId,
+                                                                                    @RequestParam(required = false) String productName,
+                                                                                    @RequestParam(required = false) String productSku) {
+        return ResponseEntity.ok(stockService.getStocksByWarehouseIdAndProductNameAndSku(
+                warehouseId,
+                productName,
+                productSku
+        ));
     }
+
+    @PutMapping
+    public ResponseEntity<Void> updateProductQuantityInStock(@RequestBody StockQuantityUpdateVm requestBody) {
+        stockService.updateProductQuantityInStock(requestBody);
+
+        return ResponseEntity.ok().build();
+    }
+}

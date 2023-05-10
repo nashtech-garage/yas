@@ -4,7 +4,6 @@ import com.yas.tax.model.TaxRate;
 import com.yas.tax.service.TaxRateService;
 import com.yas.tax.constants.ApiConstant;
 import com.yas.tax.constants.PageableConstant;
-import com.yas.tax.constants.MessageCode;
 import com.yas.tax.viewmodel.taxrate.TaxRateListGetVm;
 import com.yas.tax.viewmodel.taxrate.TaxRatePostVm;
 import com.yas.tax.viewmodel.taxrate.TaxRateVm;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,5 +84,14 @@ public class TaxRateController {
   public ResponseEntity<Void> deleteTaxRate(@PathVariable(name = "id") final Long id) {
     taxRateService.delete(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/tax-percent")
+  public ResponseEntity<Double> getTaxPercentByAddress(
+          @RequestParam(value = "taxClassId", required = true) final Long taxClassId,
+          @RequestParam(value = "countryId", required = true) final Long countryId,
+          @RequestParam(value = "stateOrProvinceId", required = false) final Long stateOrProvinceId,
+          @RequestParam(value = "zipCode", required = false) final String zipCode) {
+    return ResponseEntity.ok(taxRateService.getTaxPercent(taxClassId, countryId, stateOrProvinceId, zipCode));
   }
 }

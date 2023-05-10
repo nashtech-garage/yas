@@ -19,9 +19,11 @@ export type Product = {
   isFeatured: boolean;
   isVisible?: boolean;
   stockTrackingEnabled: boolean;
+  taxIncluded: boolean;
   brandId: number;
   categories: Category[];
   thumbnailMedia: Media;
   productImageMedias: Media[];
   createdOn: Date;
+  taxClassId: number;
 };
