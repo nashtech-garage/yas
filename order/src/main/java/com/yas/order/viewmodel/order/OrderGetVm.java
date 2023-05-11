@@ -1,4 +1,4 @@
-package com.yas.order.viewmodel;
+package com.yas.order.viewmodel.order;
 
 import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.EDeliveryMethod;

@@ -1,8 +1,8 @@
-package com.yas.order.viewmodel;
+package com.yas.order.viewmodel.checkout;
 
 import java.math.BigDecimal;
 
-public record OrderItemPostVm(
+public record CheckoutItemPostVm(
         Long productId,
         String productName,
         int quantity,
@@ -11,5 +11,5 @@ public record OrderItemPostVm(
         BigDecimal discountAmount,
         BigDecimal taxAmount,
         BigDecimal taxPercent
-) {
+)  {
 }

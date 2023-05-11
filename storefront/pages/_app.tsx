@@ -19,6 +19,7 @@ import '../styles/util.css';
 
 import Layout from '@/common/components/Layout';
 import { CartProvider } from '@/context/CartContext';
+import { UserInfoProvider } from '@/context/UserInfoContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

@@ -11,7 +11,7 @@ import { getMyProfile } from '@/modules/profile/services/ProfileService';
 import { Input } from 'common/items/Input';
 import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
-import { createOrder } from '@/modules/order/services/OrderService';
+import { createOrder, getCheckoutById } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 import {
   createUserAddress,
@@ -19,6 +19,8 @@ import {
 } from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { Checkout } from '@/modules/order/models/Checkout';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -32,7 +34,30 @@ const addressSchema = yup.object().shape({
   contactName: yup.string().required('Contact name is required'),
 });
 
-const Checkout = () => {
+type Props = {
+  checkout: Checkout;
+};
+
+export const getServerSideProps: GetServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { id } = context.query;
+
+  const checkout = await getCheckoutById(id as string);
+  // console.log(checkout);
+
+  // if (!checkout.id) return { notFound: true };
+
+  return {
+    props: {
+      checkout,
+    },
+  };
+};
+
+const Checkout = ({ checkout }: Props) => {
+  console.log(checkout);
+
   const router = useRouter();
   const {
     handleSubmit,
@@ -175,7 +200,7 @@ const Checkout = () => {
       order.paymentMethod = 'COD';
       order.paymentStatus = 'PENDING';
       order.orderItemPostVms = orderItems;
-      console.log(order);
+      // console.log(order);
       await createOrder(order)
         .then(() => {
           toast.success('Place order successfully');

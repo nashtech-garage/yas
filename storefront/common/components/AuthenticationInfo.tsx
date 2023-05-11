@@ -1,8 +1,11 @@
+import { useUserInfoContext } from '@/context/UserInfoContext';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
+import { getMyProfile } from '@/modules/profile/services/ProfileService';
 
 export default function AuthenticationInfo() {
+  const { setUserInfo } = useUserInfoContext();
   type AuthenticatedUser = {
     username: string;
   };
@@ -24,6 +27,9 @@ export default function AuthenticationInfo() {
 
   useEffect(() => {
     getAuthenticationInfo().then((data) => {
+      // getMyProfile().then((res) => {
+      //   setUserInfo(res);
+      // });
       setAuthenticatedInfoVm(data);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

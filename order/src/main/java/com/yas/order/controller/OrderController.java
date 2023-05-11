@@ -2,10 +2,10 @@ package com.yas.order.controller;
 
 import com.yas.order.model.enumeration.EOrderStatus;
 import com.yas.order.service.OrderService;
-import com.yas.order.viewmodel.OrderExistsByProductAndUserGetVm;
-import com.yas.order.viewmodel.OrderGetVm;
-import com.yas.order.viewmodel.OrderPostVm;
-import com.yas.order.viewmodel.OrderVm;
+import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
+import com.yas.order.viewmodel.order.OrderGetVm;
+import com.yas.order.viewmodel.order.OrderPostVm;
+import com.yas.order.viewmodel.order.OrderVm;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,16 +1,11 @@
-package com.yas.order.viewmodel;
+package com.yas.order.viewmodel.order;
 
 import com.yas.order.model.Order;
-import com.yas.order.model.OrderAddress;
-import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.*;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

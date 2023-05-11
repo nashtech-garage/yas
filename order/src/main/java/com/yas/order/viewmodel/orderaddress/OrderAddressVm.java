@@ -1,11 +1,7 @@
-package com.yas.order.viewmodel;
+package com.yas.order.viewmodel.orderaddress;
 
-import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import lombok.Builder;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Builder

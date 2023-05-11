@@ -15,8 +15,14 @@ import {
   updateCart,
 } from '@/modules/cart/services/CartService';
 import { formatPrice } from 'utils/formatPrice';
+import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
+import { createCheckout } from '@/modules/order/services/OrderService';
+import { Checkout } from '@/modules/order/models/Checkout';
+import { useUserInfoContext } from '@/context/UserInfoContext';
+import { useRouter } from 'next/router';
 
 const Cart = () => {
+  const router = useRouter();
   type Item = {
     productId: number;
     quantity: number;
@@ -35,6 +41,9 @@ const Cart = () => {
   const [isOpenRemoveDialog, setIsOpenRemoveDialog] = useState(false);
 
   const [totalPrice, setTotalPrice] = useState(0);
+
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
+  // const { email } = useUserInfoContext();
 
   const [cart, setCart] = useState<CartModel>({
     id: 0,
@@ -164,6 +173,36 @@ const Cart = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
+
+  const handleCheckout = () => {
+    const checkoutItems = convertItemsToCheckoutItems(items);
+    setCheckoutItems(checkoutItems);
+
+    let checkout: Checkout = {
+      email: '',
+      note: '',
+      couponCode: '',
+      checkoutItemPostVms: checkoutItems,
+    };
+    // console.log(checkout);
+
+    createCheckout(checkout).then((res) => {
+      router.push(`/checkout/${res?.id}`);
+    });
+  };
+
+  const convertItemToCheckoutItem = (item: Item): CheckoutItem => {
+    return {
+      productId: item.productId,
+      productName: item.productName,
+      quantity: item.quantity,
+      productPrice: item.price,
+    };
+  };
+
+  const convertItemsToCheckoutItems = (items: Item[]): CheckoutItem[] => {
+    return items.map(convertItemToCheckoutItem);
+  };
 
   return (
     <section className="shop-cart spad">
@@ -309,9 +348,10 @@ const Cart = () => {
                   Total <span>{formatPrice(totalPrice)}</span>
                 </li>
               </ul>
-              <Link href="/checkout" className="primary-btn">
+
+              <a className="primary-btn" onClick={handleCheckout} style={{ cursor: 'pointer' }}>
                 Proceed to checkout
-              </Link>
+              </a>
             </div>
           </div>
         </div>
