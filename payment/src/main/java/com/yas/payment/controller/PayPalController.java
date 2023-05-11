@@ -17,7 +17,7 @@ public class PayPalController {
 
     @PostMapping(value = "/init")
     public PaypalOrder createPayment(
-            @RequestParam("sum") BigDecimal sum) {
+            @RequestParam("totalPrice") BigDecimal sum) {
         return paypalService.createPayment(sum);
     }
 
