@@ -20,6 +20,7 @@ import { createCheckout } from '@/modules/order/services/OrderService';
 import { Checkout } from '@/modules/order/models/Checkout';
 import { useUserInfoContext } from '@/context/UserInfoContext';
 import { useRouter } from 'next/router';
+import { toastError } from '@/modules/catalog/services/ToastService';
 
 const Cart = () => {
   const router = useRouter();
@@ -42,8 +43,7 @@ const Cart = () => {
 
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
-  // const { email } = useUserInfoContext();
+  const { email } = useUserInfoContext();
 
   const [cart, setCart] = useState<CartModel>({
     id: 0,
@@ -176,19 +176,21 @@ const Cart = () => {
 
   const handleCheckout = () => {
     const checkoutItems = convertItemsToCheckoutItems(items);
-    setCheckoutItems(checkoutItems);
 
     let checkout: Checkout = {
-      email: '',
+      email: email,
       note: '',
       couponCode: '',
       checkoutItemPostVms: checkoutItems,
     };
-    // console.log(checkout);
 
-    createCheckout(checkout).then((res) => {
-      router.push(`/checkout/${res?.id}`);
-    });
+    createCheckout(checkout)
+      .then((res) => {
+        router.push(`/checkout/${res?.id}`);
+      })
+      .catch((err) => {
+        if (err == 403) toastError('Please login to checkout!');
+      });
   };
 
   const convertItemToCheckoutItem = (item: Item): CheckoutItem => {

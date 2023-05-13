@@ -2,11 +2,8 @@ package com.yas.order.service;
 
 import com.yas.order.exception.Forbidden;
 import com.yas.order.exception.NotFoundException;
-import com.yas.order.exception.SignInRequiredException;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
-import com.yas.order.model.Order;
-import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.ECheckoutState;
 import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
@@ -14,14 +11,11 @@ import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
-import com.yas.order.viewmodel.order.OrderGetVm;
-import com.yas.order.viewmodel.order.OrderVm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -68,9 +62,9 @@ public class CheckoutService {
     public CheckoutVm getCheckoutWithItemsById(String id) {
         Checkout checkout = checkoutRepository.findById(id).orElseThrow(()
                 -> new NotFoundException(Constants.ERROR_CODE.CHECKOUT_NOT_FOUND, id));
-        
-//        if(!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId()))
-//            throw new Forbidden(Constants.ERROR_CODE.FORBIDDEN);
+
+        if(!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId()))
+            throw new Forbidden(Constants.ERROR_CODE.FORBIDDEN);
         return CheckoutVm.fromModel(checkout);
     }
 }

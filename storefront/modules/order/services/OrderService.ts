@@ -40,7 +40,7 @@ export async function createCheckout(checkout: Checkout): Promise<Checkout | nul
   return Promise.reject(response.status);
 }
 
-export async function getCheckoutById(id: string): Promise<Checkout> {
+export async function getCheckoutById(id: string) {
   // const res = await fetch(
   //   process.env.NEXT_PUBLIC_API_BASE_PATH + `/order/storefront/checkouts/${id}`,
   //   {
@@ -50,8 +50,12 @@ export async function getCheckoutById(id: string): Promise<Checkout> {
   // );
 
   const response = await fetch(
-    process.env.NEXT_PUBLIC_API_BASE_PATH + '/order/storefront/checkouts/' + id
+    process.env.NEXT_PUBLIC_API_BASE_PATH + '/order/storefront/checkouts/' + id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
   );
-
-  return response.json();
+  if (response.status >= 200 && response.status < 300) return response.json();
+  return Promise.reject(response.status);
 }

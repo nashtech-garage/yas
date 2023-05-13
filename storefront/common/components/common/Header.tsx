@@ -10,6 +10,7 @@ import { SearchSuggestion } from '@/modules/search/models/SearchSuggestion';
 import { getSuggestions } from '@/modules/search/services/SearchService';
 import { useDebounce } from '@/utils/useDebounce';
 import promoteImage from '../../images/search-promote-image.png';
+import { useAppContext } from '@/context/AppContext';
 
 type Props = {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ const Header = ({ children }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isExpand, setIsExpand] = useState(false);
-  const { numberCartItems } = useCartContext();
+  const { numberCartItems } = useAppContext();
 
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');

@@ -1,16 +1,11 @@
-import React, { createContext, useContext, useState } from 'react';
-
-type UserInfo = {
-  firstName: string;
-  lastName: string;
-  email: string;
-};
+import { getMyProfile } from '@/modules/profile/services/ProfileService';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 export const UserInfoContext = createContext({
   firstName: '',
   lastName: '',
   email: '',
-  setUserInfo: (info: UserInfo) => {},
+  fetchUserInfo: () => {},
 });
 
 export function UserInfoProvider({ children }: React.PropsWithChildren) {
@@ -18,23 +13,36 @@ export function UserInfoProvider({ children }: React.PropsWithChildren) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
-  const setUserInfo = (info: UserInfo) => {
-    setFirstName(info.firstName);
-    setLastName(info.lastName);
-    setEmail(info.email);
-  };
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
 
-  const value = {
-    email,
-    firstName,
-    lastName,
-    setUserInfo,
-  };
+  const fetchUserInfo = useCallback(() => {
+    getMyProfile()
+      .then((res) => {
+        setFirstName(res.firstName);
+        setLastName(res.lastName);
+        setEmail(res.email);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      email,
+      firstName,
+      lastName,
+      fetchUserInfo,
+    }),
+    [email, firstName, lastName, fetchUserInfo]
+  );
 
   return <UserInfoContext.Provider value={value}>{children}</UserInfoContext.Provider>;
 }
 
 export const useUserInfoContext = () => {
-  const { email, firstName, lastName, setUserInfo } = useContext(UserInfoContext);
-  return { email, firstName, lastName, setUserInfo };
+  const { email, firstName, lastName, fetchUserInfo } = useContext(UserInfoContext);
+  return { email, firstName, lastName, fetchUserInfo };
 };
