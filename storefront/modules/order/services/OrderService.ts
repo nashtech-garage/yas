@@ -41,14 +41,6 @@ export async function createCheckout(checkout: Checkout): Promise<Checkout | nul
 }
 
 export async function getCheckoutById(id: string) {
-  // const res = await fetch(
-  //   process.env.NEXT_PUBLIC_API_BASE_PATH + `/order/storefront/checkouts/${id}`,
-  //   {
-  //     method: 'GET',
-  //     headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  //   }
-  // );
-
   const response = await fetch(
     process.env.NEXT_PUBLIC_API_BASE_PATH + '/order/storefront/checkouts/' + id,
     {
