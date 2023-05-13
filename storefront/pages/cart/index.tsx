@@ -101,8 +101,8 @@ const Cart = () => {
     setIsOpenRemoveDialog(false);
   };
 
-  const handlePlus = (productId: number) => {
-    addToCart([
+  const handlePlus = async (productId: number) => {
+    await addToCart([
       {
         productId: productId,
         quantity: 1,
@@ -110,9 +110,9 @@ const Cart = () => {
     ]).then(() => loadCart());
   };
 
-  const handleMinus = (productId: number, productQuantity: number) => {
+  const handleMinus = async (productId: number, productQuantity: number) => {
     if (productQuantity === 1) {
-      removeProductInCart(productId).then(() => loadCart());
+      await removeProductInCart(productId).then(() => loadCart());
     } else {
       updateCart({
         productId: productId,
