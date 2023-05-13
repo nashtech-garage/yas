@@ -72,7 +72,7 @@ const Cart = () => {
       fetchNumberCartItems();
       const cartDetails = data.cartDetails;
       const productIds = cartDetails.map((item) => item.productId);
-      await getProductThumbnails(productIds).then((results) => {
+      getProductThumbnails(productIds).then((results) => {
         const newItems: Item[] = [];
         results.forEach((result) => {
           newItems.push({
