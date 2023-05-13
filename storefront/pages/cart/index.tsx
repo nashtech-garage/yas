@@ -66,8 +66,8 @@ const Cart = () => {
     return getCartProductThumbnail(productIds);
   };
 
-  const loadCart = async () => {
-    await getCart().then((data) => {
+  const loadCart = () => {
+    getCart().then((data) => {
       setCart(data);
       fetchNumberCartItems();
       const cartDetails = data.cartDetails;
@@ -96,13 +96,13 @@ const Cart = () => {
     setTotalPrice(totalPrice);
   }, [items]);
 
-  const removeProduct = async (productId: number) => {
-    await removeProductInCart(productId).then(() => loadCart());
+  const removeProduct = (productId: number) => {
+    removeProductInCart(productId).then(() => loadCart());
     setIsOpenRemoveDialog(false);
   };
 
-  const handlePlus = async (productId: number) => {
-    await addToCart([
+  const handlePlus = (productId: number) => {
+    addToCart([
       {
         productId: productId,
         quantity: 1,
@@ -110,9 +110,9 @@ const Cart = () => {
     ]).then(() => loadCart());
   };
 
-  const handleMinus = async (productId: number, productQuantity: number) => {
+  const handleMinus = (productId: number, productQuantity: number) => {
     if (productQuantity === 1) {
-      await removeProductInCart(productId).then(() => loadCart());
+      removeProductInCart(productId).then(() => loadCart());
     } else {
       updateCart({
         productId: productId,
