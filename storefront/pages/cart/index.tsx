@@ -66,13 +66,13 @@ const Cart = () => {
     return getCartProductThumbnail(productIds);
   };
 
-  const loadCart = () => {
-    getCart().then((data) => {
+  const loadCart = async () => {
+    await getCart().then((data) => {
       setCart(data);
       fetchNumberCartItems();
       const cartDetails = data.cartDetails;
       const productIds = cartDetails.map((item) => item.productId);
-      getProductThumbnails(productIds).then((results) => {
+      await getProductThumbnails(productIds).then((results) => {
         const newItems: Item[] = [];
         results.forEach((result) => {
           newItems.push({
@@ -96,8 +96,8 @@ const Cart = () => {
     setTotalPrice(totalPrice);
   }, [items]);
 
-  const removeProduct = (productId: number) => {
-    removeProductInCart(productId).then(() => loadCart());
+  const removeProduct = async (productId: number) => {
+    await removeProductInCart(productId).then(() => loadCart());
     setIsOpenRemoveDialog(false);
   };
 
