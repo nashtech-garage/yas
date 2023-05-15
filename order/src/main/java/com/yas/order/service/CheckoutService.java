@@ -9,15 +9,16 @@ import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
+import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
+import jakarta.persistence.NonUniqueResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,6 +30,31 @@ public class CheckoutService {
     private final CheckoutItemRepository checkoutItemRepository;
 
     public CheckoutVm createCheckout(CheckoutPostVm checkoutPostVm) {
+        try {
+            //check if already exist checkout then return, no need to create new one
+             List<CheckoutItemPostVm> checkoutItems = checkoutPostVm.checkoutItemPostVms();
+
+List<CheckoutItemPostVm> uniqueItems = checkoutItems.stream()
+        .distinct()
+        .collect(Collectors.toList());
+
+List<Long> productIds = uniqueItems.stream()
+        .map(CheckoutItemPostVm::productId)
+        .collect(Collectors.toList());
+
+List<Integer> itemQuantities = uniqueItems.stream()
+        .map(CheckoutItemPostVm::quantity)
+        .collect(Collectors.toList());
+
+            Optional<Checkout> checkoutOptional = checkoutRepository
+                    .findByCheckoutByUserIdAndProductIdsAndQuantites(AuthenticationUtils.getCurrentUserId(), productIds, itemQuantities, (long) productIds.size());
+            if (checkoutOptional.isPresent()) {
+                return CheckoutVm.fromModel(checkoutOptional.get());
+            }
+        } catch (Exception ex) {
+                 log.error("create Checkout fail: " + ex);
+        }
+
         UUID uuid = UUID.randomUUID();
         Checkout checkout = Checkout.builder()
                 .id(uuid.toString())
@@ -56,14 +82,14 @@ public class CheckoutService {
 
         //setCheckoutItem so that we able to return checkout with checkoutItems
         checkout.setCheckoutItem(checkoutItems);
-        return  CheckoutVm.fromModel(checkout);
+        return CheckoutVm.fromModel(checkout);
     }
 
     public CheckoutVm getCheckoutWithItemsById(String id) {
         Checkout checkout = checkoutRepository.findById(id).orElseThrow(()
                 -> new NotFoundException(Constants.ERROR_CODE.CHECKOUT_NOT_FOUND, id));
 
-        if(!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId()))
+        if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId()))
             throw new Forbidden(Constants.ERROR_CODE.FORBIDDEN);
         return CheckoutVm.fromModel(checkout);
     }
