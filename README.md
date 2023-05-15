@@ -27,7 +27,7 @@ YAS is a pet project aim to practice building a typical microservice application
 - Kafka
 - Elasticsearch
 - K8s
-- Github Actions
+- GitHub Actions
 - SonarCloud
 - OpenTelemetry
 - Grafana, Loki, Prometheus, Tempo
@@ -39,7 +39,7 @@ YAS is a pet project aim to practice building a typical microservice application
 ## Getting started with Docker Compose
 
 1. Get the latest source code
-1. Add the following records to your host file: 
+2. Add the following records to your host file: 
 ```
 127.0.0.1 identity
 127.0.0.1 api.yas.local
@@ -53,23 +53,28 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 kafka
 127.0.0.1 akhq
 ```
-1. Open terminal of your choice, go to `yas` directory and run `docker compose up` and wait for all the containers up and running
-2. All the containers up and running then we start source connectors by run script, open any terminal window... go to the YAS root folder and type: ./start-source-connectors.sh
-3. Open your browser, now you can access the websites via `http://storefront/`; `http://backoffice/` login with admin/password
+3. Open terminal of your choice, go to `yas` directory, run `docker compose up`, wait for all the containers up and running
+4. All the containers up and running then we start source connectors by run script, open any terminal window... go to the YAS root folder and type: ./start-source-connectors.sh
+5. Open your browser, now you can access the websites via `http://storefront/`; `http://backoffice/` login with admin/password
 
-You might aslo want to explore:
+#### You might also want to explore:
 1. `http://pgadmin.yas.local/`. Account login: `admin@yas.com` / admin. Register a server: postgres, port 5432, username admin, password admin. The Postgresql server is also exposed to the host machine: servername: localhost, port: 5432, username: admin, password: admin
-1. `http://api.yas.local/swagger-ui/` for all the REST API document of all the services
-1. `http://identity/` for Keycloak console, account admin/admin
-1. `http://grafana/` for observability: log, trace, matrix
-1. `http://elasticsearch/` for calling Elasticsearch APIs
+2. `http://api.yas.local/swagger-ui/` for all the REST API document of all the services
+3. `http://identity/` for Keycloak console, account admin/admin
+4. `http://grafana/` for observability: log, trace, matrix
+5. `http://elasticsearch/` for calling Elasticsearch APIs
+
+#### You might also want to run specific docker compose file by running command `docker compose -f <docker-compose-file-name> up`
+1. docker-compose.yml for all core services
+2. docker-compose.search.yml for search service
+3. docker-compose.o11y.yml for observability services
 
 ## Contributing
 - Give us a star
 - Reporting a bug
 - Participate discussions
 - Propose new features
-- Submit pull requests. If you new to GitHub, consider to [learn how to contribute to a project through forking](https://docs.github.com/en/get-started/quickstart/contributing-to-projects)
+- Submit pull requests. If you are new to GitHub, consider to [learn how to contribute to a project through forking](https://docs.github.com/en/get-started/quickstart/contributing-to-projects)
 - [Developer guidelines](https://github.com/nashtech-garage/yas/wiki/Developer-guidelines)
 
 By contributing, you agree that your contributions will be licensed under MIT License. 
