@@ -96,10 +96,11 @@ public class OrderService {
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
 
+        // delete Item in Cart
         try{
-            cartService.addOrderIdIntoCart(order.getId());
+            cartService.deleteCartItemByProductId(orderItems.stream().map(i-> i.getProductId()).toList());
         }catch (Exception ex){
-            log.error("Add orderId into Cart fail: " + ex.getMessage());
+            log.error("Delete products in cart fail: " + ex.getMessage());
         }
 
 //        TO-DO: decrement inventory when inventory is complete
