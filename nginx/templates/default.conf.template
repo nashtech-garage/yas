@@ -106,24 +106,14 @@ server {
 
 server {
   server_name kafka;
-
-  # Docker DNS
-  resolver 127.0.0.11;
-
   location / {
-    set $docker_kafka_host "kafka";
-	proxy_pass http://$docker_kafka_host:9092;
+	proxy_pass http://kafka:9092;
   }
 }
 
 server {
   server_name akhq;
-
-  # Docker DNS
-  resolver 127.0.0.11;
-
   location / {
-    set $docker_akhq_host "akhq";
-	proxy_pass http://$docker_akhq_host:8080;
+	proxy_pass http://akhq:8080;
   }
 }
