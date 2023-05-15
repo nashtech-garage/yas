@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  search:
+    image: ghcr.io/nashtech-garage/yas-search:latest
+    entrypoint: [ "./wait-for-it.sh", "elasticsearch:9200", "--timeout=300", "--", "java", "-jar", "/search-0.0.1-SNAPSHOT.jar" ]
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: /search
+      YAS_PUBLIC_URL: http://api.yas.local/search
+      YAS_SERVICES_PRODUCT: http://product/product
+      SERVER_PORT: "80"
+    depends_on:
+      - kafka
+    networks:
+      - yas-network
+  zookeeper:
+    image: debezium/zookeeper:2.2
+    restart: always
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+    networks:
+      - yas-network
+  kafka:
+    image: confluentinc/cp-kafka:7.0.9
+    hostname: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - yas-network
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - yas-network
+  kafka-connect:
+    image: debezium/connect:2.2
+    restart: always
+    ports:
+      - 8083:8083
+      - 5005:5005
+    depends_on:
+      - kafka
+      - elasticsearch
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=kafka_connect_configs
+      - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
+    networks:
+      - yas-network
+  akhq:
+    image: tchiotludo/akhq:0.24.0
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: 'kafka:9092'
+              connect:
+                - name: "kafka-connect"
+                  url: "http://kafka-connect:8083/"
+    ports:
+      - 8089:8080
+    depends_on:
+      - kafka
+      - kafka-connect
+    networks:
+      - yas-network
+
+networks:
+  yas-network:
+
+volumes:
+  esdata:
