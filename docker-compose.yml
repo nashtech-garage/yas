@@ -1,4 +1,5 @@
-version: "3.8"
+version: "3.9"
+
 services:
   nginx:
     image:  nginx:1.23.3
@@ -8,6 +9,8 @@ services:
       - ./nginx/configuration/custom_proxy_settings.conf:/etc/nginx/conf.d/custom_proxy_settings.conf
     ports:
       - "80:80"
+    networks:
+      - yas-network
   identity:
     image: quay.io/keycloak/keycloak:21.0.2
     command: [ 'start-dev --import-realm' ]
@@ -23,6 +26,8 @@ services:
     volumes:
       - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
       - ./identity/themes:/opt/keycloak/themes
+    networks:
+      - yas-network
   backoffice:
     image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
     entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
@@ -38,8 +43,12 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: nextjs
       SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://backoffice-nextjs:3000
       SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
+    networks:
+      - yas-network
   backoffice-nextjs:
     image: ghcr.io/nashtech-garage/yas-backoffice:latest
+    networks:
+      - yas-network
   storefront:
     image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
     entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
@@ -64,8 +73,12 @@ services:
       YAS_SERVICES_TAX: http://tax/tax
       YAS_SERVICES_PROMOTION: http://promotion/promotion
       YAS_SERVICES_PAYMENT: http://payment/payment
+    networks:
+      - yas-network
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
+    networks:
+      - yas-network
   media:
     image: ghcr.io/nashtech-garage/yas-media:latest
     environment:
@@ -73,6 +86,8 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /media
       YAS_PUBLICURL: http://api.yas.local/media
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   product:
     image: ghcr.io/nashtech-garage/yas-product:latest
     environment:
@@ -80,6 +95,8 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /product
       YAS_SERVICES_MEDIA: http://media/media
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   customer:
     image: ghcr.io/nashtech-garage/yas-customer:latest
     environment:
@@ -87,6 +104,8 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /customer
       YAS_SERVICES_LOCATION: http://location/location
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   cart:
     image: ghcr.io/nashtech-garage/yas-cart:latest
     environment:
@@ -95,6 +114,8 @@ services:
       YAS_SERVICES_MEDIA: http://media/media
       YAS_SERVICES_PRODUCT: http://product/product
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   rating:
     image: ghcr.io/nashtech-garage/yas-rating:latest
     environment:
@@ -105,6 +126,8 @@ services:
       YAS_SERVICES_CUSTOMER: http://customer/customer
       YAS_SERVICES_ORDER: http://order/order
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   order:
     image: ghcr.io/nashtech-garage/yas-order:latest
     environment:
@@ -116,6 +139,8 @@ services:
       YAS_SERVICES_PRODUCT: http://product/product
       YAS_SERVICES_TAX: http://tax/tax
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   payment:
     image: ghcr.io/nashtech-garage/yas-payment:latest
     environment:
@@ -124,6 +149,8 @@ services:
       YAS_PUBLIC_URL: http://api.yas.local/payment
       YAS_SERVICES_ORDER: http://order/order
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   location:
     image: ghcr.io/nashtech-garage/yas-location:latest
     environment:
@@ -131,6 +158,8 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /location
       YAS_PUBLICURL: http://api.yas.local/location
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   inventory:
     image: ghcr.io/nashtech-garage/yas-inventory:latest
     environment:
@@ -140,6 +169,8 @@ services:
       YAS_SERVICES_PRODUCT: http://product/product
       YAS_SERVICES_LOCATION: http://location/location
       SERVER_PORT: "80"
+    networks:
+      - yas-network
   promotion:
     image: ghcr.io/nashtech-garage/yas-promotion:latest
     environment:
@@ -147,6 +178,8 @@ services:
       SERVER_SERVLET_CONTEXT_PATH: /promotion
       YAS_PUBLIC_URL: http://api.yas.local/promotion
       YAS_SERVICES_PRODUCT: http://product/product
+    networks:
+      - yas-network
   tax:
     image: ghcr.io/nashtech-garage/yas-tax:latest
     environment:
@@ -155,16 +188,8 @@ services:
       YAS_PUBLIC_URL: http://api.yas.local/tax
       YAS_SERVICES_LOCATION: http://location/location
       SERVER_PORT: "80"
-  search:
-    image: ghcr.io/nashtech-garage/yas-search:latest
-    entrypoint: ["./wait-for-it.sh", "elasticsearch:9200", "--timeout=300", "--", "java", "-jar", "/search-0.0.1-SNAPSHOT.jar"]
-    environment:
-      SERVER_SERVLET_CONTEXT_PATH: /search
-      YAS_PUBLIC_URL: http://api.yas.local/search
-      YAS_SERVICES_PRODUCT: http://product/product
-      SERVER_PORT: "80"
-    depends_on:
-      - kafka
+    networks:
+      - yas-network
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
@@ -183,6 +208,30 @@ services:
       { url: 'http://api.yas.local/search/v3/api-docs', name: 'Search'}]"
       OAUTH_CLIENT_ID: swagger-ui
       OAUTH_USE_PKCE: "true"
+    networks:
+      - yas-network
+  postgres:
+    image: debezium/postgres:15-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
+      - postgres:/var/lib/postgresql/data
+    command: postgres -c 'max_connections=500'
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    networks:
+      - yas-network
+  pgadmin:
+    image: dpage/pgadmin4:6.20
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@yas.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - yas-network
   zookeeper:
     image: debezium/zookeeper:2.2
     restart: always
@@ -190,7 +239,8 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
-
+    networks:
+      - yas-network
   kafka:
     image: confluentinc/cp-kafka:7.0.9
     hostname: kafka
@@ -206,35 +256,8 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  postgres:
-    image: debezium/postgres:15-alpine
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
-      - postgres:/var/lib/postgresql/data
-    command: postgres -c 'max_connections=500'
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-  pgadmin:
-    image: dpage/pgadmin4:6.20
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@yas.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-  elasticsearch:
-    image: elasticsearch:8.6.2
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
-      - "discovery.type=single-node"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+    networks:
+      - yas-network
   kafka-connect:
     image: debezium/connect:2.2
     restart: always
@@ -243,13 +266,13 @@ services:
       - 5005:5005
     depends_on:
       - kafka
-      - postgres
-      - elasticsearch
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=1
       - CONFIG_STORAGE_TOPIC=kafka_connect_configs
       - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
+    networks:
+      - yas-network
   akhq:
     image: tchiotludo/akhq:0.24.0
     environment:
@@ -267,9 +290,24 @@ services:
     depends_on:
       - kafka
       - kafka-connect
+    networks:
+      - yas-network
+  loki:
+    image: grafana/loki:2.7.4
+    extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    ports:
+      - "3100:3100"                                   # loki needs to be exposed so it receives logs
+    environment:
+      - JAEGER_AGENT_HOST=tempo
+      - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+    networks:
+      - yas-network
   tempo:
     image: grafana/tempo:main-0c1eb27
-    extra_hosts: ['host.docker.internal:host-gateway']
+    extra_hosts: [ 'host.docker.internal:host-gateway' ]
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./docker/tempo/tempo-local.yaml:/etc/tempo.yaml:ro
@@ -279,42 +317,13 @@ services:
       - "9411:9411" # zipkin
       #- "4317:4317" # otlp grpc ingest
       #- "4318:4318" # otlp http ingest
-  loki:
-    image: grafana/loki:2.7.4
-    extra_hosts: ['host.docker.internal:host-gateway']
-    command: [ "-config.file=/etc/loki/local-config.yaml" ]
-    ports:
-      - "3100:3100"                                   # loki needs to be exposed so it receives logs
-    environment:
-      - JAEGER_AGENT_HOST=tempo
-      - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
-      - JAEGER_SAMPLER_TYPE=const
-      - JAEGER_SAMPLER_PARAM=1
-  prometheus:
-    image: prom/prometheus:v2.42.0
-    extra_hosts: ['host.docker.internal:host-gateway']
-    command:
-      - --enable-feature=exemplar-storage
-      - --config.file=/etc/prometheus/prometheus.yml
-    volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-      - "9090:9090"
+    networks:
+      - yas-network
 
-  grafana:
-    image: grafana/grafana:9.3.6
-    extra_hosts: ['host.docker.internal:host-gateway']
-    volumes:
-      - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
-      - ./docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-    ports:
-      - "3009:3000"
-      
+networks:
+  yas-network:
+    driver: bridge
+
 volumes:
   postgres:
   pgadmin:
-  esdata:

@@ -1,5 +1,9 @@
 server {
   server_name api.yas.local;
+
+  # Docker DNS
+  resolver 127.0.0.11;
+
   location /media/ {
 	proxy_pass http://media;
   }
@@ -34,7 +38,9 @@ server {
     proxy_pass http://promotion;
   }
   location /search/ {
-    proxy_pass http://search;
+    #hack to prevent nginx to resolve container's host on start up
+    set $docker_search_host "search";
+    proxy_pass http://$docker_search_host;
   }
   location /payment/ {
     proxy_pass http://payment;
@@ -76,15 +82,25 @@ server {
 
 server {
   server_name grafana;
+
+  # Docker DNS
+  resolver 127.0.0.11;
+
   location / {
-	proxy_pass http://grafana:3000;
+    set $docker_grafana_host "grafana";
+	proxy_pass http://$docker_grafana_host:3000;
   }
 }
 
 server {
   server_name elasticsearch;
+
+  # Docker DNS
+  resolver 127.0.0.11;
+
   location / {
-	proxy_pass http://elasticsearch:9200;
+    set $docker_elasticsearch_host "elasticsearch";
+	proxy_pass http://$docker_elasticsearch_host:9200;
   }
 }
 
@@ -101,4 +117,3 @@ server {
 	proxy_pass http://akhq:8080;
   }
 }
-
