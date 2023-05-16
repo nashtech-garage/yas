@@ -55,7 +55,7 @@ YAS is a pet project aim to practice building a typical microservice application
 ```
 3. Open terminal of your choice, go to `yas` directory, run `docker compose up`, wait for all the containers up and running
 
-> *_Warning:_* Requires at least 16GB of RAM available to run all the containers. If you have less than the requirement, you can run only core services by command `docker compose -f docker-compose.yml up`
+> *_Warning:_* To run all the containers, you need a minimum of 16GB of RAM. Otherwise, you can only run the core services with this command `docker compose -f docker-compose.yml up`
 
 4. All the containers up and running then we start source connectors by run script, open any terminal window... go to the YAS root folder and type: ./start-source-connectors.sh
 5. Open your browser, now you can access the websites via `http://storefront/`; `http://backoffice/` login with admin/password
