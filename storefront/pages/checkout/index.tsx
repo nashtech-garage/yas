@@ -19,6 +19,9 @@ import {
 } from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
+import { OptionSelect } from '@/common/items/OptionSelect';
+import PaymentMethod from '@/modules/order/components/PaymentMethod';
+import ShippingMethod from '@/modules/order/components/ShippingMethod';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -305,14 +308,8 @@ const Checkout = () => {
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-6">
-                    <div className="checkout__order mb-4">
-                      <h4>Payment method</h4>
-                      <div className="checkout__order__products row">
-                        <div className="col-lg-6">Products</div>
-                        <div className="col-lg-4">Quantity</div>
-                        <div className="col-lg-2">Price</div>
-                      </div>
-                    </div>
+                    <PaymentMethod />
+                    {/* <ShippingMethod /> */}
                     <CheckOutDetail orderItems={orderItems} />
                   </div>
                 </div>
