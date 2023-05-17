@@ -3,13 +3,12 @@ import visaImage from '../../../asset/images/visa.png';
 import paypal from '@/asset/images/paypall.png';
 import mastercard from '@/asset/images/mastercard.png';
 
-type Props = {};
+type Props = {
+  paymentMethod: string;
+  setPaymentMethod: (paymentMethod: string) => void;
+};
 
-const PaymentMethod = ({}: Props) => {
-  const [paymentMethod, setPaymentMethod] = useState<string>('visa');
-
-  useEffect(() => {}, []);
-
+const PaymentMethod = ({ paymentMethod, setPaymentMethod }: Props) => {
   return (
     <div className="checkout__order mb-4">
       <h4>Payment method</h4>

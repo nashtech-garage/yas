@@ -1,10 +1,10 @@
 import { Container } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useForm, SubmitHandler, set } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
 import { useRouter } from 'next/router';
 import { getMyProfile } from '@/modules/profile/services/ProfileService';
@@ -19,7 +19,6 @@ import {
 } from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
-import { OptionSelect } from '@/common/items/OptionSelect';
 import PaymentMethod from '@/modules/order/components/PaymentMethod';
 import ShippingMethod from '@/modules/order/components/ShippingMethod';
 
@@ -57,6 +56,7 @@ const Checkout = () => {
 
   const [loaded, setLoaded] = useState(false);
   const [email, setEmail] = useState<string>('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('visa');
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   let order = watch();
 
@@ -185,7 +185,7 @@ const Checkout = () => {
       order.deliveryFee = 0;
       order.couponCode = '';
       order.deliveryMethod = 'YAS_EXPRESS';
-      order.paymentMethod = 'COD';
+      order.paymentMethod = paymentMethod;
       order.paymentStatus = 'PENDING';
       order.orderItemPostVms = orderItems;
       console.log(order);
@@ -308,7 +308,10 @@ const Checkout = () => {
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-6">
-                    <PaymentMethod />
+                    <PaymentMethod
+                      paymentMethod={paymentMethod}
+                      setPaymentMethod={setPaymentMethod}
+                    />
                     {/* <ShippingMethod /> */}
                     <CheckOutDetail orderItems={orderItems} />
                   </div>
