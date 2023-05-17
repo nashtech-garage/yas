@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, set } from 'react-hook-form';
 import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
@@ -65,8 +65,14 @@ const Checkout = () => {
   const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
   const [showModalShipping, setModalShipping] = useState<boolean>(false);
   const [showModalBilling, setModalBilling] = useState<boolean>(false);
-  const handleCloseModalShipping = () => setModalShipping(false);
-  const handleCloseModalBilling = () => setModalBilling(false);
+  const handleCloseModalShipping = () => {
+    if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
+    setModalShipping(false);
+  };
+  const handleCloseModalBilling = () => {
+    if (billingAddress?.id == shippingAddress?.id) setSameAddress(true);
+    setModalBilling(false);
+  };
 
   useEffect(() => {
     getMyProfile()
@@ -81,10 +87,14 @@ const Checkout = () => {
         router.push({ pathname: `/login` });
       });
 
-    getUserAddressDefault().then((res) => {
-      setShippingAddress(res);
-      setBillingAddress(res);
-    });
+    getUserAddressDefault()
+      .then((res) => {
+        setShippingAddress(res);
+        setBillingAddress(res);
+      })
+      .catch(() => {
+        setAddShippingAddress(true);
+      });
   }, []);
 
   const loadItems = () => {
@@ -295,6 +305,14 @@ const Checkout = () => {
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-6">
+                    <div className="checkout__order mb-4">
+                      <h4>Payment method</h4>
+                      <div className="checkout__order__products row">
+                        <div className="col-lg-6">Products</div>
+                        <div className="col-lg-4">Quantity</div>
+                        <div className="col-lg-2">Price</div>
+                      </div>
+                    </div>
                     <CheckOutDetail orderItems={orderItems} />
                   </div>
                 </div>

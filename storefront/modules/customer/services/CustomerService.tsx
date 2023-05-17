@@ -16,7 +16,8 @@ export async function getUserAddress() {
 
 export async function getUserAddressDefault(): Promise<Address> {
   const response = await fetch(`/api/customer/storefront/user-address/default-address`);
-  return response.json();
+  if (response.status >= 200 && response.status < 300) return response.json();
+  return Promise.reject(response);
 }
 
 export async function deleteUserAddress(id: number) {
