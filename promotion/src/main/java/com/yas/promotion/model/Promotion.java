@@ -26,9 +26,9 @@ public class Promotion extends AbstractAuditEntity {
 
     private String couponCode;
 
-    private Long value;
+    private Long discountPercentage;
 
-    private Long amount;
+    private Long discountAmount;
 
     private Boolean isActive;
 
