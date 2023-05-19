@@ -59,14 +59,15 @@ public class CartController {
         return new ResponseEntity<>(cartService.updateCartItems(cartItemVm), HttpStatus.OK);
     }
 
-    @PutMapping("order-id-additional")
-    public ResponseEntity<ResponeStatusVm> addOrderIdIntoCart(@Valid @RequestBody Long orderId) {
-        return new ResponseEntity<>(cartService.addOrderIdInToCart(orderId), HttpStatus.OK);
-    }
-
     @DeleteMapping("/storefront/cart-item")
     public ResponseEntity<Void> removeCartItemByProductId(@RequestParam Long productId) {
         cartService.removeCartItemByProductId(productId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/storefront/cart-item/multi-delete")
+    public ResponseEntity<Void> removeCartItemListByProductIdList(@RequestParam List<Long> productIds) {
+        cartService.removeCartItemListByProductIdList(productIds);
         return ResponseEntity.noContent().build();
     }
 
