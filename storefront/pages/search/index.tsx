@@ -35,49 +35,45 @@ const handleSortType = (sortType: string | string[] | undefined) => {
 
 const SearchPage = () => {
   const router = useRouter();
-  const { keyword, category, attribute, minPrice, maxPrice, sortType, page } = router.query;
 
   const [searchParams, setSearchParams] = useState<SearchParams>({
     keyword: '',
-    category: undefined,
-    attribute: undefined,
-    minPrice: undefined,
-    maxPrice: undefined,
-    sortType: undefined,
-    page: undefined,
   });
   const [products, setProducts] = useState<ProductSearchResult[]>([]);
   const [totalElements, setTotalElements] = useState<number>(0);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(0);
   const [aggregations, setAggregations] = useState<Aggregations>({});
+  const isFilter = !!(
+    searchParams.brand ||
+    searchParams.category ||
+    searchParams.attribute ||
+    searchParams.minPrice ||
+    searchParams.maxPrice
+  );
 
   useEffect(() => {
-    setSearchParams({
-      keyword: keyword ? (keyword as string) : '',
-      category: category ? (category as string) : undefined,
-      attribute: attribute ? (attribute as string) : undefined,
-      minPrice: minPrice && +minPrice > 0 ? +minPrice : undefined,
-      maxPrice: maxPrice && +maxPrice > 0 ? +maxPrice : undefined,
-      sortType: handleSortType(sortType),
-      page: page ? +page : undefined,
-    });
-  }, [keyword, category, attribute, minPrice, maxPrice, sortType, page]);
+    if (!router.isReady) return;
+    const queryParams = {
+      keyword: router.query.keyword ? String(router.query.keyword) : '',
+      brand: router.query.brand ? String(router.query.brand) : undefined,
+      category: router.query.category ? String(router.query.category) : undefined,
+      attribute: router.query.attribute ? String(router.query.attribute) : undefined,
+      minPrice:
+        router.query.minPrice && +router.query.minPrice > 0 ? +router.query.minPrice : undefined,
+      maxPrice:
+        router.query.maxPrice && +router.query.maxPrice > 0 ? +router.query.maxPrice : undefined,
+      sortType: handleSortType(router.query.sortType),
+      page: router.query.page ? +router.query.page : undefined,
+    };
+    setSearchParams(queryParams);
+  }, [router.isReady, router.query]);
 
   useEffect(() => {
     if (searchParams.keyword) {
       fetchSearchResult(searchParams);
     }
-  }, [
-    searchParams,
-    searchParams.keyword,
-    searchParams.category,
-    searchParams.attribute,
-    searchParams.minPrice,
-    searchParams.maxPrice,
-    searchParams.sortType,
-    searchParams.page,
-  ]);
+  }, [searchParams]);
 
   const fetchSearchResult = (data: SearchParams) => {
     searchProducts({ ...data, keyword: data.keyword.trim().toLowerCase() })
@@ -110,13 +106,92 @@ const SearchPage = () => {
         <BreadcrumbComponent props={crumb} />
 
         <div className={styles['search-wrapper']}>
-          {products.length > 0 && (
+          {!isFilter ? (
+            <>
+              {products.length > 0 && (
+                <>
+                  <SearchFilter
+                    aggregations={aggregations}
+                    searchParams={searchParams}
+                    setSearchParams={setSearchParams}
+                  />
+
+                  <div className={styles['search-result']}>
+                    <SearchSort
+                      totalElements={totalElements}
+                      keyword={searchParams.keyword}
+                      searchParams={searchParams}
+                      isFilter={isFilter}
+                      setSearchParams={setSearchParams}
+                      setPageNo={setPageNo}
+                    />
+
+                    <Row xs={4} xl={5} className={styles['search-result__list']}>
+                      {products.map((product) => (
+                        <Col key={product.id}>
+                          <ProductCard
+                            className={['products-page']}
+                            product={{
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              thumbnailUrl: '',
+                              slug: product.slug,
+                            }}
+                            thumbnailId={product.thumbnailId}
+                          />
+                        </Col>
+                      ))}
+                    </Row>
+
+                    {totalPage > 1 && (
+                      <ReactPaginate
+                        forcePage={pageNo}
+                        previousLabel={'Previous'}
+                        nextLabel={'Next'}
+                        pageCount={totalPage}
+                        onPageChange={({ selected }) => {
+                          setPageNo(selected);
+                          setSearchParams({ ...searchParams, page: selected });
+                          router.query.page = selected.toString();
+                          router.push(
+                            {
+                              pathname: router.pathname,
+                              query: router.query,
+                            },
+                            undefined,
+                            { shallow: true }
+                          );
+                        }}
+                        containerClassName={'pagination-container'}
+                        previousClassName={'previous-btn'}
+                        nextClassName={'next-btn'}
+                        disabledClassName={'pagination-disabled'}
+                        activeClassName={'pagination-active'}
+                      />
+                    )}
+                  </div>
+                </>
+              )}
+
+              {products.length === 0 && (
+                <div className="text-center flex-grow-1 my-5">
+                  <Image
+                    src={noResultImg.src}
+                    alt="No result"
+                    style={{ width: '134px', height: '134px' }}
+                  />
+                  <h5 className="text-black mb-2">No result is found</h5>
+                  <h5 className="mb-5">Try using more generic keywords</h5>
+                </div>
+              )}
+            </>
+          ) : (
             <>
               <SearchFilter
                 aggregations={aggregations}
                 searchParams={searchParams}
                 setSearchParams={setSearchParams}
-                setPageNo={setPageNo}
               />
 
               <div className={styles['search-result']}>
@@ -124,27 +199,39 @@ const SearchPage = () => {
                   totalElements={totalElements}
                   keyword={searchParams.keyword}
                   searchParams={searchParams}
+                  isFilter={isFilter}
                   setSearchParams={setSearchParams}
                   setPageNo={setPageNo}
                 />
 
-                <Row xs={4} xl={5} className={styles['search-result__list']}>
-                  {products.map((product) => (
-                    <Col key={product.id}>
-                      <ProductCard
-                        className={['products-page']}
-                        product={{
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          thumbnailUrl: '',
-                          slug: product.slug,
-                        }}
-                        thumbnailId={product.thumbnailId}
-                      />
-                    </Col>
-                  ))}
-                </Row>
+                {products.length > 0 ? (
+                  <Row xs={4} xl={5} className={styles['search-result__list']}>
+                    {products.map((product) => (
+                      <Col key={product.id}>
+                        <ProductCard
+                          className={['products-page']}
+                          product={{
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            thumbnailUrl: '',
+                            slug: product.slug,
+                          }}
+                          thumbnailId={product.thumbnailId}
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                ) : (
+                  <div className="text-center flex-grow-1 my-5">
+                    <Image
+                      src={noResultImg.src}
+                      alt="No result"
+                      style={{ width: '134px', height: '134px' }}
+                    />
+                    <h5 className="text-black mb-2">No result is found with this filter</h5>
+                  </div>
+                )}
 
                 {totalPage > 1 && (
                   <ReactPaginate
@@ -167,18 +254,6 @@ const SearchPage = () => {
                 )}
               </div>
             </>
-          )}
-
-          {products.length === 0 && (
-            <div className="text-center flex-grow-1 my-5">
-              <Image
-                src={noResultImg.src}
-                alt="No result"
-                style={{ width: '134px', height: '134px' }}
-              />
-              <h5 className="text-black mb-2">No result is found</h5>
-              <h5 className="mb-5">Try using more generic keywords</h5>
-            </div>
           )}
         </div>
       </Container>

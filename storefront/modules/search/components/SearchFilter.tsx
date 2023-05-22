@@ -10,15 +10,9 @@ export interface SearchFilterProps {
   aggregations: Aggregations;
   searchParams: SearchParams;
   setSearchParams: (_searchParams: SearchParams) => void;
-  setPageNo: (_pageNo: number) => void;
 }
 
-const SearchFilter = ({
-  aggregations,
-  searchParams,
-  setSearchParams,
-  setPageNo,
-}: SearchFilterProps) => {
+const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFilterProps) => {
   const router = useRouter();
   const [rangePrice, setRangePrice] = useState<{
     min: number;
@@ -28,6 +22,7 @@ const SearchFilter = ({
     max: searchParams.maxPrice ?? 0,
   });
   const [category, setCategory] = useState<string | undefined>(searchParams.category);
+  const [brand, setBrand] = useState<string | undefined>(searchParams.brand);
 
   const handleChangePrice = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
@@ -47,86 +42,104 @@ const SearchFilter = ({
   };
 
   const handleClickApplyPriceRange = () => {
-    if (rangePrice.min > 0 && rangePrice.max > 0) {
-      if (rangePrice.min < rangePrice.max) {
-        setSearchParams({
-          ...searchParams,
-          minPrice: rangePrice.min,
-          maxPrice: rangePrice.max,
-          page: undefined,
-        });
-        setPageNo(0);
-        router.query.minPrice = rangePrice.min.toString();
-        router.query.maxPrice = rangePrice.max.toString();
+    const { min, max } = rangePrice;
+
+    if (min > 0 && max > 0) {
+      if (min < max) {
+        setSearchParams({ ...searchParams, minPrice: min, maxPrice: max });
+        router.query.minPrice = min.toString();
+        router.query.maxPrice = max.toString();
         delete router.query.page;
-        router.push(router, undefined, { shallow: true });
       }
-    } else if (rangePrice.min > 0 && rangePrice.max === 0) {
-      setSearchParams({
-        ...searchParams,
-        minPrice: rangePrice.min,
-        maxPrice: undefined,
-        page: undefined,
-      });
-      setPageNo(0);
-      router.query.minPrice = rangePrice.min.toString();
+    } else if (min > 0 && max === 0) {
+      setSearchParams({ ...searchParams, minPrice: min, maxPrice: undefined });
+      router.query.minPrice = min.toString();
       delete router.query.maxPrice;
       delete router.query.page;
-      router.push(router, undefined, { shallow: true });
-    } else if (rangePrice.min === 0 && rangePrice.max > 0) {
-      setSearchParams({
-        ...searchParams,
-        minPrice: undefined,
-        maxPrice: rangePrice.max,
-        page: undefined,
-      });
-      setPageNo(0);
+    } else if (min === 0 && max > 0) {
+      setSearchParams({ ...searchParams, minPrice: undefined, maxPrice: max });
+      router.query.maxPrice = max.toString();
       delete router.query.minPrice;
-      router.query.maxPrice = rangePrice.max.toString();
       delete router.query.page;
-      router.push(router, undefined, { shallow: true });
     }
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: router.query,
+      },
+      undefined,
+      { shallow: true }
+    );
   };
 
-  const handleFilterCateogry = (e: React.ChangeEvent<HTMLInputElement>, item: string) => {
-    if (e.target.checked) {
-      setCategory(item);
-      setSearchParams({
-        ...searchParams,
-        category: item,
-      });
-      setPageNo(0);
-      router.query.category = item.toLowerCase();
-      delete router.query.page;
-      router.push(router, undefined, { shallow: true });
+  const handleFilter = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    item: string,
+    fieldName: string
+  ) => {
+    const { checked } = e.target;
+    const currentParams = searchParams[fieldName as keyof SearchParams] as string | undefined;
+    let queries = currentParams ? currentParams.split(',') : [];
+
+    if (checked) {
+      queries.push(item);
     } else {
-      setCategory(undefined);
-      setSearchParams({
-        ...searchParams,
-        category: undefined,
-      });
-      setPageNo(0);
-      delete router.query.category;
-      delete router.query.page;
-      router.push(router, undefined, { shallow: true });
+      queries = queries.filter((param) => param !== item);
     }
+
+    const updatedQuery = queries.join(',');
+
+    if (fieldName === 'brand') {
+      setBrand(queries.length > 0 ? updatedQuery : undefined);
+    } else if (fieldName === 'category') {
+      setCategory(queries.length > 0 ? updatedQuery : undefined);
+    }
+
+    if (queries.length > 0) {
+      setSearchParams({ ...searchParams, [fieldName]: updatedQuery });
+      router.query[fieldName] = updatedQuery;
+    } else {
+      setSearchParams({ ...searchParams, [fieldName]: undefined });
+      delete router.query[fieldName];
+    }
+
+    delete router.query.page;
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: router.query,
+      },
+      undefined,
+      { shallow: true }
+    );
   };
 
   const handleClearAll = () => {
-    setRangePrice({ min: 0, max: 0 });
-    setSearchParams({
-      ...searchParams,
-      minPrice: undefined,
-      maxPrice: undefined,
-      category: undefined,
-    });
-    setCategory(undefined);
-    setPageNo(0);
-    delete router.query.minPrice;
-    delete router.query.maxPrice;
-    delete router.query.category;
-    delete router.query.page;
-    router.push(router, undefined, { shallow: true });
+    if (rangePrice.min || rangePrice.max || category || brand) {
+      setRangePrice({ min: 0, max: 0 });
+      setSearchParams({
+        ...searchParams,
+        minPrice: undefined,
+        maxPrice: undefined,
+        category: undefined,
+        brand: undefined,
+      });
+      setCategory(undefined);
+      setBrand(undefined);
+      delete router.query.minPrice;
+      delete router.query.maxPrice;
+      delete router.query.category;
+      delete router.query.brand;
+      delete router.query.page;
+      router.replace(
+        {
+          pathname: router.pathname,
+          query: router.query,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
   };
 
   return (
@@ -146,11 +159,33 @@ const SearchFilter = ({
                   type="checkbox"
                   id={`category-${index}`}
                   value={item.toLowerCase()}
-                  checked={category?.toLowerCase() === item.toLowerCase()}
-                  onChange={(e) => handleFilterCateogry(e, item)}
+                  checked={category?.toLowerCase().includes(item.toLowerCase())}
+                  onChange={(e) => handleFilter(e, item, 'category')}
                 />
                 <label htmlFor={`category-${index}`}>
                   {item} ({aggregations['categories'][item]})
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {aggregations['brands'] && Object.keys(aggregations['brands']).length > 0 && (
+        <div className={styles['filter-group']}>
+          <div className={styles['filter-group__title']}>Brand</div>
+          <div className={styles['filter-group__list']}>
+            {Object.keys(aggregations['brands']).map((item, index) => (
+              <div className={styles['filter-group__list-item']} key={item}>
+                <input
+                  type="checkbox"
+                  id={`brand-${index}`}
+                  value={item.toLowerCase()}
+                  checked={brand?.toLowerCase().includes(item.toLowerCase())}
+                  onChange={(e) => handleFilter(e, item, 'brand')}
+                />
+                <label htmlFor={`brand-${index}`}>
+                  {item.charAt(0).toUpperCase() + item.slice(1)} ({aggregations['brands'][item]})
                 </label>
               </div>
             ))}

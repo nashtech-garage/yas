@@ -19,6 +19,9 @@ export async function searchProducts(params: SearchParams): Promise<SearchProduc
   if (params.category) {
     url += `&category=${params.category}`;
   }
+  if (params.brand) {
+    url += `&brand=${params.brand}`;
+  }
   if (params.attribute) {
     url += `&attribute=${params.attribute}`;
   }
