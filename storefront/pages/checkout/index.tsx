@@ -86,9 +86,9 @@ const Checkout = () => {
           setLoaded(true);
         }
       })
-      .catch(async () => {
+      .catch(() => {
         // toast.error('Load profile failed!, Please login to continue');
-        await router.push({ pathname: `/login` });
+        router.push({ pathname: `/login` }); //NOSONAR
       });
 
     getUserAddressDefault()
