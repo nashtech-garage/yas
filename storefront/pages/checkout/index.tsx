@@ -213,7 +213,7 @@ const Checkout = () => {
         <section className="checkout spad">
           <div className="container">
             <div className="checkout__form">
-              <form onSubmit={handleSubmit(onSubmitForm)}>
+              <form onSubmit={(event) => void handleSubmit(onSubmitForm)(event)}>
                 <div className="row">
                   <div className="col-lg-8 col-md-6">
                     <h4>Shipping Address</h4>
