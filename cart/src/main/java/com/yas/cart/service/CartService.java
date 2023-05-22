@@ -124,15 +124,12 @@ public class CartService {
         }
     }
 
-    public ResponeStatusVm addOrderIdInToCart(Long orderId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String customerId = auth.getName();
-        Cart cart = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId).stream().findFirst()
-                .orElseThrow(()
-                        -> new NotFoundException(Constants.ERROR_CODE.NOT_FOUND_CART));
-        cart.setOrderId(orderId);
-        cartRepository.save(cart);
-        return new ResponeStatusVm("Action success", "Action success", HttpStatus.OK.toString());
+    @Transactional
+    public void removeCartItemListByProductIdList(List<Long> productIdList) {
+        CartGetDetailVm currentCart = getLastCart();
+        productIdList.stream().forEach(id -> validateCart(currentCart, id));
+
+        cartItemRepository.deleteByCartIdAndProductIdIn(currentCart.id(), productIdList);
     }
 
     private void validateCart(CartGetDetailVm cart, Long productId) {
