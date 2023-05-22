@@ -106,12 +106,6 @@ public class OrderService {
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
 
-        try {
-            cartService.addOrderIdIntoCart(order.getId());
-        } catch (Exception ex) {
-            log.error("Add orderId into Cart fail: " + ex.getMessage());
-        }
-
 //        TO-DO: decrement inventory when inventory is complete
 //        ************
 
