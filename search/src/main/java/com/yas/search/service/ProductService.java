@@ -3,6 +3,7 @@ package com.yas.search.service;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import com.yas.search.constant.document_fields.ProductField;
 import com.yas.search.constant.enums.ESortType;
 import com.yas.search.document.Product;
@@ -52,15 +53,8 @@ public class ProductService {
                 .withQuery(q -> q
                         .bool(b -> b
                                 .should(s -> s
-                                        .match(m -> m
-                                                .field(ProductField.NAME)
-                                                .query(keyword)
-                                                .fuzziness(Fuzziness.ONE.asString())
-                                        )
-                                )
-                                .should(s -> s
-                                        .match(m -> m
-                                                .field(ProductField.BRAND)
+                                        .multiMatch(m -> m
+                                                .fields(ProductField.NAME, ProductField.BRAND)
                                                 .query(keyword)
                                                 .fuzziness(Fuzziness.ONE.asString())
                                         )
@@ -72,65 +66,12 @@ public class ProductService {
 
         nativeQuery.withFilter(f -> f
                 .bool(b -> {
-                            if (brand != null && !brand.isBlank()) {
-                                String[] brands = brand.split(",");
-                                for (String brd : brands) {
-                                    b.should(s -> s
-                                            .term(t -> t
-                                                    .field(ProductField.BRAND)
-                                                    .value(brd)
-                                                    .caseInsensitive(true)
-                                            )
-                                    );
-                                }
-                            }
-                            if (category != null && !category.isBlank()) {
-                                String[] categories = category.split(",");
-                                for (String cat : categories) {
-                                    b.should(s -> s
-                                            .term(t -> t
-                                                    .field(ProductField.CATEGORIES)
-                                                    .value(cat)
-                                                    .caseInsensitive(true)
-                                            )
-                                    );
-                                }
-                            }
-                            if (minPrice != null && maxPrice == null) {
-                                b.must(m -> m.
-                                        range(r -> r
-                                                .field(ProductField.PRICE)
-                                                .from(minPrice.toString())
-                                        ));
-                            } else if (minPrice == null && maxPrice != null) {
-                                b.must(m -> m.
-                                        range(r -> r
-                                                .field(ProductField.PRICE)
-                                                .to(maxPrice.toString())
-                                        ));
-                            } else if (minPrice != null) {
-                                b.must(m -> m.
-                                        range(r -> r
-                                                .field(ProductField.PRICE)
-                                                .from(minPrice.toString())
-                                                .to(maxPrice.toString())
-                                        ));
-                            }
-                            if (attribute != null && !attribute.isBlank()) {
-                                String[] attributes = attribute.split(",");
-                                for (String att : attributes) {
-                                    b.should(s -> s
-                                            .term(t -> t
-                                                    .field(ProductField.ATTRIBUTES)
-                                                    .value(att)
-                                                    .caseInsensitive(true)
-                                            )
-                                    );
-                                }
-                            }
-                            return b;
-                        }
-                )
+                    extractedStr(brand, ProductField.BRAND, b);
+                    extractedStr(category, ProductField.CATEGORIES, b);
+                    extractedStr(attribute, ProductField.ATTRIBUTES, b);
+                    extractedRange(minPrice, maxPrice, ProductField.PRICE, b);
+                    return b;
+                })
         );
 
         if (sortType == ESortType.PRICE_ASC) {
@@ -155,6 +96,33 @@ public class ProductService {
                 productPage.getTotalPages(),
                 productPage.isLast(),
                 getAggregations(searchHitsResult));
+    }
+
+    private void extractedStr(String strField, String productField, BoolQuery.Builder b) {
+        if (strField != null && !strField.isBlank()) {
+            String[] strFields = strField.split(",");
+            for (String str : strFields) {
+                b.should(s -> s
+                        .term(t -> t
+                                .field(productField)
+                                .value(str)
+                                .caseInsensitive(true)
+                        )
+                );
+            }
+        }
+    }
+
+    private void extractedRange(Number min, Number max, String productField, BoolQuery.Builder b) {
+        if (min != null || max != null) {
+            b.must(m -> m
+                    .range(r -> r
+                            .field(productField)
+                            .from(min != null ? min.toString() : null)
+                            .to(max != null ? max.toString() : null)
+                    )
+            );
+        }
     }
 
     private Map<String, Map<String, Long>> getAggregations(SearchHits<Product> searchHits) {
