@@ -78,28 +78,26 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const profileRes = await getMyProfile();
+    getMyProfile()
+      .then((res) => {
         if (!loaded) {
-          setEmail(profileRes.email);
+          setEmail(res.email);
           loadItems();
           setLoaded(true);
         }
-      } catch (error) {
-        router.push({ pathname: `/login` });
-      }
+      })
+      .catch(() => {
+        toast.error('Load profile failed!, Please login to continue');
+      });
 
-      try {
-        const addressRes = await getUserAddressDefault();
-        setShippingAddress(addressRes);
-        setBillingAddress(addressRes);
-      } catch (error) {
+    getUserAddressDefault()
+      .then((res) => {
+        setShippingAddress(res);
+        setBillingAddress(res);
+      })
+      .catch(() => {
         setAddShippingAddress(true);
-      }
-    };
-
-    fetchData();
+      });
   }, []);
 
   const loadItems = () => {
@@ -207,8 +205,6 @@ const Checkout = () => {
           toast.error('Place order failed');
         });
     }
-
-    return;
   };
 
   return (
@@ -217,7 +213,11 @@ const Checkout = () => {
         <section className="checkout spad">
           <div className="container">
             <div className="checkout__form">
-              <form onSubmit={handleSubmit(onSubmitForm)}>
+              <form
+                onSubmit={() => {
+                  handleSubmit(onSubmitForm);
+                }}
+              >
                 <div className="row">
                   <div className="col-lg-8 col-md-6">
                     <h4>Shipping Address</h4>
