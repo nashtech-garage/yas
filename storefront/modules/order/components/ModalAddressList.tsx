@@ -19,7 +19,7 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
         setAddresses(res);
       })
       .catch((err) => {
-        console.log('Some thing went wrong: ', err.message);
+        console.log('Load address fail: ', err.message);
       });
   }, []);
 

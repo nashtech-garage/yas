@@ -3,9 +3,7 @@ import visaImage from '../../../asset/images/visa.png';
 import paypal from '@/asset/images/paypall.png';
 import mastercard from '@/asset/images/mastercard.png';
 
-type Props = {};
-
-const ShippingMethod = ({}: Props) => {
+const ShippingMethod = () => {
   useEffect(() => {}, []);
 
   return (
