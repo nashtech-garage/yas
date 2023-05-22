@@ -36,6 +36,7 @@ public class ProductService {
     public ProductListGetVm findProductAdvance(String keyword,
                                                Integer page,
                                                Integer size,
+                                               String brand,
                                                String category,
                                                String attribute,
                                                Double minPrice,
@@ -46,6 +47,8 @@ public class ProductService {
                         .terms(ta -> ta.field(ProductField.CATEGORIES))))
                 .withAggregation("attributes", Aggregation.of(a -> a
                         .terms(ta -> ta.field(ProductField.ATTRIBUTES))))
+                .withAggregation("brands", Aggregation.of(a -> a
+                        .terms(ta -> ta.field(ProductField.BRAND))))
                 .withQuery(q -> q
                         .bool(b -> b
                                 .should(s -> s
@@ -69,15 +72,43 @@ public class ProductService {
 
         nativeQuery.withFilter(f -> f
                 .bool(b -> {
-                            if (category != null && !category.isBlank()) {
-                                b.must(m -> m.
-                                        term(t -> t
-                                                .field(ProductField.CATEGORIES)
-                                                .value(category)
-                                                .caseInsensitive(true)
-                                        ));
+                            if (brand != null && !brand.isBlank()) {
+                                String[] brands = brand.split(",");
+                                for (String brd : brands) {
+                                    b.should(s -> s
+                                            .term(t -> t
+                                                    .field(ProductField.BRAND)
+                                                    .value(brd)
+                                                    .caseInsensitive(true)
+                                            )
+                                    );
+                                }
                             }
-                            if (minPrice != null && maxPrice != null) {
+                            if (category != null && !category.isBlank()) {
+                                String[] categories = category.split(",");
+                                for (String cat : categories) {
+                                    b.should(s -> s
+                                            .term(t -> t
+                                                    .field(ProductField.CATEGORIES)
+                                                    .value(cat)
+                                                    .caseInsensitive(true)
+                                            )
+                                    );
+                                }
+                            }
+                            if (minPrice != null && maxPrice == null) {
+                                b.must(m -> m.
+                                        range(r -> r
+                                                .field(ProductField.PRICE)
+                                                .from(minPrice.toString())
+                                        ));
+                            } else if (minPrice == null && maxPrice != null) {
+                                b.must(m -> m.
+                                        range(r -> r
+                                                .field(ProductField.PRICE)
+                                                .to(maxPrice.toString())
+                                        ));
+                            } else if (minPrice != null) {
                                 b.must(m -> m.
                                         range(r -> r
                                                 .field(ProductField.PRICE)
@@ -86,13 +117,16 @@ public class ProductService {
                                         ));
                             }
                             if (attribute != null && !attribute.isBlank()) {
-                                b.must(m -> m
-                                        .term(t -> t
-                                                .field(ProductField.ATTRIBUTES)
-                                                .value(attribute)
-                                                .caseInsensitive(true)
-                                        )
-                                );
+                                String[] attributes = attribute.split(",");
+                                for (String att : attributes) {
+                                    b.should(s -> s
+                                            .term(t -> t
+                                                    .field(ProductField.ATTRIBUTES)
+                                                    .value(att)
+                                                    .caseInsensitive(true)
+                                            )
+                                    );
+                                }
                             }
                             return b;
                         }
@@ -103,6 +137,8 @@ public class ProductService {
             nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.PRICE));
         } else if (sortType == ESortType.PRICE_DESC) {
             nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
+        } else {
+            nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.CREATE_ON));
         }
 
         SearchHits<Product> searchHitsResult = elasticsearchOperations.search(nativeQuery.build(), Product.class);
