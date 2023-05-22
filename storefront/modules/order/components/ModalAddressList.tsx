@@ -14,9 +14,13 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
   const [addresses, setAddresses] = useState<Address[]>([]);
 
   useEffect(() => {
-    getUserAddress().then((res) => {
-      setAddresses(res);
-    });
+    getUserAddress()
+      .then((res) => {
+        setAddresses(res);
+      })
+      .catch((err) => {
+        console.log('Some thing went wrong: ', err.message);
+      });
   }, []);
 
   return (
