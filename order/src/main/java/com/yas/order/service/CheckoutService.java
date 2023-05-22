@@ -30,31 +30,6 @@ public class CheckoutService {
     private final CheckoutItemRepository checkoutItemRepository;
 
     public CheckoutVm createCheckout(CheckoutPostVm checkoutPostVm) {
-        try {
-            //check if already exist checkout then return, no need to create new one
-             List<CheckoutItemPostVm> checkoutItems = checkoutPostVm.checkoutItemPostVms();
-
-List<CheckoutItemPostVm> uniqueItems = checkoutItems.stream()
-        .distinct()
-        .collect(Collectors.toList());
-
-List<Long> productIds = uniqueItems.stream()
-        .map(CheckoutItemPostVm::productId)
-        .collect(Collectors.toList());
-
-List<Integer> itemQuantities = uniqueItems.stream()
-        .map(CheckoutItemPostVm::quantity)
-        .collect(Collectors.toList());
-
-            Optional<Checkout> checkoutOptional = checkoutRepository
-                    .findByCheckoutByUserIdAndProductIdsAndQuantites(AuthenticationUtils.getCurrentUserId(), productIds, itemQuantities, (long) productIds.size());
-            if (checkoutOptional.isPresent()) {
-                return CheckoutVm.fromModel(checkoutOptional.get());
-            }
-        } catch (Exception ex) {
-                 log.error("create Checkout fail: " + ex);
-        }
-
         UUID uuid = UUID.randomUUID();
         Checkout checkout = Checkout.builder()
                 .id(uuid.toString())

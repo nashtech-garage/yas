@@ -67,26 +67,34 @@ const Cart = () => {
   };
 
   const loadCart = () => {
-    getCart().then((data) => {
-      setCart(data);
-      fetchNumberCartItems();
-      const cartDetails = data.cartDetails;
-      const productIds = cartDetails.map((item) => item.productId);
-      getProductThumbnails(productIds).then((results) => {
-        const newItems: Item[] = [];
-        results.forEach((result) => {
-          newItems.push({
-            productId: result.id,
-            quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
-            productName: result.name,
-            slug: result.slug,
-            thumbnailUrl: result.thumbnailUrl,
-            price: result.price,
+    getCart()
+      .then((data) => {
+        setCart(data);
+        fetchNumberCartItems();
+        const cartDetails = data.cartDetails;
+        const productIds = cartDetails.map((item) => item.productId);
+        getProductThumbnails(productIds)
+          .then((results) => {
+            const newItems: Item[] = [];
+            results.forEach((result) => {
+              newItems.push({
+                productId: result.id,
+                quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
+                productName: result.name,
+                slug: result.slug,
+                thumbnailUrl: result.thumbnailUrl,
+                price: result.price,
+              });
+            });
+            setItems(newItems);
+          })
+          .catch((err) => {
+            console.log('Load product thumbnails fail: ' + err.message);
           });
-        });
-        setItems(newItems);
+      })
+      .catch((err) => {
+        console.log('Load cart failed: ' + err.message);
       });
-    });
   };
 
   useEffect(() => {
@@ -97,7 +105,11 @@ const Cart = () => {
   }, [items]);
 
   const removeProduct = (productId: number) => {
-    removeProductInCart(productId).then(() => loadCart());
+    removeProductInCart(productId)
+      .then(() => loadCart())
+      .catch((err) => {
+        console.log('remove product in cart fail: ' + err.message);
+      });
     setIsOpenRemoveDialog(false);
   };
 
@@ -107,17 +119,29 @@ const Cart = () => {
         productId: productId,
         quantity: 1,
       },
-    ]).then(() => loadCart());
+    ])
+      .then(() => loadCart())
+      .catch((err) => {
+        console.log('Add to cart fail: ' + err.message);
+      });
   };
 
   const handleMinus = (productId: number, productQuantity: number) => {
     if (productQuantity === 1) {
-      removeProductInCart(productId).then(() => loadCart());
+      removeProductInCart(productId)
+        .then(() => loadCart())
+        .catch((err) => {
+          console.log('remove product in cart fail: ' + err.message);
+        });
     } else {
       updateCart({
         productId: productId,
         quantity: productQuantity - 1,
-      }).then(() => loadCart());
+      })
+        .then(() => loadCart())
+        .catch((err) => {
+          console.log('update product in cart fail: ' + err.message);
+        });
     }
   };
 
@@ -186,7 +210,7 @@ const Cart = () => {
 
     createCheckout(checkout)
       .then((res) => {
-        router.push(`/checkout/${res?.id}`);
+        router.push(`/checkout/${res?.id}`); //NOSONAR
       })
       .catch((err) => {
         if (err == 403) toastError('Please login to checkout!');

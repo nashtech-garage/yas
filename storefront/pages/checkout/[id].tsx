@@ -59,15 +59,15 @@ const Checkout = () => {
           .catch((err) => {
             if (err == 404) {
               toastError('Page not found');
-              router.push({ pathname: `/404` });
+              router.push({ pathname: `/404` }); //NOSONAR
             } else {
               toastError('Please login to continue');
-              router.push({ pathname: `/login` });
+              router.push({ pathname: `/login` }); //NOSONAR
             }
           });
       };
 
-      fetchCheckout();
+      fetchCheckout(); //NOSONAR
     }
   }, [id]);
 
@@ -104,10 +104,14 @@ const Checkout = () => {
   const handleCloseModalBilling = () => setModalBilling(false);
 
   useEffect(() => {
-    getUserAddressDefault().then((res) => {
-      setShippingAddress(res);
-      setBillingAddress(res);
-    });
+    getUserAddressDefault()
+      .then((res) => {
+        setShippingAddress(res);
+        setBillingAddress(res);
+      })
+      .catch((e) => {
+        console.log('Get default address failed: ' + e);
+      });
   }, []);
 
   const handleSelectShippingAddress = (address: Address) => {
@@ -164,9 +168,9 @@ const Checkout = () => {
       order.note = data.note;
       order.tax = 0;
       order.discount = 0;
-      order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
+      order.numberItem = orderItems.reduce((result, item) => result + item.quantity, 0);
       order.totalPrice = orderItems.reduce(
-        (result, item) => result + item.quantity * item.productPrice!,
+        (result, item) => result + item.quantity * item.productPrice,
         0
       );
       order.deliveryFee = 0;
@@ -192,7 +196,7 @@ const Checkout = () => {
         <section className="checkout spad">
           <div className="container">
             <div className="checkout__form">
-              <form onSubmit={handleSubmit(onSubmitForm)}>
+              <form onSubmit={(event) => void handleSubmit(onSubmitForm)(event)}>
                 <div className="row">
                   <div className="col-lg-8 col-md-6">
                     <h4>Shipping Address</h4>
