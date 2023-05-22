@@ -79,15 +79,21 @@ const Checkout = () => {
 
   useEffect(() => {
     getMyProfile()
-      .then((res) => {
-        if (!loaded) {
-          setEmail(res.email);
-          loadItems();
-          setLoaded(true);
+      .then(
+        (res) => {
+          if (!loaded) {
+            setEmail(res.email);
+            loadItems();
+            setLoaded(true);
+          }
         }
-      })
+        // () => {
+        //   router.push({ pathname: `/login` });
+        // }
+      )
       .catch(() => {
-        toast.error('Load profile failed!, Please login to continue');
+        // toast.error('Load profile failed!, Please login to continue');
+        router.push({ pathname: `/login` });
       });
 
     getUserAddressDefault()
