@@ -150,11 +150,11 @@ const SearchPage = () => {
                         previousLabel={'Previous'}
                         nextLabel={'Next'}
                         pageCount={totalPage}
-                        onPageChange={({ selected }) => {
+                        onPageChange={async ({ selected }) => {
                           setPageNo(selected);
                           setSearchParams({ ...searchParams, page: selected });
                           router.query.page = selected.toString();
-                          router.push(
+                          await router.replace(
                             {
                               pathname: router.pathname,
                               query: router.query,
@@ -239,11 +239,18 @@ const SearchPage = () => {
                     previousLabel={'Previous'}
                     nextLabel={'Next'}
                     pageCount={totalPage}
-                    onPageChange={({ selected }) => {
+                    onPageChange={async ({ selected }) => {
                       setPageNo(selected);
                       setSearchParams({ ...searchParams, page: selected });
                       router.query.page = selected.toString();
-                      router.push(router, undefined, { shallow: true });
+                      await router.replace(
+                        {
+                          pathname: router.pathname,
+                          query: router.query,
+                        },
+                        undefined,
+                        { shallow: true }
+                      );
                     }}
                     containerClassName={'pagination-container'}
                     previousClassName={'previous-btn'}

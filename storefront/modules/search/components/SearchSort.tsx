@@ -31,12 +31,12 @@ const SearchSort = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortType]);
 
-  const handleSelectSortType = (sortType: ESortType) => {
+  const handleSelectSortType = async (sortType: ESortType) => {
     setSortType(sortType);
     setPageNo(0);
     router.query.sortType = SortType[sortType];
     delete router.query.page;
-    router.push(
+    await router.replace(
       {
         pathname: router.pathname,
         query: router.query,

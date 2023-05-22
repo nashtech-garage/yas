@@ -41,7 +41,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
     }
   };
 
-  const handleClickApplyPriceRange = () => {
+  const handleClickApplyPriceRange = async () => {
     const { min, max } = rangePrice;
 
     if (min > 0 && max > 0) {
@@ -62,7 +62,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
       delete router.query.minPrice;
       delete router.query.page;
     }
-    router.replace(
+    await router.replace(
       {
         pathname: router.pathname,
         query: router.query,
@@ -72,7 +72,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
     );
   };
 
-  const handleFilter = (
+  const handleFilter = async (
     e: React.ChangeEvent<HTMLInputElement>,
     item: string,
     fieldName: string
@@ -104,7 +104,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
     }
 
     delete router.query.page;
-    router.replace(
+    await router.replace(
       {
         pathname: router.pathname,
         query: router.query,
@@ -114,7 +114,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
     );
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
     if (rangePrice.min || rangePrice.max || category || brand) {
       setRangePrice({ min: 0, max: 0 });
       setSearchParams({
@@ -131,7 +131,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
       delete router.query.category;
       delete router.query.brand;
       delete router.query.page;
-      router.replace(
+      await router.replace(
         {
           pathname: router.pathname,
           query: router.query,
