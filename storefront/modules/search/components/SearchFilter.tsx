@@ -5,6 +5,7 @@ import { Aggregations } from '../models/Aggregations';
 import { SearchParams } from '../models/SearchParams';
 
 import styles from '@/styles/modules/search/SearchFilter.module.css';
+import { resolve } from 'path';
 
 export interface SearchFilterProps {
   aggregations: Aggregations;
@@ -41,7 +42,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
     }
   };
 
-  const handleClickApplyPriceRange = async () => {
+  const handleClickApplyPriceRange = () => {
     const { min, max } = rangePrice;
 
     if (min > 0 && max > 0) {
@@ -62,17 +63,20 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
       delete router.query.minPrice;
       delete router.query.page;
     }
-    await router.replace(
-      {
-        pathname: router.pathname,
-        query: router.query,
-      },
-      undefined,
-      { shallow: true }
-    );
+    router
+      .replace(
+        {
+          pathname: router.pathname,
+          query: router.query,
+        },
+        undefined,
+        { shallow: true }
+      )
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
   };
 
-  const handleFilter = async (
+  const handleFilter = (
     e: React.ChangeEvent<HTMLInputElement>,
     item: string,
     fieldName: string
@@ -104,17 +108,20 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
     }
 
     delete router.query.page;
-    await router.replace(
-      {
-        pathname: router.pathname,
-        query: router.query,
-      },
-      undefined,
-      { shallow: true }
-    );
+    router
+      .replace(
+        {
+          pathname: router.pathname,
+          query: router.query,
+        },
+        undefined,
+        { shallow: true }
+      )
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
   };
 
-  const handleClearAll = async () => {
+  const handleClearAll = () => {
     if (rangePrice.min || rangePrice.max || category || brand) {
       setRangePrice({ min: 0, max: 0 });
       setSearchParams({
@@ -131,14 +138,17 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
       delete router.query.category;
       delete router.query.brand;
       delete router.query.page;
-      await router.replace(
-        {
-          pathname: router.pathname,
-          query: router.query,
-        },
-        undefined,
-        { shallow: true }
-      );
+      router
+        .replace(
+          {
+            pathname: router.pathname,
+            query: router.query,
+          },
+          undefined,
+          { shallow: true }
+        )
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
     }
   };
 

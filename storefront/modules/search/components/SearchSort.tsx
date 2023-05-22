@@ -31,19 +31,22 @@ const SearchSort = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortType]);
 
-  const handleSelectSortType = async (sortType: ESortType) => {
+  const handleSelectSortType = (sortType: ESortType) => {
     setSortType(sortType);
     setPageNo(0);
     router.query.sortType = SortType[sortType];
     delete router.query.page;
-    await router.replace(
-      {
-        pathname: router.pathname,
-        query: router.query,
-      },
-      undefined,
-      { shallow: true }
-    );
+    router
+      .replace(
+        {
+          pathname: router.pathname,
+          query: router.query,
+        },
+        undefined,
+        { shallow: true }
+      )
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
   };
 
   return (

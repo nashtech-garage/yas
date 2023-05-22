@@ -150,18 +150,21 @@ const SearchPage = () => {
                         previousLabel={'Previous'}
                         nextLabel={'Next'}
                         pageCount={totalPage}
-                        onPageChange={async ({ selected }) => {
+                        onPageChange={({ selected }) => {
                           setPageNo(selected);
                           setSearchParams({ ...searchParams, page: selected });
                           router.query.page = selected.toString();
-                          await router.replace(
-                            {
-                              pathname: router.pathname,
-                              query: router.query,
-                            },
-                            undefined,
-                            { shallow: true }
-                          );
+                          router
+                            .replace(
+                              {
+                                pathname: router.pathname,
+                                query: router.query,
+                              },
+                              undefined,
+                              { shallow: true }
+                            )
+                            .then((res) => console.log(res))
+                            .catch((err) => console.log(err));
                         }}
                         containerClassName={'pagination-container'}
                         previousClassName={'previous-btn'}
@@ -239,18 +242,21 @@ const SearchPage = () => {
                     previousLabel={'Previous'}
                     nextLabel={'Next'}
                     pageCount={totalPage}
-                    onPageChange={async ({ selected }) => {
+                    onPageChange={({ selected }) => {
                       setPageNo(selected);
                       setSearchParams({ ...searchParams, page: selected });
                       router.query.page = selected.toString();
-                      await router.replace(
-                        {
-                          pathname: router.pathname,
-                          query: router.query,
-                        },
-                        undefined,
-                        { shallow: true }
-                      );
+                      router
+                        .replace(
+                          {
+                            pathname: router.pathname,
+                            query: router.query,
+                          },
+                          undefined,
+                          { shallow: true }
+                        )
+                        .then((res) => console.log(res))
+                        .catch((err) => console.log(err));
                     }}
                     containerClassName={'pagination-container'}
                     previousClassName={'previous-btn'}
