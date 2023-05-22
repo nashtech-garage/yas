@@ -10,9 +10,9 @@ public record PromotionPostVm(@NotBlank String name,
                               @NotBlank String slug,
                               String description,
                               String couponCode,
-                              Long value,
-                              Long amount,
-                              boolean isActive,
+                              Long discountPercentage,
+                              Long discountAmount,
+                              Boolean isActive,
                               ZonedDateTime startDate,
                               ZonedDateTime endDate
 ) {

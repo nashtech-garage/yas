@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.42.0
+    extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - yas-network
+  grafana:
+    image: grafana/grafana:9.3.6
+    extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    volumes:
+      - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3009:3000"
+    networks:
+      - yas-network
+
+networks:
+  yas-network:

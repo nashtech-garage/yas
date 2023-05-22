@@ -2,6 +2,7 @@ package com.yas.promotion.controller;
 
 import com.yas.promotion.service.PromotionService;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
+import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.error.ErrorVm;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,14 +13,26 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.ZonedDateTime;
 
 @RestController
 @RequiredArgsConstructor
 public class PromotionController {
     private final PromotionService promotionService;
+
+    @GetMapping("/backoffice/promotions")
+    public ResponseEntity<PromotionListVm> listPromotions(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "5") int pageSize,
+            @RequestParam(defaultValue = "") String promotionName,
+            @RequestParam(defaultValue = "") String couponCode,
+            @RequestParam(defaultValue = "#{T(java.time.ZonedDateTime).of(1970, 1, 1, 0, 0, 0, 0, T(java.time.ZoneId).systemDefault())}") ZonedDateTime startDate,
+            @RequestParam(defaultValue = "#{T(java.time.ZonedDateTime).now(T(java.time.ZoneId).systemDefault())}") ZonedDateTime endDate
+    ) {
+        return ResponseEntity.ok(promotionService.getPromotions(pageNo, pageSize, promotionName, couponCode, startDate, endDate));
+    }
 
 
     @PostMapping("/backoffice/promotions")
