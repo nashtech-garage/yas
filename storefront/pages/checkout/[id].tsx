@@ -164,6 +164,7 @@ const Checkout = () => {
     }
 
     if (isValidate) {
+      order.checkoutId = id as string;
       order.email = checkout?.email!;
       order.note = data.note;
       order.tax = 0;

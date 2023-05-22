@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record OrderPostVm(
+        String checkoutId,
         String email,
         OrderAddressPostVm shippingAddressPostVm,
         OrderAddressPostVm billingAddressPostVm,
