@@ -116,11 +116,13 @@ public class OrderService {
 //        TO-DO: decrement inventory when inventory is complete
 //        ************
 
-        Checkout checkout = checkoutRepository.findById(orderPostVm.checkoutId()).get();
-        checkout.setCheckoutState(ECheckoutState.COMPLETED);
-        checkoutRepository.save(checkout);
+        checkoutRepository.findById(orderPostVm.checkoutId())
+                .ifPresent(checkout -> {
+                    checkout.setCheckoutState(ECheckoutState.COMPLETED);
+                    checkoutRepository.save(checkout);
+                    log.info("Update checkout state: " + checkout);
+                });
 
-        log.info("Update checkout state: " + checkout);
         log.info("Order Success: " + order);
         return OrderVm.fromModel(order);
     }
