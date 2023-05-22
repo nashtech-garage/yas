@@ -78,26 +78,28 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    getMyProfile()
-      .then((res) => {
+    const fetchData = async () => {
+      try {
+        const profileRes = await getMyProfile();
         if (!loaded) {
-          setEmail(res.email);
+          setEmail(profileRes.email);
           loadItems();
           setLoaded(true);
         }
-      })
-      .catch(() => {
+      } catch (error) {
         router.push({ pathname: `/login` });
-      });
+      }
 
-    getUserAddressDefault()
-      .then((res) => {
-        setShippingAddress(res);
-        setBillingAddress(res);
-      })
-      .catch(() => {
+      try {
+        const addressRes = await getUserAddressDefault();
+        setShippingAddress(addressRes);
+        setBillingAddress(addressRes);
+      } catch (error) {
         setAddShippingAddress(true);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   const loadItems = () => {
@@ -145,70 +147,68 @@ const Checkout = () => {
   };
 
   const onSubmitForm: SubmitHandler<Order> = async (data) => {
-    try {
-      let isValidate = true;
+    let isValidate = true;
 
-      if (addShippingAddress) {
-        await addressSchema
-          .validate(watchShippingAddress())
-          .then(() => {
-            handleSaveNewAddress(watchShippingAddress());
-            order.shippingAddressPostVm = watchShippingAddress();
-          })
-          .catch((error) => {
-            toast.error(error.message);
-            isValidate = false;
-          });
-      } else if (shippingAddress) {
-        order.shippingAddressPostVm = shippingAddress;
-      }
-
-      //handle BillingAddress
-      if (addBillingAddress) {
-        await addressSchema
-          .validate(watchBillingAddress())
-          .then(() => {
-            handleSaveNewAddress(watchBillingAddress());
-            order.billingAddressPostVm = watchBillingAddress();
-          })
-          .catch((error) => {
-            toast.error(error.message);
-            isValidate = false;
-          });
-      } else if (sameAddress) {
-        order.billingAddressPostVm = order.shippingAddressPostVm;
-      } else if (billingAddress) {
-        order.billingAddressPostVm = billingAddress;
-      }
-
-      if (isValidate) {
-        order.email = email;
-        order.note = data.note;
-        order.tax = 0;
-        order.discount = 0;
-        order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
-        order.totalPrice = orderItems.reduce(
-          (result, item) => result + item.quantity * item.productPrice!,
-          0
-        );
-        order.deliveryFee = 0;
-        order.couponCode = '';
-        order.deliveryMethod = 'YAS_EXPRESS';
-        order.paymentMethod = paymentMethod;
-        order.paymentStatus = 'PENDING';
-        order.orderItemPostVms = orderItems;
-        console.log(order);
-        await createOrder(order)
-          .then(() => {
-            toast.success('Place order successfully');
-          })
-          .catch(() => {
-            toast.error('Place order failed');
-          });
-      }
-    } catch (error) {
-      toast.error('Place order failed');
+    if (addShippingAddress) {
+      await addressSchema
+        .validate(watchShippingAddress())
+        .then(() => {
+          handleSaveNewAddress(watchShippingAddress());
+          order.shippingAddressPostVm = watchShippingAddress();
+        })
+        .catch((error) => {
+          toast.error(error.message);
+          isValidate = false;
+        });
+    } else if (shippingAddress) {
+      order.shippingAddressPostVm = shippingAddress;
     }
+
+    //handle BillingAddress
+    if (addBillingAddress) {
+      await addressSchema
+        .validate(watchBillingAddress())
+        .then(() => {
+          handleSaveNewAddress(watchBillingAddress());
+          order.billingAddressPostVm = watchBillingAddress();
+        })
+        .catch((error) => {
+          toast.error(error.message);
+          isValidate = false;
+        });
+    } else if (sameAddress) {
+      order.billingAddressPostVm = order.shippingAddressPostVm;
+    } else if (billingAddress) {
+      order.billingAddressPostVm = billingAddress;
+    }
+
+    if (isValidate) {
+      order.email = email;
+      order.note = data.note;
+      order.tax = 0;
+      order.discount = 0;
+      order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
+      order.totalPrice = orderItems.reduce(
+        (result, item) => result + item.quantity * item.productPrice!,
+        0
+      );
+      order.deliveryFee = 0;
+      order.couponCode = '';
+      order.deliveryMethod = 'YAS_EXPRESS';
+      order.paymentMethod = paymentMethod;
+      order.paymentStatus = 'PENDING';
+      order.orderItemPostVms = orderItems;
+      console.log(order);
+      await createOrder(order)
+        .then(() => {
+          toast.success('Place order successfully');
+        })
+        .catch(() => {
+          toast.error('Place order failed');
+        });
+    }
+
+    return;
   };
 
   return (
