@@ -5,7 +5,6 @@ import { Aggregations } from '../models/Aggregations';
 import { SearchParams } from '../models/SearchParams';
 
 import styles from '@/styles/modules/search/SearchFilter.module.css';
-import { resolve } from 'path';
 
 export interface SearchFilterProps {
   aggregations: Aggregations;

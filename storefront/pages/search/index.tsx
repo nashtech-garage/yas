@@ -1,21 +1,19 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Col, Container, Image, Row } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 import { toast } from 'react-toastify';
 
 import noResultImg from '@/asset/images/no-result.png';
 import BreadcrumbComponent from '@/common/components/BreadcrumbComponent';
 import ProductCard from '@/common/components/ProductCard';
 import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
-import SearchFilter from '@/modules/search/components/SearchFilter';
-import SearchSort from '@/modules/search/components/SearchSort';
 import { Aggregations } from '@/modules/search/models/Aggregations';
 import { ProductSearchResult } from '@/modules/search/models/ProductSearchResult';
 import { SearchParams } from '@/modules/search/models/SearchParams';
 import { ESortType, SortType } from '@/modules/search/models/SortType';
 import { searchProducts } from '@/modules/search/services/SearchService';
 
+import SearchResultLayout from '@/modules/search/components/SearchResultLayout';
 import styles from '@/styles/modules/search/SearchPage.module.css';
 
 const handleSortType = (sortType: string | string[] | undefined) => {
@@ -45,10 +43,10 @@ const SearchPage = () => {
   const [totalPage, setTotalPage] = useState<number>(0);
   const [aggregations, setAggregations] = useState<Aggregations>({});
   const isFilter = !!(
-    searchParams.brand ||
-    searchParams.category ||
-    searchParams.attribute ||
-    searchParams.minPrice ||
+    searchParams.brand ??
+    searchParams.category ??
+    searchParams.attribute ??
+    searchParams.minPrice ??
     searchParams.maxPrice
   );
 
@@ -100,6 +98,26 @@ const SearchPage = () => {
     },
   ];
 
+  const renderProducts = () => (
+    <Row xs={4} xl={5} className={styles['search-result__list']}>
+      {products.map((product) => (
+        <Col key={product.id}>
+          <ProductCard
+            className={['products-page']}
+            product={{
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              thumbnailUrl: '',
+              slug: product.slug,
+            }}
+            thumbnailId={product.thumbnailId}
+          />
+        </Col>
+      ))}
+    </Row>
+  );
+
   return (
     <div className={styles['search-page']}>
       <Container className={styles['search-container']}>
@@ -109,169 +127,57 @@ const SearchPage = () => {
           {!isFilter ? (
             <>
               {products.length > 0 && (
-                <>
-                  <SearchFilter
-                    aggregations={aggregations}
-                    searchParams={searchParams}
-                    setSearchParams={setSearchParams}
-                  />
-
-                  <div className={styles['search-result']}>
-                    <SearchSort
-                      totalElements={totalElements}
-                      keyword={searchParams.keyword}
-                      searchParams={searchParams}
-                      isFilter={isFilter}
-                      setSearchParams={setSearchParams}
-                      setPageNo={setPageNo}
-                    />
-
-                    <Row xs={4} xl={5} className={styles['search-result__list']}>
-                      {products.map((product) => (
-                        <Col key={product.id}>
-                          <ProductCard
-                            className={['products-page']}
-                            product={{
-                              id: product.id,
-                              name: product.name,
-                              price: product.price,
-                              thumbnailUrl: '',
-                              slug: product.slug,
-                            }}
-                            thumbnailId={product.thumbnailId}
-                          />
-                        </Col>
-                      ))}
-                    </Row>
-
-                    {totalPage > 1 && (
-                      <ReactPaginate
-                        forcePage={pageNo}
-                        previousLabel={'Previous'}
-                        nextLabel={'Next'}
-                        pageCount={totalPage}
-                        onPageChange={({ selected }) => {
-                          setPageNo(selected);
-                          setSearchParams({ ...searchParams, page: selected });
-                          router.query.page = selected.toString();
-                          router
-                            .replace(
-                              {
-                                pathname: router.pathname,
-                                query: router.query,
-                              },
-                              undefined,
-                              { shallow: true }
-                            )
-                            .then((res) => console.log(res))
-                            .catch((err) => console.log(err));
-                        }}
-                        containerClassName={'pagination-container'}
-                        previousClassName={'previous-btn'}
-                        nextClassName={'next-btn'}
-                        disabledClassName={'pagination-disabled'}
-                        activeClassName={'pagination-active'}
-                      />
-                    )}
-                  </div>
-                </>
+                <SearchResultLayout
+                  aggregations={aggregations}
+                  searchParams={searchParams}
+                  setSearchParams={setSearchParams}
+                  pageNo={pageNo}
+                  setPageNo={setPageNo}
+                  totalPage={totalPage}
+                  totalElements={totalElements}
+                  isFilter={isFilter}
+                >
+                  {renderProducts()}
+                </SearchResultLayout>
               )}
 
               {products.length === 0 && (
-                <div className="text-center flex-grow-1 my-5">
-                  <Image
-                    src={noResultImg.src}
-                    alt="No result"
-                    style={{ width: '134px', height: '134px' }}
-                  />
-                  <h5 className="text-black mb-2">No result is found</h5>
-                  <h5 className="mb-5">Try using more generic keywords</h5>
-                </div>
+                <NoResultMessage
+                  message="No result is found"
+                  subMessage="Try using more generic keywords"
+                />
               )}
             </>
           ) : (
-            <>
-              <SearchFilter
-                aggregations={aggregations}
-                searchParams={searchParams}
-                setSearchParams={setSearchParams}
-              />
-
-              <div className={styles['search-result']}>
-                <SearchSort
-                  totalElements={totalElements}
-                  keyword={searchParams.keyword}
-                  searchParams={searchParams}
-                  isFilter={isFilter}
-                  setSearchParams={setSearchParams}
-                  setPageNo={setPageNo}
-                />
-
-                {products.length > 0 ? (
-                  <Row xs={4} xl={5} className={styles['search-result__list']}>
-                    {products.map((product) => (
-                      <Col key={product.id}>
-                        <ProductCard
-                          className={['products-page']}
-                          product={{
-                            id: product.id,
-                            name: product.name,
-                            price: product.price,
-                            thumbnailUrl: '',
-                            slug: product.slug,
-                          }}
-                          thumbnailId={product.thumbnailId}
-                        />
-                      </Col>
-                    ))}
-                  </Row>
-                ) : (
-                  <div className="text-center flex-grow-1 my-5">
-                    <Image
-                      src={noResultImg.src}
-                      alt="No result"
-                      style={{ width: '134px', height: '134px' }}
-                    />
-                    <h5 className="text-black mb-2">No result is found with this filter</h5>
-                  </div>
-                )}
-
-                {totalPage > 1 && (
-                  <ReactPaginate
-                    forcePage={pageNo}
-                    previousLabel={'Previous'}
-                    nextLabel={'Next'}
-                    pageCount={totalPage}
-                    onPageChange={({ selected }) => {
-                      setPageNo(selected);
-                      setSearchParams({ ...searchParams, page: selected });
-                      router.query.page = selected.toString();
-                      router
-                        .replace(
-                          {
-                            pathname: router.pathname,
-                            query: router.query,
-                          },
-                          undefined,
-                          { shallow: true }
-                        )
-                        .then((res) => console.log(res))
-                        .catch((err) => console.log(err));
-                    }}
-                    containerClassName={'pagination-container'}
-                    previousClassName={'previous-btn'}
-                    nextClassName={'next-btn'}
-                    disabledClassName={'pagination-disabled'}
-                    activeClassName={'pagination-active'}
-                  />
-                )}
-              </div>
-            </>
+            <SearchResultLayout
+              aggregations={aggregations}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+              pageNo={pageNo}
+              setPageNo={setPageNo}
+              totalPage={totalPage}
+              totalElements={totalElements}
+              isFilter={isFilter}
+            >
+              {products.length > 0 ? (
+                renderProducts()
+              ) : (
+                <NoResultMessage message="No result is found with this filter" />
+              )}
+            </SearchResultLayout>
           )}
         </div>
       </Container>
     </div>
   );
 };
+
+const NoResultMessage = ({ message, subMessage }: { message: string; subMessage?: string }) => (
+  <div className="text-center flex-grow-1 my-5">
+    <Image src={noResultImg.src} alt="No result" style={{ width: '134px', height: '134px' }} />
+    <h5 className="text-black mb-2">{message}</h5>
+    {subMessage && <h5 className="text-black mb-2">{subMessage}</h5>}
+  </div>
+);
 
 export default SearchPage;
