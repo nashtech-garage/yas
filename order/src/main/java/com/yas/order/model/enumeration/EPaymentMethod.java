@@ -1,5 +1,5 @@
 package com.yas.order.model.enumeration;
 
 public enum EPaymentMethod {
-    COD, BANKING
+    COD, BANKING, VISA, PAYPAL, MASTER_CARD
 }

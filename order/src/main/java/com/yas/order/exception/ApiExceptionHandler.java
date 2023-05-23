@@ -67,6 +67,14 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorVm);
     }
 
+    @ExceptionHandler({ Forbidden.class })
+    public ResponseEntity<Object> handleForbidden(NotFoundException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.FORBIDDEN.toString(), "Forbidden", message);
+        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(errorVm, HttpStatus.FORBIDDEN);
+    }
 
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;

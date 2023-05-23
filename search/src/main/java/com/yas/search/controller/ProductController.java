@@ -21,12 +21,13 @@ public class ProductController {
     public ResponseEntity<ProductListGetVm> findProductAdvance(@RequestParam(defaultValue = "") String keyword,
                                                                @RequestParam(defaultValue = "0") Integer page,
                                                                @RequestParam(defaultValue = "12") Integer size,
+                                                               @RequestParam(required = false) String brand,
                                                                @RequestParam(required = false) String category,
                                                                @RequestParam(required = false) String attribute,
                                                                @RequestParam(required = false) Double minPrice,
                                                                @RequestParam(required = false) Double maxPrice,
                                                                @RequestParam(defaultValue = "DEFAULT") ESortType sortType) {
-        return ResponseEntity.ok(productService.findProductAdvance(keyword, page, size, category, attribute, minPrice, maxPrice, sortType));
+        return ResponseEntity.ok(productService.findProductAdvance(keyword, page, size, brand, category, attribute, minPrice, maxPrice, sortType));
     }
 
     @GetMapping("/storefront/search_suggest")

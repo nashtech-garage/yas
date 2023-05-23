@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
+import java.util.List;
 
 @Service
 public class CartService {
@@ -23,18 +24,17 @@ public class CartService {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
-    public ResponeStatusVm addOrderIdIntoCart(Long orderId) {
+    public Void deleteCartItemByProductId(List<Long> productIds) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.cart())
-                .path("/order-id-additional")
+                .path("/storefront/cart-item/multi-delete")
+                .queryParam("productIds", productIds)
                 .buildAndExpand()
                 .toUri();
-        return webClient.put()
+        return webClient.delete()
                 .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(orderId)
-                .headers(h -> h.setBearerAuth(jwt))
+                .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
                 .onStatus(
                         HttpStatus.BAD_REQUEST::equals,
@@ -42,10 +42,7 @@ public class CartService {
                 .onStatus(
                         HttpStatus.INTERNAL_SERVER_ERROR::equals,
                         response -> response.bodyToMono(String.class).map(BadRequestException::new))
-                .onStatus(
-                        HttpStatus.NOT_FOUND::equals,
-                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
-                .bodyToMono(ResponeStatusVm.class)
+                .bodyToMono(Void.class)
                 .block();
     }
 }

@@ -5,13 +5,11 @@ import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
 import { useEffect, useState } from 'react';
-import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
 import { useRouter } from 'next/router';
-import { getMyProfile } from '@/modules/profile/services/ProfileService';
 import { Input } from 'common/items/Input';
 import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
-import { createOrder } from '@/modules/order/services/OrderService';
+import { createOrder, getCheckoutById } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 import {
   createUserAddress,
@@ -21,6 +19,9 @@ import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
 import PaymentMethod from '@/modules/order/components/PaymentMethod';
 import ShippingMethod from '@/modules/order/components/ShippingMethod';
+import { Checkout } from '@/modules/order/models/Checkout';
+import { toastError } from '@/modules/catalog/services/ToastService';
+import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -36,6 +37,42 @@ const addressSchema = yup.object().shape({
 
 const Checkout = () => {
   const router = useRouter();
+  const { id } = router.query;
+  const [checkout, setCheckout] = useState<Checkout>();
+  useEffect(() => {
+    if (id) {
+      const fetchCheckout = async () => {
+        await getCheckoutById(id as string)
+          .then((res) => {
+            console.log(res);
+
+            setCheckout(res);
+            const newItems: OrderItem[] = [];
+            res.checkoutItemVms.forEach((result: CheckoutItem) => {
+              newItems.push({
+                productId: result.productId,
+                quantity: result.quantity,
+                productName: result.productName,
+                productPrice: result.productPrice!,
+              });
+            });
+            setOrderItems(newItems);
+          })
+          .catch((err) => {
+            if (err == 404) {
+              toastError('Page not found');
+              router.push({ pathname: `/404` }); //NOSONAR
+            } else {
+              toastError('Please login to continue');
+              router.push({ pathname: `/login` }); //NOSONAR
+            }
+          });
+      };
+
+      fetchCheckout(); //NOSONAR
+    }
+  }, [id]);
+
   const {
     handleSubmit,
     register,
@@ -54,9 +91,7 @@ const Checkout = () => {
     watch: watchBillingAddress,
   } = useForm<Address>();
 
-  const [loaded, setLoaded] = useState(false);
-  const [email, setEmail] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<string>('visa');
+  const [paymentMethod, setPaymentMethod] = useState<string>('VISA');
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   let order = watch();
 
@@ -78,19 +113,6 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    getMyProfile()
-      .then((res) => {
-        if (!loaded) {
-          setEmail(res.email);
-          loadItems();
-          setLoaded(true);
-        }
-      })
-      .catch(() => {
-        // toast.error('Load profile failed!, Please login to continue');
-        router.push({ pathname: `/login` }); //NOSONAR
-      });
-
     getUserAddressDefault()
       .then((res) => {
         setShippingAddress(res);
@@ -100,38 +122,6 @@ const Checkout = () => {
         setAddShippingAddress(true);
       });
   }, []);
-
-  const loadItems = () => {
-    getCart()
-      .then((data) => {
-        const cartDetails = data.cartDetails;
-        const productIds = cartDetails.map((item) => item.productId);
-        getProductThumbnails(productIds)
-          .then((results) => {
-            const newItems: OrderItem[] = [];
-            results.forEach((result) => {
-              newItems.push({
-                productId: result.id,
-                quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
-                productName: result.name,
-                productPrice: result.price!,
-              });
-            });
-            setOrderItems(newItems);
-          })
-          .catch((err) => {
-            console.log('Load product thumbnails fail: ' + err.message);
-          });
-      })
-      .catch((err) => {
-        console.log('Load cart failed: ' + err.message);
-      });
-  };
-
-  const getProductThumbnails = (productIds: number[]) => {
-    return getCartProductThumbnail(productIds);
-  };
-
   const handleSelectShippingAddress = (address: Address) => {
     setShippingAddress(address);
   };
@@ -182,13 +172,14 @@ const Checkout = () => {
     }
 
     if (isValidate) {
-      order.email = email;
+      order.checkoutId = id as string;
+      order.email = checkout?.email!;
       order.note = data.note;
       order.tax = 0;
       order.discount = 0;
-      order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
+      order.numberItem = orderItems.reduce((result, item) => result + item.quantity, 0);
       order.totalPrice = orderItems.reduce(
-        (result, item) => result + item.quantity * item.productPrice!,
+        (result, item) => result + item.quantity * item.productPrice,
         0
       );
       order.deliveryFee = 0;
@@ -310,7 +301,7 @@ const Checkout = () => {
                         labelText="Email"
                         field="email"
                         register={register}
-                        defaultValue={email}
+                        defaultValue={checkout?.email}
                         error={errors.note?.message}
                         disabled={true}
                       />

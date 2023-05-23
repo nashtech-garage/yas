@@ -1,11 +1,6 @@
-package com.yas.order.viewmodel;
+package com.yas.order.viewmodel.order;
 
-import com.yas.order.model.Order;
-import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 
 import java.math.BigDecimal;

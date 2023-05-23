@@ -18,11 +18,11 @@ import '../styles/productDetail.css';
 import '../styles/util.css';
 
 import Layout from '@/common/components/Layout';
-import { CartProvider } from '@/context/CartContext';
+import { AppProvider } from '@/context/AppContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <CartProvider>
+    <AppProvider>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </Layout>
       <ToastContainer style={{ marginTop: '70px' }} />
-    </CartProvider>
+    </AppProvider>
   );
 }
 

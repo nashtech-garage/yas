@@ -19,8 +19,8 @@ const PaymentMethod = ({ paymentMethod, setPaymentMethod }: Props) => {
             type="radio"
             name="paymentMethod"
             id="visa"
-            checked={paymentMethod === 'visa'}
-            onChange={() => setPaymentMethod('visa')}
+            checked={paymentMethod === 'VISA'}
+            onChange={() => setPaymentMethod('VISA')}
           />
           <label className="form-check-label" htmlFor="visa">
             <img src={visaImage.src} alt="visa" width={50} />
@@ -31,12 +31,12 @@ const PaymentMethod = ({ paymentMethod, setPaymentMethod }: Props) => {
             className="form-check-input me-1"
             type="radio"
             name="paymentMethod"
-            id="paypal"
-            checked={paymentMethod === 'paypal'}
-            onChange={() => setPaymentMethod('paypal')}
+            id="PAYPAL"
+            checked={paymentMethod === 'PAYPAL'}
+            onChange={() => setPaymentMethod('PAYPAL')}
           />
           <label className="form-check-label" htmlFor="paypal">
-            <img src={paypal.src} alt="paypal" width={70} className="" />
+            <img src={paypal.src} alt="paypal" width={70} />
           </label>
         </div>
         <div className="form-check d-flex align-items-center">
@@ -44,9 +44,9 @@ const PaymentMethod = ({ paymentMethod, setPaymentMethod }: Props) => {
             className="form-check-input me-1"
             type="radio"
             name="paymentMethod"
-            id="mastercard"
-            checked={paymentMethod === 'mastercard'}
-            onChange={() => setPaymentMethod('mastercard')}
+            id="MASTER_CARD"
+            checked={paymentMethod === 'MASTER_CARD'}
+            onChange={() => setPaymentMethod('MASTER_CARD')}
           />
           <label className="form-check-label" htmlFor="mastercard">
             <img src={mastercard.src} alt="paypal" width={80} />
