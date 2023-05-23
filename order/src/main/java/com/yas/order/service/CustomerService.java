@@ -1,7 +1,7 @@
 package com.yas.order.service;
 
 import com.yas.order.config.ServiceUrlConfig;
-import com.yas.order.viewmodel.CustomerVm;
+import com.yas.order.viewmodel.customer.CustomerVm;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;

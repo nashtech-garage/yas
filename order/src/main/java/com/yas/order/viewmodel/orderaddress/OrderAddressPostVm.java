@@ -1,4 +1,4 @@
-package com.yas.order.viewmodel;
+package com.yas.order.viewmodel.orderaddress;
 import lombok.Builder;
 
 @Builder

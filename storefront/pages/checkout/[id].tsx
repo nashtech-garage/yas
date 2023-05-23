@@ -4,14 +4,12 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
-import { useEffect, useState, useCallback } from 'react';
-import { getCart, getCartProductThumbnail } from '../../modules/cart/services/CartService';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { getMyProfile } from '@/modules/profile/services/ProfileService';
 import { Input } from 'common/items/Input';
 import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
-import { createOrder } from '@/modules/order/services/OrderService';
+import { createOrder, getCheckoutById } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 import {
   createUserAddress,
@@ -19,6 +17,9 @@ import {
 } from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
+import { Checkout } from '@/modules/order/models/Checkout';
+import { toastError } from '@/modules/catalog/services/ToastService';
+import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -34,6 +35,42 @@ const addressSchema = yup.object().shape({
 
 const Checkout = () => {
   const router = useRouter();
+  const { id } = router.query;
+  const [checkout, setCheckout] = useState<Checkout>();
+  useEffect(() => {
+    if (id) {
+      const fetchCheckout = async () => {
+        await getCheckoutById(id as string)
+          .then((res) => {
+            console.log(res);
+
+            setCheckout(res);
+            const newItems: OrderItem[] = [];
+            res.checkoutItemVms.forEach((result: CheckoutItem) => {
+              newItems.push({
+                productId: result.productId,
+                quantity: result.quantity,
+                productName: result.productName,
+                productPrice: result.productPrice!,
+              });
+            });
+            setOrderItems(newItems);
+          })
+          .catch((err) => {
+            if (err == 404) {
+              toastError('Page not found');
+              router.push({ pathname: `/404` }); //NOSONAR
+            } else {
+              toastError('Please login to continue');
+              router.push({ pathname: `/login` }); //NOSONAR
+            }
+          });
+      };
+
+      fetchCheckout(); //NOSONAR
+    }
+  }, [id]);
+
   const {
     handleSubmit,
     register,
@@ -52,8 +89,6 @@ const Checkout = () => {
     watch: watchBillingAddress,
   } = useForm<Address>();
 
-  const [loaded, setLoaded] = useState(false);
-  const [email, setEmail] = useState<string>('');
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   let order = watch();
 
@@ -69,46 +104,15 @@ const Checkout = () => {
   const handleCloseModalBilling = () => setModalBilling(false);
 
   useEffect(() => {
-    getMyProfile()
+    getUserAddressDefault()
       .then((res) => {
-        if (!loaded) {
-          setEmail(res.email);
-          loadItems();
-          setLoaded(true);
-        }
+        setShippingAddress(res);
+        setBillingAddress(res);
       })
-      .catch(() => {
-        router.push({ pathname: `/login` });
+      .catch((e) => {
+        console.log('Get default address failed: ' + e);
       });
-
-    getUserAddressDefault().then((res) => {
-      setShippingAddress(res);
-      setBillingAddress(res);
-    });
   }, []);
-
-  const loadItems = () => {
-    getCart().then((data) => {
-      const cartDetails = data.cartDetails;
-      const productIds = cartDetails.map((item) => item.productId);
-      getProductThumbnails(productIds).then((results) => {
-        const newItems: OrderItem[] = [];
-        results.forEach((result) => {
-          newItems.push({
-            productId: result.id,
-            quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
-            productName: result.name,
-            productPrice: result.price!,
-          });
-        });
-        setOrderItems(newItems);
-      });
-    });
-  };
-
-  const getProductThumbnails = (productIds: number[]) => {
-    return getCartProductThumbnail(productIds);
-  };
 
   const handleSelectShippingAddress = (address: Address) => {
     setShippingAddress(address);
@@ -160,13 +164,14 @@ const Checkout = () => {
     }
 
     if (isValidate) {
-      order.email = email;
+      order.checkoutId = id as string;
+      order.email = checkout?.email!;
       order.note = data.note;
       order.tax = 0;
       order.discount = 0;
-      order.numberItem = orderItems.reduce((result, item) => result + item.quantity!, 0);
+      order.numberItem = orderItems.reduce((result, item) => result + item.quantity, 0);
       order.totalPrice = orderItems.reduce(
-        (result, item) => result + item.quantity * item.productPrice!,
+        (result, item) => result + item.quantity * item.productPrice,
         0
       );
       order.deliveryFee = 0;
@@ -192,7 +197,7 @@ const Checkout = () => {
         <section className="checkout spad">
           <div className="container">
             <div className="checkout__form">
-              <form onSubmit={handleSubmit(onSubmitForm)}>
+              <form onSubmit={(event) => void handleSubmit(onSubmitForm)(event)}>
                 <div className="row">
                   <div className="col-lg-8 col-md-6">
                     <h4>Shipping Address</h4>
@@ -288,7 +293,7 @@ const Checkout = () => {
                         labelText="Email"
                         field="email"
                         register={register}
-                        defaultValue={email}
+                        defaultValue={checkout?.email}
                         error={errors.note?.message}
                         disabled={true}
                       />

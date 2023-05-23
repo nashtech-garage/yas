@@ -1,7 +1,7 @@
 package com.yas.order.service;
 
 import com.yas.order.config.ServiceUrlConfig;
-import com.yas.order.viewmodel.ProductVariationVM;
+import com.yas.order.viewmodel.product.ProductVariationVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
