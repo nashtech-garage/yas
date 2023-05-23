@@ -17,4 +17,6 @@ export type Order = {
   orderItemPostVms: OrderItem[];
   shippingAddressPostVm: Address;
   billingAddressPostVm: Address;
+
+  checkoutId?: string;
 };

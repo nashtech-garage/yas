@@ -90,7 +90,7 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
             - TokenRelay=
-        - id: api_rating_local
+        - id: api_rating_localo
           uri: http://localhost:8089
           #          uri: http://api.yas.local
           predicates:

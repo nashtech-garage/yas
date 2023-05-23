@@ -11,6 +11,7 @@ type SearchSortProps = {
   totalElements: number;
   keyword: string;
   searchParams: SearchParams;
+  isFilter: boolean;
   setSearchParams: (_searchParams: SearchParams) => void;
   setPageNo: (_pageNo: number) => void;
 };
@@ -18,6 +19,7 @@ type SearchSortProps = {
 const SearchSort = ({
   totalElements,
   searchParams,
+  isFilter,
   setSearchParams,
   setPageNo,
 }: SearchSortProps) => {
@@ -34,7 +36,17 @@ const SearchSort = ({
     setPageNo(0);
     router.query.sortType = SortType[sortType];
     delete router.query.page;
-    router.push(router, undefined, { shallow: true });
+    router
+      .replace(
+        {
+          pathname: router.pathname,
+          query: router.query,
+        },
+        undefined,
+        { shallow: true }
+      )
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -42,7 +54,7 @@ const SearchSort = ({
       <div className={styles['search-total']}>
         <span>{totalElements}</span> products are found by keyword &quot;
         <span>{searchParams.keyword}</span>
-        &quot;
+        &quot; {isFilter && 'with filter'}
       </div>
 
       <div className={styles['search-action']}>

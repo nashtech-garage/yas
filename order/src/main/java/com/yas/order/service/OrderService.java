@@ -1,15 +1,23 @@
 package com.yas.order.service;
 
 import com.yas.order.exception.NotFoundException;
+import com.yas.order.model.Checkout;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
+import com.yas.order.model.enumeration.ECheckoutState;
 import com.yas.order.model.enumeration.EOrderStatus;
+import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
-import com.yas.order.viewmodel.*;
+import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
+import com.yas.order.viewmodel.order.OrderGetVm;
+import com.yas.order.viewmodel.order.OrderPostVm;
+import com.yas.order.viewmodel.order.OrderVm;
+import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
+import com.yas.order.viewmodel.product.ProductVariationVM;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +35,7 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class OrderService {
+    private final CheckoutRepository checkoutRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartService cartService;
@@ -105,6 +115,13 @@ public class OrderService {
 
 //        TO-DO: decrement inventory when inventory is complete
 //        ************
+
+        checkoutRepository.findById(orderPostVm.checkoutId())
+                .ifPresent(checkout -> {
+                    checkout.setCheckoutState(ECheckoutState.COMPLETED);
+                    checkoutRepository.save(checkout);
+                    log.info("Update checkout state: " + checkout);
+                });
 
         log.info("Order Success: " + order);
         return OrderVm.fromModel(order);
