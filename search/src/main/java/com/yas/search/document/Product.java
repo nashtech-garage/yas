@@ -30,7 +30,7 @@ public class Product {
     private Boolean isAllowedToOrder;
     private Boolean isFeatured;
     private Long thumbnailMediaId;
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, fielddata = true)
     private String brand;
     @Field(type = FieldType.Keyword)
     private List<String> categories;
