@@ -60,8 +60,8 @@ public class CheckoutService {
         return CheckoutVm.fromModel(checkout);
     }
 
-    public CheckoutVm getCheckoutWithItemsById(String id) {
-        Checkout checkout = checkoutRepository.findById(id).orElseThrow(()
+    public CheckoutVm getCheckoutPendingStateWithItemsById(String id) {
+        Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, ECheckoutState.PENDING).orElseThrow(()
                 -> new NotFoundException(Constants.ERROR_CODE.CHECKOUT_NOT_FOUND, id));
 
         if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId()))
