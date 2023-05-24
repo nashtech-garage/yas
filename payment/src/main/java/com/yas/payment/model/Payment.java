@@ -23,10 +23,14 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long orderId;
+    private String checkoutId;
     private BigDecimal amount;
     private BigDecimal paymentFee;
+    @Enumerated(EnumType.STRING)
     private EPaymentMethod paymentMethod;
+    @Enumerated(EnumType.STRING)
     private EPaymentStatus paymentStatus;
+    public String gatewayTransactionId;
     private String failureMessage;
     @CreationTimestamp
     private ZonedDateTime createdOn;
