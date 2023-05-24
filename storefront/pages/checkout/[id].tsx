@@ -37,40 +37,6 @@ const Checkout = () => {
   const router = useRouter();
   const { id } = router.query;
   const [checkout, setCheckout] = useState<Checkout>();
-  useEffect(() => {
-    if (id) {
-      const fetchCheckout = async () => {
-        await getCheckoutById(id as string)
-          .then((res) => {
-            console.log(res);
-
-            setCheckout(res);
-            const newItems: OrderItem[] = [];
-            res.checkoutItemVms.forEach((result: CheckoutItem) => {
-              newItems.push({
-                productId: result.productId,
-                quantity: result.quantity,
-                productName: result.productName,
-                productPrice: result.productPrice!,
-              });
-            });
-            setOrderItems(newItems);
-          })
-          .catch((err) => {
-            if (err == 404) {
-              toastError('Page not found');
-              router.push({ pathname: `/404` }); //NOSONAR
-            } else {
-              toastError('Please login to continue');
-              router.push({ pathname: `/login` }); //NOSONAR
-            }
-          });
-      };
-
-      fetchCheckout(); //NOSONAR
-    }
-  }, [id]);
-
   const {
     handleSubmit,
     register,
@@ -119,6 +85,40 @@ const Checkout = () => {
         setAddShippingAddress(true);
       });
   }, []);
+
+  useEffect(() => {
+    if (id) {
+      const fetchCheckout = async () => {
+        await getCheckoutById(id as string)
+          .then((res) => {
+            console.log(res);
+
+            setCheckout(res);
+            const newItems: OrderItem[] = [];
+            res.checkoutItemVms.forEach((result: CheckoutItem) => {
+              newItems.push({
+                productId: result.productId,
+                quantity: result.quantity,
+                productName: result.productName,
+                productPrice: result.productPrice!,
+              });
+            });
+            setOrderItems(newItems);
+          })
+          .catch((err) => {
+            if (err == 404) {
+              toastError('Page not found');
+              router.push({ pathname: `/404` }); //NOSONAR
+            } else {
+              toastError('Please login to continue');
+              router.push({ pathname: `/login` }); //NOSONAR
+            }
+          });
+      };
+
+      fetchCheckout(); //NOSONAR
+    }
+  }, [id]);
 
   const handleSelectShippingAddress = (address: Address) => {
     setShippingAddress(address);
