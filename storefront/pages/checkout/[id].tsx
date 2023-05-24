@@ -100,8 +100,14 @@ const Checkout = () => {
   const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
   const [showModalShipping, setModalShipping] = useState<boolean>(false);
   const [showModalBilling, setModalBilling] = useState<boolean>(false);
-  const handleCloseModalShipping = () => setModalShipping(false);
-  const handleCloseModalBilling = () => setModalBilling(false);
+  const handleCloseModalShipping = () => {
+    if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
+    setModalShipping(false);
+  };
+  const handleCloseModalBilling = () => {
+    if (billingAddress?.id == shippingAddress?.id) setSameAddress(true);
+    setModalBilling(false);
+  };
 
   useEffect(() => {
     getUserAddressDefault()
@@ -110,7 +116,7 @@ const Checkout = () => {
         setBillingAddress(res);
       })
       .catch((e) => {
-        console.log('Get default address failed: ' + e);
+        setAddShippingAddress(true);
       });
   }, []);
 

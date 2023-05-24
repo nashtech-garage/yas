@@ -14,8 +14,12 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
   const [addresses, setAddresses] = useState<Address[]>([]);
 
   useEffect(() => {
-    getUserAddress().then((res) => {
+    getUserAddress()
+    .then((res) => {
       setAddresses(res);
+    })
+    .catch((err) => {
+      console.log('Load address fail: ', err.message);
     });
   }, []);
 
@@ -27,18 +31,22 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
       <Modal.Body style={{ minHeight: '500px' }}>
         <div className="body">
           <div className="row">
-            {addresses.map((address) => (
-              <div
-                className="col-lg-6 mb-2"
-                onClick={() => {
-                  handleSelectAddress(address);
-                  handleClose();
-                }}
-                key={address.id}
-              >
-                <AddressCard address={address} />
-              </div>
-            ))}
+          {addresses.length == 0 ? (
+              <div className="mx-2">Please add your address in your profile</div>
+            ) : (
+              addresses.map((address) => (
+                <div
+                  className="col-lg-6 mb-2"
+                  onClick={() => {
+                    handleSelectAddress(address);
+                    handleClose();
+                  }}
+                  key={address.id}
+                >
+                  <AddressCard address={address} />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </Modal.Body>
