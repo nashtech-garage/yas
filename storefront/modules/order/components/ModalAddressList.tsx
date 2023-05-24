@@ -15,12 +15,12 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
 
   useEffect(() => {
     getUserAddress()
-    .then((res) => {
-      setAddresses(res);
-    })
-    .catch((err) => {
-      console.log('Load address fail: ', err.message);
-    });
+      .then((res) => {
+        setAddresses(res);
+      })
+      .catch((err) => {
+        console.log('Load address fail: ', err.message);
+      });
   }, []);
 
   return (
@@ -31,7 +31,7 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
       <Modal.Body style={{ minHeight: '500px' }}>
         <div className="body">
           <div className="row">
-          {addresses.length == 0 ? (
+            {addresses.length == 0 ? (
               <div className="mx-2">Please add your address in your profile</div>
             ) : (
               addresses.map((address) => (
