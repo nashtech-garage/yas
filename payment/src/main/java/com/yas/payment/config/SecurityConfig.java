@@ -23,8 +23,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests()
                 .requestMatchers("/storefront/**").permitAll()
-                .requestMatchers("/payment-providers/**").permitAll()
                 .requestMatchers("/backoffice/**").hasRole("ADMIN")
+                .requestMatchers("/payment-providers/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();

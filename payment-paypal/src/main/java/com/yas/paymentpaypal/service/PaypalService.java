@@ -4,6 +4,7 @@ import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
 import com.yas.paymentpaypal.utils.Constants;
+import com.yas.paymentpaypal.viewmodel.CapturedPayment;
 import com.yas.paymentpaypal.viewmodel.PaypalRequestPayment;
 import com.yas.paymentpaypal.viewmodel.PaymentResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ import java.util.Scanner;
 public class PaypalService {
     @Autowired
     private PayPalHttpClient payPalHttpClient;
+
+    @Autowired
+    private PaymentService paymentService;
 
     public PaypalRequestPayment createPayment(BigDecimal fee) {
         OrderRequest orderRequest = new OrderRequest();
@@ -66,8 +70,20 @@ public class PaypalService {
             HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
             if (httpResponse.result().status() != null) {
                 Order order = httpResponse.result();
-                System.out.println("Feeeeeeeeeeeeeeeee eeeeeeeeeeeeeeeeeeeee: " +
-                        order.purchaseUnits().get(0).payments().captures().get(0).sellerReceivableBreakdown().paypalFee().value());
+                Capture capture = order.purchaseUnits().get(0).payments().captures().get(0);
+
+                String paypalFee = capture.sellerReceivableBreakdown().paypalFee().value();
+                CapturedPayment capturedPayment = CapturedPayment.builder()
+                        .paymentFee(BigDecimal.valueOf(Double.valueOf(paypalFee)))
+                        .gatewayTransactionId(order.id())
+                        .amount(BigDecimal.valueOf(Double.valueOf(capture.amount().value())))
+                        .paymentStatus(order.status())
+                        .paymentMethod("PAYPAL")
+                        .checkoutId(null)
+                        .failureMessage(null)
+                        .build();
+                paymentService.capturePaymentInfoToPaymentService(capturedPayment);
+                System.out.println(capturedPayment);
                 return new PaymentResponse("success", token);
             }
         } catch (IOException e) {
