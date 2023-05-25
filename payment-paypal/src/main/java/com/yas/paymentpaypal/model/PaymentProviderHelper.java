@@ -1,5 +1,5 @@
 package com.yas.paymentpaypal.model;
 
 public class PaymentProviderHelper {
-    public static  String PaypalPaymentProviderId = "PaypalPayment";
+    public static String PaypalPaymentProviderId = "PaypalPayment";
 }

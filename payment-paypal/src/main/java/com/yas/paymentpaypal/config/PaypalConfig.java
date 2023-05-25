@@ -4,6 +4,7 @@ import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
+import com.yas.paymentpaypal.model.PaymentProviderHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 @Configuration
-@Import({WebClientConfig.class, ServiceUrlConfig.class})
 public class PaypalConfig {
     @Autowired
     private WebClient webClient;
@@ -29,16 +29,12 @@ public class PaypalConfig {
 
     @Bean
     public PayPalHttpClient getPaypalClient() {
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.payment()).path("/payment-providers/{id}/additional-settings")
-                .buildAndExpand("paypal").toUri();
-
-        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
-
+        final URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8081/payment").path("/payment-providers/{id}/additional-settings")
+                .buildAndExpand(PaymentProviderHelper.PaypalPaymentProviderId).toUri();
 
         // Make a request to the payment-service to retrieve additionalSettings
         ResponseEntity<String> response = webClient.get()
                 .uri(url)
-                .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
                 .toEntity(String.class)
                 .block();

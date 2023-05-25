@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.yas</groupId>
-	<artifactId>payment-paypal</artifactId>
+	<artifactId>paymentpaypal</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>payment-paypal</name>
+	<name>paymentpaypal</name>
 	<description>Payment with paypal service for yas project</description>
 	<properties>
 		<java.version>17</java.version>

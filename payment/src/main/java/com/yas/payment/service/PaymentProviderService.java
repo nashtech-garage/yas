@@ -4,6 +4,7 @@ import com.yas.payment.exception.NotFoundException;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.utils.Constants;
+import com.yas.payment.viewmodel.CompletedPayment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

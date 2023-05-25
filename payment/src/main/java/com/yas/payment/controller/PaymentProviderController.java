@@ -17,8 +17,8 @@ public class PaymentProviderController {
     private final PaymentProviderService paymentProviderService;
 
     @GetMapping("/{id}/additional-settings")
-    public ResponseEntity<String> getAdditionalSettings(@PathVariable("id") String paymentProviderId) {
+    public ResponseEntity<String> getAdditionalSettings(@PathVariable("id") String id) {
         return ResponseEntity.ok(paymentProviderService
-                .getAdditionalSettingsByPaymentProviderId(paymentProviderId));
+                .getAdditionalSettingsByPaymentProviderId(id));
     }
 }
