@@ -10,5 +10,8 @@ create table payment (
    payment_status varchar(255),
    created_on timestamp(6),
    last_modified_on timestamp(6),
+   checkout_id varchar(255),
+   gateway_transaction_id varchar(255),
+   failure_message varchar(255),
    PRIMARY KEY (id)
 );

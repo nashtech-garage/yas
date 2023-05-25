@@ -1,12 +1,8 @@
 package com.yas.payment.service;
 
-import com.yas.payment.exception.NotFoundException;
 import com.yas.payment.model.Payment;
-import com.yas.payment.model.PaymentProvider;
-import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.repository.PaymentRepository;
-import com.yas.payment.utils.Constants;
-import com.yas.payment.viewmodel.CompletedPayment;
+import com.yas.payment.viewmodel.CapturedPayment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
 
-    public Payment paymentCompleted(CompletedPayment completedPayment) {
+    public CapturedPayment capturePayment(CapturedPayment completedPayment) {
         Payment payment =Payment.builder()
                 .checkoutId(completedPayment.checkoutId())
                 .orderId(completedPayment.orderId())
@@ -28,6 +24,6 @@ public class PaymentService {
                 .failureMessage(completedPayment.failureMessage())
                 .gatewayTransactionId(completedPayment.gatewayTransactionId())
                 .build();
-        return paymentRepository.save(payment);
+        return CapturedPayment.fromModel(paymentRepository.save(payment));
     }
 }

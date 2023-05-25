@@ -4,16 +4,9 @@ import com.yas.payment.exception.NotFoundException;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.utils.Constants;
-import com.yas.payment.viewmodel.CompletedPayment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

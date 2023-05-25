@@ -29,7 +29,7 @@ public class PaypalConfig {
 
     @Bean
     public PayPalHttpClient getPaypalClient() {
-        final URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8081/payment").path("/payment-providers/{id}/additional-settings")
+        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.payment()).path("/payment-providers/{id}/additional-settings")
                 .buildAndExpand(PaymentProviderHelper.PaypalPaymentProviderId).toUri();
 
         // Make a request to the payment-service to retrieve additionalSettings

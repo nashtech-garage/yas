@@ -1,6 +1,3 @@
-alter table if exists payment
-add column checkout_id varchar(255),
-add column gateway_transaction_id varchar(255);
 
 create table payment_provider (
    id                           varchar(255) not null,

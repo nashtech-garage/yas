@@ -11,9 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 @Service
 @Slf4j
@@ -61,6 +65,9 @@ public class PaypalService {
         try {
             HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
             if (httpResponse.result().status() != null) {
+                Order order = httpResponse.result();
+                System.out.println("Feeeeeeeeeeeeeeeee eeeeeeeeeeeeeeeeeeeee: " +
+                        order.purchaseUnits().get(0).payments().captures().get(0).sellerReceivableBreakdown().paypalFee().value());
                 return new PaymentResponse("success", token);
             }
         } catch (IOException e) {
