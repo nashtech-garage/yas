@@ -131,15 +131,6 @@ const Header = ({ children }: Props) => {
 
                 {showDropdown && (
                   <div className="search-auto-complete">
-                    <div className="top-widgets">
-                      <div className="item-promos">
-                        <Link href={''} className="item-promos-link" />
-                        <div className="item-promos-keyword">Super product Galaxy A 2023</div>
-                        <div className="item-promos-image">
-                          <Image src={promoteImage.src} alt="promote image" />
-                        </div>
-                      </div>
-                    </div>
                     <div className="suggestion">
                       {searchSuggestions
                         .slice(0, isExpand ? SUGGESTION_MAX : SUGGESTION_MIN)
