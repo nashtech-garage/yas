@@ -10,4 +10,8 @@ public final class Constants {
         public static final String PAYMENT_FAIL_MESSAGE = "PAYMENT_FAIL_MESSAGE";
         public static final String PAYMENT_SUCCESS_MESSAGE = "PAYMENT_SUCCESS_MESSAGE";
     }
+
+    public final class YAS {
+        public static final String BRAND_NAME = "Yas";
+    }
 }

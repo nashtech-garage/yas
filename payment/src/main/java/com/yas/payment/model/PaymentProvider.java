@@ -19,8 +19,7 @@ import java.time.ZonedDateTime;
 @Builder
 public class PaymentProvider {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private boolean isEnabled;
     private String name;
     private String configureUrl;

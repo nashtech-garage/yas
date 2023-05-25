@@ -113,6 +113,11 @@
 			<artifactId>keycloak-spring-security-adapter</artifactId>
 			<version>${keycloak-spring-security-adapter.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.paypal.sdk</groupId>
+			<artifactId>checkout-sdk</artifactId>
+			<version>2.0.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
