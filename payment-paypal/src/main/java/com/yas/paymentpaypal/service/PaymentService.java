@@ -4,7 +4,7 @@ import com.yas.paymentpaypal.config.ServiceUrlConfig;
 import com.yas.paymentpaypal.exception.BadRequestException;
 import com.yas.paymentpaypal.exception.Forbidden;
 import com.yas.paymentpaypal.exception.SignInRequiredException;
-import com.yas.paymentpaypal.viewmodel.CapturedPayment;
+import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -25,17 +25,15 @@ public class PaymentService {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
-    public CapturedPayment capturePaymentInfoToPaymentService(CapturedPayment capturedPayment) {
-        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+    public CapturedPaymentVm capturePaymentInfoToPaymentService(CapturedPaymentVm capturedPayment) {
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.payment())
-                .path("/capture")
+                .path("/capture-payment")
                 .buildAndExpand()
                 .toUri();
 
         return webClient.post()
                 .uri(url)
-                .headers(h->h.setBearerAuth(jwt))
                 .bodyValue(capturedPayment)
                 .retrieve()
                 .onStatus(
@@ -47,7 +45,7 @@ public class PaymentService {
                 .onStatus(
                         HttpStatus.BAD_REQUEST::equals,
                         response -> response.bodyToMono(String.class).map(BadRequestException::new))
-                .bodyToMono(CapturedPayment.class)
+                .bodyToMono(CapturedPaymentVm.class)
                 .block();
     }
 }

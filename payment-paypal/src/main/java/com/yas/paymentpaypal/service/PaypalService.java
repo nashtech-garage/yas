@@ -3,42 +3,41 @@ package com.yas.paymentpaypal.service;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
+import com.yas.paymentpaypal.model.CheckoutIdHelper;
 import com.yas.paymentpaypal.utils.Constants;
-import com.yas.paymentpaypal.viewmodel.CapturedPayment;
+import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
 import com.yas.paymentpaypal.viewmodel.PaypalRequestPayment;
-import com.yas.paymentpaypal.viewmodel.PaymentResponse;
+import com.yas.paymentpaypal.viewmodel.RequestPayment;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class PaypalService {
-    @Autowired
-    private PayPalHttpClient payPalHttpClient;
+    private final PayPalHttpClient payPalHttpClient;
+    private final PaymentService paymentService;
 
-    @Autowired
-    private PaymentService paymentService;
+    private static final String returnUrl = "http://api.yas.local/payment-paypal/capture";
+    private static final String cancelUrl = "http://api.yas.local/payment-paypal/cancel";
 
-    public PaypalRequestPayment createPayment(BigDecimal fee) {
+    public PaypalRequestPayment createPayment(RequestPayment requestPayment) {
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
 
-        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(fee.toString());
+        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(requestPayment.totalPrice().toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl("http://localhost:8093/payment-paypal/capture")
-                .cancelUrl("http://localhost:8093/payment-paypal/cancel")
+                .returnUrl(returnUrl)
+                .cancelUrl(cancelUrl)
                 .brandName(Constants.YAS.BRAND_NAME)
                 .landingPage("BILLING")
                 .userAction("PAY_NOW")
@@ -56,15 +55,16 @@ public class PaypalService {
                     .orElseThrow(NoSuchElementException::new)
                     .href();
 
+            CheckoutIdHelper.setCheckoutId(requestPayment.checkoutId());
             return new PaypalRequestPayment("success", order.id(), redirectUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
-            return new PaypalRequestPayment("Error" + e.getMessage(), null ,null);
+            return new PaypalRequestPayment("Error" + e.getMessage(), null, null);
         }
     }
 
 
-    public PaymentResponse completePayment(String token) {
+    public CapturedPaymentVm capturePayment(String token) {
         OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
         try {
             HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
@@ -73,22 +73,24 @@ public class PaypalService {
                 Capture capture = order.purchaseUnits().get(0).payments().captures().get(0);
 
                 String paypalFee = capture.sellerReceivableBreakdown().paypalFee().value();
-                CapturedPayment capturedPayment = CapturedPayment.builder()
-                        .paymentFee(BigDecimal.valueOf(Double.valueOf(paypalFee)))
+                BigDecimal paymentFee = new BigDecimal(paypalFee);
+                BigDecimal amount = new BigDecimal(capture.amount().value());
+
+                CapturedPaymentVm capturedPayment = CapturedPaymentVm.builder()
+                        .paymentFee(paymentFee)
                         .gatewayTransactionId(order.id())
-                        .amount(BigDecimal.valueOf(Double.valueOf(capture.amount().value())))
+                        .amount(amount)
                         .paymentStatus(order.status())
                         .paymentMethod("PAYPAL")
-                        .checkoutId(null)
-                        .failureMessage(null)
+                        .checkoutId(CheckoutIdHelper.checkoutId)
                         .build();
                 paymentService.capturePaymentInfoToPaymentService(capturedPayment);
-                System.out.println(capturedPayment);
-                return new PaymentResponse("success", token);
+                return capturedPayment;
             }
         } catch (IOException e) {
             log.error(e.getMessage());
+            return CapturedPaymentVm.builder().failureMessage(e.getMessage()).build();
         }
-        return new PaymentResponse("error",null);
+        return CapturedPaymentVm.builder().failureMessage("Something Wrong!").build();
     }
 }

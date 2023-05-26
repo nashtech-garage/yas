@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
     private final PaymentService paymentService;
 
-    @PostMapping("/capture")
+    @PostMapping("/capture-payment")
     public ResponseEntity<CapturedPayment> capturePayment(@Valid @RequestBody CapturedPayment capturedPayment) {
         return ResponseEntity.ok(paymentService.capturePayment(capturedPayment));
     }
