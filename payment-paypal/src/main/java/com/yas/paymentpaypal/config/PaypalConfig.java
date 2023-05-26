@@ -36,7 +36,7 @@ public class PaypalConfig {
                 .toEntity(String.class)
                 .block();
 
-        if (response.getStatusCode().is2xxSuccessful()) {
+        if (response != null && response.getStatusCode().is2xxSuccessful()) {
             String additionalSettings = response.getBody();
 
             // Parse the additionalSettings field to extract clientId and clientSecret
