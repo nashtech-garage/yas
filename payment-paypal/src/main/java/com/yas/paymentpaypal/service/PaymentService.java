@@ -6,8 +6,6 @@ import com.yas.paymentpaypal.exception.Forbidden;
 import com.yas.paymentpaypal.exception.SignInRequiredException;
 import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
