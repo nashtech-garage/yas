@@ -37,6 +37,55 @@ const Checkout = () => {
   const router = useRouter();
   const { id } = router.query;
   const [checkout, setCheckout] = useState<Checkout>();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    watch,
+  } = useForm<Order>();
+  const {
+    register: registerShippingAddress,
+    formState: { errors: errorsShippingAddress },
+    watch: watchShippingAddress,
+  } = useForm<Address>();
+
+  const {
+    register: registerBillingAddress,
+    formState: { errors: errorsBillingAddress },
+    watch: watchBillingAddress,
+  } = useForm<Address>();
+
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  let order = watch();
+
+  const [shippingAddress, setShippingAddress] = useState<Address>();
+  const [billingAddress, setBillingAddress] = useState<Address>();
+
+  const [sameAddress, setSameAddress] = useState<boolean>(true);
+  const [addShippingAddress, setAddShippingAddress] = useState<boolean>(false);
+  const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
+  const [showModalShipping, setModalShipping] = useState<boolean>(false);
+  const [showModalBilling, setModalBilling] = useState<boolean>(false);
+  const handleCloseModalShipping = () => {
+    if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
+    setModalShipping(false);
+  };
+  const handleCloseModalBilling = () => {
+    if (billingAddress?.id == shippingAddress?.id) setSameAddress(true);
+    setModalBilling(false);
+  };
+
+  useEffect(() => {
+    getUserAddressDefault()
+      .then((res) => {
+        setShippingAddress(res);
+        setBillingAddress(res);
+      })
+      .catch((e) => {
+        setAddShippingAddress(true);
+      });
+  }, []);
+
   useEffect(() => {
     if (id) {
       const fetchCheckout = async () => {
@@ -70,49 +119,6 @@ const Checkout = () => {
       fetchCheckout(); //NOSONAR
     }
   }, [id]);
-
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-    watch,
-  } = useForm<Order>();
-  const {
-    register: registerShippingAddress,
-    formState: { errors: errorsShippingAddress },
-    watch: watchShippingAddress,
-  } = useForm<Address>();
-
-  const {
-    register: registerBillingAddress,
-    formState: { errors: errorsBillingAddress },
-    watch: watchBillingAddress,
-  } = useForm<Address>();
-
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  let order = watch();
-
-  const [shippingAddress, setShippingAddress] = useState<Address>();
-  const [billingAddress, setBillingAddress] = useState<Address>();
-
-  const [sameAddress, setSameAddress] = useState<boolean>(true);
-  const [addShippingAddress, setAddShippingAddress] = useState<boolean>(false);
-  const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
-  const [showModalShipping, setModalShipping] = useState<boolean>(false);
-  const [showModalBilling, setModalBilling] = useState<boolean>(false);
-  const handleCloseModalShipping = () => setModalShipping(false);
-  const handleCloseModalBilling = () => setModalBilling(false);
-
-  useEffect(() => {
-    getUserAddressDefault()
-      .then((res) => {
-        setShippingAddress(res);
-        setBillingAddress(res);
-      })
-      .catch((e) => {
-        console.log('Get default address failed: ' + e);
-      });
-  }, []);
 
   const handleSelectShippingAddress = (address: Address) => {
     setShippingAddress(address);

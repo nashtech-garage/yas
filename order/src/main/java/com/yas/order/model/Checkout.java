@@ -19,6 +19,7 @@ public class Checkout extends AbstractAuditEntity{
     private String email;
     private String note;
     private String couponCode;
+    @Enumerated(EnumType.STRING)
     private ECheckoutState checkoutState;
     private
     @OneToMany(mappedBy = "checkoutId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

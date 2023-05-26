@@ -61,8 +61,6 @@ const AddressForm = ({ register, errors, address, isDisplay }: AddressFormProps)
     });
   };
 
-  if (id && (countries.length == 0 || statesOrProvinces.length == 0 || districts.length == 0))
-    return <></>;
   return (
     <>
       {' '}

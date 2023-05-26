@@ -21,6 +21,6 @@ public class CheckoutController {
 
     @GetMapping("/storefront/checkouts/{id}")
     public ResponseEntity<CheckoutVm> getOrderWithItemsById(@PathVariable String id) {
-        return ResponseEntity.ok(checkoutService.getCheckoutWithItemsById(id));
+        return ResponseEntity.ok(checkoutService.getCheckoutPendingStateWithItemsById(id));
     }
 }
