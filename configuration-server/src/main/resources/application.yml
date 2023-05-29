@@ -1,0 +1,25 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /config
+
+spring:
+  application:
+    name: configuration-server
+  profiles:
+    active: native
+
+application:
+  default:
+    currency: USD
+
+---
+spring:
+  config:
+    activate:
+      on-profile: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/

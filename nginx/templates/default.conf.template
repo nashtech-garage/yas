@@ -69,6 +69,13 @@ server {
 }
 
 server {
+  server_name config.yas.local;
+  location / {
+	proxy_pass http://config;
+  }
+}
+
+server {
   server_name identity;
   large_client_header_buffers 8 32k;
   location / {

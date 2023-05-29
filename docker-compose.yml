@@ -190,6 +190,15 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+  config:
+    image: ghcr.io/nashtech-garage/yas-configuration-server:latest
+    environment:
+      SERVER_SERVLET_CONTEXT_PATH: /config
+      YAS_PUBLIC_URL: http://config.yas.local/config
+      YAS_SERVICES_CONFIG: http://config/config
+      SERVER_PORT: "80"
+    networks:
+      - yas-network
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
