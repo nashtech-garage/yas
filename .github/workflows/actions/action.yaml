@@ -7,13 +7,13 @@ runs:
         java-version: '17'
         distribution: 'adopt'
     - name: Cache SonarCloud packages
-      uses: actions/cache@v3.0.4
+      uses: actions/cache@v3.2.1
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
     - name: Cache Maven packages
-      uses: actions/cache@v3.0.4
+      uses: actions/cache@v3.2.1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
