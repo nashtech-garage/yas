@@ -58,6 +58,6 @@ jobs:
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: Unit-Test-Results
+          name: Media-Service-Unit-Test-Results
           path: "media/**/surefire-reports/*.xml"
           reporter: java-junit
