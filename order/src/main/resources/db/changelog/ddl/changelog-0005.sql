@@ -9,6 +9,9 @@ create table order_address (
    district bigserial,
    state_or_province bigserial,
    country bigserial,
+   district_name varchar(255),
+   state_or_province_name varchar(255),
+   country_name varchar(255),
    PRIMARY KEY (id)
 );
 

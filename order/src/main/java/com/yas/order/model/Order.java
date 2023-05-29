@@ -21,11 +21,11 @@ public class Order extends AbstractAuditEntity{
     private Long id;
     private String email;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_address_id", referencedColumnName = "id")
     private OrderAddress shippingAddressId;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "billing_address_id", referencedColumnName = "id")
     private OrderAddress billingAddressId;
     private String note;
@@ -37,6 +37,8 @@ public class Order extends AbstractAuditEntity{
     private BigDecimal deliveryFee;
     @Enumerated(EnumType.STRING)
     private EOrderStatus orderStatus;
+
+
     private EDeliveryMethod deliveryMethod;
 
     private EDeliveryStatus deliveryStatus;

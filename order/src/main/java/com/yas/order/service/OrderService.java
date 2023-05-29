@@ -12,22 +12,21 @@ import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
-import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
-import com.yas.order.viewmodel.order.OrderGetVm;
-import com.yas.order.viewmodel.order.OrderPostVm;
-import com.yas.order.viewmodel.order.OrderVm;
+import com.yas.order.viewmodel.order.*;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVM;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -107,9 +106,9 @@ public class OrderService {
         order.setOrderItems(orderItems);
 
         // delete Item in Cart
-        try{
-            cartService.deleteCartItemByProductId(orderItems.stream().map(i-> i.getProductId()).toList());
-        }catch (Exception ex){
+        try {
+            cartService.deleteCartItemByProductId(orderItems.stream().map(i -> i.getProductId()).toList());
+        } catch (Exception ex) {
             log.error("Delete products in cart fail: " + ex.getMessage());
         }
 
@@ -132,6 +131,35 @@ public class OrderService {
                 -> new NotFoundException(Constants.ERROR_CODE.ORDER_NOT_FOUND, id));
 
         return OrderVm.fromModel(order);
+    }
+
+    public OrderListVm getAllOrder(ZonedDateTime createdFrom,
+                                   ZonedDateTime createdTo,
+                                   String warehouse,
+                                   String productName,
+                                   List<EOrderStatus> orderStatus,
+                                   String billingCountry,
+                                   String billingPhoneNumber,
+                                   String email,
+                                   int pageNo,
+                                   int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        Page<Order> orderPage = orderRepository.findOrderByWithMulCriteria(
+                orderStatus.size() > 0 ? orderStatus : null,
+                billingPhoneNumber,
+                billingCountry,
+                email.toLowerCase(),
+                productName.toLowerCase(),
+                createdFrom,
+                createdTo,
+                pageable);
+        List<OrderVm> orderVms = orderPage.getContent()
+                .stream()
+                .map(OrderVm::fromModel)
+                .collect(Collectors.toList());
+
+        return new OrderListVm(orderVms, orderPage.getTotalElements(), orderPage.getTotalPages());
     }
 
     public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {

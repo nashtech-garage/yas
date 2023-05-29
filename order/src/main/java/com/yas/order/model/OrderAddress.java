@@ -21,11 +21,9 @@ public class OrderAddress {
     private String city;
     private String zipCode;
     private Long districtId;
+    private String districtName;
     private Long stateOrProvinceId;
+    private String stateOrProvinceName;
     private Long countryId;
-    @OneToOne(mappedBy = "billingAddressId")
-    private Order billingOrderId;
-
-    @OneToOne(mappedBy = "shippingAddressId")
-    private Order shippingOrderId;
+    private String countryName;
 }

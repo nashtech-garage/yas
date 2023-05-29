@@ -14,8 +14,11 @@ public record OrderAddressVm(
         String city,
         String zipCode,
         Long districtId,
+        String districtName,
         Long stateOrProvinceId,
-        Long countryId) {
+        String stateOrProvinceName,
+        Long countryId,
+        String countryName)  {
     public static OrderAddressVm fromModel(OrderAddress orderAddress) {
         return OrderAddressVm.builder()
                 .id(orderAddress.getId())
@@ -26,8 +29,11 @@ public record OrderAddressVm(
                 .city(orderAddress.getCity())
                 .zipCode(orderAddress.getZipCode())
                 .districtId(orderAddress.getDistrictId())
+                .districtName(orderAddress.getDistrictName())
                 .stateOrProvinceId(orderAddress.getStateOrProvinceId())
+                .stateOrProvinceName(orderAddress.getStateOrProvinceName())
                 .countryId(orderAddress.getCountryId())
+                .countryName(orderAddress.getCountryName())
                 .build();
     }
 }
