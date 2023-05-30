@@ -66,10 +66,10 @@ const Orders: NextPage = () => {
   return (
     <>
       <div className="row mt-5">
-        <div className="col-md-8">
+        <div className="col-md-6">
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
-        <div className="col-md-4 text-right">
+        <div className="col-md-6 text-right">
           <button type="button" className="btn btn-success me-2">
             <i className="fa fa-download me-2" aria-hidden="true"></i> Export
           </button>
