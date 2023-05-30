@@ -1,7 +1,7 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { getProductSlug } from '../../modules/catalog/services/ProductService';
+
+import { getProductSlug } from '@/modules/catalog/services/ProductService';
 
 const RedirectPage = () => {
   const router = useRouter();
@@ -9,15 +9,20 @@ const RedirectPage = () => {
 
   useEffect(() => {
     if (productId) {
-      getProductSlug(Number(productId)).then((res) => {
-        router.push({
-          pathname: `/products/${res.slug}`,
-          query: {
-            pvid: res.productVariantId,
-          },
-        });
-      });
+      getProductSlug(Number(productId))
+        .then((res) => {
+          router
+            .push({
+              pathname: `/products/${res.slug}`,
+              query: {
+                pvid: res.productVariantId,
+              },
+            })
+            .catch((err) => console.log(err));
+        })
+        .catch((err) => console.log(err));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 };
 
