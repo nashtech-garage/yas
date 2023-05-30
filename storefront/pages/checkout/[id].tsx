@@ -118,6 +118,7 @@ const Checkout = () => {
 
       fetchCheckout(); //NOSONAR
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleSelectShippingAddress = (address: Address) => {

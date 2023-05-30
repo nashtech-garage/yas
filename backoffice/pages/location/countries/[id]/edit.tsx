@@ -1,14 +1,15 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import CountryGeneralInformation from '@locationComponents/CountryGeneralInformation';
 import { Country } from '@locationModels/Country';
 import { editCountry, getCountry } from '@locationServices/CountryService';
-import CountryGeneralInformation from '@locationComponents/CountryGeneralInformation';
-import { useEffect, useState } from 'react';
 import { COUNTRY_URL } from 'constants/Common';
-import { toastError } from '@commonServices/ToastService';
-import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
 const CountryEdit: NextPage = () => {
   const router = useRouter();
@@ -36,27 +37,32 @@ const CountryEdit: NextPage = () => {
         isDistrictEnabled: event.isDistrictEnabled,
       };
 
-      editCountry(+id, country).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(COUNTRY_URL);
-      });
+      editCountry(+id, country)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(COUNTRY_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
 
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getCountry(+id).then((data) => {
-        if (data.id) {
-          setCountry(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(COUNTRY_URL);
-        }
-      });
+      getCountry(+id)
+        .then((data) => {
+          if (data.id) {
+            setCountry(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(COUNTRY_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;

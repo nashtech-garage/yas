@@ -1,13 +1,14 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
+import ReactPaginate from 'react-paginate';
+
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
-import type { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import type { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
 import { deleteWarehouse, getPageableWarehouses } from '@inventoryServices/WarehouseService';
-import { WAREHOUSE_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WAREHOUSE_URL } from 'constants/Common';
 
 const WarehouseList: NextPage = () => {
   const [warehouseIdWantToDelete, setWarehouseIdWantToDelete] = useState<number>(-1);
@@ -23,23 +24,29 @@ const WarehouseList: NextPage = () => {
     if (warehouseIdWantToDelete == -1) {
       return;
     }
-    deleteWarehouse(warehouseIdWantToDelete).then((response) => {
-      setShowModalDelete(false);
-      handleDeletingResponse(response, warehouseNameWantToDelete);
-      setPageNo(DEFAULT_PAGE_NUMBER);
-      getListWarehouse();
-    });
+    deleteWarehouse(warehouseIdWantToDelete)
+      .then((response) => {
+        setShowModalDelete(false);
+        handleDeletingResponse(response, warehouseNameWantToDelete);
+        setPageNo(DEFAULT_PAGE_NUMBER);
+        getListWarehouse();
+      })
+      .catch((error) => console.log(error));
   };
   const getListWarehouse = () => {
-    getPageableWarehouses(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
-      setTotalPage(data.totalPages);
-      setWarehouses(data.warehouseContent);
-      setLoading(false);
-    });
+    getPageableWarehouses(pageNo, DEFAULT_PAGE_SIZE)
+      .then((data) => {
+        setTotalPage(data.totalPages);
+        setWarehouses(data.warehouseContent);
+        setLoading(false);
+      })
+      .catch((error) => console.log(error));
   };
+
   useEffect(() => {
     setLoading(true);
     getListWarehouse();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
   const changePage = ({ selected }: any) => {

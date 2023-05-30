@@ -1,18 +1,19 @@
 import type { NextPage } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Table } from 'react-bootstrap';
+
+import { ProductAttribute } from '@catalogModels/ProductAttribute';
+import { ProductAttributeValue } from '@catalogModels/ProductAttributeValue';
+import { ProductAttributeValuePost } from '@catalogModels/ProductAttributeValuePost';
+import { getProductAttributes } from '@catalogServices/ProductAttributeService';
 import {
   createProductAttributeValueOfProduct,
   deleteProductAttributeValueOfProductById,
   getAttributeValueOfProduct,
   updateProductAttributeValueOfProduct,
-} from '../../../../modules/catalog/services/ProductAttributeValueService';
-import { ProductAttributeValue } from '../../../../modules/catalog/models/ProductAttributeValue';
-import { getProductAttributes } from '../../../../modules/catalog/services/ProductAttributeService';
-import { ProductAttribute } from '../../../../modules/catalog/models/ProductAttribute';
-import { ProductAttributeValuePost } from '../../../../modules/catalog/models/ProductAttributeValuePost';
+} from '@catalogServices/ProductAttributeValueService';
 
 const ProductAttributes: NextPage = () => {
   //Get ID
@@ -37,34 +38,36 @@ const ProductAttributes: NextPage = () => {
   const [listCreateProductAttributeId, setListCreateProductAttributeId] = useState<string[]>([]);
 
   let arrayDeleteProductAttributeId: string[] = [];
-  let arrayUpdateProductAttributeId: string[] = [];
   let arrayCreateProductAttributeId: string[] = [];
   let arrayAttributeOfProducts: ProductAttributeValue[] = [];
-
-  let checkProductAttributeIdValid: boolean;
 
   useEffect(() => {
     if (id) {
       let checkIdValid = true;
-      getAttributeValueOfProduct(+id).then((data) => {
-        setAttributeOfProducts(data);
-        setAttributeOfCurrentProducts(data);
-        getProductAttributes().then((data1) => {
-          if (array.length === 0) {
-            data1.forEach((obj1) => {
-              data.forEach((obj) => {
-                if (obj1.name === obj.nameProductAttribute) {
-                  checkIdValid = false;
-                }
-              });
-              if (checkIdValid) array.push(obj1);
-              checkIdValid = true;
-            });
-            setProductAttributes(array);
-          }
-        });
-      });
+      getAttributeValueOfProduct(+id)
+        .then((data) => {
+          setAttributeOfProducts(data);
+          setAttributeOfCurrentProducts(data);
+          getProductAttributes()
+            .then((data1) => {
+              if (array.length === 0) {
+                data1.forEach((obj1) => {
+                  data.forEach((obj) => {
+                    if (obj1.name === obj.nameProductAttribute) {
+                      checkIdValid = false;
+                    }
+                  });
+                  if (checkIdValid) array.push(obj1);
+                  checkIdValid = true;
+                });
+                setProductAttributes(array);
+              }
+            })
+            .catch((err) => console.log(err));
+        })
+        .catch((err) => console.log(err));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const editValueAttribute = (event: any) => {
@@ -123,7 +126,6 @@ const ProductAttributes: NextPage = () => {
   };
   const saveProductAttributeOfProduct = async (event: any) => {
     event.preventDefault();
-    checkProductAttributeIdValid = true;
     for (const productAttributes1 of attributeOfProducts) {
       for (const createProductAttribute of listCreateProductAttributeId) {
         if (productAttributes1.id === parseInt(createProductAttribute.valueOf())) {
@@ -163,7 +165,7 @@ const ProductAttributes: NextPage = () => {
       }
     }
     if (id) {
-      router.push('/catalog/products');
+      router.push('/catalog/products').catch((err) => console.log(err));
     }
   };
 

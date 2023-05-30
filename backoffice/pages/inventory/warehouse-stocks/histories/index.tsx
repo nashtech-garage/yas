@@ -1,8 +1,9 @@
 import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
+
 import { toastError } from '@commonServices/ToastService';
-import { useRouter } from 'next/router';
 import { StockHistory } from '@inventoryModels/StockHistory';
 import { StockHistoryList } from '@inventoryModels/StockHistoryList';
 import { getStockHistories } from '@inventoryServices/StockHistoryService';
@@ -14,6 +15,7 @@ const WarehouseStocksHistories: NextPage = () => {
 
   useEffect(() => {
     fetchHistories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [warehouseId, productId]);
 
   const fetchHistories = () => {

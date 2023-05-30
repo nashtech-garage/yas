@@ -1,14 +1,15 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import TaxClassGeneralInformation from '@taxComponents/TaxClassGeneralInformation';
 import { TaxClass } from '@taxModels/TaxClass';
 import { editTaxClass, getTaxClass } from '@taxServices/TaxClassService';
-import TaxClassGeneralInformation from '@taxComponents/TaxClassGeneralInformation';
-import { useEffect, useState } from 'react';
 import { TAX_CLASS_URL } from 'constants/Common';
-import { toastError } from '@commonServices/ToastService';
-import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
 const TaxClassEdit: NextPage = () => {
   const router = useRouter();
@@ -29,27 +30,32 @@ const TaxClassEdit: NextPage = () => {
         name: event.name,
       };
 
-      editTaxClass(+id, taxClass).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(TAX_CLASS_URL);
-      });
+      editTaxClass(+id, taxClass)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(TAX_CLASS_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
 
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getTaxClass(+id).then((data) => {
-        if (data.id) {
-          setTaxClass(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(TAX_CLASS_URL);
-        }
-      });
+      getTaxClass(+id)
+        .then((data) => {
+          if (data.id) {
+            setTaxClass(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(TAX_CLASS_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;

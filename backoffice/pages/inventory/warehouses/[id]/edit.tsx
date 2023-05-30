@@ -1,14 +1,15 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import WarehouseGeneralInformation from '@inventoryComponents/WarehouseGeneralInformation';
 import { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
 import { editWarehouse, getWarehouse } from '@inventoryServices/WarehouseService';
-import WarehouseGeneralInformation from '@inventoryComponents/WarehouseGeneralInformation';
-import { useEffect, useState } from 'react';
 import { WAREHOUSE_URL } from 'constants/Common';
-import { toastError } from '@commonServices/ToastService';
-import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
 const WarehouseEdit: NextPage = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ const WarehouseEdit: NextPage = () => {
   const [warehouseDetail, setWarehouseDetail] = useState<WarehouseDetail>();
   const [isLoading, setLoading] = useState(false);
   const { id } = router.query;
+
   const handleSubmitEdit = async (event: WarehouseDetail) => {
     if (id) {
       let warehouseDetail: WarehouseDetail = {
@@ -38,27 +40,32 @@ const WarehouseEdit: NextPage = () => {
         countryId: event.countryId,
       };
 
-      editWarehouse(+id, warehouseDetail).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(WAREHOUSE_URL);
-      });
+      editWarehouse(+id, warehouseDetail)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(WAREHOUSE_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
 
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getWarehouse(+id).then((data) => {
-        if (data.id) {
-          setWarehouseDetail(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(WAREHOUSE_URL);
-        }
-      });
+      getWarehouse(+id)
+        .then((data) => {
+          if (data.id) {
+            setWarehouseDetail(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(WAREHOUSE_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;

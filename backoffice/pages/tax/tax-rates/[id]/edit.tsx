@@ -1,14 +1,15 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import TaxRateGeneralInformation from '@taxComponents/TaxRateGeneralInformation';
 import { TaxRate } from '@taxModels/TaxRate';
 import { editTaxRate, getTaxRate } from '@taxServices/TaxRateService';
-import TaxRateGeneralInformation from '@taxComponents/TaxRateGeneralInformation';
-import { useEffect, useState } from 'react';
 import { TAX_RATE_URL } from 'constants/Common';
-import { toastError } from '@commonServices/ToastService';
-import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 
 const TaxRateEdit: NextPage = () => {
   const router = useRouter();
@@ -36,27 +37,32 @@ const TaxRateEdit: NextPage = () => {
         stateOrProvinceName: '',
       };
 
-      editTaxRate(+id, taxRate).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(TAX_RATE_URL);
-      });
+      editTaxRate(+id, taxRate)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(TAX_RATE_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
 
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getTaxRate(+id).then((data) => {
-        if (data.id) {
-          setTaxRate(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(TAX_RATE_URL);
-        }
-      });
+      getTaxRate(+id)
+        .then((data) => {
+          if (data.id) {
+            setTaxRate(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(TAX_RATE_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;

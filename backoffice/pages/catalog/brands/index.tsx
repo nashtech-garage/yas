@@ -1,13 +1,14 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import type { Brand } from '../../../modules/catalog/models/Brand';
-import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
-import { deleteBrand, getPageableBrands } from '../../../modules/catalog/services/BrandService';
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
+import ReactPaginate from 'react-paginate';
+
+import { Brand } from '@catalogModels/Brand';
+import { deleteBrand, getPageableBrands } from '@catalogServices/BrandService';
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
+import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 const BrandList: NextPage = () => {
   const [brandIdWantToDelete, setBrandIdWantToDelete] = useState<number>(-1);
@@ -23,30 +24,45 @@ const BrandList: NextPage = () => {
     if (brandIdWantToDelete == -1) {
       return;
     }
-    deleteBrand(brandIdWantToDelete).then((response) => {
-      setShowModalDelete(false);
-      handleDeletingResponse(response, brandNameWantToDelete);
-      setPageNo(DEFAULT_PAGE_NUMBER);
-      getListBrand();
-    });
+
+    deleteBrand(brandIdWantToDelete)
+      .then((response) => {
+        setShowModalDelete(false);
+        handleDeletingResponse(response, brandNameWantToDelete);
+        setPageNo(DEFAULT_PAGE_NUMBER);
+        getListBrand();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
+
   const getListBrand = () => {
-    getPageableBrands(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
-      setTotalPage(data.totalPages);
-      setBrands(data.brandContent);
-      setLoading(false);
-    });
+    getPageableBrands(pageNo, DEFAULT_PAGE_SIZE)
+      .then((data) => {
+        setTotalPage(data.totalPages);
+        setBrands(data.brandContent);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
+
   useEffect(() => {
     setLoading(true);
     getListBrand();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
   };
+
   if (isLoading) return <p>Loading...</p>;
+
   if (!brands) return <p>No brand</p>;
+
   return (
     <>
       <div className="row mt-5">

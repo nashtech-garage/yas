@@ -1,17 +1,18 @@
 import type { NextPage } from 'next';
-import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import { ProductAttributeGroup } from '../../../../modules/catalog/models/ProductAttributeGroup';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import ProductAttributeGroupGeneralInformation from '@catalogComponents/ProductAttributeGroupGeneralInformation';
+import { ProductAttributeGroup } from '@catalogModels/ProductAttributeGroup';
 import {
   getProductAttributeGroup,
   updateProductAttributeGroup,
-} from '../../../../modules/catalog/services/ProductAttributeGroupService';
-import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '../../../../constants/Common';
-import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
-import ProductAttributeGroupGeneralInformation from '../../../../modules/catalog/components/ProductAttributeGroupGeneralInformation';
-import { toastError } from '../../../../common/services/ToastService';
+} from '@catalogServices/ProductAttributeGroupService';
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '@constants/Common';
 
 const ProductAttributeGroupEdit: NextPage = () => {
   const router = useRouter();
@@ -21,9 +22,27 @@ const ProductAttributeGroupEdit: NextPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<ProductAttributeGroup>();
   const [isLoading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      getProductAttributeGroup(+id)
+        .then((data) => {
+          if (data.id) {
+            setProductAttributeGroup(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(PRODUCT_ATTRIBUTE_GROUPS_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleSubmitGroup = async (event: ProductAttributeGroup) => {
     let productAttributeGroup: ProductAttributeGroup = {
@@ -31,27 +50,15 @@ const ProductAttributeGroupEdit: NextPage = () => {
       name: event.name,
     };
     if (id) {
-      updateProductAttributeGroup(+id, productAttributeGroup).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(PRODUCT_ATTRIBUTE_GROUPS_URL);
-      });
+      updateProductAttributeGroup(+id, productAttributeGroup)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(PRODUCT_ATTRIBUTE_GROUPS_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
-  useEffect(() => {
-    if (id) {
-      setLoading(true);
-      getProductAttributeGroup(+id).then((data) => {
-        if (data.id) {
-          setProductAttributeGroup(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(PRODUCT_ATTRIBUTE_GROUPS_URL);
-        }
-      });
-    }
-  }, [id]);
+
   if (isLoading) return <p>Loading...</p>;
   if (!productAttributeGroup) return <></>;
   return (

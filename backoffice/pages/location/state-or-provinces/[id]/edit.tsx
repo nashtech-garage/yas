@@ -1,13 +1,14 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import StateOrProvinceGeneralInformation from '@locationComponents/StateOrProvinceGeneralInformation';
 import { StateOrProvince } from '@locationModels/StateOrProvince';
 import { editStateOrProvince, getStateOrProvince } from '@locationServices/StateOrProvinceService';
-import StateOrProvinceGeneralInformation from '@locationComponents/StateOrProvinceGeneralInformation';
-import { useEffect, useState } from 'react';
-import { toastError } from '@commonServices/ToastService';
-import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { STATE_OR_PROVINCE_URL } from 'constants/Common';
 
 const StateOrProvinceEdit: NextPage = () => {
@@ -32,27 +33,32 @@ const StateOrProvinceEdit: NextPage = () => {
         countryId: 0,
       };
 
-      editStateOrProvince(+id, stateOrProvince).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(STATE_OR_PROVINCE_URL);
-      });
+      editStateOrProvince(+id, stateOrProvince)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(STATE_OR_PROVINCE_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
 
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getStateOrProvince(+id).then((data) => {
-        if (data.id) {
-          setStateOrProvince(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(STATE_OR_PROVINCE_URL);
-        }
-      });
+      getStateOrProvince(+id)
+        .then((data) => {
+          if (data.id) {
+            setStateOrProvince(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(STATE_OR_PROVINCE_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;

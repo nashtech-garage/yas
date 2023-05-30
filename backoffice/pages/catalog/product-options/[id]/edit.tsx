@@ -1,55 +1,62 @@
 import type { NextPage } from 'next';
-import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { ProductOption } from '../../../../modules/catalog/models/ProductOption';
-import {
-  getProductOption,
-  updateProductOption,
-} from '../../../../modules/catalog/services/ProductOptionService';
 import { useRouter } from 'next/router';
-import { PRODUCT_OPTIONS_URL } from '../../../../constants/Common';
-import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
-import ProductOptionGeneralInformation from '../../../../modules/catalog/components/ProductOptionGeneralInformation';
-import { toastError } from '../../../../common/services/ToastService';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import ProductOptionGeneralInformation from '@catalogComponents/ProductOptionGeneralInformation';
+import { ProductOption } from '@catalogModels/ProductOption';
+import { getProductOption, updateProductOption } from '@catalogServices/ProductOptionService';
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import { PRODUCT_OPTIONS_URL } from '@constants/Common';
 
 const ProductOptionEdit: NextPage = () => {
-  const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const { id } = router.query;
+
+  const [isLoading, setLoading] = useState(false);
   const [productOption, setProductOption] = useState<ProductOption>();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ProductOption>();
+
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      getProductOption(+id)
+        .then((data) => {
+          if (data.id) {
+            setProductOption(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(PRODUCT_OPTIONS_URL).catch((err) => console.log(err));
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
   const handleSubmitOption = async (event: ProductOption) => {
     let productOption: ProductOption = {
       id: 0,
       name: event.name,
     };
     if (id) {
-      updateProductOption(+id, productOption).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(PRODUCT_OPTIONS_URL);
-      });
+      updateProductOption(+id, productOption)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(PRODUCT_OPTIONS_URL).catch((err) => console.log(err));
+        })
+        .catch((err) => console.log(err));
     }
   };
-  useEffect(() => {
-    if (id) {
-      setLoading(true);
-      getProductOption(+id).then((data) => {
-        if (data.id) {
-          setProductOption(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(PRODUCT_OPTIONS_URL);
-        }
-      });
-    }
-  }, [id]);
+
   if (isLoading) return <p>Loading...</p>;
   if (!productOption) return <></>;
   return (

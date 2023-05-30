@@ -1,15 +1,16 @@
-import type { NextPage } from 'next';
-import { useState, useEffect } from 'react';
-import { Stack, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
-import { getRatings, deleteRatingById } from '../../modules/rating/services/RatingService';
 import moment from 'moment';
-import { toast } from 'react-toastify';
-import type { Rating } from '../../modules/rating/models/Rating';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { RatingSearchForm } from 'modules/rating/models/RatingSearchForm';
-import RatingSearch from 'modules/rating/components/RatingSearch';
+import type { NextPage } from 'next';
 import queryString from 'query-string';
+import { useEffect, useState } from 'react';
+import { Stack, Table } from 'react-bootstrap';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import ReactPaginate from 'react-paginate';
+import { toast } from 'react-toastify';
+
+import RatingSearch from 'modules/rating/components/RatingSearch';
+import { RatingSearchForm } from 'modules/rating/models/RatingSearchForm';
+import type { Rating } from '../../modules/rating/models/Rating';
+import { deleteRatingById, getRatings } from '../../modules/rating/services/RatingService';
 
 const Reviews: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<RatingSearchForm>();
@@ -32,16 +33,19 @@ const Reviews: NextPage = () => {
         createdFrom: moment(watchAllFields.createdFrom).format(),
         createdTo: moment(watchAllFields.createdTo).format(),
       })
-    ).then((res) => {
-      setRatingList(res.ratingList);
-      setTotalPage(res.totalPages);
-    });
+    )
+      .then((res) => {
+        setRatingList(res.ratingList);
+        setTotalPage(res.totalPages);
+      })
+      .catch((error) => console.log(error));
   };
 
   useEffect(() => {
     setLoading(true);
     handleGetRating();
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo, isDelete]);
 
   const onSubmitSearch: SubmitHandler<RatingSearchForm> = async (data) => {
@@ -50,10 +54,12 @@ const Reviews: NextPage = () => {
   };
 
   const handleDeleteRating = (ratingId: number) => {
-    deleteRatingById(ratingId).then(() => {
-      toast.success('Delete rating successfully');
-      setDelete(!isDelete);
-    });
+    deleteRatingById(ratingId)
+      .then(() => {
+        toast.success('Delete rating successfully');
+        setDelete(!isDelete);
+      })
+      .catch((error) => console.log(error));
   };
 
   const handlePageChange = ({ selected }: any) => {

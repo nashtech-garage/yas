@@ -1,17 +1,18 @@
-import { Warehouse } from '@inventoryModels/Warehouse';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
-import Form from 'react-bootstrap/Form';
 import { Button, Table } from 'react-bootstrap';
-import { StockInfo } from '@inventoryModels/StockInfo';
+import Form from 'react-bootstrap/Form';
+
 import { toastError, toastSuccess } from '@commonServices/ToastService';
-import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
 import { INVENTORY_WAREHOUSE_STOCKS_HISTORIES_URL } from '@constants/Common';
-import { getWarehouses } from '@inventoryServices/WarehouseService';
+import { ProductQuantityInStock } from '@inventoryModels/ProductQuantityInStock';
+import { StockInfo } from '@inventoryModels/StockInfo';
+import { Warehouse } from '@inventoryModels/Warehouse';
 import {
   fetchStocksInWarehouseByProductNameAndProductSku,
   updateProductQuantityInStock,
 } from '@inventoryServices/StockService';
+import { getWarehouses } from '@inventoryServices/WarehouseService';
 
 const WarehouseStocks: NextPage = () => {
   const [selectedWhId, setSelectedWhId] = useState<number>(0);
@@ -32,10 +33,13 @@ const WarehouseStocks: NextPage = () => {
     if (selectedWhId) {
       fetchStocksInWarehouse();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedWhId, productNameKw, productSkuKw]);
 
   const fetchWarehouses = () => {
-    getWarehouses().then((results) => setWarehouses(results));
+    getWarehouses()
+      .then((results) => setWarehouses(results))
+      .catch((error) => console.log(error));
   };
 
   const fetchStocksInWarehouse = () => {
