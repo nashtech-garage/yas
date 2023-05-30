@@ -45,12 +45,14 @@ const Checkout = () => {
   } = useForm<Order>();
   const {
     register: registerShippingAddress,
+    setValue: setValueShippingAddress,
     formState: { errors: errorsShippingAddress },
     watch: watchShippingAddress,
   } = useForm<Address>();
 
   const {
     register: registerBillingAddress,
+    setValue: setValueBillingAddress,
     formState: { errors: errorsBillingAddress },
     watch: watchBillingAddress,
   } = useForm<Address>();
@@ -186,7 +188,6 @@ const Checkout = () => {
       order.paymentMethod = 'COD';
       order.paymentStatus = 'PENDING';
       order.orderItemPostVms = orderItems;
-      console.log(order);
       await createOrder(order)
         .then(() => {
           toast.success('Place order successfully');
@@ -232,6 +233,7 @@ const Checkout = () => {
                     <AddressForm
                       isDisplay={addShippingAddress}
                       register={registerShippingAddress}
+                      setValue={setValueShippingAddress}
                       errors={errorsShippingAddress}
                       address={undefined}
                     />
@@ -279,6 +281,7 @@ const Checkout = () => {
 
                     <AddressForm
                       isDisplay={addBillingAddress}
+                      setValue={setValueBillingAddress}
                       register={registerBillingAddress}
                       errors={errorsBillingAddress}
                       address={undefined}
