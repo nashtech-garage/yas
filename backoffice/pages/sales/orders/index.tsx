@@ -1,12 +1,9 @@
 import type { NextPage } from 'next';
 import { useState, useEffect } from 'react';
-import { Stack, Table } from 'react-bootstrap';
+import { Button, Stack, Table } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import moment from 'moment';
-import { toast } from 'react-toastify';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { RatingSearchForm } from 'modules/rating/models/RatingSearchForm';
-import RatingSearch from 'modules/rating/components/RatingSearch';
 import queryString from 'query-string';
 import { getOrders } from 'modules/order/services/OrderService';
 import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
@@ -72,6 +69,17 @@ const Orders: NextPage = () => {
         <div className="col-md-8">
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
+        <div className="col-md-4 text-right">
+          <button type="button" className="btn btn-success me-2">
+            <i className="fa fa-download me-2" aria-hidden="true"></i> Export
+          </button>
+          <button type="button" className="btn btn-warning me-2">
+            <i className="fa fa-upload me-2" aria-hidden="true"></i> Import
+          </button>
+          <button type="button" className="btn btn-info me-2">
+            <i className="fa fa-print me-2" aria-hidden="true"></i> Print PDF Invoice
+          </button>
+        </div>
       </div>
       {/* Filter */}
 
@@ -96,7 +104,7 @@ const Orders: NextPage = () => {
             data-bs-parent="#accordionExample"
           >
             <div className="accordion-body">
-              <form onSubmit={handleSubmit(onSubmitSearch)}>
+              <form onSubmit={(event) => void handleSubmit(onSubmitSearch)(event)}>
                 <OrderSearch register={register} />
               </form>
             </div>
