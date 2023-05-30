@@ -93,7 +93,13 @@ const EditAddress: NextPage = () => {
   return (
     <ProfileLayout breadcrumb={crumb} title="Edit Address" menuActive="address">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <AddressForm register={register} errors={errors} address={address} isDisplay={true} />
+        <AddressForm
+          register={register}
+          errors={errors}
+          address={address}
+          isDisplay={true}
+          setValue={() => {}}
+        />
         <div className="container p-0" style={{ textAlign: 'end' }}>
           <button className="btn btn-primary" type="submit">
             Save
