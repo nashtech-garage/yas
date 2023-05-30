@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { useState, useEffect } from 'react';
-import { Button, Stack, Table } from 'react-bootstrap';
+import { Stack, Table } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import moment from 'moment';
 import { useForm, SubmitHandler } from 'react-hook-form';

@@ -10,7 +10,7 @@ const OrderSearch = ({ register }: Props) => {
     <>
       <div className="row">
         <div className="col-12 col-lg-6">
-          <div className="d-flex mb-4 w-75">
+          <div className="d-flex mb-4">
             <Form.Label htmlFor="Created-From" className="label">
               Created From:{' '}
             </Form.Label>
@@ -22,7 +22,7 @@ const OrderSearch = ({ register }: Props) => {
               defaultValue="2001-01-01T19:30"
             />
           </div>
-          <div className="d-flex mb-4 w-75">
+          <div className="d-flex mb-4">
             <Form.Label htmlFor="createdTo" className="label">
               Created To:{' '}
             </Form.Label>
