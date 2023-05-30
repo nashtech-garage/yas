@@ -58,6 +58,6 @@ jobs:
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: Unit-Test-Results
+          name: Payment-Paypal-Unit-Test-Results
           path: "payment-paypal/**/surefire-reports/*.xml"
           reporter: java-junit

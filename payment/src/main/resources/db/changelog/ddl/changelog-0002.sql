@@ -5,6 +5,6 @@ create table payment_provider (
    name                         varchar(255),
    configure_url                varchar(255),
    landing_view_component_name  varchar(255),
-   additional_settings          varchar(255),
+   additional_settings          text,
    PRIMARY KEY (id)
 );
