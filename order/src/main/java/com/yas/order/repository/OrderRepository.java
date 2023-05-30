@@ -36,11 +36,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o JOIN o.orderItems oi " +
             "WHERE LOWER(o.email) LIKE %:email% " +
-            "AND (:orderStatus IS NULL OR o.orderStatus IN :orderStatus) "+
+            "AND (o.orderStatus IN (:orderStatus)) " +
             "AND LOWER(oi.productName) LIKE %:productName% " +
             "AND LOWER(o.billingAddressId.phone) LIKE %:billingPhoneNumber% " +
             "AND LOWER(o.billingAddressId.countryName) LIKE %:countryName% " +
-            "AND o.createdOn BETWEEN :createdFrom AND :createdTo")
+            "AND o.createdOn BETWEEN :createdFrom AND :createdTo " +
+            "ORDER BY o.createdOn DESC")
     Page<Order> findOrderByWithMulCriteria(
             @Param("orderStatus") List<EOrderStatus> orderStatus,
             @Param("billingPhoneNumber") String billingPhoneNumber,

@@ -56,8 +56,11 @@ public class OrderService {
                 .city(billingAddressPostVm.city())
                 .zipCode(billingAddressPostVm.zipCode())
                 .districtId(billingAddressPostVm.districtId())
+                .districtName(billingAddressPostVm.districtName())
                 .stateOrProvinceId(billingAddressPostVm.stateOrProvinceId())
+                .stateOrProvinceName(billingAddressPostVm.stateOrProvinceName())
                 .countryId(billingAddressPostVm.countryId())
+                .countryName(billingAddressPostVm.countryName())
                 .build();
 
         OrderAddressPostVm shipOrderAddressPostVm = orderPostVm.shippingAddressPostVm();
@@ -69,8 +72,11 @@ public class OrderService {
                 .city(shipOrderAddressPostVm.city())
                 .zipCode(shipOrderAddressPostVm.zipCode())
                 .districtId(shipOrderAddressPostVm.districtId())
+                .districtName(shipOrderAddressPostVm.districtName())
                 .stateOrProvinceId(shipOrderAddressPostVm.stateOrProvinceId())
+                .stateOrProvinceName(shipOrderAddressPostVm.stateOrProvinceName())
                 .countryId(shipOrderAddressPostVm.countryId())
+                .countryName(shipOrderAddressPostVm.countryName())
                 .build();
 
         Order order = Order.builder()
@@ -145,8 +151,9 @@ public class OrderService {
                                    int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
+        List<EOrderStatus> allOrderStatus = Arrays.asList(EOrderStatus.values());
         Page<Order> orderPage = orderRepository.findOrderByWithMulCriteria(
-                orderStatus.size() > 0 ? orderStatus : null,
+                orderStatus.isEmpty() ? allOrderStatus : orderStatus,
                 billingPhoneNumber,
                 billingCountry,
                 email.toLowerCase(),
@@ -154,9 +161,12 @@ public class OrderService {
                 createdFrom,
                 createdTo,
                 pageable);
-        List<OrderVm> orderVms = orderPage.getContent()
+        if(orderPage.isEmpty())
+            return new OrderListVm(null, 0, 0);
+
+        List<OrderBriefVm> orderVms = orderPage.getContent()
                 .stream()
-                .map(OrderVm::fromModel)
+                .map(OrderBriefVm::fromModel)
                 .collect(Collectors.toList());
 
         return new OrderListVm(orderVms, orderPage.getTotalElements(), orderPage.getTotalPages());
