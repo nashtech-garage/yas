@@ -1,13 +1,14 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
+import ReactPaginate from 'react-paginate';
+
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
-import type { TaxClass } from '@taxModels/TaxClass';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import type { TaxClass } from '@taxModels/TaxClass';
 import { deleteTaxClass, getPageableTaxClasses } from '@taxServices/TaxClassService';
-import { TAX_CLASS_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, TAX_CLASS_URL } from 'constants/Common';
 
 const TaxClassList: NextPage = () => {
   const [taxClassIdWantToDelete, setTaxClassIdWantToDelete] = useState<number>(-1);
@@ -23,28 +24,36 @@ const TaxClassList: NextPage = () => {
     if (taxClassIdWantToDelete == -1) {
       return;
     }
-    deleteTaxClass(taxClassIdWantToDelete).then((response) => {
-      setShowModalDelete(false);
-      handleDeletingResponse(response, taxClassNameWantToDelete);
-      setPageNo(DEFAULT_PAGE_NUMBER);
-      getListTaxClass();
-    });
+    deleteTaxClass(taxClassIdWantToDelete)
+      .then((response) => {
+        setShowModalDelete(false);
+        handleDeletingResponse(response, taxClassNameWantToDelete);
+        setPageNo(DEFAULT_PAGE_NUMBER);
+        getListTaxClass();
+      })
+      .catch((error) => console.log(error));
   };
+
   const getListTaxClass = () => {
-    getPageableTaxClasses(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
-      setTotalPage(data.totalPages);
-      setTaxClasses(data.taxClassContent);
-      setLoading(false);
-    });
+    getPageableTaxClasses(pageNo, DEFAULT_PAGE_SIZE)
+      .then((data) => {
+        setTotalPage(data.totalPages);
+        setTaxClasses(data.taxClassContent);
+        setLoading(false);
+      })
+      .catch((error) => console.log(error));
   };
+
   useEffect(() => {
     setLoading(true);
     getListTaxClass();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
   };
+
   if (isLoading) return <p>Loading...</p>;
   if (!taxClasses) return <p>No Tax Class</p>;
   return (

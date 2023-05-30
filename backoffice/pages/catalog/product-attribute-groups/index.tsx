@@ -2,15 +2,16 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import { ProductAttributeGroup } from '../../../modules/catalog/models/ProductAttributeGroup';
+import ReactPaginate from 'react-paginate';
+
+import { ProductAttributeGroup } from '@catalogModels/ProductAttributeGroup';
 import {
   deleteProductAttributeGroup,
   getPageableProductAttributeGroups,
-} from '../../../modules/catalog/services/ProductAttributeGroupService';
-import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
-import ReactPaginate from 'react-paginate';
+} from '@catalogServices/ProductAttributeGroupService';
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
+import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 const ProductAttrbuteGroupList: NextPage = () => {
   const [productAttributeGroups, setProductAttributeGroups] = useState<ProductAttributeGroup[]>();
@@ -23,28 +24,35 @@ const ProductAttrbuteGroupList: NextPage = () => {
   const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [totalPage, setTotalPage] = useState<number>(1);
 
-  const handleClose: any = () => setIsShowModalDelete(false);
-  const handleDelete: any = () => {
-    if (productAttributeGroupIdWantToDelete == -1) return;
-    deleteProductAttributeGroup(productAttributeGroupIdWantToDelete).then((response) => {
-      setIsShowModalDelete(false);
-      handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
-      setPageNo(DEFAULT_PAGE_NUMBER);
-      getListProductAttributeGroup();
-    });
-  };
-
-  const getListProductAttributeGroup = () => {
-    getPageableProductAttributeGroups(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
-      setTotalPage(data.totalPages);
-      setProductAttributeGroups(data.productAttributeGroupContent);
-      setLoading(false);
-    });
-  };
   useEffect(() => {
     setLoading(true);
     getListProductAttributeGroup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
+
+  const handleClose: any = () => setIsShowModalDelete(false);
+
+  const handleDelete: any = () => {
+    if (productAttributeGroupIdWantToDelete == -1) return;
+    deleteProductAttributeGroup(productAttributeGroupIdWantToDelete)
+      .then((response) => {
+        setIsShowModalDelete(false);
+        handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
+        setPageNo(DEFAULT_PAGE_NUMBER);
+        getListProductAttributeGroup();
+      })
+      .catch((error) => console.log(error));
+  };
+
+  const getListProductAttributeGroup = () => {
+    getPageableProductAttributeGroups(pageNo, DEFAULT_PAGE_SIZE)
+      .then((data) => {
+        setTotalPage(data.totalPages);
+        setProductAttributeGroups(data.productAttributeGroupContent);
+        setLoading(false);
+      })
+      .catch((error) => console.log(error));
+  };
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);

@@ -1,17 +1,17 @@
+import type { NextPage } from 'next';
+import { useEffect, useState } from 'react';
+import { Button, Table } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
+
 import { ProductInfoVm } from '@inventoryModels/ProductInfoVm';
+import { StockPostVM } from '@inventoryModels/Stock';
 import { Warehouse } from '@inventoryModels/Warehouse';
+import { addProductIntoWarehouse } from '@inventoryServices/StockService';
 import {
   FilterExistInWHSelection,
   getProductInWarehouse,
   getWarehouses,
 } from '@inventoryServices/WarehouseService';
-import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
-import Form from 'react-bootstrap/Form';
-import { Button, Table } from 'react-bootstrap';
-import { StockPostVM } from '@inventoryModels/Stock';
-import { addProductIntoWarehouse } from '@inventoryServices/StockService';
-import { Console } from 'console';
 
 const WarehouseProducts: NextPage = () => {
   const [warehouseIdSelected, setWarehouseIdSelected] = useState<number>(0);
@@ -32,18 +32,21 @@ const WarehouseProducts: NextPage = () => {
     if (warehouseIdSelected) {
       fetchProductsInWarehouse();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [warehouseIdSelected, productName, productSku, existStatusSelected]);
 
   const fetchWarehouses = () => {
-    getWarehouses().then((results) => setWarehouses(results));
+    getWarehouses()
+      .then((results) => setWarehouses(results))
+      .catch((error) => console.log(error));
   };
 
   const fetchProductsInWarehouse = () => {
-    getProductInWarehouse(warehouseIdSelected, productName, productSku, existStatusSelected).then(
-      (results) => {
+    getProductInWarehouse(warehouseIdSelected, productName, productSku, existStatusSelected)
+      .then((results) => {
         setWarehouseProducts(() => results.map((result) => ({ ...result, isSelected: false })));
-      }
-    );
+      })
+      .catch((error) => console.log(error));
   };
 
   const selectProductIntoWarehouse = (event: any, index: number) => {
@@ -67,7 +70,9 @@ const WarehouseProducts: NextPage = () => {
           };
         });
 
-      addProductIntoWarehouse(stockPostVms).then(() => fetchProductsInWarehouse());
+      addProductIntoWarehouse(stockPostVms)
+        .then(() => fetchProductsInWarehouse())
+        .catch((error) => console.log(error));
     }
   };
 

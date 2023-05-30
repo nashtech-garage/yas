@@ -1,13 +1,14 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import ReactPaginate from 'react-paginate';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
+import ReactPaginate from 'react-paginate';
+
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
-import type { Country } from '@locationModels/Country';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import type { Country } from '@locationModels/Country';
 import { deleteCountry, getPageableCountries } from '@locationServices/CountryService';
-import { COUNTRY_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
+import { COUNTRY_URL, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from 'constants/Common';
 
 const CountryList: NextPage = () => {
   const [countryIdWantToDelete, setCountryIdWantToDelete] = useState<number>(-1);
@@ -23,28 +24,36 @@ const CountryList: NextPage = () => {
     if (countryIdWantToDelete == -1) {
       return;
     }
-    deleteCountry(countryIdWantToDelete).then((response) => {
-      setShowModalDelete(false);
-      handleDeletingResponse(response, countryNameWantToDelete);
-      setPageNo(DEFAULT_PAGE_NUMBER);
-      getListCountry();
-    });
+    deleteCountry(countryIdWantToDelete)
+      .then((response) => {
+        setShowModalDelete(false);
+        handleDeletingResponse(response, countryNameWantToDelete);
+        setPageNo(DEFAULT_PAGE_NUMBER);
+        getListCountry();
+      })
+      .catch((error) => console.log(error));
   };
+
   const getListCountry = () => {
-    getPageableCountries(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
-      setTotalPage(data.totalPages);
-      setCountries(data.countryContent);
-      setLoading(false);
-    });
+    getPageableCountries(pageNo, DEFAULT_PAGE_SIZE)
+      .then((data) => {
+        setTotalPage(data.totalPages);
+        setCountries(data.countryContent);
+        setLoading(false);
+      })
+      .catch((error) => console.log(error));
   };
+
   useEffect(() => {
     setLoading(true);
     getListCountry();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
   };
+
   if (isLoading) return <p>Loading...</p>;
   if (!countries) return <p>No country</p>;
   return (

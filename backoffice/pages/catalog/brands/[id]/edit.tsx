@@ -1,15 +1,15 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
-import { Brand } from '../../../../modules/catalog/models/Brand';
-import { editBrand, getBrand } from '../../../../modules/catalog/services/BrandService';
-import BrandGeneralInformation from '../../../../modules/catalog/components/BrandGeneralInformation';
 import { useEffect, useState } from 'react';
-import { BRAND_URL } from '../../../../constants/Common';
-import { toastError } from '../../../../common/services/ToastService';
+import { useForm } from 'react-hook-form';
 
-import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
+import BrandGeneralInformation from '@catalogComponents/BrandGeneralInformation';
+import { Brand } from '@catalogModels/Brand';
+import { editBrand, getBrand } from '@catalogServices/BrandService';
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import { BRAND_URL } from '@constants/Common';
 
 const BrandEdit: NextPage = () => {
   const router = useRouter();
@@ -23,7 +23,8 @@ const BrandEdit: NextPage = () => {
   const [brand, setBrand] = useState<Brand>();
   const [isLoading, setLoading] = useState(false);
   const { id } = router.query;
-  const handleSubmitEdit = async (event: Brand) => {
+
+  const handleSubmitEdit = (event: Brand) => {
     if (id) {
       let brand: Brand = {
         id: 0,
@@ -32,27 +33,32 @@ const BrandEdit: NextPage = () => {
         isPublish: event.isPublish,
       };
 
-      editBrand(+id, brand).then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(BRAND_URL);
-      });
+      editBrand(+id, brand)
+        .then((response) => {
+          handleUpdatingResponse(response);
+          router.replace(BRAND_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
 
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getBrand(+id).then((data) => {
-        if (data.id) {
-          setBrand(data);
-          setLoading(false);
-        } else {
-          toastError(data?.detail);
-          setLoading(false);
-          router.push(BRAND_URL);
-        }
-      });
+      getBrand(+id)
+        .then((data) => {
+          if (data.id) {
+            setBrand(data);
+            setLoading(false);
+          } else {
+            toastError(data?.detail);
+            setLoading(false);
+            router.push(BRAND_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading) return <p>Loading...</p>;

@@ -2,15 +2,16 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import { ProductOption } from '../../../modules/catalog/models/ProductOption';
+import ReactPaginate from 'react-paginate';
+
+import { ProductOption } from '@catalogModels/ProductOption';
 import {
   deleteProductOption,
   getPageableProductOptions,
-} from '../../../modules/catalog/services/ProductOptionService';
-import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
-import ReactPaginate from 'react-paginate';
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
+} from '@catalogServices/ProductOptionService';
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
+import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 const ProductOptionList: NextPage = () => {
   const [productOptions, setProductOptions] = useState<ProductOption[]>();
@@ -21,11 +22,16 @@ const ProductOptionList: NextPage = () => {
   const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [totalPage, setTotalPage] = useState<number>(1);
 
+  useEffect(() => {
+    setLoading(true);
+    getListProductOption();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageNo]);
+
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
-    if (productOptionIdWantToDelete == -1) {
-      return;
-    }
+    if (productOptionIdWantToDelete == -1) return;
+
     deleteProductOption(productOptionIdWantToDelete)
       .then((response) => {
         setShowModalDelete(false);
@@ -39,16 +45,14 @@ const ProductOptionList: NextPage = () => {
   };
 
   const getListProductOption = () => {
-    getPageableProductOptions(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
-      setTotalPage(data.totalPages);
-      setProductOptions(data.productOptionContent);
-      setLoading(false);
-    });
+    getPageableProductOptions(pageNo, DEFAULT_PAGE_SIZE)
+      .then((data) => {
+        setTotalPage(data.totalPages);
+        setProductOptions(data.productOptionContent);
+        setLoading(false);
+      })
+      .catch((err) => console.log(err));
   };
-  useEffect(() => {
-    setLoading(true);
-    getListProductOption();
-  }, [pageNo]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);

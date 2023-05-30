@@ -2,15 +2,16 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
-import { ProductAttribute } from '../../../modules/catalog/models/ProductAttribute';
+import ReactPaginate from 'react-paginate';
+
+import { ProductAttribute } from '@catalogModels/ProductAttribute';
 import {
   deleteProductAttribute,
   getPageableProductAttributes,
-} from '../../../modules/catalog/services/ProductAttributeService';
-import ReactPaginate from 'react-paginate';
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from '../../../constants/Common';
-import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
+} from '@catalogServices/ProductAttributeService';
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
+import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 const ProductAttributeList: NextPage = () => {
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>();
@@ -22,9 +23,16 @@ const ProductAttributeList: NextPage = () => {
   const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [totalPage, setTotalPage] = useState<number>(1);
 
+  useEffect(() => {
+    setLoading(true);
+    getListProductAttributes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageNo]);
+
   const handleClose: any = () => setIsShowModalDelete(false);
   const handleDelete: any = () => {
     if (productAttributeIdWantToDelete == -1) return;
+
     deleteProductAttribute(productAttributeIdWantToDelete)
       .then((response) => {
         setIsShowModalDelete(false);
@@ -38,17 +46,14 @@ const ProductAttributeList: NextPage = () => {
   };
 
   const getListProductAttributes = () => {
-    getPageableProductAttributes(pageNo, DEFAULT_PAGE_SIZE).then((data) => {
-      setTotalPage(data.totalPages);
-      setProductAttributes(data.productAttributeContent);
-      setLoading(false);
-    });
+    getPageableProductAttributes(pageNo, DEFAULT_PAGE_SIZE)
+      .then((data) => {
+        setTotalPage(data.totalPages);
+        setProductAttributes(data.productAttributeContent);
+        setLoading(false);
+      })
+      .catch((err) => console.log(err));
   };
-
-  useEffect(() => {
-    setLoading(true);
-    getListProductAttributes();
-  }, [pageNo]);
 
   const changePage = ({ selected }: any) => {
     setPageNo(selected);
@@ -128,4 +133,5 @@ const ProductAttributeList: NextPage = () => {
     </>
   );
 };
+
 export default ProductAttributeList;

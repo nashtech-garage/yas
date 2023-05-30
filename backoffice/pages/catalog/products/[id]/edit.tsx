@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
+
 import {
   CrossSellProduct,
   ProductCategoryMapping,
@@ -12,15 +13,15 @@ import {
   ProductSEO,
   ProductVariation,
   RelatedProduct,
-} from '../../../../modules/catalog/components';
-import { FormProduct } from '../../../../modules/catalog/models/FormProduct';
-import { Product } from '../../../../modules/catalog/models/Product';
-import { mapFormProductToProductPayload } from '../../../../modules/catalog/models/ProductPayload';
-import { getProduct, updateProduct } from '../../../../modules/catalog/services/ProductService';
+} from '@catalogComponents/index';
+import { FormProduct } from '@catalogModels/FormProduct';
+import { Product } from '@catalogModels/Product';
+import { mapFormProductToProductPayload } from '@catalogModels/ProductPayload';
+import { getProduct, updateProduct } from '@catalogServices/ProductService';
+import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { toastError } from '@commonServices/ToastService';
+import { PRODUCT_URL } from '@constants/Common';
 import ProductAttributes from '../[id]/productAttributes';
-import { toastError } from '../../../../common/services/ToastService';
-import { PRODUCT_URL } from '../../../../constants/Common';
-import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 
 const EditProduct: NextPage = () => {
   //Get ID
@@ -42,27 +43,32 @@ const EditProduct: NextPage = () => {
   useEffect(() => {
     setLoading(true);
     if (id) {
-      getProduct(+id).then((data) => {
-        if (data.id) {
-          setProduct(data);
-          setLoading(false);
-        } else {
-          //Show error
-          toastError(data.detail);
-          router.push(PRODUCT_URL);
-        }
-      });
+      getProduct(+id)
+        .then((data) => {
+          if (data.id) {
+            setProduct(data);
+            setLoading(false);
+          } else {
+            //Show error
+            toastError(data.detail);
+            router.push(PRODUCT_URL).catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   //Form validate
   const onSubmit: SubmitHandler<FormProduct> = (data) => {
     if (id) {
       const payload = mapFormProductToProductPayload(data);
-      updateProduct(+id, payload).then(async (res) => {
-        handleUpdatingResponse(res);
-        router.replace(PRODUCT_URL);
-      });
+      updateProduct(+id, payload)
+        .then(async (res) => {
+          handleUpdatingResponse(res);
+          router.replace(PRODUCT_URL).catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
     }
   };
   if (isLoading) return <p>Loading...</p>;
