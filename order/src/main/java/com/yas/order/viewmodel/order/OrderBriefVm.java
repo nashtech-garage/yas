@@ -19,6 +19,7 @@ public record OrderBriefVm(
         EOrderStatus orderStatus,
         EDeliveryMethod deliveryMethod,
         EDeliveryStatus deliveryStatus,
+        EPaymentStatus paymentStatus,
         ZonedDateTime createdOn
         ) {
     public static OrderBriefVm fromModel(Order order) {
@@ -30,6 +31,7 @@ public record OrderBriefVm(
                 .orderStatus(order.getOrderStatus())
                 .deliveryMethod(order.getDeliveryMethod())
                 .deliveryStatus(order.getDeliveryStatus())
+                .paymentStatus(order.getPaymentStatus())
                 .createdOn(order.getCreatedOn())
                 .build();
     }

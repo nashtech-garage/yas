@@ -6,6 +6,7 @@ import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.ECheckoutState;
+import com.yas.order.model.enumeration.EDeliveryStatus;
 import com.yas.order.model.enumeration.EOrderStatus;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.repository.OrderItemRepository;
@@ -90,6 +91,8 @@ public class OrderService {
                 .orderStatus(EOrderStatus.PENDING)
                 .deliveryFee(orderPostVm.deliveryFee())
                 .deliveryMethod(orderPostVm.deliveryMethod())
+                .deliveryStatus(EDeliveryStatus.PREPARING)
+                .paymentStatus(orderPostVm.paymentStatus())
                 .shippingAddressId(shippOrderAddress)
                 .billingAddressId(billOrderAddress)
                 .build();

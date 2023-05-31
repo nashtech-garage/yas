@@ -402,6 +402,7 @@
       "emailVerified": false,
       "firstName": "John",
       "lastName": "Doe",
+      "email": "admin@gmail.com",
       "credentials": [
         {
           "id": "0bed1acd-4585-450d-9fca-0cd02fb57140",
