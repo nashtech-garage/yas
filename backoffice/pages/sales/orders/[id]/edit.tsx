@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import { useState, useEffect } from 'react';
-import { getOrderById, getOrders } from 'modules/order/services/OrderService';
-import { SALES_ORDERS_URL } from '@constants/Common';
+import { getOrderById } from 'modules/order/services/OrderService';
 import { Order } from 'modules/order/models/Order';
 import { useRouter } from 'next/router';
 import { toastError } from '@commonServices/ToastService';
@@ -28,7 +27,6 @@ const EditOrder: NextPage = () => {
         })
         .catch((err) => {
           toastError(err.message);
-          router.push(SALES_ORDERS_URL);
         });
     }
   }, [id]);
