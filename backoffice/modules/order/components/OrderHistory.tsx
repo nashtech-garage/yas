@@ -68,33 +68,6 @@ const OrderHistory = ({ order }: Props) => {
                       </Stack>
                     </td>
                   </tr>
-                  <tr>
-                    <td>03/13/2017 4:20:10 AM</td>
-                    <td>Order paid</td>
-                    <td>No file attached</td>
-                    <td>
-                      <i
-                        className="fa fa-times text-danger d-flex justify-content-center fs-3"
-                        aria-hidden="true"
-                      ></i>
-                    </td>
-                    <td style={{ width: '12%' }}>
-                      <Stack direction="vertical" gap={3}>
-                        <Link href={`/sales/orders/${order.id}/edit`}>
-                          <button className="btn btn-outline-primary btn-sm" type="button">
-                            <i className="fa fa-pencil me-2" aria-hidden="true"></i>
-                            Edit
-                          </button>
-                        </Link>
-                        <Link href={`/sales/orders/${order.id}/edit`}>
-                          <button className="btn btn-outline-danger btn-sm" type="button">
-                            <i className="fa fa-trash me-2" aria-hidden="true"></i>
-                            Delete
-                          </button>
-                        </Link>
-                      </Stack>
-                    </td>
-                  </tr>
                 </tbody>
               </Table>
             </div>
