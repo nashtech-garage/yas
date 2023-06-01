@@ -157,7 +157,7 @@ const Sidebar = (menu: MenuProps) => {
             aria-expanded="false"
             className="dropdown-toggle"
           >
-            <span className="fa fa-user"></span> Cusomters
+            <span className="fa fa-user"></span> Customers
           </Link>
           <ul className="collapse list-unstyled" id="customerSubmenu">
             <ListItem

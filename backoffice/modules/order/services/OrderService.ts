@@ -12,3 +12,9 @@ export async function getOrders(
   if (response.status >= 200 && response.status < 300) return response.json();
   return Promise.reject(response);
 }
+
+export async function getOrderById(id: number) {
+  const response = await fetch('/api/order/backoffice/orders/' + id);
+  if (response.status >= 200 && response.status < 300) return response.json();
+  return Promise.reject(response);
+}
