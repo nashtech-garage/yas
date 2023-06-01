@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FieldErrorsImpl, UseFormRegister } from 'react-hook-form';
+import { FieldErrorsImpl, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { Input } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
 import { Address } from '../../../modules/address/models/AddressModel';
@@ -13,11 +13,12 @@ import { getDistricts } from '../../district/services/DistrictService';
 
 type AddressFormProps = {
   register: UseFormRegister<Address>;
+  setValue: UseFormSetValue<Address>;
   errors: FieldErrorsImpl<Address>;
   address: Address | undefined;
   isDisplay?: boolean | true;
 };
-const AddressForm = ({ register, errors, address, isDisplay }: AddressFormProps) => {
+const AddressForm = ({ register, errors, address, isDisplay, setValue }: AddressFormProps) => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -43,6 +44,7 @@ const AddressForm = ({ register, errors, address, isDisplay }: AddressFormProps)
   }, [id]);
 
   const onCountryChange = async (event: any) => {
+    setValue('countryName', event.target.selectedOptions[0].text);
     getStatesOrProvinces(event.target.value).then((data) => {
       setStatesOrProvinces(data);
       getDistricts(event.target.value).then((data) => {
@@ -56,6 +58,7 @@ const AddressForm = ({ register, errors, address, isDisplay }: AddressFormProps)
   };
 
   const onStateOrProvinceChange = async (event: any) => {
+    setValue('stateOrProvinceName', event.target.selectedOptions[0].text);
     getDistricts(event.target.value).then((data) => {
       setDistricts(data);
     });
@@ -153,6 +156,9 @@ const AddressForm = ({ register, errors, address, isDisplay }: AddressFormProps)
                 defaultValue={address?.districtId}
                 registerOptions={{
                   required: { value: true, message: 'Please select district' },
+                  onChange: (event: any) => {
+                    setValue('districtName', event.target.selectedOptions[0].text);
+                  },
                 }}
               />
             </div>

@@ -6,28 +6,28 @@ import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.ECheckoutState;
+import com.yas.order.model.enumeration.EDeliveryStatus;
 import com.yas.order.model.enumeration.EOrderStatus;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
-import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
-import com.yas.order.viewmodel.order.OrderGetVm;
-import com.yas.order.viewmodel.order.OrderPostVm;
-import com.yas.order.viewmodel.order.OrderVm;
+import com.yas.order.viewmodel.order.*;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVM;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -57,8 +57,11 @@ public class OrderService {
                 .city(billingAddressPostVm.city())
                 .zipCode(billingAddressPostVm.zipCode())
                 .districtId(billingAddressPostVm.districtId())
+                .districtName(billingAddressPostVm.districtName())
                 .stateOrProvinceId(billingAddressPostVm.stateOrProvinceId())
+                .stateOrProvinceName(billingAddressPostVm.stateOrProvinceName())
                 .countryId(billingAddressPostVm.countryId())
+                .countryName(billingAddressPostVm.countryName())
                 .build();
 
         OrderAddressPostVm shipOrderAddressPostVm = orderPostVm.shippingAddressPostVm();
@@ -70,8 +73,11 @@ public class OrderService {
                 .city(shipOrderAddressPostVm.city())
                 .zipCode(shipOrderAddressPostVm.zipCode())
                 .districtId(shipOrderAddressPostVm.districtId())
+                .districtName(shipOrderAddressPostVm.districtName())
                 .stateOrProvinceId(shipOrderAddressPostVm.stateOrProvinceId())
+                .stateOrProvinceName(shipOrderAddressPostVm.stateOrProvinceName())
                 .countryId(shipOrderAddressPostVm.countryId())
+                .countryName(shipOrderAddressPostVm.countryName())
                 .build();
 
         Order order = Order.builder()
@@ -85,6 +91,8 @@ public class OrderService {
                 .orderStatus(EOrderStatus.PENDING)
                 .deliveryFee(orderPostVm.deliveryFee())
                 .deliveryMethod(orderPostVm.deliveryMethod())
+                .deliveryStatus(EDeliveryStatus.PREPARING)
+                .paymentStatus(orderPostVm.paymentStatus())
                 .shippingAddressId(shippOrderAddress)
                 .billingAddressId(billOrderAddress)
                 .build();
@@ -107,9 +115,9 @@ public class OrderService {
         order.setOrderItems(orderItems);
 
         // delete Item in Cart
-        try{
-            cartService.deleteCartItemByProductId(orderItems.stream().map(i-> i.getProductId()).toList());
-        }catch (Exception ex){
+        try {
+            cartService.deleteCartItemByProductId(orderItems.stream().map(i -> i.getProductId()).toList());
+        } catch (Exception ex) {
             log.error("Delete products in cart fail: " + ex.getMessage());
         }
 
@@ -132,6 +140,39 @@ public class OrderService {
                 -> new NotFoundException(Constants.ERROR_CODE.ORDER_NOT_FOUND, id));
 
         return OrderVm.fromModel(order);
+    }
+
+    public OrderListVm getAllOrder(ZonedDateTime createdFrom,
+                                   ZonedDateTime createdTo,
+                                   String warehouse,
+                                   String productName,
+                                   List<EOrderStatus> orderStatus,
+                                   String billingCountry,
+                                   String billingPhoneNumber,
+                                   String email,
+                                   int pageNo,
+                                   int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        List<EOrderStatus> allOrderStatus = Arrays.asList(EOrderStatus.values());
+        Page<Order> orderPage = orderRepository.findOrderByWithMulCriteria(
+                orderStatus.isEmpty() ? allOrderStatus : orderStatus,
+                billingPhoneNumber,
+                billingCountry,
+                email.toLowerCase(),
+                productName.toLowerCase(),
+                createdFrom,
+                createdTo,
+                pageable);
+        if(orderPage.isEmpty())
+            return new OrderListVm(null, 0, 0);
+
+        List<OrderBriefVm> orderVms = orderPage.getContent()
+                .stream()
+                .map(OrderBriefVm::fromModel)
+                .collect(Collectors.toList());
+
+        return new OrderListVm(orderVms, orderPage.getTotalElements(), orderPage.getTotalPages());
     }
 
     public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {

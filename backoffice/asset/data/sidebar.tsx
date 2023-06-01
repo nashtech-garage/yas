@@ -6,6 +6,12 @@ import {
   TAX_CLASS_URL,
   TAX_RATE_URL,
   WAREHOUSE_URL,
+  SALES_ORDERS_URL,
+  SALES_SHIPMENTS_URL,
+  SALES_RETURN_REQUESTS_URL,
+  SALES_RECURRING_PAYMENTS_URL,
+  SALES_GIFT_CARDS_URL,
+  SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
 } from '@constants/Common';
 
 export const menu_catalog_item_data = [
@@ -95,5 +101,38 @@ export const menu_inventory_item_data = [
     id: 3,
     name: 'Manage Warehouse Stocks',
     link: INVENTORY_WAREHOUSE_STOCKS_URL,
+  },
+];
+
+export const menu_sale_item_data = [
+  {
+    id: 1,
+    name: 'Orders',
+    link: SALES_ORDERS_URL,
+  },
+  {
+    id: 2,
+    name: 'Shipments',
+    link: SALES_SHIPMENTS_URL,
+  },
+  {
+    id: 3,
+    name: 'Return requests',
+    link: SALES_RETURN_REQUESTS_URL,
+  },
+  {
+    id: 4,
+    name: 'Recurring payments',
+    link: SALES_RECURRING_PAYMENTS_URL,
+  },
+  {
+    id: 5,
+    name: 'Gift cards',
+    link: SALES_GIFT_CARDS_URL,
+  },
+  {
+    id: 5,
+    name: 'Shopping carts and wishlists',
+    link: SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
   },
 ];

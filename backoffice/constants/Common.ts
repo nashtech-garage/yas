@@ -34,6 +34,12 @@ export const INVENTORY_WAREHOUSE_PRODUCTS_URL = '/inventory/warehouse-products';
 export const WAREHOUSE_URL = '/inventory/warehouses';
 export const INVENTORY_WAREHOUSE_STOCKS_URL = '/inventory/warehouse-stocks';
 export const INVENTORY_WAREHOUSE_STOCKS_HISTORIES_URL = '/inventory/warehouse-stocks/histories';
+export const SALES_ORDERS_URL = '/sales/orders';
+export const SALES_SHIPMENTS_URL = '/sales/shipments';
+export const SALES_RETURN_REQUESTS_URL = '/sales/return-requests';
+export const SALES_RECURRING_PAYMENTS_URL = '/sales/recurring-payments';
+export const SALES_GIFT_CARDS_URL = '/sales/gift-cards';
+export const SALES_SHOPPING_CARTS_AND_WISHLISTS_URL = '/sales/shopping-carts-and-wishlists';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;
