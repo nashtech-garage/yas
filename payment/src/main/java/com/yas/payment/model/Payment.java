@@ -1,6 +1,5 @@
 package com.yas.payment.model;
 
-
 import com.yas.payment.model.enumeration.EPaymentMethod;
 import com.yas.payment.model.enumeration.EPaymentStatus;
 import jakarta.persistence.*;

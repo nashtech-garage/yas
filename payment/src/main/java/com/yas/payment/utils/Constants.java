@@ -2,6 +2,7 @@ package com.yas.payment.utils;
 
 public final class Constants {
     public final class ERROR_CODE {
+        private ERROR_CODE() {}
         public static final String PAYMENT_PROVIDER_NOT_FOUND = "PAYMENT_PROVIDER_NOT_FOUND";
     }
 

@@ -1,7 +1,5 @@
 package com.yas.payment.controller;
 
-import com.yas.payment.model.PaymentProvider;
-import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.service.PaymentProviderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

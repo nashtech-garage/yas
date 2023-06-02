@@ -1,7 +1,5 @@
 package com.yas.payment.controller;
 
-import com.yas.payment.model.Payment;
-import com.yas.payment.service.PaymentProviderService;
 import com.yas.payment.service.PaymentService;
 import com.yas.payment.viewmodel.CapturedPayment;
 import jakarta.validation.Valid;

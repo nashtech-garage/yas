@@ -5,7 +5,6 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.yas.paymentpaypal.model.PaymentProviderHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
