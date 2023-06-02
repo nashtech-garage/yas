@@ -23,14 +23,23 @@ services:
       KC_DB_USERNAME: admin
       KC_DB_PASSWORD: admin
       KC_HTTP_PORT: 80
+      KC_HEALTH_ENABLED: true
     volumes:
       - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
       - ./identity/themes:/opt/keycloak/themes
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://identity/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 300s
   backoffice:
     image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
     environment:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
@@ -45,13 +54,15 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
     networks:
       - yas-network
+    depends_on:
+      identity:
+        condition: service_healthy
   backoffice-nextjs:
     image: ghcr.io/nashtech-garage/yas-backoffice:latest
     networks:
       - yas-network
   storefront:
     image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
     environment:
       SERVER_PORT: "80"
       SPRING_PROFILES_ACTIVE: prod
@@ -75,6 +86,9 @@ services:
       YAS_SERVICES_PAYMENT: http://payment/payment
     networks:
       - yas-network
+    depends_on:
+      identity:
+        condition: service_healthy
   storefront-nextjs:
     image: ghcr.io/nashtech-garage/yas-storefront:latest
     networks:
@@ -88,6 +102,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   product:
     image: ghcr.io/nashtech-garage/yas-product:latest
     environment:
@@ -97,6 +114,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   customer:
     image: ghcr.io/nashtech-garage/yas-customer:latest
     environment:
@@ -106,6 +126,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   cart:
     image: ghcr.io/nashtech-garage/yas-cart:latest
     environment:
@@ -116,6 +139,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   rating:
     image: ghcr.io/nashtech-garage/yas-rating:latest
     environment:
@@ -128,6 +154,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   order:
     image: ghcr.io/nashtech-garage/yas-order:latest
     environment:
@@ -141,6 +170,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   payment:
     image: ghcr.io/nashtech-garage/yas-payment:latest
     environment:
@@ -151,6 +183,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   location:
     image: ghcr.io/nashtech-garage/yas-location:latest
     environment:
@@ -160,6 +195,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   inventory:
     image: ghcr.io/nashtech-garage/yas-inventory:latest
     environment:
@@ -171,6 +209,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   promotion:
     image: ghcr.io/nashtech-garage/yas-promotion:latest
     environment:
@@ -180,6 +221,9 @@ services:
       YAS_SERVICES_PRODUCT: http://product/product
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   tax:
     image: ghcr.io/nashtech-garage/yas-tax:latest
     environment:
@@ -190,6 +234,9 @@ services:
       SERVER_PORT: "80"
     networks:
       - yas-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   swagger-ui:
     image: swaggerapi/swagger-ui:v4.16.0
     environment:
@@ -223,6 +270,12 @@ services:
       POSTGRES_PASSWORD: admin
     networks:
       - yas-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d keycloak"]
+      interval: 2s
+      timeout: 20s
+      retries: 5
+      start_period: 5s
   pgadmin:
     image: dpage/pgadmin4:6.20
     volumes:
