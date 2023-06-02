@@ -2,7 +2,7 @@ package com.yas.paymentpaypal.service;
 
 import com.yas.paymentpaypal.config.ServiceUrlConfig;
 import com.yas.paymentpaypal.exception.BadRequestException;
-import com.yas.paymentpaypal.exception.Forbidden;
+import com.yas.paymentpaypal.exception.ForbiddenException;
 import com.yas.paymentpaypal.exception.SignInRequiredException;
 import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class PaymentService {
                         response -> response.bodyToMono(String.class).map(SignInRequiredException::new))
                 .onStatus(
                         HttpStatus.FORBIDDEN::equals,
-                        response -> response.bodyToMono(String.class).map(Forbidden::new))
+                        response -> response.bodyToMono(String.class).map(ForbiddenException::new))
                 .onStatus(
                         HttpStatus.BAD_REQUEST::equals,
                         response -> response.bodyToMono(String.class).map(BadRequestException::new))

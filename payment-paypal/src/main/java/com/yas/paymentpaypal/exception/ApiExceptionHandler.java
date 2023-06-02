@@ -67,7 +67,7 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorVm);
     }
 
-    @ExceptionHandler({ Forbidden.class })
+    @ExceptionHandler({ ForbiddenException.class })
     public ResponseEntity<Object> handleForbidden(NotFoundException ex, WebRequest request) {
         String message = ex.getMessage();
         ErrorVm errorVm = new ErrorVm(HttpStatus.FORBIDDEN.toString(), "Forbidden", message);

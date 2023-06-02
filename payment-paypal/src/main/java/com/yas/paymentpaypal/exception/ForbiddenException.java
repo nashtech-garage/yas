@@ -2,10 +2,10 @@ package com.yas.paymentpaypal.exception;
 
 import com.yas.paymentpaypal.utils.MessagesUtils;
 
-public class Forbidden extends RuntimeException {
-    private String message;
+public class ForbiddenException extends RuntimeException {
+    private final String message;
 
-    public Forbidden(String errorCode, Object... var2) {
+    public ForbiddenException(String errorCode, Object... var2) {
         this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 
@@ -14,7 +14,4 @@ public class Forbidden extends RuntimeException {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class SecurityConfig {
             Collection<String> roles = realmAccess.get("roles");
             return roles.stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toCollection(ArrayList::new));
         };
 
         var jwtAuthenticationConverter = new JwtAuthenticationConverter();

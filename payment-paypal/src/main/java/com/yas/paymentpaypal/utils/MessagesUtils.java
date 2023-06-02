@@ -8,6 +8,9 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class MessagesUtils {
+    private MessagesUtils() {
+        // Private constructor to prevent instantiation
+    }
 
     static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages", Locale.getDefault());
 

@@ -24,8 +24,8 @@ public class PaypalService {
     private final PayPalHttpClient payPalHttpClient;
     private final PaymentService paymentService;
 
-    private static final String returnUrl = "http://api.yas.local/payment-paypal/capture";
-    private static final String cancelUrl = "http://api.yas.local/payment-paypal/cancel";
+    private static final String RETURN_URL = "http://api.yas.local/payment-paypal/capture";
+    private static final String CANCEL_URL = "http://api.yas.local/payment-paypal/cancel";
 
     public PaypalRequestPayment createPayment(RequestPayment requestPayment) {
         OrderRequest orderRequest = new OrderRequest();
@@ -35,9 +35,9 @@ public class PaypalService {
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl(returnUrl)
-                .cancelUrl(cancelUrl)
-                .brandName(Constants.YAS.BRAND_NAME)
+                .returnUrl(RETURN_URL)
+                .cancelUrl(CANCEL_URL)
+                .brandName(Constants.Yas.BRAND_NAME)
                 .landingPage("BILLING")
                 .userAction("PAY_NOW")
                 .shippingPreference("NO_SHIPPING");
@@ -81,7 +81,7 @@ public class PaypalService {
                         .amount(amount)
                         .paymentStatus(order.status())
                         .paymentMethod("PAYPAL")
-                        .checkoutId(CheckoutIdHelper.checkoutId)
+                        .checkoutId(CheckoutIdHelper.getCheckoutId())
                         .build();
                 paymentService.capturePaymentInfoToPaymentService(capturedPayment);
                 return capturedPayment;

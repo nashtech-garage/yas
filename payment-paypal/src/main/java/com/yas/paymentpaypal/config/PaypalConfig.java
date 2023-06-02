@@ -17,17 +17,11 @@ import java.net.URI;
 
 @Configuration
 public class PaypalConfig {
-    @Autowired
-    private WebClient webClient;
-
-    @Autowired
-    private ServiceUrlConfig serviceUrlConfig;
-
     @Bean
     @RequestScope
-    public PayPalHttpClient getPaypalClient() {
+    public PayPalHttpClient getPaypalClient(WebClient webClient, ServiceUrlConfig serviceUrlConfig) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.payment()).path("/payment-providers/{id}/additional-settings")
-                .buildAndExpand(PaymentProviderHelper.PaypalPaymentProviderId).toUri();
+                .buildAndExpand(PaymentProviderHelper.PAYPAL_PAYMENT_PROVIDER_ID).toUri();
 
         // Make a request to the payment-service to retrieve additionalSettings
         ResponseEntity<String> response = webClient.get()
