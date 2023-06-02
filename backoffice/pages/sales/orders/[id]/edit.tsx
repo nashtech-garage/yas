@@ -10,7 +10,7 @@ import BillingNShippingInfo from 'modules/order/components/BillingNShippingInfo'
 import OrderProductInfo from 'modules/order/components/OrderProductInfo';
 import OrderHistory from 'modules/order/components/OrderHistory';
 import ReactToPrint from 'react-to-print';
-import HeaderPdf from '../HeaderPdf';
+import HeaderPdf from '../../../../modules/order/components/HeaderPdf';
 import moment from 'moment';
 
 const EditOrder: NextPage = () => {
