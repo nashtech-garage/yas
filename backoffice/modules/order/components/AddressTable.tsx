@@ -1,5 +1,7 @@
 import { Table } from 'react-bootstrap';
 import { OrderAddress } from '../models/OrderAddress';
+import styles from '@styles/print-hidden.module.css';
+
 type Props = {
   address: OrderAddress;
   isShowOnGoogleMap: boolean;
@@ -33,7 +35,6 @@ const AddressTable = ({ address, isShowOnGoogleMap }: Props) => {
             <td className="d-flex justify-content-center">Address line 2</td>
             <td>{address.addressLine2}</td>
           </tr>
-
           <tr>
             <td className="d-flex justify-content-center">Zip code</td>
             <td>{address.zipCode}</td>
@@ -54,18 +55,17 @@ const AddressTable = ({ address, isShowOnGoogleMap }: Props) => {
             <td className="d-flex justify-content-center">Country name</td>
             <td>{address.countryName}</td>
           </tr>
-          {isShowOnGoogleMap ? (
-            <tr>
+
+          <tr className={`${styles['print-hidden']}`}>
+            {isShowOnGoogleMap ? (
               <td style={{ cursor: 'pointer' }}>
                 <i className="fa fa-map-marker me-3 mt-2" aria-hidden="true"></i>View on Google Maps
               </td>
-            </tr>
-          ) : (
-            <tr>
+            ) : (
               <td style={{ height: '40px' }}></td>
-            </tr>
-          )}
-          <tr className="mt-5">
+            )}
+          </tr>
+          <tr className={`mt-5 ${styles['print-hidden']}`}>
             <td>
               <button className="mt-2 btn btn-dark">Edit</button>
             </td>

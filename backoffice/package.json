@@ -17,8 +17,10 @@
     "bootstrap": "^5.1.3",
     "bootstrap-icons": "^1.9.1",
     "clsx": "^1.2.1",
+    "jspdf": "^2.5.1",
     "moment": "^2.29.4",
     "next": "^13.1.1",
+    "notiflix": "^3.2.6",
     "query-string": "^8.1.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.4.0",
@@ -30,8 +32,10 @@
     "react-paginate": "^8.1.3",
     "react-quill": "^2.0.0",
     "react-select": "^5.7.0",
+    "react-to-print": "^2.14.12",
     "react-toastify": "^9.0.8",
     "slugify": "^1.6.5",
+    "xlsx": "^0.18.5",
     "yup": "^0.32.11"
   },
   "devDependencies": {
