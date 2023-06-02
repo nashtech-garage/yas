@@ -11,6 +11,7 @@ import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
 import { formatPriceVND } from 'utils/formatPrice';
+import Link from 'next/link';
 
 const Orders: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<OrderSearchForm>();
@@ -36,8 +37,6 @@ const Orders: NextPage = () => {
 
     getOrders(params)
       .then((res) => {
-        console.log(res);
-
         setOrderList(res.orderList);
         setTotalPage(res.totalPages);
       })
@@ -52,13 +51,16 @@ const Orders: NextPage = () => {
     setLoading(false);
   }, [pageNo, isDelete]);
 
+  useEffect(() => {
+    setLoading(true);
+    handleGetOrders();
+    setLoading(false);
+  }, []);
+
   const onSubmitSearch: SubmitHandler<OrderSearchForm> = async (data) => {
     handleGetOrders();
     setPageNo(0);
   };
-
-  const handleViewOrder = (orderId: any) => {};
-
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
   };
@@ -122,7 +124,6 @@ const Orders: NextPage = () => {
             <th>Order status</th>
             <th>Payment status</th>
             <th>Shipping status</th>
-            <th>Customer email</th>
             <th>Phone</th>
             <th>Created on</th>
             <th>Order Total</th>
@@ -183,20 +184,17 @@ const Orders: NextPage = () => {
                     {order.deliveryStatus}
                   </span>
                 </td>
-                <td>{order.email}</td>
                 <td>{order.billingAddressVm.phone}</td>
                 <td>{moment(order.createdOn).format('MMMM Do YYYY, h:mm:ss a')}</td>
                 <td>{formatPriceVND(order.totalPrice)}</td>
-                <td>
+                <td style={{ width: '10%' }}>
                   <Stack direction="horizontal" gap={3}>
-                    <button
-                      className="btn btn-outline-primary btn-sm"
-                      type="button"
-                      onClick={() => handleViewOrder(order.id)}
-                    >
-                      <i className="fa fa-eye me-2" aria-hidden="true"></i>
-                      View
-                    </button>
+                    <Link href={`/sales/orders/${order.id}/edit`}>
+                      <button className="btn btn-outline-primary btn-sm" type="button">
+                        <i className="fa fa-eye me-2" aria-hidden="true"></i>
+                        View
+                      </button>
+                    </Link>
                   </Stack>
                 </td>
               </tr>

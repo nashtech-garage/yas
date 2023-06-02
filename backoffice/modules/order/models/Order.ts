@@ -16,9 +16,8 @@ export type Order = {
   paymentStatus: string;
   createdOn: Date;
   orderStatus: string;
-  orderItemPostVms: OrderItem[];
+  orderItemVms: OrderItem[];
   shippingAddressVm: OrderAddress;
   billingAddressVm: OrderAddress;
-
   checkoutId?: string;
 };
