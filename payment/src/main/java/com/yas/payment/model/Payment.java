@@ -29,7 +29,7 @@ public class Payment {
     private EPaymentMethod paymentMethod;
     @Enumerated(EnumType.STRING)
     private EPaymentStatus paymentStatus;
-    public String gatewayTransactionId;
+    private String gatewayTransactionId;
     private String failureMessage;
     @CreationTimestamp
     private ZonedDateTime createdOn;
