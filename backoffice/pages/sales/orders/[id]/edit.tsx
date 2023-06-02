@@ -12,7 +12,6 @@ import OrderHistory from 'modules/order/components/OrderHistory';
 import ReactToPrint from 'react-to-print';
 import HeaderPdf from '../HeaderPdf';
 import moment from 'moment';
-import { jsPDF } from 'jspdf';
 
 const EditOrder: NextPage = () => {
   //Get ID
