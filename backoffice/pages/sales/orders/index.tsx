@@ -22,7 +22,6 @@ const Orders: NextPage = () => {
   const [orderIdList, setOrderIdList] = useState<number[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
-  const [isDelete, setDelete] = useState<boolean>(false);
   const orderPageSize = DEFAULT_PAGE_SIZE;
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
@@ -50,7 +49,7 @@ const Orders: NextPage = () => {
     setLoading(true);
     handleGetOrders();
     setLoading(false);
-  }, [pageNo, isDelete]);
+  }, [pageNo]);
 
   useEffect(() => {
     setLoading(true);
@@ -66,12 +65,24 @@ const Orders: NextPage = () => {
     setPageNo(selected);
   };
 
-  const handleExportCsv = () => {
-    const params = queryString.stringify({
-      orderIdList: orderIdList,
-    });
+  const handleExportCsv = (idList: number[] | null) => {
+    const params = idList
+      ? queryString.stringify({
+          orderIdList: idList,
+        })
+      : queryString.stringify({
+          orderIdList: orderIdList,
+        });
     exportCsvFile(params)
-      .then(() => {
+      .then((res) => {
+        const downloadLink = document.createElement('a');
+        downloadLink.href = res.url; // URL of the file
+
+        // Simulate a click event to trigger the download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
         toastSuccess('Export CSV successfully!');
       })
       .catch((ex) => {
@@ -80,10 +91,34 @@ const Orders: NextPage = () => {
       });
   };
 
-  const handleClickCheckbox = (e: any) => {
-    setOrderIdList([...orderIdList, e.target.value]);
+  const handleClickCheckbox = (value: number) => {
+    const isExist = orderIdList.includes(value);
+
+    console.log('checked', value, isExist);
+
+    if (isExist) {
+      setOrderIdList(orderIdList.filter((id) => id !== value));
+    } else {
+      setOrderIdList([...orderIdList, value]);
+    }
   };
-  console.log(orderIdList);
+
+  const handleClickCheckAll = (e: any) => {
+    const { checked } = e.target;
+    const newOrderIdList = checked
+      ? orderList
+          .filter((order) => typeof order.id === 'number') // Filter out undefined values
+          .map((order) => order.id as number)
+      : [];
+
+    setOrderIdList(newOrderIdList);
+
+    //set all checkbox to checked
+    const checkboxes = document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = checked;
+    });
+  };
 
   if (isLoading) return <p>Loading...</p>;
   return (
@@ -93,9 +128,37 @@ const Orders: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
         <div className="col-md-6 text-right">
-          <button type="button" className="btn btn-success me-2" onClick={handleExportCsv}>
-            <i className="fa fa-download me-2" aria-hidden="true"></i> Export
-          </button>
+          <div className="btn-group me-2">
+            <button type="button" className="btn btn-success">
+              <i className="fa fa-download" aria-hidden="true"></i> Export
+            </button>
+            <button type="button" className="btn btn-success " data-bs-toggle="dropdown">
+              <i className="fa fa-caret-down" aria-hidden="true"></i>
+            </button>
+            <ul className="dropdown-menu">
+              <li>
+                <a
+                  className="dropdown-item"
+                  href="#"
+                  onClick={() => {
+                    handleExportCsv(
+                      orderList
+                        .filter((order) => typeof order.id === 'number') // Filter out undefined values
+                        .map((order) => order.id as number)
+                    );
+                  }}
+                >
+                  Export to Excel (all found)
+                </a>
+              </li>
+              <li>
+                <a className="dropdown-item" href="#" onClick={() => handleExportCsv(null)}>
+                  Export to Excel (selected)
+                </a>
+              </li>
+            </ul>
+          </div>
+
           <button type="button" className="btn btn-warning me-2">
             <i className="fa fa-upload me-2" aria-hidden="true"></i> Import
           </button>
@@ -139,7 +202,14 @@ const Orders: NextPage = () => {
         <thead>
           <tr>
             <th className="d-flex justify-content-center">
-              <input className="form-check-input" type="checkbox" value="" id="checkAll" />
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={orderIdList.length === orderList?.length}
+                id="checkAll"
+                onClick={(Event) => handleClickCheckAll(Event)}
+                disabled={orderList === undefined || orderList == null}
+              />
             </th>
             <th>Order Id</th>
             <th>Order status</th>
@@ -159,7 +229,7 @@ const Orders: NextPage = () => {
                   <input
                     className="form-check-input mb-3"
                     type="checkbox"
-                    onChange={handleClickCheckbox}
+                    onChange={(e) => handleClickCheckbox(Number(e.target.value))}
                     value={order.id}
                     id={`selectOrder${order.id}`}
                   />
