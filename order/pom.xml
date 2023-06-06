@@ -117,6 +117,12 @@
             <artifactId>keycloak-spring-security-adapter</artifactId>
 			<version>${keycloak-spring-security-adapter.version}</version>
         </dependency>
+
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.7.1</version>
+		</dependency>
     </dependencies>
 	<dependencyManagement>
 		<dependencies>

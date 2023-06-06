@@ -22,4 +22,6 @@ public class OrderApplication {
 				.setEndpoint("http://tempo:9411/api/v2/spans")
 				.build();
 	}
+
+
 }

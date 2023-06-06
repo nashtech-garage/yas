@@ -5,19 +5,21 @@ import ReactPaginate from 'react-paginate';
 import moment from 'moment';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import queryString from 'query-string';
-import { getOrders } from 'modules/order/services/OrderService';
+import { exportCsvFile, getOrders } from 'modules/order/services/OrderService';
 import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
 import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
 import { formatPriceVND } from 'utils/formatPrice';
 import Link from 'next/link';
+import { toastError, toastSuccess } from '@commonServices/ToastService';
 
 const Orders: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<OrderSearchForm>();
   const [isLoading, setLoading] = useState(false);
 
   const [orderList, setOrderList] = useState<Order[]>([]);
+  const [orderIdList, setOrderIdList] = useState<number[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [isDelete, setDelete] = useState<boolean>(false);
@@ -33,7 +35,6 @@ const Orders: NextPage = () => {
       createdFrom: moment(watchAllFields.createdFrom).format(),
       createdTo: moment(watchAllFields.createdTo).format(),
     });
-    console.log(params);
 
     getOrders(params)
       .then((res) => {
@@ -64,6 +65,26 @@ const Orders: NextPage = () => {
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
   };
+
+  const handleExportCsv = () => {
+    const params = queryString.stringify({
+      orderIdList: orderIdList,
+    });
+    exportCsvFile(params)
+      .then(() => {
+        toastSuccess('Export CSV successfully!');
+      })
+      .catch((ex) => {
+        toastError('Export CSV failed!');
+        console.log(ex);
+      });
+  };
+
+  const handleClickCheckbox = (e: any) => {
+    setOrderIdList([...orderIdList, e.target.value]);
+  };
+  console.log(orderIdList);
+
   if (isLoading) return <p>Loading...</p>;
   return (
     <>
@@ -72,7 +93,7 @@ const Orders: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
         <div className="col-md-6 text-right">
-          <button type="button" className="btn btn-success me-2">
+          <button type="button" className="btn btn-success me-2" onClick={handleExportCsv}>
             <i className="fa fa-download me-2" aria-hidden="true"></i> Export
           </button>
           <button type="button" className="btn btn-warning me-2">
@@ -138,7 +159,8 @@ const Orders: NextPage = () => {
                   <input
                     className="form-check-input mb-3"
                     type="checkbox"
-                    value=""
+                    onChange={handleClickCheckbox}
+                    value={order.id}
                     id={`selectOrder${order.id}`}
                   />
                 </td>

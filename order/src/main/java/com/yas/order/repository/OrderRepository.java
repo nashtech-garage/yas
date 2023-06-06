@@ -52,4 +52,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             @Param("createdTo") ZonedDateTime createdTo,
             Pageable pageable);
 
+    List<Order> findByIdIn(List<Long> idList);
 }
