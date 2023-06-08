@@ -93,11 +93,11 @@ public class OrderService {
                 .deliveryMethod(orderPostVm.deliveryMethod())
                 .deliveryStatus(EDeliveryStatus.PREPARING)
                 .paymentStatus(orderPostVm.paymentStatus())
+                .paymentMethod(orderPostVm.paymentMethod())
                 .shippingAddressId(shippOrderAddress)
                 .billingAddressId(billOrderAddress)
                 .build();
         orderRepository.save(order);
-
 
         Set<OrderItem> orderItems = orderPostVm.orderItemPostVms().stream()
                 .map(item -> OrderItem.builder()

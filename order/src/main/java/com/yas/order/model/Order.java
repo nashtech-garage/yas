@@ -43,6 +43,8 @@ public class Order extends AbstractAuditEntity{
     private EDeliveryStatus deliveryStatus;
     @Enumerated(EnumType.STRING)
     private EPaymentStatus paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private EPaymentMethod paymentMethod;
     private Long paymentId;
     @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     Set<OrderItem> orderItems;
