@@ -12,6 +12,8 @@ import {
   SALES_RECURRING_PAYMENTS_URL,
   SALES_GIFT_CARDS_URL,
   SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
+  SYSTEM_PAYMENT_PROVIDERS,
+  SYSTEM_SETTINGS,
 } from '@constants/Common';
 
 export const menu_catalog_item_data = [
@@ -134,5 +136,18 @@ export const menu_sale_item_data = [
     id: 5,
     name: 'Shopping carts and wishlists',
     link: SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
+  },
+];
+
+export const menu_system_item_data = [
+  {
+    id: 1,
+    name: 'Payment providers',
+    link: SYSTEM_PAYMENT_PROVIDERS,
+  },
+  {
+    id: 2,
+    name: 'Settings',
+    link: SYSTEM_SETTINGS,
   },
 ];

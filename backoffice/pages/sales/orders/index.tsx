@@ -67,7 +67,7 @@ const Orders: NextPage = () => {
   if (isLoading) return <p>Loading...</p>;
   return (
     <>
-      <div className="row mt-5">
+      <div className="row mt-3">
         <div className="col-md-6">
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
