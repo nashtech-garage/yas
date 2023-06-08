@@ -1,16 +1,6 @@
 import type { NextPage } from 'next';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Stack, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
-import moment from 'moment';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import queryString from 'query-string';
-import { getOrders } from 'modules/order/services/OrderService';
-import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
-import { DEFAULT_PAGE_SIZE } from '@constants/Common';
-import { Order } from 'modules/order/models/Order';
-import OrderSearch from 'modules/order/components/OrderSearch';
-import { formatPriceVND } from 'utils/formatPrice';
 import Link from 'next/link';
 import { Payment } from 'modules/payment/models/Payment';
 
@@ -21,7 +11,6 @@ const temp_payment_data = [
 ];
 
 const PaymentProviders: NextPage = () => {
-  const [paymentList, setpaymentList] = useState<Payment[]>([]);
   const [isLoading, setLoading] = useState(false);
 
   if (isLoading) return <p>Loading...</p>;
