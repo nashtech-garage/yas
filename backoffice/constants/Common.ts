@@ -41,6 +41,9 @@ export const SALES_RECURRING_PAYMENTS_URL = '/sales/recurring-payments';
 export const SALES_GIFT_CARDS_URL = '/sales/gift-cards';
 export const SALES_SHOPPING_CARTS_AND_WISHLISTS_URL = '/sales/shopping-carts-and-wishlists';
 
+export const SYSTEM_PAYMENT_PROVIDERS = '/system/payment-providers';
+export const SYSTEM_SETTINGS = '/system/settings';
+
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;
 export const FORMAT_DATE_YYYY_MM_DD_HH_MM = 'YYYYMMDDHHmmss';
