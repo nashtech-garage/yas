@@ -17,6 +17,8 @@ YAS is a pet project aim to practice building a typical microservice application
 [![tax-ci](https://github.com/nashtech-garage/yas/actions/workflows/tax-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/tax-ci.yaml)
 [![search-ci](https://github.com/nashtech-garage/yas/actions/workflows/search-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/search-ci.yaml)
 [![promotion-ci](https://github.com/nashtech-garage/yas/actions/workflows/promotion-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/promotion-ci.yaml)
+[![payment-ci](https://github.com/nashtech-garage/yas/actions/workflows/payment-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/payment-ci.yaml)
+[![payment-paypal-ci](https://github.com/nashtech-garage/yas/actions/workflows/payment-paypal-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/payment-paypal-ci.yaml)
 
 ## Tentative technologies and frameworks
 
