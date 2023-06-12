@@ -1,4 +1,4 @@
-package com.yas.payment.config;
+package com.yas.paymentpaypal.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,10 +23,9 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests()
+                .requestMatchers("/capture" , "/cancel").permitAll()
                 .requestMatchers("/storefront/**").permitAll()
                 .requestMatchers("/backoffice/**").hasRole("ADMIN")
-                .requestMatchers("/payment-providers/**").permitAll()
-                .requestMatchers("/capture-payment").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();
@@ -36,7 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers("/actuator/prometheus","/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**", "/capture-payment");
+        return web -> web.ignoring().requestMatchers("/actuator/prometheus","/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
     }
 
     @Bean

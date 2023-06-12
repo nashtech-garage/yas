@@ -1,6 +1,6 @@
-package com.yas.payment.exception;
+package com.yas.paymentpaypal.exception;
 
-import com.yas.payment.utils.MessagesUtils;
+import com.yas.paymentpaypal.utils.MessagesUtils;
 
 public class NotFoundException extends RuntimeException {
 

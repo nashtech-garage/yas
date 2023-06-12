@@ -49,3 +49,7 @@ scrape_configs:
     metrics_path: "/payment/actuator/prometheus"
     static_configs:
       - targets: ["payment"]
+  - job_name: "payment-paypal"
+    metrics_path: "/payment-paypal/actuator/prometheus"
+    static_configs:
+      - targets: ["payment-paypal"]

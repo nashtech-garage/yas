@@ -1043,7 +1043,8 @@
         "http://localhost:8089/*",
         "http://localhost:8090/*",
         "http://localhost:8091/*",
-        "http://localhost:8092/*"
+        "http://localhost:8092/*",
+        "http://localhost:8093/*"
       ],
       "webOrigins": [
         "http://api.yas.local",
@@ -1057,7 +1058,8 @@
         "http://localhost:8089",
         "http://localhost:8090",
         "http://localhost:8091",
-        "http://localhost:8092"
+        "http://localhost:8092",
+        "http://localhost:8093"
       ],
       "notBefore": 0,
       "bearerOnly": false,
