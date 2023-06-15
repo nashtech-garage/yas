@@ -30,7 +30,7 @@ jobs:
         run: mvn test -f product
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
-        if: always()
+        if: success() || failure()
         with:
           name: Product-Service-Unit-Test-Results
           path: "product/**/surefire-reports/*.xml"
