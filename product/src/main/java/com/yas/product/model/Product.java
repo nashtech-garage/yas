@@ -65,13 +65,16 @@ public class Product extends AbstractAuditEntity {
     private Brand brand;
 
     @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST})
+    @Builder.Default
     private List<ProductCategory> productCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
     @JsonIgnore
+    @Builder.Default
     private List<ProductAttributeValue> attributeValues = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST})
+    @Builder.Default
     private List<ProductImage> productImages = new ArrayList<>();
 
     @ManyToOne
@@ -80,9 +83,11 @@ public class Product extends AbstractAuditEntity {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
     @JsonIgnore
+    @Builder.Default
     private List<Product> products = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
+    @Builder.Default
     List<ProductRelated> relatedProducts = new ArrayList<>();
 
     private boolean taxIncluded;
