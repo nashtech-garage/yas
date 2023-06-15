@@ -26,23 +26,31 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -f {{SERVICE_NAME}}
-      - name: Analyze with sonar cloud
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f {{SERVICE_NAME}}
-
-  Unit-Tests:
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/workflows/actions
       - name: Run Maven Test
         run: mvn test -f {{SERVICE_NAME}}
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
-        if: always()
+        if: success() || failure()
         with:
           name: Unit-Test-Results
           path: "{{SERVICE_NAME}}/**/surefire-reports/*.xml"
           reporter: java-junit
+      - name: Analyze with sonar cloud
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f {{SERVICE_NAME}}
+      - name: Log in to the Container registry
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker images
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/build-push-action@v3
+        with:
+          context: ./{{SERVICE_NAME}}
+          push: true
+          tags: ghcr.io/nashtech-garage/yas-{{SERVICE_NAME}}:latest
