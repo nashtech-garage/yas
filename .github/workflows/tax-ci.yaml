@@ -26,6 +26,15 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -f tax
+      - name: Run Maven Test
+        run: mvn test -f tax
+      - name: Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tax-Service-Unit-Test-Results
+          path: "tax/**/surefire-reports/*.xml"
+          reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
         env:
@@ -45,20 +54,3 @@ jobs:
           context: ./tax
           push: true
           tags: ghcr.io/nashtech-garage/yas-tax:latest
-
-  Unit-Tests:
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Test
-        run: mvn test -f tax
-      - name: Unit Test Results
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Tax-Service-Unit-Test-Results
-          path: "tax/**/surefire-reports/*.xml"
-          reporter: java-junit
-
