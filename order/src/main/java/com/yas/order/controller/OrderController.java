@@ -3,6 +3,7 @@ package com.yas.order.controller;
 import com.yas.order.model.enumeration.EOrderStatus;
 import com.yas.order.service.OrderService;
 import com.yas.order.viewmodel.order.*;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,12 @@ public class OrderController {
     @GetMapping("/backoffice/orders/{id}")
     public ResponseEntity<OrderVm> getOrderWithItemsById(@PathVariable long id) {
         return ResponseEntity.ok(orderService.getOrderWithItemsById(id));
+    }
+
+    @GetMapping("/backoffice/orders/csv-export")
+    public void exportCSVFile(HttpServletResponse response,
+                              @RequestParam List<Long> orderIdList) {
+        orderService.exportCSVFile(response, orderIdList);
     }
 
     @GetMapping("/backoffice/orders")

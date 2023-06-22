@@ -1,7 +1,7 @@
 package com.yas.order.service;
 
+import com.yas.order.exception.InternalException;
 import com.yas.order.exception.NotFoundException;
-import com.yas.order.model.Checkout;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
@@ -16,12 +16,13 @@ import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.order.*;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVM;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -29,6 +30,10 @@ import org.springframework.util.CollectionUtils;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 @Slf4j
 @Service
@@ -164,7 +169,7 @@ public class OrderService {
                 createdFrom,
                 createdTo,
                 pageable);
-        if(orderPage.isEmpty())
+        if (orderPage.isEmpty())
             return new OrderListVm(null, 0, 0);
 
         List<OrderBriefVm> orderVms = orderPage.getContent()
@@ -197,5 +202,27 @@ public class OrderService {
         String userId = AuthenticationUtils.getCurrentUserId();
         List<Order> orders = orderRepository.findMyOrders(userId, productName, orderStatus);
         return orders.stream().map(OrderGetVm::fromModel).toList();
+    }
+
+    public void exportCSVFile(HttpServletResponse response, List<Long> orderIdList) {
+        //set file name and content type
+        String filename = "Orders-data.csv";
+
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + filename + "\"");
+        response.setCharacterEncoding("UTF-8");
+        //create a csv writer
+        try {
+            StatefulBeanToCsv<OrderCsvExportVm> writer = new StatefulBeanToCsvBuilder<OrderCsvExportVm>(response.getWriter())
+                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                    .withOrderedResults(true)
+                    .build();
+            //write all orders data to csv file
+            writer.write(orderRepository.findByIdIn(orderIdList).stream().map(OrderCsvExportVm::fromModel).toList());
+        } catch (Exception ex) {
+            throw new InternalException(ex.getMessage());
+        }
     }
 }

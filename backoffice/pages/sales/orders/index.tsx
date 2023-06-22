@@ -5,22 +5,23 @@ import ReactPaginate from 'react-paginate';
 import moment from 'moment';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import queryString from 'query-string';
-import { getOrders } from 'modules/order/services/OrderService';
+import { exportCsvFile, getOrders } from 'modules/order/services/OrderService';
 import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
 import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
 import { formatPriceVND } from 'utils/formatPrice';
 import Link from 'next/link';
+import { toastError, toastSuccess } from '@commonServices/ToastService';
 
 const Orders: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<OrderSearchForm>();
   const [isLoading, setLoading] = useState(false);
 
   const [orderList, setOrderList] = useState<Order[]>([]);
+  const [orderIdList, setOrderIdList] = useState<number[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
-  const [isDelete, setDelete] = useState<boolean>(false);
   const orderPageSize = DEFAULT_PAGE_SIZE;
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
@@ -33,7 +34,6 @@ const Orders: NextPage = () => {
       createdFrom: moment(watchAllFields.createdFrom).format(),
       createdTo: moment(watchAllFields.createdTo).format(),
     });
-    console.log(params);
 
     getOrders(params)
       .then((res) => {
@@ -49,7 +49,7 @@ const Orders: NextPage = () => {
     setLoading(true);
     handleGetOrders();
     setLoading(false);
-  }, [pageNo, isDelete]);
+  }, [pageNo]);
 
   useEffect(() => {
     setLoading(true);
@@ -64,6 +64,62 @@ const Orders: NextPage = () => {
   const handlePageChange = ({ selected }: any) => {
     setPageNo(selected);
   };
+
+  const handleExportCsv = (idList: number[] | null) => {
+    const params = idList
+      ? queryString.stringify({
+          orderIdList: idList,
+        })
+      : queryString.stringify({
+          orderIdList: orderIdList,
+        });
+    exportCsvFile(params)
+      .then((res) => {
+        const downloadLink = document.createElement('a');
+        downloadLink.href = res.url; // URL of the file
+
+        // Simulate a click event to trigger the download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        toastSuccess('Export CSV successfully!');
+      })
+      .catch((ex) => {
+        toastError('Export CSV failed!');
+        console.log(ex);
+      });
+  };
+
+  const handleClickCheckbox = (value: number) => {
+    const isExist = orderIdList.includes(value);
+
+    console.log('checked', value, isExist);
+
+    if (isExist) {
+      setOrderIdList(orderIdList.filter((id) => id !== value));
+    } else {
+      setOrderIdList([...orderIdList, value]);
+    }
+  };
+
+  const handleClickCheckAll = (e: any) => {
+    const { checked } = e.target;
+    const newOrderIdList = checked
+      ? orderList
+          .filter((order) => typeof order.id === 'number') // Filter out undefined values
+          .map((order) => order.id as number)
+      : [];
+
+    setOrderIdList(newOrderIdList);
+
+    //set all checkbox to checked
+    const checkboxes = document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = checked;
+    });
+  };
+
   if (isLoading) return <p>Loading...</p>;
   return (
     <>
@@ -72,9 +128,37 @@ const Orders: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
         <div className="col-md-6 text-right">
-          <button type="button" className="btn btn-success me-2">
-            <i className="fa fa-download me-2" aria-hidden="true"></i> Export
-          </button>
+          <div className="btn-group me-2">
+            <button type="button" className="btn btn-success">
+              <i className="fa fa-download" aria-hidden="true"></i> Export
+            </button>
+            <button type="button" className="btn btn-success " data-bs-toggle="dropdown">
+              <i className="fa fa-caret-down" aria-hidden="true"></i>
+            </button>
+            <ul className="dropdown-menu">
+              <li>
+                <a
+                  className="dropdown-item"
+                  href="#"
+                  onClick={() => {
+                    handleExportCsv(
+                      orderList
+                        .filter((order) => typeof order.id === 'number') // Filter out undefined values
+                        .map((order) => order.id as number)
+                    );
+                  }}
+                >
+                  Export to Excel (all found)
+                </a>
+              </li>
+              <li>
+                <a className="dropdown-item" href="#" onClick={() => handleExportCsv(null)}>
+                  Export to Excel (selected)
+                </a>
+              </li>
+            </ul>
+          </div>
+
           <button type="button" className="btn btn-warning me-2">
             <i className="fa fa-upload me-2" aria-hidden="true"></i> Import
           </button>
@@ -118,7 +202,14 @@ const Orders: NextPage = () => {
         <thead>
           <tr>
             <th className="d-flex justify-content-center">
-              <input className="form-check-input" type="checkbox" value="" id="checkAll" />
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={orderIdList.length === orderList?.length}
+                id="checkAll"
+                onClick={(Event) => handleClickCheckAll(Event)}
+                disabled={orderList === undefined || orderList == null}
+              />
             </th>
             <th>Order Id</th>
             <th>Order status</th>
@@ -138,7 +229,8 @@ const Orders: NextPage = () => {
                   <input
                     className="form-check-input mb-3"
                     type="checkbox"
-                    value=""
+                    onChange={(e) => handleClickCheckbox(Number(e.target.value))}
+                    value={order.id}
                     id={`selectOrder${order.id}`}
                   />
                 </td>

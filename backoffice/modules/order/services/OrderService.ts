@@ -18,3 +18,11 @@ export async function getOrderById(id: number) {
   if (response.status >= 200 && response.status < 300) return response.json();
   return Promise.reject(response);
 }
+
+export async function exportCsvFile(params: string) {
+  const response = await fetch('/api/order/backoffice/orders/csv-export?' + params);
+  console.log('/api/order/backoffice/orders/csv-export?' + params);
+
+  if (response.status >= 200 && response.status < 300) return response;
+  return Promise.reject(response);
+}
