@@ -2,6 +2,7 @@ package com.yas.backofficebff.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,18 +26,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http
-                .authorizeExchange()
-                .pathMatchers("/health").permitAll()
-                .pathMatchers("/actuator/prometheus").permitAll()
-                .anyExchange().hasAnyRole("ADMIN")
-                .and()
-                .oauth2Login()
-                .and()
-                .httpBasic().disable()
-                .formLogin().disable()
-                .csrf().disable();
-        return http.build();
+        return http
+                .authorizeExchange(auth -> auth
+                    .pathMatchers("/health").permitAll()
+                    .pathMatchers("/actuator/prometheus").permitAll()
+                    .anyExchange().hasAnyRole("ADMIN"))
+                .oauth2Login(Customizer.withDefaults())
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .build();
     }
     
     @Bean

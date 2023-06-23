@@ -3,6 +3,7 @@ package com.yas.promotion.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,15 +21,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-                .authorizeHttpRequests()
-                .requestMatchers("/storefront/**").permitAll()
-                .requestMatchers("/backoffice/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-                .and()
-                .oauth2ResourceServer().jwt();
-
-        return http.build();
+        return http
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/storefront/**").permitAll()
+                    .requestMatchers("/backoffice/**").hasRole("ADMIN")
+                    .anyRequest().authenticated())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .build();
     }
 
     @Bean
