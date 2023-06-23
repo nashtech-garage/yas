@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.2</version>
+		<version>3.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.yas</groupId>
@@ -20,7 +20,7 @@
 		<springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
 		<org.lombok.version>1.18.22</org.lombok.version>
 		<org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
-		<spring-cloud.version>2022.0.1</spring-cloud.version>
+		<spring-cloud.version>2022.0.3</spring-cloud.version>
 		<sonar.organization>nashtech-garage</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.projectKey>nashtech-garage_yas-payment-paypal</sonar.projectKey>
@@ -96,7 +96,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-exporter-zipkin</artifactId>
+			<artifactId>opentelemetry-exporter-otlp</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.github.loki4j</groupId>

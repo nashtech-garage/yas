@@ -18,6 +18,9 @@ spring:
             client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
             scope: openid, profile, email, roles
 management:
+  otlp:
+    tracing:
+      endpoint: http://tempo:4318/v1/traces
   tracing:
     sampling:
       probability: "1.0"
@@ -31,6 +34,8 @@ management:
         http:
           server:
             requests: true
+    tags:
+      application: ${spring.application.name}
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

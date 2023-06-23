@@ -16,7 +16,7 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT EXISTS (" +
-            "SELECT 1 FROM Order o INNER JOIN OrderItem oi ON o.id=oi.orderId " +
+            "SELECT 1 FROM Order o INNER JOIN o.orderItems oi " +
             "WHERE o.createdBy=:createdBy " +
             "       AND o.orderStatus=COMPLETED " +
             "       AND oi.productId in :productId" +
