@@ -1,0 +1,1687 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c2406b00-1a32-4a09-ba59-81b64f701f7a" name="Changes" comment="Yas k8s deployment">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflow-template.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/actions/action.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/backoffice-bff-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/backoffice-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/cart-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/customer-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/inventory-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/location-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/media-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/order-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/payment-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/payment-paypal-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/product-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/promotion-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/rating-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/search-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/storefront-bff-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/storefront-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/tax-ci.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/src/main/java/com/yas/backofficebff/Application.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/src/main/java/com/yas/backofficebff/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/src/main/java/com/yas/backofficebff/controller/AuthenticationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/src/main/java/com/yas/backofficebff/viewmodel/AuthenticatedUser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice-bff/wait-for-it.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/.eslintrc.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/.prettierignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/.prettierrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/asset/data/sidebar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/components/AuthenticationInfo.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/components/ChooseImageCommon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/components/ConfirmationDialog.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/components/Layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/items/Filter.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/items/Input.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/items/ListGroup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/items/ModalDeleteCustom.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/items/OptionSelect.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/items/ProductModal.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/items/TextEditor.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/services/ResponseStatusHandlingService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/common/services/ToastService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/constants/Common.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/BrandGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/CategoryImage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/CategoryMapping.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ChooseImages.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ChooseThumbnail.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/CrossSellProduct.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ExportProduct.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductAttribute.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductAttributeGroupGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductImage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductOptionGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductSEO.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductVariant.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/ProductVariation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/RelatedProduct.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/components/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/constants/validationPattern.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/Brand.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/Category.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/Filter.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/FormProduct.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/Media.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/Product.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductAttribute.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductAttributeGroup.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductAttributeValue.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductAttributeValuePost.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductImage.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductOption.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductOptionValuePost.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductPayload.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductThumbnail.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductThumbnails.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductVariation.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductVariationPost.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/ProductVariationPut.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/models/Products.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/BrandService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/CategoryService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/MediaService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/ProductAttributeGroupService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/ProductAttributeService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/ProductAttributeValueService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/ProductOptionService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/catalog/services/ProductService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/customer/components/ProfileForm.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/customer/models/Customer.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/customer/models/Customers.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/customer/services/CustomerService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/components/WarehouseGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/ProductInfoVm.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/ProductQuantityInStock.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/Stock.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/StockHistory.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/StockHistoryList.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/StockInfo.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/Warehouse.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/models/WarehouseDetail.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/services/StockHistoryService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/services/StockService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/inventory/services/WarehouseService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/components/CountryGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/components/StateOrProvinceGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/models/Country.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/models/District.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/models/StateOrProvince.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/services/CountryService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/services/DistrictService.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/location/services/StateOrProvinceService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/components/AddressTable.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/components/BillingNShippingInfo.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/components/OrderBriefInfo.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/components/OrderHistory.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/components/OrderProductInfo.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/components/OrderSearch.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/models/Order.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/models/OrderAddress.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/models/OrderItem.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/models/OrderSearchForm.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/order/services/OrderService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/payment/models/Payment.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/profile/models/ProfileRequest.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/rating/components/RatingSearch.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/rating/models/Rating.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/rating/models/RatingSearchForm.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/rating/services/RatingService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/tax/components/TaxClassGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/tax/components/TaxRateGeneralInformation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/tax/models/TaxClass.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/tax/models/TaxRate.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/tax/services/TaxClassService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/modules/tax/services/TaxRateService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/next-env.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/next.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/_app.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/_document.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/brands/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/brands/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/brands/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/categories/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/categories/[id]/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/categories/[id]/listProduct.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/categories/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/categories/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-attribute-groups/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-attribute-groups/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-attribute-groups/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-attributes/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-attributes/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-attributes/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-options/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-options/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/product-options/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/products/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/products/[id]/productAttributes.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/products/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/catalog/products/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/customers/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/inventory/warehouse-products/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/inventory/warehouse-stocks/histories/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/inventory/warehouse-stocks/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/inventory/warehouses/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/inventory/warehouses/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/inventory/warehouses/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/location/countries/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/location/countries/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/location/countries/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/location/state-or-provinces/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/location/state-or-provinces/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/location/state-or-provinces/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/profile/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/reviews/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/sales/orders/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/sales/orders/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/sales/shipments/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/system/payment-providers/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/tax/tax-classes/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/tax/tax-classes/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/tax/tax-classes/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/tax/tax-rates/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/tax/tax-rates/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/pages/tax/tax-rates/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/public/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/public/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/sonar-project.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/ChooseImage.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/CustomToast.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/Filter.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/Home.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/Layout.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/ListGroup.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/ProductVariant.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/Sidebar.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/TextEditor.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/common/app.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/common/color.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/common/input.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/common/scroll_bar.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/common/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/common/typography.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/common/variable.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/styles/globals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/utils/concatQueryString.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backoffice/utils/formatPrice.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/CartApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/controller/CartController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/model/Cart.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/model/CartItem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/repository/CartItemRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/repository/CartRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/service/CartService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/service/ProductService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/CartDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/CartGetDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/CartItemPutVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/CartItemVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/CartListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/CartPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/ProductThumbnailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/java/com/yas/cart/viewmodel/ResponeStatusVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/resources/db/changelog/ddl/changelog-0002.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/test/java/com/yas/cart/service/CartServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/NOTES.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/deployment.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/extra-manifests.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/hpa.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/ingress.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/service.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/serviceaccount.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/servicemonitoring.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/templates/tests/test-connection.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backend/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-bff/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-bff/Chart.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-bff/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-bff/charts/backend-0.1.0.tgz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-bff/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-bff/templates/backoffice-bff.configmap.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-bff/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-ui/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-ui/Chart.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-ui/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-ui/charts/ui-0.1.0.tgz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-ui/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/backoffice-ui/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/templates/NOTES.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/templates/deployment.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/templates/hpa.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/templates/ingress.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/templates/service.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/templates/serviceaccount.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/ui/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/Chart.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/charts/reloader-1.0.29.tgz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/templates/yas-configuration.configmap.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/templates/yas-credentials.secret.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/charts/yas-common/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/connectors-config/connections/source.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/CustomerApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/KeycloakClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/KeycloakPropsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/controller/CustomerController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/controller/UserAddressController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/exception/AccessDeniedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/exception/CreateGuestUserException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/exception/WrongEmailFormatException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/model/UserAddress.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/repository/UserAddressRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/service/CustomerService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/service/LocationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/service/UserAddressService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/address/ActiveAddressVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/address/AddressDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/address/AddressPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/address/AddressVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/customer/CustomerAdminVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/customer/CustomerListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/customer/CustomerProfileRequestVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/customer/CustomerVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/customer/GuestUserVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/java/com/yas/customer/viewmodel/user_address/UserAddressVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer/src/test/java/service/CustomerServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.o11y.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.search.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/grafana/provisioning/dashboards/dashboard.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/grafana/provisioning/dashboards/logs_traces_metrics.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/grafana/provisioning/datasources/datasource.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/prometheus/prometheus.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/tempo/tempo-local.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/realm-export.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/components/link/primary.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/components/link/secondary.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/login.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/register.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/resources/css/login.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/resources/img/background.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/resources/img/eye-off.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/resources/img/eye.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/resources/img/yaslogo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/template.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/identity/themes/yas/login/theme.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/InventoryApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/constants/ApiConstant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/constants/MessageCode.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/constants/PageableConstant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/controller/StockController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/controller/StockHistoryController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/controller/WarehouseController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/exception/AccessDeniedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/exception/DuplicatedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/model/Stock.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/model/StockHistory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/model/Warehouse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/model/enumeration/FilterExistInWHSelection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/repository/StockHistoryRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/repository/StockRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/repository/WarehouseRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/service/LocationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/service/ProductService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/service/StockHistoryService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/service/StockService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/service/WarehouseService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/utils/AuthenticationUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/StockHistory/StockHistoryListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/StockHistory/StockHistoryVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/address/AddressDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/address/AddressPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/address/AddressVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/error/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/product/ProductInfoVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/product/ProductQuantityPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/stock/StockPostVM.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/stock/StockQuantityUpdateVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/stock/StockQuantityVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/stock/StockVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/warehouse/WarehouseDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/warehouse/WarehouseGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/warehouse/WarehouseListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/java/com/yas/inventory/viewmodel/warehouse/WarehousePostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/test/java/service/InventoryServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/cluster-config.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/deploy-yas-applications.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/filerealm/users" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/templates/elasticsearch.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/templates/kibana-ingress.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/templates/kibana.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/templates/user-credentials.secret.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/akhq.values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/templates/credentials.secret.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/templates/debezium-connect-cluster.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/templates/debezium-connector-postgresql-product-db.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/templates/kafka-cluster.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/templates/role-binding.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/templates/role.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/kafka/kafka-cluster/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/templates/keycloak-yas-realm-import.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/templates/keycloak.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/templates/postgresql-credential.secret.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/templates/yas-themes.configmap.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/META-INF/keycloak-themes.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/components/link/primary.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/components/link/secondary.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/login.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/register.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/resources/css/login.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/resources/img/background.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/resources/img/eye-off.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/resources/img/eye.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/resources/img/yaslogo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/template.ftl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/keycloak/themes/theme/yas/login/theme.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/.helmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/NOTES.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/_helpers.tpl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/deployment.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/hpa.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/ingress.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/pvc.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/secret.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/service.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/serviceaccount.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/templates/tests/test-connection.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/pgadmin/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/postgres-operator-ui.values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/postgresql/Chart.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/postgresql/templates/credentials.secret.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/postgresql/templates/postgresql.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/postgres/postgresql/values.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s-deployment/setup-cluster.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s_command.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/LocationApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/controller/AddressController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/controller/CountryController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/controller/CountryStorefrontController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/controller/DistrictStorefrontController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/controller/StateOrProvinceController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/controller/StateOrProvinceStoreFrontController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/exception/DuplicatedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/mapper/AddressResponseMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/mapper/CountryMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/mapper/StateOrProvinceMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/model/Address.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/model/Country.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/model/District.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/model/StateOrProvince.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/repository/AddressRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/repository/CountryRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/repository/DistrictRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/repository/StateOrProvinceRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/service/AddressService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/service/CountryService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/service/DistrictService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/service/StateOrProvinceService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/address/AddressDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/address/AddressGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/address/AddressPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/country/CountryListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/country/CountryPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/country/CountryVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/district/DistrictGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/error/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/stateorprovince/StateOrProvinceAndCountryGetNameVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/stateorprovince/StateOrProvinceListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/stateorprovince/StateOrProvincePostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/java/com/yas/location/viewmodel/stateorprovince/StateOrProvinceVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/test/java/com/yas/location/service/LocationServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/location/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/MediaApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/config/YasConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/controller/MediaController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/exception/ControllerAdvisor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/exception/MultipartFileContentException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/exception/UnsupportedMediaTypeException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/model/Media.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/repository/MediaRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/service/MediaService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/service/MediaServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/viewmodel/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/viewmodel/MediaPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/viewmodel/MediaVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/java/com/yas/media/viewmodel/NoFileMediaVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/test/java/com/yas/media/MediaApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nginx/configuration/custom_proxy_settings.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nginx/templates/default.conf.template" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/OrderApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/controller/CheckoutController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/controller/OrderController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/exception/Forbidden.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/exception/SignInRequiredException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/Checkout.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/CheckoutItem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/Order.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/OrderAddress.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/OrderItem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/enumeration/ECheckoutState.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/enumeration/EDeliveryMethod.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/enumeration/EDeliveryStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/enumeration/EOrderStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/enumeration/EPaymentMethod.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/model/enumeration/EPaymentStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/repository/CheckoutItemRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/repository/CheckoutRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/repository/OrderAddressRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/repository/OrderItemRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/repository/OrderRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/service/CartService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/service/CheckoutService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/service/CustomerService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/service/OrderService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/service/ProductService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/service/TaxService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/utils/AuthenticationUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/ResponeStatusVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/checkout/CheckoutItemPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/checkout/CheckoutItemVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/checkout/CheckoutPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/checkout/CheckoutVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/customer/CustomerVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderBriefVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderExistsByProductAndUserGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderItemGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderItemPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderItemVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/order/OrderVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/orderaddress/OrderAddressPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/orderaddress/OrderAddressVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/java/com/yas/order/viewmodel/product/ProductVariationVM.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0002.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0003.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0004.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0005.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0006.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0007.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0008.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/db/changelog/ddl/changelog-0009.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/test/java/com/yas/order/service/OrderServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/PaymentPaypalApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/config/PaypalConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/controller/PaypalController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/exception/ForbiddenException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/exception/SignInRequiredException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/model/CheckoutIdHelper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/model/PaymentProviderHelper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/service/PaymentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/service/PaypalService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/utils/AuthenticationUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/viewmodel/CapturedPaymentVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/viewmodel/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/viewmodel/PaypalRequestPayment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/viewmodel/RequestPayment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/java/com/yas/paymentpaypal/viewmodel/ResponeStatusVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/test/java/com/yas/paymentpaypal/serivce/PaypalServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-paypal/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/PaymentApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/controller/PaymentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/controller/PaymentProviderController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/model/Payment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/model/PaymentProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/model/enumeration/EPaymentMethod.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/model/enumeration/EPaymentStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/repository/PaymentProviderRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/repository/PaymentRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/service/PaymentProviderService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/service/PaymentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/viewmodel/CapturedPayment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/java/com/yas/payment/viewmodel/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/resources/db/changelog/data/changelog-0001-provider.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/resources/db/changelog/ddl/changelog-0002.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/test/java/com/yas/payment/serivce/PaymentServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/postgres_init.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/ProductApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/constants/PageableConstant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/BrandController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/CategoryController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/ProductAttributeController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/ProductAttributeGroupController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/ProductAttributeValueController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/ProductController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/ProductOptionController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/controller/ProductOptionValueController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/exception/DuplicatedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/Brand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/Category.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/Product.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/ProductCategory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/ProductImage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/ProductOption.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/ProductOptionCombination.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/ProductOptionValue.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/ProductRelated.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/attribute/ProductAttribute.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/attribute/ProductAttributeGroup.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/attribute/ProductAttributeValue.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/model/enumeration/FilterExistInWHSelection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/BrandRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/CategoryRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductAttributeGroupRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductAttributeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductAttributeValueRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductCategoryRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductImageRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductOptionCombinationRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductOptionRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductOptionValueRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductRelatedRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/repository/ProductRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/service/BrandService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/service/CategoryService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/service/MediaService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/service/ProductAttributeGroupService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/service/ProductAttributeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/service/ProductOptionService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/service/ProductService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/utils/StringUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/validation/PriceValidator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/validation/ValidateProductPrice.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/ImageVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/NoFileMediaVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/brand/BrandListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/brand/BrandPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/brand/BrandVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/category/CategoryGetDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/category/CategoryGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/category/CategoryListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/category/CategoryPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/error/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductDetailGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductESDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductExportingDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductFeatureGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductGetDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductInfoVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductListGetFromCategoryVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductOptionValueGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductPutVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductQuantityPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductSlugGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductThumbnailGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductThumbnailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductVariationGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductVariationPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductVariationPutVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/product/ProductsGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeGroupGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeGroupListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeGroupPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeGroupVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributePostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeValueGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeValuePostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productattribute/ProductAttributeValueVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productoption/ProductOptionGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productoption/ProductOptionListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productoption/ProductOptionPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productoption/ProductOptionValueGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productoption/ProductOptionValuePostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/java/com/yas/product/viewmodel/productoption/ProductOptionValuePutVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0001-brand.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0002-category.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0003-product.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0004-product-category.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0005-product-attribute-group.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0006-product-attribute.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0007-product-option.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0008-product-option-combination.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/data/changelog-0009-product-option-value.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0002.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0003.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0004.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0005.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0006.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0007-product-related.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0008-add-taxIncluded-table-product.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/db/changelog/ddl/changelog-0008.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/controller/BrandControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/controller/CategoryControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/controller/ProductAttributeControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/controller/ProductAttributeGroupControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/controller/ProductAttributeValueControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/controller/ProductOptionControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/controller/ProductOptionValueControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/model/ProductTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/service/CategoryServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/java/com/yas/product/service/ProductServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/product/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/PromotionApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/controller/PromotionController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/exception/DuplicatedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/model/Promotion.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/repository/PromotionRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/service/PromotionService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/viewmodel/PromotionDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/viewmodel/PromotionListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/viewmodel/PromotionPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/viewmodel/PromotionVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/java/com/yas/promotion/viewmodel/error/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/test/java/com/yas/promotion/service/PromotionServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/promotion/src/test/resources/mockito-extentions/org.mokito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/RatingApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/controller/RatingController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/exception/AccessDeniedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/exception/ResourceExistedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/model/Rating.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/repository/RatingRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/service/CustomerService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/service/OrderService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/service/ProductService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/service/RatingService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/utils/AuthenticationUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/viewmodel/CustomerVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/viewmodel/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/viewmodel/OrderExistsByProductAndUserGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/viewmodel/RatingListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/viewmodel/RatingPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/viewmodel/RatingVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/java/com/yas/rating/viewmodel/ResponeStatusVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/resources/db/changelog/ddl/changelog-0002.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/test/java/com/yas/rating/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/test/java/com/yas/rating/model/RatingTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/test/java/com/yas/rating/service/RatingServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rating/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/ElasticsearchApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/config/ImperativeClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/constant/document_fields/ProductField.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/constant/enums/ESortType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/constants/Action.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/constants/MessageCode.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/consumer/ProductSyncDataConsumer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/controller/ProductController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/document/Product.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/exception/DuplicatedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/repository/ProductRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/service/ProductService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/service/ProductSyncDataService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/viewmodel/ProductESDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/viewmodel/ProductGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/viewmodel/ProductListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/viewmodel/ProductNameGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/viewmodel/ProductNameListVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/java/com/yas/search/viewmodel/error/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/resources/esconfig/elastic-analyzer.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/test/java/com/yas/search/service/ProductServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/test/java/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/test/java/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/src/test/java/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/search/wait-for-it.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/start-source-connectors.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/StorefrontBffApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/controller/AuthenticationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/viewmodel/AuthenticatedUserVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/viewmodel/AuthenticationInfoVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/viewmodel/CartDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/viewmodel/CartGetDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/viewmodel/CartItemVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/viewmodel/GuestUserVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/java/com/yas/storefrontbff/viewmodel/TokenResponseVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront-bff/wait-for-it.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/.env.development" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/.env.production" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/.eslintrc.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/.prettierignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/.prettierrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/data/data_header_client.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/icons/icon-pay-01.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/icons/icon-pay-02.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/icons/icon-pay-03.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/icons/icon-pay-04.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/icons/icon-pay-05.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/images/main-banner-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/images/main-banner-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/images/main-banner-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/images/no-result.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/asset/images/sub-banner.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/AuthenticationInfo.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/BreadcrumbComponent.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/ImageWithFallback.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/Layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/ProductCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/ProductImageGallery.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/ProfileLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/UserProfileLeftSideBar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/common/Footer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/common/Header.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/components/dialog/ConfirmationDialog.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/constants/Common.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/images/bg_banner.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/images/default-avatar.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/images/search-promote-image.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/items/Banner.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/items/Input.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/items/ModalChooseDefaultAddress.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/items/ModalDeleteCustom.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/items/OptionSelect.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/common/items/ProductItems.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/context/AppContext.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/context/CartContext.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/context/UserInfoContext.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/address/components/AddressCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/address/components/AddressForm.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/address/models/AddressModel.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/address/services/AddressService.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/breadcrumb/model/BreadcrumbModel.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/cart/models/AddToCartModel.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/cart/models/Cart.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/cart/models/CartItem.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/cart/models/ProductSlug.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/cart/models/UpdateCartModel.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/cart/services/CartService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/components/DetailHeader.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/components/ProductDetails.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/components/RelatedProducts.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/components/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/Category.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/Media.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/Product.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductAttribute.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductDetail.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductFeature.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductOptionValueGet.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductOptions.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductThumbnail.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductVariation.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/models/ProductsGet.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/services/CategoryService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/services/ProductService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/catalog/services/ToastService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/country/models/Country.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/country/services/CountryService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/customer/services/CustomerService.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/district/models/District.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/district/services/DistrictService.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/home/components/Banner.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/home/components/Category.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/home/components/FeaturedProduct.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/home/components/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/media/models/Media.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/media/services/MediaService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/components/CheckOutAddress.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/components/CheckOutDetail.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/components/ModalAddressList.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/components/OrderCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/components/OrderStatusTab.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/Checkout.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/CheckoutItem.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/EDeliveryMethod.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/EDeliveryStatus.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/EOrderStatus.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/Order.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/OrderGetVm.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/OrderItem.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/models/OrderItemGetVm.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/order/services/OrderService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/profile/models/Customer.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/profile/models/ProfileRequest.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/profile/services/ProfileService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/rating/components/PostRatingForm.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/rating/components/RatingList.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/rating/components/Star.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/rating/components/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/rating/models/Rating.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/rating/models/RatingPost.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/rating/services/RatingService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/components/SearchFilter.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/components/SearchResultLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/components/SearchSort.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/models/Aggregations.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/models/ProductSearchResult.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/models/ProductSearchSuggestions.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/models/SearchParams.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/models/SearchProductResponse.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/models/SearchSuggestion.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/models/SortType.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/search/services/SearchService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/stateAndProvince/models/StateOrProvince.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/modules/stateAndProvince/services/StatesOrProvicesService.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/next-env.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/next.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/404.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/_app.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/about/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/address/[id]/edit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/address/create.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/address/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/cart/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/checkout/[id].tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/contact/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/history/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/my-orders/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/products/[slug].tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/products/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/profile/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/redirect/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/pages/search/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/public/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/public/static/images/default-fallback-image.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/public/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/sonar-project.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/404.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/Footer.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/Header.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/HomePage.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/MyOrder.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/ProductCard.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/address.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/cart.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/checkout.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/form.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/globals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/modules/search/SearchFilter.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/modules/search/SearchPage.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/modules/search/SearchSort.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/productDetail.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/productList.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/styles/util.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/utils/concatQueryString.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/utils/formatPrice.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/utils/orderUtil.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/storefront/utils/useDebounce.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/TaxApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/config/DatabaseAutoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/config/ServiceUrlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/config/WebClientConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/constants/ApiConstant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/constants/MessageCode.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/constants/PageableConstant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/controller/TaxClassController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/controller/TaxRateController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/exception/ApiExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/exception/DuplicatedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/listener/CustomAuditingEntityListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/model/AbstractAuditEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/model/TaxClass.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/model/TaxRate.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/repository/TaxClassRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/repository/TaxRateRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/service/LocationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/service/TaxClassService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/service/TaxRateService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/utils/Constants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/utils/MessagesUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/error/ErrorVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/location/StateOrProvinceAndCountryGetNameVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/taxclass/TaxClassListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/taxclass/TaxClassPostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/taxclass/TaxClassVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/taxrate/TaxRateGetDetailVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/taxrate/TaxRateListGetVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/taxrate/TaxRatePostVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/java/com/yas/tax/viewmodel/taxrate/TaxRateVm.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/resources/db/changelog/data/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/resources/db/changelog/ddl/changelog-0001.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/main/resources/messages/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/test/java/com/yas/tax/service/TaxServiceTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/test/resources/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tax/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tempo-data/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/yas-architecture-local.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/yaslocal.yaml" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="yas_helm_charts" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JpbToolWindowState">
+    <option name="isToolWindowVisible" value="false" />
+  </component>
+  <component name="KubernetesApiPersistence">
+    <option name="context" value="minikube" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="useMavenConfig" value="true" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="skipTests" value="true" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="2" />
+  </component>
+  <component name="ProjectId" id="2QaqxSn806jv8wU6Gu9XNMNsEBG" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;graalvm-17&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/disk/Nastech-project/yas/charts/backoffice-bff/charts&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;acf501398893a305b1250a513fda8dc2&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/disk/Ide/ideaIU-2023.1.2/idea-IU-231.9011.34/plugins/javascript-impl/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/charts/backoffice-bff/charts" />
+      <recent name="$PROJECT_DIR$/charts/backend/templates" />
+      <recent name="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/themes" />
+      <recent name="$PROJECT_DIR$/k8s-deployment/keycloak/theme" />
+      <recent name="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/k8s-deployment/keycloak/yastheme" />
+      <recent name="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak/import" />
+      <recent name="$PROJECT_DIR$/k8s-deployment/keycloak/keycloak" />
+      <recent name="$PROJECT_DIR$/k8s-deployment/elasticsearch/elasticsearch-cluster" />
+      <recent name="$PROJECT_DIR$/k8s-deployment/postgres/postgres/templates" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.ProductApplication">
+    <configuration name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="backoffice-bff" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.backofficebff.Application" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CartApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="cart" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.cart.CartApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CustomerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="customer" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.customer.CustomerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ElasticsearchApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="search" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.search.ElasticsearchApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="InventoryApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="inventory" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.inventory.InventoryApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LocationApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="location" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.location.LocationApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MediaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="media" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.media.MediaApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="OrderApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="order" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.order.OrderApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PaymentApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="payment" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.payment.PaymentApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PaymentPaypalApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="payment-paypal" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.paymentpaypal.PaymentPaypalApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProductApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="product" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.product.ProductApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PromotionApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="promotion" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.promotion.PromotionApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RatingApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="rating" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.rating.RatingApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="StorefrontBffApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="storefront-bff" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.storefrontbff.StorefrontBffApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TaxApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="tax" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.yas.tax.TaxApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml.identity: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="identity" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Docker.docker-compose.yml.identity: Compose Deployment" />
+      <item itemvalue="Spring Boot.Application" />
+      <item itemvalue="Spring Boot.CartApplication" />
+      <item itemvalue="Spring Boot.CustomerApplication" />
+      <item itemvalue="Spring Boot.ElasticsearchApplication" />
+      <item itemvalue="Spring Boot.InventoryApplication" />
+      <item itemvalue="Spring Boot.LocationApplication" />
+      <item itemvalue="Spring Boot.MediaApplication" />
+      <item itemvalue="Spring Boot.OrderApplication" />
+      <item itemvalue="Spring Boot.PaymentApplication" />
+      <item itemvalue="Spring Boot.PaymentPaypalApplication" />
+      <item itemvalue="Spring Boot.ProductApplication" />
+      <item itemvalue="Spring Boot.PromotionApplication" />
+      <item itemvalue="Spring Boot.RatingApplication" />
+      <item itemvalue="Spring Boot.StorefrontBffApplication" />
+      <item itemvalue="Spring Boot.TaxApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.docker-compose.yml.identity: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml.identity: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml.identity: Compose Deployment" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c2406b00-1a32-4a09-ba59-81b64f701f7a" name="Changes" comment="" />
+      <created>1685602285612</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1685602285612</updated>
+      <workItem from="1685602287051" duration="2116000" />
+      <workItem from="1685610631797" duration="1454000" />
+      <workItem from="1685672130491" duration="4278000" />
+      <workItem from="1685679141500" duration="20000" />
+      <workItem from="1685680848244" duration="4081000" />
+      <workItem from="1685776677278" duration="25000" />
+      <workItem from="1685778154557" duration="530000" />
+      <workItem from="1685784583324" duration="10000" />
+      <workItem from="1685958970270" duration="76000" />
+      <workItem from="1686288744761" duration="112000" />
+      <workItem from="1686711619438" duration="12597000" />
+      <workItem from="1686730010341" duration="714000" />
+      <workItem from="1686883612383" duration="2232000" />
+      <workItem from="1686971248281" duration="1736000" />
+      <workItem from="1687161031916" duration="24000" />
+      <workItem from="1687331503992" duration="8228000" />
+      <workItem from="1687405473354" duration="12741000" />
+      <workItem from="1687423607467" duration="12878000" />
+      <workItem from="1687491372305" duration="18022000" />
+      <workItem from="1687516732764" duration="1880000" />
+      <workItem from="1687748730876" duration="39552000" />
+      <workItem from="1687850333429" duration="14162000" />
+      <workItem from="1687919714409" duration="23558000" />
+      <workItem from="1688007331334" duration="27330000" />
+      <workItem from="1688036695830" duration="4027000" />
+      <workItem from="1688090352851" duration="30852000" />
+      <workItem from="1688176436112" duration="11495000" />
+    </task>
+    <task id="LOCAL-00001" summary="Using otlp exporter instead of zipkin exporter">
+      <created>1687496608845</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1687496608845</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Yas k8s deployment">
+      <created>1688187090682</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1688187090682</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="Using otlp exporter instead of zipkin exporter" />
+    <MESSAGE value="Yas k8s deployment" />
+    <option name="LAST_COMMIT_MESSAGE" value="Yas k8s deployment" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/product/src/main/java/com/yas/product/config/SecurityConfig.java</url>
+          <line>40</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

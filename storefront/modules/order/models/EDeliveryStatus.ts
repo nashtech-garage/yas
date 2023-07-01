@@ -1,6 +1,0 @@
-export enum EDeliveryStatus {
-  PENDING = 'PENDING',
-  DELIVERING = 'DELIVERING',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED',
-}

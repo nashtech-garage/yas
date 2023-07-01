@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: backoffice-bff-configmap
-  annotations:
-    reloader.stakater.com/match: "true"
-data:
-  backoffice-bff-application.yaml: |
-    {{- toYaml .Values.backofficeBffApplicationConfig | nindent 4 }}

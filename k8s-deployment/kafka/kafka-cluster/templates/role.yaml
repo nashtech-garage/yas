@@ -1,9 +1,0 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: connector-configuration-role
-rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    resourceNames: ["postgresql.credentials"]
-    verbs: ["get", "watch", "list"]

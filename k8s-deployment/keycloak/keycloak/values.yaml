@@ -1,4 +1,0 @@
-hostname: identity.yas.local.com
-postgresql:
-  username: yasadminuser
-  password: admin

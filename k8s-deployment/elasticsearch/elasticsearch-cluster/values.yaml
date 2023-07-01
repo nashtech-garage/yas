@@ -1,6 +1,0 @@
-elasticsearch:
-  replicas: 1
-kibana:
-  ingress:
-    className: nginx
-    hostname: kibana.yas.local.com
