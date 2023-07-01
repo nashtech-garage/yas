@@ -1,0 +1,87 @@
+dockerconfigjson: eyJhdXRocyI6eyJnaGNyLmlvIjp7InVzZXJuYW1lIjoibmFzdGVjaC1iYW5nbmd1eWVubCIsInBhc3N3b3JkIjoiZ2hwX056cFRBN1JmSG1tWlZxSkl6REtQS1NFM2doTTFidzJVVUcwdyIsImF1dGgiOiJibUZ6ZEdWamFDMWlZVzVuYm1kMWVXVnViRHBuYUhCZlRucHdWRUUzVW1aSWJXMWFWbkZLU1hwRVMxQkxVMFV6WjJoTk1XSjNNbFZWUnpCMyJ9fX0=
+
+credentials:
+  postgresql:
+    username: eWFzYWRtaW51c2VyCg==
+    password: YWRtaW4K
+  elasticsearch:
+    username: eWFzCg==
+    password: TGFyVW1CM0E0OU5UZzlZbWdXND0K
+
+applicationConfig:
+  server:
+    port: 80
+
+  management:
+    otlp:
+      tracing:
+        endpoint: http://tempo.observability:4318/v1/traces
+    server:
+      port: 8090
+    health:
+      readinessstate:
+        enabled: true
+      livenessstate:
+        enabled: true
+    tracing:
+      sampling:
+        probability: 1.0
+    metrics:
+      tags:
+        application: ${spring.application.name}
+
+  logging:
+    pattern:
+      level: traceId=%X{traceId:-},spanId=%X{spanId:-},level=%level
+
+  spring:
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            issuer-uri: http://identity.yas.local.com/realms/Yas
+        client:
+          provider:
+            keycloak:
+              issuer-uri: http://identity.yas.local.com/realms/Yas
+    datasource:
+      username: ${POSTGRESQL_USERNAME}
+      password: ${POSTGRESQL_PASSWORD}
+    kafka:
+      consumer:
+        bootstrap-servers: kafka-cluster-kafka-brokers.kafka:9092
+
+  springdoc:
+    oauthflow:
+      authorization-url: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/auth
+      token-url: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/token
+
+  yas:
+    service:
+      customer: http://customer/customer
+      cart: http://cart/cart
+      ratting: http://rating/rating
+      order: http://order/order
+      location: http://location/location
+      inventory: http://inventory/inventory
+      tax: http://tax/tax
+      promotion: http://promotion/promotion
+      payment: http://payment/payment
+
+logbackConfig: |
+  <?xml version="1.0" encoding="UTF-8" ?>
+  <Configuration>
+      <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+      <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+      <property name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}"/>
+      <root level="INFO">
+          <appender-ref ref="CONSOLE" />
+      </root>
+      <logger name="com.yas" level="${LOG_LEVEL}">
+          <appender-ref ref="CONSOLE" />
+      </logger>
+  </Configuration>
+
+reloader:
+  reloader:
+    watchGlobally: false

@@ -1,0 +1,45 @@
+kind: "postgresql"
+apiVersion: "acid.zalan.do/v1"
+
+metadata:
+  name: "postgresql"
+  labels:
+    team: acid
+
+spec:
+  streams:
+    - applicationId: product_db_stream_appid
+      database: product
+      tables: {}
+  teamId: "acid"
+  postgresql:
+    version: {{ .Values.postgresqlVersion | quote }}
+  numberOfInstances: {{ .Values.replicas }}
+  volume:
+    size: {{ .Values.volumeSize }}
+  users:
+    {{ .Values.username }}:
+      - superuser
+      - inherit
+      - login
+      - createrole
+      - createdb
+      - replication
+  databases:
+    cart: {{ .Values.username }}
+    customer: {{ .Values.username }}
+    inventory: {{ .Values.username }}
+    keycloak: {{ .Values.username }}
+    location: {{ .Values.username }}
+    media: {{ .Values.username }}
+    order: {{ .Values.username }}
+    payment: {{ .Values.username }}
+    product: {{ .Values.username }}
+    promotion: {{ .Values.username }}
+    rating: {{ .Values.username }}
+    tax: {{ .Values.username }}
+  allowedSourceRanges:
+  # IP ranges to access your cluster go here
+
+  resources:
+    {{ toYaml .Values.resources | nindent 4 }}

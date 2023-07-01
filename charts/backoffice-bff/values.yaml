@@ -1,0 +1,112 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-backoffice-bff
+    tag: latest
+
+  nameOverride: backoffice-bff
+  fullnameOverride: backoffice-bff
+
+  ingress:
+    enabled: true
+    host: backoffice.yas.local.com
+    path: /
+
+  extraEnvs:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+  extraVolumes:
+    - name: backoffice-bff-configuration
+      configMap:
+        name: backoffice-bff-configmap
+  extraVolumeMounts:
+    - name: backoffice-bff-configuration
+      mountPath: /opt/yas/backoffice-bff
+  extraApplicationConfigPaths:
+    - /opt/yas/backoffice-bff/backoffice-bff-application.yaml
+
+backofficeBffApplicationConfig:
+  spring:
+    cloud:
+      gateway:
+        routes:
+          - id: product_api
+            uri: http://product
+            predicates:
+              - Path=/api/product/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: location_api
+            uri: http://location
+            predicates:
+              - Path=/api/location/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: inventory_api
+            uri: http://inventory
+            predicates:
+              - Path=/api/inventory/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: cart_api
+            uri: http://cart
+            predicates:
+              - Path=/api/cart/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: customer_api
+            uri: http://customer
+            predicates:
+              - Path=/api/customer/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: media_api
+            uri: http://media
+            predicates:
+              - Path=/api/media/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: rating_api
+            uri: http://rating
+            predicates:
+              - Path=/api/rating/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: tax_api
+            uri: http://tax
+            predicates:
+              - Path=/api/tax/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: promotion_api
+            uri: http://protion
+            predicates:
+              - Path=/api/promotion/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: search_api
+            uri: http://search
+            predicates:
+              - Path=/api/search/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: order_api
+            uri: http://order
+            predicates:
+              - Path=/api/order/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: backoffice_ui
+            uri: http://backoffice-ui:3000
+            predicates:
+              - Path=/**
