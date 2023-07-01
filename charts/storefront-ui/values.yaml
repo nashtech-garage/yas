@@ -1,0 +1,26 @@
+ui:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-storefront
+    tag: latest
+  nameOverride: storefront-ui
+  fullnameOverride: storefront-ui
+#  extraVolumes:
+#    - name: storefront-env-production
+#      configMap:
+#        name: storefront-env-production-configmap
+#        items:
+#          - key: .env.production
+#            path: .env.production
+#  extraVolumeMounts:
+#    - name: storefront-env-production
+#      mountPath: /app/.env.production
+#      readOnly: true
+#      subPath: .env.production
+  extraEnvs:
+    - name: API_BASE_PATH
+      value: http://storefront.yas.local.com/api
+  ingress:
+    enabled: false
+
+#storefrontEnvProduction: |
+#  API_BASE_PATH=http://storefront.yas.local.com/api

@@ -1,0 +1,24 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-search
+    tag: latest
+
+  nameOverride: search
+  fullnameOverride: search
+  databaseName: search
+  ingress:
+    enabled: true
+    host: api.yas.local.com
+    path: /search
+  extraEnvFroms:
+    - secretRef:
+        name: yas-elasticsearch-credentials-secret
+  extraVolumes:
+    - name: search-application
+      configMap:
+        name: search-application-configmap
+  extraVolumeMounts:
+    - name: search-application
+      mountPath: /opt/yas/search
+  extraApplicationConfigPaths:
+    - /opt/yas/search/search-application.yaml

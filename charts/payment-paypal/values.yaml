@@ -1,0 +1,12 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-payment-paypal
+    tag: latest
+
+  nameOverride: payment-paypal
+  fullnameOverride: payment-paypal
+  databaseName: payment-paypal
+  ingress:
+    enabled: true
+    host: api.yas.local.com
+    path: /payment-paypal

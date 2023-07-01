@@ -1,0 +1,12 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-cart
+    tag: latest
+
+  nameOverride: cart
+  fullnameOverride: cart
+  databaseName: cart
+  ingress:
+    enabled: true
+    host: api.yas.local.com
+    path: /cart

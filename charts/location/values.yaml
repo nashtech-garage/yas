@@ -1,0 +1,12 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-location
+    tag: latest
+
+  nameOverride: location
+  fullnameOverride: location
+  databaseName: location
+  ingress:
+    enabled: true
+    host: api.yas.local.com
+    path: /location
