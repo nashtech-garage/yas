@@ -24,6 +24,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/storefront/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/backoffice/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

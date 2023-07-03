@@ -25,6 +25,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.GET, "/medias/**").permitAll()
+                    .requestMatchers("/actuator/**").permitAll()
                     .requestMatchers("/medias").hasRole("ADMIN")
                     .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

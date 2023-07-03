@@ -26,6 +26,7 @@ public class SecurityConfig {
                     .requestMatchers("/storefront/carts", "/storefront/carts/**").hasRole("CUSTOMER")
                     .requestMatchers("/storefront/**").permitAll()
                     .requestMatchers("/backoffice/**").hasRole("ADMIN")
+                    .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
