@@ -6,7 +6,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,16 +23,13 @@ public class SecurityConfig {
 
         return http
                 .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/actuator/prometheus", "/actuator/health/**",
+                            "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/medias/**").permitAll()
                     .requestMatchers("/medias").hasRole("ADMIN")
                     .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers("/actuator/prometheus", "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**");
     }
 
     @Bean
