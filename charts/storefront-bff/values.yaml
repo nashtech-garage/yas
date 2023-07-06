@@ -1,0 +1,27 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-storefront-bff
+    tag: latest
+
+  nameOverride: storefront-bff
+  fullnameOverride: storefront-bff
+
+  ingress:
+    enabled: true
+    host: storefront.yas.local.com
+    path: /
+
+  extraEnvs:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+    - name: UI_HOST
+      value: http://storefront-ui:3000
+  extraVolumes:
+    - name: yas-gateway-routes-config
+      configMap:
+        name: yas-gateway-routes-config-configmap
+  extraVolumeMounts:
+    - name: yas-gateway-routes-config
+      mountPath: /opt/yas/storefront-bff
+  extraApplicationConfigPaths:
+    - /opt/yas/storefront-bff/gateway-routes-config.yaml

@@ -1,0 +1,12 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-product
+    tag: latest
+
+  nameOverride: product
+  fullnameOverride: product
+  databaseName: product
+  ingress:
+    enabled: true
+    host: api.yas.local.com
+    path: /product

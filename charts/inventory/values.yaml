@@ -1,0 +1,12 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-inventory
+    tag: latest
+
+  nameOverride: inventory
+  fullnameOverride: inventory
+  databaseName: inventory
+  ingress:
+    enabled: true
+    host: api.yas.local.com
+    path: /inventory

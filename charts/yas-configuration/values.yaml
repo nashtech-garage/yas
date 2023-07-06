@@ -1,0 +1,220 @@
+credentials:
+  postgresql:
+    username: yasadminuser
+    password: admin
+  elasticsearch:
+    username: yas
+    password: LarUmB3A49NTg9YmgW4=
+  keycloak:
+    customerManagementClientSecret: NKAr3rnjwm9jlakgKpelukZGFaHYqIWE
+
+#Genneral application.yaml for all microservice
+applicationConfig:
+  server:
+    shutdown: graceful
+    port: 80
+
+  management:
+    otlp:
+      tracing:
+        endpoint: http://tempo.observability:4318/v1/traces
+    server:
+      port: 8090
+    health:
+      readinessstate:
+        enabled: true
+      livenessstate:
+        enabled: true
+    tracing:
+      sampling:
+        probability: 0.0
+    metrics:
+      tags:
+        application: ${spring.application.name}
+    endpoints:
+      web:
+        exposure:
+          include: prometheus, health
+    endpoint:
+      health:
+        probes:
+          enabled: true
+        show-details: always
+
+  logging:
+    pattern:
+      level: traceId=%X{traceId:-},spanId=%X{spanId:-},level=%level
+
+  spring:
+    lifecycle:
+      timeout-per-shutdown-phase: 30s
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            issuer-uri: http://identity.yas.local.com/realms/Yas
+        client:
+          provider:
+            keycloak:
+              issuer-uri: http://identity.yas.local.com/realms/Yas
+
+    datasource:
+      url:
+      username: ${POSTGRESQL_USERNAME}
+      password: ${POSTGRESQL_PASSWORD}
+    kafka:
+      consumer:
+        bootstrap-servers: kafka-cluster-kafka-brokers.kafka:9092
+
+  springdoc:
+    oauthflow:
+      authorization-url: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/auth
+      token-url: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/token
+
+  yas:
+    services:
+      cart: http://cart/cart
+      customer: http://customer/customer
+      inventory: http://inventory/inventory
+      location: http://location/location
+      media: http://media/media
+      order: http://order/order
+      payment: http://payment/payment
+      payment-paypal: http://payment-paypal/payment-paypal
+      product: http://product/product
+      promotion: http://promotion/promotion
+      rating: http://rating/rating
+      search: http://search/search
+      tax: http://tax/tax
+
+# Gateway config for bff microservices
+gatewayRoutesConfig:
+  spring:
+    cloud:
+      gateway:
+        routes:
+          - id: product_api
+            uri: http://product
+            predicates:
+              - Path=/api/product/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: location_api
+            uri: http://location
+            predicates:
+              - Path=/api/location/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: inventory_api
+            uri: http://inventory
+            predicates:
+              - Path=/api/inventory/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: cart_api
+            uri: http://cart
+            predicates:
+              - Path=/api/cart/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: customer_api
+            uri: http://customer
+            predicates:
+              - Path=/api/customer/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: media_api
+            uri: http://media
+            predicates:
+              - Path=/api/media/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: rating_api
+            uri: http://rating
+            predicates:
+              - Path=/api/rating/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: tax_api
+            uri: http://tax
+            predicates:
+              - Path=/api/tax/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: promotion_api
+            uri: http://protion
+            predicates:
+              - Path=/api/promotion/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: search_api
+            uri: http://search
+            predicates:
+              - Path=/api/search/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: order_api
+            uri: http://order
+            predicates:
+              - Path=/api/order/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: ui
+            uri: ${UI_HOST}
+            predicates:
+              - Path=/**
+
+# Media application config custom
+mediaApplicationConfig:
+  server:
+    servlet:
+      context-path: /media
+  yas:
+    publicUrl: http://api.yas.local.com/media
+
+# Customer application config custom
+customerApplicationConfig:
+  keycloak:
+    auth-server-url: http://identity.yas.local.com
+    realm: Yas
+    resource: customer-management
+    credentials:
+      secret: ${KEYCLOAK_CUSTOMER_MANAGEMENT_CLIENT_SECRET}
+
+# Search application config custom
+searchApplicationConfig:
+  elasticsearch:
+    url: elasticsearch-es-http.elasticsearch
+    username: ${ELASTICSEARCH_USERNAME}
+    password: ${ELASTICSEARCH_PASSWORD}
+
+logbackConfig: |
+  <?xml version="1.0" encoding="UTF-8" ?>
+  <Configuration>
+      <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+      <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+      <property name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}"/>
+      <root level="INFO">
+          <appender-ref ref="CONSOLE" />
+      </root>
+      <logger name="com.yas" level="${LOG_LEVEL}">
+          <appender-ref ref="CONSOLE" />
+      </logger>
+  </Configuration>
+
+reloader:
+  reloader:
+    nameOverride: "yas-reloader"
+    fullnameOverride: "yas-reloader"
+    watchGlobally: false

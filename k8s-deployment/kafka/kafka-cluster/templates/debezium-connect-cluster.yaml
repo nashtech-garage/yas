@@ -1,0 +1,33 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: debezium-connect-cluster
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  replicas: 1
+  bootstrapServers: kafka-cluster-kafka-bootstrap:9092
+  image: {{ .Values.debeziumConnect.image }}
+  config:
+    config.providers: secrets
+    config.providers.secrets.class: io.strimzi.kafka.KubernetesSecretConfigProvider
+    group.id: connect-cluster
+    offset.storage.topic: kafka_connect_offsets
+    config.storage.topic: kafka_connect_configs
+    status.storage.topic: kafka_connect_status
+    # -1 means it will use the default replication factor configured in the broker
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+  {{- if eq .Values.debeziumConnect.buildImage true }}
+  build:
+    output:
+      type: docker
+      image: {{ .Values.debeziumConnect.image }}
+      pushSecret: docker-registry.secret
+    plugins:
+      - name: debezium-postgresql-connector
+        artifacts:
+          - type: tgz
+            url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/2.3.0.Final/debezium-connector-postgres-2.3.0.Final-plugin.tar.gz
+  {{- end }}

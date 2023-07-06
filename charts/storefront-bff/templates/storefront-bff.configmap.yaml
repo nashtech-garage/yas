@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-bff-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  backoffice-bff-application.yaml: |
+    {{- toYaml .Values.storefrontBffApplicationConfig | nindent 4 }}

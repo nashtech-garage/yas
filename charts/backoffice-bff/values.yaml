@@ -1,0 +1,26 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-backoffice-bff
+    tag: latest
+
+  nameOverride: backoffice-bff
+  fullnameOverride: backoffice-bff
+
+  ingress:
+    enabled: true
+    host: backoffice.yas.local.com
+    path: /
+  extraEnvs:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+    - name: UI_HOST
+      value: http://backoffice-ui:3000
+  extraVolumes:
+    - name: yas-gateway-routes-config
+      configMap:
+        name: yas-gateway-routes-config-configmap
+  extraVolumeMounts:
+    - name: yas-gateway-routes-config
+      mountPath: /opt/yas/backoffice-bff
+  extraApplicationConfigPaths:
+    - /opt/yas/backoffice-bff/gateway-routes-config.yaml

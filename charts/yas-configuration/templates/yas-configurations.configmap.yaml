@@ -1,0 +1,56 @@
+#Configmap of general application config for all microservices
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yas-configuration-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  application.yaml: |
+    {{- toYaml .Values.applicationConfig | nindent 4 }}
+  logback.xml: |
+    {{- .Values.logbackConfig | nindent 4 }}
+---
+#Configmap of gateway routes config for bff microservices
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yas-gateway-routes-config-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  gateway-routes-config.yaml: |
+    {{- toYaml .Values.gatewayRoutesConfig | nindent 4 }}
+---
+# Configmap for media application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: media-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  media-application.yaml: |
+    {{- toYaml .Values.mediaApplicationConfig | nindent 4 }}
+---
+#Configmap for customer application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: customer-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  customer-application.yaml: |
+    {{ toYaml .Values.customerApplicationConfig | nindent 4 }}
+---
+# Configmap of search application config custo
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  search-application.yaml: |
+    {{ toYaml .Values.searchApplicationConfig | nindent 4 }}

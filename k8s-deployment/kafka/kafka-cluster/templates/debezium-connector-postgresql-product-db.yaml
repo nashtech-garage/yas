@@ -1,0 +1,21 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: debezium-connector-postgresql-product-db
+  labels:
+    strimzi.io/cluster: debezium-connect-cluster
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  config:
+    database.hostname: postgresql.postgres
+    database.port: 5432
+    database.user: ${secrets:postgresql.credentials:username}
+    database.password: ${secrets:postgresql.credentials:password}
+    topic.prefix: dbproduct
+    database.dbname: product
+    table.include.list: public.product
+    schema.include.list: public
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter: org.apache.kafka.connect.json.JsonConverter

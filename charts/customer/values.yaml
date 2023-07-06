@@ -1,0 +1,24 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-customer
+    tag: latest
+
+  nameOverride: customer
+  fullnameOverride: customer
+  databaseName: customer
+  ingress:
+    enabled: true
+    host: api.yas.local.com
+    path: /customer
+  extraEnvFroms:
+    - secretRef:
+        name: yas-keycloak-credentials-secret
+  extraVolumes:
+    - name: customer-application
+      configMap:
+        name: customer-application-configmap
+  extraVolumeMounts:
+    - name: customer-application
+      mountPath: /opt/yas/customer
+  extraApplicationConfigPaths:
+    - /opt/yas/customer/customer-application.yaml
