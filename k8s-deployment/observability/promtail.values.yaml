@@ -1,0 +1,15 @@
+config:
+  clients:
+    - url: http://opentelemetry-collector:3500/loki/api/v1/push
+  snippets:
+    pipelineStages:
+      - docker: {}
+      - match:
+          selector: '{namespace="yas"}'
+          stages:
+            - regex:
+                expression: '.*traceId=(?P<traceId>\w*).*spanId=(?P<spanId>\w*).*level=(?P<level>[a-zA-Z]+)'
+            - labels:
+                traceId:
+                spanId:
+                level:

@@ -1,0 +1,15 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+  labels:
+    dashboards: "grafana"
+spec:
+  external:
+    url: http://prometheus-grafana
+    adminPassword:
+      name: grafana-admin-credentials
+      key: username
+    adminUser:
+      name: grafana-admin-credentials
+      key: password

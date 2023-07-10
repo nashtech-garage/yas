@@ -1,0 +1,4 @@
+tempo:
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://prometheus-kube-prometheus-prometheus:9090/api/v1/write"

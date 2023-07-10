@@ -5,7 +5,9 @@ backend:
 
   nameOverride: backoffice-bff
   fullnameOverride: backoffice-bff
-
+  deployment:
+    annotations:
+      configmap.reloader.stakater.com/reload: "yas-gateway-routes-config-configmap"
   ingress:
     enabled: true
     host: backoffice.yas.local.com

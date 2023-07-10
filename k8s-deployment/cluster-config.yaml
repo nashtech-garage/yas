@@ -14,3 +14,6 @@ elasticsearch:
 keycloakRealm:
   backofficeUrl: http://backoffice.yas.local.com
   storefrontUrl: http://storefront.yas.local.com
+grafana:
+  username: admin
+  password: admin

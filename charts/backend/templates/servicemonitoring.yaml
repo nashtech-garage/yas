@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "backend.fullname" . }}-serviceMonitor
+  name: {{ include "backend.fullname" . }}
   labels:
     release: prometheus
 spec:
