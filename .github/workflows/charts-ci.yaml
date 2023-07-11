@@ -1,15 +1,14 @@
-name: release Charts
+name: release charts ci
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
     paths:
-      - "/charts/**"
+      - "charts/**"
+      - ".github/workflows/charts-ci.yaml"
 
 jobs:
   release-charts:
-    if: "!contains(github.event.commits[0].message, '[skip ci]')"
     permissions:
       contents: write
     runs-on: ubuntu-latest

@@ -304,7 +304,9 @@ reloader:
     watchGlobally: false
 ```
 ## Yas helm charts
-All charts of Yas application locale in `charts` folder
+All charts of Yas application situated in `charts` folder
+
+To Install the Yas helm charts access to [https://nashtech-garage.github.io/yas/](https://nashtech-garage.github.io/yas/)
 
 ## Observability
 The Yas observability follow by the standard of Open Telemetry recommendation.

@@ -4,12 +4,3 @@ config:
   snippets:
     pipelineStages:
       - docker: {}
-      - match:
-          selector: '{namespace="yas"}'
-          stages:
-            - regex:
-                expression: '.*traceId=(?P<traceId>\w*).*spanId=(?P<spanId>\w*).*level=(?P<level>[a-zA-Z]+)'
-            - labels:
-                traceId:
-                spanId:
-                level:

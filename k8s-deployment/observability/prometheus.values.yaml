@@ -17,8 +17,3 @@ grafana:
     enabled: true
     hosts:
       - *hostname
-  grafana:
-    ini:
-      database:
-        user: yasadminuser
-        password: admin
