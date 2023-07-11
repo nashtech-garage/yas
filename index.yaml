@@ -1,0 +1,306 @@
+apiVersion: v1
+entries:
+  backend:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:43.816404759Z"
+    description: A Helm chart for Kubernetes
+    digest: 460bd51258f7b4ac91f9bf30e351a70d4f904747afe37ce94d541cbb338e2ce1
+    name: backend
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/backend-0.1.0/backend-0.1.0.tgz
+    version: 0.1.0
+  backoffice-bff:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:43.983280568Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: a28669f6b9aa2d2b922c92bf64ca08b156b018f051f3240a54428800fde5cb7b
+    name: backoffice-bff
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/backoffice-bff-0.1.0/backoffice-bff-0.1.0.tgz
+    version: 0.1.0
+  backoffice-ui:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:44.108204647Z"
+    dependencies:
+    - name: ui
+      repository: file://../ui
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 259f3a76b960ce152e2e350bcf62a67b48d4d82039f08ed38599da52b95d7f95
+    name: backoffice-ui
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/backoffice-ui-0.1.0/backoffice-ui-0.1.0.tgz
+    version: 0.1.0
+  cart:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:44.254487547Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 772d6fd4fedaa22fd80b02fe6f13cfd2714b28c5516aa94b93a0e2192680ed86
+    name: cart
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/cart-0.1.0/cart-0.1.0.tgz
+    version: 0.1.0
+  customer:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:44.405525318Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: a3608a6c9da869c10367f8cae49825adf41e1408f1a5a66a76403f2190ab9a6e
+    name: customer
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/customer-0.1.0/customer-0.1.0.tgz
+    version: 0.1.0
+  inventory:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:44.540870853Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 63c24cb7d1e0a37bed30a76722998c0242c1a52c1fd899fe5c8e5c426877ac6d
+    name: inventory
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/inventory-0.1.0/inventory-0.1.0.tgz
+    version: 0.1.0
+  location:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:44.667276754Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 59f1d5877f210a6c7509ecf563fb6680eb3b4a9002be13773ab8ff2147c5f792
+    name: location
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/location-0.1.0/location-0.1.0.tgz
+    version: 0.1.0
+  media:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:44.80665215Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 472b81be8155f36ba68c9622718cfce040346d6f1c87e377494d2b972abbac34
+    name: media
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/media-0.1.0/media-0.1.0.tgz
+    version: 0.1.0
+  order:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:44.936659304Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 347987e6e510e66f1095c8508e7475f7472644e012ac4427cb77b3f9993d2413
+    name: order
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/order-0.1.0/order-0.1.0.tgz
+    version: 0.1.0
+  payment:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:45.085024935Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: d5b329b9df47950e2d32007e9747c9707b9de0132180e62cd9e610bad0247f01
+    name: payment
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/payment-0.1.0/payment-0.1.0.tgz
+    version: 0.1.0
+  payment-paypal:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:45.232856558Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 4ef60d84b8b502928421067a890282a1d7bb7cffd9b3d03508607244c6d07b30
+    name: payment-paypal
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/payment-paypal-0.1.0/payment-paypal-0.1.0.tgz
+    version: 0.1.0
+  product:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:45.386497269Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 1460fbea95d078682f79af1d3626b5570b2fab525f562cbac2477ba7720502b4
+    name: product
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/product-0.1.0/product-0.1.0.tgz
+    version: 0.1.0
+  promotion:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:45.529212015Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 9888a01e71492291ccbcf0cf3bb1b6035fe52d0758e47f777bc88508ffb241d4
+    name: promotion
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/promotion-0.1.0/promotion-0.1.0.tgz
+    version: 0.1.0
+  rating:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:45.671982562Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 5f17a01fcae90577723e79a9b497ef1429759dad28154c854c7b5c6dd8787fcc
+    name: rating
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/rating-0.1.0/rating-0.1.0.tgz
+    version: 0.1.0
+  search:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:45.809701432Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 5c059832df05b58881584007a98d065c9f9b09d3a65f13b8c5d71e00575aca7e
+    name: search
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/search-0.1.0/search-0.1.0.tgz
+    version: 0.1.0
+  storefront-bff:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:45.973558996Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: a1e764f0a03a5efa3e7277552196dcc92135f0782981c3fb52c466add1c8ed05
+    name: storefront-bff
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/storefront-bff-0.1.0/storefront-bff-0.1.0.tgz
+    version: 0.1.0
+  storefront-ui:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:46.12075391Z"
+    dependencies:
+    - name: ui
+      repository: file://../ui
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: e93ad868abf83e9f949d8ce417a74258135b456c5f22227441eb03e17ad2d8b1
+    name: storefront-ui
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/storefront-ui-0.1.0/storefront-ui-0.1.0.tgz
+    version: 0.1.0
+  swagger-ui:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:46.245844591Z"
+    description: A Helm chart for Kubernetes
+    digest: 46d0d7da3e7128c60357e5dceffa8185266a9712b4be3296fdd0fcdb2ee776b2
+    name: swagger-ui
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/swagger-ui-0.1.0/swagger-ui-0.1.0.tgz
+    version: 0.1.0
+  tax:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:46.408991044Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 20322042ecf687bb22bac00f18ebef3a04e96440ed9cb8a4c3dba6c7d3941c48
+    name: tax
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/tax-0.1.0/tax-0.1.0.tgz
+    version: 0.1.0
+  ui:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-11T06:31:46.548188037Z"
+    description: A Helm chart for Kubernetes
+    digest: 0fa88f9907ddd9544b143975619a1228f359b637a689b5797785335b535d4533
+    name: ui
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/ui-0.1.0/ui-0.1.0.tgz
+    version: 0.1.0
+  yas-configuration:
+  - apiVersion: v2
+    appVersion: 1.1.0
+    created: "2023-07-11T06:31:46.697674185Z"
+    dependencies:
+    - name: reloader
+      repository: https://stakater.github.io/stakater-charts
+      version: 1.0.29
+    description: A Helm chart for Kubernetes
+    digest: 17a47e362c7c607902ae60dfd99c77752ef92d27607a78de5180f03dbce1cced
+    name: yas-configuration
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/yas-configuration-0.1.0/yas-configuration-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-07-11T06:31:46.697681685Z"
