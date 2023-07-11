@@ -33,6 +33,6 @@ To install the `yas` charts:
     helm upgrade --install swagger-ui yas/swagger-ui
     helm upgrade --install tax yas/tax
 ```
-Detail of values file of chart on https://github.com/nashtech-garage/yas/tree/main/charts
+Detail of values file of chart on [Yas Helm Charts](https://github.com/nashtech-garage/yas/tree/main/charts)
 
-Config for Yas Spring boot microservies on https://github.com/nashtech-garage/yas/tree/main/charts/yas-configuration
+Config for Yas Spring boot microservies on [yas-configuration](https://github.com/nashtech-garage/yas/tree/main/charts/yas-configuration)
