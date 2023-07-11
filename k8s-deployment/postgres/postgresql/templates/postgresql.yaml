@@ -40,6 +40,7 @@ spec:
     promotion: {{ .Values.username }}
     rating: {{ .Values.username }}
     tax: {{ .Values.username }}
+    grafana: {{ .Values.username }}
   allowedSourceRanges:
   # IP ranges to access your cluster go here
 

@@ -1,0 +1,22 @@
+write:
+  replicas: 1
+read:
+  replicas: 1
+backend:
+  replicas: 1
+loki:
+  commonConfig:
+    replication_factor: 1
+  auth_enabled: false
+test:
+  enabled: false
+storage:
+  type: 'filesystem'
+minio:
+  enabled: true
+
+monitoring:
+  selfMonitoring:
+    enabled: false
+    grafanaAgent:
+      installOperator: false

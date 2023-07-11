@@ -1,37 +1,37 @@
-#name: release Charts
-#
-#on:
-#  push:
-#    branches:
-#      - main
-#    paths:
-#      - "/charts/**"
-#
-#jobs:
-#  release-charts:
-#    if: "!contains(github.event.commits[0].message, '[skip ci]')"
-#    permissions:
-#      contents: write
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Configure Git
-#        run: |
-#          git config user.name "${{ github.actor }}"
-#          git config user.email "${{ github.actor }}@users.noreply.github.com"
-#
-#      - name: Install Helm
-#        uses: azure/setup-helm@v3.5
-#
-#      - name: Update dependency
-#        run: |
-#          helm repo add stakater https://stakater.github.io/stakater-charts
-#
-#      - name: Run chart-releaser
-#        uses: helm/chart-releaser-action@v1.5.0
-#        env:
-#          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+name: release Charts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "/charts/**"
+
+jobs:
+  release-charts:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3.5
+
+      - name: Update dependency
+        run: |
+          helm repo add stakater https://stakater.github.io/stakater-charts
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

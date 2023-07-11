@@ -1,0 +1,13 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: opentelemetry
+spec:
+  mode: deployment
+  ports:
+    - name: loki
+      port: 3500
+      protocol: TCP
+      targetPort: 3500
+  config: |
+    {{ toYaml .Values.opentelemetryCollectorConfig | nindent 4 }}

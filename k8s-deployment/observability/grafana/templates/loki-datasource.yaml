@@ -1,0 +1,22 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: loki-datasource
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: Loki
+    type: loki
+    uid: loki
+    url: http://loki-gateway
+    access: proxy
+    jsonData:
+      httpMethod: GET
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: traceId=(\w*)
+          name: traceId
+          url: ${__value.raw}
