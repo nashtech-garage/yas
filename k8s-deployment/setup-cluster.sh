@@ -115,8 +115,8 @@ helm upgrade --install promtail grafana/promtail \
 
 #Install prometheus + grafana
 hostname="grafana.$DOMAIN" yq -i '.hostname=env(hostname)' ./observability/prometheus.values.yaml
-postgresqlUsername="$POSTGRESQL_USERNAME" yq -i '.grafana.grafana.ini.database.user=env(postgresqlUsername)' ./observability/prometheus.values.yaml
-postgresqlPassword="$POSTGRESQL_PASSWORD" yq -i '.grafana.grafana.ini.database.password=env(postgresqlPassword)' ./observability/prometheus.values.yaml
+postgresqlUsername="$POSTGRESQL_USERNAME" yq -i '.grafana."grafana.ini".database.user=env(postgresqlUsername)' ./observability/prometheus.values.yaml
+postgresqlPassword="$POSTGRESQL_PASSWORD" yq -i '.grafana."grafana.ini".database.password=env(postgresqlPassword)' ./observability/prometheus.values.yaml
 helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
  --create-namespace --namespace observability \
 -f ./observability/prometheus.values.yaml \
