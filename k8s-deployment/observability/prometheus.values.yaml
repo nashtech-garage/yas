@@ -14,6 +14,7 @@ grafana:
   adminUser: admin
   adminPassword: admin
   ingress:
+    ingressClassName: nginx
     enabled: true
     hosts:
       - *hostname
