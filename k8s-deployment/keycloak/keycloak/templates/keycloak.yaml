@@ -21,6 +21,8 @@ spec:
     hostname: {{ .Values.hostname }}
     strict: false
     strictBackchannel: false
+  ingress:
+    enabled: false
   unsupported:
     podTemplate:
       spec:

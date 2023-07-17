@@ -33,7 +33,7 @@ helm upgrade --install postgres ./postgres/postgresql \
 --set password="$POSTGRESQL_PASSWORD"
 
 #Install pgadmin
-hostname="pgadmin.$DOMAIN" yq -i '.hostname=env(hostname)' ./postgres/pgadmin/values.yaml
+pg_admin_hostname="pgadmin.$DOMAIN" yq -i '.hostname=env(pg_admin_hostname)' ./postgres/pgadmin/values.yaml
 helm upgrade --install pgadmin ./postgres/pgadmin \
 --create-namespace --namespace postgres \
 
@@ -50,7 +50,7 @@ helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
 --set postgresql.password="$POSTGRESQL_PASSWORD"
 
 #Install akhq
-hostname="akhq.$DOMAIN" yq -i '.hostname=env(hostname)' ./kafka/akhq.values.yaml
+akhq_hostname="akhq.$DOMAIN" yq -i '.hostname=env(akhq_hostname)' ./kafka/akhq.values.yaml
 helm upgrade --install akhq akhq/akhq \
 --create-namespace --namespace kafka \
 --values ./kafka/akhq.values.yaml
@@ -114,9 +114,9 @@ helm upgrade --install promtail grafana/promtail \
 --values ./observability/promtail.values.yaml
 
 #Install prometheus + grafana
-hostname="grafana.$DOMAIN" yq -i '.hostname=env(hostname)' ./observability/prometheus.values.yaml
-postgresqlUsername="$POSTGRESQL_USERNAME" yq -i '.grafana."grafana.ini".database.user=env(postgresqlUsername)' ./observability/prometheus.values.yaml
-postgresqlPassword="$POSTGRESQL_PASSWORD" yq -i '.grafana."grafana.ini".database.password=env(postgresqlPassword)' ./observability/prometheus.values.yaml
+grafana_hostname="grafana.$DOMAIN" yq -i '.hostname=env(grafana_hostname)' ./observability/prometheus.values.yaml
+postgresql_username="$POSTGRESQL_USERNAME" yq -i '.grafana."grafana.ini".database.user=env(postgresql_username)' ./observability/prometheus.values.yaml
+postgresql_password="$POSTGRESQL_PASSWORD" yq -i '.grafana."grafana.ini".database.password=env(postgresql_password)' ./observability/prometheus.values.yaml
 helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
  --create-namespace --namespace observability \
 -f ./observability/prometheus.values.yaml \
