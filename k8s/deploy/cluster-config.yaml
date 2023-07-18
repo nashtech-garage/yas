@@ -11,9 +11,9 @@ elasticsearch:
   replicas: 1
   username: yas
   password: LarUmB3A49NTg9YmgW4=
-keycloakRealm:
-  backofficeUrl: http://backoffice.yas.local.com
-  storefrontUrl: http://storefront.yas.local.com
+keycloak:
+  backofficeRedirectUrl: http://backoffice.yas.local.com
+  storefrontRedirectUrl: http://storefront.yas.local.com
 grafana:
   username: admin
   password: admin

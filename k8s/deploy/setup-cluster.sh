@@ -14,12 +14,12 @@ helm repo update
 
 #Read configuration value from cluster-config.yaml file
 read -rd '' DOMAIN POSTGRESQL_REPLICAS POSTGRESQL_USERNAME POSTGRESQL_PASSWORD \
-KAFKA_REPLICAS ZOOKEEPER_REPLICAS ELASTICSEARCH_REPLICAES KEYCLOAK_REALM_BACKOFFICE_URL KEYCLOAK_REALM_STOREFRONT_URL \
+KAFKA_REPLICAS ZOOKEEPER_REPLICAS ELASTICSEARCH_REPLICAES KEYCLOAK_BACKOFFICE_REDIRECT_URL KEYCLOAK_STOREFRONT_REDIRECT_URL \
 GRAFANA_USERNAME GRAFANA_PASSWORD \
 < <(yq -r '.domain, .postgresql.replicas, .postgresql.username,
  .postgresql.password, .kafka.replicas, .zookeeper.replicas,
- .elasticsearch.replicas, .keycloakRealm.backofficeUrl,
- .keycloakRealm.storefrontUrl, .grafana.username, .grafana.password' ./cluster-config.yaml)
+ .elasticsearch.replicas, .keycloak.backofficeRedirectUrl,
+ .keycloak.storefrontRedirectUrl, .grafana.username, .grafana.password' ./cluster-config.yaml)
 
 # Install the postgres-operator
 helm upgrade --install postgres-operator postgres-operator-charts/postgres-operator \
@@ -71,14 +71,14 @@ kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resourc
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/21.1.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/21.1.2/kubernetes/kubernetes.yml -n keycloak
 
-#Install keycloak
+# Install keycloak
 helm upgrade --install keycloak ./keycloak/keycloak \
 --namespace keycloak \
 --set postgresql.username="$POSTGRESQL_USERNAME" \
 --set postgresql.password="$POSTGRESQL_PASSWORD" \
 --set hostname="identity.$DOMAIN" \
---set backofficeUrl="$KEYCLOAK_REALM_BACKOFFICE_URL" \
---set storefrontUrl="$KEYCLOAK_REALM_STOREFRONT_URL"
+--set backofficeRedirectUrl="$KEYCLOAK_BACKOFFICE_REDIRECT_URL" \
+--set storefrontRedirectUrl="$KEYCLOAK_STOREFRONT_REDIRECT_URL"
 
 #Install loki
 helm upgrade --install loki grafana/loki \
