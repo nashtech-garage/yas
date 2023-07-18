@@ -54,6 +54,14 @@ edit host file `/etc/hots`
 ```shell
 minikube ip
 ```
+## Keycloak admin user credentials initial
+The username and password of Keycloak admin user store in the `keycloak-initial-admin` secret, `keycloak` namespace
+use bellow command line to get the admin password
+```shell
+kubectl get secret keycloak-initial-admin -n keycloak -o jsonpath="{.data.password}" | base64 --decode
+```
+Remember that should change the Keycloak admin password after deploy because the data of password will be change each of 
+reinstall the helm chart and the password stored into Postgresql server can not change after reinstall Keycloak server
 ## Cluster configuration
 All configuration of cluster is setting on [cluster-config.yaml](cluster-config.yaml) in folder k8s-deploy
 ```yaml
