@@ -74,7 +74,10 @@ YAS is a pet project aim to practice building a typical microservice application
 2. docker-compose.search.yml for search service
 3. docker-compose.o11y.yml for observability services
 
-## Documentations
+## Deploy to Kubernetes
+https://github.com/nashtech-garage/yas/tree/main/k8s/deploy
+
+## Documentation
 https://github.com/nashtech-garage/yas-docs
 
 ## Contributing
