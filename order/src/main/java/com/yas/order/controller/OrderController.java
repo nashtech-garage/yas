@@ -1,27 +1,31 @@
 package com.yas.order.controller;
 
 import com.yas.order.model.enumeration.EOrderStatus;
+import com.yas.order.service.OrderSagaService;
 import com.yas.order.service.OrderService;
 import com.yas.order.viewmodel.order.*;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
 
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
+    private final OrderSagaService orderSagaService;
 
     @PostMapping("/storefront/orders")
     public ResponseEntity<OrderVm> createOrder(@Valid @RequestBody OrderPostVm orderPostVm) {
-        return ResponseEntity.ok(orderService.createOrder(orderPostVm));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(orderSagaService.createOrder(orderPostVm, auth.getName()));
     }
 
     @GetMapping("/storefront/orders/completed")

@@ -16,6 +16,9 @@ spec:
     version: {{ .Values.postgresqlVersion | quote }}
     parameters:
       max_connections: {{ .Values.maxConnections | quote }}
+      wal_level: logical
+      max_replication_slots: "20"
+      max_wal_senders: "20"
   numberOfInstances: {{ .Values.replicas }}
   volume:
     size: {{ .Values.volumeSize }}
@@ -41,8 +44,53 @@ spec:
     rating: {{ .Values.username }}
     tax: {{ .Values.username }}
     grafana: {{ .Values.username }}
+  patroni:
+    slots:
+      eventuate_slot_cart:
+        type: logical
+        database: cart
+        plugin: wal2json
+      eventuate_slot_customer:
+        type: logical
+        database: customer
+        plugin: wal2json
+      eventuate_slot_inventory:
+        type: logical
+        database: inventory
+        plugin: wal2json
+      eventuate_slot_location:
+        type: logical
+        database: location
+        plugin: wal2json
+      eventuate_slot_media:
+        type: logical
+        database: media
+        plugin: wal2json
+      eventuate_slot_order:
+        type: logical
+        database: order
+        plugin: wal2json
+      eventuate_slot_payment:
+        type: logical
+        database: payment
+        plugin: wal2json
+      eventuate_slot_product:
+        type: logical
+        database: product
+        plugin: wal2json
+      eventuate_slot_promotion:
+        type: logical
+        database: promotion
+        plugin: wal2json
+      eventuate_slot_rating:
+        type: logical
+        database: rating
+        plugin: wal2json
+      eventuate_slot_tax:
+        type: logical
+        database: tax
+        plugin: wal2json
   allowedSourceRanges:
   # IP ranges to access your cluster go here
-
   resources:
     {{ toYaml .Values.resources | nindent 4 }}

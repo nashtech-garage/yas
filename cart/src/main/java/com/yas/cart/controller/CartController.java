@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +42,7 @@ public class CartController {
     public ResponseEntity<CartGetDetailVm> getLastCart(Principal principal) {
         if (principal == null)
             return ResponseEntity.ok(null);
-        return ResponseEntity.ok(cartService.getLastCart());
+        return ResponseEntity.ok(cartService.getLastCart(principal.getName()));
     }
 
     @PostMapping(path = "/storefront/carts")
@@ -56,18 +58,21 @@ public class CartController {
 
     @PutMapping("cart-item")
     public ResponseEntity<CartItemPutVm> updateCart(@Valid @RequestBody CartItemVm cartItemVm) {
-        return new ResponseEntity<>(cartService.updateCartItems(cartItemVm), HttpStatus.OK);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return new ResponseEntity<>(cartService.updateCartItems(cartItemVm, auth.getName()), HttpStatus.OK);
     }
 
     @DeleteMapping("/storefront/cart-item")
     public ResponseEntity<Void> removeCartItemByProductId(@RequestParam Long productId) {
-        cartService.removeCartItemByProductId(productId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        cartService.removeCartItemByProductId(productId, auth.getName());
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/storefront/cart-item/multi-delete")
     public ResponseEntity<Void> removeCartItemListByProductIdList(@RequestParam List<Long> productIds) {
-        cartService.removeCartItemListByProductIdList(productIds);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        cartService.removeCartItemListByProductIdList(productIds, auth.getName());
         return ResponseEntity.noContent().build();
     }
 

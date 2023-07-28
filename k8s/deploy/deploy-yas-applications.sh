@@ -49,3 +49,6 @@ for chart in {"cart","customer","inventory","location","media","order","payment"
     --set backend.ingress.host="api.$DOMAIN"
     sleep 60
 done
+
+helm upgrade --install eventuate-cdc ../charts/eventuate-cdc \
+--namespace yas --create-namespace

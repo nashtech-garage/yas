@@ -1,0 +1,16 @@
+# LOGGING
+# log_min_error_statement = fatal
+# log_min_messages = DEBUG1
+
+# CONNECTION
+listen_addresses = '*'
+
+# MODULES
+shared_preload_libraries = 'decoderbufs,wal2json'
+
+# REPLICATION
+wal_level = logical             # minimal, archive, hot_standby, or logical (change requires restart)
+max_wal_senders = 20             # max number of walsender processes (change requires restart)
+#wal_keep_segments = 4          # in logfile segments, 16MB each; 0 disables
+#wal_sender_timeout = 60s       # in milliseconds; 0 disables
+max_replication_slots = 20       # max number of replication slots (change requires restart)

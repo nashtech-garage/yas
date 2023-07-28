@@ -8,7 +8,6 @@ import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.utils.Constants;
 import com.yas.cart.viewmodel.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -88,9 +87,8 @@ public class CartService {
         return CartGetDetailVm.fromModel(cart);
     }
 
-    public CartGetDetailVm getLastCart() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return cartRepository.findByCustomerIdAndOrderIdIsNull(auth.getName())
+    public CartGetDetailVm getLastCart(String customerId) {
+        return cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
                 .stream().reduce((first, second) -> second)
                 .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
     }
@@ -103,8 +101,8 @@ public class CartService {
         return new CartItem();
     }
 
-    public CartItemPutVm updateCartItems(CartItemVm cartItemVm) {
-        CartGetDetailVm currentCart = getLastCart();
+    public CartItemPutVm updateCartItems(CartItemVm cartItemVm, String customerId) {
+        CartGetDetailVm currentCart = getLastCart(customerId);
 
         validateCart(currentCart, cartItemVm.productId());
 
@@ -124,11 +122,9 @@ public class CartService {
         }
     }
 
-    @Transactional
-    public void removeCartItemListByProductIdList(List<Long> productIdList) {
-        CartGetDetailVm currentCart = getLastCart();
-        productIdList.stream().forEach(id -> validateCart(currentCart, id));
-
+    public void removeCartItemListByProductIdList(List<Long> productIdList, String customerId) {
+        CartGetDetailVm currentCart = getLastCart(customerId);
+        productIdList.forEach(id -> validateCart(currentCart, id));
         cartItemRepository.deleteByCartIdAndProductIdIn(currentCart.id(), productIdList);
     }
 
@@ -145,8 +141,8 @@ public class CartService {
     }
 
     @Transactional
-    public void removeCartItemByProductId(Long productId) {
-        CartGetDetailVm currentCart = getLastCart();
+    public void removeCartItemByProductId(Long productId, String customerId) {
+        CartGetDetailVm currentCart = getLastCart(customerId);
 
         validateCart(currentCart, productId);
 

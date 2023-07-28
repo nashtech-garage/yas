@@ -44,7 +44,7 @@ data:
   customer-application.yaml: |
     {{ toYaml .Values.customerApplicationConfig | nindent 4 }}
 ---
-# Configmap of search application config custo
+# Configmap of search application config custom
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -54,3 +54,25 @@ metadata:
 data:
   search-application.yaml: |
     {{ toYaml .Values.searchApplicationConfig | nindent 4 }}
+---
+# Configmap of cart application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cart-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  cart-application.yaml: |
+    {{ toYaml .Values.cartApplicationConfig | nindent 4 }}
+---
+# Configmap of order application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  order-application.yaml: |
+    {{ toYaml .Values.orderApplicationConfig | nindent 4 }}

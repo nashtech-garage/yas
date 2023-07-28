@@ -10,3 +10,12 @@ backend:
     enabled: true
     host: api.yas.local.com
     path: /order
+  extraVolumes:
+    - name: order-application-config
+      configMap:
+        name: order-application-configmap
+  extraVolumeMounts:
+    - name: order-application-config
+      mountPath: /opt/yas/order
+  extraApplicationConfigPaths:
+    - /opt/yas/order/order-application.yaml  

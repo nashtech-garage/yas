@@ -134,3 +134,6 @@ helm upgrade --install grafana ./observability/grafana \
 --set grafana.password="$GRAFANA_PASSWORD" \
 --set postgresql.username="$POSTGRESQL_USERNAME" \
 --set postgresql.password="$POSTGRESQL_PASSWORD"
+
+helm upgrade --install zookeeper ./zookeeper \
+ --namespace zookeeper --create-namespace
