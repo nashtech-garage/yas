@@ -220,7 +220,7 @@ services:
     networks:
       - yas-network
   postgres:
-    image: debezium/postgres
+    image: debezium/postgres:15-alpine-custom
     build: ./docker/postgres
     ports:
       - "5432:5432"
