@@ -1,7 +1,6 @@
 package com.yas.order.service;
 
 import com.yas.order.exception.NotFoundException;
-import com.yas.order.model.Checkout;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
@@ -21,13 +20,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,7 +39,6 @@ public class OrderService {
     private final CheckoutRepository checkoutRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final CartService cartService;
     private final ProductService productService;
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
@@ -113,13 +113,6 @@ public class OrderService {
 
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
-
-        // delete Item in Cart
-        try {
-            cartService.deleteCartItemByProductId(orderItems.stream().map(i -> i.getProductId()).toList());
-        } catch (Exception ex) {
-            log.error("Delete products in cart fail: " + ex.getMessage());
-        }
 
 //        TO-DO: decrement inventory when inventory is complete
 //        ************

@@ -201,6 +201,30 @@ searchApplicationConfig:
     username: ${ELASTICSEARCH_USERNAME}
     password: ${ELASTICSEARCH_PASSWORD}
 
+# Cart application config custom
+cartApplicationConfig:
+  eventuatelocal:
+    kafka:
+      bootstrap:
+        servers: kafka-cluster-kafka-brokers.kafka:9092
+    zookeeper:
+      connection:
+        string: kafka-cluster-zookeeper-nodes.kafka:2181
+
+# Order application config custom
+orderApplicationConfig:
+  eventuatelocal:
+    kafka:
+      bootstrap:
+        servers: kafka-cluster-kafka-brokers.kafka:9092
+    zookeeper:
+      connection:
+        string: kafka-cluster-zookeeper-nodes.kafka:2181
+
+eventuateCdcConfig:
+  - database: order
+  - database: cart
+
 logbackConfig: |
   <?xml version="1.0" encoding="UTF-8" ?>
   <Configuration>
@@ -210,7 +234,7 @@ logbackConfig: |
       <root level="INFO">
           <appender-ref ref="CONSOLE" />
       </root>
-      <logger name="com.yas" level="${LOG_LEVEL}">
+      <logger name="com.yas" level="${LOG_LEVEL}" additivity="false">
           <appender-ref ref="CONSOLE" />
       </logger>
   </Configuration>

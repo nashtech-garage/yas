@@ -10,3 +10,12 @@ backend:
     enabled: true
     host: api.yas.local.com
     path: /cart
+  extraVolumes:
+    - name: cart-application-config
+      configMap:
+        name: cart-application-configmap
+  extraVolumeMounts:
+    - name: cart-application-config
+      mountPath: /opt/yas/cart
+  extraApplicationConfigPaths:
+    - /opt/yas/cart/cart-application.yaml

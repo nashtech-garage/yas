@@ -52,7 +52,6 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc-openapi-starter-webmvc-ui.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -117,6 +116,11 @@
             <artifactId>keycloak-spring-security-adapter</artifactId>
 			<version>${keycloak-spring-security-adapter.version}</version>
         </dependency>
+		<dependency>
+			<groupId>com.yas</groupId>
+			<artifactId>saga</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
     </dependencies>
 	<dependencyManagement>
 		<dependencies>

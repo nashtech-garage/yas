@@ -220,10 +220,12 @@ services:
     networks:
       - yas-network
   postgres:
-    image: debezium/postgres:15-alpine
+    image: debezium/postgres:15-alpine-custom
+    build: ./docker/postgres
     ports:
       - "5432:5432"
     volumes:
+      - ./docker/postgres/postgresql.conf.sample:/usr/share/postgresql/postgresql.conf.sample
       - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
       - postgres:/var/lib/postgresql/data
     command: postgres -c 'max_connections=500'
@@ -261,7 +263,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://kafka:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -301,6 +303,52 @@ services:
       - kafka-connect
     networks:
       - yas-network
+
+  eventuate-cdc:
+    image: eventuateio/eventuate-cdc-service:0.15.0.RELEASE
+    ports:
+      - "8099:8080"
+    depends_on:
+      - postgres
+      - kafka
+      - zookeeper
+    networks:
+      - yas-network
+    environment:
+      CDC_OPTS: "--debug"
+
+      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+
+      EVENTUATE_CDC_READER_READER1_TYPE: postgres-wal
+      EVENTUATE_CDC_READER_READER1_DATASOURCEURL: jdbc:postgresql://postgres/order
+      EVENTUATE_CDC_READER_READER1_MONITORINGSCHEMA: eventuate
+      EVENTUATE_CDC_READER_READER1_DATASOURCEUSERNAME: admin
+      EVENTUATE_CDC_READER_READER1_DATASOURCEPASSWORD: admin
+      EVENTUATE_CDC_READER_READER1_DATASOURCEDRIVERCLASSNAME: org.postgresql.Driver
+      EVENTUATE_CDC_READER_READER1_LEADERSHIPLOCKPATH: /eventuate/cdc/leader/order
+      EVENTUATE_CDC_READER_READER1_OFFSETSTORAGETOPICNAME: db.history.common
+      EVENTUATE_CDC_READER_READER1_OUTBOXID: 1
+      EVENTUATE_CDC_READER_READER1_POSTGRESREPLICATIONSLOTNAME: eventuate_slot_order
+
+      EVENTUATE_CDC_READER_READER2_TYPE: postgres-wal
+      EVENTUATE_CDC_READER_READER2_DATASOURCEURL: jdbc:postgresql://postgres/cart
+      EVENTUATE_CDC_READER_READER2_MONITORINGSCHEMA: eventuate
+      EVENTUATE_CDC_READER_READER2_DATASOURCEUSERNAME: admin
+      EVENTUATE_CDC_READER_READER2_DATASOURCEPASSWORD: admin
+      EVENTUATE_CDC_READER_READER2_DATASOURCEDRIVERCLASSNAME: org.postgresql.Driver
+      EVENTUATE_CDC_READER_READER2_LEADERSHIPLOCKPATH: /eventuate/cdc/leader/cart
+      EVENTUATE_CDC_READER_READER2_OFFSETSTORAGETOPICNAME: db.history.common
+      EVENTUATE_CDC_READER_READER2_OUTBOXID: 2
+      EVENTUATE_CDC_READER_READER2_POSTGRESREPLICATIONSLOTNAME: eventuate_slot_cart
+
+      EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE: eventuate-tram
+      EVENTUATE_CDC_PIPELINE_PIPELINE1_READER: reader1
+      EVENTUATE_CDC_PIPELINE_PIPELINE1_EVENTUATEDATABASESCHEMA: eventuate
+
+      EVENTUATE_CDC_PIPELINE_PIPELINE2_TYPE: eventuate-tram
+      EVENTUATE_CDC_PIPELINE_PIPELINE2_READER: reader2
+      EVENTUATE_CDC_PIPELINE_PIPELINE2_EVENTUATEDATABASESCHEMA: eventuate
 
 networks:
   yas-network:
