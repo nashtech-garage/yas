@@ -24,5 +24,5 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     void deleteByCartIdAndProductIdIn(Long cartId, List<Long> productIds);
 
     @Query("select sum(ci.quantity) from CartItem ci where ci.cart.id = ?1")
-    Integer countItemInCart(Long cartId);
+    Long countItemInCart(Long cartId);
 }

@@ -77,9 +77,9 @@ public class CartController {
     }
 
     @GetMapping(path = "/storefront/count-cart-items")
-    public ResponseEntity<Integer> getNumberItemInCart(Principal principal) {
+    public ResponseEntity<Long> getNumberItemInCart(Principal principal) {
         if (principal == null)
-            return ResponseEntity.ok().body(0);
+            return ResponseEntity.ok().body(0L);
         return ResponseEntity.ok().body(cartService.countNumberItemInCart(principal.getName()));
     }
 

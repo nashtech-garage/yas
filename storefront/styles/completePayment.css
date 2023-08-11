@@ -1,0 +1,28 @@
+.complete-payment {
+  width: 100%;
+  text-align: center;
+  padding: 100px 0;
+}
+
+.complete-payment .payment-result {
+  margin-bottom: 15px;
+}
+
+.complete-payment .payment-success {
+  color: #28a745;
+}
+
+.complete-payment .payment-fail {
+  color: #dc3545;
+}
+
+.complete-payment .back-to-home-btn {
+  margin-bottom: 50px;
+  color: white;
+  background-color: #ca1515;
+  border-radius: 0;
+  border: 0;
+  font-weight: 600;
+  padding: 14px 30px 12px;
+  font-size: 14px;
+}

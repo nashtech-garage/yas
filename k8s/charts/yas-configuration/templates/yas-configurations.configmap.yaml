@@ -76,3 +76,25 @@ metadata:
 data:
   order-application.yaml: |
     {{ toYaml .Values.orderApplicationConfig | nindent 4 }}
+---
+# Configmap of payment application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  payment-application.yaml: |
+    {{ toYaml .Values.paymentApplicationConfig | nindent 4 }}
+---
+# Configmap of payment-paypal application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-paypal-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  payment-paypal-application.yaml: |
+    {{ toYaml .Values.paymentPaypalApplicationConfig | nindent 4 }}

@@ -10,3 +10,12 @@ backend:
     enabled: true
     host: api.yas.local.com
     path: /payment
+  extraVolumes:
+    - name: payment-application-config
+      configMap:
+        name: payment-application-configmap
+  extraVolumeMounts:
+    - name: payment-application-config
+      mountPath: /opt/yas/payment
+  extraApplicationConfigPaths:
+    - /opt/yas/payment/payment-application.yaml

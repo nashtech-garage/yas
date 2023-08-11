@@ -1,17 +1,10 @@
 package com.yas.order.model.enumeration;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-
 public enum EOrderStatus {
     PENDING("PENDING"),
     ACCEPTED("ACCEPTED"),
     PENDING_PAYMENT("PENDING_PAYMENT"),
+    PAID("PAID"),
     SHIPPING("SHIPPING"),
     COMPLETED("COMPLETED"),
     REFUND("REFUND"),

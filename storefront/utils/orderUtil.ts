@@ -1,6 +1,6 @@
-import { EDeliveryMethod } from '@/modules/order/models/EDeliveryMethod';
-import { EDeliveryStatus } from '@/modules/order/models/EDeliveryStatus';
-import { EOrderStatus } from '@/modules/order/models/EOrderStatus';
+import {EDeliveryMethod} from '@/modules/order/models/EDeliveryMethod';
+import {EDeliveryStatus} from '@/modules/order/models/EDeliveryStatus';
+import {EOrderStatus} from '@/modules/order/models/EOrderStatus';
 
 export function getOrderStatusTitle(orderStatus: EOrderStatus | null) {
   switch (orderStatus) {
@@ -14,6 +14,8 @@ export function getOrderStatusTitle(orderStatus: EOrderStatus | null) {
       return 'Cancelled';
     case EOrderStatus.PENDING_PAYMENT:
       return 'Pending Payment';
+    case EOrderStatus.PAID:
+      return 'Paid';
     case EOrderStatus.REFUND:
       return 'Refund';
     case EOrderStatus.SHIPPING:

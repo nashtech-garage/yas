@@ -149,9 +149,17 @@ public class CartService {
         cartItemRepository.deleteByCartIdAndProductId(currentCart.id(), productId);
     }
 
-    public Integer countNumberItemInCart(String customerId) {
+    public Long countNumberItemInCart(String customerId) {
         Optional<Cart> cartOp = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
                 .stream().reduce((first, second) -> second);
-        return cartOp.isPresent() ? cartItemRepository.countItemInCart(cartOp.get().getId()) : 0;
+        if (cartOp.isEmpty()) {
+            return 0L;
+        }
+        var cart = cartOp.get();
+        Long total = cartItemRepository.countItemInCart(cart.getId());
+        if (total == null) {
+            return 0L;
+        }
+        return total;
     }
 }
