@@ -16,7 +16,9 @@ import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
+import com.yas.saga.product.command.ProductQuantityItem;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -845,5 +847,54 @@ public class ProductService {
         });
 
         productRepository.saveAll(products);
+    }
+
+    public void subtractStockQuantity(List<ProductQuantityItem> productQuantityItems) {
+        ListUtils.partition(productQuantityItems, 5)
+                .forEach(this::subtractStockQuantityByPartition);
+    }
+
+    private void subtractStockQuantityByPartition(List<ProductQuantityItem> productQuantityItems) {
+        var productIds = productQuantityItems.stream()
+            .map(ProductQuantityItem::productId)
+            .toList();
+
+        var productQuantityItemMap = productQuantityItems.stream()
+            .collect(Collectors.toMap(
+                ProductQuantityItem::productId,
+                Function.identity(),
+                this::mergeProductQuantityItem
+            ));
+
+
+        List<Product> products = this.productRepository.findAllByIdIn(productIds);
+        products.forEach(product -> {
+            if (product.isStockTrackingEnabled()) {
+               long amount = getRemainAmountOfStockQuantity(productQuantityItemMap, product);
+               product.setStockQuantity(amount);
+            }
+        });
+        this.productRepository.saveAll(products);
+    }
+
+    private long getRemainAmountOfStockQuantity(Map<Long, ProductQuantityItem> productQuantityItemMap, Product product) {
+        Long stockQuantity = product.getStockQuantity();
+        var productItem = productQuantityItemMap.get(product.getId());
+        Integer quantity = productItem.quantity();
+        long amount = stockQuantity - quantity;
+        if (amount < 0) {
+            return 0L;
+        }
+        return amount;
+    }
+
+    private ProductQuantityItem mergeProductQuantityItem(ProductQuantityItem p1, ProductQuantityItem p2) {
+        var q1 = p1.quantity();
+        var q2 = p2.quantity();
+        return ProductQuantityItem
+                .builder()
+                .productId(p1.productId())
+                .quantity(q1 + q2)
+                .build();
     }
 }

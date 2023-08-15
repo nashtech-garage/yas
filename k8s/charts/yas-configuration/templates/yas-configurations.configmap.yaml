@@ -98,3 +98,14 @@ metadata:
 data:
   payment-paypal-application.yaml: |
     {{ toYaml .Values.paymentPaypalApplicationConfig | nindent 4 }}
+---
+# Configmap of production application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  product-application.yaml: |
+    {{ toYaml .Values.productApplicationConfig | nindent 4 }}

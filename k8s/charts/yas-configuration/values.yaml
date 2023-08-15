@@ -238,10 +238,21 @@ paymentPaypalApplicationConfig:
     public:
       url: http://storefront.yas.local.com/complete-payment
 
+# Product application config custom
+productApplicationConfig:
+  eventuatelocal:
+    kafka:
+      bootstrap:
+        servers: kafka-cluster-kafka-brokers.kafka:9092
+    zookeeper:
+      connection:
+        string: kafka-cluster-zookeeper-nodes.kafka:2181
+
 eventuateCdcConfig:
   - database: order
   - database: cart
   - database: payment
+  - database: product
 
 logbackConfig: |
   <?xml version="1.0" encoding="UTF-8" ?>

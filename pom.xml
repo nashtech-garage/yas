@@ -17,9 +17,9 @@
         <module>media</module>-->
         <module>order</module>
         <module>payment</module>
-        <!--<module>payment-paypal</module>
+        <!--<module>payment-paypal</module>-->
         <module>product</module>
-        <module>promotion</module>
+ <!--       <module>promotion</module>
         <module>rating</module>
         <module>search</module>
         <module>storefront-bff</module>
