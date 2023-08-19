@@ -8,7 +8,9 @@ public enum EOrderStatus {
     SHIPPING("SHIPPING"),
     COMPLETED("COMPLETED"),
     REFUND("REFUND"),
-    CANCELLED("CANCELLED");
+    CANCELLED("CANCELLED"),
+
+    REJECT("REJECT");
 
     private final String name;
 

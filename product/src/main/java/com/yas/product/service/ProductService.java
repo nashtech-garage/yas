@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -851,10 +852,16 @@ public class ProductService {
 
     public void subtractStockQuantity(List<ProductQuantityItem> productQuantityItems) {
         ListUtils.partition(productQuantityItems, 5)
-                .forEach(this::subtractStockQuantityByPartition);
+                .forEach(it -> partitionUpdateStockQuantityByCalculation(it, this.subtractStockQuantity()));
     }
 
-    private void subtractStockQuantityByPartition(List<ProductQuantityItem> productQuantityItems) {
+    public void restoreStockQuantity(List<ProductQuantityItem> productQuantityItems) {
+        ListUtils.partition(productQuantityItems, 5)
+                .forEach(it -> partitionUpdateStockQuantityByCalculation(it, this.restoreStockQuantity()));
+    }
+
+    private void partitionUpdateStockQuantityByCalculation(List<ProductQuantityItem> productQuantityItems,
+                                                           BiFunction<Long, Integer, Long> calculation) {
         var productIds = productQuantityItems.stream()
             .map(ProductQuantityItem::productId)
             .toList();
@@ -870,22 +877,30 @@ public class ProductService {
         List<Product> products = this.productRepository.findAllByIdIn(productIds);
         products.forEach(product -> {
             if (product.isStockTrackingEnabled()) {
-               long amount = getRemainAmountOfStockQuantity(productQuantityItemMap, product);
+               long amount = getRemainAmountOfStockQuantity(productQuantityItemMap, product, calculation);
                product.setStockQuantity(amount);
             }
         });
         this.productRepository.saveAll(products);
     }
 
-    private long getRemainAmountOfStockQuantity(Map<Long, ProductQuantityItem> productQuantityItemMap, Product product) {
+    private BiFunction<Long, Integer, Long> subtractStockQuantity() {
+        return (totalQuantity, amount) -> {
+            long result = totalQuantity - amount;
+            return result < 0 ? 0 : result;
+        };
+    }
+
+    private BiFunction<Long, Integer, Long> restoreStockQuantity() {
+        return Long::sum;
+    }
+
+    private Long getRemainAmountOfStockQuantity(Map<Long, ProductQuantityItem> productQuantityItemMap,
+                                                Product product, BiFunction<Long, Integer, Long> calculation) {
         Long stockQuantity = product.getStockQuantity();
         var productItem = productQuantityItemMap.get(product.getId());
         Integer quantity = productItem.quantity();
-        long amount = stockQuantity - quantity;
-        if (amount < 0) {
-            return 0L;
-        }
-        return amount;
+        return calculation.apply(stockQuantity, quantity);
     }
 
     private ProductQuantityItem mergeProductQuantityItem(ProductQuantityItem p1, ProductQuantityItem p2) {

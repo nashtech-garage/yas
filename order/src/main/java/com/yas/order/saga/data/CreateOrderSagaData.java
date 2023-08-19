@@ -15,4 +15,5 @@ public class CreateOrderSagaData {
     private OrderPostVm orderPostVm;
     private OrderVm orderVm;
     private String customerId;
+    private String rejectReason;
 }

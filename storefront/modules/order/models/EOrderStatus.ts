@@ -7,4 +7,5 @@ export enum EOrderStatus {
   REFUND = 'REFUND',
   CANCELLED = 'CANCELLED',
   PAID = 'PAID',
+  REJECT = 'REJECT'
 }

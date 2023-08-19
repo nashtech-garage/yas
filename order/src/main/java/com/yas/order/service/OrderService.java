@@ -90,7 +90,7 @@ public class OrderService {
                 .numberItem(orderPostVm.numberItem())
                 .totalPrice(orderPostVm.totalPrice())
                 .couponCode(orderPostVm.couponCode())
-                .orderStatus(EOrderStatus.PENDING_PAYMENT)
+                .orderStatus(EOrderStatus.PENDING)
                 .deliveryFee(orderPostVm.deliveryFee())
                 .deliveryMethod(orderPostVm.deliveryMethod())
                 .deliveryStatus(EDeliveryStatus.PREPARING)
@@ -116,8 +116,6 @@ public class OrderService {
 
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
-
-        log.info("Order Success: " + order);
         return OrderVm.fromModel(order);
     }
 
@@ -202,5 +200,20 @@ public class OrderService {
             order.setOrderStatus(EOrderStatus.PAID);
         }
         return this.orderRepository.save(order);
+    }
+
+    public void rejectOrder(Long orderId, String rejectReason) {
+        Order order = this.orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, orderId));
+        order.setOrderStatus(EOrderStatus.REJECT);
+        order.setRejectReason(rejectReason);
+        this.orderRepository.save(order);
+    }
+
+    public void acceptOrder(Long orderId) {
+        Order order = this.orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, orderId));
+        order.setOrderStatus(EOrderStatus.ACCEPTED);
+        this.orderRepository.save(order);
     }
 }

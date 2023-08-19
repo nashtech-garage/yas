@@ -50,5 +50,6 @@ public class Order extends AbstractAuditEntity{
     @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     Set<OrderItem> orderItems;
     private String checkoutId;
+    private String rejectReason;
 
 }

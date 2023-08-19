@@ -20,6 +20,8 @@ export function getOrderStatusTitle(orderStatus: EOrderStatus | null) {
       return 'Refund';
     case EOrderStatus.SHIPPING:
       return 'Shipping';
+    case EOrderStatus.REJECT:
+      return 'Reject'
     default:
       return 'All';
   }

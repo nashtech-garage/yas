@@ -9,6 +9,7 @@ import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.saga.cart.reply.DeleteCartItemFailure;
 import com.yas.saga.cart.reply.DeleteCartItemSuccess;
+import com.yas.saga.product.reply.RestoreProductStockQuantitySuccess;
 import com.yas.saga.product.reply.SubtractProductStockQuantitySuccess;
 import io.eventuate.tram.commands.consumer.CommandWithDestination;
 import io.eventuate.tram.sagas.orchestration.SagaDefinition;
@@ -31,17 +32,37 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
     private final SagaDefinition<CreateOrderSagaData> sagaDefinition =
             step()
                 .invokeLocal(this::createOrder)
-                .withCompensation(this::compensateOrder)
+                .withCompensation(this::rejectOrder)
+            .step()
+                .invokeParticipant(this::subtractProductStockQuantity)
+                .withCompensation(this::restoreProductStockQuantity)
+                .onReply(SubtractProductStockQuantitySuccess.class, (data, reply) -> log.info(reply.message()))
+                .onReply(RestoreProductStockQuantitySuccess.class, (data, reply) -> log.info(reply.message()))
             .step()
                 .invokeParticipant(this::deleteCartItem)
                 .onReply(DeleteCartItemSuccess.class, (data, reply) -> log.info(reply.getMessage()))
-                .onReply(DeleteCartItemFailure.class, (data, reply) -> log.warn(reply.getMessage()))
+                .onReply(DeleteCartItemFailure.class, this::onDeleteCartItemFailure)
             .step()
-                .invokeParticipant(this::subtractProductStockQuantity)
-                .onReply(SubtractProductStockQuantitySuccess.class, (data, reply) -> log.info(reply.message()))
+                .invokeLocal(this::acceptOrder)
             .build();
 
+    private void acceptOrder(CreateOrderSagaData data) {
+        log.info("Accept Order");
+        this.orderService.acceptOrder(data.getOrderVm().id());
+    }
+
+    private CommandWithDestination restoreProductStockQuantity(CreateOrderSagaData data) {
+        log.warn("Restore product stock quantity");
+        return this.productMessageService.sendRestoreProductStockQuantity(data.getOrderVm().orderItemVms());
+    }
+
+    private void onDeleteCartItemFailure(CreateOrderSagaData data, DeleteCartItemFailure deleteCartItemFailure) {
+        log.warn("Delete cart item step is failure {}", deleteCartItemFailure.getMessage());
+        data.setRejectReason(deleteCartItemFailure.getMessage());
+    }
+
     private CommandWithDestination subtractProductStockQuantity(CreateOrderSagaData data) {
+        log.info("Subtract product stock quantity");
         return this.productMessageService.sendSubtractProductStockQuantityCommand(data.getOrderVm().orderItemVms());
     }
 
@@ -51,6 +72,7 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
     }
 
     private void createOrder(CreateOrderSagaData data) {
+        log.info("Begin create order saga steps");
         OrderVm orderVm = this.orderService.createOrder(data.getOrderPostVm());
         data.setOrderVm(orderVm);
     }
@@ -64,7 +86,8 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
         return this.cartMessageService.deleteCartItem(productIds, data.getCustomerId());
     }
 
-    private void compensateOrder(CreateOrderSagaData data) {
-        log.info("Compensate Order");
+    private void rejectOrder(CreateOrderSagaData data) {
+        log.warn("Reject order with reason: {}", data.getRejectReason());
+        this.orderService.rejectOrder(data.getOrderVm().id(), data.getRejectReason());
     }
 }
