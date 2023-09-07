@@ -1,6 +1,6 @@
-import type {AppProps} from 'next/app';
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import {ToastContainer} from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -20,7 +20,7 @@ import '../styles/productDetail.css';
 import '../styles/util.css';
 
 import Layout from '@/common/components/Layout';
-import {AppProvider} from '@/context/AppContext';
+import { AppProvider } from '@/context/AppContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

@@ -1,6 +1,6 @@
-import {InitPaymentPaypalRequest} from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
-import {InitPaymentPaypalResponse} from '@/modules/paymentPaypal/models/InitPaymentPaypalResponse';
-import {CapturePaymentPaypalResponse} from '@/modules/paymentPaypal/models/CapturePaymentPaypalResponse';
+import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
+import { InitPaymentPaypalResponse } from '@/modules/paymentPaypal/models/InitPaymentPaypalResponse';
+import { CapturePaymentPaypalResponse } from '@/modules/paymentPaypal/models/CapturePaymentPaypalResponse';
 
 export async function initPaymentPaypal(
   paymentPaypalRequest: InitPaymentPaypalRequest

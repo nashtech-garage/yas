@@ -1,6 +1,6 @@
-import {formatPrice} from '@/utils/formatPrice';
-import {OrderItem} from '../models/OrderItem';
-import {useEffect, useState} from 'react';
+import { formatPrice } from '@/utils/formatPrice';
+import { OrderItem } from '../models/OrderItem';
+import { useEffect, useState } from 'react';
 
 type Props = {
   orderItems: OrderItem[];

@@ -1,4 +1,4 @@
-import {animated, useSpring} from '@react-spring/web';
+import { animated, useSpring } from '@react-spring/web';
 
 type Props = {
   show: boolean;

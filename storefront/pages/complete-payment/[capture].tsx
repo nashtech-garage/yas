@@ -1,13 +1,13 @@
-import {BreadcrumbModel} from '@/modules/breadcrumb/model/BreadcrumbModel';
-import {Button, Container} from 'react-bootstrap';
+import { BreadcrumbModel } from '@/modules/breadcrumb/model/BreadcrumbModel';
+import { Button, Container } from 'react-bootstrap';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
-import {useRouter} from 'next/router';
-import {useEffect, useState} from 'react';
-import {capturePaymentPaypal} from '@/modules/paymentPaypal/services/PaymentPaypalService';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { capturePaymentPaypal } from '@/modules/paymentPaypal/services/PaymentPaypalService';
 import SpinnerComponent from '@/common/components/SpinnerComponent';
 import Link from 'next/link';
-import {CapturePaymentPaypalResponse} from '@/modules/paymentPaypal/models/CapturePaymentPaypalResponse';
-import {PaymentPaypalFailureMessage} from '@/modules/paymentPaypal/models/PaymentPaypalFailureMesasge';
+import { CapturePaymentPaypalResponse } from '@/modules/paymentPaypal/models/CapturePaymentPaypalResponse';
+import { PaymentPaypalFailureMessage } from '@/modules/paymentPaypal/models/PaymentPaypalFailureMesasge';
 
 const crumb: BreadcrumbModel[] = [
   {

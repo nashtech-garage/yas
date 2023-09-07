@@ -1,24 +1,27 @@
-import {Container} from 'react-bootstrap';
-import {toast} from 'react-toastify';
-import {SubmitHandler, useForm} from 'react-hook-form';
-import {Order} from '@/modules/order/models/Order';
+import { Container } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
-import {OrderItem} from '@/modules/order/models/OrderItem';
-import {useEffect, useState} from 'react';
-import {useRouter} from 'next/router';
-import {Input} from 'common/items/Input';
-import {Address} from '@/modules/address/models/AddressModel';
+import { OrderItem } from '@/modules/order/models/OrderItem';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { Input } from 'common/items/Input';
+import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
-import {createOrder, getCheckoutById} from '@/modules/order/services/OrderService';
+import { createOrder, getCheckoutById } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
-import {createUserAddress, getUserAddressDefault,} from '@/modules/customer/services/CustomerService';
+import {
+  createUserAddress,
+  getUserAddressDefault,
+} from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
-import {Checkout} from '@/modules/order/models/Checkout';
-import {toastError} from '@/modules/catalog/services/ToastService';
-import {CheckoutItem} from '@/modules/order/models/CheckoutItem';
-import {initPaymentPaypal} from '@/modules/paymentPaypal/services/PaymentPaypalService';
-import {InitPaymentPaypalRequest} from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
+import { Checkout } from '@/modules/order/models/Checkout';
+import { toastError } from '@/modules/catalog/services/ToastService';
+import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
+import { initPaymentPaypal } from '@/modules/paymentPaypal/services/PaymentPaypalService';
+import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
 import SpinnerComponent from '@/common/components/SpinnerComponent';
 
 const phoneRegExp =
