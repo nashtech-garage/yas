@@ -21,7 +21,7 @@ export function getOrderStatusTitle(orderStatus: EOrderStatus | null) {
     case EOrderStatus.SHIPPING:
       return 'Shipping';
     case EOrderStatus.REJECT:
-      return 'Reject'
+      return 'Reject';
     default:
       return 'All';
   }
