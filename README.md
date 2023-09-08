@@ -78,7 +78,7 @@ YAS is a pet project aim to practice building a typical microservice application
 https://github.com/nashtech-garage/yas/tree/main/k8s/deploy
 
 ## Documentation
-https://github.com/nashtech-garage/yas-docs
+https://github.com/nashtech-garage/yas/docs
 
 ## Contributing
 - Give us a star
