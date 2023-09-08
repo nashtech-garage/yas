@@ -2,7 +2,7 @@
 YAS is a pet project aim to practice building a typical microservice application in Java
 https://github.com/nashtech-garage/yas
 
-##Table of Contents
+## Table of Contents
 
 - [Repo setup](#repo-setup)
 - [Continous Interation](#continous-interation)
