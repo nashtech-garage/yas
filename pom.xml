@@ -26,5 +26,16 @@
         <module>tax</module>-->
         <module>saga</module>
     </modules>
+    <distributionManagement>
+    <snapshotRepository>
+    <id>nexus</id>
+    <url>http://172.31.18.98:8081/Repository/my-app_snapshot/</url>
+    </snapshotRepository>
+    <Repository>
+    <id>nexus</id>
+    <url>http://172.31.18.98:8081/Repository/my-app_release/</url>
+    </Repository>
+    
+         </distributionManagement>
 
 </project>
