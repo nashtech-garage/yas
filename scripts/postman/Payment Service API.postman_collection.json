@@ -1,0 +1,230 @@
+{
+	"info": {
+		"_postman_id": "09a7208e-8a82-47a5-b6d3-e4779010ec9a",
+		"name": "Payment Service API",
+		"description": "Payment API documentation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "259031"
+	},
+	"item": [
+		{
+			"name": "capture-payment",
+			"item": [
+				{
+					"name": "capture Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"<long>\",\n  \"checkoutId\": \"<string>\",\n  \"amount\": \"<number>\",\n  \"paymentFee\": \"<number>\",\n  \"gatewayTransactionId\": \"<string>\",\n  \"paymentMethod\": \"BANKING\",\n  \"paymentStatus\": \"PENDING\",\n  \"failureMessage\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/capture-payment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"capture-payment"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									},
+									{
+										"description": "Added as a part of security scheme: oauth2",
+										"key": "Authorization",
+										"value": "<token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"orderId\": \"<long>\",\n  \"checkoutId\": \"<string>\",\n  \"amount\": \"<number>\",\n  \"paymentFee\": \"<number>\",\n  \"gatewayTransactionId\": \"<string>\",\n  \"paymentMethod\": \"BANKING\",\n  \"paymentStatus\": \"PENDING\",\n  \"failureMessage\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/capture-payment",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"capture-payment"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"orderId\": \"<long>\",\n  \"checkoutId\": \"<string>\",\n  \"amount\": \"<number>\",\n  \"paymentFee\": \"<number>\",\n  \"gatewayTransactionId\": \"<string>\",\n  \"paymentMethod\": \"BANKING\",\n  \"paymentStatus\": \"PENDING\",\n  \"failureMessage\": \"<string>\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "payment-providers",
+			"item": [
+				{
+					"name": "{id}",
+					"item": [
+						{
+							"name": "additional-settings",
+							"item": [
+								{
+									"name": "get Additional Settings",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/payment-providers/:id/additional-settings",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"payment-providers",
+												":id",
+												"additional-settings"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "<string>"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													},
+													{
+														"description": "Added as a part of security scheme: oauth2",
+														"key": "Authorization",
+														"value": "<token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/payment-providers/:id/additional-settings",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"payment-providers",
+														":id",
+														"additional-settings"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "<string>"
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "/payment"
+		}
+	]
+}

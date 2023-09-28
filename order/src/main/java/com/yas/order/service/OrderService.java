@@ -4,10 +4,9 @@ import com.yas.order.exception.NotFoundException;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
-import com.yas.order.model.enumeration.ECheckoutState;
 import com.yas.order.model.enumeration.EDeliveryStatus;
 import com.yas.order.model.enumeration.EOrderStatus;
-import com.yas.order.repository.CheckoutRepository;
+import com.yas.order.model.enumeration.EPaymentStatus;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.AuthenticationUtils;
@@ -15,6 +14,8 @@ import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.order.*;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVM;
+import com.yas.saga.order.command.PaymentStatusCommand;
+import com.yas.saga.order.command.UpdateOrderPaymentStatusCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,12 +32,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.yas.order.utils.Constants.ERROR_CODE.ORDER_NOT_FOUND;
+
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class OrderService {
-    private final CheckoutRepository checkoutRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductService productService;
@@ -95,6 +97,7 @@ public class OrderService {
                 .paymentStatus(orderPostVm.paymentStatus())
                 .shippingAddressId(shippOrderAddress)
                 .billingAddressId(billOrderAddress)
+                .checkoutId(orderPostVm.checkoutId())
                 .build();
         orderRepository.save(order);
 
@@ -113,18 +116,6 @@ public class OrderService {
 
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
-
-//        TO-DO: decrement inventory when inventory is complete
-//        ************
-
-        checkoutRepository.findById(orderPostVm.checkoutId())
-                .ifPresent(checkout -> {
-                    checkout.setCheckoutState(ECheckoutState.COMPLETED);
-                    checkoutRepository.save(checkout);
-                    log.info("Update checkout state: " + checkout);
-                });
-
-        log.info("Order Success: " + order);
         return OrderVm.fromModel(order);
     }
 
@@ -190,5 +181,39 @@ public class OrderService {
         String userId = AuthenticationUtils.getCurrentUserId();
         List<Order> orders = orderRepository.findMyOrders(userId, productName, orderStatus);
         return orders.stream().map(OrderGetVm::fromModel).toList();
+    }
+
+    public Order findOrderByCheckoutId(String checkoutId) {
+        return this.orderRepository.findByCheckoutId(checkoutId)
+            .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, "of checkoutId " + checkoutId));
+    }
+
+    public Order updateOrderPaymentStatus(UpdateOrderPaymentStatusCommand command) {
+        var order = this.orderRepository
+            .findById(command.orderId())
+            .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, command.orderId()));
+
+        order.setPaymentId(command.paymentId());
+        PaymentStatusCommand paymentStatus = command.paymentStatus();
+        order.setPaymentStatus(EPaymentStatus.valueOf(paymentStatus.name()));
+        if (PaymentStatusCommand.COMPLETED.equals(paymentStatus)) {
+            order.setOrderStatus(EOrderStatus.PAID);
+        }
+        return this.orderRepository.save(order);
+    }
+
+    public void rejectOrder(Long orderId, String rejectReason) {
+        Order order = this.orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, orderId));
+        order.setOrderStatus(EOrderStatus.REJECT);
+        order.setRejectReason(rejectReason);
+        this.orderRepository.save(order);
+    }
+
+    public void acceptOrder(Long orderId) {
+        Order order = this.orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, orderId));
+        order.setOrderStatus(EOrderStatus.ACCEPTED);
+        this.orderRepository.save(order);
     }
 }

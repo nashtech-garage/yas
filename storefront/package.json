@@ -10,6 +10,7 @@
     "format": "npx prettier --write ."
   },
   "dependencies": {
+    "@react-spring/web": "^9.7.3",
     "bootstrap": "^5.1.3",
     "bootstrap-icons": "^1.9.1",
     "clsx": "^1.2.1",

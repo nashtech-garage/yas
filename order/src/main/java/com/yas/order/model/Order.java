@@ -1,7 +1,10 @@
 package com.yas.order.model;
 
 
-import com.yas.order.model.enumeration.*;
+import com.yas.order.model.enumeration.EDeliveryMethod;
+import com.yas.order.model.enumeration.EDeliveryStatus;
+import com.yas.order.model.enumeration.EOrderStatus;
+import com.yas.order.model.enumeration.EPaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,5 +49,7 @@ public class Order extends AbstractAuditEntity{
     private Long paymentId;
     @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     Set<OrderItem> orderItems;
+    private String checkoutId;
+    private String rejectReason;
 
 }

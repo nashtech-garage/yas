@@ -10,3 +10,12 @@ backend:
     enabled: true
     host: api.yas.local.com
     path: /payment-paypal
+  extraVolumes:
+    - name: payment-paypal-application-config
+      configMap:
+        name: payment-paypal-application-configmap
+  extraVolumeMounts:
+    - name: payment-paypal-application-config
+      mountPath: /opt/yas/payment-paypal
+  extraApplicationConfigPaths:
+    - /opt/yas/payment-paypal/payment-paypal-application.yaml

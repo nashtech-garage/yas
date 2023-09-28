@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
@@ -20,6 +20,9 @@ import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
 import { Checkout } from '@/modules/order/models/Checkout';
 import { toastError } from '@/modules/catalog/services/ToastService';
 import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
+import { initPaymentPaypal } from '@/modules/paymentPaypal/services/PaymentPaypalService';
+import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
+import SpinnerComponent from '@/common/components/SpinnerComponent';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -68,6 +71,8 @@ const Checkout = () => {
   const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
   const [showModalShipping, setModalShipping] = useState<boolean>(false);
   const [showModalBilling, setModalBilling] = useState<boolean>(false);
+  const [isShowSpinner, setIsShowSpinner] = useState(false);
+  const [disableProcessPayment, setDisableProcessPayment] = useState(false);
   const handleCloseModalShipping = () => {
     if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
     setModalShipping(false);
@@ -189,20 +194,35 @@ const Checkout = () => {
       order.paymentMethod = 'COD';
       order.paymentStatus = 'PENDING';
       order.orderItemPostVms = orderItems;
-      await createOrder(order)
+      setIsShowSpinner(true);
+      setDisableProcessPayment(true);
+      createOrder(order)
         .then(() => {
-          toast.success('Place order successfully');
+          redirectToPaypal(order);
         })
         .catch(() => {
+          setIsShowSpinner(false);
+          setDisableProcessPayment(false);
           toast.error('Place order failed');
         });
     }
+  };
+
+  const redirectToPaypal = async (order: Order) => {
+    const initPaymentPaypalRequest: InitPaymentPaypalRequest = {
+      checkoutId: order.checkoutId,
+      totalPrice: order.totalPrice,
+    };
+    const initPaymentResponse = await initPaymentPaypal(initPaymentPaypalRequest);
+    const redirectUrl = initPaymentResponse.redirectUrl;
+    window.location.replace(redirectUrl);
   };
 
   return (
     <>
       <Container>
         <section className="checkout spad">
+          <SpinnerComponent show={isShowSpinner}></SpinnerComponent>
           <div className="container">
             <div className="checkout__form">
               <form onSubmit={(event) => void handleSubmit(onSubmitForm)(event)}>
@@ -310,7 +330,10 @@ const Checkout = () => {
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-6">
-                    <CheckOutDetail orderItems={orderItems} />
+                    <CheckOutDetail
+                      orderItems={orderItems}
+                      disablePaymentProcess={disableProcessPayment}
+                    />
                   </div>
                 </div>
               </form>

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
 
-    public CapturedPayment capturePayment(CapturedPayment completedPayment) {
+    public Payment createPayment(CapturedPayment completedPayment) {
         Payment payment =Payment.builder()
                 .checkoutId(completedPayment.checkoutId())
                 .orderId(completedPayment.orderId())
@@ -24,6 +24,6 @@ public class PaymentService {
                 .failureMessage(completedPayment.failureMessage())
                 .gatewayTransactionId(completedPayment.gatewayTransactionId())
                 .build();
-        return CapturedPayment.fromModel(paymentRepository.save(payment));
+        return paymentRepository.save(payment);
     }
 }

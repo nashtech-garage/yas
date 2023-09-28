@@ -3,3 +3,5 @@ databaseChangeLog:
       path: db/changelog/ddl/
   - includeAll:
       path: db/changelog/data/
+  - includeAll:
+      path: db/changelog/eventuate-dll/

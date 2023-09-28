@@ -10,6 +10,7 @@ import com.yas.paymentpaypal.viewmodel.PaypalRequestPayment;
 import com.yas.paymentpaypal.viewmodel.RequestPayment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,10 +23,13 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class PaypalService {
     private final PayPalHttpClient payPalHttpClient;
-    private final PaymentService paymentService;
+    private final PaymentMessageService paymentMessageService;
 
-    private static final String RETURN_URL = "http://api.yas.local/payment-paypal/capture";
-    private static final String CANCEL_URL = "http://api.yas.local/payment-paypal/cancel";
+    @Value("${yas.public.url}/capture")
+    private String returnUrl;
+
+    @Value("${yas.public.url}/cancel")
+    private String cancelUrl;
 
     public PaypalRequestPayment createPayment(RequestPayment requestPayment) {
         OrderRequest orderRequest = new OrderRequest();
@@ -35,8 +39,8 @@ public class PaypalService {
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl(RETURN_URL)
-                .cancelUrl(CANCEL_URL)
+                .returnUrl(returnUrl)
+                .cancelUrl(cancelUrl)
                 .brandName(Constants.Yas.BRAND_NAME)
                 .landingPage("BILLING")
                 .userAction("PAY_NOW")
@@ -83,7 +87,7 @@ public class PaypalService {
                         .paymentMethod("PAYPAL")
                         .checkoutId(CheckoutIdHelper.getCheckoutId())
                         .build();
-                paymentService.capturePaymentInfoToPaymentService(capturedPayment);
+                paymentMessageService.sendCaptureMessage(capturedPayment);
                 return capturedPayment;
             }
         } catch (IOException e) {

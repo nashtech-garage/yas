@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 
 type Props = {
   orderItems: OrderItem[];
+  disablePaymentProcess: boolean;
 };
 
-const CheckOutDetail = ({ orderItems }: Props) => {
+const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [disableCheckout, setDisableCheckout] = useState<boolean>(true);
 
@@ -74,9 +75,9 @@ const CheckOutDetail = ({ orderItems }: Props) => {
         <button
           type="submit"
           className="site-btn"
-          disabled={disableCheckout}
+          disabled={disablePaymentProcess ? true : disableCheckout}
           style={
-            disableCheckout
+            disablePaymentProcess || disableCheckout
               ? { cursor: 'not-allowed', backgroundColor: 'gray' }
               : { cursor: 'pointer' }
           }

@@ -10,3 +10,12 @@ backend:
     enabled: true
     host: api.yas.local.com
     path: /product
+  extraVolumes:
+    - name: product-application-config
+      configMap:
+        name: product-application-configmap
+  extraVolumeMounts:
+    - name: product-application-config
+      mountPath: /opt/yas/product
+  extraApplicationConfigPaths:
+    - /opt/yas/product/product-application.yaml  

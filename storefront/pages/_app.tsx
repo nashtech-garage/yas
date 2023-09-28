@@ -6,6 +6,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 
+import '../styles/spinner.css';
+import '../styles/completePayment.css';
 import '../styles/MyOrder.css';
 import '../styles/Footer.css';
 import '../styles/Header.css';

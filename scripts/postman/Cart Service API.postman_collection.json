@@ -1,0 +1,766 @@
+{
+	"info": {
+		"_postman_id": "4ca14e44-df6c-40d3-8cf7-11e1f2946835",
+		"name": "Cart Service API",
+		"description": "Product API documentation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "259031"
+	},
+	"item": [
+		{
+			"name": "cart-item",
+			"item": [
+				{
+					"name": "update Cart",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": \"<long>\",\n  \"quantity\": \"<integer>\",\n  \"parentProductId\": \"<long>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cart-item",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart-item"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									},
+									{
+										"description": "Added as a part of security scheme: oauth2",
+										"key": "Authorization",
+										"value": "<token>"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"productId\": \"<long>\",\n  \"quantity\": \"<integer>\",\n  \"parentProductId\": \"<long>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/cart-item",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cart-item"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"cartItemId\": \"<long>\",\n  \"userId\": \"<string>\",\n  \"productId\": \"<long>\",\n  \"quantity\": \"<integer>\",\n  \"status\": \"<string>\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "storefront",
+			"item": [
+				{
+					"name": "carts",
+					"item": [
+						{
+							"name": "get Last Cart",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/storefront/carts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"storefront",
+										"carts"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/storefront/carts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"carts"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"customerId\": \"<string>\",\n  \"orderId\": \"<long>\",\n  \"cartDetails\": [\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"quantity\": \"<integer>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"quantity\": \"<integer>\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Add product to shopping cart. When no cart exists, this will create a new cart.",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"productId\": 1,\n        \"quantity\": 1,\n        \"parentProductId\": null\n    }\n]",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/storefront/carts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"storefront",
+										"carts"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Add to cart successfully",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n  {\n    \"productId\": \"<long>\",\n    \"quantity\": \"<integer>\",\n    \"parentProductId\": \"<long>\"\n  },\n  {\n    \"productId\": \"<long>\",\n    \"quantity\": \"<integer>\",\n    \"parentProductId\": \"<long>\"\n  }\n]",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/storefront/carts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"carts"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"customerId\": \"<string>\",\n  \"orderId\": \"<long>\",\n  \"cartDetails\": [\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"quantity\": \"<integer>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"quantity\": \"<integer>\"\n    }\n  ]\n}"
+								},
+								{
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n  {\n    \"productId\": \"<long>\",\n    \"quantity\": \"<integer>\",\n    \"parentProductId\": \"<long>\"\n  },\n  {\n    \"productId\": \"<long>\",\n    \"quantity\": \"<integer>\",\n    \"parentProductId\": \"<long>\"\n  }\n]",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/storefront/carts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"carts"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"statusCode\": \"<string>\",\n  \"title\": \"<string>\",\n  \"detail\": \"<string>\",\n  \"fieldErrors\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}"
+								},
+								{
+									"name": "Not found",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n  {\n    \"productId\": \"<long>\",\n    \"quantity\": \"<integer>\",\n    \"parentProductId\": \"<long>\"\n  },\n  {\n    \"productId\": \"<long>\",\n    \"quantity\": \"<integer>\",\n    \"parentProductId\": \"<long>\"\n  }\n]",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/storefront/carts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"carts"
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"statusCode\": \"<string>\",\n  \"title\": \"<string>\",\n  \"detail\": \"<string>\",\n  \"fieldErrors\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "count-cart-items",
+					"item": [
+						{
+							"name": "get Number Item In Cart",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/storefront/count-cart-items",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"storefront",
+										"count-cart-items"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/storefront/count-cart-items",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"count-cart-items"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "<integer>"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "cart-item",
+					"item": [
+						{
+							"name": "multi-delete",
+							"item": [
+								{
+									"name": "remove Cart Item List By Product Id List",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/storefront/cart-item/multi-delete?productIds=<long>&productIds=<long>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"cart-item",
+												"multi-delete"
+											],
+											"query": [
+												{
+													"key": "productIds",
+													"value": "<long>",
+													"description": "(Required) "
+												},
+												{
+													"key": "productIds",
+													"value": "<long>",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [
+													{
+														"description": "Added as a part of security scheme: oauth2",
+														"key": "Authorization",
+														"value": "<token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/storefront/cart-item/multi-delete?productIds=<long>",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"storefront",
+														"cart-item",
+														"multi-delete"
+													],
+													"query": [
+														{
+															"key": "productIds",
+															"value": "<long>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "remove Cart Item By Product Id",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/storefront/cart-item?productId=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"storefront",
+										"cart-item"
+									],
+									"query": [
+										{
+											"key": "productId",
+											"value": "<long>",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/storefront/cart-item?productId=<long>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"cart-item"
+											],
+											"query": [
+												{
+													"key": "productId",
+													"value": "<long>",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "backoffice",
+			"item": [
+				{
+					"name": "carts",
+					"item": [
+						{
+							"name": "{customerId}",
+							"item": [
+								{
+									"name": "list Cart Detail By Customer Id",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/backoffice/carts/:customerId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"backoffice",
+												"carts",
+												":customerId"
+											],
+											"variable": [
+												{
+													"key": "customerId",
+													"value": "<string>"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													},
+													{
+														"description": "Added as a part of security scheme: oauth2",
+														"key": "Authorization",
+														"value": "<token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/backoffice/carts/:customerId",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"backoffice",
+														"carts",
+														":customerId"
+													],
+													"variable": [
+														{
+															"key": "customerId"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "[\n  {\n    \"id\": \"<long>\",\n    \"customerId\": \"<string>\",\n    \"orderId\": \"<long>\",\n    \"cartDetails\": [\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"quantity\": \"<integer>\"\n      },\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"quantity\": \"<integer>\"\n      }\n    ]\n  },\n  {\n    \"id\": \"<long>\",\n    \"customerId\": \"<string>\",\n    \"orderId\": \"<long>\",\n    \"cartDetails\": [\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"quantity\": \"<integer>\"\n      },\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"quantity\": \"<integer>\"\n      }\n    ]\n  }\n]"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "list Carts",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/backoffice/carts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"backoffice",
+										"carts"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/backoffice/carts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"backoffice",
+												"carts"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "[\n  {\n    \"id\": \"<long>\",\n    \"customerId\": \"<string>\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"customerId\": \"<string>\"\n  }\n]"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "/cart"
+		}
+	]
+}

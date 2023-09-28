@@ -9,7 +9,7 @@ import java.util.List;
 import static io.eventuate.tram.commands.consumer.CommandWithDestinationBuilder.send;
 
 @Service
-public class CartService {
+public class CartMessageService {
     public CommandWithDestination deleteCartItem(List<Long> productIds, String customerId) {
         var deleteCartItemCommand = DeleteCartItemCommand.builder()
                 .customerId(customerId)

@@ -1,0 +1,41 @@
+.spinner {
+  position: fixed;
+  top: 43%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9999;
+  margin: 0;
+  text-align: center;
+}
+
+.spinner:after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #fff;
+  -moz-opacity: 0.9;
+  -khtml-opacity: 0.9;
+  -webkit-opacity: 0.9;
+  opacity: 0.9;
+  -ms-filter: alpha(opacity=90);
+  filter: alpha(opacity=90);
+}
+
+.spinner-icon {
+  content: '';
+  display: block;
+  margin: 0 auto 10px;
+  text-align: center;
+  width: 6rem;
+  height: 6rem;
+  border-left: 0.17rem solid #142c8e;
+  border-right: 0.17rem solid #142c8e;
+  border-bottom: 0.17rem solid #142c8e;
+  border-top: 0.17rem solid rgba(255, 255, 255, 0);
+  border-radius: 50px;
+}
