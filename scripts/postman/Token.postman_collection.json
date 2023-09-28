@@ -1,0 +1,75 @@
+{
+	"info": {
+		"_postman_id": "9b6b1fad-c8d7-40ec-86b8-6327809cb723",
+		"name": "Token",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "259031"
+	},
+	"item": [
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.globals.set(\"access_token\", jsonData.access_token);",
+							"console.log(jsonData.access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "swagger-ui",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "SwmUKgeKTjiHvl8fhTrEv7NiJkiF7Jjc",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://identity/realms/Yas/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"identity"
+					],
+					"path": [
+						"realms",
+						"Yas",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,741 @@
+{
+	"info": {
+		"_postman_id": "edb8ff01-5cc4-44ba-84a7-ccedab4f6c7d",
+		"name": "Order Service API",
+		"description": "Order API documentation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "259031"
+	},
+	"item": [
+		{
+			"name": "storefront",
+			"item": [
+				{
+					"name": "orders",
+					"item": [
+						{
+							"name": "my-orders",
+							"item": [
+								{
+									"name": "get My Orders",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/storefront/orders/my-orders?productName=",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"orders",
+												"my-orders"
+											],
+											"query": [
+												{
+													"key": "productName",
+													"value": "",
+													"description": "(Required) "
+												},
+												{
+													"key": "orderStatus",
+													"value": "PENDING_PAYMENT",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													},
+													{
+														"description": "Added as a part of security scheme: oauth2",
+														"key": "Authorization",
+														"value": "<token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/storefront/orders/my-orders?productName=<string>&orderStatus=PENDING_PAYMENT",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"storefront",
+														"orders",
+														"my-orders"
+													],
+													"query": [
+														{
+															"key": "productName",
+															"value": "<string>",
+															"description": "(Required) "
+														},
+														{
+															"key": "orderStatus",
+															"value": "PENDING_PAYMENT"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "[\n  {\n    \"id\": \"<long>\",\n    \"orderStatus\": \"REFUND\",\n    \"totalPrice\": \"<number>\",\n    \"deliveryStatus\": \"DELIVERED\",\n    \"deliveryMethod\": \"SHOPEE_EXPRESS\",\n    \"orderItems\": [\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"productName\": \"<string>\",\n        \"quantity\": \"<integer>\",\n        \"productPrice\": \"<number>\"\n      },\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"productName\": \"<string>\",\n        \"quantity\": \"<integer>\",\n        \"productPrice\": \"<number>\"\n      }\n    ],\n    \"createdOn\": \"<dateTime>\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"orderStatus\": \"PENDING\",\n    \"totalPrice\": \"<number>\",\n    \"deliveryStatus\": \"CANCELLED\",\n    \"deliveryMethod\": \"YAS_EXPRESS\",\n    \"orderItems\": [\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"productName\": \"<string>\",\n        \"quantity\": \"<integer>\",\n        \"productPrice\": \"<number>\"\n      },\n      {\n        \"id\": \"<long>\",\n        \"productId\": \"<long>\",\n        \"productName\": \"<string>\",\n        \"quantity\": \"<integer>\",\n        \"productPrice\": \"<number>\"\n      }\n    ],\n    \"createdOn\": \"<dateTime>\"\n  }\n]"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "completed",
+							"item": [
+								{
+									"name": "check Order Exists By Product Id And User Id With Status",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/storefront/orders/completed?productId=<long>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"orders",
+												"completed"
+											],
+											"query": [
+												{
+													"key": "productId",
+													"value": "<long>",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													},
+													{
+														"description": "Added as a part of security scheme: oauth2",
+														"key": "Authorization",
+														"value": "<token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/storefront/orders/completed?productId=<long>",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"storefront",
+														"orders",
+														"completed"
+													],
+													"query": [
+														{
+															"key": "productId",
+															"value": "<long>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"isPresent\": \"<boolean>\"\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "create Order",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\n    \"note\": \"\",\n\n    \"email\": \"admin@gmail.com\",\n\n    \"shippingAddressPostVm\": {\n\n        \"contactName\": \"Hue Nguyen\",\n\n        \"phone\": \"02325464434\",\n\n        \"countryId\": \"1\",\n\n        \"stateOrProvinceId\": \"57\",\n\n        \"city\": \"Manchester\",\n\n        \"districtId\": \"631\",\n\n        \"addressLine1\": \"1 Downing\",\n\n        \"zipCode\": \"mb217\",\n\n        \"countryName\": \"Viet Nam\",\n\n        \"stateOrProvinceName\": \"An Giang\",\n\n        \"districtName\": \"An Phú\"\n\n    },\n\n    \"billingAddressPostVm\": {\n\n        \"contactName\": \"Hue Nguyen\",\n\n        \"phone\": \"02325464434\",\n\n        \"countryId\": \"1\",\n\n        \"stateOrProvinceId\": \"57\",\n\n        \"city\": \"Manchester\",\n\n        \"districtId\": \"631\",\n\n        \"addressLine1\": \"1 Downing\",\n\n        \"zipCode\": \"mb217\",\n\n        \"countryName\": \"Viet Nam\",\n\n        \"stateOrProvinceName\": \"An Giang\",\n\n        \"districtName\": \"An Phú\"\n\n    },\n\n    \"checkoutId\": \"{{checkout_id}}\",\n\n    \"tax\": 0,\n\n    \"discount\": 0,\n\n    \"numberItem\": 1,\n\n    \"totalPrice\": 33000000,\n\n    \"deliveryFee\": 0,\n\n    \"couponCode\": \"\",\n\n    \"deliveryMethod\": \"YAS_EXPRESS\",\n\n    \"paymentMethod\": \"COD\",\n\n    \"paymentStatus\": \"PENDING\",\n\n    \"orderItemPostVms\": [\n\n        {\n\n            \"productId\": 1,\n\n            \"quantity\": 8,\n\n            \"productName\": \"Dell XPS 15 9550\",\n\n            \"productPrice\": 16500000\n\n        }\n\n    ]\n\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/storefront/orders",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"storefront",
+										"orders"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"orderItemPostVms\": [\n    {\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\"\n    },\n    {\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\"\n    }\n  ],\n  \"checkoutId\": \"<string>\",\n  \"email\": \"<string>\",\n  \"shippingAddressPostVm\": {\n    \"contactName\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"addressLine1\": \"<string>\",\n    \"addressLine2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"zipCode\": \"<string>\",\n    \"districtId\": \"<long>\",\n    \"districtName\": \"<string>\",\n    \"stateOrProvinceId\": \"<long>\",\n    \"stateOrProvinceName\": \"<string>\",\n    \"countryId\": \"<long>\",\n    \"countryName\": \"<string>\"\n  },\n  \"billingAddressPostVm\": {\n    \"contactName\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"addressLine1\": \"<string>\",\n    \"addressLine2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"zipCode\": \"<string>\",\n    \"districtId\": \"<long>\",\n    \"districtName\": \"<string>\",\n    \"stateOrProvinceId\": \"<long>\",\n    \"stateOrProvinceName\": \"<string>\",\n    \"countryId\": \"<long>\",\n    \"countryName\": \"<string>\"\n  },\n  \"note\": \"<string>\",\n  \"tax\": \"<float>\",\n  \"discount\": \"<float>\",\n  \"numberItem\": \"<integer>\",\n  \"totalPrice\": \"<number>\",\n  \"deliveryFee\": \"<number>\",\n  \"couponCode\": \"<string>\",\n  \"deliveryMethod\": \"VIETTEL_POST\",\n  \"paymentMethod\": \"BANKING\",\n  \"paymentStatus\": \"PENDING\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/storefront/orders",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"orders"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"email\": \"<string>\",\n  \"shippingAddressVm\": {\n    \"id\": \"<long>\",\n    \"contactName\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"addressLine1\": \"<string>\",\n    \"addressLine2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"zipCode\": \"<string>\",\n    \"districtId\": \"<long>\",\n    \"districtName\": \"<string>\",\n    \"stateOrProvinceId\": \"<long>\",\n    \"stateOrProvinceName\": \"<string>\",\n    \"countryId\": \"<long>\",\n    \"countryName\": \"<string>\"\n  },\n  \"billingAddressVm\": {\n    \"id\": \"<long>\",\n    \"contactName\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"addressLine1\": \"<string>\",\n    \"addressLine2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"zipCode\": \"<string>\",\n    \"districtId\": \"<long>\",\n    \"districtName\": \"<string>\",\n    \"stateOrProvinceId\": \"<long>\",\n    \"stateOrProvinceName\": \"<string>\",\n    \"countryId\": \"<long>\",\n    \"countryName\": \"<string>\"\n  },\n  \"note\": \"<string>\",\n  \"tax\": \"<float>\",\n  \"discount\": \"<float>\",\n  \"numberItem\": \"<integer>\",\n  \"totalPrice\": \"<number>\",\n  \"deliveryFee\": \"<number>\",\n  \"couponCode\": \"<string>\",\n  \"orderStatus\": \"PENDING\",\n  \"deliveryMethod\": \"SHOPEE_EXPRESS\",\n  \"deliveryStatus\": \"PREPARING\",\n  \"paymentStatus\": \"CANCELLED\",\n  \"orderItemVms\": [\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"orderId\": \"<long>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"orderId\": \"<long>\"\n    }\n  ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "checkouts",
+					"item": [
+						{
+							"name": "{id}",
+							"item": [
+								{
+									"name": "get Order With Items By Id",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/storefront/checkouts/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"checkouts",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "<string>"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													},
+													{
+														"description": "Added as a part of security scheme: oauth2",
+														"key": "Authorization",
+														"value": "<token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/storefront/checkouts/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"storefront",
+														"checkouts",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"id\": \"<string>\",\n  \"email\": \"<string>\",\n  \"note\": \"<string>\",\n  \"couponCode\": \"<string>\",\n  \"checkoutItemVms\": [\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"checkoutId\": \"<string>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"checkoutId\": \"<string>\"\n    }\n  ]\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "create Checkout",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"pm.collectionVariables.set(\"checkout_id\", jsonData.id);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@gmail.com\",\n    \"note\": \"\",\n    \"couponCode\": \"\",\n    \"checkoutItemPostVms\": [\n        {\n            \"productId\": 1,\n            \"productName\": \"Dell XPS 15 9550\",\n            \"quantity\": 1,\n            \"productPrice\": 12\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/storefront/checkouts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"storefront",
+										"checkouts"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"checkoutItemPostVms\": [\n    {\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\"\n    },\n    {\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\"\n    }\n  ],\n  \"email\": \"<string>\",\n  \"note\": \"<string>\",\n  \"couponCode\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/storefront/checkouts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"storefront",
+												"checkouts"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<string>\",\n  \"email\": \"<string>\",\n  \"note\": \"<string>\",\n  \"couponCode\": \"<string>\",\n  \"checkoutItemVms\": [\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"checkoutId\": \"<string>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"checkoutId\": \"<string>\"\n    }\n  ]\n}"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "backoffice",
+			"item": [
+				{
+					"name": "orders",
+					"item": [
+						{
+							"name": "{id}",
+							"item": [
+								{
+									"name": "get Order With Items By Id 1",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/backoffice/orders/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"backoffice",
+												"orders",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "<long>"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													},
+													{
+														"description": "Added as a part of security scheme: oauth2",
+														"key": "Authorization",
+														"value": "<token>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/backoffice/orders/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"backoffice",
+														"orders",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"id\": \"<long>\",\n  \"email\": \"<string>\",\n  \"shippingAddressVm\": {\n    \"id\": \"<long>\",\n    \"contactName\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"addressLine1\": \"<string>\",\n    \"addressLine2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"zipCode\": \"<string>\",\n    \"districtId\": \"<long>\",\n    \"districtName\": \"<string>\",\n    \"stateOrProvinceId\": \"<long>\",\n    \"stateOrProvinceName\": \"<string>\",\n    \"countryId\": \"<long>\",\n    \"countryName\": \"<string>\"\n  },\n  \"billingAddressVm\": {\n    \"id\": \"<long>\",\n    \"contactName\": \"<string>\",\n    \"phone\": \"<string>\",\n    \"addressLine1\": \"<string>\",\n    \"addressLine2\": \"<string>\",\n    \"city\": \"<string>\",\n    \"zipCode\": \"<string>\",\n    \"districtId\": \"<long>\",\n    \"districtName\": \"<string>\",\n    \"stateOrProvinceId\": \"<long>\",\n    \"stateOrProvinceName\": \"<string>\",\n    \"countryId\": \"<long>\",\n    \"countryName\": \"<string>\"\n  },\n  \"note\": \"<string>\",\n  \"tax\": \"<float>\",\n  \"discount\": \"<float>\",\n  \"numberItem\": \"<integer>\",\n  \"totalPrice\": \"<number>\",\n  \"deliveryFee\": \"<number>\",\n  \"couponCode\": \"<string>\",\n  \"orderStatus\": \"PENDING\",\n  \"deliveryMethod\": \"SHOPEE_EXPRESS\",\n  \"deliveryStatus\": \"PREPARING\",\n  \"paymentStatus\": \"CANCELLED\",\n  \"orderItemVms\": [\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"orderId\": \"<long>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"productId\": \"<long>\",\n      \"productName\": \"<string>\",\n      \"quantity\": \"<integer>\",\n      \"productPrice\": \"<number>\",\n      \"note\": \"<string>\",\n      \"discountAmount\": \"<number>\",\n      \"taxAmount\": \"<number>\",\n      \"taxPercent\": \"<number>\",\n      \"orderId\": \"<long>\"\n    }\n  ]\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "get Orders",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/backoffice/orders?createdFrom=1970-01-01T00:00:01.968Z&createdTo=2023-07-22T04:04:58.535Z&warehouse=&productName=&billingPhoneNumber=&email=&billingCountry=&pageNo=0&pageSize=10",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"backoffice",
+										"orders"
+									],
+									"query": [
+										{
+											"key": "createdFrom",
+											"value": "1970-01-01T00:00:01.968Z"
+										},
+										{
+											"key": "createdTo",
+											"value": "2023-07-22T04:04:58.535Z"
+										},
+										{
+											"key": "warehouse",
+											"value": ""
+										},
+										{
+											"key": "productName",
+											"value": ""
+										},
+										{
+											"key": "billingPhoneNumber",
+											"value": ""
+										},
+										{
+											"key": "email",
+											"value": ""
+										},
+										{
+											"key": "billingCountry",
+											"value": ""
+										},
+										{
+											"key": "pageNo",
+											"value": "0"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											},
+											{
+												"description": "Added as a part of security scheme: oauth2",
+												"key": "Authorization",
+												"value": "<token>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/backoffice/orders?createdFrom=1970-01-01T00:00:01.968Z&createdTo=2023-07-22T04:04:58.535Z&warehouse=&productName=&billingPhoneNumber=&email=&billingCountry=&pageNo=0&pageSize=10",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"backoffice",
+												"orders"
+											],
+											"query": [
+												{
+													"key": "createdFrom",
+													"value": "1970-01-01T00:00:01.968Z"
+												},
+												{
+													"key": "createdTo",
+													"value": "2023-07-22T04:04:58.535Z"
+												},
+												{
+													"key": "warehouse",
+													"value": ""
+												},
+												{
+													"key": "productName",
+													"value": ""
+												},
+												{
+													"key": "billingPhoneNumber",
+													"value": ""
+												},
+												{
+													"key": "email",
+													"value": ""
+												},
+												{
+													"key": "billingCountry",
+													"value": ""
+												},
+												{
+													"key": "pageNo",
+													"value": "0"
+												},
+												{
+													"key": "pageSize",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "*/*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"orderList\": [\n    {\n      \"id\": \"<long>\",\n      \"email\": \"<string>\",\n      \"billingAddressVm\": {\n        \"id\": \"<long>\",\n        \"contactName\": \"<string>\",\n        \"phone\": \"<string>\",\n        \"addressLine1\": \"<string>\",\n        \"addressLine2\": \"<string>\",\n        \"city\": \"<string>\",\n        \"zipCode\": \"<string>\",\n        \"districtId\": \"<long>\",\n        \"districtName\": \"<string>\",\n        \"stateOrProvinceId\": \"<long>\",\n        \"stateOrProvinceName\": \"<string>\",\n        \"countryId\": \"<long>\",\n        \"countryName\": \"<string>\"\n      },\n      \"totalPrice\": \"<number>\",\n      \"orderStatus\": \"CANCELLED\",\n      \"deliveryMethod\": \"GRAB_EXPRESS\",\n      \"deliveryStatus\": \"DELIVERING\",\n      \"paymentStatus\": \"PENDING\",\n      \"createdOn\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"email\": \"<string>\",\n      \"billingAddressVm\": {\n        \"id\": \"<long>\",\n        \"contactName\": \"<string>\",\n        \"phone\": \"<string>\",\n        \"addressLine1\": \"<string>\",\n        \"addressLine2\": \"<string>\",\n        \"city\": \"<string>\",\n        \"zipCode\": \"<string>\",\n        \"districtId\": \"<long>\",\n        \"districtName\": \"<string>\",\n        \"stateOrProvinceId\": \"<long>\",\n        \"stateOrProvinceName\": \"<string>\",\n        \"countryId\": \"<long>\",\n        \"countryName\": \"<string>\"\n      },\n      \"totalPrice\": \"<number>\",\n      \"orderStatus\": \"SHIPPING\",\n      \"deliveryMethod\": \"SHOPEE_EXPRESS\",\n      \"deliveryStatus\": \"DELIVERED\",\n      \"paymentStatus\": \"COMPLETED\",\n      \"createdOn\": \"<dateTime>\"\n    }\n  ],\n  \"totalElements\": \"<long>\",\n  \"totalPages\": \"<integer>\"\n}"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "/order"
+		},
+		{
+			"key": "checkout_id",
+			"value": ""
+		}
+	]
+}
