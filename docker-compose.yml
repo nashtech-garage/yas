@@ -11,228 +11,248 @@ services:
       - "80:80"
     networks:
       - yas-network
-  identity:
-    image: quay.io/keycloak/keycloak:21.0.2
-    command: [ 'start-dev --import-realm' ]
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_PROXY: passthrough
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: admin
-      KC_DB_PASSWORD: admin
-      KC_HTTP_PORT: 80
-    volumes:
-      - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
-      - ./identity/themes/yas/theme:/opt/keycloak/themes
-    networks:
-      - yas-network
-  backoffice:
-    image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
-    environment:
-      SERVER_PORT: "80"
-      SPRING_PROFILES_ACTIVE: prod
-      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: api
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://nginx
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path= /api/**
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[0]: RewritePath=/api/(?<segment>.*), /$$\{segment}
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[1]: TokenRelay=
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: nextjs
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://backoffice-nextjs:3000
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
-    networks:
-      - yas-network
-  backoffice-nextjs:
-    image: ghcr.io/nashtech-garage/yas-backoffice:latest
-    networks:
-      - yas-network
-  storefront:
-    image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
-    environment:
-      SERVER_PORT: "80"
-      SPRING_PROFILES_ACTIVE: prod
-      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: api
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://nginx
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path= /api/**
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[0]: RewritePath=/api/(?<segment>.*), /$$\{segment}
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[1]: TokenRelay=
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: nextjs
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://storefront-nextjs:3000
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
-      YAS_SERVICES_CUSTOMER: http://customer/customer
-      YAS_SERVICES_CART: http://cart/cart
-      YAS_SERVICES_RATING: http://rating/rating
-      YAS_SERVICES_ORDER: http://order/order
-      YAS_SERVICES_LOCATION: http://location/location
-      YAS_SERVICES_INVENTORY: http://inventory/inventory
-      YAS_SERVICES_TAX: http://tax/tax
-      YAS_SERVICES_PROMOTION: http://promotion/promotion
-      YAS_SERVICES_PAYMENT: http://payment/payment
-    networks:
-      - yas-network
-  storefront-nextjs:
-    image: ghcr.io/nashtech-garage/yas-storefront:latest
-    networks:
-      - yas-network
-  media:
-    image: ghcr.io/nashtech-garage/yas-media:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/media
-      SERVER_SERVLET_CONTEXT_PATH: /media
-      YAS_PUBLICURL: http://api.yas.local/media
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  product:
-    image: ghcr.io/nashtech-garage/yas-product:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/product
-      SERVER_SERVLET_CONTEXT_PATH: /product
-      YAS_SERVICES_MEDIA: http://media/media
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  customer:
-    image: ghcr.io/nashtech-garage/yas-customer:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/customer
-      SERVER_SERVLET_CONTEXT_PATH: /customer
-      YAS_SERVICES_LOCATION: http://location/location
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  cart:
-    image: ghcr.io/nashtech-garage/yas-cart:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cart
-      SERVER_SERVLET_CONTEXT_PATH: /cart
-      YAS_SERVICES_MEDIA: http://media/media
-      YAS_SERVICES_PRODUCT: http://product/product
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  rating:
-    image: ghcr.io/nashtech-garage/yas-rating:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rating
-      SERVER_SERVLET_CONTEXT_PATH: /rating
-      YAS_PUBLIC_URL: http://api.yas.local/rating
-      YAS_SERVICES_PRODUCT: http://product/product
-      YAS_SERVICES_CUSTOMER: http://customer/customer
-      YAS_SERVICES_ORDER: http://order/order
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
+#  identity:
+#    image: quay.io/keycloak/keycloak:21.0.2
+#    command: [ 'start-dev --import-realm' ]
+#    environment:
+#      KEYCLOAK_ADMIN: admin
+#      KEYCLOAK_ADMIN_PASSWORD: admin
+#      KC_PROXY: passthrough
+#      KC_DB: postgres
+#      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+#      KC_DB_USERNAME: admin
+#      KC_DB_PASSWORD: admin
+#      KC_HTTP_PORT: 80
+#    volumes:
+#      - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
+#      - ./identity/themes/yas/theme:/opt/keycloak/themes
+#    networks:
+#      - yas-network
+#  backoffice:
+#    image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
+#    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
+#    environment:
+#      SERVER_PORT: "80"
+#      SPRING_PROFILES_ACTIVE: prod
+#      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: api
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://nginx
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path= /api/**
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[0]: RewritePath=/api/(?<segment>.*), /$$\{segment}
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[1]: TokenRelay=
+#      SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: nextjs
+#      SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://backoffice-nextjs:3000
+#      SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
+#    networks:
+#      - yas-network
+#  backoffice-nextjs:
+#    image: ghcr.io/nashtech-garage/yas-backoffice:latest
+#    networks:
+#      - yas-network
+#  storefront:
+#    image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
+#    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
+#    environment:
+#      SERVER_PORT: "80"
+#      SPRING_PROFILES_ACTIVE: prod
+#      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: api
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://nginx
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path= /api/**
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[0]: RewritePath=/api/(?<segment>.*), /$$\{segment}
+#      SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[1]: TokenRelay=
+#      SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: nextjs
+#      SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://storefront-nextjs:3000
+#      SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path= /**
+#      YAS_SERVICES_CUSTOMER: http://customer/customer
+#      YAS_SERVICES_CART: http://cart/cart
+#      YAS_SERVICES_RATING: http://rating/rating
+#      YAS_SERVICES_ORDER: http://order/order
+#      YAS_SERVICES_LOCATION: http://location/location
+#      YAS_SERVICES_INVENTORY: http://inventory/inventory
+#      YAS_SERVICES_TAX: http://tax/tax
+#      YAS_SERVICES_PROMOTION: http://promotion/promotion
+#      YAS_SERVICES_PAYMENT: http://payment/payment
+#    networks:
+#      - yas-network
+#  storefront-nextjs:
+#    image: ghcr.io/nashtech-garage/yas-storefront:latest
+#    networks:
+#      - yas-network
+#  media:
+#    image: ghcr.io/nashtech-garage/yas-media:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/media
+#      SERVER_SERVLET_CONTEXT_PATH: /media
+#      YAS_PUBLICURL: http://api.yas.local/media
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  product:
+#    build: ./product
+#    image: ghcr.io/nashtech-garage/yas-product:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/product
+#      SERVER_SERVLET_CONTEXT_PATH: /product
+#      YAS_SERVICES_MEDIA: http://media/media
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  customer:
+#    image: ghcr.io/nashtech-garage/yas-customer:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/customer
+#      SERVER_SERVLET_CONTEXT_PATH: /customer
+#      YAS_SERVICES_LOCATION: http://location/location
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  cart:
+#    build: ./cart
+#    image: ghcr.io/nashtech-garage/yas-cart:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cart
+#      SERVER_SERVLET_CONTEXT_PATH: /cart
+#      YAS_SERVICES_MEDIA: http://media/media
+#      YAS_SERVICES_PRODUCT: http://product/product
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  rating:
+#    image: ghcr.io/nashtech-garage/yas-rating:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rating
+#      SERVER_SERVLET_CONTEXT_PATH: /rating
+#      YAS_PUBLIC_URL: http://api.yas.local/rating
+#      YAS_SERVICES_PRODUCT: http://product/product
+#      YAS_SERVICES_CUSTOMER: http://customer/customer
+#      YAS_SERVICES_ORDER: http://order/order
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
   order:
+    build: ./order
     image: ghcr.io/nashtech-garage/yas-order:latest
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/order
-      SERVER_SERVLET_CONTEXT_PATH: /order
-      YAS_PUBLIC_URL: http://api.yas.local/order
-      YAS_SERVICES_CART: http://cart/cart
-      YAS_SERVICES_CUSTOMER: http://customer/customer
-      YAS_SERVICES_PRODUCT: http://product/product
-      YAS_SERVICES_TAX: http://tax/tax
-      SERVER_PORT: "80"
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/order
+    - SERVER_SERVLET_CONTEXT_PATH=/order
+    - SERVER_PORT=80
+    - LOGGING_CONFIG
+    - JAVA_TOOL_OPTIONS        
+    - YAS_PUBLIC_URL
+    - YAS_SERVICES_CART
+    - YAS_SERVICES_CUSTOMER
+    - YAS_SERVICES_PRODUCT
+    - YAS_SERVICES_TAX
+    - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+    - OTEL_RESOURCE_ATTRIBUTES
+    - OTEL_SERVICE_NAME=order-service
+    - OTEL_LOGS_EXPORTER
+    - OTEL_TRACES_EXPORTER
+    - OTEL_METRICS_EXPORTER
+    - OTEL_JAVAAGENT_LOGGING
+    - OTEL_JAVAAGENT_ENABLED
+    - OTEL_JAVAAGENT_DEBUG
+    volumes:
+    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./deployment/app-config:/app-config
     networks:
       - yas-network
-  payment:
-    image: ghcr.io/nashtech-garage/yas-payment:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/payment
-      SERVER_SERVLET_CONTEXT_PATH: /payment
-      YAS_PUBLIC_URL: http://api.yas.local/payment
-      YAS_SERVICES_ORDER: http://order/order
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  payment-paypal:
-    image: ghcr.io/nashtech-garage/yas-payment-paypal:latest
-    environment:
-      SERVER_SERVLET_CONTEXT_PATH: /payment-paypal
-      YAS_PUBLIC_URL: http://storefront/complete-payment
-      YAS_SERVICES_PAYMENT: http://payment/payment
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  location:
-    image: ghcr.io/nashtech-garage/yas-location:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/location
-      SERVER_SERVLET_CONTEXT_PATH: /location
-      YAS_PUBLICURL: http://api.yas.local/location
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  inventory:
-    image: ghcr.io/nashtech-garage/yas-inventory:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
-      SERVER_SERVLET_CONTEXT_PATH: /inventory
-      YAS_PUBLIC_URL: http://api.yas.local/inventory
-      YAS_SERVICES_PRODUCT: http://product/product
-      YAS_SERVICES_LOCATION: http://location/location
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  promotion:
-    image: ghcr.io/nashtech-garage/yas-promotion:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/promotion
-      SERVER_SERVLET_CONTEXT_PATH: /promotion
-      YAS_PUBLIC_URL: http://api.yas.local/promotion
-      YAS_SERVICES_PRODUCT: http://product/product
-    networks:
-      - yas-network
-  tax:
-    image: ghcr.io/nashtech-garage/yas-tax:latest
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tax
-      SERVER_SERVLET_CONTEXT_PATH: /tax
-      YAS_PUBLIC_URL: http://api.yas.local/tax
-      YAS_SERVICES_LOCATION: http://location/location
-      SERVER_PORT: "80"
-    networks:
-      - yas-network
-  swagger-ui:
-    image: swaggerapi/swagger-ui:v4.16.0
-    environment:
-      BASE_URL: /swagger-ui
-      URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },
-      { url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
-      { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, 
-      { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
-      { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, 
-      { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
-      { url: 'http://api.yas.local/payment/v3/api-docs', name: 'Payment'},
-      { url: 'http://api.yas.local/payment-paypal/v3/api-docs', name: 'Payment-paypal'},
-      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, 
-      { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
-      { url: 'http://api.yas.local/tax/v3/api-docs', name: 'Tax' },
-      { url: 'http://api.yas.local/promotion/v3/api-docs', name: 'Promotion'},
-      { url: 'http://api.yas.local/search/v3/api-docs', name: 'Search'}]"
-      OAUTH_CLIENT_ID: swagger-ui
-      OAUTH_USE_PKCE: "true"
-    networks:
-      - yas-network
+#  payment:
+#    build: ./payment
+#    image: ghcr.io/nashtech-garage/yas-payment:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/payment
+#      SERVER_SERVLET_CONTEXT_PATH: /payment
+#      YAS_PUBLIC_URL: http://api.yas.local/payment
+#      YAS_SERVICES_ORDER: http://order/order
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  payment-paypal:
+#    image: ghcr.io/nashtech-garage/yas-payment-paypal:latest
+#    environment:
+#      SERVER_SERVLET_CONTEXT_PATH: /payment-paypal
+#      YAS_PUBLIC_URL: http://storefront/complete-payment
+#      YAS_SERVICES_PAYMENT: http://payment/payment
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  location:
+#    image: ghcr.io/nashtech-garage/yas-location:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/location
+#      SERVER_SERVLET_CONTEXT_PATH: /location
+#      YAS_PUBLICURL: http://api.yas.local/location
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  inventory:
+#    image: ghcr.io/nashtech-garage/yas-inventory:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
+#      SERVER_SERVLET_CONTEXT_PATH: /inventory
+#      YAS_PUBLIC_URL: http://api.yas.local/inventory
+#      YAS_SERVICES_PRODUCT: http://product/product
+#      YAS_SERVICES_LOCATION: http://location/location
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  promotion:
+#    image: ghcr.io/nashtech-garage/yas-promotion:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/promotion
+#      SERVER_SERVLET_CONTEXT_PATH: /promotion
+#      YAS_PUBLIC_URL: http://api.yas.local/promotion
+#      YAS_SERVICES_PRODUCT: http://product/product
+#    networks:
+#      - yas-network
+#  tax:
+#    image: ghcr.io/nashtech-garage/yas-tax:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tax
+#      SERVER_SERVLET_CONTEXT_PATH: /tax
+#      YAS_PUBLIC_URL: http://api.yas.local/tax
+#      YAS_SERVICES_LOCATION: http://location/location
+#      SERVER_PORT: "80"
+#    networks:
+#      - yas-network
+#  swagger-ui:
+#    image: swaggerapi/swagger-ui:v4.16.0
+#    environment:
+#      BASE_URL: /swagger-ui
+#      URLS: "[{ url: 'http://api.yas.local/product/v3/api-docs', name: 'Product' },
+#      { url: 'http://api.yas.local/media/v3/api-docs', name: 'Media' },
+#      { url: 'http://api.yas.local/customer/v3/api-docs', name: 'Customer' }, 
+#      { url: 'http://api.yas.local/cart/v3/api-docs', name: 'Cart'},
+#      { url: 'http://api.yas.local/rating/v3/api-docs', name: 'Rating' }, 
+#      { url: 'http://api.yas.local/order/v3/api-docs', name: 'Order'},
+#      { url: 'http://api.yas.local/payment/v3/api-docs', name: 'Payment'},
+#      { url: 'http://api.yas.local/payment-paypal/v3/api-docs', name: 'Payment-paypal'},
+#      { url: 'http://api.yas.local/location/v3/api-docs', name: 'Location'}, 
+#      { url: 'http://api.yas.local/inventory/v3/api-docs', name: 'Inventory'},
+#      { url: 'http://api.yas.local/tax/v3/api-docs', name: 'Tax' },
+#      { url: 'http://api.yas.local/promotion/v3/api-docs', name: 'Promotion'},
+#      { url: 'http://api.yas.local/search/v3/api-docs', name: 'Search'}]"
+#      OAUTH_CLIENT_ID: swagger-ui
+#      OAUTH_USE_PKCE: "true"
+#    networks:
+#      - yas-network
   postgres:
     image: debezium/postgres:15-alpine-custom
     build: ./docker/postgres
+    hostname: ${POSTGRES_HOST}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - ./docker/postgres/postgresql.conf.sample:/usr/share/postgresql/postgresql.conf.sample
       - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
       - postgres:/var/lib/postgresql/data
     command: postgres -c 'max_connections=500'
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
     networks:
       - yas-network
   pgadmin:
@@ -255,19 +275,19 @@ services:
       - yas-network
   kafka:
     image: confluentinc/cp-kafka:7.0.9
-    hostname: kafka
+    hostname: ${KAFKA_SERVICE_HOST}
     depends_on:
       - zookeeper
     ports:
-      - 9092:9092
+      - ${KAFKA_SERVICE_PORT}:${KAFKA_SERVICE_PORT}
       - 29092:29092
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://kafka:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      - KAFKA_BROKER_ID
+      - KAFKA_ZOOKEEPER_CONNECT
+      - KAFKA_ADVERTISED_LISTENERS
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+      - KAFKA_INTER_BROKER_LISTENER_NAME
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
     networks:
       - yas-network
   kafka-connect:
@@ -384,6 +404,7 @@ services:
 networks:
   yas-network:
     driver: bridge
+    name: yas-network
 
 volumes:
   postgres:
