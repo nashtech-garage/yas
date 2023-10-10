@@ -41,7 +41,8 @@ services:
       - yas-network    
   prometheus:
     image: prom/prometheus:v2.42.0
-    container_name: prometheus    
+    hostname: ${PROMETHEUS_SERVICE_HOST}
+    container_name: prometheus
     command:
       - --web.console.templates=/etc/prometheus/consoles
       - --web.console.libraries=/etc/prometheus/console_libraries
@@ -55,7 +56,7 @@ services:
     volumes:
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
     healthcheck:
       interval: 5s
       retries: 10

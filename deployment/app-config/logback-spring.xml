@@ -12,7 +12,7 @@
 	<include
 		resource="org/springframework/boot/logging/logback/console-appender.xml" />
 	<!-- Define own appender to be used in the logger to append the data into -->
-	<!-- <appender name="CONSOLE"
+	<appender name="JSON_APPENDER"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<Target>${user-system}.out</Target>
 		<encoder
@@ -40,8 +40,12 @@
 			</providers>
 		</encoder>
 	</appender>
- -->
 
+	<appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
+		<captureExperimentalAttributes>true</captureExperimentalAttributes>
+		<captureMdcAttributes>*</captureMdcAttributes>
+		<appender-ref ref="JSON_APPENDER" />
+	</appender>
 	<!-- This appender is to define the log to console that human friendly on 
 		dev machine -->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender"> 
@@ -53,6 +57,6 @@
 		name="org.springframework.web.filter.CommonsRequestLoggingFilter"
 		level="DEBUG" />
 	<root level="INFO">
-		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="OTEL" />
 	</root>
 </configuration>

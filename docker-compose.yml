@@ -154,6 +154,8 @@ services:
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
+    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
+    - OTEL.INSTRUMENTATION.LOGBACK-MDC.ADD-BAGGAGE=true
     volumes:
     - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
