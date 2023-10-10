@@ -14,6 +14,10 @@ exporters:
     verbosity: detailed
   prometheus:
     endpoint: collector:9464
+    enable_open_metrics: true
+    add_metric_suffixes: false
+    resource_to_telemetry_conversion:
+      enabled: true # Convert resource attributes to metric labels  
   otlp:
     endpoint: "tempo:4317"
     tls:
@@ -44,6 +48,21 @@ processors:
           # Java: https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/9478
           # Go: https://github.com/open-telemetry/opentelemetry-go-contrib/issues/4301
           - set(description, "") where name == "rpc.server.duration"
+      # - context: datapoint
+      #   statements:
+      #   - set(attributes["namespace"], resource.attributes["service.namspace"])
+      #   - set(attributes["service_name"], resource.attributes["service.name"])
+      #   - set(attributes["pod"], resource.attributes["container.id"])
+  resource/loki:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name, service.namespace
+      # - action: insert
+      #   key: loki.format
+      #   value: logfmt
+  # attributes:
+  #   actions:
 
 # connectors:
 #   spanmetrics:
@@ -60,7 +79,7 @@ service:
       exporters: [prometheus]
     logs:
       receivers: [otlp]
-      processors: [batch]
+      processors: [resource/loki, batch]
       exporters: [loki]
   telemetry:
     logs:
