@@ -22,7 +22,7 @@ const ExportOrders = ({ params = '', getFilter }) => {
   const downloadRef = useRef();
 
   const getExportingOrders = () => {
-    console.log("hehe" + params);
+    console.log('hehe' + params);
     exportOrders(params).then((data) => {
       console.log(data);
       const fileName = moment(Date.now()).format(FORMAT_DATE_YYYY_MM_DD_HH_MM) + '_orders.csv';
@@ -39,18 +39,21 @@ const ExportOrders = ({ params = '', getFilter }) => {
       );
     });
   };
-  const handleClick = () =>  {
+  const handleClick = () => {
     getFilter();
     getExportingOrders();
-  }
-  
+  };
 
   return (
     <>
       <button type="button" className="btn btn-success me-2" onClick={handleClick}>
         <i className="fa fa-download me-2" aria-hidden="true"></i> Export
       </button>
-      <div  className="btn btn-success me-2" style={{backgroundColor: 'white', borderColor: 'white', padding: '0'}} ref={downloadRef} />
+      <div
+        className="btn btn-success me-2"
+        style={{ backgroundColor: 'white', borderColor: 'white', padding: '0' }}
+        ref={downloadRef}
+      />
     </>
   );
 };

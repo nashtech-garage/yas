@@ -13,9 +13,7 @@ export async function getOrders(
   return Promise.reject(response);
 }
 
-export async function exportOrders(
-  params: string
-): Promise<{ orderList: Order[] }> {
+export async function exportOrders(params: string): Promise<{ orderList: Order[] }> {
   const response = await fetch(`/api/order/backoffice/export/orders` + `?${params}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },

@@ -12,7 +12,7 @@ import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
 import { formatPriceVND } from 'utils/formatPrice';
 import Link from 'next/link';
-import { ExportOrder } from '../../../modules/catalog/components'
+import { ExportOrder } from '../../../modules/catalog/components';
 
 const Orders: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<OrderSearchForm>();
@@ -55,11 +55,11 @@ const Orders: NextPage = () => {
     setGetFilter(true);
     setParamsExport(params);
   };
-  
+
   useEffect(() => {
     handleGetFilter();
   }, [isGetFilter]);
-  
+
   useEffect(() => {
     setLoading(true);
     handleGetOrders();
@@ -87,7 +87,7 @@ const Orders: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
         <div className="col-md-6 text-right">
-          <ExportOrder getFilter={handleGetFilter} params={paramsExport} /> 
+          <ExportOrder getFilter={handleGetFilter} params={paramsExport} />
           <button type="button" className="btn btn-warning me-2">
             <i className="fa fa-upload me-2" aria-hidden="true"></i> Import
           </button>
