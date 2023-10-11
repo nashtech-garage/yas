@@ -72,4 +72,27 @@ public class OrderController {
                 pageNo,
                 pageSize));
     }
+    @GetMapping("/backoffice/export/orders")
+    public ResponseEntity<List<OrderExportingDetailVm>> getOrders(
+            @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
+            @RequestParam(value = "createdTo", defaultValue = "#{new java.util.Date()}", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
+            @RequestParam(value = "warehouse", defaultValue = "", required = false) String warehouse,
+            @RequestParam(value = "productName", defaultValue = "", required = false) String productName,
+            @RequestParam(value = "orderStatus", defaultValue = "", required = false) List<EOrderStatus> orderStatus,
+            @RequestParam(value = "billingPhoneNumber", defaultValue = "", required = false) String billingPhoneNumber,
+            @RequestParam(value = "email", defaultValue = "", required = false) String email,
+            @RequestParam(value = "billingCountry", defaultValue = "", required = false) String billingCountry
+    ){
+        return ResponseEntity.ok(orderService.exportOrders(
+                createdFrom,
+                createdTo,
+                warehouse,
+                productName,
+                orderStatus,
+                billingCountry,
+                billingPhoneNumber,
+                email));
+    }
 }

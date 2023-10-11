@@ -12,15 +12,17 @@ import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
 import { formatPriceVND } from 'utils/formatPrice';
 import Link from 'next/link';
+import { ExportOrder } from '../../../modules/catalog/components'
 
 const Orders: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<OrderSearchForm>();
   const [isLoading, setLoading] = useState(false);
+  const [paramsExport, setParamsExport] = useState('');
 
   const [orderList, setOrderList] = useState<Order[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
-  const [isDelete, setDelete] = useState<boolean>(false);
+  const [isGetFilter, setGetFilter] = useState<boolean>(false);
   const orderPageSize = DEFAULT_PAGE_SIZE;
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
@@ -44,12 +46,25 @@ const Orders: NextPage = () => {
         console.log(err);
       });
   };
-
+  const handleGetFilter = () => {
+    const params = queryString.stringify({
+      ...watchAllFields,
+      createdFrom: moment(watchAllFields.createdFrom).format(),
+      createdTo: moment(watchAllFields.createdTo).format(),
+    });
+    setGetFilter(true);
+    setParamsExport(params);
+  };
+  
+  useEffect(() => {
+    handleGetFilter();
+  }, [isGetFilter]);
+  
   useEffect(() => {
     setLoading(true);
     handleGetOrders();
     setLoading(false);
-  }, [pageNo, isDelete]);
+  }, [pageNo]);
 
   useEffect(() => {
     setLoading(true);
@@ -72,9 +87,7 @@ const Orders: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Order Management</h2>
         </div>
         <div className="col-md-6 text-right">
-          <button type="button" className="btn btn-success me-2">
-            <i className="fa fa-download me-2" aria-hidden="true"></i> Export
-          </button>
+          <ExportOrder getFilter={handleGetFilter} params={paramsExport} /> 
           <button type="button" className="btn btn-warning me-2">
             <i className="fa fa-upload me-2" aria-hidden="true"></i> Import
           </button>
