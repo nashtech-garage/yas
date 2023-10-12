@@ -35,7 +35,6 @@ services:
       - "5555:5555"     # OTLP over gRPC receiver
       - "6666:6666"     # OTLP over HTTP receiver
       - "9464:9464"     # Prometheus exporter
-      # - "8888:8888"     # metrics endpoint
     logging: *logging
     networks:
       - yas-network    

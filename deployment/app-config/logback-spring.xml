@@ -48,9 +48,14 @@
 	</appender>
 	<!-- This appender is to define the log to console that human friendly on 
 		dev machine -->
-	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender"> 
-		<Target>${user-system}.out</Target> <encoder> <pattern>${CONSOLE_LOG_PATTERN}</pattern> 
-		<charset>${ENCODING}</charset> </encoder> </appender>
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<Target>${user-system}.out</Target>
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			<charset>${ENCODING}</charset>
+		</encoder>
+	</appender>
 	<!-- Define the logger and the log level to use (TRACE, DEBUG, INFO, WARN, 
 		ERROR, FATAL) -->
 	<logger

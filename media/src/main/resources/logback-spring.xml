@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/base.xml" />
-    <springProperty scope="context" name="appName" source="spring.application.name"/>
+	<property name="ENCODING" value="UTF-8" />
+	<property name="LOG_LEVEL" value="DEBUG" />
+	<include
+		resource="org/springframework/boot/logging/logback/base.xml" />
+	<springProperty scope="context" name="appName"
+		source="spring.application.name" />
+	<!-- Reuse the log from Spring -->
+	<include
+		resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<include
+		resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
-    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
-        <http>
-            <url>http://loki:3100/loki/api/v1/push</url>
-        </http>
-        <format>
-            <label>
-                <pattern>app=${appName},host=${HOSTNAME},traceID=%X{traceId:-NONE},level=%level</pattern>
-            </label>
-            <message>
-                <pattern>${FILE_LOG_PATTERN}</pattern>
-            </message>
-            <sortByTime>true</sortByTime>
-        </format>
-    </appender>
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<Target>${user-system}.out</Target>
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			<charset>${ENCODING}</charset>
+		</encoder>
+	</appender>
 
-    <root level="INFO">
-        <appender-ref ref="LOKI"/>
-    </root>
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+	</root>
 </configuration>

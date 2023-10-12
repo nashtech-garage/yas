@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.yas</groupId>
-    <artifactId>yas</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>yas</name>
-    <modules>
-       <!-- <module>backoffice-bff</module>-->
-        <module>cart</module>
-        <!--<module>customer</module>
-        <module>inventory</module>
-        <module>location</module>
-        <module>media</module>-->
-        <module>order</module>
-        <module>payment</module>
-        <!--<module>payment-paypal</module>-->
-        <module>product</module>
- <!--       <module>promotion</module>
-        <module>rating</module>
-        <module>search</module>
-        <module>storefront-bff</module>
-        <module>tax</module>-->
-        <module>saga</module>
-    </modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.yas</groupId>
+	<artifactId>yas</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>yas</name>
+	<modules>
+		<module>backoffice-bff</module>
+		<module>cart</module>
+		<module>customer</module>
+		<module>inventory</module>
+		<module>location</module>
+		<module>media</module>
+		<module>order</module>
+		<module>payment</module>
+		<module>payment-paypal</module>
+		<module>product</module>
+		<module>promotion</module>
+		<module>rating</module>
+		<module>search</module>
+		<module>storefront-bff</module>
+		<module>tax</module>
+		<module>saga</module>
+	</modules>
 
 </project>

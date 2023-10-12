@@ -5,10 +5,27 @@ services:
     image: ghcr.io/nashtech-garage/yas-search:latest
     entrypoint: [ "./wait-for-it.sh", "elasticsearch:9200", "--timeout=300", "--", "java", "-jar", "/search-0.0.1-SNAPSHOT.jar" ]
     environment:
-      SERVER_SERVLET_CONTEXT_PATH: /search
-      YAS_PUBLIC_URL: http://api.yas.local/search
-      YAS_SERVICES_PRODUCT: http://product/product
-      SERVER_PORT: "80"
+    - SERVER_SERVLET_CONTEXT_PATH=/search
+    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/search
+    - YAS_SERVICES_PRODUCT
+    - SERVER_PORT
+    - LOGGING_CONFIG
+    - JAVA_TOOL_OPTIONS    
+    - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+    - OTEL_RESOURCE_ATTRIBUTES
+    - OTEL_SERVICE_NAME=search-service
+    - OTEL_LOGS_EXPORTER
+    - OTEL_TRACES_EXPORTER
+    - OTEL_METRICS_EXPORTER
+    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED=false
+    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+    - OTEL_JAVAAGENT_LOGGING
+    - OTEL_JAVAAGENT_ENABLED
+    - OTEL_JAVAAGENT_DEBUG
+    volumes:
+    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./deployment/app-config:/app-config       
     networks:
       - yas-network
   elasticsearch:
