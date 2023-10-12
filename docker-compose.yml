@@ -31,7 +31,7 @@ services:
   backoffice:
     build: ./backoffice-bff
     image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-    # entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/backoffice-bff-0.0.1-SNAPSHOT.jar"]
     environment:
     - SPRING_PROFILES_ACTIVE=prod
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
@@ -70,7 +70,7 @@ services:
   storefront:
     build: ./storefront-bff
     image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
-#    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/storefront-bff-0.0.1-SNAPSHOT.jar"]
     environment:
     - SPRING_PROFILES_ACTIVE=prod
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
