@@ -1,5 +1,6 @@
 package com.yas.product.model.attribute;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yas.product.model.AbstractAuditEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,10 @@ public class ProductAttribute extends AbstractAuditEntity {
     @ManyToOne
     @JoinColumn(name = "product_attribute_group_id")
     private ProductAttributeGroup productAttributeGroup;
+
+    @OneToMany(mappedBy = "productAttribute")
+    @JsonIgnore
+    private List<ProductAttributeTemplate> productAttributeTemplates = new ArrayList<>();
 
     @OneToMany(mappedBy = "productAttribute")
     private List<ProductAttributeValue> attributeValues = new ArrayList<>();
