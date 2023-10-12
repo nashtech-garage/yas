@@ -28,7 +28,7 @@ services:
         limits:
           memory: 125M
     restart: unless-stopped
-    command: [ "--config=/etc/otelcol-config.yml","--feature-gates=pkg.translator.prometheus.NormalizeName", "--feature-gates=pkg.translator.prometheus.PermissiveLabelSanitization"]
+    command: [ "--config=/etc/otelcol-config.yml","--feature-gates=pkg.translator.prometheus.NormalizeName"]
     volumes:
       - ./docker/otel-collector/otelcol-config.yml:/etc/otelcol-config.yml
     ports:

@@ -15,7 +15,7 @@ exporters:
   prometheus:
     endpoint: collector:9464
     # enable_open_metrics: true
-    add_metric_suffixes: false
+    # add_metric_suffixes: false
     resource_to_telemetry_conversion:
       enabled: true # Convert resource attributes to metric labels  
   otlp:
