@@ -18,16 +18,6 @@ spring:
             client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
             scope: openid, profile, email, roles
 management:
-  otlp:
-    tracing:
-      endpoint: http://tempo:4318/v1/traces
-  tracing:
-    sampling:
-      probability: "1.0"
-  endpoints:
-    web:
-      exposure:
-        include: prometheus
   metrics:
     distribution:
       percentiles-histogram:

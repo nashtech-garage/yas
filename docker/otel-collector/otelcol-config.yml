@@ -1,0 +1,86 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:5555
+      http:
+        endpoint: 0.0.0.0:6666
+        cors:
+          allowed_origins:
+            - "http://*"
+            - "https://*"
+exporters:
+  debug:
+    verbosity: detailed
+  prometheus:
+    endpoint: collector:9464
+    # enable_open_metrics: true
+    # add_metric_suffixes: false
+    resource_to_telemetry_conversion:
+      enabled: true # Convert resource attributes to metric labels  
+  otlp:
+    endpoint: "tempo:4317"
+    tls:
+      insecure: true
+  # It's better to implement the push metrics to Prometheus. But this work is not fully finished.
+  
+  # prometheusremotewrite:
+  #   # endpoint: "http://prometheus:9090/api/prom/push"
+  #   endpoint: "http://prometheus:9090/api/v1/write"
+  #   resource_to_telemetry_conversion:
+  #     enabled: true # Convert resource attributes to metric labels
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    default_labels_enabled:
+      exporter: true
+      job: true
+processors:
+  batch:
+    # timeout: 1s
+    # send_batch_size: 1024
+  transform:
+    metric_statements:
+      - context: metric
+        statements:
+          # FIXME: remove this when this is issue is resolved: https://github.com/open-telemetry/opentelemetry-java/issues/4834
+          - set(description, "") where name == "queueSize"
+          # FIXME: remove this when the following 2 issues are resolved
+          # Java: https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/9478
+          # Go: https://github.com/open-telemetry/opentelemetry-go-contrib/issues/4301
+          - set(description, "") where name == "rpc.server.duration"
+      # - context: datapoint
+      #   statements:
+      #   - set(attributes["namespace"], resource.attributes["service.namspace"])
+      #   - set(attributes["service_name"], resource.attributes["service.name"])
+      #   - set(attributes["pod"], resource.attributes["container.id"])
+  resource/loki:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name, service.namespace
+      # - action: insert
+      #   key: loki.format
+      #   value: logfmt
+  # attributes:
+  #   actions:
+
+# connectors:
+#   spanmetrics:
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp]
+      processors: [transform, batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [resource/loki, batch]
+      exporters: [loki]
+  telemetry:
+    logs:
+      level: debug

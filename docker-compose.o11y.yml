@@ -1,20 +1,71 @@
 version: "3.9"
-
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+# x-loki-logging: &loki-logging
+#   driver: loki
+#   options:
+#     loki-url: 'http://loki:3100/api/prom/push'    
+    
 services:
+  # ********************
+  # Telemetry Components
+  # ********************
+  # OpenTelemetry Collector
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.86.0
+    container_name: collector
+    hostname: ${OTEL_COLLECTOR_HOST}
+    depends_on:
+      tempo:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy    
+    deploy:
+      resources:
+        limits:
+          memory: 125M
+    restart: unless-stopped
+    command: [ "--config=/etc/otelcol-config.yml","--feature-gates=pkg.translator.prometheus.NormalizeName"]
+    volumes:
+      - ./docker/otel-collector/otelcol-config.yml:/etc/otelcol-config.yml
+    ports:
+      - "5555:5555"     # OTLP over gRPC receiver
+      - "6666:6666"     # OTLP over HTTP receiver
+      - "9464:9464"     # Prometheus exporter
+    logging: *logging
+    networks:
+      - yas-network    
   prometheus:
     image: prom/prometheus:v2.42.0
-    extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    hostname: ${PROMETHEUS_SERVICE_HOST}
+    container_name: prometheus
     command:
-      - --enable-feature=exemplar-storage
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.enable-remote-write-receiver
+      - --storage.tsdb.retention.time=1h
       - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --web.route-prefix=/
+      - --enable-feature=exemplar-storage    
     volumes:
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test: wget --no-verbose --tries=1 --spider http://localhost:9090/status || exit 1      
+    logging: *logging  
     networks:
       - yas-network
   grafana:
     image: grafana/grafana:9.3.6
+    container_name: grafana
     extra_hosts: [ 'host.docker.internal:host-gateway' ]
     volumes:
       - ./docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
@@ -24,36 +75,44 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
-      - "3009:3000"
+      - "3000:3000"
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1      
+    logging: *logging
     networks:
       - yas-network
   loki:
-    image: grafana/loki:2.7.4
-    extra_hosts: [ 'host.docker.internal:host-gateway' ]
-    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    image: grafana/loki:latest
+    container_name: loki
     ports:
-      - "3100:3100"                                   # loki needs to be exposed so it receives logs
-    environment:
-      - JAEGER_AGENT_HOST=tempo
-      - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
-      - JAEGER_SAMPLER_TYPE=const
-      - JAEGER_SAMPLER_PARAM=1
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    logging: *logging      
     networks:
       - yas-network
   tempo:
-    image: grafana/tempo:main-0c1eb27
-    extra_hosts: [ 'host.docker.internal:host-gateway' ]
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    image: grafana/tempo:1.5.0
+    container_name: tempo        
+    command: [ "-config.file=/etc/tempo.yaml", "-search.enabled=true"]
     volumes:
       - ./docker/tempo/tempo-local.yaml:/etc/tempo.yaml:ro
       - ./tempo-data:/tmp/tempo
     ports:
-      - "14268"  # jaeger ingest
-      - "9411:9411" # zipkin
+      - "3200:3200"
+      # - "14268:14268"  # jaeger ingest
+      # - "9411:9411" # zipkin
       - "4317:4317" # otlp grpc ingest
-      - "4318:4318" # otlp http ingest
+      #  - "4318:4318" # otlp http ingest
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test: wget --no-verbose --tries=1 --spider http://localhost:3200/status || exit 1      
+    logging: *logging
     networks:
       - yas-network
-
 networks:
   yas-network:
+    name: yas-network
+    external: true
