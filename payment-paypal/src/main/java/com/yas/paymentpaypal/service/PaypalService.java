@@ -58,7 +58,7 @@ public class PaypalService {
                     .orElseThrow(NoSuchElementException::new)
                     .href();
 
-            CheckoutIdHelper.setCheckoutId(requestPayment.checkoutId());
+            CheckoutIdHelper.getInstance().setCheckoutId(order.id(), requestPayment.checkoutId());
             return new PaypalRequestPayment("success", order.id(), redirectUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -85,9 +85,11 @@ public class PaypalService {
                         .amount(amount)
                         .paymentStatus(order.status())
                         .paymentMethod("PAYPAL")
-                        .checkoutId(CheckoutIdHelper.getCheckoutId())
+                        .checkoutId(CheckoutIdHelper.getInstance().getCheckoutIdByOrderId(order.id()))
                         .build();
                 paymentMessageService.sendCaptureMessage(capturedPayment);
+
+                CheckoutIdHelper.getInstance().removeCheckoutIdByOrderId(order.id());
                 return capturedPayment;
             }
         } catch (IOException e) {
