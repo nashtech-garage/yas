@@ -20,7 +20,7 @@ public class PaypalConfig {
     @RequestScope
     public PayPalHttpClient getPaypalClient(WebClient webClient, ServiceUrlConfig serviceUrlConfig) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.payment()).path("/payment-providers/{id}/additional-settings")
-                .buildAndExpand(PaymentProviderHelper.PAYPAL_PAYMENT_PROVIDER_ID).toUri();
+                .buildAndExpand(PaymentProviderHelper.getInstance().getPaypalPaymentProviderId()).toUri();
 
         // Make a request to the payment-service to retrieve additionalSettings
         ResponseEntity<String> response = webClient.get()
