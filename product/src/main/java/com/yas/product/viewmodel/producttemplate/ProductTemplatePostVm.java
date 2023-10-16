@@ -6,5 +6,5 @@ import java.util.List;
 
 public record ProductTemplatePostVm(
         @NotBlank String name,
-        List<Long> ProductAttributeId
+        List<ProductAttributeTemplatePostVm> ProductAttributeTemplates
 ) {}

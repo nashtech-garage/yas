@@ -23,6 +23,6 @@ public class ProductAttributeTemplate {
     @JoinColumn(name = "product_template_id", nullable = false)
     private ProductTemplate productTemplate;
 
-
+    private int displayOrder;
 
 }

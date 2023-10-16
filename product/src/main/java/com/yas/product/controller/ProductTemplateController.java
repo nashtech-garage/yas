@@ -65,6 +65,15 @@ public class ProductTemplateController {
         return  ResponseEntity.created(uriComponentsBuilder.replacePath("/product-template/{id}").buildAndExpand(saveProductTemplate.id()).toUri())
                 .body(saveProductTemplate);
     }
+    @PutMapping(path = "/backoffice/product-template/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Updated"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @RequestBody ProductTemplatePostVm productTemplatePostVm) {
+        productTemplateService.updateProductTemplate(id, productTemplatePostVm);
+        return ResponseEntity.noContent().build();
+    }
 
 
 }

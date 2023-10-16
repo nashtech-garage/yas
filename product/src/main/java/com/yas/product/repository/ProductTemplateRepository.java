@@ -10,5 +10,4 @@ public interface ProductTemplateRepository extends JpaRepository<ProductTemplate
 
     @Query("select e from ProductTemplate e where e.name = ?1 and (?2 is null or e.id <> ?2)")
     ProductTemplate findExistedName(String name, Long id);
-
 }
