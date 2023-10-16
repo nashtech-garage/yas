@@ -15,7 +15,7 @@ services:
   # ********************
   # OpenTelemetry Collector
   otelcol:
-    image: otel/opentelemetry-collector-contrib:0.86.0
+    image: otel/opentelemetry-collector-contrib:0.87.0
     container_name: collector
     hostname: ${OTEL_COLLECTOR_HOST}
     depends_on:

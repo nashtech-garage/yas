@@ -18,6 +18,7 @@
 *.zip
 *.tar.gz
 *.rar
+target
 
 ### IntelliJ IDEA ###
 .idea
