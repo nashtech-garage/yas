@@ -2,6 +2,7 @@ package com.yas.order.saga.data;
 
 import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.viewmodel.order.OrderVm;
+import com.yas.order.viewmodel.payment.PaymentRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

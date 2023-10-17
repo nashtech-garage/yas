@@ -3,10 +3,12 @@ package com.yas.order.saga;
 import com.yas.order.saga.data.CreateOrderSagaData;
 import com.yas.order.service.CartMessageService;
 import com.yas.order.service.OrderService;
+import com.yas.order.service.PaymentMessageService;
 import com.yas.order.service.ProductMessageService;
 import com.yas.order.viewmodel.order.OrderItemPostVm;
 import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.viewmodel.order.OrderVm;
+import com.yas.order.viewmodel.payment.PaymentRequest;
 import com.yas.saga.cart.reply.DeleteCartItemFailure;
 import com.yas.saga.cart.reply.DeleteCartItemSuccess;
 import com.yas.saga.product.reply.RestoreProductStockQuantitySuccess;
@@ -28,9 +30,12 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
     private final OrderService orderService;
     private final CartMessageService cartMessageService;
     private final ProductMessageService productMessageService;
+    private final PaymentMessageService paymentMessageService;
 
     private final SagaDefinition<CreateOrderSagaData> sagaDefinition =
             step()
+                    .invokeLocal(this::createPayment)
+            .step()
                 .invokeLocal(this::createOrder)
                 .withCompensation(this::rejectOrder)
             .step()
@@ -45,6 +50,15 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
             .step()
                 .invokeLocal(this::acceptOrder)
             .build();
+
+    private void createPayment(CreateOrderSagaData data) {
+        log.info("create Payment");
+        PaymentRequest paymentRequest = PaymentRequest.builder()
+                .totalPrice(data.getOrderPostVm().totalPrice())
+                .paymentMethod(data.getOrderPostVm().paymentMethod())
+                .build();
+        this.paymentMessageService.createPayment(paymentRequest);
+    }
 
     private void acceptOrder(CreateOrderSagaData data) {
         log.info("Accept Order");

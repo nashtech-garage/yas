@@ -3,11 +3,9 @@ package com.yas.paymentpaypal.service;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
-import com.yas.paymentpaypal.model.CheckoutIdHelper;
 import com.yas.paymentpaypal.utils.Constants;
 import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
 import com.yas.paymentpaypal.viewmodel.PaypalRequestPayment;
-import com.yas.paymentpaypal.viewmodel.RequestPayment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,11 +29,11 @@ public class PaypalService {
     @Value("${yas.public.url}/cancel")
     private String cancelUrl;
 
-    public PaypalRequestPayment createPayment(RequestPayment requestPayment) {
+    public PaypalRequestPayment createPayment(Double totalPrice) {
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
 
-        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(requestPayment.totalPrice().toString());
+        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(totalPrice.toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
@@ -58,7 +56,6 @@ public class PaypalService {
                     .orElseThrow(NoSuchElementException::new)
                     .href();
 
-            CheckoutIdHelper.setCheckoutId(requestPayment.checkoutId());
             return new PaypalRequestPayment("success", order.id(), redirectUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -85,7 +82,6 @@ public class PaypalService {
                         .amount(amount)
                         .paymentStatus(order.status())
                         .paymentMethod("PAYPAL")
-                        .checkoutId(CheckoutIdHelper.getCheckoutId())
                         .build();
                 paymentMessageService.sendCaptureMessage(capturedPayment);
                 return capturedPayment;

@@ -25,7 +25,7 @@ public class CompletePaymentSaga implements SimpleSaga<CompletePaymentSagaData> 
     private final OrderMessageService orderMessageService;
     private final SagaDefinition<CompletePaymentSagaData> sagaDefinition =
         step()
-            .invokeLocal(this::createPayment)
+            .invokeLocal(this::capturePayment)
             .withCompensation(this::compensatePayment)
         .step()
             .invokeParticipant(this::updateCheckoutStatus)
@@ -53,8 +53,8 @@ public class CompletePaymentSaga implements SimpleSaga<CompletePaymentSagaData> 
         return this.sagaDefinition;
     }
 
-    private void createPayment(CompletePaymentSagaData data) {
-        Payment payment = this.paymentService.createPayment(data.getCapturedPayment());
+    private void capturePayment(CompletePaymentSagaData data) {
+        Payment payment = this.paymentService.capturePayment(data.getCapturedPayment());
         data.setPayment(PaymentData.from(payment));
     }
 
