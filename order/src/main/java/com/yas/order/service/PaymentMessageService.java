@@ -12,7 +12,7 @@ import static io.eventuate.tram.commands.consumer.CommandWithDestinationBuilder.
 
 @Service
 public class PaymentMessageService {
-    private final String PRODUCT_SERVICE = "productService";
+    private final String PAYMENT_SERVICE = "paymentService";
     public CommandWithDestination createPayment(PaymentRequest paymentRequest) {
         var paymentMethod = PaymentMethodCommand
                 .valueOf(paymentRequest.paymentMethod().name());
@@ -22,7 +22,7 @@ public class PaymentMessageService {
                 .paymentMethod(paymentMethod)
                 .build();
         return send(createPaymentCommand)
-                .to(PRODUCT_SERVICE)
+                .to(PAYMENT_SERVICE)
                 .build();
     }
 
