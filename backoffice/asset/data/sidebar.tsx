@@ -47,6 +47,11 @@ export const menu_catalog_item_data = [
     name: 'Product Attribute Groups',
     link: '/catalog/product-attribute-groups',
   },
+  {
+    id: 7,
+    name: 'Product Templates',
+    link: '/catalog/product-templates',
+  },
 ];
 
 export const menu_customer_item_data = [
