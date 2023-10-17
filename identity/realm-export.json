@@ -409,6 +409,32 @@
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
   "users": [
     {
+      "id": "6a4ccf58-14a7-4c68-8f35-9107f98755b2",
+      "createdTimestamp": 1678334999731,
+      "username": "admin",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "admin@gmail.com",
+      "credentials": [
+        {
+          "id": "0bed1acd-4585-450d-9fca-0cd02fb57140",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1678346530213,
+          "secretData": "{\"value\":\"u6oZH6INLj3cGGIJNxhhVUAhJQhYpFmsr3yLLQyVNqs=\",\"salt\":\"WmnWNNQ1hvyeXj0NlcVugA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-yas", "ADMIN"],
+      "notBefore": 0,
+      "groups": []
+    },
+    {
       "id": "6249ae7e-844e-4ed7-9b66-02013a98ba2e",
       "createdTimestamp": 1663154002788,
       "username": "service-account-customer-management",
@@ -618,7 +644,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF",
       "redirectUris": [
         "http://backoffice/*",
         "http://localhost:3000/*",
@@ -738,7 +764,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "NKAr3rnjwm9jlakgKpelukZGFaHYqIWE",
       "redirectUris": [
         ""
       ],
@@ -960,7 +986,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn",
       "redirectUris": [
         "http://storefront/*",
         "http://localhost:8087/*"
