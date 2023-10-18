@@ -83,4 +83,4 @@ service:
       exporters: [loki]
   telemetry:
     logs:
-      level: debug
+      level: INFO
