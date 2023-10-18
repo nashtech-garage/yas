@@ -33,7 +33,6 @@ const ProductTemplateEdit = () => {
       getProductTemplate(parseInt(id)).then((data) => {
         setProductTemplate(data);
         setValue('name', data.name);
-        console.log(data);
         let attributes = [];
         let att = [];
         for (let i = 0; i < data.productAttributeTemplates.length; i++) {
@@ -57,7 +56,7 @@ const ProductTemplateEdit = () => {
     });
   }, []);
 
-  const onAddAttribute = (event: React.MouseEvent<HTMLElement>) => {
+  const onAddAttributeList = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     let attName = (document.getElementById('attribute') as HTMLSelectElement).value;
     if (attName === '0') {
@@ -81,7 +80,7 @@ const ProductTemplateEdit = () => {
     }
   };
 
-  const handleSelectAttribute = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     event.preventDefault();
     let attName = (document.getElementById('attribute') as HTMLSelectElement).value;
     if (attName !== '0') {
@@ -89,7 +88,7 @@ const ProductTemplateEdit = () => {
     }
   };
 
-  const onDeleteSelectedAttribute = (event: React.MouseEvent<HTMLElement>, attName: string) => {
+  const onDelete = (event: React.MouseEvent<HTMLElement>, attName: string) => {
     event.preventDefault();
     let attributes = getValues('ProductAttributeTemplates') || [];
     const attribute = productTemplate?.productAttributeTemplates?.find(
@@ -97,13 +96,13 @@ const ProductTemplateEdit = () => {
     );
     let filter = selectedAttributes.filter((item) => item !== attName);
     let attFilter = attributes.filter(
-      (_att) => _att.ProductAttributeId !== attribute?.productAttribute?.id
+      (att) => att.ProductAttributeId !== attribute?.productAttribute?.id
     );
     setSelectedAttributes(filter);
     setValue('ProductAttributeTemplates', attFilter);
   };
 
-  const handleSubmitProductTemplate = async (event: FromProductTemplate) => {
+  const handleSubmitEditProductTemplate = async (event: FromProductTemplate) => {
     setValue('name', event.name);
     let fromProductTemplate: FromProductTemplate = {
       name: event.name,
@@ -112,18 +111,17 @@ const ProductTemplateEdit = () => {
     console.log(fromProductTemplate);
     let response = await updateProductTemplate(id, fromProductTemplate);
     handleUpdatingResponse(response);
-    console.log(response);
     router.replace(PRODUCT_TEMPLATE_URL);
   };
 
   if (isLoading) return <p>Loading...</p>;
-  if (!productTemplate) return <p>No Product Templates</p>;
+  if (!productTemplate) return <p>No Product Templates Id: {id}</p>;
   return (
     <>
       <div className="row mt-5">
         <div className="col-md-8">
           <h2>Edit Product Templates</h2>
-          <form onSubmit={handleSubmit(handleSubmitProductTemplate)}>
+          <form onSubmit={handleSubmit(handleSubmitEditProductTemplate)}>
             <div className="d-flex flex-column">
               <div className="mb-4">
                 <label className="form-label" htmlFor="name">
@@ -149,7 +147,7 @@ const ProductTemplateEdit = () => {
                   className="form-control me-3"
                   id="attribute"
                   defaultValue="0"
-                  onChange={handleSelectAttribute}
+                  onChange={handleSelect}
                 >
                   <option value="0" disabled hidden>
                     Select Attribute
@@ -164,7 +162,7 @@ const ProductTemplateEdit = () => {
                   <button
                     className="form-control w-50 btn btn-primary"
                     style={{ height: 'auto', width: 'auto' }}
-                    onClick={onAddAttribute}
+                    onClick={onAddAttributeList}
                   >
                     More features
                   </button>
@@ -182,9 +180,6 @@ const ProductTemplateEdit = () => {
                   Added calculations
                 </label>
                 <Table>
-                  <thead>
-                    <tr></tr>
-                  </thead>
                   <tbody>
                     {Array.isArray(selectedAttributes)
                       ? selectedAttributes.map((item) => (
@@ -193,7 +188,7 @@ const ProductTemplateEdit = () => {
                             <th style={{ textAlign: 'right' }}>
                               <button
                                 className="btn btn-danger"
-                                onClick={(event) => onDeleteSelectedAttribute(event, item)}
+                                onClick={(event) => onDelete(event, item)}
                               >
                                 <i className="bi bi-x"></i>
                               </button>
