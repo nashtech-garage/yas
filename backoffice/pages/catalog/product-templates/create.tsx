@@ -142,9 +142,12 @@ const ProductTemplateCreate = () => {
                   Added calculations
                 </label>
                 <Table>
-                  {Array.isArray(selectedAttributes)
-                    ? selectedAttributes.map((item) => (
-                        <tbody>
+                  <thead>
+                    <tr></tr>
+                  </thead>
+                  <tbody>
+                    {Array.isArray(selectedAttributes)
+                      ? selectedAttributes.map((item) => (
                           <tr key={item}>
                             <th>{item}</th>
                             <th style={{ textAlign: 'right' }}>
@@ -156,9 +159,9 @@ const ProductTemplateCreate = () => {
                               </button>
                             </th>
                           </tr>
-                        </tbody>
-                      ))
-                    : null}
+                        ))
+                      : null}
+                  </tbody>
                 </Table>
                 <div className=" w-50"></div>
               </div>
