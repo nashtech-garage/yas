@@ -31,10 +31,11 @@ const ProductTemplateEdit: NextPage = () => {
   useEffect(() => {
     setLoading(true);
     if (id !== undefined) {
-      getProductAttributes().then((data) => {
-        setProductAtts(data);
-      })
-      .catch((error) => console.log(error));
+      getProductAttributes()
+        .then((data) => {
+          setProductAtts(data);
+        })
+        .catch((error) => console.log(error));
 
       getProductTemplate(parseInt(id)).then((data) => {
         setProductTemplate(data);
@@ -177,19 +178,18 @@ const ProductTemplateEdit: NextPage = () => {
               <Table>
                 <tbody>
                   {selectedAtts.map((item) => (
-                        <tr key={item}>
-                          <th>{item}</th>
-                          <th style={{ textAlign: 'right' }}>
-                            <button
-                              className="btn btn-danger"
-                              onClick={(event) => onDelete(event, item)}
-                            >
-                              <i className="bi bi-x"></i>
-                            </button>
-                          </th>
-                        </tr>
-                      ))
-                  }
+                    <tr key={item}>
+                      <th>{item}</th>
+                      <th style={{ textAlign: 'right' }}>
+                        <button
+                          className="btn btn-danger"
+                          onClick={(event) => onDelete(event, item)}
+                        >
+                          <i className="bi bi-x"></i>
+                        </button>
+                      </th>
+                    </tr>
+                  ))}
                 </tbody>
               </Table>
               <div className="w-50"></div>
