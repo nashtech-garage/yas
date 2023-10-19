@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -15,17 +16,17 @@ import { getProductTemplate, updateProductTemplate } from '@catalogServices/Prod
 import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 import { PRODUCT_TEMPLATE_URL } from '../../../../constants/Common';
 
-const ProductTemplateEdit = () => {
+const ProductTemplateEdit: NextPage = () => {
   const router = useRouter();
   let { id }: any = router.query;
   const { formState, register, handleSubmit } = useForm<FromProductTemplate>();
   const { errors } = formState;
-  const { setValue, getValues } = useForm<FromProductTemplate>();
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [productAtts, setProductAtts] = useState<ProductAttribute[]>([]);
   const [checkButton, setCheckButton] = useState<boolean>(false);
   const [productTemplate, setProductTemplate] = useState<ProductTemplate>();
+  const { setValue, getValues } = useForm<FromProductTemplate>();
   const [selectedAtts, setSelectedAtts] = useState<string[]>([]);
+  const [productAtts, setProductAtts] = useState<ProductAttribute[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -56,32 +57,34 @@ const ProductTemplateEdit = () => {
   const onAddAttributeList = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     let attributeName = (document.getElementById('attribute') as HTMLSelectElement).value;
-    if (attributeName === '0') {
-      toast.info('No attribute has been selected yet');
-    } else {
-      let atts = getValues('ProductAttributeTemplates') || [];
-      if (selectedAtts.indexOf(attributeName) === -1) {
-        setSelectedAtts([...selectedAtts, attributeName]);
-        let att = productAtts.find((attribute) => attribute.name === attributeName);
-        if (att) {
-          let newAttr: ProductAttributeOfTemplate = {
-            ProductAttributeId: att.id,
-            displayOrder: 0,
-          };
-          atts.push(newAttr);
-          setValue('ProductAttributeTemplates', atts);
-        }
-      } else {
-        toast.info(`${attributeName} is selected`);
+    let atts = getValues('ProductAttributeTemplates') || [];
+    if (selectedAtts.indexOf(attributeName) === -1) {
+      setSelectedAtts([...selectedAtts, attributeName]);
+      let att = productAtts.find((attribute) => attribute.name === attributeName);
+      if (att) {
+        let newAttr: ProductAttributeOfTemplate = {
+          ProductAttributeId: att.id,
+          displayOrder: 0,
+        };
+        atts.push(newAttr);
+        setValue('ProductAttributeTemplates', atts);
       }
+    } else {
+      toast.info(`${attributeName} is selected`);
     }
   };
 
-  const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    event.preventDefault();
-    (document.getElementById('attribute') as HTMLSelectElement).value !== '0'
-      ? setCheckButton(true)
-      : setCheckButton(false);
+  const handleSubmitEditProductTemplate = async (event: FromProductTemplate) => {
+    let fromProductTemplate: FromProductTemplate = {
+      name: event.name,
+      ProductAttributeTemplates: getValues('ProductAttributeTemplates'),
+    };
+    updateProductTemplate(id, fromProductTemplate)
+      .then((response) => {
+        handleUpdatingResponse(response);
+        router.replace(PRODUCT_TEMPLATE_URL).catch((error) => console.log(error));
+      })
+      .catch((error) => console.log(error));
   };
 
   const onDelete = (event: React.MouseEvent<HTMLElement>, attName: string) => {
@@ -98,15 +101,11 @@ const ProductTemplateEdit = () => {
     setSelectedAtts(filter);
   };
 
-  const handleSubmitEditProductTemplate = async (event: FromProductTemplate) => {
-    let fromProductTemplate: FromProductTemplate = {
-      name: event.name,
-      ProductAttributeTemplates: getValues('ProductAttributeTemplates'),
-    };
-    setValue('name', event.name);
-    let response = await updateProductTemplate(id, fromProductTemplate);
-    handleUpdatingResponse(response);
-    router.replace(PRODUCT_TEMPLATE_URL);
+  const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    event.preventDefault();
+    (document.getElementById('attribute') as HTMLSelectElement).value !== '0'
+      ? setCheckButton(true)
+      : setCheckButton(false);
   };
 
   if (isLoading) return <p>Loading...</p>;
