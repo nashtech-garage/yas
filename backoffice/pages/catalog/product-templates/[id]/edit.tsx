@@ -79,7 +79,9 @@ const ProductTemplateEdit = () => {
 
   const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     event.preventDefault();
-    (document.getElementById('attribute') as HTMLSelectElement).value !== '0' ? setCheckButton(true) :  setCheckButton(false) 
+    (document.getElementById('attribute') as HTMLSelectElement).value !== '0'
+      ? setCheckButton(true)
+      : setCheckButton(false);
   };
 
   const onDelete = (event: React.MouseEvent<HTMLElement>, attName: string) => {
