@@ -25,6 +25,7 @@ export const BRAND_URL = '/catalog/brands';
 export const PRODUCT_ATTRIBUTE_GROUPS_URL = '/catalog/product-attribute-groups';
 export const PRODUCT_OPTIONS_URL = '/catalog/product-options';
 export const PRODUCT_ATTRIBUTE_URL = '/catalog/product-attributes';
+export const PRODUCT_TEMPLATE_URL = '/catalog/product-templates';
 export const PRODUCT_URL = '/catalog/products';
 export const COUNTRY_URL = '/location/countries';
 export const STATE_OR_PROVINCE_URL = '/location/state-or-provinces';
