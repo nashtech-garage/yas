@@ -21,7 +21,7 @@ const ProductTemplateEdit = () => {
   const { formState, register, handleSubmit } = useForm<FromProductTemplate>();
   const { errors } = formState;
   const { setValue, getValues } = useForm<FromProductTemplate>();
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState<boolean>(false);
   const [productAtts, setProductAtts] = useState<ProductAttribute[]>([]);
   const [checkButton, setCheckButton] = useState<boolean>(false);
   const [productTemplate, setProductTemplate] = useState<ProductTemplate>();
@@ -38,18 +38,18 @@ const ProductTemplateEdit = () => {
         setValue('name', data.name);
         let attributes = [];
         let att = [];
-        for (let i = 0; i < data.productAttributeTemplates.length; i++) {
-          let newAttr: ProductAttributeOfTemplate = {
-            ProductAttributeId: data.productAttributeTemplates[i].productAttribute.id,
-            displayOrder: data.productAttributeTemplates[i].displayOrder,
+        for (const element of data.productAttributeTemplates) {
+          let attribute: ProductAttributeOfTemplate = {
+            ProductAttributeId: element.productAttribute.id,
+            displayOrder: element.displayOrder,
           };
-          attributes.push(newAttr);
-          setValue('ProductAttributeTemplates', attributes);
-          att.push(data.productAttributeTemplates[i].productAttribute.name);
+          attributes.push(attribute);
+          att.push(element.productAttribute.name);
           setSelectedAtts(att);
+          setValue('ProductAttributeTemplates', attributes);
         }
-        setLoading(false);
       });
+      setLoading(false);
     }
   }, [id]);
 
@@ -79,10 +79,7 @@ const ProductTemplateEdit = () => {
 
   const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     event.preventDefault();
-    let attributeName = (document.getElementById('attribute') as HTMLSelectElement).value;
-    if (attributeName !== '0') {
-      setCheckButton(true);
-    }
+    (document.getElementById('attribute') as HTMLSelectElement).value !== '0' ? setCheckButton(true) :  setCheckButton(false) 
   };
 
   const onDelete = (event: React.MouseEvent<HTMLElement>, attName: string) => {
@@ -95,8 +92,8 @@ const ProductTemplateEdit = () => {
     let attFilter = atts.filter(
       (att) => att.ProductAttributeId !== attribute?.productAttribute?.id
     );
-    setSelectedAtts(filter);
     setValue('ProductAttributeTemplates', attFilter);
+    setSelectedAtts(filter);
   };
 
   const handleSubmitEditProductTemplate = async (event: FromProductTemplate) => {
