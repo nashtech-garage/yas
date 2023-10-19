@@ -18,18 +18,21 @@ import { PRODUCT_TEMPLATE_URL } from '../../../../constants/Common';
 const ProductTemplateEdit = () => {
   const router = useRouter();
   let { id }: any = router.query;
-  const { setValue, getValues } = useForm<FromProductTemplate>();
-  const [isLoading, setLoading] = useState(false);
-  const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>([]);
-  const [checkHidden, setCheckHidden] = useState<boolean>(false);
-  const [productTemplate, setProductTemplate] = useState<ProductTemplate>();
-  const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
   const { formState, register, handleSubmit } = useForm<FromProductTemplate>();
   const { errors } = formState;
+  const { setValue, getValues } = useForm<FromProductTemplate>();
+  const [isLoading, setLoading] = useState(false);
+  const [productAtts, setProductAtts] = useState<ProductAttribute[]>([]);
+  const [checkButton, setCheckButton] = useState<boolean>(false);
+  const [productTemplate, setProductTemplate] = useState<ProductTemplate>();
+  const [selectedAtts, setSelectedAtts] = useState<string[]>([]);
 
   useEffect(() => {
     setLoading(true);
     if (id !== undefined) {
+      getProductAttributes().then((data) => {
+        setProductAtts(data);
+      });
       getProductTemplate(parseInt(id)).then((data) => {
         setProductTemplate(data);
         setValue('name', data.name);
@@ -43,72 +46,65 @@ const ProductTemplateEdit = () => {
           attributes.push(newAttr);
           setValue('ProductAttributeTemplates', attributes);
           att.push(data.productAttributeTemplates[i].productAttribute.name);
-          setSelectedAttributes(att);
+          setSelectedAtts(att);
         }
         setLoading(false);
       });
     }
   }, [id]);
 
-  useEffect(() => {
-    getProductAttributes().then((data) => {
-      setProductAttributes(data);
-    });
-  }, []);
-
   const onAddAttributeList = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    let attName = (document.getElementById('attribute') as HTMLSelectElement).value;
-    if (attName === '0') {
+    let attributeName = (document.getElementById('attribute') as HTMLSelectElement).value;
+    if (attributeName === '0') {
       toast.info('No attribute has been selected yet');
     } else {
-      let attributes = getValues('ProductAttributeTemplates') || [];
-      if (selectedAttributes.indexOf(attName) === -1) {
-        setSelectedAttributes([...selectedAttributes, attName]);
-        let attribute = productAttributes.find((attribute) => attribute.name === attName);
-        if (attribute) {
+      let atts = getValues('ProductAttributeTemplates') || [];
+      if (selectedAtts.indexOf(attributeName) === -1) {
+        setSelectedAtts([...selectedAtts, attributeName]);
+        let att = productAtts.find((attribute) => attribute.name === attributeName);
+        if (att) {
           let newAttr: ProductAttributeOfTemplate = {
-            ProductAttributeId: attribute.id,
+            ProductAttributeId: att.id,
             displayOrder: 0,
           };
-          attributes.push(newAttr);
-          setValue('ProductAttributeTemplates', attributes);
+          atts.push(newAttr);
+          setValue('ProductAttributeTemplates', atts);
         }
       } else {
-        toast.info(`${attName} is selected`);
+        toast.info(`${attributeName} is selected`);
       }
     }
   };
 
   const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     event.preventDefault();
-    let attName = (document.getElementById('attribute') as HTMLSelectElement).value;
-    if (attName !== '0') {
-      setCheckHidden(true);
+    let attributeName = (document.getElementById('attribute') as HTMLSelectElement).value;
+    if (attributeName !== '0') {
+      setCheckButton(true);
     }
   };
 
   const onDelete = (event: React.MouseEvent<HTMLElement>, attName: string) => {
     event.preventDefault();
-    let attributes = getValues('ProductAttributeTemplates') || [];
+    let atts = getValues('ProductAttributeTemplates') || [];
     const attribute = productTemplate?.productAttributeTemplates?.find(
       (attribute) => attribute?.productAttribute?.name === attName
     );
-    let filter = selectedAttributes.filter((item) => item !== attName);
-    let attFilter = attributes.filter(
+    let filter = selectedAtts.filter((item) => item !== attName);
+    let attFilter = atts.filter(
       (att) => att.ProductAttributeId !== attribute?.productAttribute?.id
     );
-    setSelectedAttributes(filter);
+    setSelectedAtts(filter);
     setValue('ProductAttributeTemplates', attFilter);
   };
 
   const handleSubmitEditProductTemplate = async (event: FromProductTemplate) => {
-    setValue('name', event.name);
     let fromProductTemplate: FromProductTemplate = {
       name: event.name,
       ProductAttributeTemplates: getValues('ProductAttributeTemplates'),
     };
-    console.log(fromProductTemplate);
+    setValue('name', event.name);
     let response = await updateProductTemplate(id, fromProductTemplate);
     handleUpdatingResponse(response);
     router.replace(PRODUCT_TEMPLATE_URL);
@@ -152,13 +148,13 @@ const ProductTemplateEdit = () => {
                   <option value="0" disabled hidden>
                     Select Attribute
                   </option>
-                  {(productAttributes || []).map((att) => (
+                  {(productAtts || []).map((att) => (
                     <option value={att.name} key={att.id}>
                       {att.name}
                     </option>
                   ))}
                 </select>
-                {checkHidden ? (
+                {checkButton ? (
                   <button
                     className="form-control w-50 btn btn-primary"
                     style={{ height: 'auto', width: 'auto' }}
@@ -181,8 +177,8 @@ const ProductTemplateEdit = () => {
                 </label>
                 <Table>
                   <tbody>
-                    {Array.isArray(selectedAttributes)
-                      ? selectedAttributes.map((item) => (
+                    {Array.isArray(selectedAtts)
+                      ? selectedAtts.map((item) => (
                           <tr key={item}>
                             <th>{item}</th>
                             <th style={{ textAlign: 'right' }}>
