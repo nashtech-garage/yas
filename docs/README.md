@@ -187,7 +187,7 @@ spring:
 
 ## Change Data Capture (CDC) with Debezium
 
-We use debezium to capture the change in some table, those changes will be pushed to kafka topics. There is background job that listen to those topics, receive the ids of products having data changed, call to product rest API to get product information and update to elastic search.
+We use debezium to capture the change in some tables, those changes will be pushed to kafka topics. There is background job that listen to those topics, receive the ids of products having data changed, call to product rest API to get product information and update to elastic search.
 
 Debezium acts as a source connector of Kafka connect. It captures row-level changes that insert, update, and delete database content and that were committed to a PostgreSQL database. The connector generates data change event records and streams them to Kafka topics
 
@@ -202,5 +202,15 @@ Debezium acts as a source connector of Kafka connect. It captures row-level chan
 ## Frontend architecture 
 
 ## Local development with docker compose
+
+Because there many services, we created muliple docker compose file.
+
+- docker-compose.yml for all core services
+- docker-compose.search.yml for search service
+- docker-compose.o11y.yml for observability services
+
+Common environment variables are defined in .env at the root of the repo. In that file we also set the `COMPOSE_FILE=docker-compose.yml:docker-compose.search.yml:docker-compose.o11y.yml` so that it will run all the services when you run docker compose up. You can run each each docker file separately by `docker compose -f [docker compose file] up`.
+
+All services will be in the same network named yas-network. 
 
 ## Kubernetes
