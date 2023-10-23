@@ -35,7 +35,6 @@ const ProductTemplate: NextPage = () => {
   };
 
   if (isLoading) return <p>Loading...</p>;
-  if (!productTemplates) return <p>No Product Templates</p>;
   return (
     <>
       <div className="row mt-5">
@@ -48,7 +47,12 @@ const ProductTemplate: NextPage = () => {
           </Link>
         </div>
       </div>
-      <Table striped bordered hover>
+      {
+        !productTemplates ?
+         <p>No Product Templates</p>
+        :
+        <>
+              <Table striped bordered hover>
         <thead>
           <tr>
             <th>Id</th>
@@ -88,6 +92,8 @@ const ProductTemplate: NextPage = () => {
         disabledClassName={'pagination-disabled'}
         activeClassName={'pagination-active'}
       />
+        </>
+      }
     </>
   );
 };
