@@ -35,7 +35,6 @@ const ProductTemplate: NextPage = () => {
   };
 
   if (isLoading) return <p>Loading...</p>;
-  if (!productTemplates) return <p>No Product Templates</p>;
   return (
     <>
       <div className="row mt-5">
@@ -48,46 +47,52 @@ const ProductTemplate: NextPage = () => {
           </Link>
         </div>
       </div>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {productTemplates.map((obj) => (
-            <tr key={obj.id}>
-              <td>{obj.id}</td>
-              <td>{obj.name}</td>
-              <td>
-                <Link href={`/catalog/product-templates/${obj.id}/edit`}>
-                  <button className="btn btn-outline-primary btn-sm" type="button">
-                    Edit
-                  </button>
-                </Link>
-                &nbsp;
-                <button className="btn btn-outline-danger btn-sm" type="button">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <ReactPaginate
-        forcePage={pageNo}
-        previousLabel={'Previous'}
-        nextLabel={'Next'}
-        pageCount={totalPage}
-        onPageChange={changePage}
-        containerClassName={'pagination-container'}
-        previousClassName={'previous-btn'}
-        nextClassName={'next-btn'}
-        disabledClassName={'pagination-disabled'}
-        activeClassName={'pagination-active'}
-      />
+      {!productTemplates ? (
+        <p>No Product Templates</p>
+      ) : (
+        <>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productTemplates.map((obj) => (
+                <tr key={obj.id}>
+                  <td>{obj.id}</td>
+                  <td>{obj.name}</td>
+                  <td>
+                    <Link href={`/catalog/product-templates/${obj.id}/edit`}>
+                      <button className="btn btn-outline-primary btn-sm" type="button">
+                        Edit
+                      </button>
+                    </Link>
+                    &nbsp;
+                    <button className="btn btn-outline-danger btn-sm" type="button">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <ReactPaginate
+            forcePage={pageNo}
+            previousLabel={'Previous'}
+            nextLabel={'Next'}
+            pageCount={totalPage}
+            onPageChange={changePage}
+            containerClassName={'pagination-container'}
+            previousClassName={'previous-btn'}
+            nextClassName={'next-btn'}
+            disabledClassName={'pagination-disabled'}
+            activeClassName={'pagination-active'}
+          />
+        </>
+      )}
     </>
   );
 };
