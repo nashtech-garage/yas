@@ -49,10 +49,10 @@ const ProductTemplate: NextPage = () => {
       </div>
       {
         !productTemplates ?
-         <p>No Product Templates</p>
+          <p>No Product Templates</p>
         :
         <>
-              <Table striped bordered hover>
+          <Table striped bordered hover>
         <thead>
           <tr>
             <th>Id</th>
