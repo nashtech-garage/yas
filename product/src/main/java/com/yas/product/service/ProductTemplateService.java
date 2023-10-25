@@ -82,12 +82,11 @@ public class ProductTemplateService {
     public void updateProductTemplate(long productTemplateId, ProductTemplatePostVm productTemplatePostVm){
         ProductTemplate productTemplate = productTemplateRepository.findById(productTemplateId).orElseThrow(()
                 -> new NotFoundException(Constants.ERROR_CODE.PRODUCT_TEMPlATE_IS_NOT_FOUND, productTemplateId));
+        List<ProductAttributeTemplate> attributeTemplateList = productAttributeTemplateRepository.findAllByProductTemplateId(productTemplateId);
+        productAttributeTemplateRepository.deleteAllByIdInBatch(attributeTemplateList.stream().map(ProductAttributeTemplate::getId).toList());
         List<ProductAttributeTemplate> productAttributeTemplates = setAttributeTemplates(productTemplatePostVm.ProductAttributeTemplates(),productTemplate);
         productTemplate.setName(productTemplatePostVm.name());
         productTemplateRepository.save(productTemplate);
-        List<ProductAttributeTemplate> attributeTemplateList = productAttributeTemplateRepository.findAllByProductTemplateId(productTemplateId);
-        productAttributeTemplateRepository.deleteAllByIdInBatch(attributeTemplateList.stream().map(ProductAttributeTemplate::getId).toList());
-
         productAttributeTemplateRepository.saveAllAndFlush(productAttributeTemplates);
     }
     private List<ProductAttributeTemplate> setAttributeTemplates(List<ProductAttributeTemplatePostVm> ProductAttributeTemplates, ProductTemplate productTemplate){
@@ -113,7 +112,7 @@ public class ProductTemplateService {
                             .builder()
                                     .productAttribute(productAttributeMap.get(attributeTemplatePostVm.ProductAttributeId()))
                                     .productTemplate(productTemplate)
-                                    .displayOrder(attributeTemplatePostVm.displayOder())
+                                    .displayOrder(attributeTemplatePostVm.displayOrder())
                             .build()
                     );
                 }

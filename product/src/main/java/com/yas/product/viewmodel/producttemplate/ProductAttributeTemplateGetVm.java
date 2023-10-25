@@ -6,7 +6,7 @@ import com.yas.product.viewmodel.productattribute.ProductAttributeVm;
 
 public record ProductAttributeTemplateGetVm(
         ProductAttributeVm productAttribute,
-        Integer displayOder
+        Integer displayOrder
 ) {
     public static ProductAttributeTemplateGetVm fromModel(ProductAttributeTemplate productAttributeTemplate){
         return new ProductAttributeTemplateGetVm(

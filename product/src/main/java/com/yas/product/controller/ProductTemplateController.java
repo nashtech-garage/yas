@@ -4,7 +4,6 @@ import com.yas.product.constants.PageableConstant;
 import com.yas.product.repository.ProductTemplateRepository;
 import com.yas.product.service.ProductTemplateService;
 import com.yas.product.viewmodel.error.ErrorVm;
-import com.yas.product.viewmodel.productattribute.ProductAttributeGetVm;
 import com.yas.product.viewmodel.producttemplate.ProductTemplateGetVm;
 import com.yas.product.viewmodel.producttemplate.ProductTemplateListGetVm;
 import com.yas.product.viewmodel.producttemplate.ProductTemplatePostVm;
@@ -49,7 +48,7 @@ public class ProductTemplateController {
 
     @GetMapping("/backoffice/product-template/{id}" )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200" , description = "OK" , content = @Content(schema = @Schema(implementation =  ProductAttributeGetVm.class))),
+            @ApiResponse(responseCode = "200" , description = "OK" , content = @Content(schema = @Schema(implementation =  ProductTemplateVm.class))),
             @ApiResponse(responseCode = "404" , description = "Not found" , content = @Content(schema = @Schema(implementation = ErrorVm.class))),
     })
     public ResponseEntity<ProductTemplateVm> getProductTemplate(@PathVariable("id") Long id){
@@ -58,7 +57,7 @@ public class ProductTemplateController {
 
     @PostMapping("/backoffice/product-template")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductAttributeGetVm.class))),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ProductTemplateVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<ProductTemplateVm> createProductTemplate(@Valid @RequestBody ProductTemplatePostVm productTemplatePostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal) {
         ProductTemplateVm saveProductTemplate = productTemplateService.saveProductTemplate(productTemplatePostVm);
