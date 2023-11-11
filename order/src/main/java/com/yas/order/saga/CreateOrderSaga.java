@@ -34,7 +34,8 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
 
     private final SagaDefinition<CreateOrderSagaData> sagaDefinition =
             step()
-                    .invokeLocal(this::createPayment)
+                .invokeLocal(this::createPayment)
+                .withCompensation(this::createPaymentFail)
             .step()
                 .invokeLocal(this::createOrder)
                 .withCompensation(this::rejectOrder)
@@ -58,6 +59,10 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
                 .paymentMethod(data.getOrderPostVm().paymentMethod())
                 .build();
         this.paymentMessageService.createPayment(paymentRequest);
+    }
+
+    private void createPaymentFail(CreateOrderSagaData data) {
+        log.info("Create payment fail, cannot create order");
     }
 
     private void acceptOrder(CreateOrderSagaData data) {

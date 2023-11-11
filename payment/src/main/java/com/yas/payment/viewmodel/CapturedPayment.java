@@ -10,8 +10,6 @@ import java.util.ArrayList;
 
 @Builder
 public record CapturedPayment(
-        Long orderId,
-        String checkoutId,
         BigDecimal amount,
         BigDecimal paymentFee,
         String gatewayTransactionId,
@@ -22,8 +20,6 @@ public record CapturedPayment(
         return CapturedPayment.builder()
                 .amount(payment.getAmount())
                 .paymentFee(payment.getPaymentFee())
-                .checkoutId(payment.getCheckoutId())
-                .orderId(payment.getOrderId())
                 .gatewayTransactionId(payment.getGatewayTransactionId())
                 .paymentMethod(payment.getPaymentMethod())
                 .paymentStatus(payment.getPaymentStatus())

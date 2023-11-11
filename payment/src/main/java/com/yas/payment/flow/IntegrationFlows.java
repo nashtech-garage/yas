@@ -15,7 +15,7 @@ import org.springframework.messaging.MessageChannel;
 @Configuration
 public class IntegrationFlows {
     @Bean
-    public MessageChannel createPaymentMessageChanel() {
+    public MessageChannel createPaymentMessageChannel() {
         DirectChannel directChannel = new DirectChannel();
         directChannel.setDatatypes(Double.class);
         return directChannel;

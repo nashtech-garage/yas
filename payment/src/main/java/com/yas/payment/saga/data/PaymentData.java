@@ -5,13 +5,12 @@ import com.yas.payment.model.enumeration.EPaymentStatus;
 import lombok.Builder;
 
 @Builder
-public record PaymentData(Long paymentId, String checkoutId, EPaymentStatus paymentStatus) {
+public record PaymentData(Long paymentId, EPaymentStatus paymentStatus) {
     public static PaymentData from(Payment payment) {
         return PaymentData
                 .builder()
                 .paymentId(payment.getId())
                 .paymentStatus(payment.getPaymentStatus())
-                .checkoutId(payment.getCheckoutId())
                 .build();
     }
 }

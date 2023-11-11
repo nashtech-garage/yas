@@ -43,8 +43,6 @@ public class PaymentService {
 
     public Payment capturePayment(CapturedPayment completedPayment) {
         Payment payment = Payment.builder()
-                .checkoutId(completedPayment.checkoutId())
-                .orderId(completedPayment.orderId())
                 .paymentStatus(completedPayment.paymentStatus())
                 .paymentFee(completedPayment.paymentFee())
                 .paymentMethod(completedPayment.paymentMethod())
