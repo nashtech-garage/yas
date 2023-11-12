@@ -22,5 +22,4 @@ public class VirtualThreadConfig {
             protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
         };
     }
-
 }
