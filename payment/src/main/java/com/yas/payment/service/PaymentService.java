@@ -10,6 +10,8 @@ import com.yas.payment.viewmodel.CapturedPayment;
 import com.yas.payment.viewmodel.PaymentRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -18,25 +20,23 @@ import org.springframework.stereotype.Service;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentManager paymentManager;
+    private final MessageChannel createPaymentMessageChannel;
 
     public void  createPayment(PaymentRequest paymentRequest) {
-        switch (paymentRequest.paymentMethod()) {
-            case COD:
-                paymentManager.setPaymentStrategy(new CoDPayment());
+        paymentManager.setPaymentStrategy(switch (paymentRequest.paymentMethod()) {
+            case COD -> {
                 log.info("Payment by COD");
-                break;
-            case CREDIT_CARD:
-                paymentManager.setPaymentStrategy(new CreditCardPayment());
+                yield new CoDPayment(createPaymentMessageChannel);
+            }
+            case CREDIT_CARD -> {
                 log.info("Payment by CREDIT_CARD");
-                break;
-            case PAYPAL:
-                paymentManager.setPaymentStrategy(new PaypalPayment());
+                yield new CreditCardPayment(createPaymentMessageChannel);
+            }
+            case PAYPAL -> {
                 log.info("Payment by PAYPAL");
-                break;
-            default:
-                log.warn("Payment method doest exist");
-                break;
-        }
+                yield new PaypalPayment(createPaymentMessageChannel);
+            }
+        });
 
         paymentManager.purchase(paymentRequest.totalPrice());
     }

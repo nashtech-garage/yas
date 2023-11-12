@@ -27,8 +27,8 @@ public class CreatePaymentSaga implements SimpleSaga<CreatePaymentSagaData> {
     private final SagaDefinition<CreatePaymentSagaData> sagaDefinition =
             step()
                 .invokeLocal(this::createPayment)
-                .onReply(CreatePaymentSuccess.class, this::capturePayment)
-                .onReply(CreatePaymentSuccessFail.class, (data, reply) -> log.warn(reply.message()))
+//                .onReply(CreatePaymentSuccess.class, this::capturePayment)
+//                .onReply(CreatePaymentSuccessFail.class, (data, reply) -> log.warn(reply.message()))
             .step()
                 .invokeLocal(this::capturePayment)
                 .withCompensation(this::compensatePayment)
@@ -49,5 +49,10 @@ public class CreatePaymentSaga implements SimpleSaga<CreatePaymentSagaData> {
 
     private void capturePayment(CreatePaymentSagaData data) {
         this.paymentService.capturePayment(data.getCapturedPayment());
+    }
+
+    @Override
+    public SagaDefinition<CreatePaymentSagaData> getSagaDefinition() {
+        return this.sagaDefinition;
     }
 }
