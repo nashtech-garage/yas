@@ -15,7 +15,7 @@
 	<description>Back end for Storefront</description>
 	<properties>
 		<java.version>21</java.version>
-		<spring-cloud.version>2022.0.3</spring-cloud.version>
+		<spring-cloud.version>2022.0.4</spring-cloud.version>
 		<sonar.organization>nashtech-garage</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.projectKey>nashtech-garage_yas-storefront-bff</sonar.projectKey>
