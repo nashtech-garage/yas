@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.0</version>
+		<version>3.2.0</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.yas</groupId>
@@ -13,11 +13,9 @@
 	<name>payment</name>
 	<description>Payment Service for Yas Project</description>
 	<properties>
-		<java.version>17</java.version>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<java.version>21</java.version>
 		<springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
-		<org.lombok.version>1.18.22</org.lombok.version>
+		<org.lombok.version>1.18.30</org.lombok.version>
 		<org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
 		<spring-cloud.version>2022.0.3</spring-cloud.version>
 		<sonar.organization>nashtech-garage</sonar.organization>

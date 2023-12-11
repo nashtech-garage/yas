@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.0</version>
+		<version>3.2.0</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.yas</groupId>
@@ -13,7 +13,7 @@
 	<name>media</name>
 	<description>Yas Media service</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 		<sonar.organization>nashtech-garage</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.projectKey>nashtech-garage_yas-media</sonar.projectKey>
