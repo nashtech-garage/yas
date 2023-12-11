@@ -1,10 +1,10 @@
 runs:
   using: "composite"
   steps:
-    - name: Set up JDK 17
+    - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'adopt'
     - name: Cache SonarCloud packages
       uses: actions/cache@v3.2.1
