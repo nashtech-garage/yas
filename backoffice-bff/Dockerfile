@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 RUN apk add --no-cache bash
 COPY target/backoffice-bff-0.0.1-SNAPSHOT.jar backoffice-bff-0.0.1-SNAPSHOT.jar
 COPY wait-for-it.sh wait-for-it.sh
