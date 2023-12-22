@@ -3,6 +3,9 @@ server:
 spring:
   application:
     name: storefront-bff
+  threads:
+    virtual:
+      enabled: true
   profiles:
     active: dev
   security:
