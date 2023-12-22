@@ -53,5 +53,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             @Param("createdTo") ZonedDateTime createdTo,
             Pageable pageable);
 
+    @Query("SELECT o FROM Order o JOIN o.orderItems oi " +
+            "WHERE LOWER(o.email) LIKE %:email% " +
+            "AND (o.orderStatus IN (:orderStatus)) " +
+            "AND LOWER(oi.productName) LIKE %:productName% " +
+            "AND LOWER(o.billingAddressId.phone) LIKE %:billingPhoneNumber% " +
+            "AND LOWER(o.billingAddressId.countryName) LIKE %:countryName% " +
+            "AND o.createdOn BETWEEN :createdFrom AND :createdTo " +
+            "ORDER BY o.createdOn DESC")
+    List<Order> exportOrders(
+            @Param("orderStatus") List<EOrderStatus> orderStatus,
+            @Param("billingPhoneNumber") String billingPhoneNumber,
+            @Param("countryName") String countryName,
+            @Param("email") String email,
+            @Param("productName") String productName,
+            @Param("createdFrom") ZonedDateTime createdFrom,
+            @Param("createdTo") ZonedDateTime createdTo);
+
     Optional<Order> findByCheckoutId(String checkoutId);
 }
