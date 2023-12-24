@@ -2,6 +2,8 @@ import { Order } from '../models/Order';
 import { formatPriceVND } from 'utils/formatPrice';
 import { Stack, Table } from 'react-bootstrap';
 import Link from 'next/link';
+import styles from '@styles/print-hidden.module.css';
+
 type Props = {
   order: Order;
 };
@@ -39,7 +41,7 @@ const OrderProductInfo = ({ order }: Props) => {
                     <th>Quantity </th>
                     <th>Discount</th>
                     <th>Total</th>
-                    <th>Actions</th>
+                    <th className={`${styles['print-hidden']}`}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -50,7 +52,7 @@ const OrderProductInfo = ({ order }: Props) => {
                       <td>{item.quantity}</td>
                       <td>{item.discountAmount}</td>
                       <td>{formatPriceVND(item.productPrice * item.quantity)}</td>
-                      <td style={{ width: '12%' }}>
+                      <td style={{ width: '12%' }} className={`${styles['print-hidden']}`}>
                         <Stack direction="vertical" gap={3}>
                           <Link href={`/sales/orders/${order.id}/edit`}>
                             <button className="btn btn-outline-primary btn-sm" type="button">

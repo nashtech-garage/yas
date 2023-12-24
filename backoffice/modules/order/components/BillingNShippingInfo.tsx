@@ -2,6 +2,8 @@ import { Order } from '../models/Order';
 import Link from 'next/link';
 import { Stack, Table } from 'react-bootstrap';
 import AddressTable from './AddressTable';
+import styles from '@styles/print-hidden.module.css';
+
 type Props = {
   order: Order;
 };
@@ -52,7 +54,7 @@ const BillingNShippingInfo = ({ order }: Props) => {
                       <th>Total weight</th>
                       <th>Date shipped</th>
                       <th>Date delivered</th>
-                      <th>Actions</th>
+                      <th className={`${styles['print-hidden']}`}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -63,7 +65,7 @@ const BillingNShippingInfo = ({ order }: Props) => {
                       <td>2.00 [lb(s)]</td>
                       <td>3/13/2017 4:20:10 AM</td>
                       <td>8-24-2001</td>
-                      <td style={{ width: '12%' }}>
+                      <td style={{ width: '12%' }} className={`${styles['print-hidden']}`}>
                         <Stack direction="horizontal" gap={3}>
                           <Link href={`/sales/orders/${order.id}/edit`}>
                             <button className="btn btn-outline-primary btn-sm" type="button">

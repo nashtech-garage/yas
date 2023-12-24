@@ -20,7 +20,6 @@ const Orders: NextPage = () => {
   const [orderList, setOrderList] = useState<Order[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(1);
-  const [isDelete, setDelete] = useState<boolean>(false);
   const orderPageSize = DEFAULT_PAGE_SIZE;
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
@@ -49,7 +48,7 @@ const Orders: NextPage = () => {
     setLoading(true);
     handleGetOrders();
     setLoading(false);
-  }, [pageNo, isDelete]);
+  }, [pageNo]);
 
   useEffect(() => {
     setLoading(true);
