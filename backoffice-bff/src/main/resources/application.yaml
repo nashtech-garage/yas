@@ -3,6 +3,9 @@ server:
 spring:
   application:
     name: backoffice-bff
+  threads:
+    virtual:
+      enabled: true
   profiles:
     active: dev
   security:

@@ -7,6 +7,8 @@ import { FormProduct } from '../models/FormProduct';
 import { ProductAttribute } from '../models/ProductAttribute';
 import { ProductAttributeValue } from '../models/ProductAttributeValue';
 import { getProductAttributes } from '../services/ProductAttributeService';
+import { getProductTemplates, getProductTemplate } from '@catalogServices/ProductTemplateService';
+import { ProductTemplate } from '@catalogModels/ProductTemplate';
 
 type Props = {
   setValue: UseFormSetValue<FormProduct>;
@@ -16,9 +18,12 @@ type Props = {
 const ProductAttributes = ({ setValue, getValue }: Props) => {
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>([]);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
+  const [productTemplates, setProductTemplates] = useState<ProductTemplate[]>();
+  const [checkHidden, setCheckHidden] = useState<boolean>(false);
 
   useEffect(() => {
     getProductAttributes().then((data) => setProductAttributes(data));
+    getProductTemplates().then((data) => setProductTemplates(data));
   }, []);
 
   const onAddAttribute = (event: React.MouseEvent<HTMLElement>) => {
@@ -63,26 +68,103 @@ const ProductAttributes = ({ setValue, getValue }: Props) => {
     setValue('productAttributes', productAtt);
   };
 
+  const onProductTemplate = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    let ptId = (document.getElementById('product-template') as HTMLSelectElement).value;
+    setValue('productAttributes', []);
+    getProductTemplate(parseInt(ptId)).then((data) => {
+      let attributes = [];
+      let attNames = [];
+      for (const element of data.productAttributeTemplates) {
+        let att = productAttributes.find(
+          (attribute) => attribute.id === element.productAttribute.id
+        );
+        if (att) {
+          let newAttr: ProductAttributeValue = {
+            id: att.id,
+            nameProductAttribute: att.name,
+            value: '',
+          };
+          attNames.push(att?.name);
+          attributes.push(newAttr);
+          setValue('productAttributes', attributes);
+          setSelectedAttributes(attNames);
+        }
+      }
+    });
+  };
+  const handleSelectProductTemplate = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    event.preventDefault();
+    let ptName = (document.getElementById('product-template') as HTMLSelectElement).value;
+    if (ptName !== '0') {
+      setCheckHidden(true);
+    }
+  };
   return (
     <>
-      <div className="mb-3 d-flex justify-content-evenly">
-        <label className="form-label" htmlFor="brand">
-          Available Attribute
-        </label>
-        <select className="form-control w-50" id="attribute" defaultValue="0">
-          <option value="0" disabled hidden>
-            Select Attribute
-          </option>
-          {(productAttributes || []).map((att) => (
-            <option value={att.name} key={att.id}>
-              {att.name}
+      {!productTemplates ? (
+        <></>
+      ) : (
+        <div className="row mb-3">
+          <div className="col-2">
+            <label className="form-label" htmlFor="brand">
+              <span>Product Templates</span>
+            </label>
+          </div>
+          <div className="col-6">
+            <select
+              className="form-control"
+              id="product-template"
+              defaultValue="0"
+              onChange={handleSelectProductTemplate}
+            >
+              <option value="0" disabled hidden>
+                Select Product Templates
+              </option>
+              {(productTemplates || []).map((obj) => (
+                <option value={obj.id} key={obj.id}>
+                  {obj.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-4">
+            {checkHidden ? (
+              <button className="btn btn-primary" onClick={onProductTemplate}>
+                Apply
+              </button>
+            ) : (
+              <button className="btn btn btn-secondary">Apply</button>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="row mb-3">
+        <div className="col-2">
+          <label className="form-label" htmlFor="brand">
+            <span style={{ flex: '1' }}>Available Attribute</span>
+          </label>
+        </div>
+        <div className="col-6">
+          <select className="form-control" id="attribute" defaultValue="0">
+            <option value="0" disabled hidden>
+              Select Attribute
             </option>
-          ))}
-        </select>
-        <button className="btn btn-primary" onClick={onAddAttribute}>
-          Add Attribute
-        </button>
+            {(productAttributes || []).map((att) => (
+              <option value={att.name} key={att.id}>
+                {att.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-4">
+          <button className="btn btn-primary" onClick={onAddAttribute}>
+            Add Attribute
+          </button>
+        </div>
       </div>
+
       {selectedAttributes.length > 0 && (
         <>
           <h4>Product Attribute</h4>

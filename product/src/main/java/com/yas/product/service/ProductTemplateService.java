@@ -89,9 +89,9 @@ public class ProductTemplateService {
         productTemplateRepository.save(productTemplate);
         productAttributeTemplateRepository.saveAllAndFlush(productAttributeTemplates);
     }
-    private List<ProductAttributeTemplate> setAttributeTemplates(List<ProductAttributeTemplatePostVm> ProductAttributeTemplates, ProductTemplate productTemplate){
+    private List<ProductAttributeTemplate> setAttributeTemplates(List<ProductAttributeTemplatePostVm> productAttributeTemplates, ProductTemplate productTemplate){
         List<ProductAttributeTemplate> attributeTemplateList = new ArrayList<>();
-        List<Long> idAttributes = ProductAttributeTemplates.stream().map(ProductAttributeTemplatePostVm::ProductAttributeId).toList();
+        List<Long> idAttributes = new ArrayList<>(productAttributeTemplates.stream().map(ProductAttributeTemplatePostVm::ProductAttributeId).toList());
         if(CollectionUtils.isNotEmpty(idAttributes)){
             List<Long> attributes = productTemplate
                     .getProductAttributeTemplates()
@@ -107,7 +107,7 @@ public class ProductTemplateService {
                 }
                 Map<Long, ProductAttribute> productAttributeMap = productAttributes.stream()
                         .collect(Collectors.toMap(ProductAttribute::getId, Function.identity()));
-                for(ProductAttributeTemplatePostVm attributeTemplatePostVm: ProductAttributeTemplates){
+                for(ProductAttributeTemplatePostVm attributeTemplatePostVm: productAttributeTemplates){
                     attributeTemplateList.add(ProductAttributeTemplate
                             .builder()
                                     .productAttribute(productAttributeMap.get(attributeTemplatePostVm.ProductAttributeId()))

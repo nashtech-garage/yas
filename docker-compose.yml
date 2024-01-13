@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   nginx:
-    image:  nginx:1.23.3
+    image:  nginx:1.25.3
     restart: unless-stopped
     volumes:
       - ./nginx/templates:/etc/nginx/templates

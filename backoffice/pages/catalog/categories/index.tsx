@@ -40,6 +40,9 @@ const CategoryList: NextPage = () => {
     list: Array<Category>,
     parentHierarchy: string
   ) => {
+    if (!Array.isArray(list)) {
+      return <></>;
+    }
     const renderArr = list.filter((e) => e.parentId == id);
     const newArr = list.filter((e) => e.parentId != id);
     return renderArr
