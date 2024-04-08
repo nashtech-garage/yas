@@ -25,9 +25,9 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests
+        run: mvn clean install -DskipTests -pl product -am
       - name: Run Maven Test
-        run: mvn test -f product
+        run: mvn test -pl product -am
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: success() || failure()
