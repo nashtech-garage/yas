@@ -27,5 +27,5 @@ target
 hs_err_pid*
 .project
 .settings*
-.project
 .vscode
+*.iml

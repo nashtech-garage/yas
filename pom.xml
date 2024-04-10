@@ -1,28 +1,107 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.yas</groupId>
-	<artifactId>yas</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>yas</name>
-	<modules>
-		<module>backoffice-bff</module>
-		<module>cart</module>
-		<module>customer</module>
-		<module>inventory</module>
-		<module>location</module>
-		<module>media</module>
-		<module>order</module>
-		<module>payment</module>
-		<module>payment-paypal</module>
-		<module>product</module>
-		<module>promotion</module>
-		<module>rating</module>
-		<module>search</module>
-		<module>storefront-bff</module>
-		<module>tax</module>
-		<module>saga</module>
-	</modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.yas</groupId>
+    <artifactId>yas</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+    <name>yas</name>
+
+    <modules>
+        <module>backoffice-bff</module>
+        <module>cart</module>
+        <module>customer</module>
+        <module>inventory</module>
+        <module>location</module>
+        <module>media</module>
+        <module>order</module>
+        <module>payment</module>
+        <module>payment-paypal</module>
+        <module>product</module>
+        <module>promotion</module>
+        <module>rating</module>
+        <module>search</module>
+        <module>storefront-bff</module>
+        <module>tax</module>
+        <module>saga</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <yas.version>1.0-SNAPSHOT</yas.version>
+        <revision>1.0-SNAPSHOT</revision>
+
+        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.projectKey>nashtech-garage_yas-yas-parent</sonar.projectKey>
+
+        <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
+        <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
+
+        <eventuate-platform.version>2023.0.RELEASE</eventuate-platform.version>
+
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.eventuate.platform</groupId>
+                <artifactId>eventuate-platform-dependencies</artifactId>
+                <version>${eventuate-platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${org.mapstruct.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok-mapstruct-binding</artifactId>
+                                <version>0.2.0</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
