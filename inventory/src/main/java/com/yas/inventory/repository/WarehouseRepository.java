@@ -19,5 +19,5 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
        WHERE tc.name = ?1
        AND tc.id != ?2
       """)
-    boolean existsByNameNotUpdatingWarehouse(String name, Long id);
+    boolean existsByNameWithDifferentId(String name, Long id);
 }
