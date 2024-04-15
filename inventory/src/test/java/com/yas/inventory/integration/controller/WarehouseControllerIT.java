@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.Rollback;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -116,7 +115,6 @@ public class WarehouseControllerIT extends AbstractControllerIT {
   }
 
   @Test
-  @Rollback
   void test_create_shouldCreateResource_ifProvidedAccessToken() {
     WarehousePostVm body = Instancio.create(WarehousePostVm.class);
     AddressVm addressVm = Instancio.create(AddressVm.class);
