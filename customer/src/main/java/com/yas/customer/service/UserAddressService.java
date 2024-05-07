@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,7 +108,7 @@ public class UserAddressService {
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         List<UserAddress> newUserAddressList = new ArrayList<>();
         for (UserAddress userAddress : userAddressList) {
-            if (userAddress.getAddressId() == id) {
+            if (Objects.equals(userAddress.getAddressId(), id)) {
                 userAddress.setIsActive(true);
             } else {
                 userAddress.setIsActive(false);
