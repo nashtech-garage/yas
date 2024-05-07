@@ -1,6 +1,5 @@
 package com.yas.tax.service;
 
-import com.yas.tax.exception.DuplicatedException;
 import com.yas.tax.exception.NotFoundException;
 import com.yas.tax.model.TaxRate;
 import com.yas.tax.repository.TaxClassRepository;
@@ -135,20 +134,16 @@ public class TaxRateService {
       //Call location service to get country names and state or province name by list of state or province ids
       List<StateOrProvinceAndCountryGetNameVm> stateOrProvinceAndCountryGetNameVms = locationService.getStateOrProvinceAndCountryNames(stateOrProvinceIds);
       taxRates.forEach(taxRate -> {
-        StateOrProvinceAndCountryGetNameVm stateOrProvinceAndCountryGetNameVm = stateOrProvinceAndCountryGetNameVms.stream()
-              .filter(x -> x.stateOrProvinceId().equals(taxRate.getStateOrProvinceId()))
-              .findAny()
-              .orElse(null);
+        stateOrProvinceAndCountryGetNameVms.stream()
+                .filter(x -> x.stateOrProvinceId().equals(taxRate.getStateOrProvinceId()))
+                .findAny().ifPresent(stateOrProvinceAndCountryGetNameVm -> taxRateGetDetailVms.add(new TaxRateGetDetailVm(
+                        taxRate.getId(),
+                        taxRate.getRate(),
+                        taxRate.getZipCode(),
+                        taxRate.getTaxClass().getName(),
+                        stateOrProvinceAndCountryGetNameVm.stateOrProvinceName(),
+                        stateOrProvinceAndCountryGetNameVm.countryName())));
 
-        if(stateOrProvinceAndCountryGetNameVm != null) {
-          taxRateGetDetailVms.add(new TaxRateGetDetailVm(
-                  taxRate.getId(),
-                  taxRate.getRate(),
-                  taxRate.getZipCode(),
-                  taxRate.getTaxClass().getName(),
-                  stateOrProvinceAndCountryGetNameVm.stateOrProvinceName(),
-                  stateOrProvinceAndCountryGetNameVm.countryName()));
-        }
       });
     }
 

@@ -841,10 +841,9 @@ public class ProductService {
         List<Long> productIds = productQuantityPostVms.stream().map(ProductQuantityPostVm::productId).toList();
         List<Product> products = productRepository.findAllByIdIn(productIds);
         products.parallelStream().forEach(product -> {
-            ProductQuantityPostVm productQuantityPostVm = productQuantityPostVms.parallelStream()
-                    .filter(productPostVm -> product.getId().equals(productPostVm.productId())).findFirst().get();
-
-            product.setStockQuantity(productQuantityPostVm.stockQuantity());
+            Optional<ProductQuantityPostVm> productQuantityPostVmOptional = productQuantityPostVms.parallelStream()
+                    .filter(productPostVm -> product.getId().equals(productPostVm.productId())).findFirst();
+            productQuantityPostVmOptional.ifPresent(productQuantityPostVm -> product.setStockQuantity(productQuantityPostVm.stockQuantity()));
         });
 
         productRepository.saveAll(products);
