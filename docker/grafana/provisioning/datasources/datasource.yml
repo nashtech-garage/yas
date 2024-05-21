@@ -7,6 +7,9 @@ datasources:
       access: proxy
       url: http://prometheus:9090
       editable: false
+      jsonData:
+        httpMethod: GET
+      version: 1
       # jsonData:
       #   httpMethod: POST
       #   exemplarTraceIdDestinations:
@@ -30,6 +33,8 @@ datasources:
           httpMethod: GET
           tracesToLogs:
               datasourceUid: 'loki'
+          serviceMap:
+            datasourceUid: 'prometheus'
     - name: Loki
       type: loki
       uid: loki

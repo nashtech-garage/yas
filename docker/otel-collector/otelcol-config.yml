@@ -9,6 +9,17 @@ receivers:
           allowed_origins:
             - "http://*"
             - "https://*"
+
+connectors:
+  servicegraph:
+    latency_histogram_buckets: [100ms, 250ms, 1s, 5s, 10s]
+    dimensions:
+      - dimension-1
+      - dimension-2
+    store:
+      ttl: 2s
+      max_items: 20
+
 exporters:
   debug:
     verbosity: detailed
@@ -72,9 +83,9 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
+      exporters: [otlp, servicegraph]
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, servicegraph]
       processors: [transform, batch]
       exporters: [prometheus]
     logs:
