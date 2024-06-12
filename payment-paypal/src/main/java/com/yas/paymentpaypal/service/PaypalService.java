@@ -23,7 +23,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class PaypalService {
     private final PayPalHttpClient payPalHttpClient;
-    private final PaymentMessageService paymentMessageService;
     private final PaymentService paymentService;
 
     @Value("${yas.public.url}/capture")
