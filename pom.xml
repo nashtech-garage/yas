@@ -30,7 +30,6 @@
         <module>search</module>
         <module>storefront-bff</module>
         <module>tax</module>
-        <module>saga</module>
     </modules>
 
     <properties>

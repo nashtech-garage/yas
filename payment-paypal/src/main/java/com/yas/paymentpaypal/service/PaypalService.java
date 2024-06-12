@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 public class PaypalService {
     private final PayPalHttpClient payPalHttpClient;
     private final PaymentMessageService paymentMessageService;
+    private final PaymentService paymentService;
 
     @Value("${yas.public.url}/capture")
     private String returnUrl;
@@ -31,11 +32,19 @@ public class PaypalService {
     @Value("${yas.public.url}/cancel")
     private String cancelUrl;
 
+    private final BigDecimal maxPay = BigDecimal.valueOf(1000);
+
     public PaypalRequestPayment createPayment(RequestPayment requestPayment) {
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
 
-        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(requestPayment.totalPrice().toString());
+        // Workaround to not exceed limit amount of a transaction
+        BigDecimal totalPrice = requestPayment.totalPrice();
+        if (totalPrice.compareTo(maxPay) == 1 ) {
+            totalPrice = maxPay;
+        }
+
+        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(totalPrice.toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
@@ -79,6 +88,7 @@ public class PaypalService {
                 BigDecimal paymentFee = new BigDecimal(paypalFee);
                 BigDecimal amount = new BigDecimal(capture.amount().value());
 
+
                 CapturedPaymentVm capturedPayment = CapturedPaymentVm.builder()
                         .paymentFee(paymentFee)
                         .gatewayTransactionId(order.id())
@@ -87,7 +97,8 @@ public class PaypalService {
                         .paymentMethod("PAYPAL")
                         .checkoutId(CheckoutIdHelper.getCheckoutId())
                         .build();
-                paymentMessageService.sendCaptureMessage(capturedPayment);
+
+                paymentService.capturePayment(capturedPayment);
                 return capturedPayment;
             }
         } catch (IOException e) {

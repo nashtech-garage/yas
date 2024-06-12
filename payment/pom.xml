@@ -105,11 +105,6 @@
 			<groupId>org.springframework.integration</groupId>
 			<artifactId>spring-integration-kafka</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.yas</groupId>
-			<artifactId>saga</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
 		<dependency>
 			<groupId>net.logstash.logback</groupId>

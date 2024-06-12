@@ -10,7 +10,6 @@ https://github.com/nashtech-garage/yas
 - [Change Data Capture (CDC) with Debezium](#change-data-capture-cdc-with-debezium)
 - [Product searching with Elasticsearch](#product-searching-with-elasticsearch)
 - [Duplicating data to improve performance](#duplicating-data-to-improve-performance)
-- [Saga pattern](#saga-pattern)
 - [Observability](#observability)
 - [Frontend architecture](#frontend-architecture)
 - [Local development with docker compose](#local-development-with-docker-compose)
@@ -194,8 +193,6 @@ Debezium acts as a source connector of Kafka connect. It captures row-level chan
 ## Product searching with Elasticsearch
 
 ## Duplicating data to improve performance
-
-## Saga pattern
 
 ## Observability
 
