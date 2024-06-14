@@ -14,8 +14,6 @@ import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.order.*;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVM;
-import com.yas.saga.order.command.PaymentStatusCommand;
-import com.yas.saga.order.command.UpdateOrderPaymentStatusCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,6 +40,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductService productService;
+    private final CartService cartService;
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
 //        TO-DO: handle check inventory when inventory is complete
@@ -116,7 +115,11 @@ public class OrderService {
 
         //setOrderItems so that we able to return order with orderItems
         order.setOrderItems(orderItems);
-        return OrderVm.fromModel(order);
+        OrderVm orderVm = OrderVm.fromModel(order);
+        productService.subtractProductStockQuantity(orderVm);
+        cartService.deleteCartItem(orderVm);
+        acceptOrder(orderVm.id());
+        return orderVm;
     }
 
     public OrderVm getOrderWithItemsById(long id) {
@@ -154,7 +157,7 @@ public class OrderService {
         List<OrderBriefVm> orderVms = orderPage.getContent()
                 .stream()
                 .map(OrderBriefVm::fromModel)
-                .collect(Collectors.toList());
+                .toList();
 
         return new OrderListVm(orderVms, orderPage.getTotalElements(), orderPage.getTotalPages());
     }
@@ -188,18 +191,24 @@ public class OrderService {
             .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, "of checkoutId " + checkoutId));
     }
 
-    public Order updateOrderPaymentStatus(UpdateOrderPaymentStatusCommand command) {
+    public PaymentOrderStatusVm updateOrderPaymentStatus(PaymentOrderStatusVm paymentOrderStatusVm) {
         var order = this.orderRepository
-            .findById(command.orderId())
-            .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, command.orderId()));
+            .findById(paymentOrderStatusVm.orderId())
+            .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, paymentOrderStatusVm.orderId()));
 
-        order.setPaymentId(command.paymentId());
-        PaymentStatusCommand paymentStatus = command.paymentStatus();
-        order.setPaymentStatus(EPaymentStatus.valueOf(paymentStatus.name()));
-        if (PaymentStatusCommand.COMPLETED.equals(paymentStatus)) {
+        order.setPaymentId(paymentOrderStatusVm.paymentId());
+        String paymentStatus = paymentOrderStatusVm.paymentStatus();
+        order.setPaymentStatus(EPaymentStatus.valueOf(paymentStatus));
+        if (EPaymentStatus.COMPLETED.name().equals(paymentStatus)) {
             order.setOrderStatus(EOrderStatus.PAID);
         }
-        return this.orderRepository.save(order);
+        Order result = this.orderRepository.save(order);
+        return PaymentOrderStatusVm.builder()
+                .orderId(result.getId())
+                .orderStatus(result.getOrderStatus().getName())
+                .paymentId(paymentOrderStatusVm.paymentId())
+                .paymentStatus(paymentOrderStatusVm.paymentStatus())
+                .build();
     }
 
     public void rejectOrder(Long orderId, String rejectReason) {

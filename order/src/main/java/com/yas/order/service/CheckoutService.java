@@ -4,14 +4,15 @@ import com.yas.order.exception.Forbidden;
 import com.yas.order.exception.NotFoundException;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
+import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.ECheckoutState;
 import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
-import com.yas.saga.order.command.UpdateCheckoutStatusCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import static com.yas.order.utils.Constants.ERROR_CODE.CHECKOUT_NOT_FOUND;
 public class CheckoutService {
     private final CheckoutRepository checkoutRepository;
     private final CheckoutItemRepository checkoutItemRepository;
+    private final OrderService orderService;
 
     public CheckoutVm createCheckout(CheckoutPostVm checkoutPostVm) {
         UUID uuid = UUID.randomUUID();
@@ -71,12 +73,12 @@ public class CheckoutService {
         return CheckoutVm.fromModel(checkout);
     }
 
-    public Checkout updateCheckoutStatus(UpdateCheckoutStatusCommand command) {
-        return this.checkoutRepository.findById(command.checkoutId())
-            .map( checkout -> {
-                checkout.setCheckoutState(ECheckoutState.valueOf(command.checkoutStatus().name()));
-                return checkoutRepository.save(checkout);
-            })
-            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, command.checkoutId()));
+    public Long updateCheckoutStatus(CheckoutStatusPutVm checkoutStatusPutVm) {
+        Checkout checkout = checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
+                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
+        checkout.setCheckoutState(ECheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
+        checkoutRepository.save(checkout);
+        Order order = orderService.findOrderByCheckoutId(checkoutStatusPutVm.checkoutId());
+        return order.getId();
     }
 }

@@ -88,7 +88,7 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
             - TokenRelay=
-        - id: api_rating_localo
+        - id: api_rating_local
           uri: http://localhost:8089
           #          uri: http://api.yas.local
           predicates:
@@ -96,7 +96,7 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
             - TokenRelay=
-        - id: api
+        - id: api_order_local
           uri: http://localhost:8085
           #uri: http://api.yas.local
           predicates:
@@ -104,7 +104,15 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
             - TokenRelay=
-        - id: api
+        - id: api_payment_paypal_local
+          uri: http://localhost:8093
+          #uri: http://api.yas.local
+          predicates:
+            - Path=/api/payment-paypal/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - TokenRelay=
+        - id: api_payment_local
           uri: http://localhost:8081
           #uri: http://api.yas.local
           predicates:

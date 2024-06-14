@@ -183,4 +183,14 @@ public class ProductController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping(path = "/backoffice/products/subtract-quantity", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Updated"),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> subtractProductQuantity(@Valid @RequestBody List<ProductQuantityPutVm> productQuantityPutVm) {
+        productService.subtractStockQuantity(productQuantityPutVm);
+        return ResponseEntity.noContent().build();
+    }
 }
