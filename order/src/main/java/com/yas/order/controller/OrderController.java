@@ -21,7 +21,6 @@ public class OrderController {
 
     @PostMapping("/storefront/orders")
     public ResponseEntity<OrderVm> createOrder(@Valid @RequestBody OrderPostVm orderPostVm) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         OrderVm orderVm = orderService.createOrder(orderPostVm);
         return ResponseEntity.ok(orderVm);
     }

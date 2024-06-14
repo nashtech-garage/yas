@@ -157,7 +157,7 @@ public class OrderService {
         List<OrderBriefVm> orderVms = orderPage.getContent()
                 .stream()
                 .map(OrderBriefVm::fromModel)
-                .collect(Collectors.toList());
+                .toList();
 
         return new OrderListVm(orderVms, orderPage.getTotalElements(), orderPage.getTotalPages());
     }
@@ -199,17 +199,16 @@ public class OrderService {
         order.setPaymentId(paymentOrderStatusVm.paymentId());
         String paymentStatus = paymentOrderStatusVm.paymentStatus();
         order.setPaymentStatus(EPaymentStatus.valueOf(paymentStatus));
-        if (EPaymentStatus.COMPLETED.equals(paymentStatus)) {
+        if (EPaymentStatus.COMPLETED.name().equals(paymentStatus)) {
             order.setOrderStatus(EOrderStatus.PAID);
         }
         Order result = this.orderRepository.save(order);
-        PaymentOrderStatusVm orderStatusVm = PaymentOrderStatusVm.builder()
+        return PaymentOrderStatusVm.builder()
                 .orderId(result.getId())
                 .orderStatus(result.getOrderStatus().getName())
                 .paymentId(paymentOrderStatusVm.paymentId())
                 .paymentStatus(paymentOrderStatusVm.paymentStatus())
                 .build();
-        return orderStatusVm;
     }
 
     public void rejectOrder(Long orderId, String rejectReason) {

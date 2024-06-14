@@ -74,7 +74,7 @@ public class CheckoutService {
     }
 
     public Long updateCheckoutStatus(CheckoutStatusPutVm checkoutStatusPutVm) {
-        Checkout checkout = this.checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
+        this.checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
             .map( checkoutDB-> {
                 checkoutDB.setCheckoutState(ECheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
                 return checkoutRepository.save(checkoutDB);
