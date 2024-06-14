@@ -74,12 +74,10 @@ public class CheckoutService {
     }
 
     public Long updateCheckoutStatus(CheckoutStatusPutVm checkoutStatusPutVm) {
-        this.checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
-            .map( checkoutDB-> {
-                checkoutDB.setCheckoutState(ECheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
-                return checkoutRepository.save(checkoutDB);
-            })
-            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
+        Checkout checkout = checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
+                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
+        checkout.setCheckoutState(ECheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
+        checkoutRepository.save(checkout);
         Order order = orderService.findOrderByCheckoutId(checkoutStatusPutVm.checkoutId());
         return order.getId();
     }
