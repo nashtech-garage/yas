@@ -39,7 +39,7 @@ public class PaypalService {
 
         // Workaround to not exceed limit amount of a transaction
         BigDecimal totalPrice = requestPayment.totalPrice();
-        if (totalPrice.compareTo(maxPay) == 1 ) {
+        if (totalPrice.compareTo(maxPay) > 0 ) {
             totalPrice = maxPay;
         }
 

@@ -22,7 +22,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
-                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/actuator/prometheus", "/actuator/health/**",
                             "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
