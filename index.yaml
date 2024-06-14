@@ -291,6 +291,20 @@ entries:
   yas-configuration:
   - apiVersion: v2
     appVersion: 1.1.0
+    created: "2024-06-14T04:58:46.76649843Z"
+    dependencies:
+    - name: reloader
+      repository: https://stakater.github.io/stakater-charts
+      version: 1.0.29
+    description: A Helm chart for Kubernetes
+    digest: ffa5e3398bbfb526c40020e65c3f13ef020c31ee7a292dd4094dbd2f76b42869
+    name: yas-configuration
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/yas-configuration-0.4.0/yas-configuration-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 1.1.0
     created: "2023-07-11T06:41:34.587778459Z"
     dependencies:
     - name: reloader
@@ -303,4 +317,4 @@ entries:
     urls:
     - https://github.com/nashtech-garage/yas/releases/download/yas-configuration-0.1.0/yas-configuration-0.1.0.tgz
     version: 0.1.0
-generated: "2023-07-11T06:41:34.587784559Z"
+generated: "2024-06-14T04:58:46.76653579Z"
