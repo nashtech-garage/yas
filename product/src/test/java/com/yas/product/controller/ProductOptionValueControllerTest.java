@@ -26,9 +26,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(classes = ProductApplication.class)
-@AutoConfigureMockMvc
-class ProductOptionValueControllerTest {
+class ProductOptionValueControllerTest extends BaseControllerTest {
     @Autowired
     private ProductOptionValueRepository productOptionValueRepository;
     @Autowired
@@ -38,16 +36,13 @@ class ProductOptionValueControllerTest {
     private ProductOptionValue productOptionValue;
     private ProductOption productOption;
     private Product product;
-    @Autowired
-    private WebTestClient webTestClient;
-    private final String USERNAME = "admin";
-    private final String ROLE = "ADMIN";
     private final String STORE_FRONT_URL = "/storefront/product-option-values";
     private final String BACK_OFFICE_URL = "/backoffice/product-option-values";
     private Long invalidId = 9999L;
 
     @BeforeEach
     void setup() {
+        super.setup();
         product = Product.builder()
                 .name(String.format("product"))
                 .slug(String.format("slug"))

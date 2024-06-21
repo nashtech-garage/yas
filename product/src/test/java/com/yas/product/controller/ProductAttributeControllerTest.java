@@ -1,9 +1,5 @@
 package com.yas.product.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yas.product.ProductApplication;
-import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeGroup;
@@ -12,8 +8,6 @@ import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.repository.ProductAttributeRepository;
 import com.yas.product.repository.ProductAttributeValueRepository;
 import com.yas.product.repository.ProductRepository;
-import com.yas.product.viewmodel.category.CategoryGetDetailVm;
-import com.yas.product.viewmodel.category.CategoryGetVm;
 import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributePostVm;
@@ -21,28 +15,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = ProductApplication.class)
-@AutoConfigureMockMvc
-class ProductAttributeControllerTest {
+class ProductAttributeControllerTest extends BaseControllerTest {
 
     @Autowired
     private ProductAttributeRepository productAttributeRepository;
@@ -52,18 +36,15 @@ class ProductAttributeControllerTest {
     private ProductRepository productRepository;
     @Autowired
     private ProductAttributeValueRepository productAttributeValueRepository;
-    @Autowired
-    private WebTestClient webTestClient;
     private Long productAttributeId;
-    private final String USERNAME = "admin";
-    private final String ROLE = "ADMIN";
     private final String BACK_OFFICE_URL = "/backoffice/product-attribute";
     private ProductAttribute productAttribute;
     private ProductAttributeGroup productAttributeGroup;
     private Long invalidId = 9999L;
 
     @BeforeEach
-    void setUp(){
+    void setup(){
+        super.setup();
         productAttributeGroup = new ProductAttributeGroup();
         productAttributeGroup.setName("Computer");
         productAttributeGroup = productAttributeGroupRepository.save(productAttributeGroup);

@@ -1,6 +1,5 @@
 package com.yas.product.controller;
 
-import com.yas.product.ProductApplication;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
@@ -11,38 +10,29 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(classes = ProductApplication.class)
-@AutoConfigureMockMvc
-class CategoryControllerTest {
+class CategoryControllerTest extends BaseControllerTest {
     @Autowired
     private CategoryRepository categoryRepository;
-    @Autowired
-    private WebTestClient webTestClient;
     private Category category;
     private Long categoryId;
-    private final String USERNAME = "admin";
-    private final String ROLE = "ADMIN";
     private final String STORE_FRONT_URL = "/storefront/categories";
     private final String BACK_OFFICE_URL = "/backoffice/categories";
     private final Long invalidId = 9999L;
 
     @BeforeEach
     void setUp() {
+        super.setup();
         category = new Category();
         category.setName("laptop");
         category.setSlug("laptop-slug");

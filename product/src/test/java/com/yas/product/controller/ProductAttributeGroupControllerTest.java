@@ -25,15 +25,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = ProductApplication.class)
-@AutoConfigureMockMvc
-class ProductAttributeGroupControllerTest {
-    @Autowired
-    private WebTestClient webTestClient;
+class ProductAttributeGroupControllerTest extends BaseControllerTest {
     @Autowired
     private ProductAttributeGroupRepository productAttributeGroupRepository;
-    private final String USERNAME = "admin";
-    private final String ROLE = "ADMIN";
     private final String BACK_OFFICE_URL = "/backoffice/product-attribute-groups";
     private ProductAttributeGroup productAttributeGroup1;
     private ProductAttributeGroup productAttributeGroup2;
@@ -42,7 +36,8 @@ class ProductAttributeGroupControllerTest {
     private Long invalidId = 9999L;
 
     @BeforeEach
-    void setUp() {
+    void setup() {
+        super.setup();
         productAttributeGroup1 = new ProductAttributeGroup();
         productAttributeGroup2 = new ProductAttributeGroup();
         productAttributeGroup1.setName("productAttributeGroupName1");

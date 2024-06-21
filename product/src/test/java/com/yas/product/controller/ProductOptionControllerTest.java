@@ -24,21 +24,16 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = ProductApplication.class)
-@AutoConfigureMockMvc
-public class ProductOptionControllerTest {
+public class ProductOptionControllerTest extends BaseControllerTest{
     @Autowired
     private ProductOptionRepository productOptionRepository;
     private ProductOption productOption;
-    @Autowired
-    private WebTestClient webTestClient;
-    private final String USERNAME = "admin";
-    private final String ROLE = "ADMIN";
     private final String BACK_OFFICE_URL = "/backoffice/product-options";
     private Long invalidId = 9999L;
 
     @BeforeEach
-    public void setUp() {
+    void setup() {
+        super.setup();
         productOption = new ProductOption();
         productOption.setName("camera");
         productOption = productOptionRepository.save(productOption);

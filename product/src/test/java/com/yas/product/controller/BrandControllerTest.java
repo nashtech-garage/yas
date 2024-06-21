@@ -1,6 +1,5 @@
 package com.yas.product.controller;
 
-import com.yas.product.ProductApplication;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
 import com.yas.product.repository.BrandRepository;
@@ -12,40 +11,33 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = ProductApplication.class)
-@AutoConfigureMockMvc
-public class BrandControllerTest {
+public class BrandControllerTest extends BaseControllerTest{
     @Autowired
     private BrandRepository brandRepository;
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private WebTestClient webTestClient;
+
     private final Brand brand1 = new Brand();
     private Long brandId;
-    private final String USERNAME = "admin";
-    private final String ROLE = "ADMIN";
+
     private final String STORE_FRONT_URL = "/storefront/brands";
     private final String BACK_OFFICE_URL = "/backoffice/brands";
     private Long invalidId = 9999L;
 
     @BeforeEach
     void setup() {
+        super.setup();
         brand1.setName("iphone13");
         brand1.setSlug("iphone-13");
         brand1.setProducts(List.of());
@@ -76,7 +68,8 @@ public class BrandControllerTest {
     @WithMockUser(username = USERNAME, roles = {ROLE})
     void listBrands_BackOfficeReturnList_Success() {
         EntityExchangeResult<List<BrandVm>> result =
-                webTestClient.get().uri(BACK_OFFICE_URL)
+                webTestClient
+                        .get().uri(BACK_OFFICE_URL)
                         .accept(MediaType.APPLICATION_JSON)
                         .exchange()
                         .expectStatus().isOk()
@@ -119,7 +112,8 @@ public class BrandControllerTest {
     @WithMockUser(username = USERNAME, roles = {ROLE})
     void createBrand_SaveBrandPostVm_Success() {
         BrandPostVm brandPostVm = new BrandPostVm("samsung", "samsung", true);
-        EntityExchangeResult<BrandVm> result = webTestClient.post().uri(BACK_OFFICE_URL)
+        EntityExchangeResult<BrandVm> result = webTestClient
+                .post().uri(BACK_OFFICE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(brandPostVm))
                 .exchange()

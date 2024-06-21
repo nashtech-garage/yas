@@ -30,9 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = ProductApplication.class)
-@AutoConfigureMockMvc
-public class ProductAttributeValueControllerTest {
+public class ProductAttributeValueControllerTest extends BaseControllerTest {
 
     @Autowired
     private ProductAttributeGroupRepository productAttributeGroupRepository;
@@ -42,11 +40,6 @@ public class ProductAttributeValueControllerTest {
     private ProductAttributeRepository productAttributeRepository;
     @Autowired
     private ProductRepository productRepository;
-
-    @Autowired
-    private WebTestClient webTestClient;
-    private final String USERNAME = "admin";
-    private final String ROLE = "ADMIN";
     private final String BACK_OFFICE_URL = "/backoffice/product-attribute-value";
     private Long invalidId = 9999L;
     private ProductAttributeGroup productAttributeGroup;
@@ -55,7 +48,8 @@ public class ProductAttributeValueControllerTest {
     private Product product;
 
     @BeforeEach
-    void Setup() {
+    public void setup() {
+        super.setup();
         productAttributeGroup = new ProductAttributeGroup();
         productAttributeGroup.setName("Computer");
         productAttributeGroup = productAttributeGroupRepository.save(productAttributeGroup);
