@@ -1,156 +1,169 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.product.ProductApplication;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
-import com.yas.product.service.CategoryService;
-import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
 import com.yas.product.viewmodel.category.CategoryPostVm;
+import com.yas.product.viewmodel.error.ErrorVm;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 
-import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SpringBootTest(classes = ProductApplication.class)
+@AutoConfigureMockMvc
 class CategoryControllerTest {
-    CategoryRepository categoryRepository;
-    CategoryService categoryService;
-    CategoryController categoryController;
-    List<Category> categories;
-    Category category;
-    Principal principal;
-    CategoryPostVm categoryPostVm;
-    UriComponentsBuilder uriComponentsBuilder;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private WebTestClient webTestClient;
+    private Category category;
+    private Long categoryId;
+    private final String USERNAME = "admin";
+    private final String ROLE = "ADMIN";
+    private final String STORE_FRONT_URL = "/storefront/categories";
+    private final String BACK_OFFICE_URL = "/backoffice/categories";
+    private final Long invalidId = 9999L;
 
     @BeforeEach
     void setUp() {
-        uriComponentsBuilder = mock(UriComponentsBuilder.class);
-        categoryService = mock(CategoryService.class);
-        principal = mock(Principal.class);
-        categories = new ArrayList<>();
-        categoryRepository = mock(CategoryRepository.class);
-        categoryController = new CategoryController(categoryRepository, categoryService);
         category = new Category();
-        category.setId(1L);
-        category.setName("hô hô");
-        category.setSlug("ho-ho");
-        category.setMetaKeyword("ho ho");
-        category.setMetaDescription("ho ho");
+        category.setName("laptop");
+        category.setSlug("laptop-slug");
+        category.setMetaKeyword("keyword");
+        category.setMetaDescription("description");
         category.setDisplayOrder((short) 0);
-        categories.add(category);
-        when(principal.getName()).thenReturn("user");
+        categoryId = categoryRepository.save(category).getId();
+    }
+
+    @AfterEach
+    void tearDown() {
+        categoryRepository.deleteAll();
     }
 
     @Test
-    void ListCategories_ValidListCategoryGetVM_Success() {
-        ImageVm categoryImage = new ImageVm(1L, "url");
-        List<CategoryGetVm> expect = List.of(
-                new CategoryGetVm(1L, "hô hô", "ho-ho", -1, categoryImage)
-        );
-        when(categoryService.getCategories()).thenReturn(expect);
-        ResponseEntity<List<CategoryGetVm>> actual = categoryController.listCategories();
-        assertThat(Objects.requireNonNull(actual.getBody()).size()).isEqualTo(expect.size());
-        assertThat(actual.getBody().get(0).id()).isEqualTo(expect.get(0).id());
+    void getListCategories_StoreFront_Success() {
+        EntityExchangeResult<List<CategoryGetVm>> result =
+                webTestClient.get().uri(STORE_FRONT_URL)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectBodyList(CategoryGetVm.class)
+                        .returnResult();
+        List<CategoryGetVm> brandVms = result.getResponseBody();
+        assertEquals(1, brandVms.size());
+        assertEquals(category.getName(), brandVms.get(0).name());
+        assertEquals(category.getSlug(), brandVms.get(0).slug());
     }
 
     @Test
-    void getCategory_NotFoundCategoryGetDetailVM_ThrowNotFoundException() {
-        when(categoryService.getCategoryById(2L)).thenThrow(NotFoundException.class);
-        assertThrows(NotFoundException.class, () -> categoryController.getCategory(2L));
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void getListCategories_Backoffice_Success() {
+        EntityExchangeResult<List<CategoryGetVm>> result =
+                webTestClient.get().uri(BACK_OFFICE_URL).accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(CategoryGetVm.class)
+                .returnResult();
+        List<CategoryGetVm> categoryGetVms = result.getResponseBody();
+        assertEquals(1, categoryGetVms.size());
+        assertEquals(category.getName(), categoryGetVms.get(0).name());
+        assertEquals(category.getSlug(), categoryGetVms.get(0).slug());
     }
 
     @Test
+    @WithMockUser(username = USERNAME, roles = {ROLE})
+    void getCategory_NotFoundCategoryGetDetailVM_404NotFound() {
+        ErrorVm errorVmExpected = new ErrorVm("404 NOT_FOUND", "Not Found", "Category 9999 is not found", Collections.emptyList());
+        webTestClient.get().uri(BACK_OFFICE_URL + "/{id}", invalidId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
+    }
+
+    @Test
+    @WithMockUser(username = USERNAME, roles = {ROLE})
     void getCategory_ValidCategoryGetDetailVM_Success() {
-        CategoryGetDetailVm expect = CategoryGetDetailVm.fromModel(category);
-        when(categoryService.getCategoryById(1L)).thenReturn(expect);
-        ResponseEntity<CategoryGetDetailVm> actual = categoryController.getCategory(1L);
-        assertEquals(Objects.requireNonNull(actual.getBody()).Id(), expect.Id());
+        EntityExchangeResult<CategoryGetDetailVm> result =
+                webTestClient.get().uri(BACK_OFFICE_URL + "/{id}", categoryId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectBody(CategoryGetDetailVm.class)
+                        .returnResult();
+        CategoryGetDetailVm categoryGetDetailVm = result.getResponseBody();
+        assertNotNull(categoryGetDetailVm);
+        assertEquals(category.getName(), categoryGetDetailVm.name());
+        assertEquals(category.getSlug(), categoryGetDetailVm.slug());
     }
 
     @Test
+    @WithMockUser(username = USERNAME, roles = {ROLE})
     void createCategory_ValidCategoryWithOutParentId_Success() {
-        categoryPostVm = new CategoryPostVm(
-                "name",
-                "slug",
-                "description",
-                null,
-                "",
-                "",
-                (short) 0,
-                false,
-                1L
-        );
-        Category savedCategory = mockSavedCategory();
-        when(categoryService.create(any())).thenReturn(savedCategory);
-        UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
-        UriComponents uriComponents = mock(UriComponents.class);
-        when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
-        when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
-        categoryController.createCategory(categoryPostVm, uriComponentsBuilder, principal);
-        assertThat(savedCategory.getName()).isEqualTo(categoryPostVm.name());
-    }
-
-    private Category mockSavedCategory() {
-        Category savedCategory = new Category();
-        savedCategory.setName(categoryPostVm.name());
-        savedCategory.setId(1L);
-        savedCategory.setDisplayOrder((short) 1);
-
-        return savedCategory;
+        CategoryPostVm categoryPostVm = new CategoryPostVm(
+                "laptop2", "laptop-slug2", "description2",
+                null, "", "", (short) 0, true, 1L);
+        EntityExchangeResult<CategoryGetDetailVm> result = webTestClient.post().uri(BACK_OFFICE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(categoryPostVm))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(CategoryGetDetailVm.class)
+                .returnResult();
+        CategoryGetDetailVm categoryGetDetailVm = result.getResponseBody();
+        assertNotNull(categoryGetDetailVm);
+        assertEquals(categoryPostVm.name(), categoryGetDetailVm.name());
+        assertEquals(categoryPostVm.slug(), categoryGetDetailVm.slug());
     }
 
     @Test
+    @WithMockUser(username = USERNAME, roles = {ROLE})
     void createCategory_ValidCategoryWithParentId_Success() {
-        categoryPostVm = new CategoryPostVm(
-                "name",
-                "slug",
-                "description",
-                1L,
-                "",
-                "",
-                (short) 0,
-                false,
-                1L
-        );
-        Category savedCategory = mockSavedCategory();
-        when(categoryService.create(any())).thenReturn(savedCategory);
-        UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
-        UriComponents uriComponents = mock(UriComponents.class);
-        when(uriComponentsBuilder.replacePath("/categories/{id}")).thenReturn(newUriComponentsBuilder);
-        when(newUriComponentsBuilder.buildAndExpand(savedCategory.getId())).thenReturn(uriComponents);
-        categoryController.createCategory(categoryPostVm
-                , uriComponentsBuilder, principal);
-        assertThat(savedCategory.getName()).isEqualTo(categoryPostVm.name());
+        CategoryPostVm categoryPostVm = new CategoryPostVm(
+                "laptop2", "laptop-slug2", "description2",
+                categoryId, "", "", (short) 0, true, 1L);
+        EntityExchangeResult<CategoryGetDetailVm> result = webTestClient.post().uri(BACK_OFFICE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(categoryPostVm))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(CategoryGetDetailVm.class)
+                .returnResult();
+        CategoryGetDetailVm categoryGetDetailVm = result.getResponseBody();
+        assertNotNull(categoryGetDetailVm);
+        assertEquals(categoryPostVm.name(), categoryGetDetailVm.name());
+        assertEquals(categoryPostVm.slug(), categoryGetDetailVm.slug());
     }
 
     @Test
-    void createCategory_ValidCategoryWithNotFoundParentId_ThrowNotFoundException() {
-        categoryPostVm = new CategoryPostVm(
-                "name",
-                "slug",
-                "description",
-                2L,
-                "",
-                "",
-                (short) 0,
-                false,
-                1L
-        );
-        when(categoryService.create(any())).thenThrow(BadRequestException.class);
-        assertThrows(BadRequestException.class, () -> categoryController.createCategory(categoryPostVm
-                , uriComponentsBuilder, principal));
+    @WithMockUser(username = USERNAME, roles = {ROLE})
+    void createCategory_ValidCategoryWithNotFoundParentId_400BadRequest() {
+        CategoryPostVm categoryPostVm = new CategoryPostVm(
+                "laptop2", "laptop-slug2", "description2",
+                9999L, "", "", (short) 0, true, 1L);
+        ErrorVm errorVmExpected = new ErrorVm("400 BAD_REQUEST", "Bad Request", "Parent category 9999 is not found", Collections.emptyList());
+        webTestClient.post().uri(BACK_OFFICE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(categoryPostVm))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 }

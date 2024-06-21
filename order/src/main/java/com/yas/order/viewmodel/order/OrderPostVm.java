@@ -5,10 +5,12 @@ import com.yas.order.model.enumeration.EPaymentMethod;
 import com.yas.order.model.enumeration.EPaymentStatus;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Builder
 public record OrderPostVm(
         String checkoutId,
         String email,

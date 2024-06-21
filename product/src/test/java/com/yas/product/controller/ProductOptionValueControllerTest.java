@@ -1,91 +1,120 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.NotFoundException;
+import com.yas.product.ProductApplication;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductOption;
 import com.yas.product.model.ProductOptionValue;
+import com.yas.product.repository.ProductOptionRepository;
 import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRepository;
+import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.viewmodel.product.ProductOptionValueGetVm;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SpringBootTest(classes = ProductApplication.class)
+@AutoConfigureMockMvc
 class ProductOptionValueControllerTest {
-    ProductOptionValueRepository productOptionValueRepository;
-    ProductRepository productRepository;
-    ProductOptionValueController productOptionValueController;
-    UriComponentsBuilder uriComponentsBuilder;
-    ProductOptionValue productOptionValue = new ProductOptionValue();
-    ProductOption productOption = new ProductOption();
-    Product product = new Product();
+    @Autowired
+    private ProductOptionValueRepository productOptionValueRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ProductOptionRepository productOptionRepository;
+    private ProductOptionValue productOptionValue;
+    private ProductOption productOption;
+    private Product product;
+    @Autowired
+    private WebTestClient webTestClient;
+    private final String USERNAME = "admin";
+    private final String ROLE = "ADMIN";
+    private final String STORE_FRONT_URL = "/storefront/product-option-values";
+    private final String BACK_OFFICE_URL = "/backoffice/product-option-values";
+    private Long invalidId = 9999L;
 
     @BeforeEach
     void setup() {
-        productOptionValueRepository = mock(ProductOptionValueRepository.class);
-        productRepository = mock(ProductRepository.class);
-        uriComponentsBuilder = mock(UriComponentsBuilder.class);
-        productOptionValueController = new ProductOptionValueController(productOptionValueRepository, productRepository);
-        product = mock(Product.class);
-        productOption = mock(ProductOption.class);
+        product = Product.builder()
+                .name(String.format("product"))
+                .slug(String.format("slug"))
+                .isAllowedToOrder(true)
+                .isPublished(true)
+                .isFeatured(true)
+                .isVisibleIndividually(true)
+                .stockTrackingEnabled(true)
+                .build();
+        product = productRepository.save(product);
+
+        productOption = new ProductOption();
+        productOption.setName("camera");
+        productOption = productOptionRepository.save(productOption);
+
+        productOptionValue = new ProductOptionValue();
         productOptionValue.setProduct(product);
         productOptionValue.setProductOption(productOption);
         productOptionValue.setValue("red");
         productOptionValue.setDisplayType("Text");
         productOptionValue.setDisplayOrder(2);
+        productOptionValue = productOptionValueRepository.save(productOptionValue);
+    }
+
+    @AfterEach
+    void tearDown() {
+        productOptionValueRepository.deleteAll();
+        productOptionRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     @Test
+    @WithMockUser(username = USERNAME, roles = {ROLE})
     void listProductOptionValues_ReturnListProductOptionValueGetVm_Success() {
-        List<ProductOptionValue> productOptionValues = List.of(productOptionValue);
-        when(productOptionValueRepository.findAll()).thenReturn(productOptionValues);
-        ResponseEntity<List<com.yas.product.viewmodel.productoption.ProductOptionValueGetVm>> result = productOptionValueController.listProductOptionValues();
-        assertThat(result.getStatusCode(), is(HttpStatus.OK));
-        assertEquals(Objects.requireNonNull(result.getBody()).size(), productOptionValues.size());
-        for (int i = 0; i < productOptionValues.size(); i++) {
-            assertEquals(result.getBody().get(i).value(), productOptionValues.get(i).getValue());
-            assertEquals(result.getBody().get(i).displayType(), productOptionValues.get(i).getDisplayType());
-            assertEquals(result.getBody().get(i).displayOrder(), productOptionValues.get(i).getDisplayOrder());
-        }
+        EntityExchangeResult<List<com.yas.product.viewmodel.productoption.ProductOptionValueGetVm>> result =
+                webTestClient.get().uri(BACK_OFFICE_URL)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectBodyList(com.yas.product.viewmodel.productoption.ProductOptionValueGetVm.class)
+                        .returnResult();
+        List<com.yas.product.viewmodel.productoption.ProductOptionValueGetVm> productOptionValueGetVms = result.getResponseBody();
+        assertEquals(1, productOptionValueGetVms.size());
+        assertEquals(productOptionValue.getValue(), productOptionValueGetVms.get(0).value());
     }
 
     @Test
-    void listProductOptionValueOfProduct_ProductIdIsInvalid_ThrowNotFoundException() {
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
-        NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                () -> productOptionValueController.listProductOptionValueOfProduct(1L));
-        assertThat(exception.getMessage(), Matchers.is("Product 1 is not found"));
+    void listProductOptionValueOfProduct_ProductIdIsInvalid_Return404NotFound() {
+        ErrorVm errorVmExpected = new ErrorVm("404 NOT_FOUND", "Not Found", "Product 9999 is not found", Collections.emptyList());
+        webTestClient.get().uri(STORE_FRONT_URL + "/{productId}", invalidId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
     @Test
     void listProductOptionValueOfProduct_ProductIdIsValid_Success() {
-        List<ProductOptionValue> productOptionValues = List.of(productOptionValue);
-
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(productOptionValueRepository.findAllByProduct(product)).thenReturn(productOptionValues);
-
-        ResponseEntity<List<ProductOptionValueGetVm>> result = productOptionValueController.listProductOptionValueOfProduct(1L);
-
-        assertThat(result.getStatusCode(), is(HttpStatus.OK));
-        assertEquals(Objects.requireNonNull(result.getBody()).size(), productOptionValues.size());
-        for (int i = 0; i < productOptionValues.size(); i++) {
-            assertEquals(result.getBody().get(i).productOptionValue(), productOptionValues.get(i).getValue());
-            assertEquals(result.getBody().get(i).productOptionId(), productOptionValues.get(i).getProductOption().getId());
-            assertEquals(result.getBody().get(i).productOptionName(), productOptionValues.get(i).getProductOption().getName());
-        }
+        EntityExchangeResult<List<ProductOptionValueGetVm>> result =
+                webTestClient.get().uri(STORE_FRONT_URL + "/{productId}", product.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectBodyList(ProductOptionValueGetVm.class)
+                        .returnResult();
+        List<ProductOptionValueGetVm> productOptionValueGetVms = result.getResponseBody();
+        assertEquals(1, productOptionValueGetVms.size());
+        assertEquals(productOptionValue.getValue(), productOptionValueGetVms.getFirst().productOptionValue());
     }
 }

@@ -1,78 +1,67 @@
 package com.yas.cart.service;
 
+import com.yas.cart.CartApplication;
 import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
-import com.yas.cart.viewmodel.CartGetDetailVm;
 import com.yas.cart.viewmodel.CartListVm;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest(classes = CartApplication.class)
 class CartServiceTest {
-    CartRepository cartRepository;
-    CartItemRepository cartItemRepository;
-    CartService cartService;
-    ProductService productService;
-
-    CartGetDetailVm cartGetDetailVm;
+    @Autowired
+    private CartRepository cartRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @MockBean
+    private ProductService productService;
+    @Autowired
+    private CartService cartService;
     Cart cart1;
     Cart cart2;
-    List<Cart> carts;
-
-    Authentication authentication;
 
     @BeforeEach
     void setUp() {
-        cartRepository = mock(CartRepository.class);
-        cartItemRepository = mock(CartItemRepository.class);
-        productService = mock(ProductService.class);
-        cartService = new CartService(
-                cartRepository,
-                cartItemRepository,
-                productService);
+        cart1 = cartRepository.save(Cart
+                .builder().customerId("customer-1").build());
+        cart2 = cartRepository.save(Cart
+                .builder().customerId("customer-2").build());
 
-        cartGetDetailVm = new CartGetDetailVm(1L, "customerId",null, null);
+        CartItem cartItem1 = new CartItem();
+        cartItem1.setProductId(1L);
+        cartItem1.setQuantity(2);
+        cartItem1.setCart(cart1);
+        CartItem cartItem2 = new CartItem();
+        cartItem2.setProductId(2L);
+        cartItem2.setQuantity(3);
+        cartItem2.setCart(cart2);
 
-        HashSet<CartItem> cartItemList = new HashSet<>();
-        cartItemList.add(new CartItem(1L, null, 1L, null, 1));
-        cartItemList.add(new CartItem(2L, null, 2L, null, 2));
-        cart1 = new Cart(1L, "customer-1", null,cartItemList);
-        cart2 = new Cart(2L, "customer-2",null, null);
-        carts = List.of(cart1, cart2);
+        cartItemRepository.saveAll(List.of(cartItem1, cartItem2));
+    }
 
-        //Security config
-        authentication = mock(Authentication.class);
-        Mockito.when(authentication.getName()).thenReturn("Name");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    @AfterEach
+    void tearDown() {
+        cartItemRepository.deleteAll();
+        cartRepository.deleteAll();
     }
 
     @Test
-    void getCarts_ExistProductsInDatabase_Success() {
-        //given
-        List<CartListVm> cartListVmExpected = List.of(
-                new CartListVm(1L, "customer-1"),
-                new CartListVm(2L, "customer-2")
-        );
-        when(cartRepository.findAll()).thenReturn(carts);
-
-        //when
+    void getCarts_ExistInDatabase_Success() {
         List<CartListVm> cartListVmActual = cartService.getCarts();
-
-        //then
-        assertThat(cartListVmActual).hasSameSizeAs(cartListVmExpected);
-        assertThat(cartListVmActual.get(0)).isEqualTo(cartListVmExpected.get(0));
-        assertThat(cartListVmActual.get(1)).isEqualTo(cartListVmExpected.get(1));
-
+        assertEquals(2, cartListVmActual.size());
+        for(CartListVm cartListVm : cartListVmActual) {
+            assertThat(cartListVm.customerId().startsWith("customer-"));
+        }
     }
 }

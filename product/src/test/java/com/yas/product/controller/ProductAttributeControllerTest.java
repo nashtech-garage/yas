@@ -1,165 +1,249 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yas.product.ProductApplication;
+import com.yas.product.model.Brand;
+import com.yas.product.model.Product;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.repository.ProductAttributeRepository;
+import com.yas.product.repository.ProductAttributeValueRepository;
+import com.yas.product.repository.ProductRepository;
+import com.yas.product.viewmodel.category.CategoryGetDetailVm;
+import com.yas.product.viewmodel.category.CategoryGetVm;
+import com.yas.product.viewmodel.error.ErrorVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributePostVm;
-import com.yas.product.service.ProductAttributeService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.reactive.function.BodyInserters;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SpringBootTest(classes = ProductApplication.class)
+@AutoConfigureMockMvc
 class ProductAttributeControllerTest {
 
-    ProductAttributeRepository productAttributeRepository;
-    ProductAttributeService productAttributeService;
-    ProductAttributeController productAttributeController;
-    UriComponentsBuilder uriComponentsBuilder;
-    Principal principal;
-    ProductAttribute productAttribute = new ProductAttribute();
-
-    ProductAttributeGroup productAttributeGroup = new ProductAttributeGroup();
+    @Autowired
+    private ProductAttributeRepository productAttributeRepository;
+    @Autowired
+    private ProductAttributeGroupRepository productAttributeGroupRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ProductAttributeValueRepository productAttributeValueRepository;
+    @Autowired
+    private WebTestClient webTestClient;
+    private Long productAttributeId;
+    private final String USERNAME = "admin";
+    private final String ROLE = "ADMIN";
+    private final String BACK_OFFICE_URL = "/backoffice/product-attribute";
+    private ProductAttribute productAttribute;
+    private ProductAttributeGroup productAttributeGroup;
+    private Long invalidId = 9999L;
 
     @BeforeEach
     void setUp(){
-        productAttributeRepository = mock(ProductAttributeRepository.class);
-        productAttributeService = mock(ProductAttributeService.class);
-        uriComponentsBuilder = mock(UriComponentsBuilder.class);
-        principal = mock(Principal.class);
-        productAttributeController = new ProductAttributeController(productAttributeRepository,
-                productAttributeService);
-        productAttributeGroup.setId(1L);
+        productAttributeGroup = new ProductAttributeGroup();
         productAttributeGroup.setName("Computer");
-        productAttribute.setId(1L);
+        productAttributeGroup = productAttributeGroupRepository.save(productAttributeGroup);
+        productAttribute = new ProductAttribute();
         productAttribute.setName("Ram");
         productAttribute.setProductAttributeGroup(productAttributeGroup);
+        productAttribute = productAttributeRepository.save(productAttribute);
+        productAttributeId = productAttribute.getId();
+    }
+
+    @AfterEach
+    void tearDown() {
+        productAttributeValueRepository.deleteAll();
+        productRepository.deleteAll();
+        productAttributeRepository.deleteAll();
+        productAttributeGroupRepository.deleteAll();
     }
 
     @Test
-    void listProductAttributes_ValidListProductAttributeGetVm_Success(){
-        List<ProductAttribute> listProductAttribute = List.of(productAttribute);
-        when(productAttributeRepository.findAll()).thenReturn(listProductAttribute);
-        ResponseEntity<List<ProductAttributeGetVm>> result = productAttributeController.listProductAttributes();
-        assertThat(result.getStatusCode(),is(HttpStatus.OK));
-        assertEquals(Objects.requireNonNull(result.getBody()).size(), listProductAttribute.size());
-        for(int i=0;i<listProductAttribute.size();i++){
-            assertEquals(result.getBody().get(i).id(), listProductAttribute.get(i).getId());
-            assertEquals(result.getBody().get(i).name(), listProductAttribute.get(i).getName());
-        }
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void listProductAttributes_ValidListProductAttributeGetVm_Success() {
+        EntityExchangeResult<List<ProductAttributeGetVm>> result =
+                webTestClient.get().uri(BACK_OFFICE_URL)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectBodyList(ProductAttributeGetVm.class)
+                        .returnResult();
+        List<ProductAttributeGetVm> productAttributeGetVms = result.getResponseBody();
+        assertEquals(1, productAttributeGetVms.size());
+        assertEquals(productAttribute.getName(), productAttributeGetVms.get(0).name());
     }
 
     @Test
-    void getProductAttribute_FinProductAttributeById_ThrowException(){
-        when(productAttributeRepository.findById(1L)).thenReturn(Optional.empty());
-        NotFoundException notFoundException =  Assertions.assertThrows(NotFoundException.class,
-                () -> productAttributeController.getProductAttribute(1L));
-        assertThat(notFoundException.getMessage(),is("Product attribute 1 is not found"));
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void getProductAttribute_FinProductAttributeById_404NotFound() {
+        ErrorVm errorVmExpected = new ErrorVm("404 NOT_FOUND", "Not Found", "Product attribute 9999 is not found", Collections.emptyList());
+        webTestClient.get().uri(BACK_OFFICE_URL + "/{id}", invalidId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
     @Test
-    void getProductAttribute_FindProductAttribute_Success(){
-        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
-        ResponseEntity<ProductAttributeGetVm> result = productAttributeController.getProductAttribute(1L);
-        assertEquals(Objects.requireNonNull(result.getBody()).name(), productAttribute.getName());
-        assertEquals(result.getBody().id(), productAttribute.getId());
-        assertEquals(result.getBody().id(), productAttribute.getId());
-        assertEquals(result.getBody().productAttributeGroup(), productAttribute.getProductAttributeGroup().getName());
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void getProductAttribute_FindProductAttribute_Success() {
+        EntityExchangeResult<ProductAttributeGetVm> result =
+                webTestClient.get().uri(BACK_OFFICE_URL + "/{id}", productAttributeId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectBody(ProductAttributeGetVm.class)
+                        .returnResult();
+        ProductAttributeGetVm productAttributeGetVm = result.getResponseBody();
+        assertNotNull(productAttributeGetVm);
+        assertEquals(productAttribute.getName(), productAttributeGetVm.name());
     }
 
     @Test
-    void createProductAttribute_FindIdProductAttributeGroup_ThrowException(){
-        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("Ram",1L);
-        when(productAttributeService.save(any())).thenThrow(new BadRequestException("Product attribute group 1 is not found"));
-        BadRequestException exception =  Assertions.assertThrows(BadRequestException.class,
-                () -> productAttributeController.createProductAttribute(productAttributePostVm, UriComponentsBuilder.fromPath("/product-attribute/{id}"), principal));
-        assertThat(exception.getMessage(),is("Product attribute group 1 is not found"));
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void createProductAttribute_FindIdProductAttributeGroup_400BadRequest() {
+        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("CPU", 9999L);
+        ErrorVm errorVmExpected = new ErrorVm("400 BAD_REQUEST", "Bad Request", "Product attribute group 9999 is not found", Collections.emptyList());
+        webTestClient.post().uri(BACK_OFFICE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(productAttributePostVm))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
     @Test
-    void createProductAttribute_ValidProductAttributeWithIdProductAttributeGroup_Success(){
-        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("Ram",1L);
-        ProductAttribute savedProductAttribute = new ProductAttribute();
-        savedProductAttribute.setName(productAttributePostVm.name());
-        savedProductAttribute.setId(1L);
-        ProductAttributeGroup group = new ProductAttributeGroup();
-        group.setName("Computer");
-        savedProductAttribute.setProductAttributeGroup(group);
-        when(productAttributeService.save(any())).thenReturn(savedProductAttribute);
-        UriComponentsBuilder newUriComponentsBuilder = mock(UriComponentsBuilder.class);
-        UriComponents uriComponents = mock(UriComponents.class);
-        when(uriComponentsBuilder.replacePath("/product-attribute/{id}")).thenReturn(newUriComponentsBuilder);
-        when(newUriComponentsBuilder.buildAndExpand(savedProductAttribute.getId())).thenReturn(uriComponents);
-        ResponseEntity<ProductAttributeGetVm> result = productAttributeController.createProductAttribute(productAttributePostVm
-                , uriComponentsBuilder, principal);
-        assertEquals(savedProductAttribute.getName(), productAttributePostVm.name());
-        assertEquals(Objects.requireNonNull(result.getBody()).productAttributeGroup() , productAttributeGroup.getName() );
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void createProductAttribute_ValidProductAttributeWithIdProductAttributeGroup_Success() {
+        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("CPU", productAttributeGroup.getId());
+        EntityExchangeResult<ProductAttributeGetVm> result = webTestClient.post().uri(BACK_OFFICE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(productAttributePostVm))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(ProductAttributeGetVm.class)
+                .returnResult();
+        ProductAttributeGetVm productAttributeGetVm = result.getResponseBody();
+        assertNotNull(productAttributeGetVm);
+        assertEquals(productAttributePostVm.name(), productAttributeGetVm.name());
     }
 
     @Test
-    void updateProductAttribute_FindIdProductAttribute_ThrowException(){
-        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("Ram",1L);
-        when(productAttributeService.update(any(), anyLong())).thenThrow(new NotFoundException("Product attribute 1 is not found"));
-        NotFoundException exception =  Assertions.assertThrows(NotFoundException.class,
-                () -> productAttributeController.updateProductAttribute(1L,productAttributePostVm));
-        assertThat(exception.getMessage(),is("Product attribute 1 is not found"));
-    }
-    @Test
-    void updateProductAttribute_FindProductAttributeGroupId_ThrowException(){
-        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("Ram",1L);
-        when(productAttributeService.update(any(), anyLong())).thenThrow(new BadRequestException("Product attribute group 1 is not found"));
-        BadRequestException exception =  Assertions.assertThrows(BadRequestException.class,
-                () -> productAttributeController.updateProductAttribute(1L,productAttributePostVm));
-        assertThat(exception.getMessage(),is("Product attribute group 1 is not found"));
-    }
-    @Test
-    void updateProductAttribute_ValidProductAttributePostVmWithProductAttributeGroupId_Success(){
-        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("Card",1L);
-        ProductAttribute savedProductAttribute = new ProductAttribute();
-        savedProductAttribute.setName(productAttributePostVm.name());
-        when(productAttributeService.update(any(), anyLong())).thenReturn(savedProductAttribute);
-        ResponseEntity<Void> result = productAttributeController.updateProductAttribute(1L,productAttributePostVm);
-        assertEquals(savedProductAttribute.getName(), productAttributePostVm.name());
-        assertThat(result.getStatusCode(),is(HttpStatus.NO_CONTENT));
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void updateProductAttribute_FindIdProductAttribute_404NotFound() {
+        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("CPU", productAttributeGroup.getId());
+        ErrorVm errorVmExpected = new ErrorVm("404 NOT_FOUND", "Not Found", "Product attribute 9999 is not found", Collections.emptyList());
+
+        webTestClient.put().uri(BACK_OFFICE_URL + "/{id}", invalidId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(productAttributePostVm))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 
     @Test
-    void deleteProductAttribute_givenProductAttributeIdValid_thenSuccess(){
-        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
-        ResponseEntity<Void> response = productAttributeController.deleteProductAttribute(1L);
-        verify(productAttributeRepository).deleteById(1L);
-        assertThat(response.getStatusCode(),is(HttpStatus.NO_CONTENT));
+    @WithMockUser(username = USERNAME ,roles= {ROLE})
+    void updateProductAttribute_FindProductAttributeGroupId_400BadRequest() {
+        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("CPU", invalidId);
+        ErrorVm errorVmExpected = new ErrorVm("400 BAD_REQUEST", "Bad Request", "Product attribute group 9999 is not found", Collections.emptyList());
+
+        webTestClient.put().uri(BACK_OFFICE_URL + "/{id}", productAttributeId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(productAttributePostVm))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
+
     }
 
     @Test
-    void deleteProductAttribute_givenProductAttributeIdInvalid_thenThrowNotFoundException(){
-        when(productAttributeRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, ()->productAttributeController.deleteProductAttribute(1L));
+    @WithMockUser(username = USERNAME, roles = {ROLE})
+    void updateProductAttribute_ValidProductAttributePostVmWithProductAttributeGroupId_Success() {
+        ProductAttributePostVm productAttributePostVm = new ProductAttributePostVm("CPU", productAttributeGroup.getId());
+        webTestClient.put().uri(BACK_OFFICE_URL + "/{id}", productAttributeId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(productAttributePostVm))
+                .exchange()
+                .expectStatus().isNoContent();
+        Optional<ProductAttribute> optionalProductAttribute = productAttributeRepository.findById(productAttributeId);
+        assertTrue(optionalProductAttribute.isPresent());
+        assertEquals(productAttributePostVm.name(), optionalProductAttribute.get().getName());
     }
 
     @Test
-    void deleteProductAttribute_givenProductAttributeIdContainProductAttributeValue_thenThrowBadRequestException(){
-        productAttribute.setAttributeValues(List.of(new ProductAttributeValue()));
-        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
-        assertThrows(BadRequestException.class, ()->productAttributeController.deleteProductAttribute(1L));
+    @WithMockUser(username = USERNAME, roles = {ROLE})
+    void deleteProductAttribute_givenProductAttributeIdValid_thenSuccess() {
+        webTestClient.delete().uri(BACK_OFFICE_URL + "/{id}", productAttributeId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNoContent();
+        Optional<ProductAttribute> productAttribute = productAttributeRepository.findById(productAttributeId);
+        assertFalse(productAttribute.isPresent());
+    }
+
+    @Test
+    @WithMockUser(username = USERNAME, roles = {ROLE})
+    void deleteProductAttribute_givenProductAttributeIdInvalid_thenReturn404NotFound() {
+        ErrorVm errorVmExpected = new ErrorVm("404 NOT_FOUND", "Not Found", "Product attribute 9999 is not found", Collections.emptyList());
+
+        webTestClient.delete().uri(BACK_OFFICE_URL + "/{id}", invalidId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
+    }
+
+    @Test
+    @WithMockUser(username = USERNAME, roles = {ROLE})
+    void deleteProductAttribute_givenProductAttributeIdContainProductAttributeValue_thenReturn400BadRequest() throws Exception {
+        Product product = Product.builder()
+                .name(String.format("product"))
+                .slug(String.format("slug"))
+                .isAllowedToOrder(true)
+                .isPublished(true)
+                .isFeatured(true)
+                .isVisibleIndividually(true)
+                .stockTrackingEnabled(true)
+                .build();
+        productRepository.save(product);
+
+        ProductAttributeValue productAttributeValue = new ProductAttributeValue();
+        productAttributeValue.setProduct(product);
+        productAttributeValue.setProductAttribute(productAttribute);
+        productAttributeValueRepository.save(productAttributeValue);
+
+        ErrorVm errorVmExpected = new ErrorVm("400 BAD_REQUEST", "Bad Request",
+                "Please make sure this Product Attribute doesn't exist in any Product Attribute Values", Collections.emptyList());
+
+        webTestClient.delete().uri(BACK_OFFICE_URL + "/{id}", productAttributeId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ErrorVm.class).isEqualTo(errorVmExpected);
     }
 }
