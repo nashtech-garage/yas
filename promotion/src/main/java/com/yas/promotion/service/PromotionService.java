@@ -47,7 +47,7 @@ public class PromotionService {
 
         Page<Promotion> promotionPage;
 
-        promotionPage = promotionRepository.findPromotions(promotionName.trim().toLowerCase(), couponCode.trim().toLowerCase(), startDate, endDate, pageable);
+        promotionPage = promotionRepository.findPromotions(promotionName.trim(), couponCode.trim(), startDate, endDate, pageable);
 
         List<PromotionDetailVm> promotionDetailVmList = promotionPage
                 .getContent()
