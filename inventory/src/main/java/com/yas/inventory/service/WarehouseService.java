@@ -114,7 +114,7 @@ public class WarehouseService {
                 .orElseThrow(() -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
 
         //For the updating case we don't need to check for the Warehouse being updated
-        if (warehouseRepository.existsByNameNotUpdatingWarehouse(warehousePostVm.name(), id)) {
+        if (warehouseRepository.existsByNameWithDifferentId(warehousePostVm.name(), id)) {
             throw new DuplicatedException(MessageCode.NAME_ALREADY_EXITED, warehousePostVm.name());
         }
         warehouse.setName(warehousePostVm.name());
