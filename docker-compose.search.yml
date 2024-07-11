@@ -3,7 +3,7 @@ version: "3.9"
 services:
   search:
     image: ghcr.io/nashtech-garage/yas-search:latest
-    entrypoint: [ "./wait-for-it.sh", "elasticsearch:9200", "--timeout=300", "--", "java", "-jar", "/search-0.0.1-SNAPSHOT.jar" ]
+    entrypoint: [ "./wait-for-it.sh", "elasticsearch:9200", "--timeout=300", "--", "java", "-jar", "/app.jar" ]
     environment:
     - SERVER_SERVLET_CONTEXT_PATH=/search
     - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/search
