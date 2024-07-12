@@ -30,7 +30,9 @@ jobs:
         run: mvn test -pl product -am
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: |
+          ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }} &&
+          (success() || failure())
         with:
           name: Product-Service-Unit-Test-Results
           path: "product/**/surefire-reports/*.xml"
