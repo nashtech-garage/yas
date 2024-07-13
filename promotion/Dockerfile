@@ -1,3 +1,3 @@
 FROM eclipse-temurin:21-jre-alpine
-ADD target/promotion*.jar app.jar
+COPY target/promotion*.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
