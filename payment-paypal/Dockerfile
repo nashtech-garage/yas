@@ -1,3 +1,3 @@
 FROM eclipse-temurin:21-jre-alpine
-ADD target/payment-paypal*.jar app.jar
+COPY target/payment-paypal*.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
