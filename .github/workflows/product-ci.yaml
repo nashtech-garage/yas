@@ -28,15 +28,12 @@ jobs:
         run: mvn clean install -DskipTests -pl product -am
       - name: Run Maven Test
         run: mvn test -pl product -am
-      - name: Unit Test Results
-        uses: dorny/test-reporter@v1
-        if: |
-          ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }} &&
-          (success() || failure())
+      - name: Upload Unit Test Results
+        uses: actions/upload-artifact@v4  # upload test results
+        if: success() || failure()
         with:
-          name: Product-Service-Unit-Test-Results
+          name: product-service-unit-test-results   # artifact name
           path: "product/**/surefire-reports/*.xml"
-          reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
         env:

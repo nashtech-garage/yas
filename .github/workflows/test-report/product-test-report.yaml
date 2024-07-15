@@ -1,0 +1,20 @@
+name: 'product test report'
+on:
+  workflow_run:
+    workflows: ['product service ci'] # runs after product service ci workflow
+    types:
+      - completed
+permissions:
+  contents: read
+  actions: read
+  checks: write
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dorny/test-reporter@v1
+        with:
+          artifact: product-service-unit-test-results # artifact name
+          name: Product-Service-Unit-Test-Results
+          path: 'surefire-reports/*.xml'              # Path to test results (inside artifact .zip)
+          reporter: java-junit                        # Format of test results
