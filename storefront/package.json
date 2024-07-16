@@ -15,7 +15,7 @@
     "bootstrap-icons": "^1.9.1",
     "clsx": "^1.2.1",
     "moment": "^2.29.4",
-    "next": "^13.1.1",
+    "next": "^14.1.1",
     "query-string": "^8.1.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.2",
