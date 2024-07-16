@@ -5,25 +5,25 @@ server {
   resolver 127.0.0.11;
 
   location /media/ {
-	proxy_pass http://media;
+    proxy_pass http://media;
   }
   location /swagger-ui/ {
-	proxy_pass http://swagger-ui:8080;
+    proxy_pass http://swagger-ui:8080;
   }
   location /product/ {
-	proxy_pass http://product;
+    proxy_pass http://product;
   }
   location /customer/ {
-	proxy_pass http://customer;
+    proxy_pass http://customer;
   }
   location /cart/ {
-	proxy_pass http://cart;
+    proxy_pass http://cart;
   }
   location /rating/ {
-	proxy_pass http://rating;
+    proxy_pass http://rating;
   }
   location /order/ {
-  	proxy_pass http://order;
+    proxy_pass http://order;
   }
   location /location/ {
     proxy_pass http://location;
@@ -53,21 +53,21 @@ server {
 server {
   server_name backoffice;
   location / {
-	proxy_pass http://backoffice;
+    proxy_pass http://backoffice;
   }
 }
 
 server {
   server_name storefront;
   location / {
-	proxy_pass http://storefront;
+    proxy_pass http://storefront;
   }
 }
 
 server {
   server_name pgadmin.yas.local;
   location / {
-	proxy_pass http://pgadmin;
+    proxy_pass http://pgadmin;
   }
 }
 
@@ -86,37 +86,42 @@ server {
 server {
   server_name grafana;
 
-  # Docker DNS
   resolver 127.0.0.11;
 
   location / {
     set $docker_grafana_host "grafana";
-	proxy_pass http://$docker_grafana_host:3000;
+    proxy_pass http://$docker_grafana_host:3000;
   }
 }
 
 server {
   server_name elasticsearch;
 
-  # Docker DNS
   resolver 127.0.0.11;
 
   location / {
     set $docker_elasticsearch_host "elasticsearch";
-	proxy_pass http://$docker_elasticsearch_host:9200;
+    proxy_pass http://$docker_elasticsearch_host:9200;
   }
 }
 
 server {
   server_name kafka;
+
+  resolver 127.0.0.11;
+
   location / {
-	proxy_pass http://kafka:9092;
+    proxy_pass http://kafka:9092;
   }
 }
 
 server {
   server_name akhq;
+
+  resolver 127.0.0.11;
+
   location / {
-	proxy_pass http://akhq:8080;
+    set $docker_akhq_host "akhq";
+    proxy_pass http://$docker_akhq_host:8080;
   }
 }
