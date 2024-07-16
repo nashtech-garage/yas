@@ -45,7 +45,7 @@ public class CartService {
                 .toList();
     }
 
-    public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
+        public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
         // Call API to check all products will be added to cart are existed
         List<Long> productIds = cartItemVms.stream().map(CartItemVm::productId).toList();
         List<ProductThumbnailVm> productThumbnailVmList = productService.getProducts(productIds);
