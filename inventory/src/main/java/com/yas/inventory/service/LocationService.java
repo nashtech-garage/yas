@@ -57,30 +57,6 @@ public class LocationService {
                 .headers(h->h.setBearerAuth(jwt))
                 .body(addressPostVm)
                 .retrieve()
-                .onStatus(
-                    HttpStatus.UNAUTHORIZED::equals,
-                    (request, response) -> {
-                        String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                        throw new NotFoundException(body);
-                    })
-                .onStatus(
-                    HttpStatus.FORBIDDEN::equals,
-                    (request, response) -> {
-                        String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                        throw new NotFoundException(body);
-                    })
-                .onStatus(
-                    HttpStatus.BAD_REQUEST::equals,
-                    (request, response) -> {
-                        String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                        throw new NotFoundException(body);
-                    })
-                .onStatus(
-                    HttpStatus.NOT_FOUND::equals,
-                    (request, response) -> {
-                        String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                        throw new NotFoundException(body);
-                    })
                 .body(AddressVm.class);
     }
 
@@ -98,30 +74,6 @@ public class LocationService {
             .headers(h -> h.setBearerAuth(jwt))
             .body(addressPostVm)
             .retrieve()
-            .onStatus(
-                HttpStatus.UNAUTHORIZED::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new AccessDeniedException(body);
-                })
-            .onStatus(
-                HttpStatus.FORBIDDEN::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new AccessDeniedException(body);
-                })
-            .onStatus(
-                HttpStatus.BAD_REQUEST::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new NotFoundException(body);
-                })
-            .onStatus(
-                HttpStatus.NOT_FOUND::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new NotFoundException(body);
-                })
             .body(Void.class);
     }
 
@@ -132,29 +84,6 @@ public class LocationService {
             .uri(url)
             .headers(h -> h.setBearerAuth(jwt))
             .retrieve()
-            .onStatus(
-                HttpStatus.UNAUTHORIZED::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new AccessDeniedException(body);
-                })
-            .onStatus(
-                HttpStatus.FORBIDDEN::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new AccessDeniedException(body);
-                })
-            .onStatus(
-                HttpStatus.BAD_REQUEST::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new NotFoundException(body);
-                })
-            .onStatus(HttpStatus.NOT_FOUND::equals,
-                (request, response) -> {
-                    String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                    throw new NotFoundException(body);
-                })
             .body(Void.class);
     }
 }
