@@ -41,12 +41,6 @@ public class LocationService {
                 .uri(url)
                 .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
-                .onStatus(
-                        HttpStatus.UNAUTHORIZED::equals,
-                        (request, response) -> {
-                          String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                          throw new AccessDeniedException(body);
-                        })
                 .body(new ParameterizedTypeReference<List<AddressDetailVm>>() {});
     }
 

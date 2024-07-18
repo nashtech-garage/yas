@@ -35,12 +35,6 @@ public class LocationService {
                 .uri(url)
                 .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
-                .onStatus(
-                    HttpStatus.NOT_FOUND::equals,
-                    (request, response) -> {
-                        String body = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
-                        throw new NotFoundException(body);
-                    })
                 .body(AddressDetailVm.class);
     }
 
