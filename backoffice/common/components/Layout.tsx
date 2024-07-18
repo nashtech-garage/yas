@@ -255,7 +255,7 @@ const Sidebar = (menu: MenuProps) => {
           </ul>
         </li>
 
-        <li className={menuActive == 'sales' ? 'active' : ''} onClick={() => changeMenu('system')}>
+        <li className={menuActive == 'system' ? 'active' : ''} onClick={() => changeMenu('system')}>
           <Link
             href="#systemSubmenu"
             data-target="#systemSubmenu"

@@ -16,7 +16,10 @@
       "@catalogComponents/*": ["modules/catalog/components/*"],
       "@inventoryServices/*": ["modules/inventory/services/*"],
       "@inventoryModels/*": ["modules/inventory/models/*"],
-      "@inventoryComponents/*": ["modules/inventory/components/*"]
+      "@inventoryComponents/*": ["modules/inventory/components/*"],
+      "@webhookComponents/*": ["modules/webhook/components/*"],
+      "@webhookServices/*": ["modules/webhook/services/*"],
+      "@webhookModels/*": ["modules/webhook/models/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

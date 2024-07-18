@@ -44,6 +44,7 @@ export const SALES_SHOPPING_CARTS_AND_WISHLISTS_URL = '/sales/shopping-carts-and
 
 export const SYSTEM_PAYMENT_PROVIDERS = '/system/payment-providers';
 export const SYSTEM_SETTINGS = '/system/settings';
+export const WEBHOOKS_URL = '/webhook';
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE_NUMBER = 0;

@@ -1,0 +1,17 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "topic.prefix": "dborder",
+  "database.user": "admin",
+  "database.dbname": "order",
+  "database.hostname": "postgres",
+  "database.password": "admin",
+  "database.port": "5432",
+  "key.converter.schemas.enable": "false",
+  "value.converter.schemas.enable": "false",
+  "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "schema.include.list": "public",
+  "table.include.list": "public.order",
+  "column.include.list": "public.order.order_status",
+  "slot.name": "order_slot"
+}
