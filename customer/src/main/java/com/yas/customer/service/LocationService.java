@@ -25,8 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LocationService {
 
-  private final RestClient restClient;
-  private final ServiceUrlConfig serviceUrlConfig;
+    private final RestClient restClient;
+    private final ServiceUrlConfig serviceUrlConfig;
 
     public List<AddressDetailVm> getAddressesByIdList(List<Long> ids) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();

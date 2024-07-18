@@ -1,5 +1,4 @@
 version: "3.9"
-
 services:
   nginx:
     image:  nginx:1.25.3
@@ -546,12 +545,10 @@ services:
       - kafka-connect
     networks:
       - yas-network
-
 networks:
   yas-network:
     driver: bridge
     name: yas-network
-
 volumes:
   postgres:
   pgadmin:
