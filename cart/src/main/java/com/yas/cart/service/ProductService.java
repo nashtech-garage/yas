@@ -3,22 +3,20 @@ package com.yas.cart.service;
 import java.net.URI;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.yas.cart.config.ServiceUrlConfig;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
-    private final WebClient webClient;
+    private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
-
-    public ProductService(WebClient webClient, ServiceUrlConfig serviceUrlConfig) {
-        this.webClient = webClient;
-        this.serviceUrlConfig = serviceUrlConfig;
-    }
 
     public List<ProductThumbnailVm> getProducts(List<Long> ids) {
         final URI url = UriComponentsBuilder
@@ -27,11 +25,10 @@ public class ProductService {
                 .queryParam("productId", ids)
                 .build()
                 .toUri();
-        return webClient.get()
+        return restClient.get()
                 .uri(url)
                 .retrieve()
-                .bodyToFlux(ProductThumbnailVm.class)
-                .collectList()
-                .block();
+                .toEntity(new ParameterizedTypeReference<List<ProductThumbnailVm>>(){})
+                .getBody();
     }
 }

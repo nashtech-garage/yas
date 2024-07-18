@@ -7,12 +7,16 @@ import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
 import com.yas.inventory.utils.AuthenticationUtils;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
+import io.micrometer.core.instrument.util.IOUtils;
+import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,14 +26,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
-    private final WebClient webClient;
+    private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
-
-    public ProductService(WebClient webClient, ServiceUrlConfig serviceUrlConfig) {
-        this.webClient = webClient;
-        this.serviceUrlConfig = serviceUrlConfig;
-    }
 
     public ProductInfoVm getProduct(Long id) {
         String jwt = AuthenticationUtils.extractJwt();
@@ -39,13 +39,11 @@ public class ProductService {
                 .path("/backoffice/products/" + id)
                 .build()
                 .toUri();
-        return webClient.get()
+        return restClient.get()
                 .uri(url)
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
-                .bodyToFlux(ProductInfoVm.class)
-                .single()
-                .block();
+                .body(ProductInfoVm.class);
     }
 
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
@@ -66,16 +64,15 @@ public class ProductService {
                 .queryParams(params)
                 .build()
                 .toUri();
-        return webClient.get()
+        return restClient.get()
                 .uri(url)
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
-                .bodyToFlux(ProductInfoVm.class)
-                .collectList()
-                .block();
+                .toEntity(new ParameterizedTypeReference<List<ProductInfoVm>>(){})
+                .getBody();
     }
 
-    public Void updateProductQuantity(List<ProductQuantityPostVm> productQuantityPostVms) {
+    public void updateProductQuantity(List<ProductQuantityPostVm> productQuantityPostVms) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
 
         final URI url = UriComponentsBuilder
@@ -84,24 +81,11 @@ public class ProductService {
                 .buildAndExpand()
                 .toUri();
 
-        return webClient.put()
+        restClient.put()
                 .uri(url)
                 .headers(h->h.setBearerAuth(jwt))
-                .bodyValue(productQuantityPostVms)
+                .body(productQuantityPostVms)
                 .retrieve()
-                .onStatus(
-                        HttpStatus.UNAUTHORIZED::equals,
-                        response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
-                .onStatus(
-                        HttpStatus.FORBIDDEN::equals,
-                        response -> response.bodyToMono(String.class).map(AccessDeniedException::new))
-                .onStatus(
-                        HttpStatus.BAD_REQUEST::equals,
-                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
-                .onStatus(
-                        HttpStatus.NOT_FOUND::equals,
-                        response -> response.bodyToMono(String.class).map(NotFoundException::new))
-                .bodyToMono(void.class)
-                .block();
+                .body(Void.class);
     }
 }

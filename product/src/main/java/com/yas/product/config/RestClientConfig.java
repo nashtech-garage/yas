@@ -1,16 +1,17 @@
-package com.yas.paymentpaypal.config;
+package com.yas.product.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Configuration
-public class WebClientConfig {
+public class RestClientConfig {
+
     @Bean
-    public WebClient getWebClient(WebClient.Builder webClientBuilder) {
-        return webClientBuilder
+    public RestClient getRestClient(RestClient.Builder restClientBuilder) {
+        return restClientBuilder
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

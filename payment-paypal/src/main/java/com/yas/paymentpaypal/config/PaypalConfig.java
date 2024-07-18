@@ -8,8 +8,9 @@ import com.yas.paymentpaypal.model.PaymentProviderHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.context.annotation.RequestScope;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -18,20 +19,19 @@ import java.net.URI;
 public class PaypalConfig {
     @Bean
     @RequestScope
-    public PayPalHttpClient getPaypalClient(WebClient webClient, ServiceUrlConfig serviceUrlConfig) {
+    public PayPalHttpClient getPaypalClient(RestClient restClient, ServiceUrlConfig serviceUrlConfig) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.payment()).path("/payment-providers/{id}/additional-settings")
                 .buildAndExpand(PaymentProviderHelper.PAYPAL_PAYMENT_PROVIDER_ID).toUri();
 
         // Make a request to the payment-service to retrieve additionalSettings
-        ResponseEntity<String> response = webClient.get()
+        ResponseEntity<String> response = restClient.get()
                 .uri(url)
                 .retrieve()
-                .toEntity(String.class)
-                .block();
+                .toEntity(String.class);
 
-        if (response != null && response.getStatusCode().is2xxSuccessful()) {
+        if (response.getStatusCode().is2xxSuccessful()) {
             String additionalSettings = response.getBody();
-
+            Assert.notNull(additionalSettings, "The additionalSettings can not be null.");
             // Parse the additionalSettings field to extract clientId and clientSecret
             JsonObject settingsJson = JsonParser.parseString(additionalSettings).getAsJsonObject();
             String clientId = settingsJson.get("clientId").getAsString();
