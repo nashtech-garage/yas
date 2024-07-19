@@ -4,9 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 import java.time.ZonedDateTime;
+import org.hibernate.validator.constraints.Length;
 
 @Builder
-public record PromotionPostVm(@NotBlank String name,
+public record PromotionPostVm(@NotBlank @Length(max = 450) String name,
                               @NotBlank String slug,
                               String description,
                               String couponCode,

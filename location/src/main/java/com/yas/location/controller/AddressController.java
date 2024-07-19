@@ -4,6 +4,7 @@ import com.yas.location.service.AddressService;
 import com.yas.location.viewmodel.address.AddressDetailVm;
 import com.yas.location.viewmodel.address.AddressGetVm;
 import com.yas.location.viewmodel.address.AddressPostVm;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +18,12 @@ public class AddressController {
 
 
     @PostMapping("/storefront/addresses")
-    public ResponseEntity<AddressGetVm> createAddress(@RequestBody AddressPostVm dto) {
+    public ResponseEntity<AddressGetVm> createAddress(@Valid @RequestBody AddressPostVm dto) {
         return ResponseEntity.ok(addressService.createAddress(dto));
     }
 
     @PutMapping("/storefront/addresses/{id}")
-    public ResponseEntity updateAddress(@PathVariable Long id, @RequestBody AddressPostVm dto) {
+    public ResponseEntity updateAddress(@PathVariable Long id, @Valid @RequestBody AddressPostVm dto) {
         addressService.updateAddress(id, dto);
         return ResponseEntity.noContent().build();
     }
