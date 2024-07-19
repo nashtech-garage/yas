@@ -45,22 +45,22 @@ services:
     - SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]=Path= /**
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS    
+    - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=backoffice-bff-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config            
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+    - ./deployment/app-config:/app-config
     networks:
       - yas-network
   backoffice-nextjs:
@@ -95,19 +95,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=storefront-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED=false
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config      
     networks:
       - yas-network
@@ -124,21 +124,21 @@ services:
     - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/media
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS    
+    - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=media-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -153,19 +153,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS    
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=product-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -180,19 +180,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS    
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=customer-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -206,21 +206,21 @@ services:
     - YAS_SERVICES_PRODUCT
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS    
+    - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=cart-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -236,21 +236,21 @@ services:
     - YAS_SERVICES_ORDER
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS    
+    - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=rate-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -269,6 +269,7 @@ services:
     - YAS_SERVICES_PRODUCT
     - YAS_SERVICES_TAX
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=order-service
@@ -278,10 +279,9 @@ services:
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -295,21 +295,21 @@ services:
     - YAS_SERVICES_ORDER
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS    
+    - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=payment-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED 
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -324,19 +324,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=payment-paypal-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -351,19 +351,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=location-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -380,19 +380,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=inventory-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
@@ -408,19 +408,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=promotion-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config      
     networks:
       - yas-network
@@ -436,19 +436,19 @@ services:
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
+    - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
     - OTEL_RESOURCE_ATTRIBUTES
     - OTEL_SERVICE_NAME=tax-service
     - OTEL_LOGS_EXPORTER
     - OTEL_TRACES_EXPORTER
     - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_MESSAGING_EXPERIMENTAL_RECEIVE_TELEMETRY_ENABLED
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent_1.30.0.jar:/opentelemetry-javaagent.jar
+    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
     networks:
     - yas-network
