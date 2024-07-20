@@ -13,7 +13,6 @@ on:
       - "backoffice/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/backoffice-ci.yaml"
-      
   workflow_dispatch:
 
 jobs:

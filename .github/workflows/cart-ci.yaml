@@ -7,13 +7,14 @@ on:
       - "cart/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/cart-ci.yaml"
+      - "pom.xml"
   pull_request:
     branches: [ "main" ]
     paths:
       - "cart/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/cart-ci.yaml"
-      
+      - "pom.xml"
   workflow_dispatch:
 
 jobs:

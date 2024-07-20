@@ -7,13 +7,14 @@ on:
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/payment-ci.yaml"
+      - "pom.xml"
   pull_request:
     branches: ["main"]
     paths:
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/payment-ci.yaml"
-
+      - "pom.xml"
   workflow_dispatch:
 
 jobs:
