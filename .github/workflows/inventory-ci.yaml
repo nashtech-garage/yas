@@ -7,13 +7,14 @@ on:
       - "inventory/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/inventory-ci.yaml"
+      - "pom.xml"
   pull_request:
     branches: ["main"]
     paths:
       - "inventory/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/inventory-ci.yaml"
-
+      - "pom.xml"
   workflow_dispatch:
 
 jobs:

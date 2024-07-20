@@ -7,13 +7,14 @@ on:
       - "{{SERVICE_NAME}}/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/{{SERVICE_NAME}}-ci.yaml"
+      - "pom.xml"
   pull_request:
     branches: [ "main" ]
     paths:
       - "{{SERVICE_NAME}}/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/{{SERVICE_NAME}}-ci.yaml"
-      
+      - "pom.xml"
   workflow_dispatch:
 
 jobs:

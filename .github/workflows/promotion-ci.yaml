@@ -7,13 +7,14 @@ on:
       - "promotion/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/promotion-ci.yaml"
+      - "pom.xml"
   pull_request:
     branches: ["main"]
     paths:
       - "promotion/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/promotion-ci.yaml"
-
+      - "pom.xml"
   workflow_dispatch:
 
 jobs:
