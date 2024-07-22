@@ -49,7 +49,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
         <opentelemetry-logback.vesion>1.30.0-alpha</opentelemetry-logback.vesion>
-        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <keycloak-spring-security-adapter.version>21.0.2</keycloak-spring-security-adapter.version>
         <org.keycloak.version>16.1.0</org.keycloak.version>
