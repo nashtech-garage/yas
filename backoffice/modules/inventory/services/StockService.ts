@@ -20,6 +20,8 @@ export async function fetchStocksInWarehouseByProductNameAndProductSku(
 export async function updateProductQuantityInStock(
   productQuantityInStock: ProductQuantityInStock[]
 ) {
-  return apiClientService.put(baseUrl, 
-    JSON.stringify({ stockQuantityList: productQuantityInStock }));
+  return apiClientService.put(
+    baseUrl,
+    JSON.stringify({ stockQuantityList: productQuantityInStock })
+  );
 }
