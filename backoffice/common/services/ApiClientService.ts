@@ -10,7 +10,7 @@ interface RequestOptions {
 }
 
 const sendRequest = async (method: string, endpoint: string, data: any = null) => {
-  if (!whitelistedEndpoints.includes(endpoint)) {
+  if (!isWhitelistedEndpoint(endpoint)) {
     throw new Error(`Endpoint ${endpoint} is not whitelisted.`);
   }
 
@@ -40,14 +40,9 @@ const sendRequest = async (method: string, endpoint: string, data: any = null) =
   }
 };
 
-const parseJSONString = (data: string) => {
-  try {
-    JSON.parse(data);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
+function isWhitelistedEndpoint(endpoint: string) {
+  return whitelistedEndpoints.some((whitelisted) => endpoint.startsWith(whitelisted));
+}
 
 const apiClientService = {
   get: (endpoint: string) => sendRequest('GET', endpoint),
