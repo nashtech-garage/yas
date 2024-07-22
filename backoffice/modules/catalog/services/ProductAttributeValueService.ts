@@ -1,8 +1,9 @@
 import { ProductAttributeValue } from '../models/ProductAttributeValue';
 import { ProductAttributeValuePost } from '../models/ProductAttributeValuePost';
 import apiClientService from '@commonServices/ApiClientService';
+import { PRODUCT_BACKOFFICE_ATTRIBUTE_VALUE_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/product/backoffice/product-attribute-value';
+const baseUrl = PRODUCT_BACKOFFICE_ATTRIBUTE_VALUE_ENDPOINT;
 
 export async function getAttributeValueOfProduct(
   productId: number

@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import apiClientService from '@commonServices/ApiClientService';
+import { AUTHENTICATION_USER_ENDPOINT } from '@constants/WhitelistedEndpoints';
+
+const baseUrl = AUTHENTICATION_USER_ENDPOINT;
 
 export default function AuthenticationInfo() {
   type AuthenticatedUser = {
@@ -10,7 +13,7 @@ export default function AuthenticationInfo() {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser>({ username: '' });
 
   async function getAuthenticatedUser() {
-    return (await apiClientService.get(`/authentication/user`)).json();
+    return (await apiClientService.get(baseUrl)).json();
   }
 
   useEffect(() => {

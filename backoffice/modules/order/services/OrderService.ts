@@ -1,7 +1,8 @@
 import { Order } from '../models/Order';
 import apiClientService from '@commonServices/ApiClientService';
+import { ORDER_BACKOFFICE_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/order/backoffice/orders';
+const baseUrl = ORDER_BACKOFFICE_ENDPOINT;
 
 export async function getOrders(
   params: string

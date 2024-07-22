@@ -3,8 +3,9 @@ import { Variantion } from '@catalogModels/ProductVariation';
 import { ProductPayload } from '../models/ProductPayload';
 import { Products } from '../models/Products';
 import apiClientService from '@commonServices/ApiClientService';
+import { PRODUCT_BACKOFFICE_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/product/backoffice';
+const baseUrl = PRODUCT_BACKOFFICE_ENDPOINT;
 
 export async function getProducts(
   pageNo: number,

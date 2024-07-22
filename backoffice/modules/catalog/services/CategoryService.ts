@@ -1,8 +1,9 @@
 import { Category } from '../models/Category';
 import { ProductThumbnails } from '../models/ProductThumbnails';
 import apiClientService from '@commonServices/ApiClientService';
+import { PRODUCT_BACKOFFICE_CATEGORIES_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/product/backoffice/categories';
+const baseUrl = PRODUCT_BACKOFFICE_CATEGORIES_ENDPOINT;
 
 export async function getCategories(): Promise<Category[]> {
   return (await apiClientService.get(baseUrl)).json();

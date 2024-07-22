@@ -1,3 +1,5 @@
+import whitelistedEndpoints from '@constants/WhitelistedEndpoints';
+
 interface RequestOptions {
   method: string;
   headers: {
@@ -8,6 +10,10 @@ interface RequestOptions {
 }
 
 const sendRequest = async (method: string, endpoint: string, data: any = null) => {
+  if (!whitelistedEndpoints.includes(endpoint)) {
+    throw new Error(`Endpoint ${endpoint} is not whitelisted.`);
+  }
+
   const requestOptions: RequestOptions = {
     method: method.toUpperCase(),
     headers: {
@@ -19,13 +25,8 @@ const sendRequest = async (method: string, endpoint: string, data: any = null) =
     requestOptions.body = data;
   }
 
-  let options = undefined;
-  if (method !== 'GET') {
-    options = requestOptions;
-  }
-
   try {
-    const response = await fetch(endpoint, options);
+    const response = await fetch(endpoint, method === 'GET' ? undefined : requestOptions);
 
     // Workaround to manually redirect in case of CORS error
     if (response.type == 'cors' && response.redirected == true) {

@@ -1,7 +1,8 @@
 import { Rating } from '../models/Rating';
 import apiClientService from '@commonServices/ApiClientService';
+import { RATING_BACKOFFICE_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/rating/backoffice/ratings';
+const baseUrl = RATING_BACKOFFICE_ENDPOINT;
 
 export async function getRatings(
   params: string

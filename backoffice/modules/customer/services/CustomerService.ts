@@ -2,8 +2,9 @@ import { ProfileRequest } from '../../profile/models/ProfileRequest';
 import { Customer } from '../models/Customer';
 import { Customers } from '../models/Customers';
 import apiClientService from '@commonServices/ApiClientService';
+import { CUSTOMER_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/customer';
+const baseUrl = CUSTOMER_ENDPOINT;
 
 export async function getCustomers(pageNo: number): Promise<Customers> {
   const url = `${baseUrl}/backoffice/customers?pageNo=${pageNo}`;

@@ -1,8 +1,9 @@
 import { stringify } from 'querystring';
 import { ProductAttributeGroup } from '../models/ProductAttributeGroup';
 import apiClientService from '@commonServices/ApiClientService';
+import { PRODUCT_BACKOFFICE_ATTRIBUTE_GROUP_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/product/backoffice/product-attribute-groups';
+const baseUrl = PRODUCT_BACKOFFICE_ATTRIBUTE_GROUP_ENDPOINT;
 
 export async function getProductAttributeGroups(): Promise<ProductAttributeGroup[]> {
   return (await apiClientService.get(baseUrl)).json();

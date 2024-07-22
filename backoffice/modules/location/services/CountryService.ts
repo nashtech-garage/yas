@@ -1,7 +1,8 @@
 import { Country } from '../models/Country';
 import apiClientService from '@commonServices/ApiClientService';
+import { LOCATION_BACKOFFICE_COUNTRIES_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/location/backoffice/countries';
+const baseUrl = LOCATION_BACKOFFICE_COUNTRIES_ENDPOINT;
 
 export async function getCountries(): Promise<Country[]> {
   return (await apiClientService.get(baseUrl)).json();

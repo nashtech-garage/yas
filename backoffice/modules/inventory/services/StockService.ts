@@ -1,8 +1,9 @@
 import { ProductQuantityInStock } from './../models/ProductQuantityInStock';
 import { StockPostVM } from '@inventoryModels/Stock';
 import apiClientService from '@commonServices/ApiClientService';
+import { INVENTORY_BACKOFFICE_STOCKS_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/inventory/backoffice/stocks';
+const baseUrl = INVENTORY_BACKOFFICE_STOCKS_ENDPOINT;
 
 export async function addProductIntoWarehouse(stocks: StockPostVM[]) {
   return apiClientService.post(baseUrl, JSON.stringify(stocks));

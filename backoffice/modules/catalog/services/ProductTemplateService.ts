@@ -1,8 +1,9 @@
 import { ProductTemplate } from '@catalogModels/ProductTemplate';
 import { FromProductTemplate } from '@catalogModels/FormProductTemplate';
 import apiClientService from '@commonServices/ApiClientService';
+import { PRODUCT_BACKOFFICE_TEMPLATE_ENDPOINT } from '@constants/WhitelistedEndpoints';
 
-const baseUrl = '/api/product/backoffice/product-template';
+const baseUrl = PRODUCT_BACKOFFICE_TEMPLATE_ENDPOINT;
 
 export async function getProductTemplates(): Promise<ProductTemplate[]> {
   return (await apiClientService.get(baseUrl)).json();
