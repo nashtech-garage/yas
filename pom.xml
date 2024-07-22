@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.4</version>
+        <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yas</groupId>
@@ -54,7 +54,7 @@
         <keycloak-spring-security-adapter.version>21.0.2</keycloak-spring-security-adapter.version>
         <org.keycloak.version>16.1.0</org.keycloak.version>
         <commons-validator.version>1.7</commons-validator.version>
-        <org.elasticsearch.version>8.6.2</org.elasticsearch.version>
+        <org.elasticsearch.version>8.14.0</org.elasticsearch.version>
         <paypal-checkout-sdk.version>2.0.0</paypal-checkout-sdk.version>
     </properties>
     <dependencyManagement>
@@ -127,10 +127,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

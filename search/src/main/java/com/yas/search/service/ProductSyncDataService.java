@@ -2,39 +2,30 @@ package com.yas.search.service;
 
 import com.yas.search.config.ServiceUrlConfig;
 import com.yas.search.viewmodel.ProductESDetailVm;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.core.ParameterizedTypeReference;
 import com.yas.search.exception.NotFoundException;
 import com.yas.search.document.Product;
 import com.yas.search.constants.MessageCode;
 import com.yas.search.repository.ProductRepository;
 
-import java.util.List;
 import java.net.URI;
 
 @Service
+@RequiredArgsConstructor
 public class ProductSyncDataService {
-    private final WebClient webClient;
+    private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
     private final ProductRepository productRepository;
 
-    public ProductSyncDataService(WebClient webClient, ServiceUrlConfig serviceUrlConfig, ProductRepository productRepository) {
-        this.webClient = webClient;
-        this.serviceUrlConfig = serviceUrlConfig;
-        this.productRepository = productRepository;
-    }
-
     public ProductESDetailVm getProductESDetailById(Long id) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product()).path("/storefront/products-es/{id}").buildAndExpand(id).toUri();
-        return webClient.get()
+        return restClient.get()
                 .uri(url)
                 .retrieve()
-                .bodyToMono(ProductESDetailVm.class)
-                .block();
+                .body(ProductESDetailVm.class);
     }
 
     public void updateProduct(Long id) {
@@ -74,7 +65,7 @@ public class ProductSyncDataService {
                 .attributes(productESDetailVm.attributes())
                 .build();
 
-        Product savedProduct = productRepository.save(product);
+        productRepository.save(product);
     }
 
     public void deleteProduct(Long id) {

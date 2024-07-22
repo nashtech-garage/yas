@@ -7,13 +7,14 @@ on:
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/payment-ci.yaml"
+      - "pom.xml"
   pull_request:
     branches: ["main"]
     paths:
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/payment-ci.yaml"
-
+      - "pom.xml"
   workflow_dispatch:
 
 jobs:
@@ -22,7 +23,7 @@ jobs:
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
@@ -44,14 +45,14 @@ jobs:
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f payment
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: ./payment
           push: true

@@ -7,22 +7,22 @@ x-default-logging: &logging
 # x-loki-logging: &loki-logging
 #   driver: loki
 #   options:
-#     loki-url: 'http://loki:3100/api/prom/push'    
+#     loki-url: 'http://loki:3100/api/prom/push'
     
 services:
   # ********************
   # Telemetry Components
   # ********************
   # OpenTelemetry Collector
-  otelcol:
-    image: otel/opentelemetry-collector-contrib:0.87.0
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.105.0
     container_name: collector
     hostname: ${OTEL_COLLECTOR_HOST}
     depends_on:
       tempo:
         condition: service_healthy
       prometheus:
-        condition: service_healthy    
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -64,7 +64,7 @@ services:
     networks:
       - yas-network
   grafana:
-    image: grafana/grafana:9.3.6
+    image: grafana/grafana:10.0.0
     container_name: grafana
     extra_hosts: [ 'host.docker.internal:host-gateway' ]
     volumes:
@@ -84,17 +84,17 @@ services:
     networks:
       - yas-network
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.1.0
     container_name: loki
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    logging: *logging      
+    logging: *logging
     networks:
       - yas-network
   tempo:
     image: grafana/tempo:1.5.0
-    container_name: tempo        
+    container_name: tempo
     command: [ "-config.file=/etc/tempo.yaml", "-search.enabled=true"]
     volumes:
       - ./docker/tempo/tempo-local.yaml:/etc/tempo.yaml:ro

@@ -6,16 +6,12 @@ import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.product.ProductQuantityItem;
 import com.yas.order.viewmodel.product.ProductVariationVM;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.List;
@@ -24,7 +20,6 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-    private final WebClient webClient;
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
@@ -36,12 +31,12 @@ public class ProductService {
                 .buildAndExpand()
                 .toUri();
 
-        return webClient.get()
+        return restClient.get()
                 .uri(url)
                 .headers(h->h.setBearerAuth(jwt))
                 .retrieve()
-                .bodyToFlux(ProductVariationVM.class)
-                .collectList().block();
+                .toEntity(new ParameterizedTypeReference<List<ProductVariationVM>>(){})
+                .getBody();
     }
 
     public void subtractProductStockQuantity(OrderVm orderVm) {
