@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import apiClientService from '@commonServices/ApiClientService';
+import apiClientService from './../services/ApiClientService';
 
 export default function AuthenticationInfo() {
   type AuthenticatedUser = {
