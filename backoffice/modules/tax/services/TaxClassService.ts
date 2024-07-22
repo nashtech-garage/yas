@@ -1,44 +1,35 @@
 import { TaxClass } from '../models/TaxClass';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/tax/backoffice/tax-classes';
 
 export async function getTaxClasses(): Promise<TaxClass[]> {
-  const response = await fetch('/api/tax/backoffice/tax-classes');
-  return await response.json();
+  return (await apiClientService.get(baseUrl)).json();
 }
 
 export async function getPageableTaxClasses(pageNo: number, pageSize: number) {
-  const url = `/api/tax/backoffice/tax-classes/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
-  const response = await fetch(url);
-  return await response.json();
+  const url = `${baseUrl}/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function createTaxClass(taxClass: TaxClass) {
-  const response = await fetch('/api/tax/backoffice/tax-classes', {
-    method: 'POST',
-    body: JSON.stringify(taxClass),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
-  return response;
+  return apiClientService.post(baseUrl, JSON.stringify(taxClass));
 }
 export async function getTaxClass(id: number) {
-  const response = await fetch('/api/tax/backoffice/tax-classes/' + id);
-  return await response.json();
+  const url = `${baseUrl}/${id}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function deleteTaxClass(id: number) {
-  const response = await fetch(`/api/tax/backoffice/tax-classes/${id}`, {
-    method: 'DELETE',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.delete(url);
   if (response.status === 204) return response;
   else return await response.json();
 }
 
 export async function editTaxClass(id: number, taxClass: TaxClass) {
-  const response = await fetch(`/api/tax/backoffice/tax-classes/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    body: JSON.stringify(taxClass),
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.put(url, JSON.stringify(taxClass));
   if (response.status === 204) return response;
   else return await response.json();
 }

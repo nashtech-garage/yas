@@ -1,49 +1,40 @@
 import { stringify } from 'querystring';
 import { ProductAttributeGroup } from '../models/ProductAttributeGroup';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/product/backoffice/product-attribute-groups';
 
 export async function getProductAttributeGroups(): Promise<ProductAttributeGroup[]> {
-  const response = await fetch('/api/product/backoffice/product-attribute-groups');
-  return await response.json();
+  return (await apiClientService.get(baseUrl)).json();
 }
 
 export async function getPageableProductAttributeGroups(pageNo: number, pageSize: number) {
-  const url = `/api/product/backoffice/product-attribute-groups/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
-  const response = await fetch(url);
-  return await response.json();
+  const url = `${baseUrl}/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function getProductAttributeGroup(id: number) {
-  const response = await fetch('/api/product/backoffice/product-attribute-groups/' + id);
-  return await response.json();
+  const url = `${baseUrl}/${id}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function createProductAttributeGroup(productAttributeGroup: ProductAttributeGroup) {
-  const response = await fetch('/api/product/backoffice/product-attribute-groups', {
-    method: 'POST',
-    body: JSON.stringify(productAttributeGroup),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
-  return response;
+  return await apiClientService.post(baseUrl, JSON.stringify(productAttributeGroup));
 }
 
 export async function updateProductAttributeGroup(
   id: number,
   productAttributeGroup: ProductAttributeGroup
 ) {
-  const response = await fetch('/api/product/backoffice/product-attribute-groups/' + id, {
-    method: 'PUT',
-    body: JSON.stringify(productAttributeGroup),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.put(url, JSON.stringify(productAttributeGroup));
   if (response.status === 204) return response;
   else return await response.json();
 }
 
 export async function deleteProductAttributeGroup(id: number) {
-  const response = await fetch('/api/product/backoffice/product-attribute-groups/' + id, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.delete(url);
   if (response.status === 204) return response;
   else return await response.json();
 }

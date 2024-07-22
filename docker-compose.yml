@@ -34,15 +34,6 @@ services:
     entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
     environment:
     - SPRING_PROFILES_ACTIVE=prod
-      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_ID=api
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_URI=http://nginx
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]=Path= /api/**
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[0]=RewritePath=/api/(?<segment>.*), /$$\{segment}
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[1]=TokenRelay=
-    - SPRING_CLOUD_GATEWAY_ROUTES[1]_ID=nextjs
-    - SPRING_CLOUD_GATEWAY_ROUTES[1]_URI=http://backoffice-nextjs:3000
-    - SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]=Path= /**
     - SERVER_PORT
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS    
@@ -73,15 +64,6 @@ services:
     entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
     environment:
     - SPRING_PROFILES_ACTIVE=prod
-      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://identity:8080/realms/Yas
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_ID=api
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_URI=http://nginx
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]=Path= /api/**
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[0]=RewritePath=/api/(?<segment>.*), /$$\{segment}
-    - SPRING_CLOUD_GATEWAY_ROUTES[0]_FILTERS[1]=TokenRelay=
-    - SPRING_CLOUD_GATEWAY_ROUTES[1]_ID=nextjs
-    - SPRING_CLOUD_GATEWAY_ROUTES[1]_URI=http://storefront-nextjs:3000
-    - SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]=Path= /**
     - YAS_SERVICES_CUSTOMER
     - YAS_SERVICES_CART
     - YAS_SERVICES_RATING

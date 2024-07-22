@@ -141,14 +141,15 @@ spring:
     gateway:
       routes:
         - id: api
-          uri: http://product
+          uri: http://nginx
           predicates:
-            - Path=/api/product/**
+            - Path=/api/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - DedupeResponseHeader=Origin Access-Control-Request-Method Access-Control-Request-Headers
             - TokenRelay=
+            - StripPrefix=1
         - id: nextjs
-          uri: http://localhost:3000
+          uri: http://storefront-nextjs:3000
           predicates:
             - Path=/**
 ---

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import apiClientService from '@commonServices/ApiClientService';
 
 export default function AuthenticationInfo() {
   type AuthenticatedUser = {
@@ -9,8 +10,7 @@ export default function AuthenticationInfo() {
   const [authenticatedUser, setAuthenticatedUser] = useState<AuthenticatedUser>({ username: '' });
 
   async function getAuthenticatedUser() {
-    const res = await fetch(`/authentication/user`);
-    return await res.json();
+    return (await apiClientService.get(`/authentication/user`)).json();
   }
 
   useEffect(() => {
