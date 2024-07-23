@@ -45,14 +45,10 @@ export async function deleteProduct(id: number) {
 
 export async function getVariationsByProductId(productId: number): Promise<Variantion[]> {
   const url = `${baseUrl}/product-variations/${productId}`;
-  const response = await apiClientService.get(url);
-  if (response.status >= 200 && response.status < 300) return await response.json();
-  return Promise.reject(response);
+  return (await apiClientService.get(url)).json();
 }
 
 export async function getRelatedProductByProductId(productId: number): Promise<Product[]> {
   const url = `${baseUrl}/products/related-products/${productId}`;
-  const response = await apiClientService.get(url);
-  if (response.status >= 200 && response.status < 300) return await response.json();
-  return Promise.reject(response);
+  return (await apiClientService.get(url)).json();
 }
