@@ -56,6 +56,9 @@
         <commons-validator.version>1.7</commons-validator.version>
         <org.elasticsearch.version>8.14.0</org.elasticsearch.version>
         <paypal-checkout-sdk.version>2.0.0</paypal-checkout-sdk.version>
+        <testcontainers-keycloak.version>3.3.0</testcontainers-keycloak.version>
+        <rest-assured.version>5.4.0</rest-assured.version>
+        <instancio-junit.version>4.8.1</instancio-junit.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -190,5 +193,23 @@
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>integration-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
