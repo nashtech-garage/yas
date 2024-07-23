@@ -1,5 +1,3 @@
-import whitelistedEndpoints from '@constants/WhitelistedEndpoints';
-
 interface RequestOptions {
   method: string;
   headers: {
@@ -10,11 +8,6 @@ interface RequestOptions {
 }
 
 const sendRequest = async (method: string, endpoint: string, data: any = null) => {
-  const url = new URL(endpoint, window.location.origin);
-  if (!whitelistedEndpoints.includes(url.pathname)) {
-    throw new Error(`Endpoint ${endpoint} is not whitelisted.`);
-  }
-
   const requestOptions: RequestOptions = {
     method: method.toUpperCase(),
     headers: {

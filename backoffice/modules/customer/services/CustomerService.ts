@@ -2,7 +2,7 @@ import { ProfileRequest } from '../../profile/models/ProfileRequest';
 import { Customer } from '../models/Customer';
 import { Customers } from '../models/Customers';
 import apiClientService from '@commonServices/ApiClientService';
-import { CUSTOMER_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { CUSTOMER_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = CUSTOMER_ENDPOINT;
 

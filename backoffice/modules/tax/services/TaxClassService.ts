@@ -1,6 +1,6 @@
 import { TaxClass } from '../models/TaxClass';
 import apiClientService from '@commonServices/ApiClientService';
-import { TAX_BACKOFFICE_TAX_CLASSES_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { TAX_BACKOFFICE_TAX_CLASSES_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = TAX_BACKOFFICE_TAX_CLASSES_ENDPOINT;
 

@@ -1,6 +1,6 @@
 import { Country } from '../models/Country';
 import apiClientService from '@commonServices/ApiClientService';
-import { LOCATION_BACKOFFICE_COUNTRIES_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { LOCATION_BACKOFFICE_COUNTRIES_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = LOCATION_BACKOFFICE_COUNTRIES_ENDPOINT;
 

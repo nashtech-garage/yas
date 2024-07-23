@@ -1,6 +1,6 @@
 import { ProductOption } from '../models/ProductOption';
 import apiClientService from '@commonServices/ApiClientService';
-import { PRODUCT_BACKOFFICE_ATTRIBUTE_OPTIONS_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { PRODUCT_BACKOFFICE_ATTRIBUTE_OPTIONS_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = PRODUCT_BACKOFFICE_ATTRIBUTE_OPTIONS_ENDPOINT;
 

@@ -1,6 +1,6 @@
 import { TaxRate } from '../models/TaxRate';
 import apiClientService from '@commonServices/ApiClientService';
-import { TAX_BACKOFFICE_TAX_RATES_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { TAX_BACKOFFICE_TAX_RATES_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = TAX_BACKOFFICE_TAX_RATES_ENDPOINT;
 

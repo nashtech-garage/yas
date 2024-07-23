@@ -1,7 +1,7 @@
 import { ProductQuantityInStock } from './../models/ProductQuantityInStock';
 import { StockPostVM } from '@inventoryModels/Stock';
 import apiClientService from '@commonServices/ApiClientService';
-import { INVENTORY_BACKOFFICE_STOCKS_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { INVENTORY_BACKOFFICE_STOCKS_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = INVENTORY_BACKOFFICE_STOCKS_ENDPOINT;
 

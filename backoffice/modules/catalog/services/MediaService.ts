@@ -1,6 +1,6 @@
 import { Media } from '../models/Media';
 import apiClientService from '@commonServices/ApiClientService';
-import { MEDIA_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { MEDIA_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = MEDIA_ENDPOINT;
 

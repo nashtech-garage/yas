@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import apiClientService from '@commonServices/ApiClientService';
-import { AUTHENTICATION_USER_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { AUTHENTICATION_USER_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = AUTHENTICATION_USER_ENDPOINT;
 

@@ -1,7 +1,7 @@
 import { stringify } from 'querystring';
 import { ProductAttributeGroup } from '../models/ProductAttributeGroup';
 import apiClientService from '@commonServices/ApiClientService';
-import { PRODUCT_BACKOFFICE_ATTRIBUTE_GROUP_ENDPOINT } from '@constants/WhitelistedEndpoints';
+import { PRODUCT_BACKOFFICE_ATTRIBUTE_GROUP_ENDPOINT } from '@constants/Endpoints';
 
 const baseUrl = PRODUCT_BACKOFFICE_ATTRIBUTE_GROUP_ENDPOINT;
 
