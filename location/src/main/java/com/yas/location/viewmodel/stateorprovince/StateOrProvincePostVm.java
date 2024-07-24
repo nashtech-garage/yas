@@ -1,8 +1,12 @@
 package com.yas.location.viewmodel.stateorprovince;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
-public record StateOrProvincePostVm(@NotBlank String name, String code, String type,
+@Builder
+public record StateOrProvincePostVm(@Size(min = 1, max = 450) String name,
+                                    @Size(max = 255) String code,
+                                    @Size(max = 255) String type,
                                     Long countryId) {
 
 }
