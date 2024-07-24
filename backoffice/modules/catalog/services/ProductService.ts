@@ -47,12 +47,12 @@ export async function getVariationsByProductId(productId: number): Promise<Varia
   const url = `${baseUrl}/product-variations/${productId}`;
   const response = await apiClientService.get(url);
   if (response.status >= 200 && response.status < 300) return await response.json();
-  return [];
+  return Promise.reject(new Error(response.statusText));
 }
 
 export async function getRelatedProductByProductId(productId: number): Promise<Product[]> {
   const url = `${baseUrl}/products/related-products/${productId}`;
   const response = await apiClientService.get(url);
   if (response.status >= 200 && response.status < 300) return await response.json();
-  return [];
+  return Promise.reject(new Error(response.statusText));
 }
