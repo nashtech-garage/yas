@@ -6,7 +6,12 @@ interface RequestOptions {
   body?: string;
 }
 
-const sendRequest = async (method: string, endpoint: string, data: any = null, contentType: string | null = null) => {
+const sendRequest = async (
+  method: string,
+  endpoint: string,
+  data: any = null,
+  contentType: string | null = null
+) => {
   const defaultContentType = 'application/json; charset=UTF-8';
   const requestOptions: RequestOptions = {
     method: method.toUpperCase(),
@@ -39,8 +44,10 @@ const sendRequest = async (method: string, endpoint: string, data: any = null, c
 
 const apiClientService = {
   get: (endpoint: string) => sendRequest('GET', endpoint),
-  post: (endpoint: string, data: any, contentType: any | null = null) => sendRequest('POST', endpoint, data, contentType),
-  put: (endpoint: string, data: any, contentType: any | null = null) => sendRequest('PUT', endpoint, data, contentType),
+  post: (endpoint: string, data: any, contentType: any | null = null) =>
+    sendRequest('POST', endpoint, data, contentType),
+  put: (endpoint: string, data: any, contentType: any | null = null) =>
+    sendRequest('PUT', endpoint, data, contentType),
   delete: (endpoint: string) => sendRequest('DELETE', endpoint),
 };
 
