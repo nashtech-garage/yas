@@ -1,8 +1,7 @@
 import { Brand } from '../models/Brand';
 import apiClientService from '@commonServices/ApiClientService';
-import { PRODUCT_BACKOFFICE_BRANDS_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = PRODUCT_BACKOFFICE_BRANDS_ENDPOINT;
+const baseUrl = '/api/product/backoffice/brands';
 
 export async function getBrands(): Promise<Brand[]> {
   return (await apiClientService.get(baseUrl)).json();

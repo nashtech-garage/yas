@@ -1,8 +1,7 @@
 import { TaxRate } from '../models/TaxRate';
 import apiClientService from '@commonServices/ApiClientService';
-import { TAX_BACKOFFICE_TAX_RATES_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = TAX_BACKOFFICE_TAX_RATES_ENDPOINT;
+const baseUrl = '/api/tax/backoffice/tax-rates';
 
 export async function getTaxRates(): Promise<TaxRate[]> {
   return (await apiClientService.get(baseUrl)).json();

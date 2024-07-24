@@ -1,8 +1,7 @@
 import { ProductAttribute } from '../models/ProductAttribute';
 import apiClientService from '@commonServices/ApiClientService';
-import { PRODUCT_BACKOFFICE_ATTRIBUTE_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = PRODUCT_BACKOFFICE_ATTRIBUTE_ENDPOINT;
+const baseUrl = '/api/product/backoffice/product-attribute';
 
 interface ProductAttributeId {
   name: string;

@@ -302,6 +302,8 @@ public class ProductService {
 
             productOptionValueRepository.saveAllAndFlush(productOptionValues);
             productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
+            product.setHasOptions(CollectionUtils.isNotEmpty(existingVariants)
+                    && CollectionUtils.isNotEmpty(productOptionValues));
         }
 
         List<ProductRelated> newProductRelatedList;
@@ -383,6 +385,7 @@ public class ProductService {
                     setValuesForVariantExisting(newProductImages, variant, variantInDB);
                 }
             });
+
         }
     }
 
@@ -706,9 +709,8 @@ public class ProductService {
                         options
                 );
             }).toList();
-        } else {
-            throw new BadRequestException(Constants.ERROR_CODE.PRODUCT_NOT_HAVE_VARIATION, id);
         }
+        return Collections.emptyList();
     }
 
     public List<ProductExportingDetailVm> exportProducts(String productName, String brandName) {

@@ -1,7 +1,6 @@
 import apiClientService from '@commonServices/ApiClientService';
-import { LOCATION_BACKOFFICE_DISTRICT_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = LOCATION_BACKOFFICE_DISTRICT_ENDPOINT;
+const baseUrl = '/api/location/backoffice/district';
 
 export async function getDistricts(id: number) {
   const url = `${baseUrl}/${id}`;

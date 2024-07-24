@@ -1,8 +1,7 @@
 import { TaxClass } from '../models/TaxClass';
 import apiClientService from '@commonServices/ApiClientService';
-import { TAX_BACKOFFICE_TAX_CLASSES_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = TAX_BACKOFFICE_TAX_CLASSES_ENDPOINT;
+const baseUrl = '/api/tax/backoffice/tax-classes';
 
 export async function getTaxClasses(): Promise<TaxClass[]> {
   return (await apiClientService.get(baseUrl)).json();

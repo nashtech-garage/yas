@@ -1,21 +1,24 @@
 interface RequestOptions {
   method: string;
   headers: {
-    'Content-type': string;
     [key: string]: string;
   };
   body?: string;
 }
 
-const sendRequest = async (method: string, endpoint: string, data: any = null) => {
+const sendRequest = async (method: string, endpoint: string, data: any = null, contentType: string | null = null) => {
+  const defaultContentType = 'application/json; charset=UTF-8';
   const requestOptions: RequestOptions = {
     method: method.toUpperCase(),
     headers: {
-      'Content-type': 'application/json; charset=UTF-8',
+      'Content-type': contentType || defaultContentType,
     },
   };
 
   if (data) {
+    if (data instanceof FormData) {
+      delete requestOptions.headers['Content-type'];
+    }
     requestOptions.body = data;
   }
 
@@ -36,8 +39,8 @@ const sendRequest = async (method: string, endpoint: string, data: any = null) =
 
 const apiClientService = {
   get: (endpoint: string) => sendRequest('GET', endpoint),
-  post: (endpoint: string, data: any) => sendRequest('POST', endpoint, data),
-  put: (endpoint: string, data: any) => sendRequest('PUT', endpoint, data),
+  post: (endpoint: string, data: any, contentType: any | null = null) => sendRequest('POST', endpoint, data, contentType),
+  put: (endpoint: string, data: any, contentType: any | null = null) => sendRequest('PUT', endpoint, data, contentType),
   delete: (endpoint: string) => sendRequest('DELETE', endpoint),
 };
 

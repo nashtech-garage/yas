@@ -2,9 +2,8 @@ import { Warehouse } from '../models/Warehouse';
 import { ProductInfoVm } from '../models/ProductInfoVm';
 import { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
 import apiClientService from '@commonServices/ApiClientService';
-import { INVENTORY_BACKOFFICE_WAREHOUSES_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = INVENTORY_BACKOFFICE_WAREHOUSES_ENDPOINT;
+const baseUrl = '/api/inventory/backoffice/warehouses';
 
 export enum FilterExistInWHSelection {
   ALL = 'ALL',

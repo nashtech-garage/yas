@@ -3,9 +3,8 @@ import { Variantion } from '@catalogModels/ProductVariation';
 import { ProductPayload } from '../models/ProductPayload';
 import { Products } from '../models/Products';
 import apiClientService from '@commonServices/ApiClientService';
-import { PRODUCT_BACKOFFICE_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = PRODUCT_BACKOFFICE_ENDPOINT;
+const baseUrl = '/api/product/backoffice';
 
 export async function getProducts(
   pageNo: number,
@@ -23,6 +22,7 @@ export async function exportProducts(productName: string, brandName: string) {
 
 export async function getProduct(id: number) {
   const url = `${baseUrl}/products/${id}`;
+  const response = await apiClientService.get(url);
   return (await apiClientService.get(url)).json();
 }
 
@@ -45,10 +45,14 @@ export async function deleteProduct(id: number) {
 
 export async function getVariationsByProductId(productId: number): Promise<Variantion[]> {
   const url = `${baseUrl}/product-variations/${productId}`;
-  return (await apiClientService.get(url)).json();
+  const response = await apiClientService.get(url);
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return [];
 }
 
 export async function getRelatedProductByProductId(productId: number): Promise<Product[]> {
   const url = `${baseUrl}/products/related-products/${productId}`;
-  return (await apiClientService.get(url)).json();
+  const response = await apiClientService.get(url);
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return [];
 }

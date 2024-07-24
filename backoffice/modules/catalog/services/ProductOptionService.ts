@@ -1,8 +1,7 @@
 import { ProductOption } from '../models/ProductOption';
 import apiClientService from '@commonServices/ApiClientService';
-import { PRODUCT_BACKOFFICE_ATTRIBUTE_OPTIONS_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = PRODUCT_BACKOFFICE_ATTRIBUTE_OPTIONS_ENDPOINT;
+const baseUrl = '/api/product/backoffice/product-options';
 
 export async function getProductOptions(): Promise<ProductOption[]> {
   return (await apiClientService.get(baseUrl)).json();

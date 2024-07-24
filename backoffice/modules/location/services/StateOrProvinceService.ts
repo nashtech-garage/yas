@@ -1,8 +1,7 @@
 import { StateOrProvince } from '../models/StateOrProvince';
 import apiClientService from '@commonServices/ApiClientService';
-import { LOCATION_BACKOFFICE_STATE_OR_PROVINCES_ENDPOINT } from '@constants/Endpoints';
 
-const baseUrl = LOCATION_BACKOFFICE_STATE_OR_PROVINCES_ENDPOINT;
+const baseUrl = '/api/location/backoffice/state-or-provinces';
 
 export async function getStateOrProvincesByCountry(countryId: number): Promise<StateOrProvince[]> {
   const url = `${baseUrl}?countryId=${countryId}`;
