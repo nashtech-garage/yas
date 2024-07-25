@@ -22,7 +22,6 @@ export async function exportProducts(productName: string, brandName: string) {
 
 export async function getProduct(id: number) {
   const url = `${baseUrl}/products/${id}`;
-  const response = await apiClientService.get(url);
   return (await apiClientService.get(url)).json();
 }
 

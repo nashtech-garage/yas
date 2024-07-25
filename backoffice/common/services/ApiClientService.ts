@@ -16,7 +16,7 @@ const sendRequest = async (
   const requestOptions: RequestOptions = {
     method: method.toUpperCase(),
     headers: {
-      'Content-type': contentType || defaultContentType,
+      'Content-type': contentType ?? defaultContentType,
     },
   };
 
@@ -44,9 +44,9 @@ const sendRequest = async (
 
 const apiClientService = {
   get: (endpoint: string) => sendRequest('GET', endpoint),
-  post: (endpoint: string, data: any, contentType: any | null = null) =>
+  post: (endpoint: string, data: any, contentType: string | null = null) =>
     sendRequest('POST', endpoint, data, contentType),
-  put: (endpoint: string, data: any, contentType: any | null = null) =>
+  put: (endpoint: string, data: any, contentType: string | null = null) =>
     sendRequest('PUT', endpoint, data, contentType),
   delete: (endpoint: string) => sendRequest('DELETE', endpoint),
 };
