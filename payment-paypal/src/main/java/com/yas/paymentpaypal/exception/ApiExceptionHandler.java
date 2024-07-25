@@ -37,7 +37,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    protected ResponseEntity<ErrorVm> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -49,7 +49,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler({ ConstraintViolationException.class })
-    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
+    public ResponseEntity<ErrorVm> handleConstraintViolation(ConstraintViolationException ex) {
         List<String> errors = new ArrayList<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             errors.add(violation.getRootBeanClass().getName() + " " +
@@ -61,19 +61,29 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler({ SignInRequiredException.class })
-    public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex) {
+    public ResponseEntity<ErrorVm> handleSignInRequired(SignInRequiredException ex) {
         String message = ex.getMessage();
         ErrorVm errorVm = new ErrorVm("403", "Authentication required", message);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorVm);
     }
 
     @ExceptionHandler({ ForbiddenException.class })
-    public ResponseEntity<Object> handleForbidden(NotFoundException ex, WebRequest request) {
+    public ResponseEntity<ErrorVm> handleForbidden(NotFoundException ex, WebRequest request) {
         String message = ex.getMessage();
         ErrorVm errorVm = new ErrorVm(HttpStatus.FORBIDDEN.toString(), "Forbidden", message);
         log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
         log.debug(ex.toString());
         return new ResponseEntity<>(errorVm, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message);
+        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 500, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private String getServletPath(WebRequest webRequest) {

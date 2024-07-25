@@ -35,7 +35,7 @@ public class ApiExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
+  protected ResponseEntity<ErrorVm> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                 HttpStatus status, WebRequest request) {
     List<String> errors = ex.getBindingResult()
             .getFieldErrors()
@@ -45,6 +45,16 @@ public class ApiExceptionHandler {
 
     ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
     return ResponseEntity.badRequest().body(errorVm);
+  }
+
+  @ExceptionHandler(Exception.class)
+  protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
+    String message = ex.getMessage();
+    ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message);
+    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 500, message);
+    log.debug(ex.toString());
+    return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   private String getServletPath(WebRequest webRequest) {

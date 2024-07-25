@@ -51,4 +51,12 @@ public class ControllerAdvisor {
         ErrorVm errorVm = new ErrorVm("400", "Bad Request", "Request information is not valid", errors);
         return ResponseEntity.badRequest().body(errorVm);
     }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message);
+        return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
