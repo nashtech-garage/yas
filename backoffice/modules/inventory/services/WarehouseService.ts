@@ -1,6 +1,9 @@
 import { Warehouse } from '../models/Warehouse';
 import { ProductInfoVm } from '../models/ProductInfoVm';
 import { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/inventory/backoffice/warehouses';
 
 export enum FilterExistInWHSelection {
   ALL = 'ALL',
@@ -14,50 +17,37 @@ export async function getProductInWarehouse(
   productSku: string,
   existInWHSelection: string
 ): Promise<ProductInfoVm[]> {
-  const response = await fetch(`
-    /api/inventory/backoffice/warehouses/${warehouseId}/products?productName=${productName}&productSku=${productSku}&existStatus=${existInWHSelection}`);
-  return await response.json();
+  const url = `${baseUrl}/${warehouseId}/products?productName=${productName}&productSku=${productSku}&existStatus=${existInWHSelection}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function getWarehouses(): Promise<WarehouseDetail[]> {
-  const response = await fetch('/api/inventory/backoffice/warehouses');
-  return await response.json();
+  return (await apiClientService.get(baseUrl)).json();
 }
 
 export async function getPageableWarehouses(pageNo: number, pageSize: number) {
-  const url = `/api/inventory/backoffice/warehouses/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
-  const response = await fetch(url);
-  return await response.json();
+  const url = `${baseUrl}/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function createWarehouse(warehouseDetail: WarehouseDetail) {
-  const response = await fetch('/api/inventory/backoffice/warehouses', {
-    method: 'POST',
-    body: JSON.stringify(warehouseDetail),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
-  return response;
+  return apiClientService.post(baseUrl, JSON.stringify(warehouseDetail));
 }
 export async function getWarehouse(id: number) {
-  const response = await fetch('/api/inventory/backoffice/warehouses/' + id);
-  return await response.json();
+  const url = `${baseUrl}/${id}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function deleteWarehouse(id: number) {
-  const response = await fetch(`/api/inventory/backoffice/warehouses/${id}`, {
-    method: 'DELETE',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.delete(url);
   if (response.status === 204) return response;
   else return await response.json();
 }
 
 export async function editWarehouse(id: number, warehouseDetail: WarehouseDetail) {
-  const response = await fetch(`/api/inventory/backoffice/warehouses/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    body: JSON.stringify(warehouseDetail),
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.put(url, JSON.stringify(warehouseDetail));
   if (response.status === 204) return response;
   else return await response.json();
 }

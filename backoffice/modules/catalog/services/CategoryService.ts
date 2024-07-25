@@ -1,38 +1,30 @@
 import { Category } from '../models/Category';
 import { ProductThumbnails } from '../models/ProductThumbnails';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/product/backoffice/categories';
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await fetch('/api/product/backoffice/categories');
-  return await response.json();
+  return (await apiClientService.get(baseUrl)).json();
 }
 
 export async function getCategory(id: number): Promise<Category> {
-  const response = await fetch('/api/product/backoffice/categories/' + id);
-  return await response.json();
+  const url = `${baseUrl}/${id}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function createCategory(category: Category) {
-  const response = await fetch('/api/product/backoffice/categories', {
-    method: 'POST',
-    body: JSON.stringify(category),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
-  return response;
+  return await apiClientService.post(baseUrl, JSON.stringify(category));
 }
 export async function updateCategory(id: number, category: Category) {
-  const response = await fetch('/api/product/backoffice/categories/' + id, {
-    method: 'PUT',
-    body: JSON.stringify(category),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.put(url, JSON.stringify(category));
   if (response.status === 204) return response;
   else return await response.json();
 }
 export async function deleteCategory(id: number) {
-  const response = await fetch('/api/product/backoffice/categories/' + id, {
-    method: 'DELETE',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.delete(url);
   if (response.status === 204) return response;
   else return await response.json();
 }
@@ -42,6 +34,5 @@ export async function getProductsByCategory(
   categorySlug: string
 ): Promise<ProductThumbnails> {
   const url = `/api/product/storefront/category/${categorySlug}/products?pageNo=${pageNo}`;
-  const response = await fetch(url);
-  return await response.json();
+  return (await apiClientService.get(url)).json();
 }

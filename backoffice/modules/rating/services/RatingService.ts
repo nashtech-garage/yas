@@ -1,20 +1,16 @@
 import { Rating } from '../models/Rating';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/rating/backoffice/ratings';
 
 export async function getRatings(
   params: string
 ): Promise<{ ratingList: Rating[]; totalPages: number; totalElements: number }> {
-  const url = `/api/rating/backoffice/ratings`;
-
-  const response = await fetch(url + `?${params}`);
-  return await response.json();
+  const url = `${baseUrl}?${params}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function deleteRatingById(id: number) {
-  const url = `/api/rating/backoffice/ratings/${id}`;
-
-  const response = await fetch(url, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return await response.json();
+  const url = `${baseUrl}/${id}`;
+  return (await apiClientService.delete(url)).json();
 }

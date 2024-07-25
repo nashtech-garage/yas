@@ -1,37 +1,29 @@
 import { ProductTemplate } from '@catalogModels/ProductTemplate';
 import { FromProductTemplate } from '@catalogModels/FormProductTemplate';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/product/backoffice/product-template';
 
 export async function getProductTemplates(): Promise<ProductTemplate[]> {
-  const response = await fetch('/api/product/backoffice/product-template');
-  return await response.json();
+  return (await apiClientService.get(baseUrl)).json();
 }
 
 export async function getPageableProductTemplates(pageNo: number, pageSize: number) {
-  const response = await fetch(
-    `/api/product/backoffice/product-template/paging?pageNo=${pageNo}&pageSize=${pageSize}`
-  );
-  return await response.json();
+  const url = `${baseUrl}/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function createProductTemplate(fromProductTemplate: FromProductTemplate) {
-  const response = await fetch(`/api/product/backoffice/product-template`, {
-    method: 'POST',
-    body: JSON.stringify(fromProductTemplate),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
-  return response;
+  return await apiClientService.post(baseUrl, JSON.stringify(fromProductTemplate));
 }
 export async function getProductTemplate(id: number) {
-  const response = await fetch('/api/product/backoffice/product-template/' + id);
-  return await response.json();
+  const url = `${baseUrl}/${id}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function updateProductTemplate(id: number, fromProductTemplate: FromProductTemplate) {
-  const response = await fetch('/api/product/backoffice/product-template/' + id, {
-    method: 'PUT',
-    body: JSON.stringify(fromProductTemplate),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.put(url, JSON.stringify(fromProductTemplate));
   if (response.status === 204) return response;
   else return await response.json();
 }

@@ -1,22 +1,21 @@
 import { ProfileRequest } from '../../profile/models/ProfileRequest';
 import { Customer } from '../models/Customer';
 import { Customers } from '../models/Customers';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/customer';
 
 export async function getCustomers(pageNo: number): Promise<Customers> {
-  const response = await fetch(`/api/customer/backoffice/customers?pageNo=${pageNo}`);
-  return response.json();
+  const url = `${baseUrl}/backoffice/customers?pageNo=${pageNo}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function updateCustomer(profile: ProfileRequest) {
-  const response = await fetch(`/api/customer/`, {
-    method: 'PUT',
-    body: JSON.stringify(profile),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
-  return response;
+  const url = `${baseUrl}/`;
+  return await apiClientService.put(url, JSON.stringify(profile));
 }
 
 export async function getMyProfile() {
-  const response = await fetch(`/api/customer/storefront/customer/profile`);
-  return response.json();
+  const url = `${baseUrl}/storefront/customer/profile`;
+  return (await apiClientService.get(url)).json();
 }

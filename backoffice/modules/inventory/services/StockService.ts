@@ -1,14 +1,11 @@
 import { ProductQuantityInStock } from './../models/ProductQuantityInStock';
 import { StockPostVM } from '@inventoryModels/Stock';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/inventory/backoffice/stocks';
 
 export async function addProductIntoWarehouse(stocks: StockPostVM[]) {
-  const response = await fetch('/api/inventory/backoffice/stocks', {
-    method: 'POST',
-    body: JSON.stringify(stocks),
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  return response;
+  return apiClientService.post(baseUrl, JSON.stringify(stocks));
 }
 
 export async function fetchStocksInWarehouseByProductNameAndProductSku(
@@ -16,25 +13,15 @@ export async function fetchStocksInWarehouseByProductNameAndProductSku(
   productName: string,
   productSku: string
 ): Promise<Response> {
-  const response = await fetch(
-    `/api/inventory/backoffice/stocks?warehouseId=${warehouseId}&productName=${productName}&productSku=${productSku}`,
-    {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
-
-  return response;
+  const url = `${baseUrl}?warehouseId=${warehouseId}&productName=${productName}&productSku=${productSku}`;
+  return apiClientService.get(url);
 }
 
 export async function updateProductQuantityInStock(
   productQuantityInStock: ProductQuantityInStock[]
 ) {
-  const response = await fetch(`/api/inventory/backoffice/stocks`, {
-    method: 'PUT',
-    body: JSON.stringify({ stockQuantityList: productQuantityInStock }),
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  return response;
+  return apiClientService.put(
+    baseUrl,
+    JSON.stringify({ stockQuantityList: productQuantityInStock })
+  );
 }
