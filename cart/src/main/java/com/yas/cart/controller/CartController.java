@@ -22,6 +22,7 @@ import java.util.List;
 @Validated
 @RestController
 public class CartController {
+
     private final CartService cartService;
 
     public CartController(CartService cartService) {
@@ -34,14 +35,16 @@ public class CartController {
     }
 
     @GetMapping("/backoffice/carts/{customerId}")
-    public ResponseEntity<List<CartGetDetailVm>> listCartDetailByCustomerId(@PathVariable String customerId) {
+    public ResponseEntity<List<CartGetDetailVm>> listCartDetailByCustomerId(
+            @PathVariable String customerId) {
         return ResponseEntity.ok(cartService.getCartDetailByCustomerId(customerId));
     }
 
     @GetMapping("/storefront/carts")
     public ResponseEntity<CartGetDetailVm> getLastCart(Principal principal) {
-        if (principal == null)
+        if (principal == null) {
             return ResponseEntity.ok(null);
+        }
         return ResponseEntity.ok(cartService.getLastCart(principal.getName()));
     }
 
@@ -51,7 +54,8 @@ public class CartController {
             @ApiResponse(responseCode = "201", description = "Add to cart successfully", content = @Content(schema = @Schema(implementation = CartGetDetailVm.class))),
             @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CartGetDetailVm> createCart(@Valid @RequestBody @NotEmpty List<CartItemVm> cartItemVms) {
+    public ResponseEntity<CartGetDetailVm> createCart(
+            @Valid @RequestBody @NotEmpty List<CartItemVm> cartItemVms) {
         CartGetDetailVm cartGetDetailVm = cartService.addToCart(cartItemVms);
         return new ResponseEntity<>(cartGetDetailVm, HttpStatus.CREATED);
     }
@@ -59,7 +63,8 @@ public class CartController {
     @PutMapping("cart-item")
     public ResponseEntity<CartItemPutVm> updateCart(@Valid @RequestBody CartItemVm cartItemVm) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return new ResponseEntity<>(cartService.updateCartItems(cartItemVm, auth.getName()), HttpStatus.OK);
+        return new ResponseEntity<>(cartService.updateCartItems(cartItemVm, auth.getName()),
+                HttpStatus.OK);
     }
 
     @DeleteMapping("/storefront/cart-item")
@@ -70,7 +75,8 @@ public class CartController {
     }
 
     @DeleteMapping("/storefront/cart-item/multi-delete")
-    public ResponseEntity<Void> removeCartItemListByProductIdList(@RequestParam List<Long> productIds) {
+    public ResponseEntity<Void> removeCartItemListByProductIdList(
+            @RequestParam List<Long> productIds) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         cartService.removeCartItemListByProductIdList(productIds, auth.getName());
         return ResponseEntity.noContent().build();
@@ -78,8 +84,9 @@ public class CartController {
 
     @GetMapping(path = "/storefront/count-cart-items")
     public ResponseEntity<Long> getNumberItemInCart(Principal principal) {
-        if (principal == null)
+        if (principal == null) {
             return ResponseEntity.ok().body(0L);
+        }
         return ResponseEntity.ok().body(cartService.countNumberItemInCart(principal.getName()));
     }
 

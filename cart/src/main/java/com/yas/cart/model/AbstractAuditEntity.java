@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 @Setter
 @EntityListeners(CustomAuditingEntityListener.class)
 public class AbstractAuditEntity {
+
     @CreationTimestamp
     private ZonedDateTime createdOn;
 

@@ -13,4 +13,5 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 @OAuthScope(name = "openid", description = "openid")
         })))
 public class SwaggerConfig {
+
 }

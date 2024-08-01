@@ -3,6 +3,7 @@ package com.yas.cart.exception;
 import com.yas.cart.utils.MessagesUtils;
 
 public class BadRequestException extends RuntimeException {
+
     private String message;
 
     public BadRequestException(String errorCode, Object... var2) {

@@ -17,17 +17,18 @@ import java.util.stream.Collectors;
 
 @Configuration
 public class SecurityConfig {
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/actuator/prometheus", "/actuator/health/**",
-                            "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/storefront/carts", "/storefront/carts/**").hasRole("CUSTOMER")
-                    .requestMatchers("/storefront/**").permitAll()
-                    .requestMatchers("/backoffice/**").hasRole("ADMIN")
-                    .anyRequest().authenticated())
+                        .requestMatchers("/actuator/prometheus", "/actuator/health/**",
+                                "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/storefront/carts", "/storefront/carts/**").hasRole("CUSTOMER")
+                        .requestMatchers("/storefront/**").permitAll()
+                        .requestMatchers("/backoffice/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
@@ -43,7 +44,8 @@ public class SecurityConfig {
         };
 
         var jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(
+                jwtGrantedAuthoritiesConverter);
 
         return jwtAuthenticationConverter;
     }

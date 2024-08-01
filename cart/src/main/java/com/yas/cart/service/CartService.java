@@ -21,13 +21,14 @@ import java.util.Set;
 
 @Service
 public class CartService {
+
+    private static final String CART_ITEM_UPDATED_MSG = "PRODUCT %s";
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
 
-    private static final String CART_ITEM_UPDATED_MSG = "PRODUCT %s";
-
-    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductService productService) {
+    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository,
+                       ProductService productService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productService = productService;
@@ -56,7 +57,8 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String customerId = auth.getName();
 
-        Cart cart = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId).stream().findFirst().orElse(null);
+        Cart cart = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId).stream().findFirst()
+                .orElse(null);
         Set<CartItem> existedCartItems = new HashSet<>();
 
         if (cart == null) {
@@ -95,8 +97,9 @@ public class CartService {
 
     private CartItem getCartItemByProductId(Set<CartItem> cartItems, Long productId) {
         for (CartItem cartItem : cartItems) {
-            if (cartItem.getProductId().equals(productId))
+            if (cartItem.getProductId().equals(productId)) {
                 return cartItem;
+            }
         }
         return new CartItem();
     }
@@ -107,18 +110,22 @@ public class CartService {
         validateCart(currentCart, cartItemVm.productId());
 
         Long cartId = currentCart.id();
-        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, cartItemVm.productId())
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.NON_EXISTING_CART_ITEM + cartId));
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId,
+                        cartItemVm.productId())
+                .orElseThrow(
+                        () -> new NotFoundException(Constants.ERROR_CODE.NON_EXISTING_CART_ITEM + cartId));
 
         int newQuantity = cartItemVm.quantity();
         cartItem.setQuantity(newQuantity);
         if (newQuantity == 0) {
             cartItemRepository.delete(cartItem);
-            return CartItemPutVm.fromModel(cartItem, String.format(CART_ITEM_UPDATED_MSG, "DELETED"));
+            return CartItemPutVm.fromModel(cartItem,
+                    String.format(CART_ITEM_UPDATED_MSG, "DELETED"));
         } else {
             CartItem savedCartItem = cartItemRepository.saveAndFlush(cartItem);
             cartItem.setQuantity(newQuantity);
-            return CartItemPutVm.fromModel(savedCartItem, String.format(CART_ITEM_UPDATED_MSG, "UPDATED"));
+            return CartItemPutVm.fromModel(savedCartItem,
+                    String.format(CART_ITEM_UPDATED_MSG, "UPDATED"));
         }
     }
 
@@ -134,9 +141,11 @@ public class CartService {
         }
 
         List<CartDetailVm> cartDetailListVm = cart.cartDetails();
-        boolean itemExist = cartDetailListVm.stream().anyMatch(item -> item.productId().equals(productId));
+        boolean itemExist = cartDetailListVm.stream()
+                .anyMatch(item -> item.productId().equals(productId));
         if (!itemExist) {
-            throw new NotFoundException(Constants.ERROR_CODE.NOT_EXISTING_PRODUCT_IN_CART, productId);
+            throw new NotFoundException(Constants.ERROR_CODE.NOT_EXISTING_PRODUCT_IN_CART,
+                    productId);
         }
     }
 

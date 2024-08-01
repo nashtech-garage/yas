@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = CartApplication.class)
 class CartServiceTest {
+
+    Cart cart1;
+    Cart cart2;
     @Autowired
     private CartRepository cartRepository;
     @Autowired
@@ -28,8 +31,6 @@ class CartServiceTest {
     private ProductService productService;
     @Autowired
     private CartService cartService;
-    Cart cart1;
-    Cart cart2;
 
     @BeforeEach
     void setUp() {
@@ -60,7 +61,7 @@ class CartServiceTest {
     void getCarts_ExistInDatabase_Success() {
         List<CartListVm> cartListVmActual = cartService.getCarts();
         assertEquals(2, cartListVmActual.size());
-        for(CartListVm cartListVm : cartListVmActual) {
+        for (CartListVm cartListVm : cartListVmActual) {
             assertThat(cartListVm.customerId().startsWith("customer-"));
         }
     }
