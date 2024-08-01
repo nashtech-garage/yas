@@ -8,7 +8,6 @@ import ConfirmationDialog from '@/common/components/dialog/ConfirmationDialog';
 import { useCartContext } from '@/context/CartContext';
 import { Cart as CartModel } from '@/modules/cart/models/Cart';
 import {
-  addToCart,
   getCart,
   getCartProductThumbnail,
   removeProductInCart,
@@ -113,16 +112,14 @@ const Cart = () => {
     setIsOpenRemoveDialog(false);
   };
 
-  const handlePlus = (productId: number) => {
-    addToCart([
-      {
-        productId: productId,
-        quantity: 1,
-      },
-    ])
+  const handlePlus = (productId: number, productQuantity: number) => {
+    updateCart({
+      productId: productId,
+      quantity: productQuantity + 1,
+    })
       .then(() => loadCart())
       .catch((err) => {
-        console.log('Add to cart fail: ' + err.message);
+        console.log('Plus product to cart fail: ' + err.message);
       });
   };
 
@@ -316,7 +313,7 @@ const Cart = () => {
                                   type="button"
                                   value="+"
                                   className="plus"
-                                  onClick={() => handlePlus(item.productId)}
+                                  onClick={() => handlePlus(item.productId, item.quantity)}
                                 />
                               </div>
                             </div>
