@@ -13,5 +13,6 @@
   "schema.include.list": "public",
   "table.include.list": "public.order",
   "column.include.list": "public.order.order_status",
-  "slot.name": "order_slot"
+  "slot.name": "order_slot",
+  "skip.messages.without.change": "true"
 }
