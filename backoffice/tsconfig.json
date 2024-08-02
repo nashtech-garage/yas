@@ -16,7 +16,8 @@
       "@catalogComponents/*": ["modules/catalog/components/*"],
       "@inventoryServices/*": ["modules/inventory/services/*"],
       "@inventoryModels/*": ["modules/inventory/models/*"],
-      "@inventoryComponents/*": ["modules/inventory/components/*"]
+      "@inventoryComponents/*": ["modules/inventory/components/*"],
+      "@styles/*": ["styles/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

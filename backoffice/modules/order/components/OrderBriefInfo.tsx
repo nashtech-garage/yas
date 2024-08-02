@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { Order } from '../models/Order';
 import { formatPriceVND } from 'utils/formatPrice';
+import styles from '@styles/print-hidden.module.css';
 type Props = {
   order: Order;
 };
@@ -101,7 +102,9 @@ const OrderBriefInfo = ({ order }: Props) => {
                     <p className="col-8 ms-3"></p>
                   </div>
                   <div className="d-flex justify-content-center me-5">
-                    <button className="me-5 btn btn-dark">Edit Order totals</button>
+                    <button className={`me-5 btn btn-dark ${styles['print-hidden']}`}>
+                      Edit Order totals
+                    </button>
                   </div>
                   <div className="d-flex flex-row">
                     <h6 className="col-4 d-flex flex-row-reverse text-dark font-weight-bold mb-3">
@@ -116,8 +119,12 @@ const OrderBriefInfo = ({ order }: Props) => {
                     <p className="col-8 font-weight-bold ms-3">{order.paymentStatus}</p>
                   </div>
                   <div className="d-flex justify-content-center me-5">
-                    <button className="me-2 btn btn-dark">Refund</button>
-                    <button className="me-1 btn btn-dark">Partial refund</button>
+                    <button className={`me-2 btn btn-dark ${styles['print-hidden']}`}>
+                      Refund
+                    </button>
+                    <button className={`me-1 btn btn-dark  ${styles['print-hidden']}`}>
+                      Partial refund
+                    </button>
                   </div>
                 </div>
               </div>
