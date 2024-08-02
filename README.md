@@ -63,7 +63,7 @@ YAS is a pet project aim to practice building a typical microservice application
 4. All the containers up and running then we start source connectors by run script, open any terminal window... go to the YAS root folder and type: ./start-source-connectors.sh
 5. Open your browser, now you can access the websites via `http://storefront/`; `http://backoffice/` login with admin/password
 
-> *_Warning:_* For the first run, the storefront and the backoffice might not work as expected. Stop all the containers (Ctrl + C) and run docker compose up again.
+> *_Note:_* For the first run, the storefront and the backoffice might not work as expected. Stop all the containers (Ctrl + C) and run docker compose up again.
 
 #### You might also want to explore:
 1. `http://pgadmin.yas.local/`. Account login: `admin@yas.com` / admin. Register a server: postgres, port 5432, username admin, password admin. The Postgresql server is also exposed to the host machine: servername: localhost, port: 5432, username: admin, password: admin
