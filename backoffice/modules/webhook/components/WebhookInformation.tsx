@@ -13,7 +13,6 @@ type Props = {
 };
 
 const WebhookInformation = ({ register, errors, setValue, trigger, webhook }: Props) => {
-
   return (
     <>
       <Input

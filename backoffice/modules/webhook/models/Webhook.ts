@@ -1,4 +1,4 @@
-import { WebhookEvent } from "./Event";
+import { WebhookEvent } from './Event';
 
 export type Webhook = {
   id: number;
@@ -6,5 +6,5 @@ export type Webhook = {
   secret: string;
   contentType: string;
   isActive: boolean;
-  events: WebhookEvent[]; 
+  events: WebhookEvent[];
 };

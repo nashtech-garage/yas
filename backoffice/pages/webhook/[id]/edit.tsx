@@ -34,7 +34,7 @@ const WebhookEdit: NextPage = () => {
         contentType: webhook.contentType,
         secret: webhook.secret,
         isActive: webhook.isActive,
-        events: webhook.events
+        events: webhook.events,
       };
 
       updateWebhook(+id, payload)
@@ -82,7 +82,7 @@ const WebhookEdit: NextPage = () => {
             <label className="form-label" htmlFor="events">
               Events
             </label>
-            <EventInformation events={webhook.events} setValue={setValue} getValue={getValues} /> 
+            <EventInformation events={webhook.events} setValue={setValue} getValue={getValues} />
             <button className="btn btn-primary" type="submit">
               Save
             </button>

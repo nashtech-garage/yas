@@ -14,7 +14,7 @@ import {
   SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
   SYSTEM_PAYMENT_PROVIDERS,
   SYSTEM_SETTINGS,
-  WEBHOOKS_URL
+  WEBHOOKS_URL,
 } from '@constants/Common';
 
 export const menu_catalog_item_data = [
@@ -160,5 +160,5 @@ export const menu_system_item_data = [
     id: 3,
     name: 'Webhooks',
     link: WEBHOOKS_URL,
-  }
+  },
 ];

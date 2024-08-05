@@ -85,8 +85,10 @@ const WebhookList: NextPage = () => {
               <td>
                 <div
                   className={
-                    webhook.isActive ? `border border-success btn-sm text-success`
-                      : `border border-warning btn-sm text-warning`}
+                    webhook.isActive
+                      ? `border border-success btn-sm text-success`
+                      : `border border-warning btn-sm text-warning`
+                  }
                 >
                   {webhook.isActive ? `ACTIVE` : `INACTIVE`}
                 </div>

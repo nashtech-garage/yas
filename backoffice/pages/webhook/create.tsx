@@ -28,7 +28,7 @@ const WebhookCreate: NextPage = () => {
       contentType: ContentType.APPLICATION_JSON,
       secret: webhook.secret,
       isActive: webhook.isActive,
-      events: webhook.events
+      events: webhook.events,
     };
 
     let response = await createWebhook(payload);
