@@ -31,13 +31,6 @@ exporters:
     endpoint: "tempo:4317"
     tls:
       insecure: true
-  # It's better to implement the push metrics to Prometheus. But this work is not fully finished.
-  
-  # prometheusremotewrite:
-  #   # endpoint: "http://prometheus:9090/api/prom/push"
-  #   endpoint: "http://prometheus:9090/api/v1/write"
-  #   resource_to_telemetry_conversion:
-  #     enabled: true # Convert resource attributes to metric labels
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
     default_labels_enabled:
