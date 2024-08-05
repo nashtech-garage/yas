@@ -44,11 +44,6 @@
 			<artifactId>spring-kafka</artifactId>
 			<version>3.1.2</version>
 		</dependency>
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct</artifactId>
-			<version>1.6.0.Beta1</version>
-		</dependency>
 	</dependencies>
 
 	<build>
