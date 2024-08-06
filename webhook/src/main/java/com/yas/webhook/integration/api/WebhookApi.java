@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.yas.webhook.utils.HmacUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClient.RequestBodySpec;
 
 @Component
 @RequiredArgsConstructor
@@ -18,12 +20,15 @@ public class WebhookApi {
   @SneakyThrows
   public void notify(String url, String secret, JsonNode jsonNode) {
 
-    String secretToken = HmacUtils.hash(jsonNode.toString(), secret);
+    RequestBodySpec requestBodySpec = restClient.post()
+        .uri(url);
 
-    restClient.post()
-        .uri(url)
-        .header(X_HUB_SIGNATURE_256, secretToken)
-        .body(jsonNode)
+    if (StringUtils.isNoneEmpty(secret)) {
+      String secretToken = HmacUtils.hash(jsonNode.toString(), secret);
+      requestBodySpec.header(X_HUB_SIGNATURE_256, secretToken);
+    }
+
+    requestBodySpec.body(jsonNode)
         .retrieve()
         .toBodilessEntity();
   }
