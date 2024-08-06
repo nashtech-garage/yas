@@ -29,6 +29,11 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -f backoffice-bff
+      - name: Run Maven Checkstyle
+        run: mvn checkstyle:checkstyle -f backoffice-bff
+      - uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          path: '**/checkstyle-result.xml'
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:

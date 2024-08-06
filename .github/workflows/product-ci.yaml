@@ -29,6 +29,11 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -pl product -am
+      - name: Run Maven Checkstyle
+        run: mvn checkstyle:checkstyle -pl product -am
+      - uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          path: '**/checkstyle-result.xml'
       - name: Run Maven Test
         run: mvn test -pl product -am
       - name: Unit Test Results
