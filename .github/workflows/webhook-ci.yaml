@@ -7,13 +7,14 @@ on:
       - "webhook/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/webhook-ci.yaml"
+      - "pom.xml"
   pull_request:
     branches: ["main"]
     paths:
       - "webhook/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/webhook-ci.yaml"
-
+      - "pom.xml"
   workflow_dispatch:
 
 jobs:
