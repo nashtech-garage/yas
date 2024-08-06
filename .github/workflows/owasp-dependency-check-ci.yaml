@@ -1,0 +1,27 @@
+name: owasp dependency check ci
+
+on:
+  push:
+    branches: ["#818-add_OWASP_dependency_check_to_CI"]
+    paths:
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/owasp-dependency-check-ci.yaml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/owasp-dependency-check-ci.yaml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+        - uses: ./.github/workflows/actions
+        - name: OWASP Dependency Check
+          run: mvn org.owasp:dependency-check-maven:check
