@@ -24,9 +24,13 @@ jobs:
             fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
         - uses: ./.github/workflows/actions
         - name: OWASP Dependency Check
-          run: mvn clean package org.owasp:dependency-check-maven:aggregate --file src/pom.xml -Dfmt.skip=true -DskipTests=true -fae -B -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN -DfailBuildOnCVSS=7
-        - name: Upload scan results to GitHub Code Scanning
-          if: ${{ always() }}
-          uses: github/codeql-action/upload-sarif@v2
+          uses: dependency-check/Dependency-Check_Action@main
           with:
-            sarif_file: target/dependency-check-report.sarif
+            project: 'yas'
+            path: '.'
+            format: 'HTML'
+        - name: Upload OWASP Dependency Check results
+          uses: actions/upload-artifact@master
+          with:
+            name: OWASP Dependency Check Report
+            path: ${{github.workspace}}/reports
