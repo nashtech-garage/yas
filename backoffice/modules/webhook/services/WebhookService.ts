@@ -1,38 +1,32 @@
 import { Webhook } from '../models/Webhook';
+import apiClientService from '@commonServices/ApiClientService';
+
+const baseUrl = '/api/webhook/backoffice/webhooks';
 
 export async function getWebhooks(pageNo: number, pageSize: number) {
-  const url = `/api/webhook/backoffice/webhooks/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
-  const response = await fetch(url);
-  return await response.json();
-}
-
-export async function getWebhook(id: number): Promise<Webhook> {
-  const response = await fetch('/api/webhook/backoffice/webhooks/' + id);
-  return await response.json();
+  const url = `${baseUrl}/paging?pageNo=${pageNo}&pageSize=${pageSize}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function createWebhook(webhook: Webhook) {
-  const response = await fetch('/api/webhook/backoffice/webhooks', {
-    method: 'POST',
-    body: JSON.stringify(webhook),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
-  return response;
+  return await apiClientService.post(baseUrl, JSON.stringify(webhook));
 }
-export async function updateWebhook(id: number, webhook: Webhook) {
-  const response = await fetch('/api/webhook/backoffice/webhooks/' + id, {
-    method: 'PUT',
-    body: JSON.stringify(webhook),
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+
+export async function getWebhook(id: number) {
+  const url = `${baseUrl}/${id}`;
+  return (await apiClientService.get(url)).json();
+}
+
+export async function deleteWebhook(id: number) {
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.delete(url);
   if (response.status === 204) return response;
   else return await response.json();
 }
-export async function deleteWebhook(id: number) {
-  const response = await fetch('/api/webhook/backoffice/webhooks/' + id, {
-    method: 'DELETE',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+
+export async function updateWebhook(id: number, webhook: Webhook) {
+  const url = `${baseUrl}/${id}`;
+  const response = await apiClientService.put(url, JSON.stringify(webhook));
   if (response.status === 204) return response;
   else return await response.json();
 }

@@ -19,11 +19,12 @@ const EventInformation = ({ events, setValue, getValue: _getValue }: Props) => {
   useEffect(() => {
     getEvents().then((data) => {
       setAllEvents(data);
+      listCheckEvent = [];
       if (events !== undefined && latestCheckedEvent.length === 0) {
         events.map((item: any) => {
-          latestCheckedEvent.push(item);
+          listCheckEvent.push(item);
         });
-        setLatestCheckedEvent(latestCheckedEvent);
+        setLatestCheckedEvent(listCheckEvent);
       }
     });
   }, []);
@@ -40,13 +41,14 @@ const EventInformation = ({ events, setValue, getValue: _getValue }: Props) => {
       const webhookEvent = allEvents.find((element) => element.id === checkedEventId);
       if (webhookEvent !== undefined) {
         setLatestCheckedEvent([webhookEvent, ...latestCheckedEvent]);
-        latestCheckedEvent = [webhookEvent, ...latestCheckedEvent];
+        listCheckEvent = [webhookEvent, ...latestCheckedEvent];
       }
     } else {
       latestCheckedEvent = latestCheckedEvent.filter((item) => item.id !== checkedEventId);
-      setLatestCheckedEvent(latestCheckedEvent);
+      listCheckEvent = Array.from(new Set(latestCheckedEvent));
+      setLatestCheckedEvent(listCheckEvent);
     }
-    setValue('events', latestCheckedEvent);
+    setValue('events', listCheckEvent);
   };
 
   return (
