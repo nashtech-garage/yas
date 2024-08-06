@@ -1,12 +1,10 @@
 package com.yas.cart.viewmodel;
 
-import com.yas.cart.model.Cart;
-
 import java.util.List;
 
-public record CartGetDetailVm(Long id, String customerId, Long orderId,
-                              List<CartDetailVm> cartDetails) {
+import com.yas.cart.model.Cart;
 
+public record CartGetDetailVm(Long id, String customerId, Long orderId, List<CartDetailVm> cartDetails) {
     public static CartGetDetailVm fromModel(Cart cart) {
         return new CartGetDetailVm(
                 cart.getId(),

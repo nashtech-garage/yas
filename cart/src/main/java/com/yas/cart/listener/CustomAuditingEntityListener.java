@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Configurable
 public class CustomAuditingEntityListener extends AuditingEntityListener {
-
     public CustomAuditingEntityListener(ObjectFactory<AuditingHandler> handler) {
         super.setAuditingHandler(handler);
     }

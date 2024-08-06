@@ -21,9 +21,7 @@ public class DatabaseAutoConfig {
     public AuditorAware<String> auditorAware() {
         return () -> {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null) {
-                return Optional.of("");
-            }
+            if (auth == null) return Optional.of("");
             return Optional.of(auth.getName());
         };
     }

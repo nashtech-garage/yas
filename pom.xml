@@ -159,11 +159,6 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>3.4.0</version>
-        </dependency>
     </dependencies>
     <build>
         <pluginManagement>
@@ -193,27 +188,6 @@
                                 <version>${lombok-mapstruct-binding.version}</version>
                             </path>
                         </annotationProcessorPaths>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.4.0</version>
-                    <executions>
-                        <execution>
-                            <id>checkstyle</id>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <configLocation>google_checks.xml</configLocation>
-                        <suppressionsLocation>/checkstyle-suppressions.xml</suppressionsLocation>
-                        <consoleOutput>true</consoleOutput>
-                        <failsOnError>false</failsOnError>
-                        <failOnViolation>false</failOnViolation>
                     </configuration>
                 </plugin>
             </plugins>
