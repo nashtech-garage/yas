@@ -1137,7 +1137,8 @@
         "http://localhost:8088/*",
         "http://localhost:8085/*",
         "http://localhost:8084/*",
-        "http://localhost:8086/*"
+        "http://localhost:8086/*",
+        "http://localhost:8092/*"
       ],
       "webOrigins": [
         "http://api.yas.local",

@@ -30,6 +30,7 @@
         <module>search</module>
         <module>storefront-bff</module>
         <module>tax</module>
+        <module>webhook</module>
     </modules>
 
     <properties>
