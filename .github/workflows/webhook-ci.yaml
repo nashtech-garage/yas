@@ -2,7 +2,7 @@ name: webhook service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["#815-Show_test_coverage_report"]
     paths:
       - "webhook/**"
       - ".github/workflows/actions/action.yaml"
@@ -56,6 +56,25 @@ jobs:
         with:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: coverage/**/coverage.cobertura.xml
+          badge: true
+          fail_below_min: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: '60 80'
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+#        if: github.event_name == 'pull_request'
+        if: github.event_name == 'push'
+        with:
+          recreate: true
+          path: code-coverage-results.md
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
