@@ -43,6 +43,14 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: api_webhook_local
+          uri: http://localhost:8092
+          #uri: http://api.yas.local
+          predicates:
+            - Path=/api/webhook/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - TokenRelay=
         - id: api_product_local
           uri: http://localhost:8080
           #uri: http://api.yas.local
