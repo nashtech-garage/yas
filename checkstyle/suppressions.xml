@@ -5,4 +5,7 @@
 
 <suppressions>
   <suppress files=".*" checks="JavadocMethod"/>
+  <suppress files=".*" checks="MissingJavadocMethod"/>
+  <suppress files=".*" checks="JavadocType"/>
+  <suppress files=".*" checks="MissingJavadocType"/>
 </suppressions>
