@@ -9,13 +9,14 @@ import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.model.enumeration.FilterExistInWHSelection;
 import com.yas.product.repository.*;
 import com.yas.product.utils.Constants;
-import com.yas.product.utils.StringUtils;
+import com.yas.product.utils.ProductConverter;
 import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.product.*;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
+import io.micrometer.common.util.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.data.domain.Page;
@@ -213,7 +214,7 @@ public class ProductService {
                         .build();
                 List<ProductOptionCombination> productOptionCombinationList =
                         productsVariantsSaved.stream()
-                                .filter(product -> product.getSlug().contains(StringUtils.toSlug(value)))
+                                .filter(product -> product.getSlug().contains(ProductConverter.toSlug(value)))
                                 .map(mapToOptionCombination(productOptionMap, optionValue.productOptionId(), value, optionValue.displayOrder())).toList();
                 productOptionValues.add(productOptionValue);
                 productOptionCombinations.addAll(productOptionCombinationList);
@@ -294,7 +295,7 @@ public class ProductService {
                         .build();
                 List<ProductOptionCombination> productOptionCombinationList =
                         productsVariantsSaved.stream()
-                                .filter(variant -> variant.getSlug().contains(StringUtils.toSlug(value)))
+                                .filter(variant -> variant.getSlug().contains(ProductConverter.toSlug(value)))
                                 .map(mapToOptionCombination(productOptionMap, optionValue.productOptionId(), value, optionValue.displayOrder())).toList();
                 productOptionValues.add(productOptionValue);
                 productOptionCombinations.addAll(productOptionCombinationList);
@@ -560,12 +561,28 @@ public class ProductService {
 
     public List<ProductThumbnailGetVm> getFeaturedProductsById(List<Long> productIds) {
         List<Product> products = productRepository.findAllByIdIn(productIds);
-        return products.stream().map(product -> new ProductThumbnailGetVm(
+        return products.stream().map(product -> {
+
+            String thumbnailUrl = mediaService.getMedia(product.getThumbnailMediaId()).url();
+            if (StringUtils.isNotEmpty(thumbnailUrl) || Objects.isNull(product.getParent())) {
+                return new ProductThumbnailGetVm(
+                        product.getId(),
+                        product.getName(),
+                        product.getSlug(),
+                        thumbnailUrl,
+                        product.getPrice());
+            }
+
+            Optional<Product> parentProduct = productRepository.findById(product.getParent().getId());
+
+            return new ProductThumbnailGetVm(
                 product.getId(),
                 product.getName(),
                 product.getSlug(),
-                mediaService.getMedia(product.getThumbnailMediaId()).url(),
-                product.getPrice())).toList();
+                parentProduct.map(pr -> mediaService.getMedia(pr.getThumbnailMediaId()).url())
+                    .orElse(""),
+                product.getPrice());
+        }).toList();
     }
 
     public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int pageSize) {
