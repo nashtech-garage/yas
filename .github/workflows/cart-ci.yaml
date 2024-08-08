@@ -30,7 +30,7 @@ jobs:
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -pl cart -am
       - name: Run Maven Test
-        run: mvn -B package --file pom.xml
+        run: mvn package -pl cart -am
       - name: Upload Report
         uses: actions/upload-artifact@v3
         with:
