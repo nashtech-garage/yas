@@ -36,7 +36,7 @@ jobs:
         with:
           name: jacoco-report
           path: |
-            ${{github.workspace}}/target/site/jacoco/jacoco.xml
+            ${{github.workspace}}/target/jacoco.exec
             ${{github.workspace}}/target/site/jacoco/index.html
       - name: Add coverage to PR
         id: jacoco
