@@ -201,19 +201,20 @@ const Orders: NextPage = () => {
             ))}
         </tbody>
       </Table>
-
-      <ReactPaginate
-        forcePage={pageNo}
-        previousLabel={'Previous'}
-        nextLabel={'Next'}
-        pageCount={totalPage}
-        onPageChange={handlePageChange}
-        containerClassName={'pagination-container'}
-        previousClassName={'previous-btn'}
-        nextClassName={'next-btn'}
-        disabledClassName={'pagination-disabled'}
-        activeClassName={'pagination-active'}
-      />
+      {totalPage > 1 && (
+        <ReactPaginate
+          forcePage={pageNo}
+          previousLabel={'Previous'}
+          nextLabel={'Next'}
+          pageCount={totalPage}
+          onPageChange={handlePageChange}
+          containerClassName={'pagination-container'}
+          previousClassName={'previous-btn'}
+          nextClassName={'next-btn'}
+          disabledClassName={'pagination-disabled'}
+          activeClassName={'pagination-active'}
+        />
+      )}
     </>
   );
 };

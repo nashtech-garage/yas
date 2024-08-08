@@ -50,18 +50,20 @@ export default function RatingList({
             </div>
           ))}
           {/* PAGINATION */}
-          <ReactPaginate
-            forcePage={pageNo}
-            previousLabel={'Previous'}
-            nextLabel={'Next'}
-            pageCount={totalPages}
-            onPageChange={handlePageChange}
-            containerClassName={'pagination-container'}
-            previousClassName={'previous-btn'}
-            nextClassName={'next-btn'}
-            disabledClassName={'pagination-disabled'}
-            activeClassName={'pagination-active'}
-          />
+          {totalPages > 1 && (
+            <ReactPaginate
+              forcePage={pageNo}
+              previousLabel={'Previous'}
+              nextLabel={'Next'}
+              pageCount={totalPages}
+              onPageChange={handlePageChange}
+              containerClassName={'pagination-container'}
+              previousClassName={'previous-btn'}
+              nextClassName={'next-btn'}
+              disabledClassName={'pagination-disabled'}
+              activeClassName={'pagination-active'}
+            />
+          )}
         </>
       )}
     </>

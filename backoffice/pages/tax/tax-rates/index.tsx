@@ -117,18 +117,20 @@ const TaxRateList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      <ReactPaginate
-        forcePage={pageNo}
-        previousLabel={'Previous'}
-        nextLabel={'Next'}
-        pageCount={totalPage}
-        onPageChange={changePage}
-        containerClassName={'pagination-container'}
-        previousClassName={'previous-btn'}
-        nextClassName={'next-btn'}
-        disabledClassName={'pagination-disabled'}
-        activeClassName={'pagination-active'}
-      />
+      {totalPage > 1 && (
+        <ReactPaginate
+          forcePage={pageNo}
+          previousLabel={'Previous'}
+          nextLabel={'Next'}
+          pageCount={totalPage}
+          onPageChange={changePage}
+          containerClassName={'pagination-container'}
+          previousClassName={'previous-btn'}
+          nextClassName={'next-btn'}
+          disabledClassName={'pagination-disabled'}
+          activeClassName={'pagination-active'}
+        />
+      )}
     </>
   );
 };
