@@ -78,23 +78,28 @@ YAS is a pet project aim to practice building a typical microservice application
 3. docker-compose.o11y.yml for observability services
 
 ## Code Style Configuration:
-    Checkstyle configuration that checks the Google coding conventions from Google Java Style
-    that can be found at https://google.github.io/styleguide/javaguide.html
 
-    Checkstyle is very configurable. Be sure to read the documentation at
-    http://checkstyle.org (or in your downloaded distribution).
+#### For IntelliJ IDEA:
 
-    To completely disable a check, just comment it out or delete it from the file.
-    To suppress certain violations please review suppression filters.
+#### Install CheckStyle-IDEA Plugin:
+1. File -> Setting -> Plugin
+2. Find and Install CheckStyle-IDEA Plugin: https://plugins.jetbrains.com/plugin/1065-checkstyle-idea
 
+#### Add Code Style:
 
-Using google_checks.xml version 9.3:
-https://github.com/checkstyle/checkstyle/blob/checkstyle-9.3/src/main/resources/google_checks.xml
-
-For IntelliJ IDEA:
 1. File -> Setting -> Editor -> Code Style -> Java
 2. Import Scheme -> Checkstyle configuration
 3. Apply file checkstyle/checkstyle.xml to import
+
+> *Note:* checkstyle.xml is referenced from google_checks.xml version 9.3:
+https://github.com/checkstyle/checkstyle/blob/checkstyle-9.3/src/main/resources/google_checks.xml
+
+    Checkstyle configuration that checks the Google coding conventions from Google Java Style that can be found at https://google.github.io/styleguide/javaguide.html
+    
+    Checkstyle is very configurable. Be sure to read the documentation at http://checkstyle.org (or in your downloaded distribution).
+    
+    To completely disable a check, just comment it out or delete it from the file.
+    To suppress certain violations please review suppression filters.
 
 ## Deploy to Kubernetes
 https://github.com/nashtech-garage/yas/tree/main/k8s/deploy
