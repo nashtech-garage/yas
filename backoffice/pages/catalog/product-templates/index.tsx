@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
-import { ProductTemplate } from '@catalogModels/ProductTemplate';
+import type { ProductTemplate } from '@catalogModels/ProductTemplate';
 import { getPageableProductTemplates } from '@catalogServices/ProductTemplateService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 
@@ -79,18 +79,20 @@ const ProductTemplate: NextPage = () => {
               ))}
             </tbody>
           </Table>
-          <ReactPaginate
-            forcePage={pageNo}
-            previousLabel={'Previous'}
-            nextLabel={'Next'}
-            pageCount={totalPage}
-            onPageChange={changePage}
-            containerClassName={'pagination-container'}
-            previousClassName={'previous-btn'}
-            nextClassName={'next-btn'}
-            disabledClassName={'pagination-disabled'}
-            activeClassName={'pagination-active'}
-          />
+          {totalPage > 1 && (
+            <ReactPaginate
+              forcePage={pageNo}
+              previousLabel={'Previous'}
+              nextLabel={'Next'}
+              pageCount={totalPage}
+              onPageChange={changePage}
+              containerClassName={'pagination-container'}
+              previousClassName={'previous-btn'}
+              nextClassName={'next-btn'}
+              disabledClassName={'pagination-disabled'}
+              activeClassName={'pagination-active'}
+            />
+          )}
         </>
       )}
     </>
