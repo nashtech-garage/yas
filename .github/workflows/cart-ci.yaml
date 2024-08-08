@@ -31,6 +31,21 @@ jobs:
         run: mvn clean install -DskipTests -pl cart -am
       - name: Run Maven Test
         run: mvn test -pl cart -am
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: |
+            ${{github.workspace}}/target/site/jacoco/jacoco.xml
+            ${{github.workspace}}/target/site/jacoco/index.html
+      - name: Add coverage to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: ${{github.workspace}}/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 80
+          min-coverage-changed-files: 60
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
@@ -56,21 +71,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl cart -am
-      - name: Upload Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: jacoco-report
-          path: |
-            ${{github.workspace}}/target/site/jacoco/jacoco.xml
-            ${{github.workspace}}/target/site/jacoco/index.html
-      - name: Add coverage to PR
-        id: jacoco
-        uses: madrapps/jacoco-report@v1.6.1
-        with:
-          paths: ${{github.workspace}}/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
