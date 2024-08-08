@@ -61,8 +61,8 @@ jobs:
         with:
           name: jacoco-report
           path: |
-            ./target/site/jacoco/jacoco.xml
-            ./target/site/jacoco/index.html
+            ${{github.workspace}}/target/site/jacoco/jacoco.xml
+            ${{github.workspace}}/target/site/jacoco/index.html
       - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
