@@ -807,7 +807,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_committed_bytes{application=\"$application\", job=\"$job\", id=~\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_committed_bytes{service_name=\"$service\", id=~\"$jvm_memory_pool_heap\"}",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -818,7 +818,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_max_bytes{application=\"$application\", job=\"$job\", id=~\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_max_bytes{service_name=\"$service\", id=~\"$jvm_memory_pool_heap\"}",
           "hide": false,
           "instant": false,
           "range": true,
@@ -924,7 +924,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_committed_bytes{application=\"$application\", job=\"$job\", id=~\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_committed_bytes{service_name=\"$service\", id=~\"$jvm_memory_pool_nonheap\"}",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -935,7 +935,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_max_bytes{application=\"$application\", job=\"$job\", id=~\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_max_bytes{service_name=\"$service\", id=~\"$jvm_memory_pool_nonheap\"}",
           "hide": false,
           "instant": false,
           "range": true,
@@ -1324,7 +1324,7 @@
       },
       "id": 3,
       "panels": [],
-      "repeat": "job",
+      "repeat": "service_name",
       "repeatDirection": "h",
       "title": "CPU Observability",
       "type": "row"
@@ -1384,7 +1384,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "expr": "process_cpu_seconds_total",
           "instant": false,
           "range": true,
@@ -1396,14 +1396,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_class_loaded_total{job=\"$job\"}",
+          "expr": "jvm_class_loaded_total{service_name=\"$service\"}",
           "hide": false,
           "instant": false,
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "CPU Usage Per Job",
+      "title": "CPU Usage Per Service",
       "type": "stat"
     },
     {
@@ -1918,13 +1918,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by(job) (jvm_memory_used_bytes{service_name=\"$service\"}) / 1048576",
+          "expr": "sum by(service_name) (jvm_memory_used_bytes{service_name=\"$service\"}) / 1048576",
           "instant": false,
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Memory Usage Per Job (Mb)",
+      "title": "Memory Usage Per Service (Mb)",
       "type": "timeseries"
     },
     {
@@ -2270,7 +2270,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "expr": "db_client_connections_max",
           "instant": false,
           "range": true,
@@ -2455,7 +2455,7 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(jvm_memory_used_bytes{application=\"$application\", job=\"$job\", area=\"heap\"},id)",
+        "definition": "label_values(jvm_memory_used_bytes{service_name=\"$service\", area=\"heap\"},id)",
         "hide": 0,
         "includeAll": false,
         "label": "JVM Memory Pools Heap",
@@ -2463,7 +2463,7 @@
         "name": "jvm_memory_pool_heap",
         "options": [],
         "query": {
-          "query": "label_values(jvm_memory_used_bytes{application=\"$application\", job=\"$job\", area=\"heap\"},id)",
+          "query": "label_values(jvm_memory_used_bytes{service_name=\"$service\", area=\"heap\"},id)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -2482,7 +2482,7 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(jvm_memory_used_bytes{application=\"$application\", job=\"$job\", area=\"nonheap\"},id)",
+        "definition": "label_values(jvm_memory_used_bytes{service_name=\"$service\", area=\"nonheap\"},id)",
         "hide": 0,
         "includeAll": false,
         "label": "JVM Memory Pools Non-Heap",
@@ -2490,7 +2490,7 @@
         "name": "jvm_memory_pool_nonheap",
         "options": [],
         "query": {
-          "query": "label_values(jvm_memory_used_bytes{application=\"$application\", job=\"$job\", area=\"nonheap\"},id)",
+          "query": "label_values(jvm_memory_used_bytes{service_name=\"$service\", area=\"nonheap\"},id)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -2509,7 +2509,7 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(jvm_buffer_memory_used_bytes{application=\"$application\", job=\"$job\"},id)",
+        "definition": "label_values(jvm_buffer_memory_used_bytes{service_name=\"$service\"},id)",
         "hide": 0,
         "includeAll": false,
         "label": "JVM Buffer Pool",
@@ -2517,7 +2517,7 @@
         "name": "jvm_buffer_pool",
         "options": [],
         "query": {
-          "query": "label_values(jvm_buffer_memory_used_bytes{application=\"$application\", job=\"$job\"},id)",
+          "query": "label_values(jvm_buffer_memory_used_bytes{service_name=\"$service\"},id)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -2536,6 +2536,6 @@
   "timezone": "",
   "title": "Observability Dashboard",
   "uid": "d9a3ab24-cb54-44ca-a771-f0fa3137050d",
-  "version": 19,
+  "version": 27,
   "weekStart": ""
 }
