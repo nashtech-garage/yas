@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 15,
+  "id": 17,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -312,6 +312,110 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 32,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(prometheus_http_requests_total{code=~\"4..\"}[5m])) + sum(rate(prometheus_http_requests_total{code=~\"5..\"}[5m])) or vector(0)",
+          "instant": false,
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(prometheus_http_requests_total{code=\"200\"}[5m])) or vector(0)",
+          "hide": false,
+          "instant": false,
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Total Error Requests/ Total Successful Requests",
+      "type": "timeseries"
+    },
+    {
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -378,7 +482,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_class_count{application=\"$application\", job=\"$job\"}",
+          "expr": "jvm_class_count{service_name=\"$service\"}",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -420,71 +524,6 @@
         "x": 12,
         "y": 18
       },
-      "id": 23,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "jvm_class_unloaded_total{application=\"$application\", job=\"$job\"}",
-          "instant": false,
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Class Current Unloaded",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 26
-      },
       "id": 24,
       "options": {
         "colorMode": "value",
@@ -508,7 +547,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_class_loaded_total{application=\"$application\", job=\"$job\"}",
+          "expr": "jvm_class_loaded_total{service_name=\"$service\"} or vector(0)",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -522,7 +561,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 26
       },
       "id": 16,
       "title": "Quick Facts",
@@ -560,7 +599,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 35
+        "y": 27
       },
       "id": 17,
       "options": {
@@ -625,7 +664,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 35
+        "y": 27
       },
       "id": 18,
       "options": {
@@ -665,7 +704,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 35
       },
       "id": 13,
       "panels": [],
@@ -734,7 +773,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 44
+        "y": 36
       },
       "id": 19,
       "options": {
@@ -756,7 +795,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_used_bytes{application=\"$application\", job=\"$job\", id=~\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_used_bytes{service_name=\"$service\", id=~\"$jvm_memory_pool_heap\"}",
           "hide": false,
           "instant": false,
           "range": true,
@@ -851,7 +890,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 44
+        "y": 36
       },
       "id": 20,
       "options": {
@@ -873,7 +912,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_used_bytes{application=\"$application\", job=\"$job\", id=~\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_used_bytes{service_name=\"$service\", id=~\"$jvm_memory_pool_nonheap\"}",
           "hide": false,
           "instant": false,
           "range": true,
@@ -967,7 +1006,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 44
       },
       "id": 14,
       "options": {
@@ -1060,7 +1099,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 44
       },
       "id": 29,
       "options": {
@@ -1082,7 +1121,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_used_bytes{application=\"$application\", job=\"$job\", id=~\"$jvm_buffer_pool\"}",
+          "expr": "jvm_memory_used_bytes{service_name=\"$service\", id=~\"$jvm_buffer_pool\"}",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -1152,7 +1191,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 60
+        "y": 52
       },
       "id": 15,
       "options": {
@@ -1174,7 +1213,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by(job) (rate(jvm_thread_count{application=\"$application\", job=\"$job\"}[5m]))",
+          "expr": "sum by(service_name) (rate(jvm_thread_count{service_name=\"$service\"}[5m]))",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -1184,12 +1223,104 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 52
+      },
+      "id": 33,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "jvm_gc_duration_seconds_sum{service_name=\"$service\"}",
+          "instant": false,
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Time For Garbage Collection Per Service",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 60
       },
       "id": 3,
       "panels": [],
@@ -1229,7 +1360,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 69
+        "y": 61
       },
       "id": 2,
       "options": {
@@ -1312,7 +1443,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 69
+        "y": 61
       },
       "id": 1,
       "options": {
@@ -1380,7 +1511,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 77
+        "y": 69
       },
       "id": 4,
       "options": {
@@ -1405,7 +1536,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_cpu_count{application=\"$application\", job=\"$job\"}",
+          "expr": "jvm_cpu_count{service_name=\"$service\"}",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -1475,7 +1606,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 77
+        "y": 69
       },
       "id": 30,
       "options": {
@@ -1567,7 +1698,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 85
+        "y": 77
       },
       "id": 31,
       "options": {
@@ -1599,12 +1730,105 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 77
+      },
+      "id": 34,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "jvm_memory_used_after_last_gc_bytes{service_name=\"$service\", id=~\"$jvm_memory_pool_heap\"}",
+          "instant": false,
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory Used After Last Garbage Collection",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 93
+        "y": 85
       },
       "id": 5,
       "panels": [],
@@ -1672,7 +1896,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 94
+        "y": 86
       },
       "id": 6,
       "options": {
@@ -1694,7 +1918,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by(job) (jvm_memory_used_bytes{application=\"$application\", job=\"$job\"}) / 1048576",
+          "expr": "sum by(job) (jvm_memory_used_bytes{service_name=\"$service\"}) / 1048576",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -1764,7 +1988,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 94
+        "y": 86
       },
       "id": 7,
       "options": {
@@ -1786,7 +2010,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by(job) (jvm_memory_committed_bytes{application=\"$application\", job=\"$job\"}) / 1048576",
+          "expr": "sum by(service_name) (jvm_memory_committed_bytes{service_name=\"$service\"}) / 1048576",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -1826,7 +2050,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 102
+        "y": 94
       },
       "id": 8,
       "options": {
@@ -1851,7 +2075,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by(job) (jvm_memory_limit_bytes{application=\"$application\", job=\"$job\"}) / 1048576",
+          "expr": "sum by(service_name) (jvm_memory_limit_bytes{service_name=\"$service\"}) / 1048576",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -1921,7 +2145,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 102
+        "y": 94
       },
       "id": 9,
       "options": {
@@ -1957,7 +2181,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 110
+        "y": 102
       },
       "id": 10,
       "panels": [],
@@ -2013,9 +2237,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
-        "y": 111
+        "y": 103
       },
       "id": 11,
       "options": {
@@ -2069,6 +2293,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -2114,8 +2339,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
+        "w": 24,
+        "x": 0,
         "y": 111
       },
       "id": 12,
@@ -2196,49 +2421,22 @@
       {
         "current": {
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "rate-service",
+          "value": "rate-service"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(jvm_memory_used_bytes{service_namespace=\"$namespace\", area=\"heap\"},application)",
+        "definition": "label_values(service_name)",
         "hide": 0,
         "includeAll": false,
-        "label": "Application",
+        "label": "Service",
         "multi": false,
-        "name": "application",
+        "name": "service",
         "options": [],
         "query": {
-          "query": "label_values(jvm_memory_used_bytes{service_namespace=\"$namespace\", area=\"heap\"},application)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": "location-service",
-          "value": "location-service"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "definition": "label_values(job)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Job",
-        "multi": false,
-        "name": "job",
-        "options": [],
-        "query": {
-          "query": "label_values(job)",
+          "query": "label_values(service_name)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -2337,7 +2535,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "Observability Dashboard",
-  "uid": "d9a3ab24-cb54-44ca-a771-f0fa3137050e",
-  "version": 26,
+  "uid": "d9a3ab24-cb54-44ca-a771-f0fa3137050d",
+  "version": 19,
   "weekStart": ""
 }
