@@ -19,6 +19,7 @@ YAS is a pet project aim to practice building a typical microservice application
 [![promotion-ci](https://github.com/nashtech-garage/yas/actions/workflows/promotion-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/promotion-ci.yaml)
 [![payment-ci](https://github.com/nashtech-garage/yas/actions/workflows/payment-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/payment-ci.yaml)
 [![payment-paypal-ci](https://github.com/nashtech-garage/yas/actions/workflows/payment-paypal-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/payment-paypal-ci.yaml)
+[![webhook-ci](https://github.com/nashtech-garage/yas/actions/workflows/webhook-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/webhook-ci.yaml)
 
 ## Tentative technologies and frameworks
 
@@ -77,30 +78,12 @@ YAS is a pet project aim to practice building a typical microservice application
 2. docker-compose.search.yml for search service
 3. docker-compose.o11y.yml for observability services
 
-## Code Style Configuration:
-    Checkstyle configuration that checks the Google coding conventions from Google Java Style
-    that can be found at https://google.github.io/styleguide/javaguide.html
-
-    Checkstyle is very configurable. Be sure to read the documentation at
-    http://checkstyle.org (or in your downloaded distribution).
-
-    To completely disable a check, just comment it out or delete it from the file.
-    To suppress certain violations please review suppression filters.
-
-
-Using google_checks.xml version 9.3:
-https://github.com/checkstyle/checkstyle/blob/checkstyle-9.3/src/main/resources/google_checks.xml
-
-For IntelliJ IDEA:
-1. File -> Setting -> Editor -> Code Style -> Java
-2. Import Scheme -> Checkstyle configuration
-3. Apply file checkstyle/checkstyle.xml to import
-
 ## Deploy to Kubernetes
 https://github.com/nashtech-garage/yas/tree/main/k8s/deploy
 
 ## Documentation
-https://github.com/nashtech-garage/yas/tree/main/docs
+- [Architecture and components](https://github.com/nashtech-garage/yas/tree/main/docs)
+- [Developer guidelines](https://github.com/nashtech-garage/yas/wiki/Developer-guidelines)
 
 ## Contributing
 - Give us a star
@@ -108,6 +91,5 @@ https://github.com/nashtech-garage/yas/tree/main/docs
 - Participate discussions
 - Propose new features
 - Submit pull requests. If you are new to GitHub, consider to [learn how to contribute to a project through forking](https://docs.github.com/en/get-started/quickstart/contributing-to-projects)
-- [Developer guidelines](https://github.com/nashtech-garage/yas/wiki/Developer-guidelines)
 
 By contributing, you agree that your contributions will be licensed under MIT License. 
