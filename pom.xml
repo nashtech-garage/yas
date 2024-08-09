@@ -224,6 +224,7 @@
                         <failOnViolation>false</failOnViolation>
                     </configuration>
                 </plugin>
+
             </plugins>
         </pluginManagement>
     </build>
