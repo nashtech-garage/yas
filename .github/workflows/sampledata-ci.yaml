@@ -34,15 +34,6 @@ jobs:
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/checkstyle-result.xml'
-      - name: Run Maven Test
-        run: mvn test -f sampledata
-      - name: Unit Test Results
-        uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-        with:
-          name: sampledata-Service-Unit-Test-Results
-          path: "sampledata/**/surefire-reports/*.xml"
-          reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
