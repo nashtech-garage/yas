@@ -15,7 +15,7 @@
     <properties>
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-product</sonar.projectKey>
+        <sonar.projectKey>nashtech-garage_yas-webhook</sonar.projectKey>
     </properties>
 	<dependencies>
 		<dependency>
