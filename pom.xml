@@ -31,6 +31,7 @@
         <module>storefront-bff</module>
         <module>tax</module>
         <module>webhook</module>
+        <module>sampledata</module>
     </modules>
 
     <properties>

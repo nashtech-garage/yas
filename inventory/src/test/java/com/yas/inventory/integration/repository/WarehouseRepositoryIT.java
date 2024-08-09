@@ -56,6 +56,6 @@ public class WarehouseRepositoryIT {
 
     @Test
     void test_existsByNameWithDifferentId_shouldReturnFalse_IfWarehouseWithSameNameNotExistsWithDifferentId() {
-        assertThat(warehouseRepository.existsByNameWithDifferentId(anyString(), anyLong())).isFalse();
+        assertThat(warehouseRepository.existsByNameWithDifferentId("test_warehouses", 34L)).isFalse();
     }
 }
