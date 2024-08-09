@@ -547,7 +547,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_class_loaded_total{service_name=\"$service\"} or vector(0)",
+          "expr": "jvm_class_loaded_total{service_name=\"$service\"}",
           "instant": false,
           "range": true,
           "refId": "A"
