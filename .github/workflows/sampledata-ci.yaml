@@ -1,19 +1,19 @@
-name: rating service ci
+name: sampledata service ci
 
 on:
   push:
     branches: ["main"]
     paths:
-      - "rating/**"
+      - "sampledata/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/rating-ci.yaml"
+      - ".github/workflows/sampledata-ci.yaml"
       - "pom.xml"
   pull_request:
     branches: ["main"]
     paths:
-      - "rating/**"
+      - "sampledata/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/rating-ci.yaml"
+      - ".github/workflows/sampledata-ci.yaml"
       - "pom.xml"
   workflow_dispatch:
 
@@ -28,26 +28,26 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f rating
+        run: mvn clean install -DskipTests -f sampledata
       - name: Run Maven Checkstyle
-        run: mvn checkstyle:checkstyle -f rating
+        run: mvn checkstyle:checkstyle -f sampledata
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/checkstyle-result.xml'
       - name: Run Maven Test
-        run: mvn test -f rating
+        run: mvn test -f sampledata
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
-          name: Rating-Service-Unit-Test-Results
-          path: "rating/**/surefire-reports/*.xml"
+          name: sampledata-Service-Unit-Test-Results
+          path: "sampledata/**/surefire-reports/*.xml"
           reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f rating
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f sampledata
       - name: OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         env:
@@ -72,6 +72,6 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
-          context: ./rating
+          context: ./sampledata
           push: true
-          tags: ghcr.io/nashtech-garage/yas-rating:latest
+          tags: ghcr.io/nashtech-garage/yas-sampledata:latest
