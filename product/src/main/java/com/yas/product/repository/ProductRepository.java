@@ -2,7 +2,6 @@ package com.yas.product.repository;
 
 import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
-import com.yas.product.model.enumeration.FilterExistInWHSelection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +17,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByBrandAndIsPublishedTrue(Brand brand);
 
     Optional<Product> findBySlugAndIsPublishedTrue(String slug);
+
+    boolean existsBySlugAndIsPublishedTrue(String slug);
 
     @Query(value = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:productName% " +
             "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = '')) " +
@@ -37,9 +38,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByIdIn(List<Long> productIds);
 
-    Optional<Product> findByGtinAndIsPublishedTrue(String gtin);
+    boolean existsByGtinAndIsPublishedTrue(String gtin);
 
-    Optional<Product> findBySkuAndIsPublishedTrue(String sku);
+    boolean existsBySkuAndIsPublishedTrue(String sku);
 
     @Query(value = "FROM Product p WHERE p.isFeatured = TRUE " +
             "AND p.isVisibleIndividually = TRUE " +
