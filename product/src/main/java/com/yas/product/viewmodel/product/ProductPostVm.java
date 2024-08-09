@@ -22,8 +22,6 @@ public record ProductPostVm(
         Boolean isFeatured,
         Boolean isVisibleIndividually,
         Boolean stockTrackingEnabled,
-
-        Boolean taxIncluded,
         String metaTitle,
         String metaKeyword,
         String metaDescription,

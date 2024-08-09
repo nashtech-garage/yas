@@ -49,6 +49,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
       getProduct(+id)
         .then((data) => {
           setProduct(data);
+          setValue('taxClassId', data.taxClassId ?? '');
           setLoading(false);
         })
         .catch((error) => {
@@ -173,13 +174,6 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="stockTrackingEnabled"
         register={register}
         defaultChecked={product?.stockTrackingEnabled}
-      />
-
-      <CheckBox
-        labelText="Tax Included"
-        field="taxIncluded"
-        register={register}
-        defaultChecked={product?.taxIncluded}
       />
       <OptionSelect
         labelText="Tax Class"

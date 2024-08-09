@@ -22,6 +22,7 @@ public record ProductPutVm(
         String specification,
         String sku,
         String gtin,
+        Boolean taxIncluded,
         String metaTitle,
         String metaKeyword,
         String metaDescription,
