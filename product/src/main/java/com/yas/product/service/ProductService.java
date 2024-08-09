@@ -91,15 +91,15 @@ public class ProductService {
     }
 
     private boolean isProductWithSlugAvailable(String slug) {
-        return productRepository.findBySlugAndIsPublishedTrue(slug).isPresent();
+        return productRepository.existsBySlugAndIsPublishedTrue(slug);
     }
 
     private boolean isProductWithSkuAvailable(String sku) {
-        return productRepository.findBySkuAndIsPublishedTrue(sku).isPresent();
+        return productRepository.existsBySkuAndIsPublishedTrue(sku);
     }
 
     private boolean isProductWithGtinAvailable(String gtin) {
-        return productRepository.findByGtinAndIsPublishedTrue(gtin).isPresent();
+        return productRepository.existsByGtinAndIsPublishedTrue(gtin);
     }
 
     private void validateIfProductWithSkuOrGtinOrSlugExist(String slug,
