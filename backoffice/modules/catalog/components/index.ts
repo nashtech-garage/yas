@@ -7,6 +7,7 @@ import ProductVariations from './ProductVariation';
 import RelatedProduct from './RelatedProduct';
 import ProductCategoryMapping from './CategoryMapping';
 import ExportProduct from './ExportProduct';
+import ExportOrder from './ExportOrder';
 
 export {
   CrossSellProduct,
@@ -18,4 +19,5 @@ export {
   RelatedProduct,
   ProductCategoryMapping,
   ExportProduct,
+  ExportOrder,
 };

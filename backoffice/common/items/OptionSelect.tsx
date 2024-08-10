@@ -42,11 +42,13 @@ export const OptionSelect = <T extends FieldValues>({
       <option disabled hidden value="">
         {placeholder || 'Select ...'}
       </option>
-      {(options || []).map((option) => (
-        <option value={option.id} key={option.id}>
-          {option.name}
-        </option>
-      ))}
+      {Array.isArray(options)
+        ? options.map((option) => (
+            <option value={option.id} key={option.id}>
+              {option.name}
+            </option>
+          ))
+        : null}
     </select>
     <p className="error-field mt-1">{error}</p>
   </div>

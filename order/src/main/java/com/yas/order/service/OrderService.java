@@ -24,10 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.yas.order.utils.Constants.ERROR_CODE.ORDER_NOT_FOUND;
@@ -161,6 +158,29 @@ public class OrderService {
 
         return new OrderListVm(orderVms, orderPage.getTotalElements(), orderPage.getTotalPages());
     }
+    public List<OrderExportingDetailVm> exportOrders(
+            ZonedDateTime createdFrom,
+            ZonedDateTime createdTo,
+            String warehouse,
+            String productName,
+            List<EOrderStatus> orderStatus,
+            String billingCountry,
+            String billingPhoneNumber,
+            String email){
+        List<EOrderStatus> allOrderStatus = Arrays.asList(EOrderStatus.values());
+        List<Order> orders = orderRepository.exportOrders(
+                orderStatus.isEmpty() ? allOrderStatus : orderStatus,
+                billingPhoneNumber,
+                billingCountry,
+                email.toLowerCase(),
+                productName.toLowerCase(),
+                createdFrom,
+                createdTo);
+        if(orders.isEmpty())
+            return new ArrayList<>();
+        return orders.stream().map(OrderExportingDetailVm::fromModel).toList();
+    }
+
 
     public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {
 

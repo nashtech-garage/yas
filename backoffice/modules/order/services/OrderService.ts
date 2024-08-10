@@ -12,6 +12,15 @@ export async function getOrders(
   return Promise.reject(response);
 }
 
+export async function exportOrders(params: string): Promise<{ orderList: Order[] }> {
+  const response = await fetch(`/api/order/backoffice/export/orders` + `?${params}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (response.status >= 200 && response.status < 300) return response.json();
+  return Promise.reject(response);
+}
+
 export async function getOrderById(id: number) {
   const url = `${baseUrl}/${id}`;
   const response = await apiClientService.get(url);
