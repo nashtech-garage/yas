@@ -73,8 +73,8 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
-    ports:
-      - "3000:3000"
+    #ports:
+    #  - "3000:3000" we don't need to expose the port since we are using a reverse proxy
     healthcheck:
       interval: 5s
       retries: 10
