@@ -1,10 +1,5 @@
 package com.yas.backofficebff.config;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,6 +12,12 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
@@ -26,14 +27,14 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http
-            .authorizeExchange(auth -> auth
-                .pathMatchers("/health", "/actuator/prometheus", "/actuator/health/**").permitAll()
-                .anyExchange().hasAnyRole("ADMIN"))
-            .oauth2Login(Customizer.withDefaults())
-            .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-            .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-            .csrf(ServerHttpSecurity.CsrfSpec::disable)
-            .build();
+                .authorizeExchange(auth -> auth
+                    .pathMatchers("/health", "/actuator/prometheus", "/actuator/health/**").permitAll()
+                    .anyExchange().hasAnyRole("ADMIN"))
+                .oauth2Login(Customizer.withDefaults())
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .build();
     }
 
     @Bean
@@ -57,8 +58,8 @@ public class SecurityConfig {
                 Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
 
                 if (userAttributes.containsKey(REALM_ACCESS_CLAIM)) {
-                    var realmAccess = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
-                    var roles = (Collection<String>) realmAccess.get(ROLES_CLAIM);
+                    var realmAccess =  (Map<String,Object>) userAttributes.get(REALM_ACCESS_CLAIM);
+                    var roles =  (Collection<String>) realmAccess.get(ROLES_CLAIM);
                     mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
                 }
             }
@@ -70,7 +71,7 @@ public class SecurityConfig {
 
     Collection<GrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
         return roles.stream()
-            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-            .collect(Collectors.toList());
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toList());
     }
 }
