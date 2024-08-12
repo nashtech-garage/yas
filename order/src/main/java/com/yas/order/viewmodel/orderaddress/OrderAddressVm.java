@@ -18,7 +18,7 @@ public record OrderAddressVm(
         Long stateOrProvinceId,
         String stateOrProvinceName,
         Long countryId,
-        String countryName)  {
+        String countryName) {
     public static OrderAddressVm fromModel(OrderAddress orderAddress) {
         return OrderAddressVm.builder()
                 .id(orderAddress.getId())

@@ -11,7 +11,7 @@ public class AuthenticationUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new SignInRequiredException(Constants.ERROR_CODE.SIGN_IN_REQUIRED);
+            throw new SignInRequiredException(Constants.ErrorCode.SIGN_IN_REQUIRED);
         }
 
         JwtAuthenticationToken contextHolder = (JwtAuthenticationToken) authentication;

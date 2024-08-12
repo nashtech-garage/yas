@@ -1,10 +1,9 @@
 package com.yas.order.viewmodel.checkout;
 
 import com.yas.order.model.Checkout;
-import lombok.Builder;
-
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Builder;
 
 @Builder
 public record CheckoutVm(

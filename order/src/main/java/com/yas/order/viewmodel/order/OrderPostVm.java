@@ -1,14 +1,13 @@
 package com.yas.order.viewmodel.order;
 
-import com.yas.order.model.enumeration.EDeliveryMethod;
-import com.yas.order.model.enumeration.EPaymentMethod;
-import com.yas.order.model.enumeration.EPaymentStatus;
+import com.yas.order.model.enumeration.DeliveryMethod;
+import com.yas.order.model.enumeration.PaymentMethod;
+import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.Builder;
 
 @Builder
 public record OrderPostVm(
@@ -23,9 +22,9 @@ public record OrderPostVm(
         BigDecimal totalPrice,
         BigDecimal deliveryFee,
         String couponCode,
-        EDeliveryMethod deliveryMethod,
-        EPaymentMethod paymentMethod,
-        EPaymentStatus paymentStatus,
+        DeliveryMethod deliveryMethod,
+        PaymentMethod paymentMethod,
+        PaymentStatus paymentStatus,
         @NotNull
         List<OrderItemPostVm> orderItemPostVms
 ) {

@@ -1,5 +1,5 @@
 package com.yas.order.model.enumeration;
 
-public enum EPaymentMethod {
+public enum PaymentMethod {
     COD, BANKING
 }

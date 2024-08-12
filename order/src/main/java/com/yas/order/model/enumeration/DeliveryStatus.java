@@ -1,6 +1,6 @@
 package com.yas.order.model.enumeration;
 
-public enum EDeliveryStatus {
+public enum DeliveryStatus {
     PREPARING,
     DELIVERING,
     DELIVERED,

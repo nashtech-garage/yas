@@ -1,6 +1,6 @@
 package com.yas.order.model.enumeration;
 
-public enum EPaymentStatus {
+public enum PaymentStatus {
     PENDING,
     COMPLETED,
     CANCELLED
