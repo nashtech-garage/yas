@@ -11,5 +11,5 @@ public record CheckoutItemPostVm(
         BigDecimal discountAmount,
         BigDecimal taxAmount,
         BigDecimal taxPercent
-)  {
+) {
 }

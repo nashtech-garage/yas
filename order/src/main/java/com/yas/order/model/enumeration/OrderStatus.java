@@ -1,6 +1,6 @@
 package com.yas.order.model.enumeration;
 
-public enum EOrderStatus {
+public enum OrderStatus {
     PENDING("PENDING"),
     ACCEPTED("ACCEPTED"),
     PENDING_PAYMENT("PENDING_PAYMENT"),
@@ -14,7 +14,7 @@ public enum EOrderStatus {
 
     private final String name;
 
-    EOrderStatus(String name) {
+    OrderStatus(String name) {
         this.name = name;
     }
 

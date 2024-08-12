@@ -1,13 +1,15 @@
 package com.yas.order.viewmodel.order;
 
 import com.yas.order.model.Order;
-import com.yas.order.model.enumeration.*;
+import com.yas.order.model.enumeration.DeliveryMethod;
+import com.yas.order.model.enumeration.DeliveryStatus;
+import com.yas.order.model.enumeration.OrderStatus;
+import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
-import lombok.Builder;
-
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Builder;
 
 @Builder
 public record OrderVm(
@@ -22,16 +24,16 @@ public record OrderVm(
         BigDecimal totalPrice,
         BigDecimal deliveryFee,
         String couponCode,
-        EOrderStatus orderStatus,
-        EDeliveryMethod deliveryMethod,
-        EDeliveryStatus deliveryStatus,
-        EPaymentStatus paymentStatus,
+        OrderStatus orderStatus,
+        DeliveryMethod deliveryMethod,
+        DeliveryStatus deliveryStatus,
+        PaymentStatus paymentStatus,
         Set<OrderItemVm> orderItemVms
 
 ) {
     public static OrderVm fromModel(Order order) {
         Set<OrderItemVm> orderItemVms = order.getOrderItems().stream().map(
-                item -> OrderItemVm.fromModel(item))
+                        item -> OrderItemVm.fromModel(item))
                 .collect(Collectors.toSet());
 
         return OrderVm.builder()

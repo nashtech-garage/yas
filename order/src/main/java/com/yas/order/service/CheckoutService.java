@@ -1,11 +1,13 @@
 package com.yas.order.service;
 
+import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
+
 import com.yas.order.exception.Forbidden;
 import com.yas.order.exception.NotFoundException;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.model.Order;
-import com.yas.order.model.enumeration.ECheckoutState;
+import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.AuthenticationUtils;
@@ -13,16 +15,13 @@ import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.yas.order.utils.Constants.ERROR_CODE.CHECKOUT_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -40,7 +39,7 @@ public class CheckoutService {
                 .email(checkoutPostVm.email())
                 .note(checkoutPostVm.note())
                 .couponCode(checkoutPostVm.couponCode())
-                .checkoutState(ECheckoutState.PENDING)
+                .checkoutState(CheckoutState.PENDING)
                 .build();
         checkoutRepository.save(checkout);
 
@@ -65,18 +64,19 @@ public class CheckoutService {
     }
 
     public CheckoutVm getCheckoutPendingStateWithItemsById(String id) {
-        Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, ECheckoutState.PENDING).orElseThrow(()
+        Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING).orElseThrow(()
                 -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
 
-        if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId()))
-            throw new Forbidden(Constants.ERROR_CODE.FORBIDDEN);
+        if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId())) {
+            throw new Forbidden(Constants.ErrorCode.FORBIDDEN);
+        }
         return CheckoutVm.fromModel(checkout);
     }
 
     public Long updateCheckoutStatus(CheckoutStatusPutVm checkoutStatusPutVm) {
         Checkout checkout = checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
                 .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
-        checkout.setCheckoutState(ECheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
+        checkout.setCheckoutState(CheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
         checkoutRepository.save(checkout);
         Order order = orderService.findOrderByCheckoutId(checkoutStatusPutVm.checkoutId());
         return order.getId();

@@ -1,9 +1,8 @@
 package com.yas.order.viewmodel.checkout;
 
 import com.yas.order.model.CheckoutItem;
-import lombok.Builder;
-
 import java.math.BigDecimal;
+import lombok.Builder;
 
 @Builder
 public record CheckoutItemVm(

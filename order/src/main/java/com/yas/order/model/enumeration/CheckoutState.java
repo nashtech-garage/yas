@@ -1,10 +1,10 @@
 package com.yas.order.model.enumeration;
 
-public enum ECheckoutState {
-    COMPLETED("Completed"), PENDING("Pending"),  LOCK("LOCK");
+public enum CheckoutState {
+    COMPLETED("Completed"), PENDING("Pending"), LOCK("LOCK");
     private final String name;
 
-    ECheckoutState(String name) {
+    CheckoutState(String name) {
         this.name = name;
     }
 

@@ -6,6 +6,6 @@ public record OrderListVm(
         List<OrderBriefVm> orderList,
         long totalElements,
         int totalPages
-){
+) {
 
 }

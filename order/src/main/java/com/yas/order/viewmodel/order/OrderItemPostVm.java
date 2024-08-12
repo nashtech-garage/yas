@@ -1,8 +1,7 @@
 package com.yas.order.viewmodel.order;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
+import lombok.Builder;
 
 @Builder
 public record OrderItemPostVm(

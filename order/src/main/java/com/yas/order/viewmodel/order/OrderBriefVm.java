@@ -1,14 +1,14 @@
 package com.yas.order.viewmodel.order;
 
 import com.yas.order.model.Order;
-import com.yas.order.model.enumeration.*;
+import com.yas.order.model.enumeration.DeliveryMethod;
+import com.yas.order.model.enumeration.DeliveryStatus;
+import com.yas.order.model.enumeration.OrderStatus;
+import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
-import lombok.Builder;
-
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.Builder;
 
 @Builder
 public record OrderBriefVm(
@@ -16,12 +16,12 @@ public record OrderBriefVm(
         String email,
         OrderAddressVm billingAddressVm,
         BigDecimal totalPrice,
-        EOrderStatus orderStatus,
-        EDeliveryMethod deliveryMethod,
-        EDeliveryStatus deliveryStatus,
-        EPaymentStatus paymentStatus,
+        OrderStatus orderStatus,
+        DeliveryMethod deliveryMethod,
+        DeliveryStatus deliveryStatus,
+        PaymentStatus paymentStatus,
         ZonedDateTime createdOn
-        ) {
+) {
     public static OrderBriefVm fromModel(Order order) {
         return OrderBriefVm.builder()
                 .id(order.getId())

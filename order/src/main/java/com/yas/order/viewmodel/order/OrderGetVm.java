@@ -1,20 +1,19 @@
 package com.yas.order.viewmodel.order;
 
 import com.yas.order.model.Order;
-import com.yas.order.model.enumeration.EDeliveryMethod;
-import com.yas.order.model.enumeration.EDeliveryStatus;
-import com.yas.order.model.enumeration.EOrderStatus;
-
+import com.yas.order.model.enumeration.DeliveryMethod;
+import com.yas.order.model.enumeration.DeliveryStatus;
+import com.yas.order.model.enumeration.OrderStatus;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 public record OrderGetVm(
         Long id,
-        EOrderStatus orderStatus,
+        OrderStatus orderStatus,
         BigDecimal totalPrice,
-        EDeliveryStatus deliveryStatus,
-        EDeliveryMethod deliveryMethod,
+        DeliveryStatus deliveryStatus,
+        DeliveryMethod deliveryMethod,
         List<OrderItemGetVm> orderItems,
 
         ZonedDateTime createdOn
