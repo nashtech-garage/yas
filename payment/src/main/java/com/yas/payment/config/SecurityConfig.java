@@ -1,5 +1,9 @@
 package com.yas.payment.config;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -12,11 +16,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @Configuration
 public class SecurityConfig {
     @Bean
@@ -24,14 +23,14 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/actuator/prometheus", "/actuator/health/**",
-                            "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/storefront/**").permitAll()
-                    .requestMatchers("/backoffice/**").hasRole("ADMIN")
-                    .requestMatchers("/payment-providers/**").permitAll()
-                    .requestMatchers("/capture-payment").permitAll()
-                    .requestMatchers("/actuator/**").permitAll()
-                    .anyRequest().authenticated())
+                        .requestMatchers("/actuator/prometheus", "/actuator/health/**",
+                                "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/storefront/**").permitAll()
+                        .requestMatchers("/backoffice/**").hasRole("ADMIN")
+                        .requestMatchers("/payment-providers/**").permitAll()
+                        .requestMatchers("/capture-payment").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }

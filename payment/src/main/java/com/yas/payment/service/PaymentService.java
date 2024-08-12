@@ -29,7 +29,7 @@ public class PaymentService {
     }
 
     public Payment createPayment(CapturedPayment completedPayment) {
-        Payment payment =Payment.builder()
+        Payment payment = Payment.builder()
                 .checkoutId(completedPayment.checkoutId())
                 .orderId(completedPayment.orderId())
                 .paymentStatus(completedPayment.paymentStatus())
