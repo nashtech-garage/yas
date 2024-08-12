@@ -61,8 +61,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl cart -am
-      - name: Run Jacoco report
-        run: mvn jacoco:prepare-agent -pl cart -am
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         with:
