@@ -63,6 +63,7 @@ jobs:
           path: ${{github.workspace}}/reports
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
           paths: ${{github.workspace}}/rating/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}

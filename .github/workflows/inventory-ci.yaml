@@ -65,6 +65,7 @@ jobs:
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f inventory
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
           paths: ${{github.workspace}}/inventory/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
