@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(ServiceUrlConfig.class)
 public class PaymentApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PaymentApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentApplication.class, args);
+    }
 }

@@ -1,14 +1,23 @@
 package com.yas.payment.model;
 
-import com.yas.payment.model.enumeration.EPaymentMethod;
-import com.yas.payment.model.enumeration.EPaymentStatus;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
+import com.yas.payment.model.enumeration.PaymentMethod;
+import com.yas.payment.model.enumeration.PaymentStatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "payment")
@@ -26,9 +35,9 @@ public class Payment {
     private BigDecimal amount;
     private BigDecimal paymentFee;
     @Enumerated(EnumType.STRING)
-    private EPaymentMethod paymentMethod;
+    private PaymentMethod paymentMethod;
     @Enumerated(EnumType.STRING)
-    private EPaymentStatus paymentStatus;
+    private PaymentStatus paymentStatus;
     private String gatewayTransactionId;
     private String failureMessage;
     @CreationTimestamp

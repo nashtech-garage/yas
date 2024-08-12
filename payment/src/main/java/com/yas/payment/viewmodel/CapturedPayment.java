@@ -1,12 +1,10 @@
 package com.yas.payment.viewmodel;
 
 import com.yas.payment.model.Payment;
-import com.yas.payment.model.enumeration.EPaymentMethod;
-import com.yas.payment.model.enumeration.EPaymentStatus;
-import lombok.Builder;
-
+import com.yas.payment.model.enumeration.PaymentMethod;
+import com.yas.payment.model.enumeration.PaymentStatus;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import lombok.Builder;
 
 @Builder
 public record CapturedPayment(
@@ -15,10 +13,10 @@ public record CapturedPayment(
         BigDecimal amount,
         BigDecimal paymentFee,
         String gatewayTransactionId,
-        EPaymentMethod paymentMethod,
-        EPaymentStatus paymentStatus,
-        String failureMessage ) {
-    public static CapturedPayment fromModel(Payment payment){
+        PaymentMethod paymentMethod,
+        PaymentStatus paymentStatus,
+        String failureMessage) {
+    public static CapturedPayment fromModel(Payment payment) {
         return CapturedPayment.builder()
                 .amount(payment.getAmount())
                 .paymentFee(payment.getPaymentFee())

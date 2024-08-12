@@ -1,5 +1,5 @@
 package com.yas.payment.model.enumeration;
 
-public enum EPaymentMethod {
+public enum PaymentMethod {
     COD, BANKING, PAYPAL
 }

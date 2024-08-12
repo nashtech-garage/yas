@@ -1,16 +1,15 @@
 package com.yas.payment.service;
 
+import com.yas.payment.config.ServiceUrlConfig;
 import com.yas.payment.viewmodel.CapturedPayment;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.yas.payment.config.ServiceUrlConfig;
-
-import java.net.URI;
 
 @Service
 @Slf4j
@@ -26,7 +25,8 @@ public class OrderService {
                 .path("/storefront/checkouts/status")
                 .buildAndExpand()
                 .toUri();
-        CheckoutStatusVm checkoutStatusVm = new CheckoutStatusVm(capturedPayment.checkoutId(), capturedPayment.paymentStatus().name());
+        CheckoutStatusVm checkoutStatusVm = new CheckoutStatusVm(capturedPayment.checkoutId(),
+            capturedPayment.paymentStatus().name());
 
         return restClient.put()
                 .uri(url)

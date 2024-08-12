@@ -17,7 +17,7 @@ public class PaymentProviderService {
     public String getAdditionalSettingsByPaymentProviderId(String paymentProviderId) {
         PaymentProvider paymentProvider = paymentProviderRepository.findById(paymentProviderId)
                 .orElseThrow(()
-                        -> new NotFoundException(Constants.ERROR_CODE.PAYMENT_PROVIDER_NOT_FOUND, paymentProviderId));
+                        -> new NotFoundException(Constants.ErrorCode.PAYMENT_PROVIDER_NOT_FOUND, paymentProviderId));
         return paymentProvider.getAdditionalSettings();
     }
 }
