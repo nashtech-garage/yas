@@ -1,8 +1,7 @@
 package com.yas.paymentpaypal.viewmodel;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
+import lombok.Builder;
 
 @Builder
 public record CapturedPaymentVm(
@@ -13,6 +12,6 @@ public record CapturedPaymentVm(
         String gatewayTransactionId,
         String paymentMethod,
         String paymentStatus,
-        String failureMessage ) {
+        String failureMessage) {
 
 }

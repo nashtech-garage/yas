@@ -1,18 +1,17 @@
 package com.yas.paymentpaypal.utils;
 
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
-
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
 
 public class MessagesUtils {
+    static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages", Locale.getDefault());
+
     private MessagesUtils() {
         // Private constructor to prevent instantiation
     }
-
-    static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages", Locale.getDefault());
 
     public static String getMessage(String errorCode, Object... var2) {
         String message;

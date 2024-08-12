@@ -2,21 +2,27 @@ package com.yas.paymentpaypal.service;
 
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
-import com.paypal.orders.*;
+import com.paypal.orders.AmountWithBreakdown;
+import com.paypal.orders.ApplicationContext;
+import com.paypal.orders.Capture;
+import com.paypal.orders.Order;
+import com.paypal.orders.OrderRequest;
+import com.paypal.orders.OrdersCaptureRequest;
+import com.paypal.orders.OrdersCreateRequest;
+import com.paypal.orders.PurchaseUnitRequest;
 import com.yas.paymentpaypal.model.CheckoutIdHelper;
 import com.yas.paymentpaypal.utils.Constants;
 import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
 import com.yas.paymentpaypal.viewmodel.PaypalRequestPayment;
 import com.yas.paymentpaypal.viewmodel.RequestPayment;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -24,14 +30,11 @@ import java.util.NoSuchElementException;
 public class PaypalService {
     private final PayPalHttpClient payPalHttpClient;
     private final PaymentService paymentService;
-
+    private final BigDecimal maxPay = BigDecimal.valueOf(1000);
     @Value("${yas.public.url}/capture")
     private String returnUrl;
-
     @Value("${yas.public.url}/cancel")
     private String cancelUrl;
-
-    private final BigDecimal maxPay = BigDecimal.valueOf(1000);
 
     public PaypalRequestPayment createPayment(RequestPayment requestPayment) {
         OrderRequest orderRequest = new OrderRequest();
@@ -39,11 +42,12 @@ public class PaypalService {
 
         // Workaround to not exceed limit amount of a transaction
         BigDecimal totalPrice = requestPayment.totalPrice();
-        if (totalPrice.compareTo(maxPay) > 0 ) {
+        if (totalPrice.compareTo(maxPay) > 0) {
             totalPrice = maxPay;
         }
 
-        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD").value(totalPrice.toString());
+        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD")
+            .value(totalPrice.toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
