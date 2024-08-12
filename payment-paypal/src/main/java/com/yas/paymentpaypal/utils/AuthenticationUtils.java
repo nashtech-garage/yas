@@ -10,6 +10,7 @@ public class AuthenticationUtils {
     private AuthenticationUtils() {
         // Private constructor to prevent instantiation
     }
+
     public static String getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
