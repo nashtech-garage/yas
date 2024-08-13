@@ -1,9 +1,7 @@
 package com.yas.product.service;
 
 import com.yas.product.ProductApplication;
-import com.yas.product.controller.CategoryController;
 import com.yas.product.model.Category;
-import com.yas.product.model.ProductCategory;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.viewmodel.NoFileMediaVm;
@@ -17,12 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = ProductApplication.class)

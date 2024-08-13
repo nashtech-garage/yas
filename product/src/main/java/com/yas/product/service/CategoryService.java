@@ -11,16 +11,14 @@ import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
 import com.yas.product.viewmodel.category.CategoryListGetVm;
 import com.yas.product.viewmodel.category.CategoryPostVm;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -40,12 +38,12 @@ public class CategoryService {
         }
 
         return new CategoryListGetVm(
-            categoryGetVms,
-            categoryPage.getNumber(),
-            categoryPage.getSize(),
-            (int) categoryPage.getTotalElements(),
-            categoryPage.getTotalPages(),
-            categoryPage.isLast()
+                categoryGetVms,
+                categoryPage.getNumber(),
+                categoryPage.getSize(),
+                (int) categoryPage.getTotalElements(),
+                categoryPage.getTotalPages(),
+                categoryPage.isLast()
         );
     }
 
@@ -60,10 +58,11 @@ public class CategoryService {
         category.setMetaKeyword(categoryPostVm.metaKeywords());
         category.setIsPublished(categoryPostVm.isPublish());
         category.setImageId(categoryPostVm.imageId());
-        if(categoryPostVm.parentId() != null){
+        if (categoryPostVm.parentId() != null) {
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
-                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
+                    .orElseThrow(() -> new BadRequestException(
+                        Constants.ErrorCode.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
             category.setParent(parentCategory);
         }
 
@@ -74,7 +73,7 @@ public class CategoryService {
         validateDuplicateName(categoryPostVm.name(), id);
         Category category = categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.CATEGORY_NOT_FOUND, id));
         category.setName(categoryPostVm.name());
         category.setSlug(categoryPostVm.slug());
         category.setDescription(categoryPostVm.description());
@@ -83,15 +82,16 @@ public class CategoryService {
         category.setMetaKeyword(categoryPostVm.metaKeywords());
         category.setIsPublished(categoryPostVm.isPublish());
         category.setImageId(categoryPostVm.imageId());
-        if(categoryPostVm.parentId() == null){
+        if (categoryPostVm.parentId() == null) {
             category.setParent(null);
         } else {
             Category parentCategory = categoryRepository
                     .findById(categoryPostVm.parentId())
-                    .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
+                    .orElseThrow(() -> new BadRequestException(
+                        Constants.ErrorCode.PARENT_CATEGORY_NOT_FOUND, categoryPostVm.parentId()));
 
-            if(!checkParent(category.getId(), parentCategory)){
-                throw new BadRequestException(Constants.ERROR_CODE.PARENT_CATEGORY_CANNOT_BE_ITSELF);
+            if (!checkParent(category.getId(), parentCategory)) {
+                throw new BadRequestException(Constants.ErrorCode.PARENT_CATEGORY_CANNOT_BE_ITSELF);
             }
             category.setParent(parentCategory);
         }
@@ -100,7 +100,7 @@ public class CategoryService {
     public CategoryGetDetailVm getCategoryById(Long id) {
         Category category = categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.CATEGORY_NOT_FOUND, id));
         ImageVm categoryImage = null;
         if (category.getImageId() != null) {
             categoryImage = new ImageVm(category.getImageId(), mediaService.getMedia(category.getImageId()).url());
@@ -154,14 +154,18 @@ public class CategoryService {
 
     private void validateDuplicateName(String name, Long id) {
         if (checkExistedName(name, id)) {
-            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
+            throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, name);
         }
     }
 
-    private boolean checkParent(Long id, Category category){
-        if(id.equals(category.getId())) return false;
-        if(category.getParent()!=null)
+    private boolean checkParent(Long id, Category category) {
+        if (id.equals(category.getId())) {
+            return false;
+        }
+        if (category.getParent() != null) {
             return checkParent(id, category.getParent());
-        else return true;
+        } else {
+            return true;
+        }
     }
 }

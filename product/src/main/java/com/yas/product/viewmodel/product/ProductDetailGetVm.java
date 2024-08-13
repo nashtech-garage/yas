@@ -1,7 +1,6 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
-
 import java.util.List;
 
 public record ProductDetailGetVm(

@@ -27,10 +27,19 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = ProductApplication.class)
 class ProductTemplateServiceTest {
+    ProductAttribute productAttribute1;
+    ProductAttribute productAttribute2;
+    List<ProductAttribute> productAttributes;
+    ProductAttributeTemplate productAttributeTemplate1;
+    ProductAttributeTemplate productAttributeTemplate2;
+    ProductTemplate productTemplate1;
+    ProductTemplate productTemplate2;
     @Autowired
     private ProductTemplateService productTemplateService;
     @Autowired
@@ -42,17 +51,8 @@ class ProductTemplateServiceTest {
     @Autowired
     private ProductTemplateRepository productTemplateRepository;
 
-    ProductAttribute productAttribute1;
-    ProductAttribute productAttribute2;
-    List<ProductAttribute> productAttributes;
-
-    ProductAttributeTemplate productAttributeTemplate1;
-    ProductAttributeTemplate productAttributeTemplate2;
-    ProductTemplate productTemplate1;
-    ProductTemplate productTemplate2;
-
     @BeforeEach
-    void setUp(){
+    void setUp() {
         productAttribute1 = ProductAttribute.builder().name("productAttribute1").build();
         productAttribute1 = productAttributeRepository.save(productAttribute1);
         productAttribute2 = ProductAttribute.builder().name("productAttribute2").build();
@@ -77,19 +77,19 @@ class ProductTemplateServiceTest {
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         productAttributeTemplateRepository.deleteAll();
         productAttributeRepository.deleteAll();
         productTemplateRepository.deleteAll();
     }
 
     @Test
-    void getPageableProductTemplate_WhenGetPageable_thenSuccess(){
+    void getPageableProductTemplate_WhenGetPageable_thenSuccess() {
         int pageNo = 0;
         int pageSize = 10;
         int totalElement = 2;
         int totalPages = 1;
-        ProductTemplateListGetVm actualResponse = productTemplateService.getPageableProductTemplate(pageNo,pageSize);
+        ProductTemplateListGetVm actualResponse = productTemplateService.getPageableProductTemplate(pageNo, pageSize);
         assertEquals(true, actualResponse.isLast());
         assertEquals(totalPages, actualResponse.totalPages());
         assertEquals(pageNo, actualResponse.pageNo());
@@ -97,15 +97,16 @@ class ProductTemplateServiceTest {
         assertEquals(totalElement, actualResponse.productTemplateVms().size());
 
     }
+
     @Test
     void getProductTemplate_WhenIdProductTemplateNotExit_ThrowsNotFoundException() {
         Long invalidId = 9999L;
         NotFoundException exception = assertThrows(NotFoundException.class, () -> productTemplateService.getProductTemplate(invalidId));
-        assertEquals(Constants.ERROR_CODE.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
+        assertEquals(Constants.ErrorCode.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
     }
 
     @Test
-    void getProductTemplate_WhenIdProductTemplateValid_thenSuccess(){
+    void getProductTemplate_WhenIdProductTemplateValid_thenSuccess() {
         ProductTemplate productTemplateDB = productTemplateRepository.findAll().getFirst();
         ProductTemplateVm actualResponse = productTemplateService.getProductTemplate(productTemplateDB.getId());
         assertEquals(productTemplateDB.getId(), actualResponse.id());
@@ -114,23 +115,24 @@ class ProductTemplateServiceTest {
     }
 
     @Test
-    void saveProductTemplate_WhenDuplicateName_ThenThrowDuplicatedException(){
-        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate1",null);
+    void saveProductTemplate_WhenDuplicateName_ThenThrowDuplicatedException() {
+        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate1", null);
         DuplicatedException exception = assertThrows(DuplicatedException.class, () -> productTemplateService.saveProductTemplate(productTemplatePostVm));
         assertEquals("Request name productTemplate1 is already existed", exception.getMessage());
 
     }
+
     @Test
-    void saveProductTemplate_WhenProductAttributesNotFound_ThenThrowBadRequestException(){
-        List<ProductAttributeTemplatePostVm>  listProductAttTemplates = new ArrayList<>();
-        listProductAttTemplates.add(new ProductAttributeTemplatePostVm(9999L,0));
-        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate3",listProductAttTemplates);
+    void saveProductTemplate_WhenProductAttributesNotFound_ThenThrowBadRequestException() {
+        List<ProductAttributeTemplatePostVm> listProductAttTemplates = new ArrayList<>();
+        listProductAttTemplates.add(new ProductAttributeTemplatePostVm(9999L, 0));
+        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate3", listProductAttTemplates);
         BadRequestException exception = assertThrows(BadRequestException.class, () -> productTemplateService.saveProductTemplate(productTemplatePostVm));
-        assertThat(exception.getMessage()).isEqualTo(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND);
+        assertThat(exception.getMessage()).isEqualTo(Constants.ErrorCode.PRODUCT_ATTRIBUTE_NOT_FOUND);
     }
 
     @Test
-    void saveProductTemplate_WhenProductTemplatePostVm_ThenSuccess(){
+    void saveProductTemplate_WhenProductTemplatePostVm_ThenSuccess() {
         ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate3",
                 List.of(new ProductAttributeTemplatePostVm(productAttribute1.getId(), 0)));
         ProductTemplateVm productTemplateVmDB = productTemplateService.saveProductTemplate(productTemplatePostVm);
@@ -140,11 +142,11 @@ class ProductTemplateServiceTest {
     }
 
     @Test
-    void updateProductTemplate_WhenIdProductTemplateNotExist_ThenThrowNotFoundException(){
+    void updateProductTemplate_WhenIdProductTemplateNotExist_ThenThrowNotFoundException() {
         ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate2",
                 List.of(new ProductAttributeTemplatePostVm(productAttribute1.getId(), 0)));
         NotFoundException exception = assertThrows(NotFoundException.class, () -> productTemplateService.updateProductTemplate(9999L, productTemplatePostVm));
-        assertEquals(Constants.ERROR_CODE.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
+        assertEquals(Constants.ErrorCode.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
     }
 
 }

@@ -1,7 +1,6 @@
 package com.yas.product.controller;
 
 import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.service.CategoryService;
@@ -14,13 +13,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 public class CategoryController {
@@ -32,53 +36,72 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping({"/backoffice/categories" , "/storefront/categories"})
-    public ResponseEntity<List<CategoryGetVm>> listCategories(){
-        return  ResponseEntity.ok(categoryService.getCategories());
+    @GetMapping({"/backoffice/categories", "/storefront/categories"})
+    public ResponseEntity<List<CategoryGetVm>> listCategories() {
+        return ResponseEntity.ok(categoryService.getCategories());
     }
 
     @GetMapping("/backoffice/categories/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
-            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CategoryGetDetailVm> getCategory(@PathVariable Long id){
-        return  ResponseEntity.ok(categoryService.getCategoryById(id));
+        @ApiResponse(responseCode = "200", description = "Ok",
+            content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
+        @ApiResponse(responseCode = "404", description = "Not found",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+    })
+    public ResponseEntity<CategoryGetDetailVm> getCategory(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @PostMapping("/backoffice/categories")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<CategoryGetDetailVm> createCategory(@Valid @RequestBody CategoryPostVm categoryPostVm, UriComponentsBuilder uriComponentsBuilder, Principal principal){
+        @ApiResponse(responseCode = "201", description = "Created",
+            content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<CategoryGetDetailVm> createCategory(
+            @Valid @RequestBody CategoryPostVm categoryPostVm,
+            UriComponentsBuilder uriComponentsBuilder,
+            Principal principal
+    ) {
         Category savedCategory = categoryService.create(categoryPostVm);
 
         CategoryGetDetailVm categoryGetDetailVm = CategoryGetDetailVm.fromModel(savedCategory);
-        return  ResponseEntity.created(uriComponentsBuilder.replacePath("/categories/{id}").buildAndExpand(savedCategory.getId()).toUri())
+        return ResponseEntity.created(uriComponentsBuilder.replacePath("/categories/{id}")
+            .buildAndExpand(savedCategory.getId()).toUri())
                 .body(categoryGetDetailVm);
     }
 
     @PutMapping("/backoffice/categories/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No content"),
-            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody @Valid final CategoryPostVm categoryPostVm, Principal principal){
+        @ApiResponse(responseCode = "204", description = "No content"),
+        @ApiResponse(responseCode = "404", description = "Not found",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> updateCategory(
+            @PathVariable Long id,
+            @RequestBody @Valid final CategoryPostVm categoryPostVm,
+            Principal principal
+    ) {
         categoryService.update(categoryPostVm, id);
         return ResponseEntity.noContent().build();
     }
+
     @DeleteMapping("/backoffice/categories/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No content"),
-            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
+        @ApiResponse(responseCode = "204", description = "No content"),
+        @ApiResponse(responseCode = "404", description = "Not found",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException(Constants.ERROR_CODE.CATEGORY_NOT_FOUND, id));
-        if(!category.getCategories().isEmpty()){
-            throw new BadRequestException(Constants.ERROR_CODE.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_CHILDREN);
+                .orElseThrow(() -> new BadRequestException(Constants.ErrorCode.CATEGORY_NOT_FOUND, id));
+        if (!category.getCategories().isEmpty()) {
+            throw new BadRequestException(Constants.ErrorCode.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_CHILDREN);
         }
-        if(!category.getProductCategories().isEmpty()){
-            throw new BadRequestException(Constants.ERROR_CODE.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_PRODUCT);
+        if (!category.getProductCategories().isEmpty()) {
+            throw new BadRequestException(Constants.ErrorCode.MAKE_SURE_CATEGORY_DO_NOT_CONTAIN_PRODUCT);
         }
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();

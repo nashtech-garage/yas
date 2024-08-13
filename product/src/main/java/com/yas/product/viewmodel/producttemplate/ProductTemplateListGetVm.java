@@ -10,4 +10,5 @@ public record ProductTemplateListGetVm(
         int totalElements,
         int totalPages,
         boolean isLast
-) {}
+) {
+}

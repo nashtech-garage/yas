@@ -1,7 +1,5 @@
 package com.yas.product.viewmodel.product;
 
-import java.util.List;
-
 public record ProductExportingDetailVm(
         long id,
         String name,
@@ -22,4 +20,5 @@ public record ProductExportingDetailVm(
         String metaTitle,
         String metaKeyword,
         String metaDescription
-) {}
+) {
+}

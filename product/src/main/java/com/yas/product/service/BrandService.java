@@ -8,14 +8,13 @@ import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.brand.BrandListGetVm;
 import com.yas.product.viewmodel.brand.BrandPostVm;
 import com.yas.product.viewmodel.brand.BrandVm;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Transactional
@@ -36,12 +35,12 @@ public class BrandService {
         }
 
         return new BrandListGetVm(
-            brandVms,
-            brandPage.getNumber(),
-            brandPage.getSize(),
-            (int) brandPage.getTotalElements(),
-            brandPage.getTotalPages(),
-            brandPage.isLast()
+                brandVms,
+                brandPage.getNumber(),
+                brandPage.getSize(),
+                (int) brandPage.getTotalElements(),
+                brandPage.getTotalPages(),
+                brandPage.isLast()
         );
     }
 
@@ -56,7 +55,7 @@ public class BrandService {
 
         Brand brand = brandRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.BRAND_NOT_FOUND, id));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.BRAND_NOT_FOUND, id));
         brand.setSlug(brandPostVm.slug());
         brand.setName(brandPostVm.name());
         brand.setPublished(brandPostVm.isPublish());
@@ -66,7 +65,7 @@ public class BrandService {
 
     private void validateExistedName(String name, Long id) {
         if (checkExistedName(name, id)) {
-            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
+            throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, name);
         }
     }
 

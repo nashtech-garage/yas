@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record BrandPostVm(@NotBlank String name, @NotBlank String slug, boolean isPublish) {
 
-    public Brand toModel(){
+    public Brand toModel() {
         Brand brand = new Brand();
         brand.setName(name);
         brand.setSlug(slug);

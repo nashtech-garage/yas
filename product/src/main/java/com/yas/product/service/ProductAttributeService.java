@@ -3,22 +3,21 @@ package com.yas.product.service;
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.DuplicatedException;
 import com.yas.product.exception.NotFoundException;
+import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
+import com.yas.product.repository.ProductAttributeRepository;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGetVm;
-import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.viewmodel.productattribute.ProductAttributeListGetVm;
-import com.yas.product.repository.ProductAttributeRepository;
 import com.yas.product.viewmodel.productattribute.ProductAttributePostVm;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Transactional
@@ -42,12 +41,12 @@ public class ProductAttributeService {
         }
 
         return new ProductAttributeListGetVm(
-            productAttributeGetVms,
-            productAttributePage.getNumber(),
-            productAttributePage.getSize(),
-            (int) productAttributePage.getTotalElements(),
-            productAttributePage.getTotalPages(),
-            productAttributePage.isLast()
+                productAttributeGetVms,
+                productAttributePage.getNumber(),
+                productAttributePage.getSize(),
+                (int) productAttributePage.getTotalElements(),
+                productAttributePage.getTotalPages(),
+                productAttributePage.isLast()
         );
     }
 
@@ -56,10 +55,11 @@ public class ProductAttributeService {
         ProductAttribute productAttribute = new ProductAttribute();
         productAttribute.setName(productAttributePostVm.name());
 
-        if(productAttributePostVm.productAttributeGroupId() != null){
+        if (productAttributePostVm.productAttributeGroupId() != null) {
             ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
                     .findById(productAttributePostVm.productAttributeGroupId())
-                    .orElseThrow(() -> new BadRequestException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND,
+                    .orElseThrow(() -> new BadRequestException(
+                        String.format(Constants.ErrorCode.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND,
                             productAttributePostVm.productAttributeGroupId())));
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
@@ -71,14 +71,16 @@ public class ProductAttributeService {
         validateExistedName(productAttributePostVm.name(), id);
         ProductAttribute productAttribute = productAttributeRepository
                 .findById(id)
-                .orElseThrow(()-> new NotFoundException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_NOT_FOUND, id)));
+                .orElseThrow(
+                    () -> new NotFoundException(String.format(Constants.ErrorCode.PRODUCT_ATTRIBUTE_NOT_FOUND, id)));
         productAttribute.setName(productAttributePostVm.name());
 
 
-        if(productAttributePostVm.productAttributeGroupId() != null){
+        if (productAttributePostVm.productAttributeGroupId() != null) {
             ProductAttributeGroup productAttributeGroup = productAttributeGroupRepository
                     .findById(productAttributePostVm.productAttributeGroupId())
-                    .orElseThrow(() -> new BadRequestException(String.format(Constants.ERROR_CODE.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND,
+                    .orElseThrow(()
+                        -> new BadRequestException(String.format(Constants.ErrorCode.PRODUCT_ATTRIBUTE_GROUP_NOT_FOUND,
                             productAttributePostVm.productAttributeGroupId())));
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
@@ -88,7 +90,7 @@ public class ProductAttributeService {
 
     private void validateExistedName(String name, Long id) {
         if (checkExistedName(name, id)) {
-            throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, name);
+            throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, name);
         }
     }
 
