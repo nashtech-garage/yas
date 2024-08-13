@@ -6,22 +6,21 @@ import com.yas.inventory.exception.BadRequestException;
 import com.yas.inventory.exception.NotFoundException;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
+import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
-import com.yas.inventory.viewmodel.stock.StockPostVM;
+import com.yas.inventory.viewmodel.stock.StockPostVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityUpdateVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityVm;
 import com.yas.inventory.viewmodel.stock.StockVm;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -46,9 +45,9 @@ public class StockService {
         this.stockHistoryService = stockHistoryService;
     }
 
-    public void addProductIntoWarehouse(List<StockPostVM> postVMs) {
+    public void addProductIntoWarehouse(List<StockPostVm> postVms) {
 
-        List<Stock> stocks = postVMs.stream().map(postVM -> {
+        List<Stock> stocks = postVms.stream().map(postVM -> {
             ProductInfoVm product = productService.getProduct(postVM.productId());
 
             if (product == null) {
@@ -62,11 +61,11 @@ public class StockService {
             }
 
             return Stock.builder()
-                    .productId(postVM.productId())
-                    .warehouse(warehouseOp.get())
-                    .quantity(0L)
-                    .reservedQuantity(0L)
-                    .build();
+                .productId(postVM.productId())
+                .warehouse(warehouseOp.get())
+                .quantity(0L)
+                .reservedQuantity(0L)
+                .build();
         }).toList();
 
 
@@ -77,38 +76,40 @@ public class StockService {
     public List<StockVm> getStocksByWarehouseIdAndProductNameAndSku(Long warehouseId,
                                                                     String productName,
                                                                     String productSku) {
-        HashMap<Long, ProductInfoVm> productInfoVmHashMap = (HashMap<Long, ProductInfoVm>) warehouseService.getProductWarehouse(
-                        warehouseId,
-                        productName,
-                        productSku,
-                        FilterExistInWHSelection.YES)
+        HashMap<Long, ProductInfoVm> productInfoVmHashMap =
+            (HashMap<Long, ProductInfoVm>) warehouseService.getProductWarehouse(
+                    warehouseId,
+                    productName,
+                    productSku,
+                    FilterExistInWhSelection.YES)
                 .parallelStream()
                 .collect(Collectors.toMap(ProductInfoVm::id, productInfoVm -> productInfoVm));
 
         List<Stock> stocks = stockRepository.findByWarehouseIdAndProductIdIn(
-                warehouseId,
-                productInfoVmHashMap.values().parallelStream().map(ProductInfoVm::id).toList()
+            warehouseId,
+            productInfoVmHashMap.values().parallelStream().map(ProductInfoVm::id).toList()
         );
 
         return stocks.stream().map(
-                stock -> {
-                    ProductInfoVm productInfoVm = productInfoVmHashMap.get(stock.getProductId());
+            stock -> {
+                ProductInfoVm productInfoVm = productInfoVmHashMap.get(stock.getProductId());
 
-                    return StockVm.fromModel(stock, productInfoVm);
-                }
+                return StockVm.fromModel(stock, productInfoVm);
+            }
         ).toList();
     }
 
     public void updateProductQuantityInStock(final StockQuantityUpdateVm requestBody) {
         List<StockQuantityVm> stockQuantityVms = requestBody.stockQuantityList();
-        List<Stock> stocks = stockRepository.findAllById(stockQuantityVms.parallelStream().map(StockQuantityVm::stockId).toList());
+        List<Stock> stocks =
+            stockRepository.findAllById(stockQuantityVms.parallelStream().map(StockQuantityVm::stockId).toList());
 
         for (final Stock stock : stocks) {
             StockQuantityVm stockQuantityVm = stockQuantityVms
-                    .parallelStream()
-                    .filter(stockQuantityPostVm -> stockQuantityPostVm.stockId().equals(stock.getId()))
-                    .findFirst()
-                    .orElse(null);
+                .parallelStream()
+                .filter(stockQuantityPostVm -> stockQuantityPostVm.stockId().equals(stock.getId()))
+                .findFirst()
+                .orElse(null);
 
             if (stockQuantityVm == null) {
                 continue;
@@ -127,8 +128,8 @@ public class StockService {
 
         //Update stock quantity for product
         List<ProductQuantityPostVm> productQuantityPostVms = stocks.parallelStream()
-                .map(ProductQuantityPostVm::fromModel)
-                .toList();
+            .map(ProductQuantityPostVm::fromModel)
+            .toList();
         if (!productQuantityPostVms.isEmpty()) {
             productService.updateProductQuantity(productQuantityPostVms);
         }

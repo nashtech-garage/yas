@@ -1,4 +1,4 @@
-package com.yas.inventory.viewmodel.StockHistory;
+package com.yas.inventory.viewmodel.stockhistory;
 
 import java.util.List;
 
