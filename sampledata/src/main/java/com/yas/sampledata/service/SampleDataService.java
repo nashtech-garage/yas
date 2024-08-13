@@ -58,8 +58,9 @@ public class SampleDataService {
         } catch (SQLException e) {
             throw new SQLException(e.getMessage());
         } finally {
-            assert connection != null;
-            connection.close();
+            if (connection != null) {
+                connection.close();
+            }
         }
     }
 

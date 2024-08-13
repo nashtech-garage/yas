@@ -7,12 +7,14 @@ import iconPay03 from '../../../asset/icons/icon-pay-03.jpg';
 import iconPay04 from '../../../asset/icons/icon-pay-04.jpg';
 import iconPay05 from '../../../asset/icons/icon-pay-05.jpg';
 import { addSampleData } from '@/modules/sampledata/services/SampleDataService';
+import { AddSampleModel } from '@/modules/sampledata/models/AddSampleModel';
 
 const Footer = () => {
   const handleFetch = async () => {
     try {
-      const response = await addSampleData();
-      if (response.status === 200) {
+      const addSampleModel: AddSampleModel = { message: 'addSampleModel' };
+      const response = await addSampleData(addSampleModel);
+      if (response.message !== null) {
         window.location.reload();
       }
     } catch (err: any) {
