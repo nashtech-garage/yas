@@ -7,19 +7,17 @@ import com.yas.customer.repository.UserAddressRepository;
 import com.yas.customer.utils.Constants;
 import com.yas.customer.viewmodel.address.ActiveAddressVm;
 import com.yas.customer.viewmodel.address.AddressDetailVm;
-import com.yas.customer.viewmodel.address.AddressVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
-import com.yas.customer.viewmodel.user_address.UserAddressVm;
-import org.springframework.data.domain.*;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.yas.customer.viewmodel.address.AddressVm;
+import com.yas.customer.viewmodel.useraddress.UserAddressVm;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -34,34 +32,35 @@ public class UserAddressService {
 
     public List<ActiveAddressVm> getUserAddressList() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (userId.equals("anonymousUser"))
-            throw new AccessDeniedException(Constants.ERROR_CODE.UNAUTHENTICATED);
+        if (userId.equals("anonymousUser")) {
+            throw new AccessDeniedException(Constants.ErrorCode.UNAUTHENTICATED);
+        }
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(
-                userAddressList.stream()
-                        .map(UserAddress::getAddressId)
-                        .collect(Collectors.toList()));
+            userAddressList.stream()
+                .map(UserAddress::getAddressId)
+                .collect(Collectors.toList()));
 
         List<ActiveAddressVm> addressActiveVms = userAddressList.stream()
-                .flatMap(userAddress -> addressVmList.stream()
-                        .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id()))
-                        .map(addressDetailVm -> new ActiveAddressVm(
-                                addressDetailVm.id(),
-                                addressDetailVm.contactName(),
-                                addressDetailVm.phone(),
-                                addressDetailVm.addressLine1(),
-                                addressDetailVm.city(),
-                                addressDetailVm.zipCode(),
-                                addressDetailVm.districtId(),
-                                addressDetailVm.districtName(),
-                                addressDetailVm.stateOrProvinceId(),
-                                addressDetailVm.stateOrProvinceName(),
-                                addressDetailVm.countryId(),
-                                addressDetailVm.countryName(),
-                                userAddress.getIsActive()
-                        ))
-                ).collect(Collectors.toList());
+            .flatMap(userAddress -> addressVmList.stream()
+                .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id()))
+                .map(addressDetailVm -> new ActiveAddressVm(
+                    addressDetailVm.id(),
+                    addressDetailVm.contactName(),
+                    addressDetailVm.phone(),
+                    addressDetailVm.addressLine1(),
+                    addressDetailVm.city(),
+                    addressDetailVm.zipCode(),
+                    addressDetailVm.districtId(),
+                    addressDetailVm.districtName(),
+                    addressDetailVm.stateOrProvinceId(),
+                    addressDetailVm.stateOrProvinceName(),
+                    addressDetailVm.countryId(),
+                    addressDetailVm.countryName(),
+                    userAddress.getIsActive()
+                ))
+            ).collect(Collectors.toList());
 
         //sort by isActive
         Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
@@ -70,11 +69,12 @@ public class UserAddressService {
 
     public AddressDetailVm getAddressDefault() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (userId.equals("anonymousUser"))
-            throw new AccessDeniedException(Constants.ERROR_CODE.UNAUTHENTICATED);
+        if (userId.equals("anonymousUser")) {
+            throw new AccessDeniedException(Constants.ErrorCode.UNAUTHENTICATED);
+        }
 
         UserAddress userAddress = userAddressRepository.findByIsActiveTrue().orElseThrow(()
-                -> new NotFoundException(Constants.ERROR_CODE.USER_ADDRESS_NOT_FOUND));
+            -> new NotFoundException(Constants.ErrorCode.USER_ADDRESS_NOT_FOUND));
 
         AddressDetailVm addressVmList = locationService.getAddressById(userAddress.getAddressId());
         return addressVmList;
@@ -85,10 +85,10 @@ public class UserAddressService {
 
         AddressVm addressGetVm = locationService.createAddress(addressPostVm);
         UserAddress userAddress = UserAddress.builder()
-                .userId(userId)
-                .addressId(addressGetVm.id())
-                .isActive(false)
-                .build();
+            .userId(userId)
+            .addressId(addressGetVm.id())
+            .isActive(false)
+            .build();
 
         return UserAddressVm.fromModel(userAddressRepository.save(userAddress), addressGetVm);
 
@@ -98,7 +98,7 @@ public class UserAddressService {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         UserAddress userAddress = userAddressRepository.findOneByUserIdAndAddressId(userId, id);
         if (userAddress == null) {
-            throw new NotFoundException(Constants.ERROR_CODE.USER_ADDRESS_NOT_FOUND);
+            throw new NotFoundException(Constants.ErrorCode.USER_ADDRESS_NOT_FOUND);
         }
         userAddressRepository.delete(userAddress);
     }
@@ -108,11 +108,7 @@ public class UserAddressService {
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         List<UserAddress> newUserAddressList = new ArrayList<>();
         for (UserAddress userAddress : userAddressList) {
-            if (Objects.equals(userAddress.getAddressId(), id)) {
-                userAddress.setIsActive(true);
-            } else {
-                userAddress.setIsActive(false);
-            }
+            userAddress.setIsActive(Objects.equals(userAddress.getAddressId(), id));
             newUserAddressList.add(userAddress);
         }
         userAddressRepository.saveAll(newUserAddressList);
