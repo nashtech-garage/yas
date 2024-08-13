@@ -97,5 +97,5 @@ By contributing, you agree that your contributions will be licensed under MIT Li
 ## Screenshots
 | Storefront & Backoffice | Observability |
 | ---------- | ------------|
-|<img src="screenshots/yas-storefront.png" alt="Yas Storefront" height="200"/>  | <img src="screenshots/yas-backoffice.png" alt="Yas Backoffice" height="200"/> |
-| <img src="screenshots/yas-grafana-tracing.png" alt="Yas Grafana Tracing" height="200"/> | <img src="screenshots/yas-grafana-metrics.png" alt="Yas Grafana Metric" height="200"/> |
+|<img src="screenshots/yas-storefront.png" alt="Yas Storefront" height="500"/>  | | <img src="screenshots/yas-grafana-tracing.png" alt="Yas Grafana Tracing" height="500"/> |
+| <img src="screenshots/yas-backoffice.png" alt="Yas Backoffice" height="500"/> | <img src="screenshots/yas-grafana-metrics.png" alt="Yas Grafana Metrics" height="500"/> |
