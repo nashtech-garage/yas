@@ -7,16 +7,15 @@ import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -42,12 +41,25 @@ public class PromotionService {
         return PromotionDetailVm.fromModel(promotionRepository.saveAndFlush(promotion));
     }
 
-    public PromotionListVm getPromotions(int pageNo, int pageSize, String promotionName, String couponCode, ZonedDateTime startDate, ZonedDateTime endDate) {
+    public PromotionListVm getPromotions(
+        int pageNo,
+        int pageSize,
+        String promotionName,
+        String couponCode,
+        ZonedDateTime startDate,
+        ZonedDateTime endDate
+    ) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
         Page<Promotion> promotionPage;
 
-        promotionPage = promotionRepository.findPromotions(promotionName.trim(), couponCode.trim(), startDate, endDate, pageable);
+        promotionPage = promotionRepository.findPromotions(
+            promotionName.trim(),
+            couponCode.trim(),
+            startDate,
+            endDate,
+            pageable
+        );
 
         List<PromotionDetailVm> promotionDetailVmList = promotionPage
                 .getContent()
@@ -66,7 +78,7 @@ public class PromotionService {
 
     private void validateIfPromotionExistedSlug(String slug) {
         if (promotionRepository.findBySlugAndIsActiveTrue(slug).isPresent()) {
-            throw new DuplicatedException(String.format(Constants.ERROR_CODE.SLUG_ALREADY_EXITED, slug));
+            throw new DuplicatedException(String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, slug));
         }
     }
 }
