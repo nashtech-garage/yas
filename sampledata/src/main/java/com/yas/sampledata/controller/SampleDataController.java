@@ -3,7 +3,6 @@ package com.yas.sampledata.controller;
 import com.yas.sampledata.service.SampleDataService;
 import com.yas.sampledata.viewmodel.ErrorVm;
 import com.yas.sampledata.viewmodel.SampleDataVm;
-import com.yas.sampledata.viewmodel.SampleTypeVM;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +28,7 @@ public class SampleDataController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SampleDataVm.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public SampleDataVm createSampleData(@RequestBody SampleTypeVM sampleTypeVM) throws SQLException {
-        return sampleDataService.addSampleData(sampleTypeVM);
+    public SampleDataVm createSampleData() throws SQLException {
+        return sampleDataService.addSampleData();
     }
 }

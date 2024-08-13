@@ -6,11 +6,36 @@ import iconPay02 from '../../../asset/icons/icon-pay-02.jpg';
 import iconPay03 from '../../../asset/icons/icon-pay-03.jpg';
 import iconPay04 from '../../../asset/icons/icon-pay-04.jpg';
 import iconPay05 from '../../../asset/icons/icon-pay-05.jpg';
+import {
+  addSampleData
+} from '@/modules/sampledata/services/SampleDataService';
 
 const Footer = () => {
+  const handleFetch = async () => {
+    try {
+      const response = await addSampleData()
+      if(response.status === 200) {
+        window.location.reload();
+      }
+    } catch (err: any){
+      console.log('Add sample data fail: '+ err)
+    }
+  }
   return (
     <footer className="bg3 p-t-75 p-b-32">
       <div className="container">
+        <div className="row">
+          <button type="submit" className="cl0 bg1 bor-radius hov-btn p-lr-15 trans-04" style={{
+            width: 150,
+            height:40,
+            borderRadius: 5,
+            fontWeight:600,
+            fontSize: 16,
+            marginBottom: '15px'
+          }} onClick={handleFetch}>
+            Sample Data
+          </button>
+        </div>
         <div className="row">
           <div className="col-sm-6 col-lg-3 p-b-50">
             <h4 className="cl0 p-b-30">Categories</h4>

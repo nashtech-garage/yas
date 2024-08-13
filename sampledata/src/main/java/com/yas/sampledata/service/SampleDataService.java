@@ -2,7 +2,6 @@ package com.yas.sampledata.service;
 
 import com.yas.sampledata.utils.SpringScriptUtility;
 import com.yas.sampledata.viewmodel.SampleDataVm;
-import com.yas.sampledata.viewmodel.SampleTypeVM;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +31,9 @@ public class SampleDataService {
     private static final String PRODUCT = "product";
     private static final String PG_QUERY = " SELECT COUNT(1) FROM pg_largeobject_metadata WHERE oid between ? and ? ";
 
+    private Connection connection = null;
+
     public void addSample(String schema) throws SQLException {
-        Connection connection = null;
         try {
             connection = DriverManager.getConnection(JDBC_URL + schema, USERNAME, PASSWORD);
             SpringScriptUtility.runScript(new File(ClassLoader.getSystemClassLoader()
@@ -62,11 +62,12 @@ public class SampleDataService {
         } catch (SQLException e) {
             throw new SQLException(e.getMessage());
         } finally {
+            assert connection != null;
             connection.close();
         }
     }
 
-    public SampleDataVm addSampleData(SampleTypeVM sampleTypeVM) throws SQLException {
+    public SampleDataVm addSampleData() throws SQLException {
         addSample(MEDIA);
         addSample(PRODUCT);
         return new SampleDataVm("Insert Sample Data successfully!");
