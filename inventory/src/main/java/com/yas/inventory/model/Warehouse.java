@@ -22,12 +22,12 @@ import lombok.Setter;
 @Builder
 public class Warehouse extends AbstractAuditEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false, length = 450)
-  private String name;
+    @Column(nullable = false, length = 450)
+    private String name;
 
-  private Long addressId;
+    private Long addressId;
 }

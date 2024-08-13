@@ -1,10 +1,9 @@
 package com.yas.inventory.repository;
 
 import com.yas.inventory.model.Stock;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 public interface StockRepository extends JpaRepository<Stock, Long> {
 

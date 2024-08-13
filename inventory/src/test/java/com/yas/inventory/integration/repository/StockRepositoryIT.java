@@ -1,10 +1,14 @@
 package com.yas.inventory.integration.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.instancio.Select.field;
+
 import com.yas.inventory.integration.config.IntegrationTestConfiguration;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
+import java.util.List;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +18,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.instancio.Select.field;
 
 @SpringBootTest
 @Testcontainers
@@ -39,15 +38,15 @@ public class StockRepositoryIT {
     @BeforeEach
     void insertTestData() {
         warehouse = warehouseRepository.save(
-                Instancio.of(Warehouse.class)
-                        .set(field(Warehouse::getId), 1L)
-                        .create()
+            Instancio.of(Warehouse.class)
+                .set(field(Warehouse::getId), 1L)
+                .create()
         );
 
         stock = stockRepository.save(
-                Instancio.of(Stock.class)
-                        .set(field(Stock::getWarehouse), warehouse)
-                        .create()
+            Instancio.of(Stock.class)
+                .set(field(Stock::getWarehouse), warehouse)
+                .create()
         );
     }
 

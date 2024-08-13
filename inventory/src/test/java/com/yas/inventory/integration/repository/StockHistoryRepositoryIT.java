@@ -1,5 +1,8 @@
 package com.yas.inventory.integration.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.instancio.Select.field;
+
 import com.yas.inventory.integration.config.IntegrationTestConfiguration;
 import com.yas.inventory.model.StockHistory;
 import com.yas.inventory.model.Warehouse;
@@ -14,9 +17,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.instancio.Select.field;
 
 @SpringBootTest
 @Testcontainers
@@ -36,15 +36,15 @@ public class StockHistoryRepositoryIT {
     @BeforeEach
     void insertTestData() {
         warehouse = warehouseRepository.save(
-                Instancio.of(Warehouse.class)
-                        .set(field(Warehouse::getId), 1L)
-                        .create()
+            Instancio.of(Warehouse.class)
+                .set(field(Warehouse::getId), 1L)
+                .create()
         );
 
         stockHistory = stockHistoryRepository.save(
-                Instancio.of(StockHistory.class)
-                        .set(field(StockHistory::getWarehouse), warehouse)
-                        .create()
+            Instancio.of(StockHistory.class)
+                .set(field(StockHistory::getWarehouse), warehouse)
+                .create()
         );
     }
 
@@ -57,8 +57,8 @@ public class StockHistoryRepositoryIT {
     @Test
     void test_findByProductIdAndWarehouseIdOrderByCreatedOnDesc_shouldReturnData() {
         var actual = stockHistoryRepository.findByProductIdAndWarehouseIdOrderByCreatedOnDesc(
-                stockHistory.getProductId(),
-                warehouse.getId());
+            stockHistory.getProductId(),
+            warehouse.getId());
         assertThat(actual).asList().hasSize(1);
     }
 }

@@ -1,5 +1,7 @@
 package com.yas.inventory.integration.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.yas.inventory.integration.config.IntegrationTestConfiguration;
 import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.repository.WarehouseRepository;
@@ -11,10 +13,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @SpringBootTest
 @Testcontainers
