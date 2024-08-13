@@ -93,3 +93,9 @@ https://github.com/nashtech-garage/yas/tree/main/k8s/deploy
 - Submit pull requests. If you are new to GitHub, consider to [learn how to contribute to a project through forking](https://docs.github.com/en/get-started/quickstart/contributing-to-projects)
 
 By contributing, you agree that your contributions will be licensed under MIT License. 
+
+## Screenshots
+| Storefront & Backoffice | Observability |
+| ---------- | ------------|
+|<img src="screenshots/yas-storefront.png" alt="Yas Storefront" height="500"/> | <img src="screenshots/yas-grafana-tracing.png" alt="Yas Grafana Tracing" height="500"/> |
+| <img src="screenshots/yas-backoffice.png" alt="Yas Backoffice" height="500"/> | <img src="screenshots/yas-grafana-metrics.png" alt="Yas Grafana Metrics" height="500"/> |
