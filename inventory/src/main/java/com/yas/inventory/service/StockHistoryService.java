@@ -7,11 +7,10 @@ import com.yas.inventory.viewmodel.StockHistory.StockHistoryListVm;
 import com.yas.inventory.viewmodel.StockHistory.StockHistoryVm;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityVm;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -32,22 +31,22 @@ public class StockHistoryService {
 
         for (final Stock stock : stocks) {
             StockQuantityVm stockQuantityVm = stockQuantityVms
-                    .parallelStream()
-                    .filter(stockQuantityVm1 -> stockQuantityVm1.stockId().equals(stock.getId()))
-                    .findFirst()
-                    .orElse(null);
+                .parallelStream()
+                .filter(stockQuantityVm1 -> stockQuantityVm1.stockId().equals(stock.getId()))
+                .findFirst()
+                .orElse(null);
 
             if (stockQuantityVm == null) {
                 continue;
             }
 
             stockHistories.add(
-                    StockHistory.builder()
-                            .productId(stock.getProductId())
-                            .note(stockQuantityVm.note())
-                            .adjustedQuantity(stockQuantityVm.quantity())
-                            .warehouse(stock.getWarehouse())
-                            .build()
+                StockHistory.builder()
+                    .productId(stock.getProductId())
+                    .note(stockQuantityVm.note())
+                    .adjustedQuantity(stockQuantityVm.quantity())
+                    .warehouse(stock.getWarehouse())
+                    .build()
             );
         }
         stockHistoryRepository.saveAll(stockHistories);
@@ -56,18 +55,18 @@ public class StockHistoryService {
     public StockHistoryListVm getStockHistories(final Long productId,
                                                 final Long warehouseId) {
         List<StockHistory> stockHistories = stockHistoryRepository.findByProductIdAndWarehouseIdOrderByCreatedOnDesc(
-                productId,
-                warehouseId
+            productId,
+            warehouseId
         );
         ProductInfoVm productInfoVm = productService.getProduct(productId);
 
         return new StockHistoryListVm(
-                stockHistories.stream().map(
-                        stockHistory -> StockHistoryVm.fromModel(
-                                stockHistory,
-                                productInfoVm
-                        )
-                ).toList()
+            stockHistories.stream().map(
+                stockHistory -> StockHistoryVm.fromModel(
+                    stockHistory,
+                    productInfoVm
+                )
+            ).toList()
         );
     }
 }

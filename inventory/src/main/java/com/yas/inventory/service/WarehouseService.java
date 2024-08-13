@@ -1,29 +1,28 @@
 package com.yas.inventory.service;
 
+import com.yas.inventory.constants.MessageCode;
+import com.yas.inventory.exception.DuplicatedException;
+import com.yas.inventory.exception.NotFoundException;
+import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
 import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
+import com.yas.inventory.viewmodel.address.AddressDetailVm;
+import com.yas.inventory.viewmodel.address.AddressPostVm;
+import com.yas.inventory.viewmodel.address.AddressVm;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.warehouse.WarehouseDetailVm;
 import com.yas.inventory.viewmodel.warehouse.WarehouseGetVm;
 import com.yas.inventory.viewmodel.warehouse.WarehouseListGetVm;
 import com.yas.inventory.viewmodel.warehouse.WarehousePostVm;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import com.yas.inventory.exception.DuplicatedException;
-import com.yas.inventory.exception.NotFoundException;
-import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.constants.MessageCode;
-import com.yas.inventory.viewmodel.address.AddressDetailVm;
-import com.yas.inventory.viewmodel.address.AddressPostVm;
-import com.yas.inventory.viewmodel.address.AddressVm;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -37,22 +36,23 @@ public class WarehouseService {
     @Transactional(readOnly = true)
     public List<WarehouseGetVm> findAllWarehouses() {
         return warehouseRepository
-                .findAll()
-                .stream()
-                .map(WarehouseGetVm::fromModel)
-                .toList();
+            .findAll()
+            .stream()
+            .map(WarehouseGetVm::fromModel)
+            .toList();
     }
 
     public List<ProductInfoVm> getProductWarehouse(
-            Long warehouseId, String productName, String productSku, FilterExistInWHSelection existStatus) {
+        Long warehouseId, String productName, String productSku, FilterExistInWHSelection existStatus) {
         List<Long> productIds = stockRepository.getProductIdsInWarehouse(warehouseId);
 
         List<ProductInfoVm> productVmList = productService.filterProducts(
-                productName, productSku, productIds, existStatus);
+            productName, productSku, productIds, existStatus);
 
         if (!CollectionUtils.isEmpty(productIds)) {
             return productVmList.stream().map(productVm ->
-                    new ProductInfoVm(productVm.id(), productVm.name(), productVm.sku(), productIds.contains(productVm.id()))
+                new ProductInfoVm(productVm.id(), productVm.name(), productVm.sku(),
+                    productIds.contains(productVm.id()))
             ).toList();
         }
 
@@ -62,22 +62,22 @@ public class WarehouseService {
     @Transactional(readOnly = true)
     public WarehouseDetailVm findById(final Long id) {
         final Warehouse warehouse = warehouseRepository
-                .findById(id)
-                .orElseThrow(
-                        () -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
+            .findById(id)
+            .orElseThrow(
+                () -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
         AddressDetailVm addressDetailVm = locationService.getAddressById(warehouse.getAddressId());
         WarehouseDetailVm warehouseDetailVm = new WarehouseDetailVm(
-                warehouse.getId(),
-                warehouse.getName(),
-                addressDetailVm.contactName(),
-                addressDetailVm.phone(),
-                addressDetailVm.addressLine1(),
-                addressDetailVm.addressLine2(),
-                addressDetailVm.city(),
-                addressDetailVm.zipCode(),
-                addressDetailVm.districtId(),
-                addressDetailVm.stateOrProvinceId(),
-                addressDetailVm.countryId()
+            warehouse.getId(),
+            warehouse.getName(),
+            addressDetailVm.contactName(),
+            addressDetailVm.phone(),
+            addressDetailVm.addressLine1(),
+            addressDetailVm.addressLine2(),
+            addressDetailVm.city(),
+            addressDetailVm.zipCode(),
+            addressDetailVm.districtId(),
+            addressDetailVm.stateOrProvinceId(),
+            addressDetailVm.countryId()
 
         );
         return warehouseDetailVm;
@@ -89,15 +89,15 @@ public class WarehouseService {
             throw new DuplicatedException(MessageCode.NAME_ALREADY_EXITED, warehousePostVm.name());
         }
         AddressPostVm addressPostVm = new AddressPostVm(
-                warehousePostVm.contactName(),
-                warehousePostVm.phone(),
-                warehousePostVm.addressLine1(),
-                warehousePostVm.addressLine2(),
-                warehousePostVm.city(),
-                warehousePostVm.zipCode(),
-                warehousePostVm.districtId(),
-                warehousePostVm.stateOrProvinceId(),
-                warehousePostVm.countryId()
+            warehousePostVm.contactName(),
+            warehousePostVm.phone(),
+            warehousePostVm.addressLine1(),
+            warehousePostVm.addressLine2(),
+            warehousePostVm.city(),
+            warehousePostVm.zipCode(),
+            warehousePostVm.districtId(),
+            warehousePostVm.stateOrProvinceId(),
+            warehousePostVm.countryId()
         );
 
         AddressVm addressVm = locationService.createAddress(addressPostVm);
@@ -110,8 +110,8 @@ public class WarehouseService {
     @Transactional
     public void update(final WarehousePostVm warehousePostVm, final Long id) {
         final Warehouse warehouse = warehouseRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
 
         //For the updating case we don't need to check for the Warehouse being updated
         if (warehouseRepository.existsByNameWithDifferentId(warehousePostVm.name(), id)) {
@@ -120,15 +120,15 @@ public class WarehouseService {
         warehouse.setName(warehousePostVm.name());
 
         AddressPostVm addressPostVm = new AddressPostVm(
-                warehousePostVm.contactName(),
-                warehousePostVm.phone(),
-                warehousePostVm.addressLine1(),
-                warehousePostVm.addressLine2(),
-                warehousePostVm.city(),
-                warehousePostVm.zipCode(),
-                warehousePostVm.districtId(),
-                warehousePostVm.stateOrProvinceId(),
-                warehousePostVm.countryId()
+            warehousePostVm.contactName(),
+            warehousePostVm.phone(),
+            warehousePostVm.addressLine1(),
+            warehousePostVm.addressLine2(),
+            warehousePostVm.city(),
+            warehousePostVm.zipCode(),
+            warehousePostVm.districtId(),
+            warehousePostVm.stateOrProvinceId(),
+            warehousePostVm.countryId()
         );
 
         locationService.updateAddress(warehouse.getAddressId(), addressPostVm);
@@ -138,8 +138,8 @@ public class WarehouseService {
     @Transactional
     public void delete(final Long id) {
         final Warehouse warehouse = warehouseRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
 
         warehouseRepository.deleteById(id);
         locationService.deleteAddress(warehouse.getAddressId());
@@ -152,16 +152,16 @@ public class WarehouseService {
         final List<Warehouse> warehouseList = warehousePage.getContent();
 
         final List<WarehouseGetVm> warehouseVms = warehouseList.stream()
-                .map(WarehouseGetVm::fromModel)
-                .toList();
+            .map(WarehouseGetVm::fromModel)
+            .toList();
 
         return new WarehouseListGetVm(
-                warehouseVms,
-                warehousePage.getNumber(),
-                warehousePage.getSize(),
-                (int) warehousePage.getTotalElements(),
-                warehousePage.getTotalPages(),
-                warehousePage.isLast()
+            warehouseVms,
+            warehousePage.getNumber(),
+            warehousePage.getSize(),
+            (int) warehousePage.getTotalElements(),
+            warehousePage.getTotalPages(),
+            warehousePage.isLast()
         );
     }
 

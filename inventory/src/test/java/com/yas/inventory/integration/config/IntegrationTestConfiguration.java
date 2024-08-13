@@ -12,19 +12,19 @@ public class IntegrationTestConfiguration {
     @Bean(destroyMethod = "stop")
     public PostgreSQLContainer<?> postgresContainer() {
         return new PostgreSQLContainer<>("postgres:16")
-                .withReuse(true);
+            .withReuse(true);
     }
 
     @Bean(destroyMethod = "stop")
     public KeycloakContainer keycloakContainer(DynamicPropertyRegistry registry) {
         KeycloakContainer keycloak = new KeycloakContainer()
-                .withRealmImportFiles("/test-realm.json")
-                .withReuse(true);
+            .withRealmImportFiles("/test-realm.json")
+            .withReuse(true);
 
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                () -> keycloak.getAuthServerUrl() + "/realms/quarkus");
+            () -> keycloak.getAuthServerUrl() + "/realms/quarkus");
         registry.add("spring.security.oauth2.resourceserver.jwt.jwk-set-uri",
-                () -> keycloak.getAuthServerUrl() + "/realms/quarkus/protocol/openid-connect/certs");
+            () -> keycloak.getAuthServerUrl() + "/realms/quarkus/protocol/openid-connect/certs");
         return keycloak;
     }
 }

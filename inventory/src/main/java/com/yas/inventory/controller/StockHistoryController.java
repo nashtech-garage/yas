@@ -22,9 +22,9 @@ public class StockHistoryController {
     public ResponseEntity<StockHistoryListVm> getStockHistories(@RequestParam Long productId,
                                                                 @RequestParam Long warehouseId) {
         return ResponseEntity.ok(
-                stockHistoryService.getStockHistories(
-                        productId,
-                        warehouseId)
+            stockHistoryService.getStockHistories(
+                productId,
+                warehouseId)
         );
     }
 }
