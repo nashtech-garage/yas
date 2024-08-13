@@ -1,7 +1,6 @@
 package com.yas.location.service;
 
 import com.yas.location.exception.NotFoundException;
-import com.yas.location.mapper.AddressResponseMapper;
 import com.yas.location.model.Address;
 import com.yas.location.model.Country;
 import com.yas.location.repository.AddressRepository;
@@ -12,11 +11,10 @@ import com.yas.location.utils.Constants;
 import com.yas.location.viewmodel.address.AddressDetailVm;
 import com.yas.location.viewmodel.address.AddressGetVm;
 import com.yas.location.viewmodel.address.AddressPostVm;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -32,7 +30,7 @@ public class AddressService {
         Address address = AddressPostVm.fromModel(dto);
         stateOrProvinceRepository.findById(dto.stateOrProvinceId()).ifPresent(address::setStateOrProvince);
         Country country = countryRepository.findById(dto.countryId())
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, dto.countryId()));
+            .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, dto.countryId()));
         address.setCountry(country);
         districtRepository.findById(dto.districtId()).ifPresent(address::setDistrict);
         return AddressGetVm.fromModel(addressRepository.save(address));
@@ -40,7 +38,7 @@ public class AddressService {
 
     public void updateAddress(Long id, AddressPostVm dto) {
         Address address = addressRepository.findById(id).orElseThrow(() ->
-                new NotFoundException(Constants.ERROR_CODE.ADDRESS_NOT_FOUND, id));
+            new NotFoundException(Constants.ErrorCode.ADDRESS_NOT_FOUND, id));
 
         address.setContactName(dto.contactName());
         address.setAddressLine1(dto.addressLine1());
@@ -62,13 +60,13 @@ public class AddressService {
 
     public AddressDetailVm getAddress(Long id) {
         Address address = addressRepository.findById(id).orElseThrow(() ->
-                new NotFoundException(Constants.ERROR_CODE.ADDRESS_NOT_FOUND, id));
+            new NotFoundException(Constants.ErrorCode.ADDRESS_NOT_FOUND, id));
         return AddressDetailVm.fromModel(address);
     }
 
     public void deleteAddress(Long id) {
         Address address = addressRepository.findById(id).orElseThrow(() ->
-                new NotFoundException(Constants.ERROR_CODE.ADDRESS_NOT_FOUND, id));
+            new NotFoundException(Constants.ErrorCode.ADDRESS_NOT_FOUND, id));
         addressRepository.delete(address);
     }
 }

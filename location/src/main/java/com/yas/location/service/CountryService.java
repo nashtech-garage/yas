@@ -21,81 +21,81 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CountryService {
 
-  private final CountryRepository countryRepository;
+    private final CountryRepository countryRepository;
 
-  private final CountryMapper countryMapper;
+    private final CountryMapper countryMapper;
 
-  public CountryService(CountryRepository countryRepository, CountryMapper countryMapper) {
-    this.countryRepository = countryRepository;
-    this.countryMapper = countryMapper;
-  }
-
-  @Transactional(readOnly = true)
-  public List<CountryVm> findAllCountries() {
-    return countryRepository
-        .findAll(Sort.by(Sort.Direction.ASC, "name"))
-        .stream()
-        .map(countryMapper::toCountryViewModelFromCountry)
-        .toList();
-  }
-
-  @Transactional(readOnly = true)
-  public CountryVm findById(final Long id) {
-    final Country country = countryRepository
-        .findById(id)
-        .orElseThrow(
-            () -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
-    return countryMapper.toCountryViewModelFromCountry(country);
-  }
-
-  @Transactional
-  public Country create(final CountryPostVm countryPostVm) {
-    if (countryRepository.existsByName(countryPostVm.name())) {
-      throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, countryPostVm.name());
+    public CountryService(CountryRepository countryRepository, CountryMapper countryMapper) {
+        this.countryRepository = countryRepository;
+        this.countryMapper = countryMapper;
     }
-    return countryRepository.save(countryMapper.toCountryFromCountryPostViewModel(countryPostVm));
-  }
 
-  @Transactional
-  public void update(final CountryPostVm countryPostVm, final Long id) {
-    final Country country = countryRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id));
-
-    //For the updating case we don't need to check for the country being updated
-    if (countryRepository.existsByNameNotUpdatingCountry(countryPostVm.name(), id)) {
-      throw new DuplicatedException(Constants.ERROR_CODE.NAME_ALREADY_EXITED, countryPostVm.name());
+    @Transactional(readOnly = true)
+    public List<CountryVm> findAllCountries() {
+        return countryRepository
+            .findAll(Sort.by(Sort.Direction.ASC, "name"))
+            .stream()
+            .map(countryMapper::toCountryViewModelFromCountry)
+            .toList();
     }
-    countryMapper.toCountryFromCountryPostViewModel(country, countryPostVm);
-    countryRepository.save(country);
-  }
 
-  @Transactional
-  public void delete(final Long id) {
-    final boolean isCountryExisted = countryRepository.existsById(id);
-    if (!isCountryExisted) {
-      throw new NotFoundException(Constants.ERROR_CODE.COUNTRY_NOT_FOUND, id);
+    @Transactional(readOnly = true)
+    public CountryVm findById(final Long id) {
+        final Country country = countryRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, id));
+        return countryMapper.toCountryViewModelFromCountry(country);
     }
-    countryRepository.deleteById(id);
-  }
 
-  @Transactional(readOnly = true)
-  public CountryListGetVm getPageableCountries(final int pageNo, final int pageSize) {
-    final Pageable pageable = PageRequest.of(pageNo, pageSize);
-    final Page<Country> countryPage = countryRepository.findAll(pageable);
-    final List<Country> countryList = countryPage.getContent();
+    @Transactional
+    public Country create(final CountryPostVm countryPostVm) {
+        if (countryRepository.existsByName(countryPostVm.name())) {
+            throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, countryPostVm.name());
+        }
+        return countryRepository.save(countryMapper.toCountryFromCountryPostViewModel(countryPostVm));
+    }
 
-    final List<CountryVm> countryVms = countryList.stream()
-        .map(CountryVm::fromModel)
-        .toList();
+    @Transactional
+    public void update(final CountryPostVm countryPostVm, final Long id) {
+        final Country country = countryRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, id));
 
-    return new CountryListGetVm(
-        countryVms,
-        countryPage.getNumber(),
-        countryPage.getSize(),
-        (int) countryPage.getTotalElements(),
-        countryPage.getTotalPages(),
-        countryPage.isLast()
-    );
-  }
+        //For the updating case we don't need to check for the country being updated
+        if (countryRepository.existsByNameNotUpdatingCountry(countryPostVm.name(), id)) {
+            throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, countryPostVm.name());
+        }
+        countryMapper.toCountryFromCountryPostViewModel(country, countryPostVm);
+        countryRepository.save(country);
+    }
+
+    @Transactional
+    public void delete(final Long id) {
+        final boolean isCountryExisted = countryRepository.existsById(id);
+        if (!isCountryExisted) {
+            throw new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, id);
+        }
+        countryRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public CountryListGetVm getPageableCountries(final int pageNo, final int pageSize) {
+        final Pageable pageable = PageRequest.of(pageNo, pageSize);
+        final Page<Country> countryPage = countryRepository.findAll(pageable);
+        final List<Country> countryList = countryPage.getContent();
+
+        final List<CountryVm> countryVms = countryList.stream()
+            .map(CountryVm::fromModel)
+            .toList();
+
+        return new CountryListGetVm(
+            countryVms,
+            countryPage.getNumber(),
+            countryPage.getSize(),
+            (int) countryPage.getTotalElements(),
+            countryPage.getTotalPages(),
+            countryPage.isLast()
+        );
+    }
 }

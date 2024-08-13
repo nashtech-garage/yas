@@ -10,6 +10,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface StateOrProvinceMapper {
 
-  @Mapping(target = "countryId", source = "country.id")
-  StateOrProvinceVm toStateOrProvinceViewModelFromStateOrProvince(StateOrProvince stateOrProvince);
+    @Mapping(target = "countryId", source = "country.id")
+    StateOrProvinceVm toStateOrProvinceViewModelFromStateOrProvince(StateOrProvince stateOrProvince);
 }

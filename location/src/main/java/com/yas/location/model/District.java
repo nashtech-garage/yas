@@ -24,19 +24,19 @@ import lombok.Setter;
 @Builder
 public class District extends AbstractAuditEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false, length = 450)
-  private String name;
+    @Column(nullable = false, length = 450)
+    private String name;
 
-  @Column(length = 450)
-  private String type;
+    @Column(length = 450)
+    private String type;
 
-  private String location;
+    private String location;
 
-  @ManyToOne
-  @JoinColumn(name = "state_or_province_id", nullable = false)
-  private StateOrProvince stateProvince;
+    @ManyToOne
+    @JoinColumn(name = "state_or_province_id", nullable = false)
+    private StateOrProvince stateProvince;
 }

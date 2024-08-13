@@ -31,114 +31,114 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 class CountryControllerTest {
 
-  @MockBean
-  private CountryService countryService;
+    @MockBean
+    private CountryService countryService;
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  private ObjectWriter objectWriter;
+    private ObjectWriter objectWriter;
 
-  @BeforeEach
-  void setUp() {
-    objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
-  }
+    @BeforeEach
+    void setUp() {
+        objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    }
 
-  @Test
-  void testCreateCountry_whenRequestIsValid_thenReturnOk() throws Exception {
-    CountryPostVm countryPostVm = CountryPostVm.builder()
-        .id("id")
-        .code2("123")
-        .name("name")
-        .build();
+    @Test
+    void testCreateCountry_whenRequestIsValid_thenReturnOk() throws Exception {
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .id("id")
+            .code2("123")
+            .name("name")
+            .build();
 
-    String request = objectWriter.writeValueAsString(countryPostVm);
-    given(countryService.create(countryPostVm)).willReturn(new Country());
+        String request = objectWriter.writeValueAsString(countryPostVm);
+        given(countryService.create(countryPostVm)).willReturn(new Country());
 
-    this.mockMvc.perform(post(Constants.ApiConstant.COUNTRIES_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isCreated());
-  }
+        this.mockMvc.perform(post(Constants.ApiConstant.COUNTRIES_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isCreated());
+    }
 
-  @Test
-  void testCreateCountry_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
-    CountryPostVm countryPostVm = CountryPostVm.builder()
-        .id("id")
-        .code2("1234")
-        .name("name")
-        .build();
+    @Test
+    void testCreateCountry_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .id("id")
+            .code2("1234")
+            .name("name")
+            .build();
 
-    String request = objectWriter.writeValueAsString(countryPostVm);
+        String request = objectWriter.writeValueAsString(countryPostVm);
 
-    this.mockMvc.perform(post(Constants.ApiConstant.COUNTRIES_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(post(Constants.ApiConstant.COUNTRIES_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testCreateCountry_whenIdIsBlank_thenReturnBadRequest() throws Exception {
-    CountryPostVm countryPostVm = CountryPostVm.builder()
-        .id("")
-        .code2("123")
-        .name("name")
-        .build();
+    @Test
+    void testCreateCountry_whenIdIsBlank_thenReturnBadRequest() throws Exception {
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .id("")
+            .code2("123")
+            .name("name")
+            .build();
 
-    String request = objectWriter.writeValueAsString(countryPostVm);
+        String request = objectWriter.writeValueAsString(countryPostVm);
 
-    this.mockMvc.perform(post(Constants.ApiConstant.COUNTRIES_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(post(Constants.ApiConstant.COUNTRIES_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testUpdateCountry_whenRequestIsValid_thenReturnOk() throws Exception {
-    CountryPostVm countryPostVm = CountryPostVm.builder()
-        .id("id")
-        .code2("123")
-        .name("name")
-        .build();
+    @Test
+    void testUpdateCountry_whenRequestIsValid_thenReturnOk() throws Exception {
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .id("id")
+            .code2("123")
+            .name("name")
+            .build();
 
-    String request = objectWriter.writeValueAsString(countryPostVm);
+        String request = objectWriter.writeValueAsString(countryPostVm);
 
-    this.mockMvc.perform(put(Constants.ApiConstant.COUNTRIES_URL + "/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isNoContent());
-  }
+        this.mockMvc.perform(put(Constants.ApiConstant.COUNTRIES_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isNoContent());
+    }
 
-  @Test
-  void testUpdateCountry_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
-    CountryPostVm countryPostVm = CountryPostVm.builder()
-        .id("id")
-        .code2("1234")
-        .name("name")
-        .build();
+    @Test
+    void testUpdateCountry_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .id("id")
+            .code2("1234")
+            .name("name")
+            .build();
 
-    String request = objectWriter.writeValueAsString(countryPostVm);
+        String request = objectWriter.writeValueAsString(countryPostVm);
 
-    this.mockMvc.perform(put(Constants.ApiConstant.COUNTRIES_URL + "/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(put(Constants.ApiConstant.COUNTRIES_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testUpdateCountry_whenIdIsBlank_thenReturnBadRequest() throws Exception {
-    CountryPostVm countryPostVm = CountryPostVm.builder()
-        .id("")
-        .code2("123")
-        .name("name")
-        .build();
+    @Test
+    void testUpdateCountry_whenIdIsBlank_thenReturnBadRequest() throws Exception {
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .id("")
+            .code2("123")
+            .name("name")
+            .build();
 
-    String request = objectWriter.writeValueAsString(countryPostVm);
+        String request = objectWriter.writeValueAsString(countryPostVm);
 
-    this.mockMvc.perform(put(Constants.ApiConstant.COUNTRIES_URL + "/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(put(Constants.ApiConstant.COUNTRIES_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
 }
