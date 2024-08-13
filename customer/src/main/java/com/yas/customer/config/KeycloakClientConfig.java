@@ -1,11 +1,11 @@
 package com.yas.customer.config;
 
+import static org.keycloak.OAuth2Constants.CLIENT_CREDENTIALS;
+
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import static org.keycloak.OAuth2Constants.CLIENT_CREDENTIALS;
 
 @Configuration
 public class KeycloakClientConfig {
@@ -18,11 +18,11 @@ public class KeycloakClientConfig {
     @Bean
     public Keycloak keycloak() {
         return KeycloakBuilder.builder()
-                .grantType(CLIENT_CREDENTIALS)
-                .serverUrl(keycloakPropsConfig.getAuthServerUrl())
-                .realm(keycloakPropsConfig.getRealm())
-                .clientId(keycloakPropsConfig.getResource())
-                .clientSecret(keycloakPropsConfig.getCredentials().getSecret())
-                .build();
+            .grantType(CLIENT_CREDENTIALS)
+            .serverUrl(keycloakPropsConfig.getAuthServerUrl())
+            .realm(keycloakPropsConfig.getRealm())
+            .clientId(keycloakPropsConfig.getResource())
+            .clientSecret(keycloakPropsConfig.getCredentials().getSecret())
+            .build();
     }
 }
