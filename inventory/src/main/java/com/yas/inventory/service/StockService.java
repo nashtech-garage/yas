@@ -6,12 +6,12 @@ import com.yas.inventory.exception.BadRequestException;
 import com.yas.inventory.exception.NotFoundException;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
+import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
-import com.yas.inventory.viewmodel.stock.StockPostVM;
+import com.yas.inventory.viewmodel.stock.StockPostVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityUpdateVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityVm;
 import com.yas.inventory.viewmodel.stock.StockVm;
@@ -45,7 +45,7 @@ public class StockService {
         this.stockHistoryService = stockHistoryService;
     }
 
-    public void addProductIntoWarehouse(List<StockPostVM> postVms) {
+    public void addProductIntoWarehouse(List<StockPostVm> postVms) {
 
         List<Stock> stocks = postVms.stream().map(postVM -> {
             ProductInfoVm product = productService.getProduct(postVM.productId());
@@ -81,7 +81,7 @@ public class StockService {
                     warehouseId,
                     productName,
                     productSku,
-                    FilterExistInWHSelection.YES)
+                    FilterExistInWhSelection.YES)
                 .parallelStream()
                 .collect(Collectors.toMap(ProductInfoVm::id, productInfoVm -> productInfoVm));
 

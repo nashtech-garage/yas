@@ -4,7 +4,7 @@ import com.yas.inventory.constants.MessageCode;
 import com.yas.inventory.exception.DuplicatedException;
 import com.yas.inventory.exception.NotFoundException;
 import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
+import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.repository.StockRepository;
 import com.yas.inventory.repository.WarehouseRepository;
 import com.yas.inventory.viewmodel.address.AddressDetailVm;
@@ -43,7 +43,7 @@ public class WarehouseService {
     }
 
     public List<ProductInfoVm> getProductWarehouse(
-        Long warehouseId, String productName, String productSku, FilterExistInWHSelection existStatus) {
+        Long warehouseId, String productName, String productSku, FilterExistInWhSelection existStatus) {
         List<Long> productIds = stockRepository.getProductIdsInWarehouse(warehouseId);
 
         List<ProductInfoVm> productVmList = productService.filterProducts(

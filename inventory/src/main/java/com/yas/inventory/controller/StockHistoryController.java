@@ -2,7 +2,7 @@ package com.yas.inventory.controller;
 
 import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.service.StockHistoryService;
-import com.yas.inventory.viewmodel.StockHistory.StockHistoryListVm;
+import com.yas.inventory.viewmodel.stockhistory.StockHistoryListVm;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

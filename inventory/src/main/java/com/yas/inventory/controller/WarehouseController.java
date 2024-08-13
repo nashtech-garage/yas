@@ -3,7 +3,7 @@ package com.yas.inventory.controller;
 import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.constants.PageableConstant;
 import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
+import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.service.WarehouseService;
 import com.yas.inventory.viewmodel.error.ErrorVm;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
@@ -39,7 +39,7 @@ public class WarehouseController {
     @GetMapping("/{warehouseId}/products")
     public ResponseEntity<List<ProductInfoVm>> getProductByWarehouse(
         @PathVariable Long warehouseId, @RequestParam String productName,
-        @RequestParam String productSku, @RequestParam FilterExistInWHSelection existStatus) {
+        @RequestParam String productSku, @RequestParam FilterExistInWhSelection existStatus) {
         return ResponseEntity.ok(
             warehouseService.getProductWarehouse(warehouseId, productName, productSku, existStatus));
     }

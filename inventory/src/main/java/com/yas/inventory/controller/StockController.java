@@ -2,7 +2,7 @@ package com.yas.inventory.controller;
 
 import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.service.StockService;
-import com.yas.inventory.viewmodel.stock.StockPostVM;
+import com.yas.inventory.viewmodel.stock.StockPostVm;
 import com.yas.inventory.viewmodel.stock.StockQuantityUpdateVm;
 import com.yas.inventory.viewmodel.stock.StockVm;
 import java.util.List;
@@ -23,7 +23,7 @@ public class StockController {
     private final StockService stockService;
 
     @PostMapping
-    public ResponseEntity<Void> addProductIntoWarehouse(@RequestBody List<StockPostVM> postVms) {
+    public ResponseEntity<Void> addProductIntoWarehouse(@RequestBody List<StockPostVm> postVms) {
         stockService.addProductIntoWarehouse(postVms);
         return ResponseEntity.noContent().build();
     }

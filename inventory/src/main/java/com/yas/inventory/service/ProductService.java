@@ -1,7 +1,7 @@
 package com.yas.inventory.service;
 
 import com.yas.inventory.config.ServiceUrlConfig;
-import com.yas.inventory.model.enumeration.FilterExistInWHSelection;
+import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.utils.AuthenticationUtils;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
@@ -41,7 +41,7 @@ public class ProductService {
     }
 
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
-                                              List<Long> productIds, FilterExistInWHSelection selection) {
+                                              List<Long> productIds, FilterExistInWhSelection selection) {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("name", productName);

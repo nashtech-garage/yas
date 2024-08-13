@@ -4,5 +4,5 @@ public record ProductInfoVm(
     long id,
     String name,
     String sku,
-    boolean existInWH) {
+    boolean existInWh) {
 }

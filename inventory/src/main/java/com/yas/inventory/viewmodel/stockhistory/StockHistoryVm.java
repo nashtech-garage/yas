@@ -1,4 +1,4 @@
-package com.yas.inventory.viewmodel.StockHistory;
+package com.yas.inventory.viewmodel.stockhistory;
 
 import com.yas.inventory.model.StockHistory;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
