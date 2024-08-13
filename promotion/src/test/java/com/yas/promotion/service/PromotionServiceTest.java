@@ -13,21 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = PromotionApplication.class)
 class PromotionServiceTest {
@@ -100,7 +90,7 @@ class PromotionServiceTest {
                 .slug(promotion1.getSlug())
                 .build();
         assertThrows(DuplicatedException.class, () -> promotionService.createPromotion(promotionPostVm),
-                String.format(Constants.ERROR_CODE.SLUG_ALREADY_EXITED, promotionPostVm.slug()));
+                String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, promotionPostVm.slug()));
     }
 
     @Test
