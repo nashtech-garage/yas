@@ -95,7 +95,22 @@ https://github.com/nashtech-garage/yas/tree/main/k8s/deploy
 By contributing, you agree that your contributions will be licensed under MIT License. 
 
 ## Screenshots
-| Storefront & Backoffice | Observability |
-| ---------- | ------------|
-|<img src="screenshots/yas-storefront.png" alt="Yas Storefront" height="500"/> | <img src="screenshots/yas-grafana-tracing.png" alt="Yas Grafana Tracing" height="500"/> |
-| <img src="screenshots/yas-backoffice.png" alt="Yas Backoffice" height="500"/> | <img src="screenshots/yas-grafana-metrics.png" alt="Yas Grafana Metrics" height="500"/> |
+
+<table>
+    <thead>
+        <tr>
+            <th>Backoffice &amp; Storefront</th>
+            <th>Observability</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr valign="top">
+            <td><img src="screenshots/yas-backoffice.png" alt="Yas Backoffice"/></td>
+            <td><img src="screenshots/yas-grafana-tracing.png" alt="Yas Grafana Tracing"/></td>
+        </tr>
+        <tr valign="top">
+            <td><img src="screenshots/yas-storefront.png" alt="Yas Storefront"/></td>
+            <td><img src="screenshots/yas-grafana-metrics.png" alt="Yas Grafana Metrics"/></td>
+        </tr>
+    </tbody>
+</table>
