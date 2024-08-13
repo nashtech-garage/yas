@@ -2,7 +2,7 @@ package com.yas.product.viewmodel.product;
 
 import java.util.List;
 
-public record ProductVariationPutVm (
+public record ProductVariationPutVm(
         Long id,
         String name,
         String slug,

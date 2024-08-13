@@ -1,4 +1,4 @@
 package com.yas.product.viewmodel.productattribute;
 
-public record ProductAttributeValuePostVm( Long ProductId , Long productAttributeId, String value) {
+public record ProductAttributeValuePostVm(Long productId, Long productAttributeId, String value) {
 }

@@ -1,6 +1,6 @@
 package com.yas.product.viewmodel.product;
-import com.yas.product.model.Product;
 
+import com.yas.product.model.Product;
 import java.time.ZonedDateTime;
 
 public record ProductListVm(Long id,

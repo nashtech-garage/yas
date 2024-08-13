@@ -9,4 +9,5 @@ public record ProductListGetFromCategoryVm(
         int totalElements,
         int totalPages,
         boolean isLast
-) {}
+) {
+}

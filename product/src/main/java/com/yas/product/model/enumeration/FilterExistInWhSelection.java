@@ -1,5 +1,5 @@
 package com.yas.product.model.enumeration;
 
-public enum FilterExistInWHSelection {
+public enum FilterExistInWhSelection {
     ALL, YES, NO;
 }

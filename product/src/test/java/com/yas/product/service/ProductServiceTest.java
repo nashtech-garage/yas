@@ -6,9 +6,17 @@ import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
-import com.yas.product.repository.*;
+import com.yas.product.repository.BrandRepository;
+import com.yas.product.repository.CategoryRepository;
+import com.yas.product.repository.ProductCategoryRepository;
+import com.yas.product.repository.ProductRepository;
 import com.yas.product.viewmodel.NoFileMediaVm;
-import com.yas.product.viewmodel.product.*;
+import com.yas.product.viewmodel.product.ProductFeatureGetVm;
+import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
+import com.yas.product.viewmodel.product.ProductListGetVm;
+import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
+import com.yas.product.viewmodel.product.ProductThumbnailVm;
+import com.yas.product.viewmodel.product.ProductsGetVm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,11 +33,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = ProductApplication.class)
 class ProductServiceTest {
+    private final ZonedDateTime CREATED_ON = ZonedDateTime.now();
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -42,7 +55,6 @@ class ProductServiceTest {
     private MediaService mediaService;
     @Autowired
     private ProductService productService;
-
     private List<Product> products;
     private List<Category> categoryList;
     private List<ProductCategory> productCategoryList;
@@ -53,8 +65,6 @@ class ProductServiceTest {
     private int pageNo = 0;
     private int pageSize = 5;
     private int totalPage = 2;
-
-    private final ZonedDateTime CREATED_ON = ZonedDateTime.now();
     private NoFileMediaVm noFileMediaVm;
 
     @BeforeEach
@@ -97,7 +107,7 @@ class ProductServiceTest {
                     .thumbnailMediaId(1L)
                     .taxClassId(1L)
                     .build();
-            if(i % 2 == 0) {
+            if (i % 2 == 0) {
                 product.setBrand(brand2);
                 product.setPrice(10.0);
             } else {
@@ -114,7 +124,7 @@ class ProductServiceTest {
             Product productDB = productsDB.get(i - 1);
             ProductCategory productCategory = new ProductCategory();
             productCategory.setProduct(productDB);
-            if(i % 2 == 0) {
+            if (i % 2 == 0) {
                 productCategory.setCategory(category2);
             } else {
                 productCategory.setCategory(category1);

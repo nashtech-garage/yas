@@ -2,7 +2,7 @@ package com.yas.product.viewmodel.product;
 
 import java.util.List;
 
-public record ProductESDetailVm(
+public record ProductEsDetailVm(
         Long id,
         String name,
         String slug,

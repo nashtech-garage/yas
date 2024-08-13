@@ -12,6 +12,6 @@ public class PriceValidator implements ConstraintValidator<ValidateProductPrice,
 
     @Override
     public boolean isValid(Double productPrice, ConstraintValidatorContext constraintValidatorContext) {
-        return productPrice>=0;
+        return productPrice >= 0;
     }
 }

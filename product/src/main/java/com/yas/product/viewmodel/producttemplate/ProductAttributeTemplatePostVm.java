@@ -1,7 +1,7 @@
 package com.yas.product.viewmodel.producttemplate;
 
 public record ProductAttributeTemplatePostVm(
-        Long ProductAttributeId,
+        Long productAttributeId,
         Integer displayOrder
 ) {
 }

@@ -3,7 +3,6 @@ package com.yas.product.viewmodel.product;
 import com.yas.product.validation.ValidateProductPrice;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
 import jakarta.validation.constraints.NotBlank;
-
 import java.util.List;
 
 public record ProductPostVm(
