@@ -83,6 +83,7 @@ applicationConfig:
       rating: http://rating/rating
       search: http://search/search
       tax: http://tax/tax
+      sampledata: http://sampledata/sampledata
 
 # Gateway config for bff microservices
 gatewayRoutesConfig:

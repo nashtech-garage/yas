@@ -1,10 +1,9 @@
 package com.yas.sampledata.utils;
 
+import java.sql.Connection;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
-
-import java.sql.Connection;
 
 public class SpringScriptUtility {
     public static void runScript(String path, Connection connection) {
@@ -16,14 +15,14 @@ public class SpringScriptUtility {
         String blockCommentEndDelimiter = "*/";
 
         ScriptUtils.executeSqlScript(
-                connection,
-                new EncodedResource(new PathResource(path)),
-                continueOrError,
-                ignoreFailedDrops,
-                commentPrefix,
-                separator,
-                blockCommentStartDelimiter,
-                blockCommentEndDelimiter
+            connection,
+            new EncodedResource(new PathResource(path)),
+            continueOrError,
+            ignoreFailedDrops,
+            commentPrefix,
+            separator,
+            blockCommentStartDelimiter,
+            blockCommentEndDelimiter
         );
     }
 }

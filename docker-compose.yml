@@ -73,6 +73,7 @@ services:
     - YAS_SERVICES_TAX
     - YAS_SERVICES_PROMOTION
     - YAS_SERVICES_PAYMENT
+    - YAS_SERVICES_SAMPLE_DATA
     - SERVER_PORT
     - LOGGING_CONFIG
     - JAVA_TOOL_OPTIONS
@@ -441,7 +442,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/sampledata
       - SERVER_SERVLET_CONTEXT_PATH=/sampledata
       - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/sampledata
-      - YAS_SERVICES_LOCATION
+      - YAS_SERVICES_SAMPLE_DATA
       - SERVER_PORT
       - LOGGING_CONFIG
       - JAVA_TOOL_OPTIONS

@@ -51,6 +51,9 @@ server {
   location /webhook/ {
     proxy_pass http://webhook;
   }
+  location /sampledata/ {
+    proxy_pass http://sampledata;
+  }
 }
 
 server {
