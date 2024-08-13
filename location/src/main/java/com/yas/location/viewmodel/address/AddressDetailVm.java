@@ -10,19 +10,19 @@ public record AddressDetailVm(Long id, String contactName, String phone,
                               String stateOrProvinceName, Long countryId, String countryName) {
     public static AddressDetailVm fromModel(Address address) {
         return AddressDetailVm.builder()
-                .id(address.getId())
-                .contactName(address.getContactName())
-                .phone(address.getPhone())
-                .addressLine1(address.getAddressLine1())
-                .addressLine2(address.getAddressLine2())
-                .city(address.getCity())
-                .districtId(address.getDistrict().getId())
-                .districtName(address.getDistrict().getName())
-                .stateOrProvinceId(address.getStateOrProvince().getId())
-                .stateOrProvinceName(address.getStateOrProvince().getName())
-                .countryId(address.getCountry().getId())
-                .countryName(address.getCountry().getName())
-                .zipCode(address.getZipCode())
-                .build();
+            .id(address.getId())
+            .contactName(address.getContactName())
+            .phone(address.getPhone())
+            .addressLine1(address.getAddressLine1())
+            .addressLine2(address.getAddressLine2())
+            .city(address.getCity())
+            .districtId(address.getDistrict().getId())
+            .districtName(address.getDistrict().getName())
+            .stateOrProvinceId(address.getStateOrProvince().getId())
+            .stateOrProvinceName(address.getStateOrProvince().getName())
+            .countryId(address.getCountry().getId())
+            .countryName(address.getCountry().getName())
+            .zipCode(address.getZipCode())
+            .build();
     }
 }

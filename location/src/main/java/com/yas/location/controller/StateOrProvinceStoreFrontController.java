@@ -8,14 +8,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +24,10 @@ public class StateOrProvinceStoreFrontController {
 
     @GetMapping("/{countryId}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = Constants.ApiConstant.CODE_200, description = Constants.ApiConstant.OK, content = @Content(schema = @Schema(implementation = StateOrProvinceVm.class))),
-            @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND, content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+        @ApiResponse(responseCode = Constants.ApiConstant.CODE_200, description = Constants.ApiConstant.OK,
+            content = @Content(schema = @Schema(implementation = StateOrProvinceVm.class))),
+        @ApiResponse(responseCode = Constants.ApiConstant.CODE_404, description = Constants.ApiConstant.NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<List<StateOrProvinceVm>> getStateOrProvince(@PathVariable("countryId") final Long id) {
         return ResponseEntity.ok(stateOrProvinceService.getAllByCountryId(id));
     }

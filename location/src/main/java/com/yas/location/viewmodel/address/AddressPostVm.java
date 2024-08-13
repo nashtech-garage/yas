@@ -16,14 +16,14 @@ public record AddressPostVm(@Size(max = 450) String contactName,
                             @NotNull Long stateOrProvinceId,
                             @NotNull Long countryId) {
 
-  public static Address fromModel(AddressPostVm dto) {
-    return Address.builder()
-        .contactName(dto.contactName)
-        .phone(dto.phone)
-        .addressLine1(dto.addressLine1)
-        .addressLine2(dto.addressLine2)
-        .city(dto.city())
-        .zipCode(dto.zipCode)
-        .build();
-  }
+    public static Address fromModel(AddressPostVm dto) {
+        return Address.builder()
+            .contactName(dto.contactName)
+            .phone(dto.phone)
+            .addressLine1(dto.addressLine1)
+            .addressLine2(dto.addressLine2)
+            .city(dto.city())
+            .zipCode(dto.zipCode)
+            .build();
+    }
 }

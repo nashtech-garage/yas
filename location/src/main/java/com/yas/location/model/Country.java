@@ -25,25 +25,25 @@ import lombok.Setter;
 @Builder
 public class Country extends AbstractAuditEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false, length = 450)
-  private String name;
+    @Column(nullable = false, length = 450)
+    private String name;
 
-  @Column(length = 3)
-  private String code2;
+    @Column(length = 3)
+    private String code2;
 
-  @Column(length = 3)
-  private String code3;
+    @Column(length = 3)
+    private String code3;
 
-  private Boolean isBillingEnabled;
-  private Boolean isShippingEnabled;
-  private Boolean isCityEnabled;
-  private Boolean isZipCodeEnabled;
-  private Boolean isDistrictEnabled;
+    private Boolean isBillingEnabled;
+    private Boolean isShippingEnabled;
+    private Boolean isCityEnabled;
+    private Boolean isZipCodeEnabled;
+    private Boolean isDistrictEnabled;
 
-  @OneToMany(mappedBy = "country")
-  private List<StateOrProvince> stateOrProvinces = new ArrayList<>();
+    @OneToMany(mappedBy = "country")
+    private List<StateOrProvince> stateOrProvinces = new ArrayList<>();
 }

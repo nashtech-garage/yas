@@ -28,148 +28,148 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 class AddressControllerTest {
 
-  @MockBean
-  private AddressService addressService;
+    @MockBean
+    private AddressService addressService;
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  private ObjectWriter objectWriter;
+    private ObjectWriter objectWriter;
 
-  @BeforeEach
-  void setUp() {
-    objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
-  }
+    @BeforeEach
+    void setUp() {
+        objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    }
 
-  @Test
-  void testCreateAddress_whenRequestIsValid_thenReturnOk() throws Exception {
-    AddressPostVm addressPostVm = AddressPostVm.builder()
-        .contactName("contactName")
-        .phone("12345678")
-        .addressLine1("addressLine1")
-        .addressLine2("addressLine2")
-        .city("city")
-        .zipCode("zipCode")
-        .districtId(1L)
-        .stateOrProvinceId(1L)
-        .countryId(1L)
-        .build();
+    @Test
+    void testCreateAddress_whenRequestIsValid_thenReturnOk() throws Exception {
+        AddressPostVm addressPostVm = AddressPostVm.builder()
+            .contactName("contactName")
+            .phone("12345678")
+            .addressLine1("addressLine1")
+            .addressLine2("addressLine2")
+            .city("city")
+            .zipCode("zipCode")
+            .districtId(1L)
+            .stateOrProvinceId(1L)
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(addressPostVm);
+        String request = objectWriter.writeValueAsString(addressPostVm);
 
-    this.mockMvc.perform(post("/storefront/addresses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isOk());
-  }
+        this.mockMvc.perform(post("/storefront/addresses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isOk());
+    }
 
-  @Test
-  void testCreateAddress_whenPhoneIsOverMaxLength_thenReturnBadRequest() throws Exception {
-    AddressPostVm addressPostVm = AddressPostVm.builder()
-        .contactName("contactName")
-        .phone("12345678912345678912345678")
-        .addressLine1("addressLine1")
-        .addressLine2("addressLine2")
-        .city("city")
-        .zipCode("zipCode")
-        .districtId(1L)
-        .stateOrProvinceId(1L)
-        .countryId(1L)
-        .build();
+    @Test
+    void testCreateAddress_whenPhoneIsOverMaxLength_thenReturnBadRequest() throws Exception {
+        AddressPostVm addressPostVm = AddressPostVm.builder()
+            .contactName("contactName")
+            .phone("12345678912345678912345678")
+            .addressLine1("addressLine1")
+            .addressLine2("addressLine2")
+            .city("city")
+            .zipCode("zipCode")
+            .districtId(1L)
+            .stateOrProvinceId(1L)
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(addressPostVm);
+        String request = objectWriter.writeValueAsString(addressPostVm);
 
-    this.mockMvc.perform(post("/storefront/addresses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(post("/storefront/addresses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testCreateAddress_whenDistrictIsNull_thenReturnBadRequest() throws Exception {
-    AddressPostVm addressPostVm = AddressPostVm.builder()
-        .contactName("contactName")
-        .phone("12345678")
-        .addressLine1("addressLine1")
-        .addressLine2("addressLine2")
-        .city("city")
-        .zipCode("zipCode")
-        .districtId(null)
-        .stateOrProvinceId(1L)
-        .countryId(1L)
-        .build();
+    @Test
+    void testCreateAddress_whenDistrictIsNull_thenReturnBadRequest() throws Exception {
+        AddressPostVm addressPostVm = AddressPostVm.builder()
+            .contactName("contactName")
+            .phone("12345678")
+            .addressLine1("addressLine1")
+            .addressLine2("addressLine2")
+            .city("city")
+            .zipCode("zipCode")
+            .districtId(null)
+            .stateOrProvinceId(1L)
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(addressPostVm);
+        String request = objectWriter.writeValueAsString(addressPostVm);
 
-    this.mockMvc.perform(post("/storefront/addresses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(post("/storefront/addresses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testUpdateAddress_whenRequestIsValid_thenReturnOk() throws Exception {
-    AddressPostVm addressPostVm = AddressPostVm.builder()
-        .contactName("contactName")
-        .phone("12345678")
-        .addressLine1("addressLine1")
-        .addressLine2("addressLine2")
-        .city("city")
-        .zipCode("zipCode")
-        .districtId(1L)
-        .stateOrProvinceId(1L)
-        .countryId(1L)
-        .build();
+    @Test
+    void testUpdateAddress_whenRequestIsValid_thenReturnOk() throws Exception {
+        AddressPostVm addressPostVm = AddressPostVm.builder()
+            .contactName("contactName")
+            .phone("12345678")
+            .addressLine1("addressLine1")
+            .addressLine2("addressLine2")
+            .city("city")
+            .zipCode("zipCode")
+            .districtId(1L)
+            .stateOrProvinceId(1L)
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(addressPostVm);
+        String request = objectWriter.writeValueAsString(addressPostVm);
 
-    this.mockMvc.perform(put("/storefront/addresses/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isNoContent());
-  }
+        this.mockMvc.perform(put("/storefront/addresses/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isNoContent());
+    }
 
-  @Test
-  void testUpdateAddress_whenPhoneIsOverMaxLength_thenReturnBadRequest() throws Exception {
-    AddressPostVm addressPostVm = AddressPostVm.builder()
-        .contactName("contactName")
-        .phone("12345678912345678912345678")
-        .addressLine1("addressLine1")
-        .addressLine2("addressLine2")
-        .city("city")
-        .zipCode("zipCode")
-        .districtId(1L)
-        .stateOrProvinceId(1L)
-        .countryId(1L)
-        .build();
+    @Test
+    void testUpdateAddress_whenPhoneIsOverMaxLength_thenReturnBadRequest() throws Exception {
+        AddressPostVm addressPostVm = AddressPostVm.builder()
+            .contactName("contactName")
+            .phone("12345678912345678912345678")
+            .addressLine1("addressLine1")
+            .addressLine2("addressLine2")
+            .city("city")
+            .zipCode("zipCode")
+            .districtId(1L)
+            .stateOrProvinceId(1L)
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(addressPostVm);
+        String request = objectWriter.writeValueAsString(addressPostVm);
 
-    this.mockMvc.perform(put("/storefront/addresses/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(put("/storefront/addresses/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testUpdateAddress_whenDistrictIsNull_thenReturnBadRequest() throws Exception {
-    AddressPostVm addressPostVm = AddressPostVm.builder()
-        .contactName("contactName")
-        .phone("12345678")
-        .addressLine1("addressLine1")
-        .addressLine2("addressLine2")
-        .city("city")
-        .zipCode("zipCode")
-        .districtId(null)
-        .stateOrProvinceId(1L)
-        .countryId(1L)
-        .build();
+    @Test
+    void testUpdateAddress_whenDistrictIsNull_thenReturnBadRequest() throws Exception {
+        AddressPostVm addressPostVm = AddressPostVm.builder()
+            .contactName("contactName")
+            .phone("12345678")
+            .addressLine1("addressLine1")
+            .addressLine2("addressLine2")
+            .city("city")
+            .zipCode("zipCode")
+            .districtId(null)
+            .stateOrProvinceId(1L)
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(addressPostVm);
+        String request = objectWriter.writeValueAsString(addressPostVm);
 
-    this.mockMvc.perform(put("/storefront/addresses/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(put("/storefront/addresses/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 }

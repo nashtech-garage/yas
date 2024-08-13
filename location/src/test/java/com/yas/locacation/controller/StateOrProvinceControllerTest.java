@@ -32,124 +32,124 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 class StateOrProvinceControllerTest {
 
-  @MockBean
-  private StateOrProvinceService stateOrProvinceService;
+    @MockBean
+    private StateOrProvinceService stateOrProvinceService;
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  private ObjectWriter objectWriter;
+    private ObjectWriter objectWriter;
 
-  @BeforeEach
-  void setUp() {
-    objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
-  }
+    @BeforeEach
+    void setUp() {
+        objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    }
 
-  @Test
-  void testCreateStateOrProvince_whenRequestIsValid_thenReturnOk() throws Exception {
-    StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-        .name("name")
-        .code("code")
-        .type("type")
-        .countryId(1L)
-        .build();
+    @Test
+    void testCreateStateOrProvince_whenRequestIsValid_thenReturnOk() throws Exception {
+        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
+            .name("name")
+            .code("code")
+            .type("type")
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
-    StateOrProvince stateOrProvince = StateOrProvince.builder()
-        .id(1L)
-        .country(Country.builder().id(1L).build())
-        .build();
-    given(stateOrProvinceService.createStateOrProvince(stateOrProvincePostVm)).willReturn(
-        stateOrProvince);
+        String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
+        StateOrProvince stateOrProvince = StateOrProvince.builder()
+            .id(1L)
+            .country(Country.builder().id(1L).build())
+            .build();
+        given(stateOrProvinceService.createStateOrProvince(stateOrProvincePostVm)).willReturn(
+            stateOrProvince);
 
-    this.mockMvc.perform(post(Constants.ApiConstant.STATE_OR_PROVINCES_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isCreated());
-  }
+        this.mockMvc.perform(post(Constants.ApiConstant.STATE_OR_PROVINCES_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isCreated());
+    }
 
-  @Test
-  void testCreateStateOrProvince_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
-    StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-        .name("name")
-        .code("1234567890".repeat(26))
-        .type("type")
-        .countryId(1L)
-        .build();
+    @Test
+    void testCreateStateOrProvince_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
+        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
+            .name("name")
+            .code("1234567890".repeat(26))
+            .type("type")
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
+        String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
 
-    this.mockMvc.perform(post(Constants.ApiConstant.STATE_OR_PROVINCES_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(post(Constants.ApiConstant.STATE_OR_PROVINCES_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testCreateStateOrProvince_whenNameIsBlank_thenReturnBadRequest() throws Exception {
-    StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-        .name("")
-        .code("code")
-        .type("type")
-        .countryId(1L)
-        .build();
+    @Test
+    void testCreateStateOrProvince_whenNameIsBlank_thenReturnBadRequest() throws Exception {
+        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
+            .name("")
+            .code("code")
+            .type("type")
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
+        String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
 
-    this.mockMvc.perform(post(Constants.ApiConstant.STATE_OR_PROVINCES_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(post(Constants.ApiConstant.STATE_OR_PROVINCES_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testUpdateStateOrProvince_whenRequestIsValid_thenReturnOk() throws Exception {
-    StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-        .name("name")
-        .code("code")
-        .type("type")
-        .countryId(1L)
-        .build();
+    @Test
+    void testUpdateStateOrProvince_whenRequestIsValid_thenReturnOk() throws Exception {
+        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
+            .name("name")
+            .code("code")
+            .type("type")
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
+        String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
 
-    this.mockMvc.perform(put(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isNoContent());
-  }
+        this.mockMvc.perform(put(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isNoContent());
+    }
 
-  @Test
-  void testUpdateStateOrProvince_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
-    StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-        .name("name")
-        .code("1234567890".repeat(26))
-        .type("type")
-        .countryId(1L)
-        .build();
+    @Test
+    void testUpdateStateOrProvince_whenCodeIsOverMaxLength_thenReturnBadRequest() throws Exception {
+        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
+            .name("name")
+            .code("1234567890".repeat(26))
+            .type("type")
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
+        String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
 
-    this.mockMvc.perform(put(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(put(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 
-  @Test
-  void testUpdateStateOrProvince_whenNameIsBlank_thenReturnBadRequest() throws Exception {
-    StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-        .name("")
-        .code("code")
-        .type("type")
-        .countryId(1L)
-        .build();
+    @Test
+    void testUpdateStateOrProvince_whenNameIsBlank_thenReturnBadRequest() throws Exception {
+        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
+            .name("")
+            .code("code")
+            .type("type")
+            .countryId(1L)
+            .build();
 
-    String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
+        String request = objectWriter.writeValueAsString(stateOrProvincePostVm);
 
-    this.mockMvc.perform(put(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(request))
-        .andExpect(status().isBadRequest());
-  }
+        this.mockMvc.perform(put(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest());
+    }
 }
