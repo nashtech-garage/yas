@@ -16,7 +16,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
@@ -32,18 +38,23 @@ public class MediaController {
 
     @PostMapping(path = "/medias", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = NoFileMediaVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+        @ApiResponse(responseCode = "200", description = "Ok",
+            content = @Content(schema = @Schema(implementation = NoFileMediaVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Object> create(@ModelAttribute @Valid MediaPostVm mediaPostVm) {
         Media media = mediaService.saveMedia(mediaPostVm);
-        NoFileMediaVm noFileMediaVm = new NoFileMediaVm(media.getId(), media.getCaption(), media.getFileName(), media.getMediaType());
+        NoFileMediaVm noFileMediaVm =
+            new NoFileMediaVm(media.getId(), media.getCaption(), media.getFileName(), media.getMediaType());
         return ResponseEntity.ok().body(noFileMediaVm);
     }
 
     @DeleteMapping("/medias/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Deleted", content = @Content(schema = @Schema(implementation = MediaVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+        @ApiResponse(responseCode = "204", description = "Deleted",
+            content = @Content(schema = @Schema(implementation = MediaVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         mediaService.removeMedia(id);
@@ -52,7 +63,8 @@ public class MediaController {
 
     @GetMapping("/medias/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = MediaVm.class)))})
+        @ApiResponse(responseCode = "200", description = "Ok",
+            content = @Content(schema = @Schema(implementation = MediaVm.class)))})
     public ResponseEntity<MediaVm> get(@PathVariable Long id) {
         MediaVm media = mediaService.getMediaById(id);
         if (media == null) {
@@ -70,7 +82,7 @@ public class MediaController {
         }
         MediaType mediaType = MediaType.valueOf(media.getMediaType());
         return ResponseEntity.ok()
-                .contentType(mediaType)
-                .body(media.getData());
+            .contentType(mediaType)
+            .body(media.getData());
     }
 }

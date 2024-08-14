@@ -9,12 +9,11 @@ import com.yas.media.repository.MediaRepository;
 import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
+import java.io.IOException;
+import java.util.Objects;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.io.IOException;
-import java.util.Objects;
 
 @Service
 public class MediaServiceImpl implements MediaService {
@@ -31,8 +30,8 @@ public class MediaServiceImpl implements MediaService {
     public Media saveMedia(MediaPostVm mediaPostVm) {
         MediaType mediaType = MediaType.valueOf(Objects.requireNonNull(mediaPostVm.multipartFile().getContentType()));
         if (!(MediaType.IMAGE_PNG.equals(mediaType)
-                || MediaType.IMAGE_JPEG.equals(mediaType)
-                || MediaType.IMAGE_GIF.equals(mediaType))) {
+            || MediaType.IMAGE_JPEG.equals(mediaType)
+            || MediaType.IMAGE_GIF.equals(mediaType))) {
             throw new UnsupportedMediaTypeException();
         }
         Media media = new Media();
@@ -45,7 +44,8 @@ public class MediaServiceImpl implements MediaService {
             throw new MultipartFileContentException(e);
         }
 
-        if (mediaPostVm.fileNameOverride() == null || mediaPostVm.fileNameOverride().isEmpty() || mediaPostVm.fileNameOverride().trim().isEmpty()) {
+        if (mediaPostVm.fileNameOverride() == null || mediaPostVm.fileNameOverride().isEmpty()
+            || mediaPostVm.fileNameOverride().trim().isEmpty()) {
             media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
         } else {
             media.setFileName(mediaPostVm.fileNameOverride());
@@ -70,15 +70,15 @@ public class MediaServiceImpl implements MediaService {
             return null;
         }
         String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
-                .path(String.format("/medias/%1$s/file/%2$s", noFileMediaVm.id(), noFileMediaVm.fileName()))
-                .build().toUriString();
+            .path(String.format("/medias/%1$s/file/%2$s", noFileMediaVm.id(), noFileMediaVm.fileName()))
+            .build().toUriString();
 
         return new MediaVm(
-                noFileMediaVm.id(),
-                noFileMediaVm.caption(),
-                noFileMediaVm.fileName(),
-                noFileMediaVm.mediaType(),
-                url
+            noFileMediaVm.id(),
+            noFileMediaVm.caption(),
+            noFileMediaVm.fileName(),
+            noFileMediaVm.mediaType(),
+            url
         );
     }
 }
