@@ -1,15 +1,13 @@
 package com.yas.rating.viewmodel;
 
 
-
 import com.yas.rating.model.Rating;
+import java.time.ZonedDateTime;
 import lombok.Builder;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
-
 @Builder
-public record RatingVm(Long id, String content, int star, Long productId, String productName, String createdBy,String lastName, String firstName, ZonedDateTime createdOn) {
+public record RatingVm(Long id, String content, int star, Long productId, String productName, String createdBy,
+                       String lastName, String firstName, ZonedDateTime createdOn) {
     public static RatingVm fromModel(Rating rating) {
         return RatingVm.builder()
                 .id(rating.getId())

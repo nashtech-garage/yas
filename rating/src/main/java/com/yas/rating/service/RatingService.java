@@ -7,7 +7,14 @@ import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.utils.AuthenticationUtils;
 import com.yas.rating.utils.Constants;
-import com.yas.rating.viewmodel.*;
+import com.yas.rating.viewmodel.CustomerVm;
+import com.yas.rating.viewmodel.RatingListVm;
+import com.yas.rating.viewmodel.RatingPostVm;
+import com.yas.rating.viewmodel.RatingVm;
+import com.yas.rating.viewmodel.ResponeStatusVm;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,10 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -75,10 +78,10 @@ public class RatingService {
         if (!orderService.checkOrderExistsByProductAndUserWithStatus(
                 ratingPostVm.productId()
         ).isPresent()) {
-            throw new AccessDeniedException(Constants.ERROR_CODE.ACCESS_DENIED);
+            throw new AccessDeniedException(Constants.ErrorCode.ACCESS_DENIED);
         }
         if (ratingRepository.existsByCreatedByAndProductId(userId, ratingPostVm.productId())) {
-            throw new ResourceExistedException(Constants.ERROR_CODE.RESOURCE_ALREADY_EXISTED);
+            throw new ResourceExistedException(Constants.ErrorCode.RESOURCE_ALREADY_EXISTED);
         }
 
         Rating rating = new Rating();
@@ -97,16 +100,17 @@ public class RatingService {
 
     public ResponeStatusVm deleteRating(long ratingId) {
         Rating rating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new NotFoundException(Constants.ERROR_CODE.RATING_NOT_FOUND, ratingId));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.RATING_NOT_FOUND, ratingId));
 
         ratingRepository.delete(rating);
-        return new ResponeStatusVm("Delete Rating", Constants.MESSAGE.SUCCESS_MESSAGE, HttpStatus.OK.toString());
+        return new ResponeStatusVm("Delete Rating", Constants.Message.SUCCESS_MESSAGE, HttpStatus.OK.toString());
     }
 
     public Double calculateAverageStar(Long productId) {
         List<Object[]> totalStarsAndRatings = ratingRepository.getTotalStarsAndTotalRatings(productId);
-        if (ObjectUtils.isEmpty(totalStarsAndRatings.get(0)[0]))
+        if (ObjectUtils.isEmpty(totalStarsAndRatings.get(0)[0])) {
             return 0.0;
+        }
         int totalStars = (Integer.parseInt(totalStarsAndRatings.get(0)[0].toString()));
         int totalRatings = (Integer.parseInt(totalStarsAndRatings.get(0)[1].toString()));
 
