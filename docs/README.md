@@ -7,12 +7,12 @@ https://github.com/nashtech-garage/yas
 - [Repo setup](#repo-setup)
 - [Continous Interation](#continous-interation)
 - [Authentication and Authorization](#authentication-and-authorization)
+- [Local development with docker compose](#local-development-with-docker-compose)
+- [Observability](#observability)
 - [Change Data Capture (CDC) with Debezium](#change-data-capture-cdc-with-debezium)
 - [Product searching with Elasticsearch](#product-searching-with-elasticsearch)
 - [Duplicating data to improve performance](#duplicating-data-to-improve-performance)
-- [Observability](#observability)
 - [Frontend architecture](#frontend-architecture)
-- [Local development with docker compose](#local-development-with-docker-compose)
 - [Kubernetes](#kubernetes)
 
 ## Repo setup
@@ -184,20 +184,6 @@ spring:
             - Path=/**
 ```
 
-## Change Data Capture (CDC) with Debezium
-
-We use debezium to capture the change in some tables, those changes will be pushed to kafka topics. There is background job that listen to those topics, receive the ids of products having data changed, call to product rest API to get product information and update to elastic search.
-
-Debezium acts as a source connector of Kafka connect. It captures row-level changes that insert, update, and delete database content and that were committed to a PostgreSQL database. The connector generates data change event records and streams them to Kafka topics
-
-## Product searching with Elasticsearch
-
-## Duplicating data to improve performance
-
-## Observability
-
-## Frontend architecture 
-
 ## Local development with docker compose
 
 Because there many services, we created muliple docker compose file.
@@ -209,5 +195,29 @@ Because there many services, we created muliple docker compose file.
 Common environment variables are defined in .env at the root of the repo. In that file we also set the `COMPOSE_FILE=docker-compose.yml:docker-compose.search.yml:docker-compose.o11y.yml` so that it will run all the services when you run docker compose up. You can run each each docker file separately by `docker compose -f [docker compose file] up`.
 
 All services will be in the same network named yas-network. 
+
+## Observability
+
+![yas-observability](images/yas-observability.png)
+
+In yas, we use OpenTelemetry Java Agent which is attacthed to Spring Boot applications to collect OpenTelemetry data including Log, Trace and Metric and send them all to an OpenTelemetry Collector that run as a container. In the Otel collector we will do some transformation see https://github.com/nashtech-garage/yas/blob/main/docker/otel-collector/otelcol-config.yml
+
+ - The log data then sent to Grafana Loki
+ - The trace data sent to Grafana Tempo
+ - The metric data sent to Prometheus
+
+We use the Grafana to view the observability data
+
+## Change Data Capture (CDC) with Debezium
+
+We use debezium to capture the change in some tables, those changes will be pushed to kafka topics. There is background job that listen to those topics, receive the ids of products having data changed, call to product rest API to get product information and update to elastic search.
+
+Debezium acts as a source connector of Kafka connect. It captures row-level changes that insert, update, and delete database content and that were committed to a PostgreSQL database. The connector generates data change event records and streams them to Kafka topics
+
+## Product searching with Elasticsearch
+
+## Duplicating data to improve performance
+
+## Frontend architecture 
 
 ## Kubernetes
