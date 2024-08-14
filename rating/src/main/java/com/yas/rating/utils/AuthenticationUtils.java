@@ -15,7 +15,7 @@ public class AuthenticationUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new AccessDeniedException(Constants.ERROR_CODE.ACCESS_DENIED);
+            throw new AccessDeniedException(Constants.ErrorCode.ACCESS_DENIED);
         }
 
         JwtAuthenticationToken contextHolder = (JwtAuthenticationToken) authentication;

@@ -6,6 +6,6 @@ public record RatingListVm(
         List<RatingVm> ratingList,
         long totalElements,
         int totalPages
-){
+) {
 
 }
