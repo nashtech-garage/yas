@@ -9,8 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(YasConfig.class)
 public class MediaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MediaApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MediaApplication.class, args);
+    }
 
 }
