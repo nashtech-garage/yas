@@ -4,27 +4,30 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import com.yas.search.constant.document_fields.ProductField;
-import com.yas.search.constant.enums.ESortType;
+import com.yas.search.constant.documentations.ProductField;
+import com.yas.search.constant.enums.SortType;
 import com.yas.search.document.Product;
 import com.yas.search.viewmodel.ProductGetVm;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameGetVm;
 import com.yas.search.viewmodel.ProductNameListVm;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
-import org.springframework.data.elasticsearch.core.*;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHitSupport;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class ProductService {
@@ -42,7 +45,7 @@ public class ProductService {
                                                String attribute,
                                                Double minPrice,
                                                Double maxPrice,
-                                               ESortType sortType) {
+                                               SortType sortType) {
         NativeQueryBuilder nativeQuery = NativeQuery.builder()
                 .withAggregation("categories", Aggregation.of(a -> a
                         .terms(ta -> ta.field(ProductField.CATEGORIES))))
@@ -74,9 +77,9 @@ public class ProductService {
                 })
         );
 
-        if (sortType == ESortType.PRICE_ASC) {
+        if (sortType == SortType.PRICE_ASC) {
             nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.PRICE));
-        } else if (sortType == ESortType.PRICE_DESC) {
+        } else if (sortType == SortType.PRICE_DESC) {
             nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
         } else {
             nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.CREATE_ON));
@@ -136,7 +139,8 @@ public class ProductService {
         aggregations.forEach(agg -> {
             Map<String, Long> aggregation = new HashMap<>();
             StringTermsAggregate stringTermsAggregate = (StringTermsAggregate) agg.getAggregate()._get();
-            List<StringTermsBucket> stringTermsBuckets = (List<StringTermsBucket>) stringTermsAggregate.buckets()._get();
+            List<StringTermsBucket> stringTermsBuckets
+                    = (List<StringTermsBucket>) stringTermsAggregate.buckets()._get();
             stringTermsBuckets.forEach(bucket -> aggregation.put(bucket.key()._get().toString(), bucket.docCount()));
             aggregationsMap.put(agg.getName(), aggregation);
         });
@@ -148,7 +152,7 @@ public class ProductService {
         NativeQuery matchQuery = NativeQuery.builder()
                 .withQuery(
                         q -> q.matchPhrasePrefix(
-                                mPP -> mPP.field("name").query(keyword)
+                                matchPhrasePrefix -> matchPhrasePrefix.field("name").query(keyword)
                         )
                 )
                 .withSourceFilter(new FetchSourceFilter(

@@ -1,7 +1,6 @@
 package com.yas.search.viewmodel;
 
 import com.yas.search.document.Product;
-
 import java.time.ZonedDateTime;
 
 public record ProductGetVm(Long id,

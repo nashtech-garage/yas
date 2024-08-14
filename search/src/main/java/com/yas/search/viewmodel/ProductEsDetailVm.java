@@ -3,7 +3,7 @@ package com.yas.search.viewmodel;
 
 import java.util.List;
 
-public record ProductESDetailVm(
+public record ProductEsDetailVm(
         Long id,
         String name,
         String slug,
