@@ -11,8 +11,8 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 @EnableConfigurationProperties(ServiceUrlConfig.class)
 public class StorefrontBffApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(StorefrontBffApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(StorefrontBffApplication.class, args);
+    }
 
 }
