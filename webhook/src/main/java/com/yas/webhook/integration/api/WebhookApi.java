@@ -13,23 +13,23 @@ import org.springframework.web.client.RestClient.RequestBodySpec;
 @RequiredArgsConstructor
 public class WebhookApi {
 
-  public static final String X_HUB_SIGNATURE_256 = "X-Hub-Signature-256";
+    public static final String X_HUB_SIGNATURE_256 = "X-Hub-Signature-256";
 
-  private final RestClient restClient;
+    private final RestClient restClient;
 
-  @SneakyThrows
-  public void notify(String url, String secret, JsonNode jsonNode) {
+    @SneakyThrows
+    public void notify(String url, String secret, JsonNode jsonNode) {
 
-    RequestBodySpec requestBodySpec = restClient.post()
-        .uri(url);
+        RequestBodySpec requestBodySpec = restClient.post()
+                .uri(url);
 
-    if (StringUtils.isNoneEmpty(secret)) {
-      String secretToken = HmacUtils.hash(jsonNode.toString(), secret);
-      requestBodySpec.header(X_HUB_SIGNATURE_256, secretToken);
+        if (StringUtils.isNoneEmpty(secret)) {
+            String secretToken = HmacUtils.hash(jsonNode.toString(), secret);
+            requestBodySpec.header(X_HUB_SIGNATURE_256, secretToken);
+        }
+
+        requestBodySpec.body(jsonNode)
+                .retrieve()
+                .toBodilessEntity();
     }
-
-    requestBodySpec.body(jsonNode)
-        .retrieve()
-        .toBodilessEntity();
-  }
 }

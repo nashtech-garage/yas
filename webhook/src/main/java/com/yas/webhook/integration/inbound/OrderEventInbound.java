@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderEventInbound {
 
-  private final OrderEventService orderEventService;
+    private final OrderEventService orderEventService;
 
-  @KafkaListener(topics = {
-      "${webhook.integration.kafka.order.topic-name}"}, groupId = "${spring.kafka.consumer.group-id}")
-  public void onOrderEvent(JsonNode productEvent) {
-    orderEventService.onOrderEvent(productEvent);
-  }
+    @KafkaListener(topics = {
+        "${webhook.integration.kafka.order.topic-name}"}, groupId = "${spring.kafka.consumer.group-id}")
+    public void onOrderEvent(JsonNode productEvent) {
+        orderEventService.onOrderEvent(productEvent);
+    }
 
 }

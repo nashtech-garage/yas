@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum Operation {
 
-  UPDATE("u"),
-  CREATE("c"),
-  DELETE("d"),
-  READ("r");
+    UPDATE("u"),
+    CREATE("c"),
+    DELETE("d"),
+    READ("r");
 
-  final String name;
+    final String name;
 }

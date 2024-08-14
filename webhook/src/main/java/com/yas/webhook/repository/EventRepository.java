@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-  @EntityGraph(attributePaths = {"webhookEvents.webhook"})
-  Optional<Event> findByName(EventName name);
+    @EntityGraph(attributePaths = {"webhookEvents.webhook"})
+    Optional<Event> findByName(EventName name);
 
 }

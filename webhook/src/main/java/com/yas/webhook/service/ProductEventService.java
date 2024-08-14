@@ -17,24 +17,24 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductEventService {
 
-  private final EventRepository eventRepository;
-  private final WebhookService webhookService;
+    private final EventRepository eventRepository;
+    private final WebhookService webhookService;
 
-  public void onProductEvent(JsonNode updatedEvent) {
-    String operation = updatedEvent.get("op").asText();
-    if (!Objects.equals(operation, Operation.UPDATE.getName())) {
-      return;
+    public void onProductEvent(JsonNode updatedEvent) {
+        String operation = updatedEvent.get("op").asText();
+        if (!Objects.equals(operation, Operation.UPDATE.getName())) {
+            return;
+        }
+        Event event = eventRepository.findByName(EventName.ON_PRODUCT_UPDATED)
+                .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, EventName.ON_PRODUCT_UPDATED));
+        List<WebhookEvent> hookEvents = event.getWebhookEvents();
+        hookEvents.forEach(hookEvent -> {
+            String url = hookEvent.getWebhook().getPayloadUrl();
+            String secret = hookEvent.getWebhook().getSecret();
+            JsonNode payload = updatedEvent.get("after");
+
+            webhookService.notifyToWebhook(url, secret, payload);
+        });
     }
-    Event event = eventRepository.findByName(EventName.ON_PRODUCT_UPDATED)
-        .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, EventName.ON_PRODUCT_UPDATED));
-    List<WebhookEvent> hookEvents = event.getWebhookEvents();
-    hookEvents.forEach(hookEvent -> {
-      String url = hookEvent.getWebhook().getPayloadUrl();
-      String secret = hookEvent.getWebhook().getSecret();
-      JsonNode payload = updatedEvent.get("after");
-
-      webhookService.notifyToWebhook(url, secret, payload);
-    });
-  }
 
 }
