@@ -1,17 +1,16 @@
 package com.yas.search.service;
 
 import com.yas.search.config.ServiceUrlConfig;
-import com.yas.search.viewmodel.ProductESDetailVm;
+import com.yas.search.constants.MessageCode;
+import com.yas.search.document.Product;
+import com.yas.search.exception.NotFoundException;
+import com.yas.search.repository.ProductRepository;
+import com.yas.search.viewmodel.ProductEsDetailVm;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.yas.search.exception.NotFoundException;
-import com.yas.search.document.Product;
-import com.yas.search.constants.MessageCode;
-import com.yas.search.repository.ProductRepository;
-
-import java.net.URI;
 
 @Service
 @RequiredArgsConstructor
@@ -20,49 +19,50 @@ public class ProductSyncDataService {
     private final ServiceUrlConfig serviceUrlConfig;
     private final ProductRepository productRepository;
 
-    public ProductESDetailVm getProductESDetailById(Long id) {
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product()).path("/storefront/products-es/{id}").buildAndExpand(id).toUri();
+    public ProductEsDetailVm getProductEsDetailById(Long id) {
+        final URI url = UriComponentsBuilder.fromHttpUrl(
+                serviceUrlConfig.product()).path("/storefront/products-es/{id}").buildAndExpand(id).toUri();
         return restClient.get()
                 .uri(url)
                 .retrieve()
-                .body(ProductESDetailVm.class);
+                .body(ProductEsDetailVm.class);
     }
 
     public void updateProduct(Long id) {
-        ProductESDetailVm productESDetailVm = getProductESDetailById(id);
+        ProductEsDetailVm productEsDetailVm = getProductEsDetailById(id);
         Product product = productRepository.findById(id).orElseThrow(()
                 -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
 
-        product.setName(productESDetailVm.name());
-        product.setSlug(productESDetailVm.slug());
-        product.setPrice(productESDetailVm.price());
-        product.setIsPublished(productESDetailVm.isPublished());
-        product.setIsVisibleIndividually(productESDetailVm.isVisibleIndividually());
-        product.setIsAllowedToOrder(productESDetailVm.isAllowedToOrder());
-        product.setIsFeatured(productESDetailVm.isFeatured());
-        product.setThumbnailMediaId(productESDetailVm.thumbnailMediaId());
-        product.setBrand(productESDetailVm.brand());
-        product.setCategories(productESDetailVm.categories());
-        product.setAttributes(productESDetailVm.attributes());
+        product.setName(productEsDetailVm.name());
+        product.setSlug(productEsDetailVm.slug());
+        product.setPrice(productEsDetailVm.price());
+        product.setIsPublished(productEsDetailVm.isPublished());
+        product.setIsVisibleIndividually(productEsDetailVm.isVisibleIndividually());
+        product.setIsAllowedToOrder(productEsDetailVm.isAllowedToOrder());
+        product.setIsFeatured(productEsDetailVm.isFeatured());
+        product.setThumbnailMediaId(productEsDetailVm.thumbnailMediaId());
+        product.setBrand(productEsDetailVm.brand());
+        product.setCategories(productEsDetailVm.categories());
+        product.setAttributes(productEsDetailVm.attributes());
         productRepository.save(product);
     }
 
     public void createProduct(Long id) {
-        ProductESDetailVm productESDetailVm = getProductESDetailById(id);
+        ProductEsDetailVm productEsDetailVm = getProductEsDetailById(id);
 
         Product product = Product.builder()
                 .id(id)
-                .name(productESDetailVm.name())
-                .slug(productESDetailVm.slug())
-                .price(productESDetailVm.price())
-                .isPublished(productESDetailVm.isPublished())
-                .isVisibleIndividually(productESDetailVm.isVisibleIndividually())
-                .isAllowedToOrder(productESDetailVm.isAllowedToOrder())
-                .isFeatured(productESDetailVm.isFeatured())
-                .thumbnailMediaId(productESDetailVm.thumbnailMediaId())
-                .brand(productESDetailVm.brand())
-                .categories(productESDetailVm.categories())
-                .attributes(productESDetailVm.attributes())
+                .name(productEsDetailVm.name())
+                .slug(productEsDetailVm.slug())
+                .price(productEsDetailVm.price())
+                .isPublished(productEsDetailVm.isPublished())
+                .isVisibleIndividually(productEsDetailVm.isVisibleIndividually())
+                .isAllowedToOrder(productEsDetailVm.isAllowedToOrder())
+                .isFeatured(productEsDetailVm.isFeatured())
+                .thumbnailMediaId(productEsDetailVm.thumbnailMediaId())
+                .brand(productEsDetailVm.brand())
+                .categories(productEsDetailVm.categories())
+                .attributes(productEsDetailVm.attributes())
                 .build();
 
         productRepository.save(product);
