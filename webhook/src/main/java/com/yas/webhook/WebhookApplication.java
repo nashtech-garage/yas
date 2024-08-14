@@ -9,8 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(ServiceUrlConfig.class)
 public class WebhookApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(WebhookApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(WebhookApplication.class, args);
+    }
 
 }

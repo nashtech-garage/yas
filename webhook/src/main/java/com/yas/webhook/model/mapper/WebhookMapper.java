@@ -2,7 +2,13 @@ package com.yas.webhook.model.mapper;
 
 import com.yas.webhook.model.Webhook;
 import com.yas.webhook.model.WebhookEvent;
-import com.yas.webhook.model.viewmodel.webhook.*;
+import com.yas.webhook.model.viewmodel.webhook.EventVm;
+import com.yas.webhook.model.viewmodel.webhook.WebhookDetailVm;
+import com.yas.webhook.model.viewmodel.webhook.WebhookListGetVm;
+import com.yas.webhook.model.viewmodel.webhook.WebhookPostVm;
+import com.yas.webhook.model.viewmodel.webhook.WebhookVm;
+import java.util.Collections;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -10,18 +16,15 @@ import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-
 @Mapper(componentModel = "spring")
 public interface WebhookMapper {
 
     WebhookVm toWebhookVm(Webhook webhook);
 
     @Named("toWebhookEventVms")
-    default List<EventVm> toWebhookEventVms(List<WebhookEvent> webhookEvents){
-        return CollectionUtils.isEmpty(webhookEvents) ? Collections.emptyList() :webhookEvents.stream().map(webhookEvent
-                -> EventVm.builder()
+    default List<EventVm> toWebhookEventVms(List<WebhookEvent> webhookEvents) {
+        return CollectionUtils.isEmpty(webhookEvents) ? Collections.emptyList() : webhookEvents.stream().map(
+                webhookEvent -> EventVm.builder()
                 .id(webhookEvent.getEventId())
                 .build()).toList();
     }
@@ -32,8 +35,8 @@ public interface WebhookMapper {
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .totalPages(webhooks.getTotalPages())
-                .totalElements( webhooks.getTotalElements())
-                .isLast( webhooks.isLast()).build();
+                .totalElements(webhooks.getTotalElements())
+                .isLast(webhooks.isLast()).build();
     }
 
     @Mapping(target = "id", ignore = true)

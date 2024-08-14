@@ -1,8 +1,7 @@
 package com.yas.webhook.model.viewmodel.webhook;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class WebhookPostVm {
