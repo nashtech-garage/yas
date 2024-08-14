@@ -2,7 +2,6 @@ package com.yas.tax.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,23 +24,23 @@ import lombok.Setter;
 @Builder
 public class TaxRate extends AbstractAuditEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false)
-  private Double rate;
+    @Column(nullable = false)
+    private Double rate;
 
-  @Column(length = 25)
-  private String zipCode;
+    @Column(length = 25)
+    private String zipCode;
 
-  @Column(nullable = false)
-  private Long stateOrProvinceId;
+    @Column(nullable = false)
+    private Long stateOrProvinceId;
 
-  @Column(nullable = false)
-  private Long countryId;
+    @Column(nullable = false)
+    private Long countryId;
 
-  @ManyToOne
-  @JoinColumn(name = "tax_class_id", nullable = false)
-  private TaxClass taxClass;
+    @ManyToOne
+    @JoinColumn(name = "tax_class_id", nullable = false)
+    private TaxClass taxClass;
 }

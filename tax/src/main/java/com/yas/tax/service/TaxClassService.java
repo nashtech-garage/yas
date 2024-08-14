@@ -1,16 +1,14 @@
 package com.yas.tax.service;
 
+import com.yas.tax.constants.MessageCode;
 import com.yas.tax.exception.DuplicatedException;
 import com.yas.tax.exception.NotFoundException;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.repository.TaxClassRepository;
-import com.yas.tax.constants.MessageCode;
 import com.yas.tax.viewmodel.taxclass.TaxClassListGetVm;
 import com.yas.tax.viewmodel.taxclass.TaxClassPostVm;
 import com.yas.tax.viewmodel.taxclass.TaxClassVm;
-
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,18 +29,18 @@ public class TaxClassService {
     @Transactional(readOnly = true)
     public List<TaxClassVm> findAllTaxClasses() {
         return taxClassRepository
-                .findAll(Sort.by(Sort.Direction.ASC, "name"))
-                .stream()
-                .map(TaxClassVm::fromModel)
-                .toList();
+            .findAll(Sort.by(Sort.Direction.ASC, "name"))
+            .stream()
+            .map(TaxClassVm::fromModel)
+            .toList();
     }
 
     @Transactional(readOnly = true)
     public TaxClassVm findById(final Long id) {
         final TaxClass taxClass = taxClassRepository
-                .findById(id)
-                .orElseThrow(
-                        () -> new NotFoundException(MessageCode.TAX_CLASS_NOT_FOUND, id));
+            .findById(id)
+            .orElseThrow(
+                () -> new NotFoundException(MessageCode.TAX_CLASS_NOT_FOUND, id));
         return TaxClassVm.fromModel(taxClass);
     }
 
@@ -57,8 +55,8 @@ public class TaxClassService {
     @Transactional
     public void update(final TaxClassPostVm taxClassPostVm, final Long id) {
         final TaxClass taxClass = taxClassRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(MessageCode.TAX_CLASS_NOT_FOUND, id));
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException(MessageCode.TAX_CLASS_NOT_FOUND, id));
 
         //For the updating case we don't need to check for the taxClass being updated
         if (taxClassRepository.existsByNameNotUpdatingTaxClass(taxClassPostVm.name(), id)) {
@@ -85,16 +83,16 @@ public class TaxClassService {
         final List<TaxClass> taxClassList = taxClassPage.getContent();
 
         final List<TaxClassVm> taxClassVms = taxClassList.stream()
-                .map(TaxClassVm::fromModel)
-                .toList();
+            .map(TaxClassVm::fromModel)
+            .toList();
 
         return new TaxClassListGetVm(
-                taxClassVms,
-                taxClassPage.getNumber(),
-                taxClassPage.getSize(),
-                (int) taxClassPage.getTotalElements(),
-                taxClassPage.getTotalPages(),
-                taxClassPage.isLast()
+            taxClassVms,
+            taxClassPage.getNumber(),
+            taxClassPage.getSize(),
+            (int) taxClassPage.getTotalElements(),
+            taxClassPage.getTotalPages(),
+            taxClassPage.isLast()
         );
     }
 }
