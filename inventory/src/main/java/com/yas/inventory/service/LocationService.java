@@ -21,7 +21,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public AddressDetailVm getAddressById(Long id) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -39,7 +39,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public AddressVm createAddress(AddressPostVm addressPostVm) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -58,7 +58,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleBodilessFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void updateAddress(Long id, AddressPostVm addressPostVm) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -78,7 +78,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleBodilessFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void deleteAddress(Long addressId) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.location()).path("/storefront/addresses/{id}")
             .buildAndExpand(addressId).toUri();

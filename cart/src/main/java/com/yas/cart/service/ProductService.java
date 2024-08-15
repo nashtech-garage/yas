@@ -19,7 +19,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public List<ProductThumbnailVm> getProducts(List<Long> ids) {
         final URI url = UriComponentsBuilder
             .fromHttpUrl(serviceUrlConfig.product())
