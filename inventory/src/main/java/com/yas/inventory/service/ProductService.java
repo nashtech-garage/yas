@@ -5,6 +5,7 @@ import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.utils.AuthenticationUtils;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,10 +22,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class ProductService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
+    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleFallback")
     public ProductInfoVm getProduct(Long id) {
         String jwt = AuthenticationUtils.extractJwt();
 
@@ -40,6 +42,7 @@ public class ProductService {
             .body(ProductInfoVm.class);
     }
 
+    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleFallback")
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
                                               List<Long> productIds, FilterExistInWhSelection selection) {
 
@@ -66,6 +69,7 @@ public class ProductService {
             .getBody();
     }
 
+    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleBodilessFallback")
     public void updateProductQuantity(List<ProductQuantityPostVm> productQuantityPostVms) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
