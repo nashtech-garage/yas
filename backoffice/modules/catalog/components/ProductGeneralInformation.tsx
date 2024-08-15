@@ -50,6 +50,8 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         .then((data) => {
           setProduct(data);
           setValue('taxClassId', data.taxClassId ?? '');
+          setValue('description', data.description ?? '');
+          setValue('specification', data.specification ?? '');
           setLoading(false);
         })
         .catch((error) => {
