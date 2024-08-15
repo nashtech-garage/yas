@@ -3,7 +3,7 @@ package com.yas.cart.service;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-abstract class CircuitBreakFallbackService {
+abstract class AbstractCircuitBreakFallbackHandler {
 
   protected void handleBodilessFallback(Throwable throwable) throws Throwable {
     handleError(throwable);
