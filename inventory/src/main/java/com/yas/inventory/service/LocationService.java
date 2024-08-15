@@ -5,9 +5,9 @@ import com.yas.inventory.viewmodel.address.AddressDetailVm;
 import com.yas.inventory.viewmodel.address.AddressPostVm;
 import com.yas.inventory.viewmodel.address.AddressVm;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,8 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
-    @Retryable(maxAttemptsExpression = "${spring.retry.maxAttempts}")
-    @CircuitBreaker(name = "cart-circuitbreaker", fallbackMethod = "handleFallback")
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleFallback")
     public AddressDetailVm getAddressById(Long id) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -38,8 +38,8 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             .body(AddressDetailVm.class);
     }
 
-    @Retryable(maxAttemptsExpression = "${spring.retry.maxAttempts}")
-    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleFallback")
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleFallback")
     public AddressVm createAddress(AddressPostVm addressPostVm) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -57,8 +57,8 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             .body(AddressVm.class);
     }
 
-    @Retryable(maxAttemptsExpression = "${spring.retry.maxAttempts}")
-    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleBodilessFallback")
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleBodilessFallback")
     public void updateAddress(Long id, AddressPostVm addressPostVm) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -77,8 +77,8 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             .body(Void.class);
     }
 
-    @Retryable(maxAttemptsExpression = "${spring.retry.maxAttempts}")
-    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleBodilessFallback")
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitbreaker", fallbackMethod = "handleBodilessFallback")
     public void deleteAddress(Long addressId) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.location()).path("/storefront/addresses/{id}")
             .buildAndExpand(addressId).toUri();
