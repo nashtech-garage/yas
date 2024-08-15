@@ -5,6 +5,8 @@ import com.yas.order.viewmodel.order.OrderItemVm;
 import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.product.ProductQuantityItem;
 import com.yas.order.viewmodel.product.ProductVariationVm;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
@@ -18,10 +20,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class ProductService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public List<ProductVariationVm> getProductVariations(Long productId) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
             .getTokenValue();
@@ -39,6 +43,8 @@ public class ProductService {
                 .getBody();
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void subtractProductStockQuantity(OrderVm orderVm) {
 
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())

@@ -1,6 +1,8 @@
 package com.yas.order.service;
 
 import com.yas.order.config.ServiceUrlConfig;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,10 +13,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class TaxService {
+public class TaxService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient webClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public Double getTaxPercentByAddress(Long taxClassId, Long countryId, Long stateOrProvinceId, String zipCode) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.tax())
             .path("/backoffice/tax-rates/tax-percent")
