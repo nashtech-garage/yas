@@ -46,10 +46,10 @@ public class SampleDataService {
 
     private File convertToFile(String path) throws IOException {
         InputStream inputStream = getFileFromResourceAsStream(path);
-        File somethingFile = File.createTempFile("temp", ".sql");
+        File tempFile = File.createTempFile("temp", ".sql", new File("/sqlTempDir"));
         try {
-            FileUtils.copyInputStreamToFile(inputStream, somethingFile);
-            return somethingFile;
+            FileUtils.copyInputStreamToFile(inputStream, tempFile);
+            return tempFile;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
