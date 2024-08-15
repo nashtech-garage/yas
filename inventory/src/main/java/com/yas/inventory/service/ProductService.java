@@ -6,6 +6,7 @@ import com.yas.inventory.utils.AuthenticationUtils;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,8 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
-    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleFallback")
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public ProductInfoVm getProduct(Long id) {
         String jwt = AuthenticationUtils.extractJwt();
 
@@ -42,7 +44,8 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .body(ProductInfoVm.class);
     }
 
-    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleFallback")
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
                                               List<Long> productIds, FilterExistInWhSelection selection) {
 
@@ -69,7 +72,8 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .getBody();
     }
 
-    @CircuitBreaker(name = "inventory-circuitbreaker", fallbackMethod = "handleBodilessFallback")
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void updateProductQuantity(List<ProductQuantityPostVm> productQuantityPostVms) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
