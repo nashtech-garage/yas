@@ -210,6 +210,8 @@ We use the Grafana to view the observability data
 
 ## Change Data Capture (CDC) with Debezium
 
+![yas-cdc-debezium-kafka](images/yas-cdc-debezium-kafka.png)
+
 We use debezium to capture the change in some tables, those changes will be pushed to kafka topics. There is background job that listen to those topics, receive the ids of products having data changed, call to product rest API to get product information and update to elastic search.
 
 Debezium acts as a source connector of Kafka connect. It captures row-level changes that insert, update, and delete database content and that were committed to a PostgreSQL database. The connector generates data change event records and streams them to Kafka topics
