@@ -33,6 +33,6 @@ public class SampleDataController {
         @ApiResponse(responseCode = "400", description = "Bad request",
             content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public SampleDataVm createSampleData(@RequestBody @Valid SampleDataVm sampleDataVm) throws SQLException {
-        return sampleDataService.addSampleData();
+        return sampleDataService.createSampleData();
     }
 }
