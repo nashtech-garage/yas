@@ -45,6 +45,7 @@ import com.yas.product.viewmodel.product.ProductSlugGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailVm;
 import com.yas.product.viewmodel.product.ProductVariationGetVm;
+import com.yas.product.viewmodel.product.ProductVariationPostVm;
 import com.yas.product.viewmodel.product.ProductVariationPutVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
@@ -55,6 +56,7 @@ import io.micrometer.common.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -184,15 +186,34 @@ public class ProductService {
                                                            String gtin,
                                                            String sku) {
         if (isProductWithSlugAvailable(slug)) {
-            throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED, slug);
+            throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED, slug);
         }
 
         if (isProductWithGtinAvailable(gtin)) {
-            throw new DuplicatedException(Constants.ErrorCode.GTIN_ALREADY_EXISTED, gtin);
+            throw new DuplicatedException(Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED, gtin);
         }
 
         if (isProductWithSkuAvailable(sku)) {
-            throw new DuplicatedException(Constants.ErrorCode.SKU_ALREADY_EXISTED, sku);
+            throw new DuplicatedException(Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED, sku);
+        }
+    }
+
+    private void validateIfProductSkuOrGtinOrSlugDuplicated(List<ProductVariationPostVm> variations) {
+        Set<String> seenSlugs = new HashSet<>();
+        Set<String> seenSkus = new HashSet<>();
+        Set<String> seenGtins = new HashSet<>();
+        for (ProductVariationPostVm variation : variations) {
+            if (!seenSlugs.add(variation.slug())) {
+                throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED, variation.slug());
+            }
+
+            if (!seenGtins.add(variation.gtin())) {
+                throw new DuplicatedException(Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED, variation.gtin());
+            }
+
+            if (!seenSkus.add(variation.sku())) {
+                throw new DuplicatedException(Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED, variation.sku());
+            }
         }
     }
 
@@ -253,6 +274,7 @@ public class ProductService {
         if (CollectionUtils.isNotEmpty(productPostVm.variations())
             && CollectionUtils.isNotEmpty(productPostVm.productOptionValues())) {
             List<ProductImage> allProductVariantImageList = new ArrayList<>();
+            validateIfProductSkuOrGtinOrSlugDuplicated(productPostVm.variations());
             List<Product> productVariants = productPostVm.variations().stream()
                     .map(variation -> {
                         validateIfProductWithSkuOrGtinOrSlugExist(

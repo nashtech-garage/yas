@@ -29,8 +29,8 @@ public final class Constants {
                 "Make sure product attribute group do not contains any product attribute";
         public static final String NAME_ALREADY_EXITED = "NAME_ALREADY_EXITED";
         public static final String PRODUCT_NOT_HAVE_VARIATION = "PRODUCT_NOT_HAVE_VARIATION";
-        public static final String SLUG_ALREADY_EXISTED = "SLUG_ALREADY_EXISTED";
-        public static final String SKU_ALREADY_EXISTED = "SKU_ALREADY_EXISTED";
-        public static final String GTIN_ALREADY_EXISTED = "GTIN_ALREADY_EXISTED";
+        public static final String SLUG_ALREADY_EXISTED_OR_DUPLICATED = "SLUG_ALREADY_EXISTED_OR_DUPLICATED";
+        public static final String SKU_ALREADY_EXISTED_OR_DUPLICATED = "SKU_ALREADY_EXISTED_OR_DUPLICATED";
+        public static final String GTIN_ALREADY_EXISTED_OR_DUPLICATED = "GTIN_ALREADY_EXISTED_OR_DUPLICATED";
     }
 }
