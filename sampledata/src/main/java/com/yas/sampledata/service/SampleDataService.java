@@ -3,11 +3,15 @@ package com.yas.sampledata.service;
 import com.yas.sampledata.utils.SpringScriptUtility;
 import com.yas.sampledata.viewmodel.SampleDataVm;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +34,33 @@ public class SampleDataService {
     protected Integer pgOidMax;
     private Connection connection = null;
 
+    private InputStream getFileFromResourceAsStream(String fileName) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+        if (inputStream == null) {
+            throw new IllegalArgumentException("file not found! " + fileName);
+        } else {
+            return inputStream;
+        }
+    }
+
+    private File convertToFile(String path) throws IOException {
+        InputStream inputStream = getFileFromResourceAsStream(path);
+        File somethingFile = File.createTempFile("temp", ".sql");
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, somethingFile);
+            return somethingFile;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
+
     public void addSample(String schema) throws SQLException {
         try {
             connection = DriverManager.getConnection(url + schema, username, password);
-            SpringScriptUtility.runScript(new File(ClassLoader.getSystemClassLoader()
-                .getResource("db/" + schema + ".sql").getFile()).toPath().toString(), connection);
+            SpringScriptUtility.runScript(convertToFile(("db/" + schema + ".sql")).toPath().toString(), connection);
 
             if (MEDIA.equals(schema)) {
                 PreparedStatement statement = connection.prepareStatement(PG_QUERY);
@@ -44,18 +70,17 @@ public class SampleDataService {
                 while (resultSet.next()) {
                     int count = resultSet.getInt(1);
                     if (count == 0) {
-                        SpringScriptUtility.runScript(new File(ClassLoader.getSystemClassLoader()
-                            .getResource("db/pg_largeobject.sql").getFile()).toPath().toString(), connection);
-
-                        SpringScriptUtility.runScript(new File(ClassLoader.getSystemClassLoader()
-                            .getResource("db/pg_largeobject_metadata.sql").getFile()).toPath().toString(), connection);
+                        SpringScriptUtility.runScript(
+                                convertToFile(("db/pg_largeobject.sql")).toPath().toString(), connection);
+                        SpringScriptUtility.runScript(
+                                convertToFile(("db/pg_largeobject_metadata.sql")).toPath().toString(), connection);
                     }
                 }
                 resultSet.close();
                 statement.close();
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new SQLException(e.getMessage());
         } finally {
             if (connection != null) {
