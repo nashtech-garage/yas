@@ -60,19 +60,17 @@ const EditProduct: NextPage = () => {
   }, [id]);
 
   //Form validate
-  const onSubmit: SubmitHandler<FormProduct> = (data) => {
+  const onSubmit: SubmitHandler<FormProduct> = async (data) => {
     if (id) {
       const payload = mapFormProductToProductPayload(data);
-      updateProduct(+id, payload)
-        .then(async (res) => {
-          if (res.status === ResponseStatus.SUCCESS) {
-            router.replace(PRODUCT_URL).catch((error) => console.log(error));
-          }
-          handleUpdatingResponse(res);
-        })
-        .catch((error) => console.log(error));
+      const productResponse = await updateProduct(+id, payload);
+        if (productResponse.status === ResponseStatus.SUCCESS) {
+          await router.push(PRODUCT_URL);
+        }
+        handleUpdatingResponse(productResponse);
     }
   };
+
   if (isLoading) return <p>Loading...</p>;
   if (!product) {
     return <p>No product</p>;
