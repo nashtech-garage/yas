@@ -4,7 +4,7 @@ import com.yas.promotion.utils.MessagesUtils;
 
 public class InvalidDateRangeException extends RuntimeException {
 
-    private String message;
+    private final String message;
 
     public InvalidDateRangeException(String message, Object... var2) {
         this.message = MessagesUtils.getMessage(message, var2);
@@ -15,7 +15,4 @@ public class InvalidDateRangeException extends RuntimeException {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

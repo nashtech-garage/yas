@@ -2,6 +2,7 @@ package com.yas.promotion.service;
 
 import com.yas.promotion.PromotionApplication;
 import com.yas.promotion.exception.DuplicatedException;
+import com.yas.promotion.exception.InvalidDateRangeException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.utils.Constants;
@@ -28,6 +29,7 @@ class PromotionServiceTest {
 
     private Promotion promotion1;
     private Promotion promotion2;
+    private Promotion wrongRangeDatePromotion;
     private PromotionPostVm promotionPostVm;
 
     @BeforeEach
@@ -57,6 +59,19 @@ class PromotionServiceTest {
                 .endDate(ZonedDateTime.now().plusDays(60))
                 .build();
         promotion2 = promotionRepository.save(promotion2);
+
+        wrongRangeDatePromotion = Promotion.builder()
+            .name("Wrong date")
+            .slug("wrong-date")
+            .description("Promotion with invalid date range")
+            .couponCode("codeWrong")
+            .discountAmount(200L)
+            .discountPercentage(20L)
+            .isActive(false)
+            .startDate(ZonedDateTime.now().minusDays(30))
+            .endDate(ZonedDateTime.now().minusDays(60))
+            .build();
+        wrongRangeDatePromotion = promotionRepository.save(wrongRangeDatePromotion);
     }
 
     @AfterEach
@@ -91,6 +106,16 @@ class PromotionServiceTest {
                 .build();
         assertThrows(DuplicatedException.class, () -> promotionService.createPromotion(promotionPostVm),
                 String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, promotionPostVm.slug()));
+    }
+
+    @Test
+    void createPromotion_WhenEndDateBeforeStartDate_ThenDateRangeExceptionThrown() {
+        PromotionPostVm promotionPostVm = PromotionPostVm.builder()
+            .endDate(wrongRangeDatePromotion.getEndDate())
+            .startDate(wrongRangeDatePromotion.getStartDate())
+            .build();
+        assertThrows(InvalidDateRangeException.class, () -> promotionService.createPromotion(promotionPostVm),
+            String.format(Constants.ErrorCode.DATE_RANGE_INVALID));
     }
 
     @Test
