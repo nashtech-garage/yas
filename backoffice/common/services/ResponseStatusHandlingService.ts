@@ -26,12 +26,14 @@ export const handleDeletingResponse = (response: any, itemName: string | number)
 };
 
 //Handle updating response message from API
-export const handleUpdatingResponse = (response: any) => {
+export const handleUpdatingResponse = async (response: any) => {
   if (response.status === ResponseStatus.SUCCESS) {
     toastSuccess(UPDATE_SUCCESSFULLY);
-  } else if (response.title === ResponseTitle.NOT_FOUND) {
+  } else if (response.status === ResponseStatus.BAD_REQUEST) {
+    response = await response.json();
     toastError(response.detail);
-  } else if (response.title === ResponseTitle.BAD_REQUEST) {
+  } else if (response.status === ResponseStatus.NOT_FOUND) {
+    response = await response.json();
     toastError(response.detail);
   } else {
     toastError(UPDATE_FAILED);
