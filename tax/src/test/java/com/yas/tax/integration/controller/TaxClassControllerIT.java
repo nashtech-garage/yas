@@ -188,4 +188,66 @@ public class TaxClassControllerIT extends AbstractControllerIT{
         assertThat(taxClassRepository.findById(taxClass.getId()).get().getName())
             .isEqualTo(body.name());
     }
+
+    @Test
+    public void test_updateTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
+        Long wrongId = taxClass.getId() - 1;
+        TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
+            .set(field("name"), taxClass.getName()).create();
+
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .body(body)
+            .put("/v1/backoffice/tax-classes/"+wrongId.toString())
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    public void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndDuplicateName() {
+        TaxClass anotherClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
+
+        TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
+            .set(field("name"), taxClass.getName()).create();
+
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .body(body)
+            .put("/v1/backoffice/tax-classes/"+anotherClass.getId().toString())
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    public void test_deleteTaxClass_shouldReturn403_whenGivenAccessTokenAndExistedName() {
+        RestAssured.given(getRequestSpecification())
+            .delete("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    public void test_deleteTaxClass_shouldReturn204_whenGivenAccessTokenAndCorrectId() {
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .delete("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    public void test_deleteTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
+        Long wrongId = taxClass.getId() - 1;
+
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .delete("/v1/backoffice/tax-classes/"+wrongId.toString())
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .log().ifValidationFails();
+    }
 }
