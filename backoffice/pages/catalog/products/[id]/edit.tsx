@@ -64,10 +64,10 @@ const EditProduct: NextPage = () => {
     if (id) {
       const payload = mapFormProductToProductPayload(data);
       const productResponse = await updateProduct(+id, payload);
-      if (productResponse.status === ResponseStatus.SUCCESS) {
-        await router.push(PRODUCT_URL);
-      }
-      handleUpdatingResponse(productResponse);
+        if (productResponse.status === ResponseStatus.SUCCESS) {
+          await router.push(PRODUCT_URL);
+        }
+        handleUpdatingResponse(productResponse);
     }
   };
 
