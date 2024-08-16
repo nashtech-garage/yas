@@ -1,13 +1,13 @@
 package com.yas.rating.service;
 
 import com.yas.rating.RatingApplication;
+import com.yas.rating.exception.AccessDeniedException;
+import com.yas.rating.exception.NotFoundException;
+import com.yas.rating.exception.ResourceExistedException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
-import com.yas.rating.viewmodel.CustomerVm;
-import com.yas.rating.viewmodel.OrderExistsByProductAndUserGetVm;
-import com.yas.rating.viewmodel.RatingListVm;
-import com.yas.rating.viewmodel.RatingPostVm;
-import com.yas.rating.viewmodel.RatingVm;
+import com.yas.rating.utils.AuthenticationUtils;
+import com.yas.rating.viewmodel.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,12 +24,15 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = RatingApplication.class)
 class RatingServiceTest {
+
+    private final String userId = "user1";
     @Autowired
     private RatingRepository ratingRepository;
     @MockBean
@@ -39,7 +42,6 @@ class RatingServiceTest {
     @Autowired
     private RatingService ratingService;
     private List<Rating> ratingList;
-    private String userId = "user1";
 
     @BeforeEach
     void setUp() {
@@ -70,12 +72,12 @@ class RatingServiceTest {
                         .build()
         );
         ratingRepository.saveAll(ratingList);
-
     }
 
     @AfterEach
     void tearDown() {
         ratingRepository.deleteAll();
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -88,6 +90,17 @@ class RatingServiceTest {
         assertEquals(totalPage, actualResponse.totalPages());
         assertEquals(2, actualResponse.totalElements());
         assertEquals(2, actualResponse.ratingList().size());
+    }
+
+    @Test
+    void getRatingList_NotExistedProductId_ShouldReturnEmptyList() {
+        int pageNo = 0;
+        int pageSize = 10;
+
+        RatingListVm actualResponse = ratingService.getRatingListByProductId(0L, pageNo, pageSize);
+        assertEquals(0, actualResponse.ratingList().size());
+        assertEquals(0, actualResponse.totalPages());
+        assertEquals(0, actualResponse.totalElements());
     }
 
     @Test
@@ -119,7 +132,8 @@ class RatingServiceTest {
         when(authentication.getToken()).thenReturn(jwt);
         when(authentication.getName()).thenReturn(userId);
         when(jwt.getSubject()).thenReturn(userId);
-        when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong())).thenReturn(new OrderExistsByProductAndUserGetVm(true));
+        when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong())).
+                thenReturn(new OrderExistsByProductAndUserGetVm(true));
         when(customerService.getCustomer()).thenReturn(new CustomerVm(userId, null, "Cuong", "Tran"));
 
         RatingPostVm ratingPostVm = RatingPostVm.builder().content("comment 4").productName("product3").star(4).productId(3L).build();
@@ -127,6 +141,43 @@ class RatingServiceTest {
         assertEquals(ratingPostVm.productName(), ratingVm.productName());
         assertEquals(ratingPostVm.content(), ratingVm.content());
         assertEquals(ratingPostVm.star(), ratingVm.star());
+    }
+
+    @Test
+    void createRating_InvalidAuthorization_ShouldThrowAccessDeniedException() {
+        RatingPostVm ratingPostVm = RatingPostVm.builder().content("comment 4").productName("product3").star(4).productId(3L).build();
+
+        Jwt jwt = mock(Jwt.class);
+        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        when(authentication.getToken()).thenReturn(jwt);
+        when(authentication.getName()).thenReturn(userId);
+        when(jwt.getSubject()).thenReturn(userId);
+        when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong())).thenReturn(new OrderExistsByProductAndUserGetVm(false));
+
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class,
+                () -> ratingService.createRating(ratingPostVm));
+
+        assertEquals("ACCESS_DENIED", exception.getMessage());
+    }
+
+    @Test
+    void createRating_ExistedRating_ShouldThrowResourceExistedException() {
+        RatingPostVm ratingPostVm = RatingPostVm.builder().productId(1L).content("comment 4").productName("product3").star(4).build();
+
+        Jwt jwt = mock(Jwt.class);
+        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        when(authentication.getToken()).thenReturn(jwt);
+        when(authentication.getName()).thenReturn("");
+        when(jwt.getSubject()).thenReturn("");
+
+        when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong())).thenReturn(new OrderExistsByProductAndUserGetVm(true));
+
+        ResourceExistedException exception = assertThrows(ResourceExistedException.class,
+                () -> ratingService.createRating(ratingPostVm));
+
+        assertEquals("Resource already existed", exception.getMessage());
     }
 
     @Test
@@ -138,8 +189,21 @@ class RatingServiceTest {
     }
 
     @Test
+    void deleteRating_InvalidRatingId_ShouldThrowNotFoundException() {
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> ratingService.deleteRating(0L));
+        assertEquals("RATING 0 is not found", exception.getMessage());
+    }
+
+    @Test
     void calculateAverageStar_ValidProductId_ShouldSuccess() {
         Double averageStar = ratingService.calculateAverageStar(1L);
         assertEquals(3, averageStar);
+    }
+
+    @Test
+    void calculateAverageStar_InvalidProductId_ShouldReturnZero() {
+        Double averageStar = ratingService.calculateAverageStar(0L);
+        assertEquals(0, averageStar);
     }
 }
