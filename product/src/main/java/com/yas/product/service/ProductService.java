@@ -198,7 +198,7 @@ public class ProductService {
         }
     }
 
-    private void validateIfProductSkuOrGtinOrSlugDuplicated(List<ProductVariationPostVm> variations) {
+    private void validateProductVariationDuplicates(List<ProductVariationPostVm> variations) {
         Set<String> seenSlugs = new HashSet<>();
         Set<String> seenSkus = new HashSet<>();
         Set<String> seenGtins = new HashSet<>();
@@ -274,7 +274,7 @@ public class ProductService {
         if (CollectionUtils.isNotEmpty(productPostVm.variations())
             && CollectionUtils.isNotEmpty(productPostVm.productOptionValues())) {
             List<ProductImage> allProductVariantImageList = new ArrayList<>();
-            validateIfProductSkuOrGtinOrSlugDuplicated(productPostVm.variations());
+            validateProductVariationDuplicates(productPostVm.variations());
             List<Product> productVariants = productPostVm.variations().stream()
                     .map(variation -> {
                         validateIfProductWithSkuOrGtinOrSlugExist(
