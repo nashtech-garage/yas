@@ -20,7 +20,7 @@ import { mapFormProductToProductPayload } from '@catalogModels/ProductPayload';
 import { getProduct, updateProduct } from '@catalogServices/ProductService';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { toastError } from '@commonServices/ToastService';
-import { PRODUCT_URL } from '@constants/Common';
+import { PRODUCT_URL, ResponseStatus } from '@constants/Common';
 import ProductAttributes from '../[id]/productAttributes';
 
 const EditProduct: NextPage = () => {
@@ -65,8 +65,10 @@ const EditProduct: NextPage = () => {
       const payload = mapFormProductToProductPayload(data);
       updateProduct(+id, payload)
         .then(async (res) => {
+          if (res.status === ResponseStatus.SUCCESS) {
+            router.replace(PRODUCT_URL).catch((error) => console.log(error));
+          }
           handleUpdatingResponse(res);
-          router.replace(PRODUCT_URL).catch((error) => console.log(error));
         })
         .catch((error) => console.log(error));
     }
