@@ -10,5 +10,10 @@ public record ProductVariationPostVm(
         Double price,
         Long thumbnailMediaId,
         List<Long> productImageIds
-) {
+) implements HasProductProperties {
+
+    @Override
+    public Long id() {
+        return null;
+    }
 }
