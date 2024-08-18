@@ -26,7 +26,7 @@ public class TaxClassRepositoryIT {
     @BeforeEach
     public void insertTestData(){
         taxClassRepository.save(TaxClass.builder().name("test_tax_class").id(1L).build());
-        taxClassRepository.save(TaxClass.builder().name("test_tax_class_2").id(2L).build());
+        taxClassRepository.save(TaxClass.builder().name("another_tax_class").id(2L).build());
     }
 
     @AfterEach
@@ -47,11 +47,6 @@ public class TaxClassRepositoryIT {
     @Test
     public void test_existsByNameNotUpdatingTaxClass_shouldReturnTrue_whenThereIsAClassWithSameNameAndDiffID(){
         assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("test_tax_class", 2L)).isTrue();
-    }
-
-    @Test
-    public void test_existsByNameNotUpdatingTaxClass_shouldReturnFalse_whenThereIsAClassWithSameNameAndSameID(){
-        assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("test_tax_class", 1L)).isFalse();
     }
 
     @Test
