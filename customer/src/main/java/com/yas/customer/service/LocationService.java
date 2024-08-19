@@ -5,6 +5,8 @@ import com.yas.customer.config.ServiceUrlConfig;
 import com.yas.customer.viewmodel.address.AddressDetailVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import com.yas.customer.viewmodel.address.AddressVm;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +19,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class LocationService {
+public class LocationService extends AbstractCircuitBreakFallbackHandler {
 
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public List<AddressDetailVm> getAddressesByIdList(List<Long> ids) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -40,6 +44,8 @@ public class LocationService {
             });
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public AddressDetailVm getAddressById(Long id) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -56,6 +62,8 @@ public class LocationService {
             .body(AddressDetailVm.class);
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public AddressVm createAddress(AddressPostVm addressPostVm) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();

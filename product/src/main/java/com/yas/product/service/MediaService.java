@@ -2,6 +2,8 @@ package com.yas.product.service;
 
 import com.yas.product.config.ServiceUrlConfig;
 import com.yas.product.viewmodel.NoFileMediaVm;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -15,10 +17,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class MediaService {
+public class MediaService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public NoFileMediaVm saveFile(MultipartFile multipartFile, String caption, String fileNameOverride) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.media()).path("/medias").build().toUri();
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
@@ -38,6 +42,8 @@ public class MediaService {
                 .body(NoFileMediaVm.class);
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public NoFileMediaVm getMedia(Long id) {
         if (id == null) {
             //TODO return default no image url
@@ -51,6 +57,8 @@ public class MediaService {
                 .body(NoFileMediaVm.class);
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void removeMedia(Long id) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.media()).path("/medias/{id}")
             .buildAndExpand(id).toUri();

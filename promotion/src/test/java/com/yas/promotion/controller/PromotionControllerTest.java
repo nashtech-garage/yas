@@ -17,7 +17,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -82,6 +84,57 @@ class PromotionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCreatePromotion_whenDiscountAmountIsSmallerThanZero_thenReturnBadRequest() throws Exception {
+        PromotionPostVm promotionPostVm = PromotionPostVm.builder()
+            .name("amount smaller than 0")
+            .slug("amount-smaller-than-0")
+            .discountAmount(-15L)
+            .build();
+
+        String request = objectWriter.writeValueAsString(promotionPostVm);
+
+        this.mockMvc.perform(post("/backoffice/promotions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.fieldErrors[0]", containsString("discountAmount")));
+    }
+
+    @Test
+    void testCreatePromotion_whenDiscountPercentageIsSmallerThanZero_thenReturnBadRequest() throws Exception {
+        PromotionPostVm promotionPostVm = PromotionPostVm.builder()
+            .name("percentage smaller than 0")
+            .slug("percentage-smaller-than-0")
+            .discountPercentage(-2L)
+            .build();
+
+        String request = objectWriter.writeValueAsString(promotionPostVm);
+
+        this.mockMvc.perform(post("/backoffice/promotions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.fieldErrors[0]", containsString("discountPercentage")));
+    }
+
+    @Test
+    void testCreatePromotion_whenDiscountPercentageIsGreaterThanHundred_thenReturnBadRequest() throws Exception {
+        PromotionPostVm promotionPostVm = PromotionPostVm.builder()
+            .name("percentage greater than 100")
+            .slug("percentage-greater-than-100")
+            .discountPercentage(112L)
+            .build();
+
+        String request = objectWriter.writeValueAsString(promotionPostVm);
+
+        this.mockMvc.perform(post("/backoffice/promotions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.fieldErrors[0]", containsString("discountPercentage")));
     }
 
 }

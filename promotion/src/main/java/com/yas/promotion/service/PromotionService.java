@@ -1,5 +1,6 @@
 package com.yas.promotion.service;
 
+import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.repository.PromotionRepository;
@@ -25,6 +26,7 @@ public class PromotionService {
 
     public PromotionDetailVm createPromotion(PromotionPostVm promotionPostVm) {
         validateIfPromotionExistedSlug(promotionPostVm.slug());
+        validateIfPromotionEndDateIsBeforeStartDate(promotionPostVm.startDate(), promotionPostVm.endDate());
 
         Promotion promotion = Promotion.builder()
                 .name(promotionPostVm.name())
@@ -79,6 +81,12 @@ public class PromotionService {
     private void validateIfPromotionExistedSlug(String slug) {
         if (promotionRepository.findBySlugAndIsActiveTrue(slug).isPresent()) {
             throw new DuplicatedException(String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, slug));
+        }
+    }
+
+    private void validateIfPromotionEndDateIsBeforeStartDate(ZonedDateTime startDate, ZonedDateTime endDate) {
+        if (endDate != null && startDate != null && endDate.isBefore(startDate)) {
+            throw new BadRequestException(String.format(Constants.ErrorCode.DATE_RANGE_INVALID));
         }
     }
 }

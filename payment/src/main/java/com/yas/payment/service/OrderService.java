@@ -4,6 +4,8 @@ import com.yas.payment.config.ServiceUrlConfig;
 import com.yas.payment.viewmodel.CapturedPayment;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +16,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class OrderService {
+public class OrderService extends AbstractCircuitBreakFallbackHandler {
 
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public Long updateCheckoutStatus(CapturedPayment capturedPayment) {
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.order())
@@ -33,6 +37,8 @@ public class OrderService {
                 .body(checkoutStatusVm).retrieve().body(Long.class);
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public PaymentOrderStatusVm updateOrderStatus(PaymentOrderStatusVm orderPaymentStatusVm) {
 
         final URI url = UriComponentsBuilder

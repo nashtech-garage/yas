@@ -6,6 +6,8 @@ public class Constants {
         public static final String PROMOTION_NOT_FOUND = "Promotion %s is not found";
 
         public static final String SLUG_ALREADY_EXITED = "Slug %s is already exists";
+
+        public static final String DATE_RANGE_INVALID = "End date cannot be before start date";
     }
 
     public final class Pageable {
