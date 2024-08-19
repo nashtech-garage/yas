@@ -183,8 +183,12 @@ public class ProductService {
     private void validateExistingProductProperties(HasProductProperties productProperties, Product existingProduct) {
         checkPropertyExists(productProperties.slug(), existingProduct,
             productRepository::findBySlugAndIsPublishedTrue, Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED);
-        checkPropertyExists(productProperties.gtin(), existingProduct,
-            productRepository::findByGtinAndIsPublishedTrue, Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED);
+        // only check gtin when it's not empty
+        if (StringUtils.isNotEmpty(productProperties.gtin())) {
+            checkPropertyExists(productProperties.gtin(), existingProduct,
+                productRepository::findByGtinAndIsPublishedTrue,
+                Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED);
+        }
         checkPropertyExists(productProperties.sku(), existingProduct,
             productRepository::findBySkuAndIsPublishedTrue, Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED);
     }
@@ -197,11 +201,10 @@ public class ProductService {
             if (!seenSlugs.add(variation.slug())) {
                 throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED, variation.slug());
             }
-
-            if (!seenGtins.add(variation.gtin())) {
+            // only check gtin when it's not empty
+            if (StringUtils.isNotEmpty(variation.gtin()) && !seenGtins.add(variation.gtin())) {
                 throw new DuplicatedException(Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED, variation.gtin());
             }
-
             if (!seenSkus.add(variation.sku())) {
                 throw new DuplicatedException(Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED, variation.sku());
             }
@@ -225,8 +228,12 @@ public class ProductService {
         }
     }
 
+    private void validateProductVm(ProductSaveVm productSaveVm) {
+        validateProductVm(productSaveVm, null);
+    }
+
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
-        validateProductVm(productPostVm, null);
+        validateProductVm(productPostVm);
 
         Product mainProduct = Product.builder()
                 .name(productPostVm.name())
