@@ -9,7 +9,7 @@ import { Brand } from '@catalogModels/Brand';
 import { editBrand, getBrand } from '@catalogServices/BrandService';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { toastError } from '@commonServices/ToastService';
-import { BRAND_URL } from '@constants/Common';
+import { BRAND_URL, ResponseStatus } from '@constants/Common';
 
 const BrandEdit: NextPage = () => {
   const router = useRouter();
@@ -24,7 +24,7 @@ const BrandEdit: NextPage = () => {
   const [isLoading, setLoading] = useState(false);
   const { id } = router.query;
 
-  const handleSubmitEdit = (event: Brand) => {
+  const handleSubmitEdit = async (event: Brand) => {
     if (id) {
       let brand: Brand = {
         id: 0,
@@ -33,12 +33,11 @@ const BrandEdit: NextPage = () => {
         isPublish: event.isPublish,
       };
 
-      editBrand(+id, brand)
-        .then((response) => {
-          handleUpdatingResponse(response);
-          router.replace(BRAND_URL).catch((error) => console.log(error));
-        })
-        .catch((error) => console.log(error));
+      const brandResponse = await editBrand(+id, brand);
+      if (brandResponse.status === ResponseStatus.SUCCESS) {
+        router.replace(BRAND_URL).catch((error) => console.log(error));
+      }
+      handleUpdatingResponse(brandResponse);
     }
   };
 

@@ -33,8 +33,11 @@ const ProductAttributeCreate: NextPage = () => {
       productAttributeGroupId: idGroup,
     };
     let response = await createProductAttribute(productAttribute);
+    if (response.status === 201) {
+      router.replace(PRODUCT_ATTRIBUTE_URL);
+    }
     handleCreatingResponse(response);
-    router.replace(PRODUCT_ATTRIBUTE_URL);
+
   };
   return (
     <>

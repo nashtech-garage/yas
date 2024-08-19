@@ -14,7 +14,7 @@ import {
 } from '@catalogModels/FormProductTemplate';
 import { getProductTemplate, updateProductTemplate } from '@catalogServices/ProductTemplateService';
 import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
-import { PRODUCT_TEMPLATE_URL } from '../../../../constants/Common';
+import { PRODUCT_TEMPLATE_URL, ResponseStatus } from '../../../../constants/Common';
 
 const ProductTemplateEdit: NextPage = () => {
   const router = useRouter();
@@ -82,12 +82,12 @@ const ProductTemplateEdit: NextPage = () => {
       name: event.name,
       ProductAttributeTemplates: getValues('ProductAttributeTemplates'),
     };
-    updateProductTemplate(id, fromProductTemplate)
-      .then((response) => {
-        handleUpdatingResponse(response);
-        router.replace(PRODUCT_TEMPLATE_URL).catch((error) => console.log(error));
-      })
-      .catch((error) => console.log(error));
+
+    const response = await updateProductTemplate(+id, fromProductTemplate);
+    if (response.status === ResponseStatus.SUCCESS) {
+      router.replace(PRODUCT_TEMPLATE_URL);
+    }
+    handleUpdatingResponse(response);
   };
 
   const onDelete = (event: React.MouseEvent<HTMLElement>, attName: string) => {

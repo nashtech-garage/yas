@@ -23,11 +23,13 @@ export async function updateProductAttributeValueOfProduct(
 ): Promise<number> {
   const url = `${baseUrl}/${id}`;
   const response = await apiClientService.put(url, JSON.stringify(productAttributeValuePost));
-  return response.status;
+  if (response.status === 204) return response.status;
+  else return await response.json();
 }
 
 export async function deleteProductAttributeValueOfProductById(id: number): Promise<number> {
   const url = `${baseUrl}/${id}`;
   const response = await apiClientService.delete(url);
-  return response.status;
+  if (response.status === 204) return response.status;
+  else return await response.json();
 }

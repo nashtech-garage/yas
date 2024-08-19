@@ -23,8 +23,12 @@ const ProductAttributeGroupCreate: NextPage = () => {
       name: event.name,
     };
     let response = await createProductAttributeGroup(productAttributeGroup);
+
+    if (response.status === 201) {
+      router.replace(PRODUCT_ATTRIBUTE_GROUPS_URL);
+    }
+
     handleCreatingResponse(response);
-    router.replace(PRODUCT_ATTRIBUTE_GROUPS_URL);
   };
 
   return (

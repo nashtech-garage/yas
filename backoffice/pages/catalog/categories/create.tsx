@@ -37,8 +37,13 @@ const CategoryCreate: NextPage = () => {
       imageId: data.imageId,
     };
     const response = await createCategory(category);
+
+    if (response.status === 201) {
+      router.replace(CATEGORIES_URL);
+    }
+
     handleCreatingResponse(response);
-    router.replace(CATEGORIES_URL);
+
   };
 
   const renderCategoriesHierarchy: Function = (

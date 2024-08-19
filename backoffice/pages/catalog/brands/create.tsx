@@ -25,9 +25,14 @@ const BrandCreate: NextPage = () => {
       slug: event.slug,
       isPublish: event.isPublish,
     };
+
     let response = await createBrand(brand);
+
+    if (response.status === 201) {
+      router.replace(BRAND_URL);
+    }
     handleCreatingResponse(response);
-    router.replace(BRAND_URL);
+
   };
 
   return (
