@@ -85,7 +85,7 @@ public class ApiExceptionHandler {
         ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message);
         log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 500, message);
-        log.debug(ex.toString());
+        log.error("Error: ", ex);
         return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

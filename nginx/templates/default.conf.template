@@ -11,23 +11,23 @@ server {
     proxy_pass http://swagger-ui:8080;
   }
   location /product/ {
-    proxy_pass http://product;
+    proxy_pass http://host.docker.internal:8079;
   }
-  location /customer/ {
-    proxy_pass http://customer;
-  }
-  location /cart/ {
-    proxy_pass http://cart;
-  }
+#  location /customer/ {
+#    proxy_pass http://customer;
+#  }
+#  location /cart/ {
+#    proxy_pass http://cart;
+#  }
   location /rating/ {
     proxy_pass http://rating;
   }
-  location /order/ {
-    proxy_pass http://order;
-  }
-  location /location/ {
-    proxy_pass http://location;
-  }
+#  location /order/ {
+#    proxy_pass http://order;
+#  }
+#  location /location/ {
+#    proxy_pass http://location;
+# }
   location /inventory/ {
     proxy_pass http://inventory;
   }
@@ -42,12 +42,12 @@ server {
     set $docker_search_host "search";
     proxy_pass http://$docker_search_host;
   }
-  location /payment/ {
-    proxy_pass http://payment;
-  }
-  location /payment-paypal/ {
-    proxy_pass http://payment-paypal;
-  }
+#  location /payment/ {
+#    proxy_pass http://payment;
+#  }
+#  location /payment-paypal/ {
+#    proxy_pass http://payment-paypal;
+#  }
   location /webhook/ {
     proxy_pass http://webhook;
   }
