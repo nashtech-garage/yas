@@ -32,7 +32,9 @@ export async function createProduct(product: ProductPayload) {
 
 export async function updateProduct(id: number, product: ProductPayload) {
   const url = `${baseUrl}/products/${id}`;
-  return await apiClientService.put(url, JSON.stringify(product));
+  const response = await apiClientService.put(url, JSON.stringify(product));
+  if (response.status === 204) return response;
+  else return await response.json();
 }
 
 export async function deleteProduct(id: number) {

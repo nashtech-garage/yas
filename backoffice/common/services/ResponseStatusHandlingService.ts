@@ -2,7 +2,6 @@ import { toastSuccess, toastError } from './ToastService';
 
 import {
   ResponseStatus,
-  ToastVariant,
   HAVE_BEEN_DELETED,
   DELETE_FAILED,
   UPDATE_SUCCESSFULLY,
@@ -26,14 +25,12 @@ export const handleDeletingResponse = (response: any, itemName: string | number)
 };
 
 //Handle updating response message from API
-export const handleUpdatingResponse = async (response: any) => {
+export const handleUpdatingResponse = (response: any) => {
   if (response.status === ResponseStatus.SUCCESS) {
     toastSuccess(UPDATE_SUCCESSFULLY);
-  } else if (response.status === ResponseStatus.BAD_REQUEST) {
-    response = await response.json();
+  } else if (response.title === ResponseTitle.BAD_REQUEST) {
     toastError(response.detail);
-  } else if (response.status === ResponseStatus.NOT_FOUND) {
-    response = await response.json();
+  } else if (response.title === ResponseTitle.NOT_FOUND) {
     toastError(response.detail);
   } else {
     toastError(UPDATE_FAILED);
