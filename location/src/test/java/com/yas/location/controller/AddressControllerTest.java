@@ -1,4 +1,4 @@
-package com.yas.locacation.controller;
+package com.yas.location.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;

@@ -1,4 +1,4 @@
-package com.yas.locacation.controller;
+package com.yas.location.controller;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
