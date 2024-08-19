@@ -112,8 +112,11 @@ class PromotionServiceTest {
             .endDate(wrongRangeDatePromotion.getEndDate())
             .startDate(wrongRangeDatePromotion.getStartDate())
             .build();
-        assertThrows(InvalidDateRangeException.class, () -> promotionService.createPromotion(promotionPostVm),
-            String.format(Constants.ErrorCode.DATE_RANGE_INVALID));
+
+        InvalidDateRangeException exception = assertThrows(InvalidDateRangeException.class, () ->
+            promotionService.createPromotion(promotionPostVm)
+        );
+        assertEquals(String.format(Constants.ErrorCode.DATE_RANGE_INVALID), exception.getMessage());
     }
 
     @Test
