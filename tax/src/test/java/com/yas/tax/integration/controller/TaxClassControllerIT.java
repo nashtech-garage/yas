@@ -24,24 +24,24 @@ import org.springframework.http.HttpStatus;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(IntegrationTestConfiguration.class)
-public class TaxClassControllerIT extends AbstractControllerIT{
+class TaxClassControllerIT extends AbstractControllerIT{
     @Autowired
     TaxClassRepository taxClassRepository;
 
     TaxClass taxClass;
 
     @BeforeEach
-    public void setUp(){
+    void setUp(){
         taxClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         taxClassRepository.deleteAll();
     }
 
     @Test
-    public void test_findAllTaxClass_shouldReturnData_whenGivenAccessToken(){
+    void test_findAllTaxClass_shouldReturnData_whenGivenAccessToken(){
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
@@ -53,7 +53,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_findAllTaxClass_shouldReturn401_whenNotGivenAccessToken(){
+    void test_findAllTaxClass_shouldReturn401_whenNotGivenAccessToken(){
         RestAssured.given(getRequestSpecification())
             .when()
             .get("/v1/backoffice/tax-classes")
@@ -63,7 +63,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_getTaxClass_shouldReturn401_whenUnauthenticated(){
+    void test_getTaxClass_shouldReturn401_whenUnauthenticated(){
         RestAssured.given(getRequestSpecification())
             .when()
             .get("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
@@ -73,7 +73,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_getTaxClass_shouldReturnData_whenGivenAccessTokenAndCorrectId(){
+    void test_getTaxClass_shouldReturnData_whenGivenAccessTokenAndCorrectId(){
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
@@ -85,19 +85,19 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_getTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId(){
-        Long wrongId = taxClass.getId() - 1;
+    void test_getTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId(){
+        long wrongId = taxClass.getId() - 1;
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-classes/"+wrongId.toString())
+            .get("/v1/backoffice/tax-classes/"+wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
     }
 
     @Test
-    public void test_getPagedTaxClass_shouldReturn401_whenNotGivenAccessToken(){
+    void test_getPagedTaxClass_shouldReturn401_whenNotGivenAccessToken(){
         RestAssured.given(getRequestSpecification())
             .when()
             .get("/v1/backoffice/tax-classes/paging")
@@ -107,7 +107,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_getPagedTaxClass_shouldReturnData_whenGivenAccessToken(){
+    void test_getPagedTaxClass_shouldReturnData_whenGivenAccessToken(){
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
@@ -122,7 +122,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_createTaxClass_shouldReturn403_whenNotGivenAccessToken() {
+    void test_createTaxClass_shouldReturn403_whenNotGivenAccessToken() {
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class).create();
         RestAssured.given(getRequestSpecification())
             .body(body)
@@ -133,7 +133,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_createTaxClass_shouldReturnCreated_whenGivenAccessToken() {
+    void test_createTaxClass_shouldReturnCreated_whenGivenAccessToken() {
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class).create();
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
@@ -145,7 +145,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_createTaxClass_shouldReturn400_whenGivenAccessTokenAndExistedName() {
+    void test_createTaxClass_shouldReturn400_whenGivenAccessTokenAndExistedName() {
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
             .set(field("name"), taxClass.getName()).create();
         RestAssured.given(getRequestSpecification())
@@ -160,7 +160,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturn403_whenGivenAccessTokenAndExistedName() {
+    void test_updateTaxClass_shouldReturn403_whenGivenAccessTokenAndExistedName() {
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
             .set(field("name"), taxClass.getName()).create();
 
@@ -173,7 +173,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturn204_whenGivenAccessTokenAndCorrectId() {
+    void test_updateTaxClass_shouldReturn204_whenGivenAccessTokenAndCorrectId() {
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
             .set(field("name"), taxClass.getName()).create();
 
@@ -190,22 +190,22 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
-        Long wrongId = taxClass.getId() - 1;
+    void test_updateTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
+        long wrongId = taxClass.getId() - 1;
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
             .set(field("name"), taxClass.getName()).create();
 
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-classes/"+wrongId.toString())
+            .put("/v1/backoffice/tax-classes/"+wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndDuplicateName() {
+    void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndDuplicateName() {
         TaxClass anotherClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
 
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
@@ -221,7 +221,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_deleteTaxClass_shouldReturn403_whenGivenAccessTokenAndExistedName() {
+    void test_deleteTaxClass_shouldReturn403_whenGivenAccessTokenAndExistedName() {
         RestAssured.given(getRequestSpecification())
             .delete("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
             .then()
@@ -230,7 +230,7 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_deleteTaxClass_shouldReturn204_whenGivenAccessTokenAndCorrectId() {
+    void test_deleteTaxClass_shouldReturn204_whenGivenAccessTokenAndCorrectId() {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .delete("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
@@ -240,12 +240,12 @@ public class TaxClassControllerIT extends AbstractControllerIT{
     }
 
     @Test
-    public void test_deleteTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
-        Long wrongId = taxClass.getId() - 1;
+    void test_deleteTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
+        long wrongId = taxClass.getId() - 1;
 
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
-            .delete("/v1/backoffice/tax-classes/"+wrongId.toString())
+            .delete("/v1/backoffice/tax-classes/"+wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();

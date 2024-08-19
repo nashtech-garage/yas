@@ -22,7 +22,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class TaxRateRepositoryIT {
+class TaxRateRepositoryIT {
 
     @Autowired
     TaxRateRepository taxRateRepository;
@@ -35,7 +35,7 @@ public class TaxRateRepositoryIT {
     TaxRate taxRate;
 
     @BeforeEach
-    public void setUp(){
+    void setUp(){
         taxClass = taxClassRepository.save(Instancio.of(TaxClass.class)
             .set(field(TaxClass::getId), 1L)
             .create());
@@ -46,13 +46,13 @@ public class TaxRateRepositoryIT {
     }
 
     @AfterEach
-    public void tearDown(){
+    void tearDown(){
         taxRateRepository.deleteAll();
         taxClassRepository.deleteAll();
     }
 
     @Test
-    public void testGetTaxPercent_shouldReturnCorrectTaxRate_whenGivenCorrectParams(){
+    void testGetTaxPercent_shouldReturnCorrectTaxRate_whenGivenCorrectParams(){
         assertThat(taxRateRepository.getTaxPercent(
             taxRate.getCountryId(),
             taxRate.getStateOrProvinceId(),
@@ -62,7 +62,7 @@ public class TaxRateRepositoryIT {
     }
 
     @Test
-    public void testGetTaxPercent_shouldReturnNull_whenGivenWrongParams() {
+    void testGetTaxPercent_shouldReturnNull_whenGivenWrongParams() {
         assertThat(taxRateRepository.getTaxPercent(
             Instancio.of(Long.class).create(),
             Instancio.of(Long.class).create(),

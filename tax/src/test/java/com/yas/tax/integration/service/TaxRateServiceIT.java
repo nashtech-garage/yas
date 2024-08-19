@@ -24,7 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class TaxRateServiceIT {
+class TaxRateServiceIT {
     @Autowired
     TaxRateRepository taxRateRepository;
 
@@ -36,7 +36,7 @@ public class TaxRateServiceIT {
 
     TaxRate taxRate;
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         TaxClass taxClass = taxClassRepository.save(Instancio.create(TaxClass.class));
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
             .set(field("taxClass"), taxClass)
@@ -44,7 +44,7 @@ public class TaxRateServiceIT {
     }
 
     @Test
-    public void  testFindAll_shouldReturnAllTaxRate() {
+    void  testFindAll_shouldReturnAllTaxRate() {
         // run
         List<TaxRateVm> result = taxRateService.findAll();
         // assert

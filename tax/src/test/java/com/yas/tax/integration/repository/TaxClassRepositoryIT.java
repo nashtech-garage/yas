@@ -18,39 +18,39 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class TaxClassRepositoryIT {
+class TaxClassRepositoryIT {
 
     @Autowired
     private TaxClassRepository taxClassRepository;
 
     @BeforeEach
-    public void insertTestData(){
+    void insertTestData(){
         taxClassRepository.save(TaxClass.builder().name("test_tax_class").id(1L).build());
         taxClassRepository.save(TaxClass.builder().name("another_tax_class").id(2L).build());
     }
 
     @AfterEach
-    public void tearDown(){
+    void tearDown(){
         taxClassRepository.deleteAll();
     }
 
     @Test
-    public void test_existByName_shouldReturnTrue_whenTaxClassNameExists(){
+    void test_existByName_shouldReturnTrue_whenTaxClassNameExists(){
         assertThat(taxClassRepository.existsByName("test_tax_class")).isTrue();
     }
 
     @Test
-    public void test_existByName_shouldReturnFalse_whenTaxClassNameNotExists(){
+    void test_existByName_shouldReturnFalse_whenTaxClassNameNotExists(){
         assertThat(taxClassRepository.existsByName("dummy_class")).isFalse();
     }
 
     @Test
-    public void test_existsByNameNotUpdatingTaxClass_shouldReturnTrue_whenThereIsAClassWithSameNameAndDiffID(){
+    void test_existsByNameNotUpdatingTaxClass_shouldReturnTrue_whenThereIsAClassWithSameNameAndDiffID(){
         assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("test_tax_class", 2L)).isTrue();
     }
 
     @Test
-    public void test_existsByNameNotUpdatingTaxClass_shouldReturnFalse_whenThereIsNoClassWithSameName(){
+    void test_existsByNameNotUpdatingTaxClass_shouldReturnFalse_whenThereIsNoClassWithSameName(){
         assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("dummy_class", 1L)).isFalse();
     }
 }

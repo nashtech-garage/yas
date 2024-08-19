@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class TaxRateControllerIT extends AbstractControllerIT {
+class TaxRateControllerIT extends AbstractControllerIT {
 
     @Autowired
     TaxRateRepository taxRateRepository;
@@ -47,7 +47,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     TaxRate taxRate;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         taxClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
             .set(field("taxClass"), taxClass)
@@ -55,13 +55,13 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         taxRateRepository.deleteAll();
         taxClassRepository.deleteAll();
     }
 
     @Test
-    public void test_getTaxRate_shouldReturn401_whenNotGivenAccessToken() {
+    void test_getTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .when()
             .get("/v1/backoffice/tax-rates" + taxRate.getId().toString())
@@ -71,7 +71,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getTaxRate_shouldReturnData_whenGivenAccessToken() {
+    void test_getTaxRate_shouldReturnData_whenGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
@@ -83,7 +83,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
+    void test_getTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
         long wrongId = taxRate.getId() + 1;
 
         RestAssured.given(getRequestSpecification())
@@ -96,7 +96,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_createTaxRate_shouldReturn403_whenNotGivenAccessToken() {
+    void test_createTaxRate_shouldReturn403_whenNotGivenAccessToken() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId()).create();
 
@@ -109,7 +109,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_createTaxClass_shouldReturnCreated_whenGivenAccessToken() {
+    void test_createTaxClass_shouldReturnCreated_whenGivenAccessToken() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId()).create();
 
@@ -123,7 +123,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_createTaxClass_shouldReturn400_whenGivenAccessTokenAndMissingData() {
+    void test_createTaxClass_shouldReturn400_whenGivenAccessTokenAndMissingData() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId())
             .ignore(field("countryId")).create();
@@ -138,7 +138,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_createTaxClass_shouldReturn400_whenGivenAccessTokenAndTaxClassNotExists() {
+    void test_createTaxClass_shouldReturn400_whenGivenAccessTokenAndTaxClassNotExists() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), Instancio.of(Long.class).create())
             .create();
@@ -153,7 +153,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_updateTaxRate_shouldReturn403_whenNotGivenAccessToken() {
+    void test_updateTaxRate_shouldReturn403_whenNotGivenAccessToken() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId()).create();
 
@@ -166,7 +166,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturnNoContent_whenUpdateSuccessfully() {
+    void test_updateTaxClass_shouldReturnNoContent_whenUpdateSuccessfully() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId()).create();
 
@@ -180,7 +180,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
+    void test_updateTaxClass_shouldReturn404_whenGivenAccessTokenAndWrongId() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId()).create();
 
@@ -194,7 +194,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndMissingData() {
+    void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndMissingData() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId())
             .ignore(field("countryId")).create();
@@ -209,7 +209,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndTaxClassNotExists() {
+    void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndTaxClassNotExists() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), Instancio.of(Long.class).create())
             .create();
@@ -224,7 +224,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_deleteTaxRate_shouldReturn401_whenNotGivenAccessToken() {
+    void test_deleteTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .when()
             .delete("/v1/backoffice/tax-rates" + taxRate.getId().toString())
@@ -234,7 +234,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_deleteTaxRate_shouldReturn204_whenGivenAccessToken() {
+    void test_deleteTaxRate_shouldReturn204_whenGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
@@ -245,7 +245,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_deleteTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
+    void test_deleteTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
         long wrongId = taxRate.getId() + 1;
 
         RestAssured.given(getRequestSpecification())
@@ -258,7 +258,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPagedTaxRate_shouldReturn401_whenNotGivenAccessToken() {
+    void test_getPagedTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .when()
             .get("/v1/backoffice/tax-rates/paging")
@@ -268,7 +268,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPagedTaxRate_shouldReturnData_whenGivenAccessToken() {
+    void test_getPagedTaxRate_shouldReturnData_whenGivenAccessToken() {
         StateOrProvinceAndCountryGetNameVm stateOrProvinceAndCountryGetNameVm =
             Instancio.of(StateOrProvinceAndCountryGetNameVm.class)
                 .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
@@ -290,7 +290,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPagedTaxRate_shouldReturnEmptyData_whenGivenAccessTokenAndDBIsEmpty() {
+    void test_getPagedTaxRate_shouldReturnEmptyData_whenGivenAccessTokenAndDBIsEmpty() {
         StateOrProvinceAndCountryGetNameVm stateOrProvinceAndCountryGetNameVm =
             Instancio.of(StateOrProvinceAndCountryGetNameVm.class)
                 .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
@@ -313,7 +313,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPercentTaxRate_shouldReturn401_whenNotGivenAccessToken() {
+    void test_getPercentTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .param("taxClassId", taxRate.getTaxClass().getId())
             .param("countryId", taxRate.getCountryId())
@@ -327,7 +327,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPercentTaxRate_shouldReturnData_whenGivenAccessToken() {
+    void test_getPercentTaxRate_shouldReturnData_whenGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .queryParam("taxClassId", taxRate.getTaxClass().getId())
@@ -342,7 +342,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPercentTaxRate_shouldReturn400_whenGivenAccessTokenAndNotCountryId() {
+    void test_getPercentTaxRate_shouldReturn400_whenGivenAccessTokenAndNotCountryId() {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .param("taxClassId", taxRate.getTaxClass().getId())
@@ -354,7 +354,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPercentTaxRate_shouldReturnData_whenGivenAccessTokenAndNoTaxClassId() {
+    void test_getPercentTaxRate_shouldReturnData_whenGivenAccessTokenAndNoTaxClassId() {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .param("countryId", taxRate.getCountryId())
@@ -366,7 +366,7 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    public void test_getPercentTaxRate_shouldReturnData0_whenGivenAccessTokenAndDataNotExist() {
+    void test_getPercentTaxRate_shouldReturnData0_whenGivenAccessTokenAndDataNotExist() {
         when(locationService.getStateOrProvinceAndCountryNames(any()))
             .thenReturn(Instancio.ofList(StateOrProvinceAndCountryGetNameVm.class)
                 .size(1).create());
