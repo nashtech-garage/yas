@@ -9,8 +9,10 @@ import com.yas.tax.constants.PageableConstant;
 import com.yas.tax.integration.config.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.repository.TaxClassRepository;
+import com.yas.tax.repository.TaxRateRepository;
 import com.yas.tax.viewmodel.taxclass.TaxClassPostVm;
 import io.restassured.RestAssured;
+import java.util.Optional;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class TaxClassControllerIntegrationTest extends AbstractControllerIT{
     @Autowired
     TaxClassRepository taxClassRepository;
+    @Autowired
+    TaxRateRepository taxRateRepository;
 
     TaxClass taxClass;
 
@@ -39,6 +43,7 @@ class TaxClassControllerIntegrationTest extends AbstractControllerIT{
 
     @AfterEach
     void tearDown() {
+        taxRateRepository.deleteAll();
         taxClassRepository.deleteAll();
     }
 
@@ -187,8 +192,9 @@ class TaxClassControllerIntegrationTest extends AbstractControllerIT{
             .statusCode(HttpStatus.NO_CONTENT.value())
             .log().ifValidationFails();
 
-        assertThat(taxClassRepository.findById(taxClass.getId()).get().getName())
-            .isEqualTo(body.name());
+        Optional<TaxClass> result = taxClassRepository.findById(taxClass.getId());
+        assertThat(result.isPresent()).isTrue();
+        assertThat(result.get().getName()).isEqualTo(body.name());
     }
 
     @Test
