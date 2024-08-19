@@ -8,7 +8,6 @@ import com.yas.location.LocationApplication;
 import com.yas.location.exception.DuplicatedException;
 import com.yas.location.exception.NotFoundException;
 import com.yas.location.model.Country;
-import com.yas.location.model.District;
 import com.yas.location.model.StateOrProvince;
 import com.yas.location.repository.CountryRepository;
 import com.yas.location.repository.StateOrProvinceRepository;
@@ -18,7 +17,6 @@ import com.yas.location.viewmodel.stateorprovince.StateOrProvincePostVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -170,7 +168,7 @@ public class StateOrProvinceServiceTest {
         List<StateOrProvinceAndCountryGetNameVm> stateOrProvinceAndCountryGetNameVms =
             stateOrProvinceService.getStateOrProvinceAndCountryNames(List.of(stateOrProvince1.getId(), stateOrProvince2.getId()));
         assertNotNull(stateOrProvinceAndCountryGetNameVms);
-        assertEquals(stateOrProvinceAndCountryGetNameVms.getFirst().countryName(), "country-1");
+        assertEquals("country-1", stateOrProvinceAndCountryGetNameVms.getFirst().countryName());
     }
 
     @Test
