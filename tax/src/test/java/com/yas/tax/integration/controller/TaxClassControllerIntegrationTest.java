@@ -24,8 +24,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(IntegrationTestConfiguration.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TaxClassControllerIntegrationTest extends AbstractControllerIT{
     @Autowired
     TaxClassRepository taxClassRepository;
