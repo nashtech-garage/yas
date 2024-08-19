@@ -20,7 +20,7 @@ import { mapFormProductToProductPayload } from '@catalogModels/ProductPayload';
 import { getProduct, updateProduct } from '@catalogServices/ProductService';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { toastError } from '@commonServices/ToastService';
-import { PRODUCT_URL } from '@constants/Common';
+import { PRODUCT_URL, ResponseStatus } from '@constants/Common';
 import ProductAttributes from '../[id]/productAttributes';
 
 const EditProduct: NextPage = () => {
@@ -60,17 +60,17 @@ const EditProduct: NextPage = () => {
   }, [id]);
 
   //Form validate
-  const onSubmit: SubmitHandler<FormProduct> = (data) => {
+  const onSubmit: SubmitHandler<FormProduct> = async (data) => {
     if (id) {
       const payload = mapFormProductToProductPayload(data);
-      updateProduct(+id, payload)
-        .then(async (res) => {
-          handleUpdatingResponse(res);
-          router.replace(PRODUCT_URL).catch((error) => console.log(error));
-        })
-        .catch((error) => console.log(error));
+      const productResponse = await updateProduct(+id, payload);
+      if (productResponse.status === ResponseStatus.SUCCESS) {
+        await router.push(PRODUCT_URL);
+      }
+      handleUpdatingResponse(productResponse);
     }
   };
+
   if (isLoading) return <p>Loading...</p>;
   if (!product) {
     return <p>No product</p>;

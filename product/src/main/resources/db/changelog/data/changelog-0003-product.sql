@@ -59,3 +59,17 @@ update product set stock_tracking_enabled = false where stock_tracking_enabled i
 
 --changeset lnghia:issue-658-2
 update product set tax_included = false where tax_included is null;
+
+--changeset mochacr0:issue-884
+update product set sku = 'ipad-pro-128gb-gold', gtin = '1000000000000'
+    where slug = 'ipad-pro-wi-fi-4g-128gb-gold';
+update product set sku = 'ipad-pro-256gb-gold', gtin = '1000000000001'
+    where slug = 'ipad-pro-wi-fi-4g-256gb-gold';
+update product set sku = 'ipad-pro-512gb-gold', gtin = '1000000000002'
+    where slug = 'ipad-pro-wi-fi-4g-512gb-gold';
+update product set sku = 'ipad-pro-128gb-black', gtin = '1000000000003'
+    where slug = 'ipad-pro-wi-fi-4g-128gb-black';
+update product set sku = 'ipad-pro-256gb-black', gtin = '1000000000004'
+    where slug = 'ipad-pro-wi-fi-4g-256gb-black';
+update product set sku = 'ipad-pro-512gb-black', gtin = '1000000000005'
+    where slug = 'ipad-pro-wi-fi-4g-512gb-black';
