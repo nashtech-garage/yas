@@ -29,18 +29,12 @@ public class CountryServiceTest {
     @Autowired
     private CountryService countryService;
     private Country country1;
-    private Country country2;
-
-    @BeforeEach
-    void setUp() {
-
-    }
 
     private void generateTestData() {
         country1 = countryRepository.save(Country.builder()
             .name("country-1")
             .build());
-        country2 = countryRepository.save(Country.builder()
+        countryRepository.save(Country.builder()
             .name("country-1")
             .build());
     }
@@ -78,7 +72,7 @@ public class CountryServiceTest {
             .build();
         Country country = countryService.create(countryPostVm);
         assertNotNull(country);
-        assertEquals(country.getName(), "country");
+        assertEquals("country", country.getName());
     }
 
     @Test
@@ -119,7 +113,8 @@ public class CountryServiceTest {
         CountryPostVm countryPostVm = CountryPostVm.builder()
             .name("country-1")
             .build();
-        DuplicatedException exception = assertThrows(DuplicatedException.class, () -> countryService.update(countryPostVm, country1.getId()));
+        Long country1Id = country1.getId();
+        DuplicatedException exception = assertThrows(DuplicatedException.class, () -> countryService.update(countryPostVm, country1Id));
         assertEquals(String.format("Request name %s is already existed", "country-1"), exception.getMessage());
     }
 
@@ -128,7 +123,8 @@ public class CountryServiceTest {
         generateTestData();
         countryService.delete(country1.getId());
         // Get the country with id after delete -> null
-        assertThrows(NotFoundException.class, () -> countryService.findById(country1.getId()));
+        Long country1Id = country1.getId();
+        assertThrows(NotFoundException.class, () -> countryService.findById(country1Id));
     }
 
     @Test
@@ -147,7 +143,7 @@ public class CountryServiceTest {
         assertEquals(countryListGetVm.pageNo(), pageNo);
         assertEquals(countryListGetVm.pageSize(), pageSize);
         assertTrue(countryListGetVm.isLast());
-        assertEquals(countryListGetVm.totalElements(), 2);
-        assertEquals(countryListGetVm.totalPages(), 1);
+        assertEquals(2, countryListGetVm.totalElements());
+        assertEquals(1, countryListGetVm.totalPages());
     }
 }

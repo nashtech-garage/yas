@@ -33,11 +33,6 @@ public class DistrictServiceTest {
     private Country country;
     private StateOrProvince stateOrProvince;
 
-    @BeforeEach
-    void setUp() {
-
-    }
-
     private void generateTestData() {
         country = countryRepository.save(Country.builder()
             .name("country-1")

@@ -44,11 +44,6 @@ public class AddressServiceTest {
     private District district;
     private StateOrProvince stateOrProvince;
 
-    @BeforeEach
-    void setUp() {
-
-    }
-
     private void generateTestData() {
         country = countryRepository.save(Country.builder()
             .name("country-1")

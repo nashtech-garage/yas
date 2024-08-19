@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.location.LocationApplication;
-import com.yas.location.controller.CountryController;
 import com.yas.location.model.Country;
 import com.yas.location.service.CountryService;
 import com.yas.location.utils.Constants;

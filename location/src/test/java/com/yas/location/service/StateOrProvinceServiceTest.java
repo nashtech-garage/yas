@@ -34,14 +34,8 @@ public class StateOrProvinceServiceTest {
     private StateOrProvinceService stateOrProvinceService;
 
     private Country country;
-    private District district;
     private StateOrProvince stateOrProvince1;
     private StateOrProvince stateOrProvince2;
-
-    @BeforeEach
-    void setUp() {
-
-    }
 
     private void generateTestData() {
         country = countryRepository.save(Country.builder()
@@ -86,7 +80,7 @@ public class StateOrProvinceServiceTest {
             .code("STATE")
             .build();
         StateOrProvince stateOrProvince = stateOrProvinceService.createStateOrProvince(stateOrProvincePostVm);
-        assertEquals(stateOrProvince.getCode(), "STATE");
+        assertEquals("STATE", stateOrProvince.getCode());
     }
     
     @Test
@@ -124,7 +118,7 @@ public class StateOrProvinceServiceTest {
         // Get the updated state-or-province to check
         StateOrProvinceVm stateOrProvinceVm = stateOrProvinceService.findById(stateOrProvince1.getId());
         assertNotNull(stateOrProvinceVm);
-        assertEquals(stateOrProvinceVm.name(), "state-or-province-update");
+        assertEquals("state-or-province-update", stateOrProvinceVm.name());
     }
 
     @Test
@@ -147,7 +141,9 @@ public class StateOrProvinceServiceTest {
             .name("state-or-province-2")
             .code("STATE")
             .build();
-        DuplicatedException exception = assertThrows(DuplicatedException.class, () -> stateOrProvinceService.updateStateOrProvince(stateOrProvincePostVm, stateOrProvince1.getId()));
+        Long stateOrProvinceId = stateOrProvince1.getId();
+        DuplicatedException exception = assertThrows(DuplicatedException.class,
+            () -> stateOrProvinceService.updateStateOrProvince(stateOrProvincePostVm, stateOrProvinceId));
         assertEquals(String.format("Request name %s is already existed", "state-or-province-2"), exception.getMessage());
     }
 
@@ -156,7 +152,9 @@ public class StateOrProvinceServiceTest {
         generateTestData();
         stateOrProvinceService.delete(stateOrProvince1.getId());
         // Get the state-or-province which deleted -> got exception
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> stateOrProvinceService.findById(stateOrProvince1.getId()));
+        Long stateOrProvinceId = stateOrProvince1.getId();
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> stateOrProvinceService.findById(stateOrProvinceId));
         assertEquals(String.format("The state or province %s is not found", stateOrProvince1.getId()), exception.getMessage());
     }
 
@@ -200,6 +198,6 @@ public class StateOrProvinceServiceTest {
         assertNotNull(stateOrProvinceListGetVm);
         assertEquals(stateOrProvinceListGetVm.pageNo(), pageNo);
         assertEquals(stateOrProvinceListGetVm.pageSize(), pageSize);
-        assertEquals(stateOrProvinceListGetVm.stateOrProvinceContent().size(), 2);
+        assertEquals(2, stateOrProvinceListGetVm.stateOrProvinceContent().size());
     }
 }

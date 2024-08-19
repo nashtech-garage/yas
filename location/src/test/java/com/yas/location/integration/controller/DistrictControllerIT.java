@@ -36,7 +36,6 @@ public class DistrictControllerIT extends AbstractControllerIT {
     private AddressService addressService;
 
     private Country country;
-    private District district;
     private StateOrProvince stateOrProvince;
 
     @BeforeEach
@@ -48,7 +47,7 @@ public class DistrictControllerIT extends AbstractControllerIT {
             .name("state-or-province")
             .country(country)
             .build());
-        district = districtRepository.save(District.builder()
+        districtRepository.save(District.builder()
             .name("district-1")
             .stateProvince(stateOrProvince)
             .build());
