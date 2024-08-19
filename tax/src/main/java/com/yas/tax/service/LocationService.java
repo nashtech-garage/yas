@@ -2,6 +2,8 @@ package com.yas.tax.service;
 
 import com.yas.tax.config.ServiceUrlConfig;
 import com.yas.tax.viewmodel.location.StateOrProvinceAndCountryGetNameVm;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +16,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class LocationService {
+public class LocationService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
     public List<StateOrProvinceAndCountryGetNameVm> getStateOrProvinceAndCountryNames(List<Long> stateOrProvinceIds) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.location())
             .path("/backoffice/state-or-provinces/state-country-names")
