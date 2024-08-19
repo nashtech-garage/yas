@@ -1,7 +1,7 @@
 package com.yas.promotion.service;
 
+import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
-import com.yas.promotion.exception.InvalidDateRangeException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.utils.Constants;
@@ -86,7 +86,7 @@ public class PromotionService {
 
     private void validateIfPromotionEndDateIsBeforeStartDate(ZonedDateTime startDate, ZonedDateTime endDate) {
         if (endDate != null && startDate != null && endDate.isBefore(startDate)) {
-            throw new InvalidDateRangeException(String.format(Constants.ErrorCode.DATE_RANGE_INVALID));
+            throw new BadRequestException(String.format(Constants.ErrorCode.DATE_RANGE_INVALID));
         }
     }
 }

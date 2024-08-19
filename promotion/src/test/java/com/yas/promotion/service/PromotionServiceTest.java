@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.yas.promotion.PromotionApplication;
+import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
-import com.yas.promotion.exception.InvalidDateRangeException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.utils.Constants;
@@ -113,7 +113,7 @@ class PromotionServiceTest {
             .startDate(wrongRangeDatePromotion.getStartDate())
             .build();
 
-        InvalidDateRangeException exception = assertThrows(InvalidDateRangeException.class, () ->
+        BadRequestException exception = assertThrows(BadRequestException.class, () ->
             promotionService.createPromotion(promotionPostVm)
         );
         assertEquals(String.format(Constants.ErrorCode.DATE_RANGE_INVALID), exception.getMessage());

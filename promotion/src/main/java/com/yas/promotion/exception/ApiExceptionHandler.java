@@ -81,13 +81,6 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(errorVm);
     }
 
-    @ExceptionHandler(InvalidDateRangeException.class)
-    protected ResponseEntity<ErrorVm> handleInvalidDateRange(InvalidDateRangeException e) {
-        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
-        return ResponseEntity.badRequest().body(errorVm);
-    }
-
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
         String message = ex.getMessage();
