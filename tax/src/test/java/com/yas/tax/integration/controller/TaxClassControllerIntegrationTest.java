@@ -24,7 +24,7 @@ import org.springframework.http.HttpStatus;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(IntegrationTestConfiguration.class)
-class TaxClassControllerIT extends AbstractControllerIT{
+class TaxClassControllerIntegrationTest extends AbstractControllerIT{
     @Autowired
     TaxClassRepository taxClassRepository;
 

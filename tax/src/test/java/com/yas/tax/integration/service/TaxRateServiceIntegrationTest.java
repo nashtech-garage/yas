@@ -24,7 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class TaxRateServiceIT {
+class TaxRateServiceIntegrationTest {
     @Autowired
     TaxRateRepository taxRateRepository;
 
