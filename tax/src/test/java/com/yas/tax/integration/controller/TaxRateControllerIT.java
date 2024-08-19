@@ -45,7 +45,6 @@ public class TaxRateControllerIT extends AbstractControllerIT {
 
     TaxClass taxClass;
     TaxRate taxRate;
-    List<StateOrProvinceAndCountryGetNameVm> stateAndCountryName;
 
     @BeforeEach
     public void setUp() {
@@ -85,12 +84,12 @@ public class TaxRateControllerIT extends AbstractControllerIT {
 
     @Test
     public void test_getTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
-        Long wrongId = taxRate.getId() + 1;
+        long wrongId = taxRate.getId() + 1;
 
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-rates/" + wrongId.toString())
+            .get("/v1/backoffice/tax-rates/" + wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -247,12 +246,12 @@ public class TaxRateControllerIT extends AbstractControllerIT {
 
     @Test
     public void test_deleteTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
-        Long wrongId = taxRate.getId() + 1;
+        long wrongId = taxRate.getId() + 1;
 
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .delete("/v1/backoffice/tax-rates/" + wrongId.toString())
+            .delete("/v1/backoffice/tax-rates/" + wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -291,10 +290,35 @@ public class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
+    public void test_getPagedTaxRate_shouldReturnEmptyData_whenGivenAccessTokenAndDBIsEmpty() {
+        StateOrProvinceAndCountryGetNameVm stateOrProvinceAndCountryGetNameVm =
+            Instancio.of(StateOrProvinceAndCountryGetNameVm.class)
+                .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
+                .create();
+        when(locationService.getStateOrProvinceAndCountryNames(any()))
+            .thenReturn(List.of(stateOrProvinceAndCountryGetNameVm));
+        taxRateRepository.deleteAll();
+
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .when()
+            .get("/v1/backoffice/tax-rates/paging")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("pageNo", equalTo(0))
+            .body("pageSize", equalTo(10))
+            .body("totalElements", equalTo(0))
+            .body("isLast", equalTo(true))
+            .log().ifValidationFails();
+    }
+
+    @Test
     public void test_getPercentTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .param("taxClassId", taxRate.getTaxClass().getId())
             .param("countryId", taxRate.getCountryId())
+            .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
+            .param("zipCode", taxRate.getZipCode())
             .when()
             .get("/v1/backoffice/tax-rates/tax-percent")
             .then()
@@ -304,14 +328,12 @@ public class TaxRateControllerIT extends AbstractControllerIT {
 
     @Test
     public void test_getPercentTaxRate_shouldReturnData_whenGivenAccessToken() {
-        when(locationService.getStateOrProvinceAndCountryNames(any()))
-            .thenReturn(Instancio.ofList(StateOrProvinceAndCountryGetNameVm.class)
-                .size(1).create());
-
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
-            .param("taxClassId", taxRate.getTaxClass().getId())
-            .param("countryId", taxRate.getCountryId())
+            .queryParam("taxClassId", taxRate.getTaxClass().getId())
+            .queryParam("countryId", taxRate.getCountryId())
+            .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
+            .param("zipCode", taxRate.getZipCode())
             .when()
             .get("/v1/backoffice/tax-rates/tax-percent")
             .then()
