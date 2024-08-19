@@ -5,9 +5,13 @@ import com.yas.webhook.config.constants.MessageCode;
 import com.yas.webhook.config.exception.NotFoundException;
 import com.yas.webhook.model.Event;
 import com.yas.webhook.model.WebhookEvent;
-import com.yas.webhook.model.enumeration.EventName;
-import com.yas.webhook.model.enumeration.Operation;
+import com.yas.webhook.model.WebhookEventNotification;
+import com.yas.webhook.model.dto.WebhookEventNotificationDto;
+import com.yas.webhook.model.enums.EventName;
+import com.yas.webhook.model.enums.NotificationStatus;
+import com.yas.webhook.model.enums.Operation;
 import com.yas.webhook.repository.EventRepository;
+import com.yas.webhook.repository.WebhookEventNotificationRepository;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +19,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ProductEventService {
+public class ProductEventService extends AbstractWebhookEventNotificationService {
 
     private final EventRepository eventRepository;
     private final WebhookService webhookService;
+    private final WebhookEventNotificationRepository webhookEventNotificationRepository;
 
     public void onProductEvent(JsonNode updatedEvent) {
         String operation = updatedEvent.get("op").asText();
@@ -29,12 +34,17 @@ public class ProductEventService {
                 .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, EventName.ON_PRODUCT_UPDATED));
         List<WebhookEvent> hookEvents = event.getWebhookEvents();
         hookEvents.forEach(hookEvent -> {
-            String url = hookEvent.getWebhook().getPayloadUrl();
-            String secret = hookEvent.getWebhook().getSecret();
             JsonNode payload = updatedEvent.get("after");
+            Long notificationId = super.persistNotification(hookEvent.getId(), payload);
 
-            webhookService.notifyToWebhook(url, secret, payload);
+            WebhookEventNotificationDto dto = super.createNotificationDto(hookEvent, payload,
+                notificationId);
+            webhookService.notifyToWebhook(dto);
         });
     }
 
+    @Override
+    protected WebhookEventNotificationRepository getWebhookEventNotificationRepository() {
+        return webhookEventNotificationRepository;
+    }
 }

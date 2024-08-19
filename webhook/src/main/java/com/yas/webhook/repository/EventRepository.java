@@ -1,7 +1,7 @@
 package com.yas.webhook.repository;
 
 import com.yas.webhook.model.Event;
-import com.yas.webhook.model.enumeration.EventName;
+import com.yas.webhook.model.enums.EventName;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
