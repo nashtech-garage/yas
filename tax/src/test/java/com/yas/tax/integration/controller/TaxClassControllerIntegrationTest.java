@@ -193,7 +193,7 @@ class TaxClassControllerIntegrationTest extends AbstractControllerIT{
             .log().ifValidationFails();
 
         Optional<TaxClass> result = taxClassRepository.findById(taxClass.getId());
-        assertThat(result.isPresent()).isTrue();
+        assertThat(result).isPresent();
         assertThat(result.get().getName()).isEqualTo(body.name());
     }
 
