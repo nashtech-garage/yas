@@ -11,6 +11,7 @@ import com.yas.tax.viewmodel.taxrate.TaxRateListGetVm;
 import com.yas.tax.viewmodel.taxrate.TaxRatePostVm;
 import com.yas.tax.viewmodel.taxrate.TaxRateVm;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
@@ -168,5 +169,13 @@ public class TaxRateService {
         }
 
         return 0;
+    }
+
+    public List<TaxRateVm> getBulkTaxRate(List<Long> taxClassIds, Long countryId, Long stateOrProvinceId, String zipCode) {
+        return taxRateRepository.getBulkTaxRates(countryId,
+            stateOrProvinceId,
+            zipCode,
+                new HashSet<>(taxClassIds))
+            .stream().map(TaxRateVm::fromModel).toList();
     }
 }
