@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
 package com.yas.rating.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,9 +37,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * @author nhat.tranminh
- */
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = RatingController.class)
 @ContextConfiguration(classes = RatingApplication.class)
