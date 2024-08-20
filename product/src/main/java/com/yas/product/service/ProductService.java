@@ -219,11 +219,15 @@ public class ProductService {
         validateProductVariationDuplicates(productSaveVm);
 
         // validate whether the variations contain properties that already exist
+        List<Long> variationIds = productSaveVm.variations().stream()
+            .map(HasProductProperties::id)
+            .filter(Objects::nonNull).toList();
+
+        Map<Long, Product> existingVariationsMap = productRepository.findAllById(variationIds).stream()
+            .collect(Collectors.toMap(Product::getId, Function.identity()));
+
         for (HasProductProperties variation : productSaveVm.variations()) {
-            Product existingVariation = null;
-            if (variation.id() != null) {
-                existingVariation = productRepository.findById(variation.id()).orElse(null);
-            }
+            Product existingVariation = existingVariationsMap.get(variation.id());
             validateExistingProductProperties(variation, existingVariation);
         }
     }
