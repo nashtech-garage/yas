@@ -22,8 +22,12 @@ const ProductOptionCreate: NextPage = () => {
       name: event.name,
     };
     let response = await createProductOption(productOption);
+
+    if (response.status === 201) {
+      router.replace(PRODUCT_OPTIONS_URL);
+    }
+
     handleCreatingResponse(response);
-    router.replace(PRODUCT_OPTIONS_URL);
   };
 
   return (
