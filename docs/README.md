@@ -208,6 +208,130 @@ In yas, we use OpenTelemetry Java Agent which is attacthed to Spring Boot applic
 
 We use the Grafana to view the observability data
 
+## Prometheus Metrics Guide
+
+### Introduction
+
+This document provides a detailed explanation of various Prometheus metrics used to monitor the performance and health of your system. Each metric is described along with sample queries to extract meaningful data.
+
+#### HTTP Requests
+
+##### `prometheus_http_requests_total`
+
+- **Description:** This metric counts the total number of HTTP requests received by the Prometheus server.
+
+##### `prometheus_http_requests_total{code="200"}`
+
+- **Description:** This metric counts the total number of HTTP requests received by the Prometheus server.
+- **Labels:** `code` (the HTTP status code).
+
+##### `rate(prometheus_http_requests_total[1m])`
+
+- **Description:** This query calculates the per-second rate of HTTP requests over the past minute.
+
+##### `sum(rate(prometheus_http_requests_total{code=~"4.."}[5m])) + sum(rate(prometheus_http_requests_total{code=~"5.."}[5m])) or vector(0)`
+##### `sum(rate(prometheus_http_requests_total{code="200"}[5m])) or vector(0)`
+
+- **Description:** This query calculates the sum per-second rate of HTTP requests over the past 5 minute between abnormal and normal requests.
+
+#### Classloading
+
+##### `jvm_class_count`
+
+- **Description:** Displays the current number of classes loaded in the JVM.
+- **Labels:** `service_name` (the name of the service).
+
+##### `jvm_class_loaded_total`
+
+- **Description:** The total number of classes loaded since the JVM started.
+
+#### Quick Facts
+
+##### `(time() - process_start_time_seconds) / 3600`
+
+- **Description:** Time Since Process Start (Hours).
+
+##### `process_open_fds`
+
+- **Description:** Number of file descriptors currently open by a specific process.
+
+#### JVM Observability
+
+##### `jvm_memory_used_bytes`
+
+- **Description:** The amount of memory currently used by the JVM.
+- **Labels:** `service_name`, `id` (which memory pool, such as: jvm_memory_pool_heap, jvm_memory_pool_nonheap,jvm_buffer_pool).
+
+##### `jvm_memory_committed_bytes`
+
+- **Description:** The amount of memory committed for the JVM.
+- **Labels:** `service_name`, `id` (which memory pool, such as: jvm_memory_pool_heap, jvm_memory_pool_nonheap).
+
+##### `jvm_memory_max_bytes`
+
+- **Description:** The maximum amount of memory that can be used by the JVM.
+- **Labels:** `service_name`, `id` (which memory pool, such as: jvm_memory_pool_heap, jvm_memory_pool_nonheap).
+
+##### `rate(jvm_gc_duration_seconds_sum[5m])`
+
+- **Description:** Calculates the rate of time spent in garbage collection (GC) by the Java Virtual Machine (JVM) over the last 5 minutes.
+
+#### Process Metrics
+
+##### `process_cpu_seconds_total`
+
+- **Description:** Total user and system CPU time spent in seconds.
+
+##### `jvm_cpu_recent_utilization_ratio`
+
+- **Description:** The percentage of CPU resources that the JVM has used relative to the total available CPU capacity over a recent time window.
+
+##### `jvm_cpu_count{service_name="$service"}`
+
+- **Description:** The total number of CPU cores available to the JVM for a specific service.
+- **Labels:** `service_name`.
+
+##### `sum(rate(process_cpu_seconds_total[5m]))`
+
+- **Description:** The overall CPU usage rate across all instances of a process within the last 5 minutes.
+
+##### `topk(5, rate(process_cpu_seconds_total[5m]))`
+
+- **Description:** Identifies the top 5 processes with the highest CPU usage rates within the last 5 minutes.
+
+##### `jvm_memory_used_after_last_gc_bytes{service_name="$service", id=~"$jvm_memory_pool_heap"}`
+
+- **Description:** Retrieves the amount of memory used in the heap memory pool after the last garbage collection (GC) event for a given service.
+
+#### Memory Metrics
+
+##### `sum by(service_name) (jvm_memory_used_bytes{service_name="$service"}) / 1048576`
+
+- **Description:** The total memory used by a service in megabytes by summing up the memory usage across all memory pools and converting it from bytes to megabytes.
+
+##### `sum by(service_name) (jvm_memory_committed_bytes{service_name="$service"}) / 1048576`
+
+- **Description:** The total memory used by a service in megabytes by summing up the memory commit across all memory pools and converting it from bytes to megabytes.
+
+##### `sum by(service_name) (jvm_memory_limit_bytes{service_name="$service"}) / 1048576`
+
+- **Description:** The total memory used by a service in megabytes by summing up the memory limit across all memory pools and converting it from bytes to megabytes.
+
+##### `avg_over_time(process_resident_memory_bytes [5m]) / 1048576`
+
+- **Description:** Calculates the average memory usage of prometheus process in megabytes over the last 5 minutes.
+
+#### Database Connection Metrics
+
+##### `db_client_connections_max`
+
+- **Description:** The maximum number of client connections allowed to the database.
+
+##### `db_client_connections_usage`
+
+- **Description:** The current number of active client connections to the database.
+
+
 ## Change Data Capture (CDC) with Debezium
 
 ![yas-cdc-debezium-kafka](images/yas-cdc-debezium-kafka.png)
