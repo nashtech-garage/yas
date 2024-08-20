@@ -31,10 +31,12 @@ public class CountryServiceTest {
 
     private void generateTestData() {
         country1 = countryRepository.save(Country.builder()
+            .code2("TS")
             .name("country-1")
             .build());
         countryRepository.save(Country.builder()
-            .name("country-1")
+            .code2("TW")
+            .name("country-2")
             .build());
     }
 
@@ -67,6 +69,7 @@ public class CountryServiceTest {
     @Test
     void createCountry_ValidData_Success() {
         CountryPostVm countryPostVm = CountryPostVm.builder()
+            .code2("SE")
             .name("country")
             .build();
         Country country = countryService.create(countryPostVm);
@@ -75,13 +78,27 @@ public class CountryServiceTest {
     }
 
     @Test
-    void createCountry_WithNameExisted_ThrowsNamAlreadyExistedException() {
+    void createCountry_WithNameExisted_ThrowsNameAlreadyExistedException() {
         generateTestData();
         CountryPostVm countryPostVm = CountryPostVm.builder()
+            .code2("SE")
             .name("country-1")
             .build();
-        DuplicatedException exception = assertThrows(DuplicatedException.class, () -> countryService.create(countryPostVm));
+        DuplicatedException exception =
+            assertThrows(DuplicatedException.class, () -> countryService.create(countryPostVm));
         assertEquals(String.format("Request name %s is already existed", "country-1"), exception.getMessage());
+    }
+
+    @Test
+    void createCountry_WithCodeExisted_ThrowsCodeAlreadyExistedException() {
+        generateTestData();
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .code2("TS")
+            .name("country")
+            .build();
+        DuplicatedException exception =
+            assertThrows(DuplicatedException.class, () -> countryService.create(countryPostVm));
+        assertEquals(String.format("The code %s is already existed", "TS"), exception.getMessage());
     }
 
     @Test
@@ -102,7 +119,8 @@ public class CountryServiceTest {
         CountryPostVm countryPostVm = CountryPostVm.builder()
             .name("country-1-update")
             .build();
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> countryService.update(countryPostVm,1L));
+        NotFoundException exception =
+            assertThrows(NotFoundException.class, () -> countryService.update(countryPostVm, 1L));
         assertEquals(String.format("The country %s is not found", "1"), exception.getMessage());
     }
 
@@ -110,11 +128,13 @@ public class CountryServiceTest {
     void updateCountry_WithNameExisted_ThrowsNameAlreadyExistedException() {
         generateTestData();
         CountryPostVm countryPostVm = CountryPostVm.builder()
-            .name("country-1")
+            .code2("SE")
+            .name("country-2")
             .build();
         Long country1Id = country1.getId();
-        DuplicatedException exception = assertThrows(DuplicatedException.class, () -> countryService.update(countryPostVm, country1Id));
-        assertEquals(String.format("Request name %s is already existed", "country-1"), exception.getMessage());
+        DuplicatedException exception =
+            assertThrows(DuplicatedException.class, () -> countryService.update(countryPostVm, country1Id));
+        assertEquals(String.format("Request name %s is already existed", "country-2"), exception.getMessage());
     }
 
     @Test
