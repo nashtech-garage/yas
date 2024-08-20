@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.rating.RatingApplication;
 import com.yas.rating.exception.NotFoundException;
-import com.yas.rating.model.Rating;
 import com.yas.rating.service.RatingService;
 import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.RatingListVm;
@@ -16,7 +15,6 @@ import com.yas.rating.viewmodel.RatingPostVm;
 import com.yas.rating.viewmodel.RatingVm;
 import com.yas.rating.viewmodel.ResponeStatusVm;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = RatingController.class)
 @ContextConfiguration(classes = RatingApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class RatingControllerTest {
+class RatingControllerTest {
 
     @MockBean
     private RatingService ratingService;
@@ -59,22 +57,16 @@ public class RatingControllerTest {
     private MockMvc mockMvc;
 
     private ObjectWriter objectWriter;
-    private List<Rating> ratingList;
     private RatingVm ratingVm;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ratingVm = new RatingVm(1L, "rating1", 5, 1L, "product1", "nhat1", "Nhat", "Tran", ZonedDateTime.now());
     }
 
-    @AfterEach
-    public void tearDown() {
-
-    }
-
     @Test
-    public void testGetRatingListWithFilter() throws Exception {
+    void testGetRatingListWithFilter() throws Exception {
         String productName = "product1";
         String customerName = "Nhat Tran";
         String message = "comment 1";
@@ -107,7 +99,7 @@ public class RatingControllerTest {
     }
 
     @Test
-    public void testDeleteRating_WhenValidId_ShouldReturn200() throws Exception {
+    void testDeleteRating_WhenValidId_ShouldReturn200() throws Exception {
         when(ratingService.deleteRating(anyLong())).thenReturn(new ResponeStatusVm(
                 "Delete Rating",
                 Constants.Message.SUCCESS_MESSAGE,
@@ -123,7 +115,7 @@ public class RatingControllerTest {
     }
 
     @Test
-    public void testDeleteRating_WhenInvalidId_ShouldReturn404() throws Exception {
+    void testDeleteRating_WhenInvalidId_ShouldReturn404() throws Exception {
         when(ratingService.deleteRating(1L))
                 .thenThrow(new NotFoundException(Constants.ErrorCode.RATING_NOT_FOUND, 1L));
         this.mockMvc.perform(delete("/backoffice/ratings/{id}", 1)
@@ -139,7 +131,7 @@ public class RatingControllerTest {
     }
 
     @Test
-    public void testStorefrontGetRatingList_ShouldReturnList() throws Exception {
+    void testStorefrontGetRatingList_ShouldReturnList() throws Exception {
         when(ratingService.getRatingListByProductId(anyLong(), anyInt(), anyInt()))
                 .thenReturn(new RatingListVm(List.of(), 0, 0));
 
@@ -152,7 +144,7 @@ public class RatingControllerTest {
     }
 
     @Test
-    public void TestCreateRating_WhenValid_ShouldSuccess() throws Exception {
+    void TestCreateRating_WhenValid_ShouldSuccess() throws Exception {
         RatingPostVm vm = new RatingPostVm("rating1", 5, 1L, "product1");
 
         when(ratingService.createRating(any(RatingPostVm.class))).thenReturn(ratingVm);
@@ -166,7 +158,7 @@ public class RatingControllerTest {
     }
 
     @Test
-    public void TestGetAverageStarOfProduct_ShouldReturnSuccess() throws Exception {
+    void TestGetAverageStarOfProduct_ShouldReturnSuccess() throws Exception {
         when(ratingService.calculateAverageStar(anyLong())).thenReturn(0.0D);
         this.mockMvc.perform(get("/storefront/ratings/product/{productId}/average-star", 1L)
                 .contentType(MediaType.APPLICATION_JSON)

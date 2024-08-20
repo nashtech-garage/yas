@@ -6,7 +6,6 @@ import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.exception.ResourceExistedException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
-import com.yas.rating.utils.AuthenticationUtils;
 import com.yas.rating.viewmodel.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

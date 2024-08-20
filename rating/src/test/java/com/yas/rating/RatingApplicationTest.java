@@ -7,16 +7,15 @@ package com.yas.rating;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * @author nhat.tranminh
  */
 @SpringBootTest(useMainMethod = SpringBootTest.UseMainMethod.ALWAYS)
-public class RatingApplicationTest {
+class RatingApplicationTest {
 
     @Test
-    public void contextLoads() {
+    void contextLoads() {
+        // It is suppose to be empty
     }
 
 }
