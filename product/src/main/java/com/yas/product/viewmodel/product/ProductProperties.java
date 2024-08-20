@@ -1,6 +1,6 @@
 package com.yas.product.viewmodel.product;
 
-public interface HasProductProperties {
+public interface ProductProperties {
     Long id();
 
     String slug();

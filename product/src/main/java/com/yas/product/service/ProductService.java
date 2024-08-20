@@ -27,7 +27,6 @@ import com.yas.product.repository.ProductRepository;
 import com.yas.product.utils.Constants;
 import com.yas.product.utils.ProductConverter;
 import com.yas.product.viewmodel.ImageVm;
-import com.yas.product.viewmodel.product.HasProductProperties;
 import com.yas.product.viewmodel.product.ProductDetailGetVm;
 import com.yas.product.viewmodel.product.ProductDetailVm;
 import com.yas.product.viewmodel.product.ProductEsDetailVm;
@@ -39,6 +38,7 @@ import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
 import com.yas.product.viewmodel.product.ProductListGetVm;
 import com.yas.product.viewmodel.product.ProductListVm;
 import com.yas.product.viewmodel.product.ProductPostVm;
+import com.yas.product.viewmodel.product.ProductProperties;
 import com.yas.product.viewmodel.product.ProductPutVm;
 import com.yas.product.viewmodel.product.ProductQuantityPostVm;
 import com.yas.product.viewmodel.product.ProductQuantityPutVm;
@@ -180,7 +180,7 @@ public class ProductService {
         });
     }
 
-    private void validateExistingProductProperties(HasProductProperties productProperties, Product existingProduct) {
+    private void validateExistingProductProperties(ProductProperties productProperties, Product existingProduct) {
         checkPropertyExists(productProperties.slug(), existingProduct,
             productRepository::findBySlugAndIsPublishedTrue, Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED);
         // only check gtin when it's not empty
@@ -197,7 +197,7 @@ public class ProductService {
         Set<String> seenSlugs = new HashSet<>(Collections.singletonList(productSaveVm.slug()));
         Set<String> seenSkus = new HashSet<>(Collections.singletonList(productSaveVm.sku()));
         Set<String> seenGtins = new HashSet<>(Collections.singletonList(productSaveVm.gtin()));
-        for (HasProductProperties variation : productSaveVm.variations()) {
+        for (ProductProperties variation : productSaveVm.variations()) {
             if (!seenSlugs.add(variation.slug())) {
                 throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED, variation.slug());
             }
@@ -220,13 +220,13 @@ public class ProductService {
 
         // validate whether the variations contain properties that already exist
         List<Long> variationIds = productSaveVm.variations().stream()
-            .map(HasProductProperties::id)
+            .map(ProductProperties::id)
             .filter(Objects::nonNull).toList();
 
         Map<Long, Product> existingVariationsMap = productRepository.findAllById(variationIds).stream()
             .collect(Collectors.toMap(Product::getId, Function.identity()));
 
-        for (HasProductProperties variation : productSaveVm.variations()) {
+        for (ProductProperties variation : productSaveVm.variations()) {
             Product existingVariation = existingVariationsMap.get(variation.id());
             validateExistingProductProperties(variation, existingVariation);
         }
