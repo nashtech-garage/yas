@@ -46,7 +46,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author nhat.tranminh
  */
-
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = RatingController.class)
 @ContextConfiguration(classes = RatingApplication.class)
@@ -95,34 +94,30 @@ public class RatingControllerTest {
                 anyInt())).thenReturn(new RatingListVm(List.of(), 0, 0));
 
         this.mockMvc.perform(get("/backoffice/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("productName", productName)
-                        .param("customerName", customerName)
-                        .param("message", message)
-                        .param("createdFrom", createdFrom.toString())
-                        .param("createdTo", createdTo.toString())
-                        .param("pageNo", "0")
-                        .param("pageSize", "10")
-                )
-                .andExpect(status().isOk()).andDo((result) -> {
-                    System.out.println(result.getResponse().getContentAsString());
-                });
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("productName", productName)
+                .param("customerName", customerName)
+                .param("message", message)
+                .param("createdFrom", createdFrom.toString())
+                .param("createdTo", createdTo.toString())
+                .param("pageNo", "0")
+                .param("pageSize", "10")
+        )
+                .andExpect(status().isOk());
     }
 
     @Test
     public void testDeleteRating_WhenValidId_ShouldReturn200() throws Exception {
-        when(ratingService.deleteRating(anyLong()))
-                .thenReturn(new ResponeStatusVm(
-                        "Delete Rating",
-                        Constants.Message.SUCCESS_MESSAGE,
-                        HttpStatus.OK.toString()));
+        when(ratingService.deleteRating(anyLong())).thenReturn(new ResponeStatusVm(
+                "Delete Rating",
+                Constants.Message.SUCCESS_MESSAGE,
+                HttpStatus.OK.toString())
+        );
 
         this.mockMvc.perform(delete("/backoffice/ratings/{id}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk()).andDo((result) -> {
-                    System.out.println(result.getResponse().getContentAsString());
-                });
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk());
 
         verify(ratingService, times(1)).deleteRating(anyLong());
     }
@@ -132,8 +127,8 @@ public class RatingControllerTest {
         when(ratingService.deleteRating(1L))
                 .thenThrow(new NotFoundException(Constants.ErrorCode.RATING_NOT_FOUND, 1L));
         this.mockMvc.perform(delete("/backoffice/ratings/{id}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.statusCode", Matchers.is("404 NOT_FOUND")))
@@ -149,13 +144,11 @@ public class RatingControllerTest {
                 .thenReturn(new RatingListVm(List.of(), 0, 0));
 
         this.mockMvc.perform(get("/storefront/ratings/products/{productId}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("pageNo", "0")
-                        .param("pageSize", "10")
-                )
-                .andExpect(status().isOk()).andDo((result) -> {
-                    System.out.println(result.getResponse().getContentAsString());
-                });
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("pageNo", "0")
+                .param("pageSize", "10")
+        )
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -165,27 +158,21 @@ public class RatingControllerTest {
         when(ratingService.createRating(any(RatingPostVm.class))).thenReturn(ratingVm);
 
         this.mockMvc.perform(post("/storefront/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectWriter.writeValueAsString(vm))
-                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(vm))
+        )
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(1)))
-                .andDo((result) -> {
-                    System.out.println(result.getResponse().getContentAsString());
-                });
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(1)));
     }
 
     @Test
     public void TestGetAverageStarOfProduct_ShouldReturnSuccess() throws Exception {
         when(ratingService.calculateAverageStar(anyLong())).thenReturn(0.0D);
         this.mockMvc.perform(get("/storefront/ratings/product/{productId}/average-star", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andExpect(status().isOk())
-                .andExpect(content().string("0.0"))
-                .andDo((result) -> {
-                    System.out.println(result.getResponse().getContentAsString());
-                });
+                .andExpect(content().string("0.0"));
     }
 
 }
