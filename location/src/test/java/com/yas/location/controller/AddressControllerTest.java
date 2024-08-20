@@ -1,4 +1,4 @@
-package com.yas.locacation.controller;
+package com.yas.location.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.location.LocationApplication;
-import com.yas.location.controller.AddressController;
 import com.yas.location.service.AddressService;
 import com.yas.location.viewmodel.address.AddressPostVm;
 import org.junit.jupiter.api.BeforeEach;

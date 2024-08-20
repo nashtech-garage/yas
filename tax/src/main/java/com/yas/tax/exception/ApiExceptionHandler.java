@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -93,6 +94,14 @@ public class ApiExceptionHandler {
         log.debug(ex.toString());
         return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    protected ResponseEntity<ErrorVm> handleMissingParams(MissingServletRequestParameterException e) {
+        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(),
+            HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
+        return ResponseEntity.badRequest().body(errorVm);
+    }
+
 
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
