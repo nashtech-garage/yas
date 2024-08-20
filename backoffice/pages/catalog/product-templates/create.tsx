@@ -75,8 +75,12 @@ const ProductTemplateCreate = () => {
       ProductAttributeTemplates: getValues('ProductAttributeTemplates'),
     };
     let response = await createProductTemplate(fromProductTemplate);
+
+    if (response.status === 201) {
+      router.replace(PRODUCT_TEMPLATE_URL);
+    }
+
     handleCreatingResponse(response);
-    router.replace(PRODUCT_TEMPLATE_URL);
   };
 
   return (

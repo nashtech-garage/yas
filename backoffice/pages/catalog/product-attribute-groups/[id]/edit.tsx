@@ -12,7 +12,7 @@ import {
 } from '@catalogServices/ProductAttributeGroupService';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { toastError } from '@commonServices/ToastService';
-import { PRODUCT_ATTRIBUTE_GROUPS_URL } from '@constants/Common';
+import { PRODUCT_ATTRIBUTE_GROUPS_URL, ResponseStatus } from '@constants/Common';
 
 const ProductAttributeGroupEdit: NextPage = () => {
   const router = useRouter();
@@ -50,12 +50,11 @@ const ProductAttributeGroupEdit: NextPage = () => {
       name: event.name,
     };
     if (id) {
-      updateProductAttributeGroup(+id, productAttributeGroup)
-        .then((response) => {
-          handleUpdatingResponse(response);
-          router.replace(PRODUCT_ATTRIBUTE_GROUPS_URL).catch((error) => console.log(error));
-        })
-        .catch((error) => console.log(error));
+      const response = await updateProductAttributeGroup(+id, productAttributeGroup);
+      if (response.status === ResponseStatus.SUCCESS) {
+        router.replace(PRODUCT_ATTRIBUTE_GROUPS_URL);
+      }
+      handleUpdatingResponse(response);
     }
   };
 

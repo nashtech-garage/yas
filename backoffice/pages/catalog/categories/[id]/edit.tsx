@@ -8,7 +8,7 @@ import {
   getCategory,
   updateCategory,
 } from '../../../../modules/catalog/services/CategoryService';
-import { CATEGORIES_URL } from '../../../../constants/Common';
+import { CATEGORIES_URL, ResponseStatus } from '../../../../constants/Common';
 import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
 import { useForm } from 'react-hook-form';
 import { uploadMedia } from '../../../../modules/catalog/services/MediaService';
@@ -50,10 +50,11 @@ const CategoryEdit: NextPage = () => {
     };
 
     if (id) {
-      updateCategory(+id, category).then((response) => {
-        handleUpdatingResponse(response);
+      const response = await updateCategory(+id, category);
+      if (response.status === ResponseStatus.SUCCESS) {
         router.replace(CATEGORIES_URL);
-      });
+      }
+      handleUpdatingResponse(response);
     }
   };
   const renderSeletedCategory: Function = (

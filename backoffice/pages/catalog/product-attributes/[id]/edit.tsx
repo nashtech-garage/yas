@@ -10,7 +10,7 @@ import {
   updateProductAttribute,
 } from '../../../../modules/catalog/services/ProductAttributeService';
 import { handleUpdatingResponse } from '../../../../common/services/ResponseStatusHandlingService';
-import { PRODUCT_ATTRIBUTE_URL } from '../../../../constants/Common';
+import { PRODUCT_ATTRIBUTE_URL, ResponseStatus } from '../../../../constants/Common';
 
 interface ProductAttributeId {
   name: string;
@@ -32,10 +32,11 @@ const ProductAttributeEdit: NextPage = () => {
         name: event.target.name.value,
         productAttributeGroupId: idProductAttributeGroup,
       };
-      updateProductAttribute(parseInt(id), productAttributeId).then((response) => {
-        handleUpdatingResponse(response);
+      const response = await updateProductAttribute(parseInt(id), productAttributeId);
+      if (response.status === ResponseStatus.SUCCESS) {
         router.replace(PRODUCT_ATTRIBUTE_URL);
-      });
+      }
+      handleUpdatingResponse(response);
     }
   };
 

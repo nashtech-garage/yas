@@ -9,7 +9,7 @@ import { ProductOption } from '@catalogModels/ProductOption';
 import { getProductOption, updateProductOption } from '@catalogServices/ProductOptionService';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { toastError } from '@commonServices/ToastService';
-import { PRODUCT_OPTIONS_URL } from '@constants/Common';
+import { PRODUCT_OPTIONS_URL, ResponseStatus } from '@constants/Common';
 
 const ProductOptionEdit: NextPage = () => {
   const router = useRouter();
@@ -48,12 +48,11 @@ const ProductOptionEdit: NextPage = () => {
       name: event.name,
     };
     if (id) {
-      updateProductOption(+id, productOption)
-        .then((response) => {
-          handleUpdatingResponse(response);
-          router.replace(PRODUCT_OPTIONS_URL).catch((err) => console.log(err));
-        })
-        .catch((err) => console.log(err));
+      const response = await updateProductOption(+id, productOption);
+      if (response.status === ResponseStatus.SUCCESS) {
+        router.replace(PRODUCT_OPTIONS_URL).catch((err) => console.log(err));
+      }
+      handleUpdatingResponse(response);
     }
   };
 
