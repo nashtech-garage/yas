@@ -17,7 +17,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Optional<Product> findBySlugAndIsPublishedTrue(String slug);
 
-    boolean existsBySlugAndIsPublishedTrue(String slug);
+    Optional<Product> findByGtinAndIsPublishedTrue(String gtin);
+
+    Optional<Product> findBySkuAndIsPublishedTrue(String sku);
 
     @Query(value = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:productName% "
             + "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = '')) "
@@ -36,10 +38,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> getExportingProducts(@Param("productName") String productName, @Param("brandName") String brandName);
 
     List<Product> findAllByIdIn(List<Long> productIds);
-
-    boolean existsByGtinAndIsPublishedTrue(String gtin);
-
-    boolean existsBySkuAndIsPublishedTrue(String sku);
 
     @Query(value = "FROM Product p WHERE p.isFeatured = TRUE "
             + "AND p.isVisibleIndividually = TRUE "

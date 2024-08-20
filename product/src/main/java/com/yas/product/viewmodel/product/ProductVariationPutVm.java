@@ -11,5 +11,5 @@ public record ProductVariationPutVm(
         Double price,
         Long thumbnailMediaId,
         List<Long> productImageIds
-) {
+) implements ProductProperties {
 }

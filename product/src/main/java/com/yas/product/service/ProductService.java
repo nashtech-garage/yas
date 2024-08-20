@@ -38,14 +38,15 @@ import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
 import com.yas.product.viewmodel.product.ProductListGetVm;
 import com.yas.product.viewmodel.product.ProductListVm;
 import com.yas.product.viewmodel.product.ProductPostVm;
+import com.yas.product.viewmodel.product.ProductProperties;
 import com.yas.product.viewmodel.product.ProductPutVm;
 import com.yas.product.viewmodel.product.ProductQuantityPostVm;
 import com.yas.product.viewmodel.product.ProductQuantityPutVm;
+import com.yas.product.viewmodel.product.ProductSaveVm;
 import com.yas.product.viewmodel.product.ProductSlugGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailVm;
 import com.yas.product.viewmodel.product.ProductVariationGetVm;
-import com.yas.product.viewmodel.product.ProductVariationPostVm;
 import com.yas.product.viewmodel.product.ProductVariationPutVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
@@ -170,59 +171,73 @@ public class ProductService {
         );
     }
 
-    private boolean isProductWithSlugAvailable(String slug) {
-        return productRepository.existsBySlugAndIsPublishedTrue(slug);
+    private void checkPropertyExists(String propertyValue, Product existingProduct, Function<String,
+        Optional<Product>> finder, String errorCode) {
+        finder.apply(propertyValue).ifPresent(foundProduct -> {
+            if (existingProduct == null || !foundProduct.getId().equals(existingProduct.getId())) {
+                throw new DuplicatedException(errorCode, propertyValue);
+            }
+        });
     }
 
-    private boolean isProductWithSkuAvailable(String sku) {
-        return productRepository.existsBySkuAndIsPublishedTrue(sku);
-    }
-
-    private boolean isProductWithGtinAvailable(String gtin) {
-        return productRepository.existsByGtinAndIsPublishedTrue(gtin);
-    }
-
-    private void validateIfProductWithSkuOrGtinOrSlugExist(String slug,
-                                                           String gtin,
-                                                           String sku) {
-        if (isProductWithSlugAvailable(slug)) {
-            throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED, slug);
+    private void validateExistingProductProperties(ProductProperties productProperties, Product existingProduct) {
+        checkPropertyExists(productProperties.slug(), existingProduct,
+            productRepository::findBySlugAndIsPublishedTrue, Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED);
+        // only check gtin when it's not empty
+        if (StringUtils.isNotEmpty(productProperties.gtin())) {
+            checkPropertyExists(productProperties.gtin(), existingProduct,
+                productRepository::findByGtinAndIsPublishedTrue,
+                Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED);
         }
-
-        if (isProductWithGtinAvailable(gtin)) {
-            throw new DuplicatedException(Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED, gtin);
-        }
-
-        if (isProductWithSkuAvailable(sku)) {
-            throw new DuplicatedException(Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED, sku);
-        }
+        checkPropertyExists(productProperties.sku(), existingProduct,
+            productRepository::findBySkuAndIsPublishedTrue, Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED);
     }
 
-    private void validateProductVariationDuplicates(List<ProductVariationPostVm> variations) {
-        Set<String> seenSlugs = new HashSet<>();
-        Set<String> seenSkus = new HashSet<>();
-        Set<String> seenGtins = new HashSet<>();
-        for (ProductVariationPostVm variation : variations) {
+    private void validateProductVariationDuplicates(ProductSaveVm productSaveVm) {
+        Set<String> seenSlugs = new HashSet<>(Collections.singletonList(productSaveVm.slug()));
+        Set<String> seenSkus = new HashSet<>(Collections.singletonList(productSaveVm.sku()));
+        Set<String> seenGtins = new HashSet<>(Collections.singletonList(productSaveVm.gtin()));
+        for (ProductProperties variation : productSaveVm.variations()) {
             if (!seenSlugs.add(variation.slug())) {
                 throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED, variation.slug());
             }
-
-            if (!seenGtins.add(variation.gtin())) {
+            // only check gtin when it's not empty
+            if (StringUtils.isNotEmpty(variation.gtin()) && !seenGtins.add(variation.gtin())) {
                 throw new DuplicatedException(Constants.ErrorCode.GTIN_ALREADY_EXISTED_OR_DUPLICATED, variation.gtin());
             }
-
             if (!seenSkus.add(variation.sku())) {
                 throw new DuplicatedException(Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED, variation.sku());
             }
         }
     }
 
+    private void validateProductVm(ProductSaveVm productSaveVm, Product existingProduct) {
+        // validate the properties of the main product
+        validateExistingProductProperties(productSaveVm, existingProduct);
+
+        // validate whether the product and its variations contain duplicate properties
+        validateProductVariationDuplicates(productSaveVm);
+
+        // validate whether the variations contain properties that already exist
+        List<Long> variationIds = productSaveVm.variations().stream()
+            .map(ProductProperties::id)
+            .filter(Objects::nonNull).toList();
+
+        Map<Long, Product> existingVariationsMap = productRepository.findAllById(variationIds).stream()
+            .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        for (ProductProperties variation : productSaveVm.variations()) {
+            Product existingVariation = existingVariationsMap.get(variation.id());
+            validateExistingProductProperties(variation, existingVariation);
+        }
+    }
+
+    private void validateProductVm(ProductSaveVm productSaveVm) {
+        validateProductVm(productSaveVm, null);
+    }
+
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
-        validateIfProductWithSkuOrGtinOrSlugExist(
-                productPostVm.slug(),
-                productPostVm.gtin(),
-                productPostVm.sku()
-        );
+        validateProductVm(productPostVm);
 
         Product mainProduct = Product.builder()
                 .name(productPostVm.name())
@@ -274,15 +289,8 @@ public class ProductService {
         if (CollectionUtils.isNotEmpty(productPostVm.variations())
             && CollectionUtils.isNotEmpty(productPostVm.productOptionValues())) {
             List<ProductImage> allProductVariantImageList = new ArrayList<>();
-            validateProductVariationDuplicates(productPostVm.variations());
             List<Product> productVariants = productPostVm.variations().stream()
                     .map(variation -> {
-                        validateIfProductWithSkuOrGtinOrSlugExist(
-                                variation.slug(),
-                                variation.gtin(),
-                                variation.sku()
-                        );
-
                         Product productVariant = Product.builder()
                                 .name(variation.name())
                                 .thumbnailMediaId(variation.thumbnailMediaId())
@@ -337,6 +345,8 @@ public class ProductService {
     public void updateProduct(long productId, ProductPutVm productPutVm) {
         Product product = productRepository.findById(productId).orElseThrow(()
                 -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND, productId));
+
+        validateProductVm(productPutVm, product);
 
         setProductBrand(productPutVm.brandId(), product);
 
@@ -461,12 +471,6 @@ public class ProductService {
     }
 
     private Product convertProductVariant(Product product, ProductVariationPutVm variation) {
-        validateIfProductWithSkuOrGtinOrSlugExist(
-                variation.slug(),
-                variation.gtin(),
-                variation.sku()
-        );
-
         return Product.builder()
                 .name(variation.name())
                 .thumbnailMediaId(variation.thumbnailMediaId())
