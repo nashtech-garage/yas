@@ -11,7 +11,6 @@ import com.yas.webhook.model.Event;
 import com.yas.webhook.model.Webhook;
 import com.yas.webhook.model.WebhookEvent;
 import com.yas.webhook.model.WebhookEventNotification;
-import com.yas.webhook.model.dto.WebhookEventNotificationDto;
 import com.yas.webhook.model.enums.EventName;
 import com.yas.webhook.repository.EventRepository;
 import com.yas.webhook.repository.WebhookEventNotificationRepository;
