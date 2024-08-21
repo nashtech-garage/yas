@@ -31,7 +31,7 @@ class OrderEventServiceTest {
     @Mock
     WebhookEventNotificationRepository webhookEventNotificationRepository;
     @Mock
-    WebhookServiceTest webhookService;
+    WebhookService webhookService;
     @Mock
     WebhookApi webHookApi;
     @InjectMocks
