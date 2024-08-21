@@ -38,6 +38,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         const productVariants: ProductVariation[] = [];
         results.forEach((item) => {
           listOptionCombine.push(item.name || '');
+
           productVariants.push({
             id: item.id,
             optionName: item.name || '',
@@ -46,8 +47,10 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
             optionPrice: item.price || 0,
             optionThumbnail: item.thumbnail,
             optionImages: item.productImages,
+            optionValueMap: item.options,
           });
         });
+
         setOptionCombines(listOptionCombine);
         setValue('productVariations', productVariants);
       }
@@ -93,53 +96,36 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
   const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     let productVar = getValue('productVariations') || [];
-    const result = generateProductOptionCombinations();
+    const optionValueMap = generateProductOptionCombinations();
+    const productName = getValue('name') || '';
+    const variationName = [productName, ...Array.from(optionValueMap.values())].join(' ');
 
-    const listOptionCombine: string[] = [];
-    const productVariants: ProductVariation[] = [];
-    result.forEach((item) => {
-      listOptionCombine.push(getValue('name')?.concat(' ', item) || '');
-      productVariants.push({
-        optionName: getValue('name')?.concat(' ', item) || '',
-        optionGTin: getValue('gtin') || '',
-        optionSku: getValue('sku') || '',
-        optionPrice: getValue('price') || 0,
-      });
-    });
-    setOptionCombines(listOptionCombine);
-    setValue('productVariations', [...productVar, ...productVariants]);
+    const newVariation: ProductVariation = {
+      optionName: variationName,
+      optionGTin: getValue('gtin') || '',
+      optionSku: getValue('sku') || '',
+      optionPrice: getValue('price') || 0,
+      optionValueMap: Object.fromEntries(optionValueMap),
+    };
+    setOptionCombines([variationName]);
+    setValue('productVariations', [...productVar, newVariation]);
   };
 
-  const generateProductOptionCombinations = (): string[] => {
-    const result: string[] = [];
+  const generateProductOptionCombinations = (): Map<number, string> => {
+    const optionValueMap = new Map<number, string>();
     const productOp = getValue('productOptions') || [];
 
     selectedOptions.forEach((option) => {
-      const combines = (document.getElementById(option) as HTMLInputElement).value
-        .split(',')
-        .map((item) => item.trim());
+      const combines = (document.getElementById(option) as HTMLInputElement).value;
 
       const productOption = productOptions.find((productOption) => productOption.name === option);
-      productOp.push({ productOptionId: productOption?.id, value: combines });
+      const productOptionId = productOption?.id || -1;
+      productOp.push({ productOptionId: productOptionId, value: [combines] });
       setValue('productOptions', productOp);
-
-      if (result.length === 0) {
-        combines.forEach((item) => {
-          result.push(item);
-        });
-      } else {
-        let index = 0;
-        const old = [...result];
-        for (const oldItem of old) {
-          for (const newItem of combines) {
-            result[index] = oldItem.concat(' ', newItem);
-            index++;
-          }
-        }
-      }
+      optionValueMap.set(productOptionId, combines);
     });
 
-    return result;
+    return optionValueMap;
   };
 
   const onDeleteVariation = (variant: ProductVariation) => {

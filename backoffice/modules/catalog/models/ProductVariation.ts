@@ -8,6 +8,7 @@ export type ProductVariation = {
   optionPrice: number;
   optionThumbnail?: Media;
   optionImages?: Media[];
+  optionValueMap: Record<number, string>; 
 };
 
 export type Variantion = {

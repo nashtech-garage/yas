@@ -47,7 +47,7 @@ export default function ProductDetails({
           return Object.keys(productVariation.options).reduce((acc, cur) => {
             return {
               ...acc,
-              [cur]: productVariation.options[cur],
+              [cur]: productVariation.options[+cur],
             };
           }, {});
         }
@@ -63,7 +63,6 @@ export default function ProductDetails({
     useState<CurrentSelectedOption>(initCurrentSelectedOption);
   const [currentProduct, setCurrentProduct] = useState<ProductDetail | ProductVariation>(product);
   const { fetchNumberCartItems } = useCartContext();
-
   useEffect(() => {
     if (
       productOptions &&
@@ -87,7 +86,9 @@ export default function ProductDetails({
       const productVariation = productVariations.find((item) => {
         return (
           Object.keys(item.options).length === Object.keys(currentSelectedOption).length &&
-          Object.keys(item.options).every((key) => currentSelectedOption[key] === item.options[key])
+          Object.keys(item.options).every((key) => {
+            return currentSelectedOption[+key] === item.options[+key];
+          })
         );
       });
       if (productVariation) {
@@ -116,17 +117,16 @@ export default function ProductDetails({
       });
   };
 
-  const handleSelectOption = (optionName: string, optionValue: string) => {
+  const handleSelectOption = (optionId: number, optionValue: string) => {
     if (
       productOptions &&
       productOptions.length > 0 &&
       productVariations &&
       productVariations.length > 0
     ) {
-      setCurrentSelectedOption({ ...currentSelectedOption, [optionName]: optionValue });
+      setCurrentSelectedOption({ ...currentSelectedOption, [optionId]: optionValue });
     }
   };
-
   return (
     <>
       <DetailHeader
@@ -156,11 +156,11 @@ export default function ProductDetails({
                 <button
                   key={productOptionValue}
                   className={`btn me-2 py-1 px-2 ${
-                    currentSelectedOption[productOption.name] === productOptionValue
+                    currentSelectedOption[productOption.id] === productOptionValue
                       ? 'btn-primary'
                       : 'btn-outline-primary'
                   }`}
-                  onClick={() => handleSelectOption(productOption.name, productOptionValue)}
+                  onClick={() => handleSelectOption(productOption.id, productOptionValue)}
                 >
                   {productOptionValue}
                 </button>

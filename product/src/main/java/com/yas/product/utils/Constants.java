@@ -32,5 +32,7 @@ public final class Constants {
         public static final String SLUG_ALREADY_EXISTED_OR_DUPLICATED = "SLUG_ALREADY_EXISTED_OR_DUPLICATED";
         public static final String SKU_ALREADY_EXISTED_OR_DUPLICATED = "SKU_ALREADY_EXISTED_OR_DUPLICATED";
         public static final String GTIN_ALREADY_EXISTED_OR_DUPLICATED = "GTIN_ALREADY_EXISTED_OR_DUPLICATED";
+        public static final String PRODUCT_OPTION_VALUE_IS_NOT_FOUND = "PRODUCT_OPTION_VALUE_IS_NOT_FOUND";
+        public static final String FAILED_TO_SAVE_VARIATIONS = "FAILED_TO_SAVE_VARIATIONS";
     }
 }

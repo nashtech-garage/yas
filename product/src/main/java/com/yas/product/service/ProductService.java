@@ -2,6 +2,7 @@ package com.yas.product.service;
 
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.DuplicatedException;
+import com.yas.product.exception.InternalServerErrorException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
@@ -12,6 +13,7 @@ import com.yas.product.model.ProductOption;
 import com.yas.product.model.ProductOptionCombination;
 import com.yas.product.model.ProductOptionValue;
 import com.yas.product.model.ProductRelated;
+import com.yas.product.model.ProductVariationSaveVm;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.model.enumeration.FilterExistInWhSelection;
@@ -25,7 +27,6 @@ import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRelatedRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.utils.Constants;
-import com.yas.product.utils.ProductConverter;
 import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.product.ProductDetailGetVm;
 import com.yas.product.viewmodel.product.ProductDetailVm;
@@ -55,7 +56,6 @@ import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
 import io.micrometer.common.util.StringUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -109,20 +109,6 @@ public class ProductService {
         this.productOptionValueRepository = productOptionValueRepository;
         this.productOptionCombinationRepository = productOptionCombinationRepository;
         this.productRelatedRepository = productRelatedRepository;
-    }
-
-    private static Function<Product, ProductOptionCombination> mapToOptionCombination(
-            Map<Long, ProductOption> productOptionMap,
-            Long optionValue,
-            String value,
-            Integer optionValue1
-    ) {
-        return variant -> ProductOptionCombination.builder()
-                .product(variant)
-                .productOption(productOptionMap.get(optionValue))
-                .value(value)
-                .displayOrder(optionValue1)
-                .build();
     }
 
     private static void setValuesForVariantExisting(
@@ -236,6 +222,38 @@ public class ProductService {
         validateProductVm(productSaveVm, null);
     }
 
+    private List<ProductOptionCombination> createProductOptionCombinations(
+        List<? extends ProductVariationSaveVm> variationsToSave, List<Product> savedVariants,
+        Map<Long, ProductOption> productOptionMap, List<ProductOptionValue> productOptionValues) {
+        Map<String, Product> savedVariantsMap = savedVariants.stream()
+            .collect(Collectors.toMap(Product::getSlug, Function.identity()));
+
+        List<ProductOptionCombination> productOptionCombinations = new ArrayList<>();
+
+        for (ProductVariationSaveVm variation : variationsToSave) {
+            Product savedVariant = savedVariantsMap.get(variation.slug());
+            if (savedVariant == null) {
+                throw new InternalServerErrorException(Constants.ErrorCode.FAILED_TO_SAVE_VARIATIONS);
+            }
+            variation.optionValueMap().forEach((optionId, value) -> {
+                ProductOption productOption = productOptionMap.get(optionId);
+                ProductOptionValue productOptionValue = productOptionValues.stream()
+                    .filter(pov -> pov.getProductOption().getId().equals(optionId) && pov.getValue().equals(value))
+                    .findFirst()
+                    .orElseThrow(()
+                        -> new BadRequestException(Constants.ErrorCode.PRODUCT_OPTION_VALUE_IS_NOT_FOUND, value));
+                ProductOptionCombination combination = ProductOptionCombination.builder()
+                    .product(savedVariant)
+                    .productOption(productOption)
+                    .value(productOptionValue.getValue())
+                    .displayOrder(productOptionValue.getDisplayOrder())
+                    .build();
+                productOptionCombinations.add(combination);
+            });
+        }
+        return productOptionCombinations;
+    }
+
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
         validateProductVm(productPostVm);
 
@@ -259,7 +277,7 @@ public class ProductService {
                 .metaDescription(productPostVm.description())
                 .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
                         && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
-                .productCategories(Arrays.asList())
+                .productCategories(List.of())
                 .taxClassId(productPostVm.taxClassId())
                 .build();
 
@@ -286,58 +304,57 @@ public class ProductService {
         }
 
         // Save product variations, product option values, and product option combinations
-        if (CollectionUtils.isNotEmpty(productPostVm.variations())
-            && CollectionUtils.isNotEmpty(productPostVm.productOptionValues())) {
-            List<ProductImage> allProductVariantImageList = new ArrayList<>();
-            List<Product> productVariants = productPostVm.variations().stream()
-                    .map(variation -> {
-                        Product productVariant = Product.builder()
-                                .name(variation.name())
-                                .thumbnailMediaId(variation.thumbnailMediaId())
-                                .slug(variation.slug().toLowerCase())
-                                .sku(variation.sku())
-                                .gtin(variation.gtin())
-                                .price(variation.price())
-                                .isPublished(productPostVm.isPublished())
-                                .parent(mainProduct).build();
-                        List<ProductImage> productVariantImageList
-                            = setProductImages(variation.productImageIds(), productVariant);
-                        allProductVariantImageList.addAll(productVariantImageList);
-                        return productVariant;
-                    })
-                    .toList();
-
-            List<Product> productsVariantsSaved = productRepository.saveAllAndFlush(productVariants);
-            productImageRepository.saveAllAndFlush(allProductVariantImageList);
-
-            List<Long> productOptionIds
-                = productPostVm.productOptionValues().stream().map(ProductOptionValuePostVm::productOptionId).toList();
-            List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
-            Map<Long, ProductOption> productOptionMap
-                = productOptions.stream().collect(Collectors.toMap(ProductOption::getId, Function.identity()));
-            List<ProductOptionValue> productOptionValues = new ArrayList<>();
-            List<ProductOptionCombination> productOptionCombinations = new ArrayList<>();
-
-            productPostVm.productOptionValues().forEach(optionValue -> optionValue.value().forEach(value -> {
-                ProductOptionValue productOptionValue = ProductOptionValue.builder()
-                        .product(mainSavedProduct)
-                        .displayOrder(optionValue.displayOrder())
-                        .displayType(optionValue.displayType())
-                        .productOption(productOptionMap.get(optionValue.productOptionId()))
-                        .value(value)
-                        .build();
-                List<ProductOptionCombination> productOptionCombinationList =
-                        productsVariantsSaved.stream()
-                                .filter(product -> product.getSlug().contains(ProductConverter.toSlug(value)))
-                                .map(mapToOptionCombination(productOptionMap, optionValue.productOptionId(), value,
-                                    optionValue.displayOrder())).toList();
-                productOptionValues.add(productOptionValue);
-                productOptionCombinations.addAll(productOptionCombinationList);
-            }));
-
-            productOptionValueRepository.saveAllAndFlush(productOptionValues);
-            productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
+        if (CollectionUtils.isEmpty(productPostVm.variations()) ||
+            CollectionUtils.isEmpty(productPostVm.productOptionValues())) {
+            return ProductGetDetailVm.fromModel(mainSavedProduct);
         }
+
+        List<ProductImage> allProductVariantImageList = new ArrayList<>();
+        List<Product> productVariants = productPostVm.variations().stream()
+            .map(variation -> {
+                Product productVariant = Product.builder()
+                    .name(variation.name())
+                    .thumbnailMediaId(variation.thumbnailMediaId())
+                    .slug(variation.slug().toLowerCase())
+                    .sku(variation.sku())
+                    .gtin(variation.gtin())
+                    .price(variation.price())
+                    .isPublished(productPostVm.isPublished())
+                    .parent(mainProduct).build();
+                List<ProductImage> productVariantImageList
+                    = setProductImages(variation.productImageIds(), productVariant);
+                allProductVariantImageList.addAll(productVariantImageList);
+                return productVariant;
+            })
+            .toList();
+
+        List<Product> productsVariantsSaved = productRepository.saveAllAndFlush(productVariants);
+        productImageRepository.saveAllAndFlush(allProductVariantImageList);
+
+        List<Long> productOptionIds
+            = productPostVm.productOptionValues().stream().map(ProductOptionValuePostVm::productOptionId).toList();
+        List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
+        Map<Long, ProductOption> productOptionMap
+            = productOptions.stream().collect(Collectors.toMap(ProductOption::getId, Function.identity()));
+        List<ProductOptionValue> productOptionValues = new ArrayList<>();
+
+        productPostVm.productOptionValues().forEach(optionValue -> optionValue.value().forEach(value -> {
+            ProductOptionValue productOptionValue = ProductOptionValue.builder()
+                .product(mainSavedProduct)
+                .displayOrder(optionValue.displayOrder())
+                .displayType(optionValue.displayType())
+                .productOption(productOptionMap.get(optionValue.productOptionId()))
+                .value(value)
+                .build();
+            productOptionValues.add(productOptionValue);
+        }));
+        productOptionValueRepository.saveAllAndFlush(productOptionValues);
+
+        // create product option combinations
+        List<ProductOptionCombination> productOptionCombinations =
+            createProductOptionCombinations(productPostVm.variations(), productsVariantsSaved, productOptionMap,
+                productOptionValues);
+        productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
 
         return ProductGetDetailVm.fromModel(mainSavedProduct);
     }
@@ -366,7 +383,7 @@ public class ProductService {
         updateExistingVariants(productPutVm, newProductImages, existingVariants);
 
         List<ProductVariationPutVm> newVariants = productPutVm.variations().stream()
-                .filter(variant -> variant.id() == null).toList();
+            .filter(variant -> variant.id() == null).toList();
 
         if (CollectionUtils.isNotEmpty(productPutVm.productOptionValues())
                 && CollectionUtils.isNotEmpty(newVariants)) {
@@ -385,11 +402,10 @@ public class ProductService {
                         return productVariant;
                     })
                     .toList();
-            List<Product> productsVariantsSaved = productRepository.saveAllAndFlush(productVariants);
+            List<Product> newSavedVariants = productRepository.saveAllAndFlush(productVariants);
             productImageRepository.saveAllAndFlush(newProductImages);
-            List<ProductOptionValue> productOptionValues = new ArrayList<>();
-            List<ProductOptionCombination> productOptionCombinations = new ArrayList<>();
 
+            List<ProductOptionValue> productOptionValues = new ArrayList<>();
             productPutVm.productOptionValues().forEach(optionValue -> optionValue.value().forEach(value -> {
                 ProductOptionValue productOptionValue = ProductOptionValue.builder()
                         .product(product)
@@ -398,17 +414,16 @@ public class ProductService {
                         .productOption(productOptionMap.get(optionValue.productOptionId()))
                         .value(value)
                         .build();
-                List<ProductOptionCombination> productOptionCombinationList =
-                        productsVariantsSaved.stream()
-                                .filter(variant -> variant.getSlug().contains(ProductConverter.toSlug(value)))
-                                .map(mapToOptionCombination(productOptionMap, optionValue.productOptionId(),
-                                    value, optionValue.displayOrder())).toList();
                 productOptionValues.add(productOptionValue);
-                productOptionCombinations.addAll(productOptionCombinationList);
             }));
-
             productOptionValueRepository.saveAllAndFlush(productOptionValues);
+
+            // create product option combinations
+            List<ProductOptionCombination> productOptionCombinations =
+                createProductOptionCombinations(newVariants, newSavedVariants, productOptionMap,
+                    productOptionValues);
             productOptionCombinationRepository.saveAllAndFlush(productOptionCombinations);
+
             product.setHasOptions(CollectionUtils.isNotEmpty(existingVariants)
                     && CollectionUtils.isNotEmpty(productOptionValues));
         }
@@ -814,8 +829,8 @@ public class ProductService {
             return productVariations.stream().map(product -> {
                 List<ProductOptionCombination> productOptionCombinations =
                         productOptionCombinationRepository.findAllByProduct(product);
-                Map<String, String> options = productOptionCombinations.stream().collect(Collectors.toMap(
-                        productOptionCombination -> productOptionCombination.getProductOption().getName(),
+                Map<Long, String> options = productOptionCombinations.stream().collect(Collectors.toMap(
+                        productOptionCombination -> productOptionCombination.getProductOption().getId(),
                         ProductOptionCombination::getValue
                 ));
                 return new ProductVariationGetVm(
