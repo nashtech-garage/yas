@@ -50,7 +50,10 @@ public class CountryService {
 
     @Transactional
     public Country create(final CountryPostVm countryPostVm) {
-        if (countryRepository.existsByName(countryPostVm.name())) {
+        if (countryRepository.existsByCode2IgnoreCase(countryPostVm.code2())) {
+            throw new DuplicatedException(Constants.ErrorCode.CODE_ALREADY_EXISTED, countryPostVm.code2());
+        }
+        if (countryRepository.existsByNameIgnoreCase(countryPostVm.name())) {
             throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, countryPostVm.name());
         }
         return countryRepository.save(countryMapper.toCountryFromCountryPostViewModel(countryPostVm));

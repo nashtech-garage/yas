@@ -8,6 +8,7 @@ public final class Constants {
         public static final String NAME_ALREADY_EXITED = "NAME_ALREADY_EXITED";
         public static final String STATE_OR_PROVINCE_NOT_FOUND = "STATE_OR_PROVINCE_NOT_FOUND";
         public static final String ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND";
+        public static final String CODE_ALREADY_EXISTED = "CODE_ALREADY_EXISTED";
     }
 
     public final class PageableConstant {
