@@ -241,7 +241,8 @@ public class ProductService {
             variationVm.optionValuesByOptionId().forEach((optionId, optionValue) -> {
                 ProductOption productOption = optionsById.get(optionId);
                 ProductOptionValue foundOptionValue = optionValues.stream()
-                    .filter(pov -> pov.getProductOption().getId().equals(optionId) && pov.getValue().equals(optionValue))
+                    .filter(
+                        pov -> pov.getProductOption().getId().equals(optionId) && pov.getValue().equals(optionValue))
                     .findFirst()
                     .orElseThrow(()
                         -> new BadRequestException(Constants.ErrorCode.PRODUCT_OPTION_VALUE_IS_NOT_FOUND, optionValue));
@@ -308,8 +309,8 @@ public class ProductService {
         }
 
         // save product variations and their images
-        if (CollectionUtils.isEmpty(productPostVm.variations()) ||
-            CollectionUtils.isEmpty(productPostVm.productOptionValues())) {
+        if (CollectionUtils.isEmpty(productPostVm.variations())
+            || CollectionUtils.isEmpty(productPostVm.productOptionValues())) {
             return ProductGetDetailVm.fromModel(savedMainProduct);
         }
 
@@ -332,7 +333,7 @@ public class ProductService {
             })
             .toList();
 
-        List<Product> savedVariations = productRepository.saveAllAndFlush(productVariations);
+        final List<Product> savedVariations = productRepository.saveAllAndFlush(productVariations);
         productImageRepository.saveAllAndFlush(allVariationImages);
 
         // save product option values and option combinations
@@ -411,7 +412,7 @@ public class ProductService {
                         return newVariation;
                     })
                     .toList();
-            List<Product> newSavedVariants = productRepository.saveAllAndFlush(newVariations);
+            final List<Product> newSavedVariants = productRepository.saveAllAndFlush(newVariations);
             productImageRepository.saveAllAndFlush(allVariationImages);
 
             // add new option values
