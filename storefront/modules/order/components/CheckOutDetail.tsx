@@ -8,13 +8,24 @@ type Props = {
   disablePaymentProcess: boolean;
 };
 
-const paymentProviders = await getEnabledPaymentProviders();
-
 const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [disableCheckout, setDisableCheckout] = useState<boolean>(true);
   const [selectedPayment, setSelectedPayment] = useState<number | null>(null);
+  const [paymentProviders, setPaymentProviders] = useState([]);
 
+  useEffect(() => {
+    const fetchPaymentProviders = async () => {
+      try {
+        const providers = await getEnabledPaymentProviders();
+        setPaymentProviders(providers);
+      } catch (error) {
+        console.error('Error fetching payment providers:', error);
+      }
+    };
+
+    fetchPaymentProviders();
+  }, []);
   useEffect(() => {
     const totalPrice = orderItems
       .map((item) => calculateProductPrice(item))
@@ -72,7 +83,7 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
                     <label>
                       <input
                         type="radio"
-                        name="payment-method"
+                        name="paymentMethod"
                         value={payment.id}
                         checked={selectedPayment === payment.id}
                         onChange={() => paymentProviderChange(payment.id)}
