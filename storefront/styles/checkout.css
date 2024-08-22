@@ -195,6 +195,26 @@
   color: #dd2222;
 }
 
+.checkout__order .checkout__order__payment__providers .payment__provider__item {
+  padding: 20px 10px;
+  border: 2px solid #e1e1e1;
+  margin-bottom: 10px;
+  border-radius: .2rem;
+}
+
+.checkout__order .checkout__order__payment__providers .payment__provider__item:hover {
+  border: 2px solid #0d6efd;
+}
+
+.checkout__order .checkout__order__payment__providers .payment__provider__item input {
+  margin-right: 5px;
+}
+
+.checkout__order .checkout__order__payment__providers .payment__provider__item label {
+  display: flex;
+  text-transform: capitalize;
+}
+
 .checkout__order button {
   font-size: 18px;
   letter-spacing: 2px;

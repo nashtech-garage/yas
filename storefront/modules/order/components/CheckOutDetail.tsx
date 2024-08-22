@@ -1,4 +1,5 @@
 import { formatPrice } from '@/utils/formatPrice';
+import { getEnabledPaymentProviders } from '../../payment/services/PaymentProviderService';
 import { OrderItem } from '../models/OrderItem';
 import { useEffect, useState } from 'react';
 
@@ -7,9 +8,12 @@ type Props = {
   disablePaymentProcess: boolean;
 };
 
+const paymentProviders = await getEnabledPaymentProviders();
+
 const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [disableCheckout, setDisableCheckout] = useState<boolean>(true);
+  const [selectedPayment, setSelectedPayment] = useState<number | null>(null);
 
   useEffect(() => {
     const totalPrice = orderItems
@@ -20,6 +24,10 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
 
   const calculateProductPrice = (item: OrderItem) => {
     return item.productPrice * item.quantity;
+  };
+
+  const paymentProviderChange = (paymentId: number) => {
+     setSelectedPayment(paymentId);
   };
 
   const handleAgreeTerms = (e: any) => {
@@ -56,6 +64,23 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
         </div>
         <div className="checkout__order__total">
           Total <span>{formatPrice(totalPrice)}</span>
+        </div>
+        <div className="checkout__order__payment__providers">
+          <h4>Payment Method Options</h4>
+          {paymentProviders.map((payment) => (
+                  <div className="payment__provider__item" key={payment.id}>
+                    <label>
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        value={payment.id}
+                        checked={selectedPayment === payment.id}
+                        onChange={() => paymentProviderChange(payment.id)}
+                      />
+                      {payment.name}
+                    </label>
+                  </div>
+                ))}
         </div>
         <div className="checkout__input__checkbox">
           <label htmlFor="acc-or">
