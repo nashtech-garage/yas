@@ -1,14 +1,13 @@
-package com.yas.tax.integration.service;
+package com.yas.tax.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 
-import com.yas.tax.integration.config.IntegrationTestConfiguration;
+import com.yas.tax.config.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.model.TaxRate;
 import com.yas.tax.repository.TaxClassRepository;
 import com.yas.tax.repository.TaxRateRepository;
-import com.yas.tax.service.TaxRateService;
 import com.yas.tax.viewmodel.taxrate.TaxRateVm;
 import java.util.List;
 import org.instancio.Instancio;
@@ -24,7 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class TaxRateServiceIntegrationTest {
+class TaxRateServiceIT {
     @Autowired
     TaxRateRepository taxRateRepository;
 

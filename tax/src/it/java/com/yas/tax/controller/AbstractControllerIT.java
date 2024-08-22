@@ -1,4 +1,4 @@
-package com.yas.tax.integration.controller;
+package com.yas.tax.controller;
 
 import static io.restassured.RestAssured.given;
 

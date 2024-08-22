@@ -1,4 +1,4 @@
-package com.yas.tax.integration.controller;
+package com.yas.tax.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.comparesEqualTo;
@@ -6,7 +6,7 @@ import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.yas.tax.integration.config.IntegrationTestConfiguration;
+import com.yas.tax.config.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.model.TaxRate;
 import com.yas.tax.repository.TaxClassRepository;
@@ -26,13 +26,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
+// @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class TaxRateControllerIntegrationTest extends AbstractControllerIT {
+class TaxRateControllerIT extends AbstractControllerIT {
 
     @Autowired
     TaxRateRepository taxRateRepository;
@@ -45,6 +44,8 @@ class TaxRateControllerIntegrationTest extends AbstractControllerIT {
 
     TaxClass taxClass;
     TaxRate taxRate;
+
+    final String API_URL = "/v1/backoffice/tax-rates";
 
     @BeforeEach
     void setUp() {

@@ -1,4 +1,4 @@
-package com.yas.tax.integration.config;
+package com.yas.tax.config;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.springframework.boot.test.context.TestConfiguration;

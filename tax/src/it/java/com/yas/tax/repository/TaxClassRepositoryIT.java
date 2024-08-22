@@ -1,10 +1,9 @@
-package com.yas.tax.integration.repository;
+package com.yas.tax.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.yas.tax.integration.config.IntegrationTestConfiguration;
+import com.yas.tax.config.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
-import com.yas.tax.repository.TaxClassRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,13 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
-@Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class TaxClassRepositoryIntegrationTest {
+class TaxClassRepositoryIT {
 
     @Autowired
     private TaxClassRepository taxClassRepository;

@@ -1,4 +1,4 @@
-package com.yas.tax.integration.controller;
+package com.yas.tax.controller;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 
 import com.yas.tax.constants.PageableConstant;
-import com.yas.tax.integration.config.IntegrationTestConfiguration;
+import com.yas.tax.config.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.repository.TaxClassRepository;
 import com.yas.tax.repository.TaxRateRepository;
@@ -22,13 +22,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
+//Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class TaxClassControllerIntegrationTest extends AbstractControllerIT{
+class TaxClassControllerIT extends AbstractControllerIT{
     @Autowired
     TaxClassRepository taxClassRepository;
     @Autowired
