@@ -1,6 +1,6 @@
 package com.yas.webhook.model;
 
-import com.yas.webhook.model.enumeration.EventName;
+import com.yas.webhook.model.enums.EventName;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

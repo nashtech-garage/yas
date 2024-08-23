@@ -5,9 +5,11 @@ import com.yas.webhook.config.constants.MessageCode;
 import com.yas.webhook.config.exception.NotFoundException;
 import com.yas.webhook.model.Event;
 import com.yas.webhook.model.WebhookEvent;
-import com.yas.webhook.model.enumeration.EventName;
-import com.yas.webhook.model.enumeration.Operation;
+import com.yas.webhook.model.dto.WebhookEventNotificationDto;
+import com.yas.webhook.model.enums.EventName;
+import com.yas.webhook.model.enums.Operation;
 import com.yas.webhook.repository.EventRepository;
+import com.yas.webhook.repository.WebhookEventNotificationRepository;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,10 +18,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class OrderEventService {
+public class OrderEventService extends AbstractWebhookEventNotificationService {
 
     private final EventRepository eventRepository;
     private final WebhookService webhookService;
+    private final WebhookEventNotificationRepository webhookEventNotificationRepository;
 
     public void onOrderEvent(JsonNode updatedEvent) {
         Optional<EventName> optionalEventName = getEventName(updatedEvent);
@@ -28,11 +31,12 @@ public class OrderEventService {
                     .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, optionalEventName.get()));
             List<WebhookEvent> hookEvents = event.getWebhookEvents();
             hookEvents.forEach(hookEvent -> {
-                String url = hookEvent.getWebhook().getPayloadUrl();
-                String secret = hookEvent.getWebhook().getSecret();
                 JsonNode payload = updatedEvent.get("after");
+                Long notificationId = super.persistNotification(hookEvent.getId(), payload);
 
-                webhookService.notifyToWebhook(url, secret, payload);
+                WebhookEventNotificationDto dto = super.createNotificationDto(hookEvent, payload,
+                    notificationId);
+                webhookService.notifyToWebhook(dto);
             });
         }
     }
@@ -50,5 +54,10 @@ public class OrderEventService {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    protected WebhookEventNotificationRepository getWebhookEventNotificationRepository() {
+        return webhookEventNotificationRepository;
     }
 }
