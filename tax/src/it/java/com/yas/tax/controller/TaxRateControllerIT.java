@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-// @Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TaxRateControllerIT extends AbstractControllerIT {
@@ -45,7 +44,9 @@ class TaxRateControllerIT extends AbstractControllerIT {
     TaxClass taxClass;
     TaxRate taxRate;
 
-    final String API_URL = "/v1/backoffice/tax-rates";
+    final String TAX_RATE_URL = "/v1/backoffice/tax-rates";
+    final String TAX_RATE_PERCENT_URL = "/v1/backoffice/tax-rates/tax-percent";
+    final String TAX_RATE_PAGING_URL = "/v1/backoffice/tax-rates/paging";
 
     @BeforeEach
     void setUp() {
@@ -65,7 +66,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
     void test_getTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .when()
-            .get("/v1/backoffice/tax-rates" + taxRate.getId().toString())
+            .get(TAX_RATE_URL+"/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .log().ifValidationFails();
@@ -76,7 +77,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-rates/" + taxRate.getId().toString())
+            .get(TAX_RATE_URL + "/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("id", comparesEqualTo(Integer.valueOf(taxRate.getId().toString())))
@@ -90,7 +91,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-rates/" + wrongId)
+            .get(TAX_RATE_URL + "/" + wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -103,7 +104,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
 
         RestAssured.given(getRequestSpecification())
             .body(body)
-            .post("/v1/backoffice/tax-rates")
+            .post(TAX_RATE_URL)
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .log().ifValidationFails();
@@ -117,7 +118,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .post("/v1/backoffice/tax-rates")
+            .post(TAX_RATE_URL)
             .then()
             .statusCode(HttpStatus.CREATED.value())
             .log().ifValidationFails();
@@ -132,7 +133,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .post("/v1/backoffice/tax-rates")
+            .post(TAX_RATE_URL)
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .log().ifValidationFails();
@@ -147,7 +148,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .post("/v1/backoffice/tax-rates")
+            .post(TAX_RATE_URL)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -160,7 +161,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
 
         RestAssured.given(getRequestSpecification())
             .body(body)
-            .put("/v1/backoffice/tax-rates/"+taxRate.getId().toString())
+            .put(TAX_RATE_URL + "/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .log().ifValidationFails();
@@ -174,7 +175,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-rates/"+taxRate.getId().toString())
+            .put(TAX_RATE_URL + "/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .log().ifValidationFails();
@@ -188,7 +189,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-rates/"+Instancio.create(Integer.class).toString())
+            .put(TAX_RATE_URL + "/" + Instancio.create(Integer.class))
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -203,7 +204,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-rates/"+taxRate.getId().toString())
+            .put(TAX_RATE_URL + "/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .log().ifValidationFails();
@@ -218,7 +219,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-rates/"+taxRate.getId().toString())
+            .put(TAX_RATE_URL + "/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -228,7 +229,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
     void test_deleteTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .when()
-            .delete("/v1/backoffice/tax-rates" + taxRate.getId().toString())
+            .delete(TAX_RATE_URL + "/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .log().ifValidationFails();
@@ -239,7 +240,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .delete("/v1/backoffice/tax-rates/" + taxRate.getId().toString())
+            .delete(TAX_RATE_URL + "/" + taxRate.getId())
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .log().ifValidationFails();
@@ -252,7 +253,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .delete("/v1/backoffice/tax-rates/" + wrongId)
+            .delete(TAX_RATE_URL + "/" + wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -262,7 +263,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
     void test_getPagedTaxRate_shouldReturn401_whenNotGivenAccessToken() {
         RestAssured.given(getRequestSpecification())
             .when()
-            .get("/v1/backoffice/tax-rates/paging")
+            .get(TAX_RATE_PAGING_URL)
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .log().ifValidationFails();
@@ -280,7 +281,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-rates/paging")
+            .get(TAX_RATE_PAGING_URL)
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("pageNo", equalTo(0))
@@ -303,7 +304,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-rates/paging")
+            .get(TAX_RATE_PAGING_URL)
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("pageNo", equalTo(0))
@@ -321,7 +322,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
             .param("zipCode", taxRate.getZipCode())
             .when()
-            .get("/v1/backoffice/tax-rates/tax-percent")
+            .get(TAX_RATE_PERCENT_URL)
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .log().ifValidationFails();
@@ -336,7 +337,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
             .param("zipCode", taxRate.getZipCode())
             .when()
-            .get("/v1/backoffice/tax-rates/tax-percent")
+            .get(TAX_RATE_PERCENT_URL)
             .then()
             .statusCode(HttpStatus.OK.value())
             .log().ifValidationFails();
@@ -348,7 +349,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .auth().oauth2(getAccessToken("admin", "admin"))
             .param("taxClassId", taxRate.getTaxClass().getId())
             .when()
-            .get("/v1/backoffice/tax-rates/tax-percent")
+            .get(TAX_RATE_PERCENT_URL)
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .log().ifValidationFails();
@@ -360,7 +361,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .auth().oauth2(getAccessToken("admin", "admin"))
             .param("countryId", taxRate.getCountryId())
             .when()
-            .get("/v1/backoffice/tax-rates/tax-percent")
+            .get(TAX_RATE_PERCENT_URL)
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .log().ifValidationFails();
@@ -377,7 +378,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .param("taxClassId", taxRate.getTaxClass().getId())
             .param("countryId", Instancio.create(Integer.class))
             .when()
-            .get("/v1/backoffice/tax-rates/tax-percent")
+            .get(TAX_RATE_PERCENT_URL)
             .then()
             .statusCode(HttpStatus.OK.value())
             .body(".", comparesEqualTo(0.0F))

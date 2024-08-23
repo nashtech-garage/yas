@@ -24,10 +24,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TaxClassControllerIT extends AbstractControllerIT{
+    final String TAX_CLASS_BASE_URL="/v1/backoffice/tax-classes";
+    final String TAX_CLASS_PAGING_URL="/v1/backoffice/tax-classes/paging";
     @Autowired
     TaxClassRepository taxClassRepository;
     @Autowired
@@ -51,7 +52,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-classes")
+            .get(TAX_CLASS_BASE_URL)
             .then()
             .statusCode(HttpStatus.OK.value())
             .body(".", hasSize(1))
@@ -62,7 +63,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
     void test_findAllTaxClass_shouldReturn401_whenNotGivenAccessToken(){
         RestAssured.given(getRequestSpecification())
             .when()
-            .get("/v1/backoffice/tax-classes")
+            .get(TAX_CLASS_BASE_URL)
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .log().ifValidationFails();
@@ -72,7 +73,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
     void test_getTaxClass_shouldReturn401_whenUnauthenticated(){
         RestAssured.given(getRequestSpecification())
             .when()
-            .get("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .get(TAX_CLASS_BASE_URL + "/" + taxClass.getId())
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .log().ifValidationFails();
@@ -83,7 +84,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .get(TAX_CLASS_BASE_URL + "/" + taxClass.getId())
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("name", equalTo(taxClass.getName()))
@@ -96,7 +97,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-classes/"+wrongId)
+            .get(TAX_CLASS_BASE_URL + "/" + wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -106,7 +107,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
     void test_getPagedTaxClass_shouldReturn401_whenNotGivenAccessToken(){
         RestAssured.given(getRequestSpecification())
             .when()
-            .get("/v1/backoffice/tax-classes/paging")
+            .get(TAX_CLASS_PAGING_URL)
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
             .log().ifValidationFails();
@@ -117,7 +118,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
-            .get("/v1/backoffice/tax-classes/paging")
+            .get(TAX_CLASS_PAGING_URL)
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("pageNo", equalTo(Integer.valueOf(PageableConstant.DEFAULT_PAGE_NUMBER)))
@@ -132,7 +133,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class).create();
         RestAssured.given(getRequestSpecification())
             .body(body)
-            .post("/v1/backoffice/tax-classes")
+            .post(TAX_CLASS_BASE_URL)
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .log().ifValidationFails();
@@ -144,7 +145,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .post("/v1/backoffice/tax-classes")
+            .post(TAX_CLASS_BASE_URL)
             .then()
             .statusCode(HttpStatus.CREATED.value())
             .log().ifValidationFails();
@@ -157,7 +158,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .post("/v1/backoffice/tax-classes")
+            .post(TAX_CLASS_BASE_URL)
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .log().ifValidationFails();
@@ -172,7 +173,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
 
         RestAssured.given(getRequestSpecification())
             .body(body)
-            .put("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .put(TAX_CLASS_BASE_URL + "/" + taxClass.getId())
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .log().ifValidationFails();
@@ -186,7 +187,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .put(TAX_CLASS_BASE_URL + "/" + taxClass.getId())
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .log().ifValidationFails();
@@ -205,7 +206,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-classes/"+wrongId)
+            .put(TAX_CLASS_BASE_URL + "/" + wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
@@ -221,7 +222,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .body(body)
-            .put("/v1/backoffice/tax-classes/"+anotherClass.getId().toString())
+            .put(TAX_CLASS_BASE_URL + "/" + anotherClass.getId())
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .log().ifValidationFails();
@@ -230,7 +231,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
     @Test
     void test_deleteTaxClass_shouldReturn403_whenGivenAccessTokenAndExistedName() {
         RestAssured.given(getRequestSpecification())
-            .delete("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .delete(TAX_CLASS_BASE_URL + "/" + taxClass.getId())
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
             .log().ifValidationFails();
@@ -240,7 +241,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
     void test_deleteTaxClass_shouldReturn204_whenGivenAccessTokenAndCorrectId() {
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
-            .delete("/v1/backoffice/tax-classes/"+taxClass.getId().toString())
+            .delete(TAX_CLASS_BASE_URL + "/" + taxClass.getId())
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
             .log().ifValidationFails();
@@ -252,7 +253,7 @@ class TaxClassControllerIT extends AbstractControllerIT{
 
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
-            .delete("/v1/backoffice/tax-classes/"+wrongId)
+            .delete(TAX_CLASS_BASE_URL + "/" + wrongId)
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
