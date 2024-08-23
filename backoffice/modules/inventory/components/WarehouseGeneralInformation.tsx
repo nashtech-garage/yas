@@ -1,17 +1,15 @@
-import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
-import { CheckBox } from 'common/items/Input';
-import { useEffect, useState } from 'react';
-import { Input } from 'common/items/Input';
-import { WarehouseDetail } from '../models/WarehouseDetail';
+import { OptionSelect } from '@commonItems/OptionSelect';
 import { Country } from '@locationModels/Country';
+import { District } from '@locationModels/District';
 import { StateOrProvince } from '@locationModels/StateOrProvince';
 import { getCountries } from '@locationServices/CountryService';
-import { getTaxClasses } from '@taxServices/TaxClassService';
-import { getStatesOrProvinces } from '@locationServices/StateOrProvinceService';
-import { OptionSelect } from '@commonItems/OptionSelect';
-import { District } from '@locationModels/District';
-import { useRouter } from 'next/router';
 import { getDistricts } from '@locationServices/DistrictService';
+import { getStatesOrProvinces } from '@locationServices/StateOrProvinceService';
+import { Input } from 'common/items/Input';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
+import { WarehouseDetail } from '../models/WarehouseDetail';
 
 type Props = {
   register: UseFormRegister<WarehouseDetail>;
@@ -54,7 +52,7 @@ const WarehouseGeneralInformation = ({
 
   const onCountryChange = async (event: any) => {
     getStatesOrProvinces(event.target.value).then((data) => {
-      setStatesOrProvinces(data);
+      setStatesOrProvinces(Array.isArray(data) ? data : [data]);
       getDistricts(event.target.value).then((data) => {
         if (data) {
           setDistricts(data);
