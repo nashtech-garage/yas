@@ -17,11 +17,11 @@ export async function updateCustomer(profile: ProfileRequest) {
 
   if (response.status >= 200 && response.status < 300) {
     const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      return await response.json();
-    } else {
-      return;
-    }
+      if (contentType?.includes('application/json')) {
+        return await response.json();
+      } else {
+        return;
+      }
   }
 
   return Promise.reject(response.status);
