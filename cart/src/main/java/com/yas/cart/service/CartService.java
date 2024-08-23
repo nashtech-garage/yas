@@ -54,7 +54,7 @@ public class CartService {
         List<Long> productIds = cartItemVms.stream().map(CartItemVm::productId).toList();
         List<ProductThumbnailVm> productThumbnailVmList = productService.getProducts(productIds);
         if (productThumbnailVmList.size() != productIds.size()) {
-            throw new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT);
+            throw new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT, productIds);
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
