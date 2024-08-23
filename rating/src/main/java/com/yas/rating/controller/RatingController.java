@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RatingController {
+
     private final RatingService ratingService;
 
     public RatingController(RatingService ratingService) {
@@ -32,7 +33,11 @@ public class RatingController {
             @RequestParam(value = "message", defaultValue = "", required = false) String message,
             @RequestParam(value = "createdFrom", defaultValue = "1970-01-01T00:00:00.000Z", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
-            @RequestParam(value = "createdTo", defaultValue = "#{T(java.time.ZonedDateTime).now().toString()}", required = false)
+            @RequestParam(
+                    value = "createdTo",
+                    defaultValue = "#{T(java.time.ZonedDateTime).now().toString()}",
+                    required = false
+            )
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize) {
