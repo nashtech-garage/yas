@@ -23,8 +23,7 @@ public class Media {
 
     private String fileName;
 
-    @Lob
-    private byte[] data;
+    private String filePath;
 
     private String mediaType;
 }
