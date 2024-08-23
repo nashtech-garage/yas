@@ -83,6 +83,7 @@ public class ApiExceptionHandler {
     protected ResponseEntity<ErrorVm> handleInternalServerErrorException(InternalServerErrorException e) {
         ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
             HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage());
+        log.error("Internal server error exception: ", e);
         return ResponseEntity.internalServerError().body(errorVm);
     }
 
