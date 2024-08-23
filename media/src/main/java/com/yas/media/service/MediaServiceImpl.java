@@ -9,6 +9,7 @@ import com.yas.media.model.dto.MediaDto;
 import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;
 import com.yas.media.repository.FileSystemRepository;
 import com.yas.media.repository.MediaRepository;
+import com.yas.media.utils.StringUtils;
 import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
@@ -17,7 +18,6 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RequiredArgsConstructor
@@ -39,8 +39,8 @@ public class MediaServiceImpl implements MediaService {
         media.setCaption(mediaPostVm.caption());
         media.setMediaType(mediaPostVm.multipartFile().getContentType());
 
-        if (StringUtils.hasText(mediaPostVm.fileNameOverride().trim())) {
-            media.setFileName(mediaPostVm.fileNameOverride());
+        if (StringUtils.hasText(mediaPostVm.fileNameOverride())) {
+            media.setFileName(mediaPostVm.fileNameOverride().trim());
         } else {
             media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
         }
