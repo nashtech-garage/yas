@@ -138,6 +138,19 @@ public class CountryServiceTest {
     }
 
     @Test
+    void updateCountry_WithCodeExisted_ThrowsCodeAlreadyExistedException() {
+        generateTestData();
+        CountryPostVm countryPostVm = CountryPostVm.builder()
+            .code2("tW")
+            .name("country-1")
+            .build();
+        Long country1Id = country1.getId();
+        DuplicatedException exception =
+            assertThrows(DuplicatedException.class, () -> countryService.update(countryPostVm, country1Id));
+        assertEquals(String.format("The code %s is already existed", "tW"), exception.getMessage());
+    }
+
+    @Test
     void deleteCountry_WithValidId_Success() {
         generateTestData();
         countryService.delete(country1.getId());

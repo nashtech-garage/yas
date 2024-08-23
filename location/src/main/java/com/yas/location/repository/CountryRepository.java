@@ -18,8 +18,19 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
                    ELSE FALSE
                 END
          FROM Country c
-         WHERE c.name = ?1
+         WHERE LOWER(c.name) = LOWER(?1)
          AND c.id != ?2
         """)
     boolean existsByNameNotUpdatingCountry(String name, Long id);
+
+    @Query("""
+         SELECT CASE
+                   WHEN count(1)> 0 THEN TRUE
+                   ELSE FALSE
+                END
+         FROM Country c
+         WHERE LOWER(c.code2) = LOWER(?1)
+         AND c.id != ?2
+        """)
+    boolean existsByCode2NotUpdatingCountry(String code, Long id);
 }
