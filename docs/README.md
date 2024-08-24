@@ -5,7 +5,7 @@ https://github.com/nashtech-garage/yas
 ## Table of Contents
 
 - [Repo setup](#repo-setup)
-- [Continous Interation](#continous-interation)
+- [Continuous Interation](#continuous-interation)
 - [Authentication and Authorization](#authentication-and-authorization)
 - [Local development with docker compose](#local-development-with-docker-compose)
 - [Observability](#observability)
@@ -19,7 +19,7 @@ https://github.com/nashtech-garage/yas
 
 The source code of the Yas project is publicly hosted on GitHub as a monorepo, where each microservice has its own folder. There are two common ways to organize the source code for microservices projects: multi-repos and monorepo. Multi-repos means that each microservice has its own repository, while monorepo means that all microservices share a single repository. We chose monorepo for simplicity, as it allows us to have a single issue tracker for the entire project. Some features or bugs may require code changes in multiple microservices, and with monorepo we can make a single commit that covers them all. The code is visible to everyone, so we do not need a separate access control for each microservice.
 
-## Continous Interation
+## Continuous Interation
 
 In Yas, we use GitHub Actions to build the continuous integration pipeline. It is totally free for open-source project. All the GitHub Actions workflows are put in `/.github/workflows` folder. Each micro-services will have its own workflow. Let look at the first part of the typical workflow: product
 
