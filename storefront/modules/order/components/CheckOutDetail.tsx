@@ -6,13 +6,14 @@ import { useEffect, useState } from 'react';
 type Props = {
   orderItems: OrderItem[];
   disablePaymentProcess: boolean;
+  setPaymentMethod: null;
 };
 
-const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
+const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }: Props) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [disableCheckout, setDisableCheckout] = useState<boolean>(true);
-  const [selectedPayment, setSelectedPayment] = useState<number | null>(null);
   const [paymentProviders, setPaymentProviders] = useState([]);
+  const [selectedPayment, setSelectedPayment] = useState(null);
 
   useEffect(() => {
     const fetchPaymentProviders = async () => {
@@ -26,6 +27,18 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
 
     fetchPaymentProviders();
   }, []);
+
+  useEffect(() => {
+      if (paymentProviders.length > 0 && selectedPayment === null) {
+          setSelectedPayment(paymentProviders[0].id);
+     }
+  }, [paymentProviders]);
+
+  const paymentProviderChange = (id) => {
+      setSelectedPayment(selectedPayment === id ? null : id);
+      setPaymentMethod(selectedPayment === id ? null : id);
+  };
+
   useEffect(() => {
     const totalPrice = orderItems
       .map((item) => calculateProductPrice(item))
@@ -35,10 +48,6 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
 
   const calculateProductPrice = (item: OrderItem) => {
     return item.productPrice * item.quantity;
-  };
-
-  const paymentProviderChange = (paymentId: number) => {
-     setSelectedPayment(paymentId);
   };
 
   const handleAgreeTerms = (e: any) => {
@@ -77,18 +86,19 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
           Total <span>{formatPrice(totalPrice)}</span>
         </div>
         <div className="checkout__order__payment__providers">
-          <h4>Payment Method Options</h4>
-          {paymentProviders.map((payment) => (
-                  <div className="payment__provider__item" key={payment.id}>
+          <h4>Payment Method</h4>
+          {paymentProviders.map((provider) => (
+                  <div className={`payment__provider__item ${setSelectedPayment === provider.id ? 'payment__provider__item__active' : ''}`}
+                       key={provider.id}>
                     <label>
                       <input
                         type="radio"
                         name="paymentMethod"
-                        value={payment.id}
-                        checked={selectedPayment === payment.id}
-                        onChange={() => paymentProviderChange(payment.id)}
+                        value={provider.id}
+                        checked={selectedPayment === provider.id}
+                        onChange={() => paymentProviderChange(provider.id)}
                       />
-                      {payment.name}
+                      {provider.name}
                     </label>
                   </div>
                 ))}

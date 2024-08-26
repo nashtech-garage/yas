@@ -73,6 +73,7 @@ const Checkout = () => {
   const [showModalBilling, setModalBilling] = useState<boolean>(false);
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   const [disableProcessPayment, setDisableProcessPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(null);
   const handleCloseModalShipping = () => {
     if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
     setModalShipping(false);
@@ -178,6 +179,11 @@ const Checkout = () => {
     }
 
     if (isValidate) {
+      if (paymentMethod.toUpperCase() == 'CODPAYMENT') {
+        setIsShowSpinner(false);
+        setDisableProcessPayment(false);
+        toast.error('COD payment feature is under construction');
+      }
       order.checkoutId = id as string;
       order.email = checkout?.email!;
       order.note = data.note;
@@ -191,14 +197,14 @@ const Checkout = () => {
       order.deliveryFee = 0;
       order.couponCode = '';
       order.deliveryMethod = 'YAS_EXPRESS';
-      order.paymentMethod = 'COD';
+      order.paymentMethod = paymentMethod;
       order.paymentStatus = 'PENDING';
       order.orderItemPostVms = orderItems;
       setIsShowSpinner(true);
       setDisableProcessPayment(true);
       createOrder(order)
         .then(() => {
-          redirectToPaypal(order);
+          handleCheckOutProcess(order);
         })
         .catch(() => {
           setIsShowSpinner(false);
@@ -206,6 +212,26 @@ const Checkout = () => {
           toast.error('Place order failed');
         });
     }
+  };
+
+  const handleCheckOutProcess = async (order: Order) => {
+      const paymentMethod = order.paymentMethod ?? '';
+      switch(paymentMethod.toUpperCase()) {
+        case 'CODPAYMENT':
+          processCodPayment(order);
+          break;
+        case 'PAYPALPAYMENT':
+          redirectToPaypal(order);
+          break;
+        default:
+          setIsShowSpinner(false);
+          setDisableProcessPayment(false);
+          toast.error('Place order failed');
+      }
+  };
+
+  const processCodPayment = async (order: Order) => {
+    // TODO: handle COD Payment
   };
 
   const redirectToPaypal = async (order: Order) => {
@@ -333,6 +359,7 @@ const Checkout = () => {
                     <CheckOutDetail
                       orderItems={orderItems}
                       disablePaymentProcess={disableProcessPayment}
+                      setPaymentMethod={setPaymentMethod}
                     />
                   </div>
                 </div>

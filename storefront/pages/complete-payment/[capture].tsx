@@ -24,6 +24,7 @@ const CompletePayment = () => {
   const router = useRouter();
   const { token } = router.query;
   const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
+  const [isCODSuccess, setIsCODSuccess] = useState(false);
   const [isAlreadyPaid, setIsAlreadyPaid] = useState(false);
   const [isCancelPayment, setIsCancelPayment] = useState(false);
   const [isPaymentUnsuccessful, setIsPaymentUnsuccessful] = useState(false);
@@ -33,6 +34,7 @@ const CompletePayment = () => {
       fetchCapturePaymentPaypal(token as string).then();
     }
   }, [router.query]);
+
   const fetchCapturePaymentPaypal = async (token: string) => {
     setIsShowSpinner(true);
     const res = await capturePaymentPaypal(token);
@@ -72,6 +74,11 @@ const CompletePayment = () => {
                 <div hidden={!isPaymentSuccess} className="payment-success">
                   <h1>
                     <i className="bi bi-check2"></i> YOUR ORDER PAID SUCCESSFUL
+                  </h1>
+                </div>
+                <div hidden={!isCODSuccess} className="payment-success">
+                  <h1>
+                    <i className="bi bi-check2"></i> YOUR ORDER WAS SUCCESSFULLY PLACED
                   </h1>
                 </div>
                 <div hidden={!isCancelPayment} className="payment-fail">
