@@ -179,9 +179,10 @@ const Checkout = () => {
     }
 
     if (isValidate) {
-      if (paymentMethod && paymentMethod.toUpperCase() === 'CODPAYMENT') {
-        setIsShowSpinner(false);
-        setDisableProcessPayment(false);
+      if (!paymentMethod) {
+          toast.error('Please choose payment method!');
+      }
+      if (paymentMethod.toUpperCase() === 'CODPAYMENT') {
         toast.error('COD payment feature is under construction');
       }
       order.checkoutId = id as string;
