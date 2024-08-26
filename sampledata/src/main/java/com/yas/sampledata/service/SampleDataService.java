@@ -11,13 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class SampleDataService {
-    @Autowired
-    @Qualifier("productDataSource")
-    private DataSource productDataSource;
+    private final DataSource productDataSource;
+    private final DataSource mediaDataSource;
 
     @Autowired
-    @Qualifier("mediaDataSource")
-    private DataSource mediaDataSource;
+    public SampleDataService(@Qualifier("productDataSource") DataSource productDataSource,
+                     @Qualifier("mediaDataSource") DataSource mediaDataSource) {
+        this.productDataSource = productDataSource;
+        this.mediaDataSource = mediaDataSource;
+    }
 
     public SampleDataVm createSampleData() {
         SqlScriptExecutor executor = new SqlScriptExecutor();
