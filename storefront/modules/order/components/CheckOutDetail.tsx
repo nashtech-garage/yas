@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 type Props = {
   orderItems: OrderItem[];
   disablePaymentProcess: boolean;
-  setPaymentMethod: null;
+  setPaymentMethod: (method: string | null) => void;
 };
 
 const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }: Props) => {
