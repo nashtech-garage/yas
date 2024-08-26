@@ -352,10 +352,7 @@ public class ProductService {
         setProductBrand(productPutVm.brandId(), product);
 
         // update product categories
-        List<ProductCategory> newProductCategories = setProductCategories(productPutVm.categoryIds(), product);
-        List<ProductCategory> oldProductCategories = productCategoryRepository.findAllByProductId(productId);
-        productCategoryRepository.deleteAllInBatch(oldProductCategories);
-        productCategoryRepository.saveAllAndFlush(newProductCategories);
+        updateProductCategories(productPutVm, product);
 
         // update product images
         List<ProductImage> productImages = setProductImages(productPutVm.productImageIds(), product);
@@ -421,6 +418,13 @@ public class ProductService {
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
         product.setTaxClassId(productPutVm.taxClassId());
+    }
+
+    private void updateProductCategories(ProductPutVm productPutVm, Product product) {
+        List<ProductCategory> newProductCategories = setProductCategories(productPutVm.categoryIds(), product);
+        List<ProductCategory> oldProductCategories = productCategoryRepository.findAllByProductId(product.getId());
+        productCategoryRepository.deleteAllInBatch(oldProductCategories);
+        productCategoryRepository.saveAllAndFlush(newProductCategories);
     }
 
     private void updateProductRelations(ProductPutVm productPutVm, Product product) {
