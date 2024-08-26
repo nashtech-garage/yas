@@ -35,7 +35,7 @@ public class FileSystemRepository {
     public byte[] getFile(String filePath) {
       Path path = Paths.get(filePath);
 
-      if (Files.exists(path)) {
+      if (!Files.exists(path)) {
         throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
       }
       return Files.readAllBytes(path);
