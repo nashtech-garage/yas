@@ -123,7 +123,7 @@ services:
     volumes:
     - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
-    - ./images:/images
+    - ./sampledata/images:/images
     networks:
       - yas-network
   product:
