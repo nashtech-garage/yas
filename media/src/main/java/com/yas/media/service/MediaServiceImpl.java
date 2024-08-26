@@ -44,6 +44,7 @@ public class MediaServiceImpl implements MediaService {
         } else {
             media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
         }
+        validateFilename(media.getFileName());
         try {
             String filePath = fileSystemRepository.persistFile(media.getFileName(),
                 mediaPostVm.multipartFile().getBytes());
@@ -98,5 +99,11 @@ public class MediaServiceImpl implements MediaService {
             .content(fileContent)
             .mediaType(mediaType)
             .build();
+    }
+
+    private void validateFilename(String filename) {
+        if (!filename.matches("[a-zA-Z0-9\\-_]+\\.[a-zA-Z0-9]+")) {
+            throw new IllegalArgumentException("Invalid filename");
+        }
     }
 }
