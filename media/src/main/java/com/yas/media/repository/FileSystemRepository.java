@@ -20,11 +20,14 @@ public class FileSystemRepository {
 
     public String persistFile(String fileName, byte[] content) throws IOException {
 
+        if (!fileName.matches("\\w+")) {
+            throw new IllegalArgumentException("Invalid filename: Only alphanumeric characters and underscores allowed.");
+        }
+
         File directory = new File(filesystemConfig.getDirectory());
         checkExistingDirectory(directory);
         checkPermissions(directory);
 
-        // check file existing or not
         Path path = Paths.get(filesystemConfig.getDirectory(), fileName);
         Files.write(path, content);
         log.info("File saved: {}", fileName);
