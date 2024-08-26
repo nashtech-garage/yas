@@ -66,10 +66,10 @@ public class CountryService {
             .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, id));
 
         //For the updating case we don't need to check for the country being updated
-        if (countryRepository.existsByNameNotUpdatingCountry(countryPostVm.name(), id)) {
+        if (countryRepository.existsByNameIgnoreCaseAndIdNot(countryPostVm.name(), id)) {
             throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, countryPostVm.name());
         }
-        if (countryRepository.existsByCode2NotUpdatingCountry(countryPostVm.code2(), id)) {
+        if (countryRepository.existsByCode2IgnoreCaseAndIdNot(countryPostVm.code2(), id)) {
             throw new DuplicatedException(Constants.ErrorCode.CODE_ALREADY_EXISTED, countryPostVm.code2());
         }
         countryMapper.toCountryFromCountryPostViewModel(country, countryPostVm);

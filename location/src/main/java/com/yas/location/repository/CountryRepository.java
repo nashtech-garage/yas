@@ -12,25 +12,7 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
 
     boolean existsByCode2IgnoreCase(String code2);
 
-    @Query("""
-         SELECT CASE
-                   WHEN count(1)> 0 THEN TRUE
-                   ELSE FALSE
-                END
-         FROM Country c
-         WHERE LOWER(c.name) = LOWER(?1)
-         AND c.id != ?2
-        """)
-    boolean existsByNameNotUpdatingCountry(String name, Long id);
+    boolean existsByCode2IgnoreCaseAndIdNot(String code2, Long id);
 
-    @Query("""
-         SELECT CASE
-                   WHEN count(1)> 0 THEN TRUE
-                   ELSE FALSE
-                END
-         FROM Country c
-         WHERE LOWER(c.code2) = LOWER(?1)
-         AND c.id != ?2
-        """)
-    boolean existsByCode2NotUpdatingCountry(String code, Long id);
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }
