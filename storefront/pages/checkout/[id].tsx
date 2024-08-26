@@ -180,11 +180,13 @@ const Checkout = () => {
 
     if (isValidate) {
       if (!paymentMethod) {
-          toast.error('Please choose payment method!');
+        toast.error('Please choose payment method!');
+      } else {
+        if (paymentMethod.toUpperCase() === 'CODPAYMENT') {
+          toast.error('COD payment feature is under construction');
+        }
       }
-      if (paymentMethod.toUpperCase() === 'CODPAYMENT') {
-        toast.error('COD payment feature is under construction');
-      }
+
       order.checkoutId = id as string;
       order.email = checkout?.email!;
       order.note = data.note;
