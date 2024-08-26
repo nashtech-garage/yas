@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.yas.cart.CartApplication;
+import com.yas.cart.config.IntegrationTestConfiguration;
 import com.yas.cart.exception.BadRequestException;
 import com.yas.cart.exception.NotFoundException;
 import com.yas.cart.model.Cart;
@@ -23,15 +23,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 
-@SpringBootTest(classes = CartApplication.class)
+@SpringBootTest
+@Import(IntegrationTestConfiguration.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CartServiceIT {
 
-    Cart cart1;
+    private Cart cart1;
 
-    Cart cart2;
+    private Cart cart2;
 
     @Autowired
     private CartRepository cartRepository;
