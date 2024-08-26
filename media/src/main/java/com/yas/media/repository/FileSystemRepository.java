@@ -24,18 +24,7 @@ public class FileSystemRepository {
         checkExistingDirectory(directory);
         checkPermissions(directory);
 
-        // Validate the filename
-        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
-            throw new IllegalArgumentException("Invalid filename");
-        }
-
-        // Normalize the path
-        Path filePath = Paths.get(filesystemConfig.getDirectory(), filename).toRealPath();
-
-        // Ensure the file is within the base directory
-        if (!filePath.startsWith(filesystemConfig.getDirectory())) {
-            throw new IllegalArgumentException("Invalid file path");
-        }
+        Path filePath = buildFilePath(filename);
         Files.write(filePath, content);
         log.info("File saved: {}", filename);
         return filePath.toString();
@@ -49,6 +38,22 @@ public class FileSystemRepository {
             throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
         }
         return Files.readAllBytes(path);
+    }
+
+    private Path buildFilePath(String filename) throws IOException {
+        // Validate the filename
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            throw new IllegalArgumentException("Invalid filename");
+        }
+
+        // Normalize the path
+        Path filePath = Paths.get(filesystemConfig.getDirectory(), filename).toRealPath();
+
+        // Ensure the file is within the base directory
+        if (!filePath.startsWith(filesystemConfig.getDirectory())) {
+            throw new IllegalArgumentException("Invalid file path");
+        }
+        return filePath;
     }
 
     private void checkExistingDirectory(File directory) {
