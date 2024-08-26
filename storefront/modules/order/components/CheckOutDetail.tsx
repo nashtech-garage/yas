@@ -14,7 +14,7 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
   const [totalPrice, setTotalPrice] = useState(0);
   const [disableCheckout, setDisableCheckout] = useState<boolean>(true);
   const [paymentProviders, setPaymentProviders] = useState<PaymentProvider[]>([]);
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPaymentProviders = async () => {
