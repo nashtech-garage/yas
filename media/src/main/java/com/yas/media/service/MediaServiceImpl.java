@@ -102,7 +102,7 @@ public class MediaServiceImpl implements MediaService {
     }
 
     private void validateFilename(String filename) {
-        if (!filename.matches("[a-zA-Z0-9\\-_]+\\.[a-zA-Z0-9]+")) {
+        if (!filename.matches("\\w+")) {
             throw new IllegalArgumentException("Invalid filename");
         }
     }
