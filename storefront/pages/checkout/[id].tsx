@@ -73,7 +73,7 @@ const Checkout = () => {
   const [showModalBilling, setModalBilling] = useState<boolean>(false);
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   const [disableProcessPayment, setDisableProcessPayment] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(0paymentMethod);
   const handleCloseModalShipping = () => {
     if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
     setModalShipping(false);
@@ -185,6 +185,7 @@ const Checkout = () => {
         if (paymentMethod.toUpperCase() === 'CODPAYMENT') {
           toast.error('COD payment feature is under construction');
         }
+        order.paymentMethod = paymentMethod;
       }
 
       order.checkoutId = id as string;
@@ -200,7 +201,6 @@ const Checkout = () => {
       order.deliveryFee = 0;
       order.couponCode = '';
       order.deliveryMethod = 'YAS_EXPRESS';
-      order.paymentMethod = paymentMethod;
       order.paymentStatus = 'PENDING';
       order.orderItemPostVms = orderItems;
       setIsShowSpinner(true);
