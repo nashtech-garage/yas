@@ -35,7 +35,7 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
      }
   }, [paymentProviders]);
 
-  const paymentProviderChange = (id) => {
+  const paymentProviderChange = (id: string) => {
       setSelectedPayment(selectedPayment === id ? null : id);
       setPaymentMethod(selectedPayment === id ? null : id);
   };

@@ -73,7 +73,7 @@ const Checkout = () => {
   const [showModalBilling, setModalBilling] = useState<boolean>(false);
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   const [disableProcessPayment, setDisableProcessPayment] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const handleCloseModalShipping = () => {
     if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
     setModalShipping(false);
