@@ -28,15 +28,13 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f webhook
-      - name: Run Maven Test
-        run: mvn test -f webhook
+        run: mvn clean install -f webhook
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Webhook-Service-Unit-Test-Results
-          path: "webhook/**/surefire-reports/*.xml"
+          path: "webhook/**/*-reports/*.xml"
           reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}

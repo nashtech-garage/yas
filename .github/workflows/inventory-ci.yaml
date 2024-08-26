@@ -27,14 +27,14 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
-      - name: Run Maven Verify
-        run: mvn verify -f inventory
       - name: Run Maven Checkstyle
         run: mvn checkstyle:checkstyle -f inventory
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/checkstyle-result.xml'
-      - name: Unit Test Results
+      - name: Run Maven Verify
+        run: mvn install -f inventory
+      - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
