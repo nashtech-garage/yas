@@ -2,7 +2,6 @@ package com.yas.media.controller;
 
 import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
-import com.yas.media.repository.MediaRepository;
 import com.yas.media.service.MediaService;
 import com.yas.media.viewmodel.ErrorVm;
 import com.yas.media.viewmodel.MediaPostVm;

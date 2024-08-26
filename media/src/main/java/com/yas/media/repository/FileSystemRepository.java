@@ -33,23 +33,23 @@ public class FileSystemRepository {
 
     @SneakyThrows
     public byte[] getFile(String filePath) {
-      Path path = Paths.get(filePath);
+        Path path = Paths.get(filePath);
 
-      if (!Files.exists(path)) {
-        throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
-      }
-      return Files.readAllBytes(path);
+        if (!Files.exists(path)) {
+            throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
+        }
+        return Files.readAllBytes(path);
     }
 
     private void checkExistingDirectory(File directory) {
         if (!directory.exists()) {
-          throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
+            throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
         }
     }
 
     private void checkPermissions(File directory) {
         if (!directory.canRead() || !directory.canWrite()) {
-          throw new IllegalStateException("Directory " + directory.getAbsolutePath() + " is not accessible.");
+            throw new IllegalStateException("Directory " + directory.getAbsolutePath() + " is not accessible.");
         }
     }
 }
