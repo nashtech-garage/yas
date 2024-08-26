@@ -30,14 +30,14 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
   }, []);
 
   useEffect(() => {
-      if (paymentProviders.length > 0 && selectedPayment === null) {
-          setSelectedPayment(paymentProviders[0].id);
-     }
+    if (paymentProviders.length > 0 && selectedPayment === null) {
+      setSelectedPayment(paymentProviders[0].id);
+    }
   }, [paymentProviders]);
 
   const paymentProviderChange = (id: string) => {
-      setSelectedPayment(selectedPayment === id ? null : id);
-      setPaymentMethod(selectedPayment === id ? null : id);
+    setSelectedPayment(selectedPayment === id ? null : id);
+    setPaymentMethod(selectedPayment === id ? null : id);
   };
 
   useEffect(() => {
@@ -89,20 +89,20 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
         <div className="checkout__order__payment__providers">
           <h4>Payment Method</h4>
           {paymentProviders.map((provider) => (
-                  <div className={`payment__provider__item ${selectedPayment === provider.id ? 'payment__provider__item__active' : ''}`}
-                       key={provider.id}>
-                    <label>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value={provider.id}
-                        checked={selectedPayment === provider.id}
-                        onChange={() => paymentProviderChange(provider.id)}
-                      />
-                      {provider.name}
-                    </label>
-                  </div>
-                ))}
+            <div className={`payment__provider__item ${selectedPayment === provider.id ? 'payment__provider__item__active' : ''}`}
+              key={provider.id}>
+              <label>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={provider.id}
+                  checked={selectedPayment === provider.id}
+                  onChange={() => paymentProviderChange(provider.id)}
+                />
+                {provider.name}
+              </label>
+            </div>
+          ))}
         </div>
         <div className="checkout__input__checkbox">
           <label htmlFor="acc-or">
