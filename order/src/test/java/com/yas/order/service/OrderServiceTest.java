@@ -5,12 +5,11 @@ import com.yas.order.exception.NotFoundException;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.OrderStatus;
+import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.AuthenticationUtils;
-import com.yas.order.viewmodel.order.OrderItemPostVm;
-import com.yas.order.viewmodel.order.OrderPostVm;
-import com.yas.order.viewmodel.order.OrderVm;
+import com.yas.order.viewmodel.order.*;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVm;
 import org.junit.jupiter.api.AfterEach;
@@ -123,7 +122,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void getIsOrderCompletedWithUserIdAndProductId_unsuccessful(){
+    void testIsOrderCompletedWithUserIdAndProductId_NotFound(){
 
         mockSecurity();
         when(AuthenticationUtils.getCurrentUserId()).thenReturn(userId);
@@ -133,7 +132,7 @@ class OrderServiceTest {
         assertFalse(orderService.isOrderCompletedWithUserIdAndProductId(1L).isPresent());
     }
     @Test
-    void getIsOrderCompletedWithUserIdAndProductId_successful(){
+    void testIsOrderCompletedWithUserIdAndProductId_Found(){
 
         mockSecurity();
         when(AuthenticationUtils.getCurrentUserId()).thenReturn(userId);
@@ -148,6 +147,32 @@ class OrderServiceTest {
         assertTrue(orderService.isOrderCompletedWithUserIdAndProductId(1L).isPresent());
     }
 
+    @Test
+    void testFetchAllOrders(){
+        mockSecurity();
+        when(AuthenticationUtils.getCurrentUserId()).thenReturn(userId);
+        orderService.createOrder(orderPostVm);
+        List<OrderGetVm> orders = orderService.getMyOrders("abc",OrderStatus.ACCEPTED);
+        assertTrue(orders.size()>0);
+    }
+
+    @Test
+    void testFindOrderByCheckoutId_NotFound(){
+        NotFoundException exception = assertThrows(NotFoundException.class, ()-> orderService.findOrderByCheckoutId("2"));
+        assertEquals("Order of checkoutId 2 is not found", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateOrderPaymentStatus(){
+        OrderVm orderVm = orderService.createOrder(orderPostVm);
+        PaymentOrderStatusVm paymentOrderStatusVm = PaymentOrderStatusVm.builder()
+                .orderId(orderVm.id())
+                .orderStatus(orderVm.orderStatus().toString())
+                .paymentStatus(PaymentStatus.COMPLETED.toString())
+                .build();
+
+        assertNotNull(orderService.updateOrderPaymentStatus(paymentOrderStatusVm));
+    }
 
     void mockSecurity(){
         Jwt jwt = mock(Jwt.class);
