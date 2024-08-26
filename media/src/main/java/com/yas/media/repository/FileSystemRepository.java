@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class FileSystemRepository {
 
+    private static final String DIRECTORY_DOES_NOT_EXIST = "Directory %s does not exist.";
+
     private final FilesystemConfig filesystemConfig;
 
     public String persistFile(String filename, byte[] content) throws IOException {
@@ -35,7 +37,7 @@ public class FileSystemRepository {
         Path path = Paths.get(filePath);
 
         if (!Files.exists(path)) {
-            throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
+            throw new IllegalStateException(String.format(DIRECTORY_DOES_NOT_EXIST, filesystemConfig.getDirectory()));
         }
         return Files.readAllBytes(path);
     }
@@ -58,7 +60,7 @@ public class FileSystemRepository {
 
     private void checkExistingDirectory(File directory) {
         if (!directory.exists()) {
-            throw new IllegalStateException("Directory " + filesystemConfig.getDirectory() + " does not exist.");
+            throw new IllegalStateException(String.format(DIRECTORY_DOES_NOT_EXIST, filesystemConfig.getDirectory()));
         }
     }
 
