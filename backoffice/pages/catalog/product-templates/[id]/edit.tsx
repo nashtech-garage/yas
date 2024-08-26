@@ -164,7 +164,7 @@ const ProductTemplateEdit: NextPage = () => {
                 </button>
               ) : (
                 <button
-                  className="form-control w-50 btn btn-secondary"
+                  className="form-control w-50 btn btn-secondary" disabled
                   style={{ height: 'auto', width: 'auto' }}
                 >
                   More features
