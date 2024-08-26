@@ -19,6 +19,7 @@ export const UPDATE_SUCCESSFULLY = 'Update successfully';
 export const CREATE_SUCCESSFULLY = 'Create successfully';
 export const UPDATE_FAILED = 'Update failed';
 export const CREATE_FAILED = 'Create failed';
+export const ADD_PRODUCT_INTO_WAREHOUSE_SUCCESSFULLY = 'Add product(s) into warehouse successfully';
 export const TOAST_DURATION = 4000;
 export const CATEGORIES_URL = '/catalog/categories';
 export const BRAND_URL = '/catalog/brands';
