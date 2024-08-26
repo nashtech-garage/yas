@@ -18,20 +18,27 @@ public class FileSystemRepository {
 
     private final FilesystemConfig filesystemConfig;
 
-    public String persistFile(String fileName, byte[] content) throws IOException {
-
-        if (!fileName.matches("\\w+")) {
-            throw new IllegalArgumentException("Invalid filename: Only alphanumeric characters and underscores allowed.");
-        }
+    public String persistFile(String filename, byte[] content) throws IOException {
 
         File directory = new File(filesystemConfig.getDirectory());
         checkExistingDirectory(directory);
         checkPermissions(directory);
 
-        Path path = Paths.get(filesystemConfig.getDirectory(), fileName);
-        Files.write(path, content);
-        log.info("File saved: {}", fileName);
-        return path.toString();
+        // Validate the filename
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            throw new IllegalArgumentException("Invalid filename");
+        }
+
+        // Normalize the path
+        Path filePath = Paths.get(filesystemConfig.getDirectory(), filename).toRealPath();
+
+        // Ensure the file is within the base directory
+        if (!filePath.startsWith(filesystemConfig.getDirectory())) {
+            throw new IllegalArgumentException("Invalid file path");
+        }
+        Files.write(filePath, content);
+        log.info("File saved: {}", filename);
+        return filePath.toString();
     }
 
     @SneakyThrows
