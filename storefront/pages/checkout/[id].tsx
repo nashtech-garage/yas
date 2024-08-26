@@ -182,9 +182,6 @@ const Checkout = () => {
       if (!paymentMethod) {
         toast.error('Please choose payment method!');
       } else {
-        if (paymentMethod.toUpperCase() === 'CODPAYMENT') {
-          toast.error('COD payment feature is under construction');
-        }
         order.paymentMethod = paymentMethod;
       }
 
@@ -234,7 +231,9 @@ const Checkout = () => {
   };
 
   const processCodPayment = async (order: Order) => {
-    // TODO: handle COD Payment
+    setIsShowSpinner(false);
+    setDisableProcessPayment(false);
+    toast.error('COD payment feature is under construction');
   };
 
   const redirectToPaypal = async (order: Order) => {
@@ -271,9 +270,8 @@ const Checkout = () => {
                       </button>
                       <button
                         type="button"
-                        className={`btn btn-outline-primary  fw-bold btn-sm ${
-                          addShippingAddress ? `active` : ``
-                        }`}
+                        className={`btn btn-outline-primary  fw-bold btn-sm ${addShippingAddress ? `active` : ``
+                          }`}
                         onClick={() => setAddShippingAddress(true)}
                       >
                         Add new address <i className="bi bi-plus-circle-fill"></i>
@@ -311,9 +309,8 @@ const Checkout = () => {
                       <div className="col-lg-6">
                         <button
                           type="button"
-                          className={`btn btn-outline-primary  fw-bold btn-sm ${
-                            addBillingAddress ? `active` : ``
-                          }`}
+                          className={`btn btn-outline-primary  fw-bold btn-sm ${addBillingAddress ? `active` : ``
+                            }`}
                           onClick={() => {
                             setAddBillingAddress(true);
                             setSameAddress(false);
