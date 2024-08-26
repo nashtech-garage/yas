@@ -1,11 +1,13 @@
 package com.yas.webhook.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.yas.webhook.config.constants.MessageCode;
 import com.yas.webhook.config.exception.NotFoundException;
 import com.yas.webhook.integration.api.WebhookApi;
 import com.yas.webhook.model.Webhook;
 import com.yas.webhook.model.WebhookEvent;
+import com.yas.webhook.model.WebhookEventNotification;
+import com.yas.webhook.model.dto.WebhookEventNotificationDto;
+import com.yas.webhook.model.enums.NotificationStatus;
 import com.yas.webhook.model.mapper.WebhookMapper;
 import com.yas.webhook.model.viewmodel.webhook.EventVm;
 import com.yas.webhook.model.viewmodel.webhook.WebhookDetailVm;
@@ -13,6 +15,7 @@ import com.yas.webhook.model.viewmodel.webhook.WebhookListGetVm;
 import com.yas.webhook.model.viewmodel.webhook.WebhookPostVm;
 import com.yas.webhook.model.viewmodel.webhook.WebhookVm;
 import com.yas.webhook.repository.EventRepository;
+import com.yas.webhook.repository.WebhookEventNotificationRepository;
 import com.yas.webhook.repository.WebhookEventRepository;
 import com.yas.webhook.repository.WebhookRepository;
 import java.util.List;
@@ -22,17 +25,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class WebhookService {
 
     private final WebhookRepository webhookRepository;
     private final EventRepository eventRepository;
     private final WebhookEventRepository webhookEventRepository;
+    private final WebhookEventNotificationRepository webhookEventNotificationRepository;
     private final WebhookMapper webhookMapper;
     private final WebhookApi webHookApi;
 
@@ -85,8 +87,14 @@ public class WebhookService {
     }
 
     @Async
-    public void notifyToWebhook(String url, String secret, JsonNode payload) {
-        webHookApi.notify(url, secret, payload);
+    public void notifyToWebhook(WebhookEventNotificationDto notificationDto) {
+
+        webHookApi.notify(notificationDto.getUrl(), notificationDto.getSecret(), notificationDto.getPayload());
+        WebhookEventNotification notification = webhookEventNotificationRepository.findById(
+            notificationDto.getNotificationId())
+            .orElseThrow();
+        notification.setNotificationStatus(NotificationStatus.NOTIFIED);
+        webhookEventNotificationRepository.save(notification);
     }
 
     private List<WebhookEvent> initializeWebhookEvents(Long webhookId, List<EventVm> events) {

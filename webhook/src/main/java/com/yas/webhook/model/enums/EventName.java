@@ -1,4 +1,4 @@
-package com.yas.webhook.model.enumeration;
+package com.yas.webhook.model.enums;
 
 public enum EventName {
     ON_PRODUCT_UPDATED,

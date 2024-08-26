@@ -31,8 +31,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class TaxClassController {
     private final TaxClassService taxClassService;
 
-    public TaxClassController(TaxClassService taxClassServic) {
-        this.taxClassService = taxClassServic;
+    public TaxClassController(TaxClassService taxClassService) {
+        this.taxClassService = taxClassService;
     }
 
     @GetMapping("/paging")

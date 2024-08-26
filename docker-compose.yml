@@ -263,6 +263,8 @@ services:
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+    - YAS_CURRENCY_UNIT
+    - YAS_PRICE_INCLUDES_TAX
     volumes:
     - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
@@ -291,6 +293,8 @@ services:
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
+    - YAS_CURRENCY_UNIT
+    - YAS_PRICE_INCLUDES_TAX
     volumes:
     - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
@@ -318,6 +322,8 @@ services:
     - OTEL_JAVAAGENT_LOGGING
     - OTEL_JAVAAGENT_ENABLED
     - OTEL_JAVAAGENT_DEBUG
+    - YAS_CURRENCY_UNIT
+    - YAS_PRICE_INCLUDES_TAX
     volumes:
     - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     - ./deployment/app-config:/app-config
