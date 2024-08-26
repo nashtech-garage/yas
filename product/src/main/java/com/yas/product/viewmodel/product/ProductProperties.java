@@ -15,8 +15,6 @@ public interface ProductProperties {
 
     Double price();
 
-    Boolean isPublished();
-
     Long thumbnailMediaId();
 
     List<Long> productImageIds();
