@@ -222,7 +222,7 @@ public class ProductService {
         validateProductVm(productSaveVm, null);
     }
 
-    private List<ProductOptionCombination> createOptionCombinations(
+    private void createOptionCombinations(
         List<? extends ProductVariationSaveVm> variationVms,
         List<Product> savedVariations,
         Map<Long, ProductOption> optionsById,
@@ -256,7 +256,7 @@ public class ProductService {
                 optionCombinations.add(optionCombination);
             });
         }
-        return optionCombinations;
+        productOptionCombinationRepository.saveAllAndFlush(optionCombinations);
     }
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
@@ -337,13 +337,13 @@ public class ProductService {
         productImageRepository.saveAllAndFlush(allVariationImages);
 
         // save product option values and option combinations
-        List<ProductOptionValue> optionValues = new ArrayList<>();
         List<Long> productOptionIds
             = productPostVm.productOptionValues().stream().map(ProductOptionValuePostVm::productOptionId).toList();
         List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
         Map<Long, ProductOption> optionsById
             = productOptions.stream().collect(Collectors.toMap(ProductOption::getId, Function.identity()));
 
+        List<ProductOptionValue> optionValues = new ArrayList<>();
         productPostVm.productOptionValues().forEach(optionValueVm -> optionValueVm.value().forEach(value -> {
             ProductOptionValue optionValue = ProductOptionValue.builder()
                 .product(savedMainProduct)
@@ -357,10 +357,7 @@ public class ProductService {
         productOptionValueRepository.saveAllAndFlush(optionValues);
 
         // save product option combinations
-        List<ProductOptionCombination> optionCombinations =
-            createOptionCombinations(productPostVm.variations(), savedVariations, optionsById,
-                optionValues);
-        productOptionCombinationRepository.saveAllAndFlush(optionCombinations);
+        createOptionCombinations(productPostVm.variations(), savedVariations, optionsById, optionValues);
 
         return ProductGetDetailVm.fromModel(savedMainProduct);
     }
@@ -428,15 +425,11 @@ public class ProductService {
                 productOptionValues.add(optionValue);
             }));
             productOptionValueRepository.saveAllAndFlush(productOptionValues);
+            product.setHasOptions(CollectionUtils.isNotEmpty(existingVariations)
+                && CollectionUtils.isNotEmpty(productOptionValues));
 
             // add new option combinations
-            List<ProductOptionCombination> optionCombinations =
-                createOptionCombinations(newVariationVms, newSavedVariants, optionsById,
-                    productOptionValues);
-            productOptionCombinationRepository.saveAllAndFlush(optionCombinations);
-
-            product.setHasOptions(CollectionUtils.isNotEmpty(existingVariations)
-                    && CollectionUtils.isNotEmpty(productOptionValues));
+            createOptionCombinations(newVariationVms, newSavedVariants, optionsById, productOptionValues);
         }
 
         // update product related products
