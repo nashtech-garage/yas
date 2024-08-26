@@ -1,6 +1,6 @@
 import { PaymentProvider } from '../models/PaymentProvider';
 
-export const getEnabledPaymentProviders = async (): Promise<PaymentProvider> => {
+export const getEnabledPaymentProviders = async (): Promise<PaymentProvider[]> => {
   const response = await fetch('/payment/payment-providers', {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
