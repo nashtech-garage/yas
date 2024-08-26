@@ -271,8 +271,9 @@ const Checkout = () => {
                       </button>
                       <button
                         type="button"
-                        className={`btn btn-outline-primary  fw-bold btn-sm ${addShippingAddress ? `active` : ``
-                          }`}
+                        className={`btn btn-outline-primary  fw-bold btn-sm ${
+                          addShippingAddress ? `active` : ``
+                        }`}
                         onClick={() => setAddShippingAddress(true)}
                       >
                         Add new address <i className="bi bi-plus-circle-fill"></i>
@@ -310,8 +311,9 @@ const Checkout = () => {
                       <div className="col-lg-6">
                         <button
                           type="button"
-                          className={`btn btn-outline-primary  fw-bold btn-sm ${addBillingAddress ? `active` : ``
-                            }`}
+                          className={`btn btn-outline-primary  fw-bold btn-sm ${
+                            addBillingAddress ? `active` : ``
+                          }`}
                           onClick={() => {
                             setAddBillingAddress(true);
                             setSameAddress(false);

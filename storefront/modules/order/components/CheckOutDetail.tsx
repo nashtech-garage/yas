@@ -89,8 +89,12 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
         <div className="checkout__order__payment__providers">
           <h4>Payment Method</h4>
           {paymentProviders.map((provider) => (
-            <div className={`payment__provider__item ${selectedPayment === provider.id ? 'payment__provider__item__active' : ''}`}
-              key={provider.id}>
+            <div
+              className={`payment__provider__item ${
+                selectedPayment === provider.id ? 'payment__provider__item__active' : ''
+              }`}
+              key={provider.id}
+            >
               <label>
                 <input
                   type="radio"
