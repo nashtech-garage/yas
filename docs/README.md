@@ -23,12 +23,12 @@ The source code of the Yas project is publicly hosted on GitHub as a monorepo, w
 
 ![yas-maven-project-structure](images/yas-maven-project-structure.png)
 
-In yas, we separate unit test and integration test. The unit test and integration test code have the same package with the production code.
+In yas, we separate unit tests and integration tests. Both test types are located in the same package as the production code.
 
-- The unit tests are run by Surefile plugin. Testing with @WebMvcTest is considered unit test.
-- The integration tests are run by Failsale plugin. Testing with @SpringBootTest is considered integration test. In yas we also use Testcontainers for integration test.
+- **Unit Tests**: Run by the Surefire plugin. Tests using `@WebMvcTest` are considered unit tests.
+- **Integration Tests**: Run by the Failsafe plugin. Tests using `@SpringBootTest` are considered integration tests. We also utilize Testcontainers for integration testing.
 
-By default, maven doesn't compile files in `it` folder. We use `build-helper-maven-plugin` to include them. You can see the `/pom.xml` for more detailed.
+By default, Maven doesn't compile files in the `it` folder. We use the `build-helper-maven-plugin` to include them. For more details, please refer to the `/pom.xml` file.
 
 ## Continuous Interation
 
