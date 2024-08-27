@@ -4,6 +4,7 @@ import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.constants.MessageCode;
 import com.yas.inventory.exception.BadRequestException;
 import com.yas.inventory.exception.NotFoundException;
+import com.yas.inventory.exception.StockExistingException;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
@@ -48,6 +49,15 @@ public class StockService {
     public void addProductIntoWarehouse(List<StockPostVm> postVms) {
 
         List<Stock> stocks = postVms.stream().map(postVM -> {
+            boolean existingInStock = stockRepository.existsByWarehouseIdAndProductId(
+                    postVM.warehouseId(), postVM.productId()
+            );
+
+            if (existingInStock) {
+                throw new StockExistingException(
+                        MessageCode.STOCK_ALREADY_EXISTED, postVM.productId());
+            }
+
             ProductInfoVm product = productService.getProduct(postVM.productId());
 
             if (product == null) {

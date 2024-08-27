@@ -1,6 +1,6 @@
-import { ProductQuantityInStock } from './../models/ProductQuantityInStock';
-import { StockPostVM } from '@inventoryModels/Stock';
 import apiClientService from '@commonServices/ApiClientService';
+import { StockPostVM } from '@inventoryModels/Stock';
+import { ProductQuantityInStock } from './../models/ProductQuantityInStock';
 
 const baseUrl = '/api/inventory/backoffice/stocks';
 
