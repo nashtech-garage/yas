@@ -39,7 +39,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Promotion-Service-Unit-Test-Results
-          path: "promotion/**/*-reports/*.xml"
+          path: "promotion/**/*-reports/TEST*.xml"
           reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}

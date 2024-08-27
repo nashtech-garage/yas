@@ -34,7 +34,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Webhook-Service-Unit-Test-Results
-          path: "webhook/**/*-reports/*.xml"
+          path: "webhook/**/*-reports/TEST*.xml"
           reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
