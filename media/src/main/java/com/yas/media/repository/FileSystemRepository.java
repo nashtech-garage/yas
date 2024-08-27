@@ -3,6 +3,7 @@ package com.yas.media.repository;
 import com.yas.media.config.FilesystemConfig;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,13 +34,17 @@ public class FileSystemRepository {
     }
 
     @SneakyThrows
-    public byte[] getFile(String filePath) {
+    public InputStream getFile(String filePath) {
         Path path = Paths.get(filePath);
-
         if (!Files.exists(path)) {
             throw new IllegalStateException(String.format(DIRECTORY_DOES_NOT_EXIST, filesystemConfig.getDirectory()));
         }
-        return Files.readAllBytes(path);
+
+        try {
+            return Files.newInputStream(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read file: " + filePath, e);
+        }
     }
 
     private Path buildFilePath(String filename) throws IOException {

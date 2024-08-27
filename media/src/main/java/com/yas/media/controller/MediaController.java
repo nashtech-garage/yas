@@ -13,7 +13,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -71,10 +75,12 @@ public class MediaController {
 
     @Hidden
     @GetMapping("/medias/{id}/file/{fileName}")
-    public ResponseEntity<byte[]> getFile(@PathVariable Long id, @PathVariable String fileName) {
+    public ResponseEntity<InputStreamResource> getFile(@PathVariable Long id, @PathVariable String fileName) {
         MediaDto mediaDto = mediaService.getFile(id, fileName);
+
         return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
             .contentType(mediaDto.getMediaType())
-            .body(mediaDto.getContent());
+            .body(new InputStreamResource(mediaDto.getContent()));
     }
 }

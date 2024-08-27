@@ -1,5 +1,6 @@
 package com.yas.media.model.dto;
 
+import java.io.InputStream;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.MediaType;
@@ -8,6 +9,6 @@ import org.springframework.http.MediaType;
 @Getter
 public class MediaDto {
 
-    private byte[] content;
+    private InputStream content;
     private MediaType mediaType;
 }

@@ -14,6 +14,7 @@ import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -92,7 +93,7 @@ public class MediaServiceImpl implements MediaService {
             return builder.build();
         }
         MediaType mediaType = MediaType.valueOf(media.getMediaType());
-        byte[] fileContent = fileSystemRepository.getFile(media.getFilePath());
+        InputStream fileContent = fileSystemRepository.getFile(media.getFilePath());
 
         return builder
             .content(fileContent)
