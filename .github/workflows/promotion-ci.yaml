@@ -27,21 +27,19 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f promotion
       - name: Run Maven Checkstyle
         run: mvn checkstyle:checkstyle -f promotion
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/checkstyle-result.xml'
-      - name: Run Maven Test
-        run: mvn test -f promotion
-      - name: Unit Test Results
+      - name: Run Maven Verify
+        run: mvn clean verify -f promotion
+      - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Promotion-Service-Unit-Test-Results
-          path: "promotion/**/surefire-reports/*.xml"
+          path: "promotion/**/*-reports/TEST*.xml"
           reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
