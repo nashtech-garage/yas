@@ -10,7 +10,6 @@ import com.yas.customer.viewmodel.address.AddressDetailVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import com.yas.customer.viewmodel.address.AddressVm;
 import com.yas.customer.viewmodel.useraddress.UserAddressVm;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -73,11 +72,10 @@ public class UserAddressService {
             throw new AccessDeniedException(Constants.ErrorCode.UNAUTHENTICATED);
         }
 
-        UserAddress userAddress = userAddressRepository.findByIsActiveTrue().orElseThrow(()
+        UserAddress userAddress = userAddressRepository.findByUserIdAndIsActiveTrue(userId).orElseThrow(()
             -> new NotFoundException(Constants.ErrorCode.USER_ADDRESS_NOT_FOUND));
 
-        AddressDetailVm addressVmList = locationService.getAddressById(userAddress.getAddressId());
-        return addressVmList;
+        return locationService.getAddressById(userAddress.getAddressId());
     }
 
     public UserAddressVm createAddress(AddressPostVm addressPostVm) {
@@ -106,11 +104,9 @@ public class UserAddressService {
     public void chooseDefaultAddress(Long id) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
-        List<UserAddress> newUserAddressList = new ArrayList<>();
         for (UserAddress userAddress : userAddressList) {
             userAddress.setIsActive(Objects.equals(userAddress.getAddressId(), id));
-            newUserAddressList.add(userAddress);
         }
-        userAddressRepository.saveAll(newUserAddressList);
+        userAddressRepository.saveAll(userAddressList);
     }
 }
