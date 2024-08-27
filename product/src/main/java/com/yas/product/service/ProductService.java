@@ -2,7 +2,6 @@ package com.yas.product.service;
 
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.InternalServerErrorException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
@@ -290,11 +289,10 @@ public class ProductService {
         Map<String, Product> variationsBySlug = savedVariations.stream()
             .collect(Collectors.toMap(Product::getSlug, Function.identity()));
 
-        // loop through each variation and build its corresponding option combinations
         for (ProductVariationSaveVm variationVm : variationVms) {
             Product savedVariation = variationsBySlug.get(variationVm.slug());
             if (savedVariation == null) {
-                throw new InternalServerErrorException(Constants.ErrorCode.FAILED_TO_SAVE_VARIATIONS);
+                throw new BadRequestException(Constants.ErrorCode.VARIATION_NOT_FOUND_BY_SLUG, variationVm.slug());
             }
 
             variationVm.optionValuesByOptionId().forEach((optionId, optionValue) -> {
