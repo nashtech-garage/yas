@@ -33,7 +33,7 @@ jobs:
         with:
           path: '**/checkstyle-result.xml'
       - name: Run Maven Build Command
-        run: mvn clean install -f storefront-bff
+        run: mvn clean verify -f storefront-bff
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:

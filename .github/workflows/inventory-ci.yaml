@@ -33,7 +33,7 @@ jobs:
         with:
           path: '**/checkstyle-result.xml'
       - name: Run Maven Verify
-        run: mvn install -f inventory
+        run: mvn verify -f inventory
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}

@@ -33,7 +33,7 @@ jobs:
         with:
           path: '**/checkstyle-result.xml'
       - name: Run Maven Build Command
-        run: mvn clean install -f cart
+        run: mvn clean verify -f cart
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
