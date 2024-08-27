@@ -12,6 +12,7 @@ import com.yas.product.model.ProductImage;
 import com.yas.product.model.ProductOption;
 import com.yas.product.model.ProductOptionCombination;
 import com.yas.product.model.ProductOptionValue;
+import com.yas.product.model.ProductOptionValueSaveVm;
 import com.yas.product.model.ProductRelated;
 import com.yas.product.model.ProductVariationSaveVm;
 import com.yas.product.model.attribute.ProductAttributeGroup;
@@ -52,8 +53,6 @@ import com.yas.product.viewmodel.product.ProductVariationPutVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
-import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
-import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
 import io.micrometer.common.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,67 +113,31 @@ public class ProductService {
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
         validateProductVm(productPostVm);
 
-        Product mainProduct = Product.builder()
-            .name(productPostVm.name())
-            .thumbnailMediaId(productPostVm.thumbnailMediaId())
-            .slug(productPostVm.slug())
-            .description(productPostVm.shortDescription())
-            .shortDescription(productPostVm.description())
-            .specification(productPostVm.specification())
-            .sku(productPostVm.sku())
-            .gtin(productPostVm.gtin())
-            .price(productPostVm.price())
-            .isAllowedToOrder(productPostVm.isAllowedToOrder())
-            .isPublished(productPostVm.isPublished())
-            .isFeatured(productPostVm.isFeatured())
-            .isVisibleIndividually(productPostVm.isVisibleIndividually())
-            .stockTrackingEnabled(productPostVm.stockTrackingEnabled())
-            .metaTitle(productPostVm.metaTitle())
-            .metaKeyword(productPostVm.metaKeyword())
-            .metaDescription(productPostVm.description())
-            .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
-                && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
-            .productCategories(List.of())
-            .taxClassId(productPostVm.taxClassId())
-            .build();
+        Product mainProduct = buildMainProductFromVm(productPostVm);
 
         setProductBrand(productPostVm.brandId(), mainProduct);
 
-        List<ProductCategory> productCategories = setProductCategories(productPostVm.categoryIds(), mainProduct);
-
-        List<ProductImage> productImages = setProductImages(productPostVm.productImageIds(), mainProduct);
-
         Product savedMainProduct = productRepository.saveAndFlush(mainProduct);
+
+        List<ProductCategory> productCategories = setProductCategories(productPostVm.categoryIds(), savedMainProduct);
+        List<ProductImage> productImages = setProductImages(productPostVm.productImageIds(), savedMainProduct);
         productImageRepository.saveAllAndFlush(productImages);
         productCategoryRepository.saveAllAndFlush(productCategories);
 
-        // create product relations
         createProductRelations(productPostVm, savedMainProduct);
 
-        // create product variations, options and combinations
         if (CollectionUtils.isEmpty(productPostVm.variations())
             || CollectionUtils.isEmpty(productPostVm.productOptionValues())) {
             return ProductGetDetailVm.fromModel(savedMainProduct);
         }
 
-        // create product variations and their images
-        List<Product> savedVariations = createProductVariations(productPostVm, mainProduct, Collections.emptyList());
-        if (CollectionUtils.isEmpty(savedVariations)) {
-            throw new InternalServerErrorException(Constants.ErrorCode.FAILED_TO_SAVE_VARIATIONS);
-        }
+        List<Product> savedVariations =
+            createProductVariations(productPostVm, savedMainProduct, Collections.emptyList());
 
-        // create product option values and combinations
-        List<Long> productOptionIds
-            = productPostVm.productOptionValues().stream().map(ProductOptionValuePostVm::productOptionId).toList();
-        List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
-        Map<Long, ProductOption> optionsById
-            = productOptions.stream().collect(Collectors.toMap(ProductOption::getId, Function.identity()));
-
-        // create option values
+        Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPostVm.productOptionValues());
         List<ProductOptionValue> optionValues =
             createProductOptionValues(productPostVm, savedMainProduct, optionsById);
 
-        // create product option combinations
         createOptionCombinations(productPostVm.variations(), savedVariations, optionsById, optionValues);
 
         return ProductGetDetailVm.fromModel(savedMainProduct);
@@ -243,6 +206,32 @@ public class ProductService {
                 throw new DuplicatedException(Constants.ErrorCode.SKU_ALREADY_EXISTED_OR_DUPLICATED, variation.sku());
             }
         }
+    }
+
+    private Product buildMainProductFromVm(ProductPostVm productPostVm) {
+        return Product.builder()
+            .name(productPostVm.name())
+            .thumbnailMediaId(productPostVm.thumbnailMediaId())
+            .slug(productPostVm.slug())
+            .description(productPostVm.shortDescription())
+            .shortDescription(productPostVm.description())
+            .specification(productPostVm.specification())
+            .sku(productPostVm.sku())
+            .gtin(productPostVm.gtin())
+            .price(productPostVm.price())
+            .isAllowedToOrder(productPostVm.isAllowedToOrder())
+            .isPublished(productPostVm.isPublished())
+            .isFeatured(productPostVm.isFeatured())
+            .isVisibleIndividually(productPostVm.isVisibleIndividually())
+            .stockTrackingEnabled(productPostVm.stockTrackingEnabled())
+            .metaTitle(productPostVm.metaTitle())
+            .metaKeyword(productPostVm.metaKeyword())
+            .metaDescription(productPostVm.description())
+            .hasOptions(CollectionUtils.isNotEmpty(productPostVm.variations())
+                && CollectionUtils.isNotEmpty(productPostVm.productOptionValues()))
+            .productCategories(List.of())
+            .taxClassId(productPostVm.taxClassId())
+            .build();
     }
 
     private List<Product> createProductVariations(ProductSaveVm productSaveVm,
@@ -351,16 +340,13 @@ public class ProductService {
 
         setProductBrand(productPutVm.brandId(), product);
 
-        // update product categories
+        updateMainProductFromVm(productPutVm, product);
+
         updateProductCategories(productPutVm, product);
 
-        // update product images
         List<ProductImage> productImages = setProductImages(productPutVm.productImageIds(), product);
-        updateProductFromVm(productPutVm, product);
-        productRepository.saveAndFlush(product);
         productImageRepository.saveAllAndFlush(productImages);
 
-        // update product variations, options & combinations
         if (CollectionUtils.isEmpty(productPutVm.variations())
             || CollectionUtils.isEmpty(productPutVm.productOptionValues())) {
             return;
@@ -368,12 +354,10 @@ public class ProductService {
 
         List<ProductImage> allVariationImages = new ArrayList<>();
 
-        // update existing variations & images
         List<Product> existingVariations = product.getProducts();
         updateExistingVariants(productPutVm, allVariationImages, existingVariations);
         productRepository.saveAllAndFlush(existingVariations);
 
-        // create new variations
         List<ProductVariationPutVm> newVariationVms = productPutVm.variations().stream()
             .filter(variant -> variant.id() == null).toList();
         if (CollectionUtils.isEmpty(newVariationVms)) {
@@ -381,25 +365,27 @@ public class ProductService {
         }
         List<Product> newSavedVariations = createProductVariations(productPutVm, product, allVariationImages);
 
-        // add new option values
-        List<Long> productOptionIds = productPutVm.productOptionValues().stream()
-            .map(ProductOptionValuePutVm::productOptionId).toList();
-        List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
-        Map<Long, ProductOption> optionsById = productOptions.stream()
-            .collect(Collectors.toMap(ProductOption::getId, Function.identity()));
-
+        Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPutVm.productOptionValues());
         List<ProductOptionValue> productOptionValues = updateProductOptionValues(productPutVm, product, optionsById);
+
         product.setHasOptions(CollectionUtils.isNotEmpty(existingVariations)
             && CollectionUtils.isNotEmpty(productOptionValues));
+        productRepository.saveAndFlush(product);
 
-        // add new option combinations
         createOptionCombinations(newVariationVms, newSavedVariations, optionsById, productOptionValues);
 
-        // update product relations
         updateProductRelations(productPutVm, product);
     }
 
-    public void updateProductFromVm(ProductPutVm productPutVm, Product product) {
+    private Map<Long, ProductOption> getProductOptionByIdMap(List<? extends ProductOptionValueSaveVm> optionValueVms) {
+        List<Long> productOptionIds = optionValueVms.stream()
+            .map(ProductOptionValueSaveVm::productOptionId).toList();
+        List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
+        return productOptions.stream()
+            .collect(Collectors.toMap(ProductOption::getId, Function.identity()));
+    }
+
+    public void updateMainProductFromVm(ProductPutVm productPutVm, Product product) {
         product.setName(productPutVm.name());
         product.setSlug(productPutVm.slug());
         product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
