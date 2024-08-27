@@ -32,7 +32,7 @@ jobs:
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/checkstyle-result.xml'
-      - name: Run Maven Build Command
+      - name: Run Maven Verify
         run: mvn clean verify -f search
       - name: Test Results
         uses: dorny/test-reporter@v1

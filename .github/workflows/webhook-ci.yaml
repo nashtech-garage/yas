@@ -27,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
+      - name: Run Maven Verify
         run: mvn clean verify -f webhook
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
