@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import java.sql.SQLException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +31,7 @@ public class SampleDataController {
             content = @Content(schema = @Schema(implementation = SampleDataVm.class))),
         @ApiResponse(responseCode = "400", description = "Bad request",
             content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
-    public SampleDataVm createSampleData(@RequestBody @Valid SampleDataVm sampleDataVm) throws SQLException {
-        return sampleDataService.addSampleData();
+    public SampleDataVm createSampleData(@RequestBody @Valid SampleDataVm sampleDataVm) {
+        return sampleDataService.createSampleData();
     }
 }

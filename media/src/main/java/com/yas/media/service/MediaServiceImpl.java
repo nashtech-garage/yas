@@ -5,32 +5,34 @@ import com.yas.media.exception.MultipartFileContentException;
 import com.yas.media.exception.NotFoundException;
 import com.yas.media.exception.UnsupportedMediaTypeException;
 import com.yas.media.model.Media;
+import com.yas.media.model.dto.MediaDto;
+import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;
+import com.yas.media.repository.FileSystemRepository;
 import com.yas.media.repository.MediaRepository;
+import com.yas.media.utils.StringUtils;
 import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@RequiredArgsConstructor
 @Service
 public class MediaServiceImpl implements MediaService {
 
     private final MediaRepository mediaRepository;
+    private final FileSystemRepository fileSystemRepository;
     private final YasConfig yasConfig;
-
-    public MediaServiceImpl(MediaRepository mediaRepository, YasConfig yasConfig) {
-        this.mediaRepository = mediaRepository;
-        this.yasConfig = yasConfig;
-    }
 
     @Override
     public Media saveMedia(MediaPostVm mediaPostVm) {
         MediaType mediaType = MediaType.valueOf(Objects.requireNonNull(mediaPostVm.multipartFile().getContentType()));
-        if (!(MediaType.IMAGE_PNG.equals(mediaType)
-            || MediaType.IMAGE_JPEG.equals(mediaType)
+        if (!(MediaType.IMAGE_PNG.equals(mediaType) || MediaType.IMAGE_JPEG.equals(mediaType)
             || MediaType.IMAGE_GIF.equals(mediaType))) {
             throw new UnsupportedMediaTypeException();
         }
@@ -38,20 +40,19 @@ public class MediaServiceImpl implements MediaService {
         media.setCaption(mediaPostVm.caption());
         media.setMediaType(mediaPostVm.multipartFile().getContentType());
 
+        if (StringUtils.hasText(mediaPostVm.fileNameOverride())) {
+            media.setFileName(mediaPostVm.fileNameOverride().trim());
+        } else {
+            media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
+        }
         try {
-            media.setData(mediaPostVm.multipartFile().getBytes());
+            String filePath = fileSystemRepository.persistFile(media.getFileName(),
+                mediaPostVm.multipartFile().getBytes());
+            media.setFilePath(filePath);
         } catch (IOException e) {
             throw new MultipartFileContentException(e);
         }
-
-        if (mediaPostVm.fileNameOverride() == null || mediaPostVm.fileNameOverride().isEmpty()
-            || mediaPostVm.fileNameOverride().trim().isEmpty()) {
-            media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
-        } else {
-            media.setFileName(mediaPostVm.fileNameOverride());
-        }
-
-        return mediaRepository.saveAndFlush(media);
+        return mediaRepository.save(media);
     }
 
     @Override
@@ -80,5 +81,23 @@ public class MediaServiceImpl implements MediaService {
             noFileMediaVm.mediaType(),
             url
         );
+    }
+
+    @Override
+    public MediaDto getFile(Long id, String fileName) {
+
+        MediaDtoBuilder builder = MediaDto.builder();
+
+        Media media = mediaRepository.findById(id).orElse(null);
+        if (media == null || !fileName.equalsIgnoreCase(media.getFileName())) {
+            return builder.build();
+        }
+        MediaType mediaType = MediaType.valueOf(media.getMediaType());
+        InputStream fileContent = fileSystemRepository.getFile(media.getFilePath());
+
+        return builder
+            .content(fileContent)
+            .mediaType(mediaType)
+            .build();
     }
 }
