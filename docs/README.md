@@ -19,6 +19,17 @@ https://github.com/nashtech-garage/yas
 
 The source code of the Yas project is publicly hosted on GitHub as a monorepo, where each microservice has its own folder. There are two common ways to organize the source code for microservices projects: multi-repos and monorepo. Multi-repos means that each microservice has its own repository, while monorepo means that all microservices share a single repository. We chose monorepo for simplicity, as it allows us to have a single issue tracker for the entire project. Some features or bugs may require code changes in multiple microservices, and with monorepo we can make a single commit that covers them all. The code is visible to everyone, so we do not need a separate access control for each microservice.
 
+## Standard project structure a micro-service
+
+![yas-maven-project-structure](images/yas-maven-project-structure.png)
+
+In yas, we separate unit test and integration test. The unit test and integration test code have the same package with the production code.
+
+- The unit tests are run by Surefile plugin. Testing with @WebMvcTest is considered unit test.
+- The integration tests are run by Failsale plugin. Testing with @SpringBootTest is considered integration test. In yas we also use Testcontainers for integration test.
+
+By default, maven doesn't compile files in `it` folder. We use `build-helper-maven-plugin` to include them. You can see the `/pom.xml` for more detailed.
+
 ## Continuous Interation
 
 In Yas, we use GitHub Actions to build the continuous integration pipeline. It is totally free for open-source project. All the GitHub Actions workflows are put in `/.github/workflows` folder. Each micro-services will have its own workflow. Let look at the first part of the typical workflow: product
