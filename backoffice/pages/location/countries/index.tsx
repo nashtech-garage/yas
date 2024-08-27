@@ -71,7 +71,7 @@ const CountryList: NextPage = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>#</th>
+            <th>Code</th>
             <th>Name</th>
             <th>Action</th>
           </tr>
@@ -79,7 +79,7 @@ const CountryList: NextPage = () => {
         <tbody>
           {countries.map((country) => (
             <tr key={country.id}>
-              <td>{country.id}</td>
+              <td>{country.code2}</td>
               <td>{country.name}</td>
               <td>
                 <Link href={`${COUNTRY_URL}/${country.id}/edit`}>
