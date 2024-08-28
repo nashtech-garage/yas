@@ -133,7 +133,7 @@ public class StockService {
 
             stock.setQuantity(stock.getQuantity() + adjustedQuantity);
         }
-        stockRepository.saveAllAndFlush(stocks);
+        stockRepository.saveAll(stocks);
         stockHistoryService.createStockHistories(stocks, stockQuantityVms);
 
         //Update stock quantity for product

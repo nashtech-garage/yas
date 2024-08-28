@@ -121,7 +121,7 @@ public class CartService {
             cartItemRepository.delete(cartItem);
             return CartItemPutVm.fromModel(cartItem, String.format(CART_ITEM_UPDATED_MSG, "DELETED"));
         } else {
-            CartItem savedCartItem = cartItemRepository.saveAndFlush(cartItem);
+            CartItem savedCartItem = cartItemRepository.save(cartItem);
             cartItem.setQuantity(newQuantity);
             return CartItemPutVm.fromModel(savedCartItem, String.format(CART_ITEM_UPDATED_MSG, "UPDATED"));
         }

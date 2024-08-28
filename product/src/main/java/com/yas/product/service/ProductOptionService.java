@@ -51,7 +51,7 @@ public class ProductOptionService {
         ProductOption productOption = new ProductOption();
         productOption.setName(productOptionPostVm.name());
 
-        return productOptionRepository.saveAndFlush(productOption);
+        return productOptionRepository.save(productOption);
     }
 
     private boolean checkExistedName(String name, Long id) {
@@ -69,6 +69,6 @@ public class ProductOptionService {
         }
         productOption.setName(productOptionPostVm.name());
 
-        return productOptionRepository.saveAndFlush(productOption);
+        return productOptionRepository.save(productOption);
     }
 }

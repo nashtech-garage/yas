@@ -94,7 +94,7 @@ public class RatingService {
         rating.setLastName(customerVm.lastName());
         rating.setFirstName(customerVm.firstName());
 
-        Rating savedRating = ratingRepository.saveAndFlush(rating);
+        Rating savedRating = ratingRepository.save(rating);
         return RatingVm.fromModel(savedRating);
     }
 

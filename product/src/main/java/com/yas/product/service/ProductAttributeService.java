@@ -64,7 +64,7 @@ public class ProductAttributeService {
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
 
-        return productAttributeRepository.saveAndFlush(productAttribute);
+        return productAttributeRepository.save(productAttribute);
     }
 
     public ProductAttribute update(ProductAttributePostVm productAttributePostVm, Long id) {
@@ -85,7 +85,7 @@ public class ProductAttributeService {
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
 
-        return productAttributeRepository.saveAndFlush(productAttribute);
+        return productAttributeRepository.save(productAttribute);
     }
 
     private void validateExistedName(String name, Long id) {

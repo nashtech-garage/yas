@@ -66,7 +66,7 @@ public class CategoryService {
             category.setParent(parentCategory);
         }
 
-        return categoryRepository.saveAndFlush(category);
+        return categoryRepository.save(category);
     }
 
     public void update(CategoryPostVm categoryPostVm, Long id) {
