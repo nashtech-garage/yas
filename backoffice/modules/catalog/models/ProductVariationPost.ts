@@ -6,4 +6,5 @@ export type ProductVariationPost = {
   price?: number;
   thumbnailMediaId?: number;
   productImageIds?: number[];
+  optionValuesByOptionId?: Object;
 };
