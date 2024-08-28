@@ -461,18 +461,6 @@ public class ProductService {
         return productOptionValues;
     }
 
-    private Product convertProductVariant(Product product, ProductVariationPutVm variation) {
-        return Product.builder()
-                .name(variation.name())
-                .thumbnailMediaId(variation.thumbnailMediaId())
-                .slug(variation.slug().toLowerCase())
-                .sku(variation.sku())
-                .gtin(variation.gtin())
-                .price(variation.price())
-                .isPublished(true)
-                .parent(product).build();
-    }
-
     private void updateExistingVariants(
             ProductPutVm productPutVm,
             List<ProductImage> newProductImages,
