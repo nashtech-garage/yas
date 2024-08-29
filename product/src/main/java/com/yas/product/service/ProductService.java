@@ -367,8 +367,6 @@ public class ProductService {
 
         updateProductRelations(productPutVm, product);
 
-        //TODO: need to handle the case when admin want to delete variations
-
         List<ProductImage> allVariationImages = new ArrayList<>();
         List<Product> existingVariations = product.getProducts();
         updateExistingVariants(productPutVm, allVariationImages, existingVariations);
