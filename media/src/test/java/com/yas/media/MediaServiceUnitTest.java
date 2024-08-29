@@ -34,7 +34,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-public class MediaServiceUnitTest {
+class MediaServiceUnitTest {
     @Mock
     private MediaRepository mediaRepository;
     @Mock
@@ -73,7 +73,7 @@ public class MediaServiceUnitTest {
 
     @Test
     void getMedia_whenMediaNotFound_thenReturnNull() {
-        when(mediaRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+        when(mediaRepository.findById(1L)).thenReturn(Optional.empty());
 
         MediaVm mediaVm = mediaService.getMediaById(1L);
         assertNull(mediaVm);
@@ -81,7 +81,7 @@ public class MediaServiceUnitTest {
 
     @Test
     void removeMedia_whenMediaNotFound_thenThrowsNotFoundException() {
-        when(mediaRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+        when(mediaRepository.findById(1L)).thenReturn(Optional.empty());
 
         NotFoundException exception = assertThrows(NotFoundException.class, () -> mediaService.removeMedia(1L));
         assertEquals(String.format("Media %s is not found", 1L), exception.getMessage());
@@ -239,7 +239,7 @@ public class MediaServiceUnitTest {
     @Test
     void getFile_whenMediaNotFound_thenReturnMediaDto() {
         MediaDto expectedDto = MediaDto.builder().build();
-        when(mediaRepository.findById(1L)).thenReturn(java.util.Optional.ofNullable(null));
+        when(mediaRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
         when(builder.build()).thenReturn(expectedDto);
 
         MediaDto mediaDto = mediaService.getFile(1L, "fileName");

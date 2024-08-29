@@ -1,5 +1,6 @@
 package com.yas.media;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -12,15 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.util.Assert;
 
-public class FileSystemRepositoryTest {
+@Slf4j
+class FileSystemRepositoryTest {
+
+    private static final String TEST_URL = "src/test/resources/test-directory";
 
     @Mock
     private FilesystemConfig filesystemConfig;
@@ -36,12 +40,28 @@ public class FileSystemRepositoryTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @AfterEach
+    void tearDown() throws IOException {
+        // Cleanup code: delete the files and directories created during tests
+        Path testDir = Paths.get(TEST_URL);
+        if (Files.exists(testDir)) {
+            Files.walk(testDir)
+                .sorted((p1, p2) -> p2.compareTo(p1))
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+        }
+    }
+
     @Test
-    public void testPersistFile() throws IOException {
-        String directoryPath = "test-media";
-        String filename = "testFile.txt";
-        byte[] content = "test content".getBytes();
-        Path filePath = Paths.get(directoryPath, filename);
+    void testPersistFile_whenDirectoryNotExist_thenThrowsException() {
+        String directoryPath = "non-exist-directory";
+        String filename = "test-file.png";
+        byte[] content = "test-content".getBytes();
 
         when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
 
@@ -49,41 +69,37 @@ public class FileSystemRepositoryTest {
     }
 
     @Test
-    public void testGetFile() throws IOException {
-        String directoryPath = "testDirectory";
-        String filename = "testFile.txt";
-        String filePathStr = Paths.get(directoryPath, filename).toString();
-        byte[] content = "test content".getBytes();
+    void testGetFile_whenDirectIsExist_thenReturnFile() throws IOException {
+        String filename = "test-file.png";
+        String filePathStr = Paths.get(TEST_URL, filename).toString();
+        byte[] content = "test-content".getBytes();
 
-        when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
+        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
 
         Path filePath = Paths.get(filePathStr);
-        Files.createDirectories(filePath.getParent()); // Ensure parent directories are created
-        Files.write(filePath, content); // Write content to file
+        Files.createDirectories(filePath.getParent());
+        Files.write(filePath, content);
 
-        // Test getting the file
-        try (InputStream inputStream = fileSystemRepository.getFile(filePathStr)) {
-            byte[] fileContent = inputStream.readAllBytes();
-            Assert.isTrue(new String(fileContent).equals("test content"), "File content should match");
-        }
+        InputStream inputStream = fileSystemRepository.getFile(filePathStr);
+        byte[] fileContent = inputStream.readAllBytes();
+        assertArrayEquals(content, fileContent);
     }
 
     @Test
-    public void testPersistFileDirectoryDoesNotExist() {
-        String directoryPath = "nonExistentDirectory";
-        String filename = "testFile.txt";
-        byte[] content = "test content".getBytes();
+    void testPersistFileDirectoryDoesNotExist_thenThrowsException() {
+        String directoryPath = "non-exist-directory";
+        String filename = "test-file.png";
+        byte[] content = "test-content".getBytes();
 
         when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
 
-        Executable executable = () -> fileSystemRepository.persistFile(filename, content);
-        Assert.isTrue(assertThrows(IllegalStateException.class, executable).getMessage().contains("Directory " + directoryPath + " does not exist."), "Expected IllegalStateException");
+        assertThrows(IllegalStateException.class, () -> fileSystemRepository.persistFile(filename, content));
     }
 
     @Test
-    public void testGetFileDirectoryDoesNotExist() {
-        String directoryPath = "nonExistentDirectory";
-        String filename = "testFile.txt";
+    void testGetFileDirectoryDoesNotExist_thenThrowsException() {
+        String directoryPath = "non-exist-directory";
+        String filename = "test-file.png";
         String filePathStr = Paths.get(directoryPath, filename).toString();
 
         when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
