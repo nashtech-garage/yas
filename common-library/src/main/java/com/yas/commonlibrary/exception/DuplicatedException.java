@@ -1,13 +1,12 @@
-package com.yas.cart.exception;
-
+package com.yas.commonlibrary.exception;
 
 import com.yas.commonlibrary.utils.MessagesUtils;
 
-public class NotFoundException extends RuntimeException {
+public class DuplicatedException extends RuntimeException {
 
     private String message;
 
-    public NotFoundException(String errorCode, Object... var2) {
+    public DuplicatedException(String errorCode, Object... var2) {
         this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 
