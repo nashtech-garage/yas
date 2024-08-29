@@ -1,10 +1,14 @@
 package com.yas.product.viewmodel.product;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.yas.product.validation.ValidateProductPrice;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonSerialize
 public record ProductPostVm(
         @NotBlank String name,
         @NotBlank String slug,
