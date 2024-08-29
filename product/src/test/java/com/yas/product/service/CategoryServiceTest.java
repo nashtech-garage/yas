@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = ProductApplication.class)
-public class CategoryServiceTest {
+class CategoryServiceTest {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
