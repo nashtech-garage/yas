@@ -79,6 +79,14 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(errorVm);
     }
 
+    @ExceptionHandler(InternalServerErrorException.class)
+    protected ResponseEntity<ErrorVm> handleInternalServerErrorException(InternalServerErrorException e) {
+        log.error("Internal server error exception: ", e);
+        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage());
+        return ResponseEntity.internalServerError().body(errorVm);
+    }
+
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
         String message = ex.getMessage();
