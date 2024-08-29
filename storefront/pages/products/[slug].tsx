@@ -49,18 +49,19 @@ export const getServerSideProps: GetServerSideProps = async (
   if (product.hasOptions) {
     // fetch product options
     try {
-      const productOptionValue = await getProductOptionValues(product.id);
+      const productOptionValues = await getProductOptionValues(product.id);
 
-      for (const option of productOptionValue) {
+      for (const optionValue of productOptionValues) {
         const index = productOptions.findIndex(
-          (productOption) => productOption.name === option.productOptionName
+          (productOption) => productOption.name === optionValue.productOptionName
         );
         if (index > -1) {
-          productOptions.at(index)?.value.push(option.productOptionValue);
+          productOptions.at(index)?.value.push(optionValue.productOptionValue);
         } else {
           const newProductOption: ProductOptions = {
-            name: option.productOptionName,
-            value: [option.productOptionValue],
+            id: optionValue.productOptionId,
+            name: optionValue.productOptionName,
+            value: [optionValue.productOptionValue],
           };
 
           productOptions.push(newProductOption);

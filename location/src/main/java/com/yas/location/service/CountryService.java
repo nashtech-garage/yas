@@ -66,8 +66,11 @@ public class CountryService {
             .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, id));
 
         //For the updating case we don't need to check for the country being updated
-        if (countryRepository.existsByNameNotUpdatingCountry(countryPostVm.name(), id)) {
+        if (countryRepository.existsByNameIgnoreCaseAndIdNot(countryPostVm.name(), id)) {
             throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED, countryPostVm.name());
+        }
+        if (countryRepository.existsByCode2IgnoreCaseAndIdNot(countryPostVm.code2(), id)) {
+            throw new DuplicatedException(Constants.ErrorCode.CODE_ALREADY_EXISTED, countryPostVm.code2());
         }
         countryMapper.toCountryFromCountryPostViewModel(country, countryPostVm);
         countryRepository.save(country);
@@ -84,7 +87,7 @@ public class CountryService {
 
     @Transactional(readOnly = true)
     public CountryListGetVm getPageableCountries(final int pageNo, final int pageSize) {
-        final Pageable pageable = PageRequest.of(pageNo, pageSize);
+        final Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.ASC, "name"));
         final Page<Country> countryPage = countryRepository.findAll(pageable);
         final List<Country> countryList = countryPage.getContent();
 

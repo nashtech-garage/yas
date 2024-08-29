@@ -67,6 +67,7 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
             price: variant.optionPrice,
             thumbnailMediaId: variant.optionThumbnail?.id,
             productImageIds: variant.optionImages?.map((image) => image.id),
+            optionValuesByOptionId: variant.optionValuesByOptionId,
           };
         })
       : [],

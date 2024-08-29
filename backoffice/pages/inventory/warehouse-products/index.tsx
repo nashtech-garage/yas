@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 
+import { handleResponse } from '@commonServices/ResponseStatusHandlingService';
+import { ADD_PRODUCT_INTO_WAREHOUSE_SUCCESSFULLY } from '@constants/Common';
 import { ProductInfoVm } from '@inventoryModels/ProductInfoVm';
 import { StockPostVM } from '@inventoryModels/Stock';
 import { Warehouse } from '@inventoryModels/Warehouse';
@@ -71,8 +73,17 @@ const WarehouseProducts: NextPage = () => {
         });
 
       addProductIntoWarehouse(stockPostVms)
-        .then(() => fetchProductsInWarehouse())
-        .catch((error) => console.log(error));
+        .then((response) => {
+          if (response.ok) {
+            fetchProductsInWarehouse();
+            handleResponse(response, ADD_PRODUCT_INTO_WAREHOUSE_SUCCESSFULLY, '');
+          } else {
+            response.json().then((data) => handleResponse(response, '', data.detail));
+          }
+        })
+        .catch((error) => {
+          handleResponse(error, '', error.detail);
+        });
     }
   };
 
@@ -170,8 +181,8 @@ const WarehouseProducts: NextPage = () => {
                     type="checkbox"
                     id={'checkbox-product-' + productInfo.id + '-warehouse-' + warehouseIdSelected}
                     className="mx-4 my-2 font-weight-bold"
-                    checked={productInfo.existInWH || productInfo.isSelected}
-                    disabled={productInfo.existInWH}
+                    checked={productInfo.existInWh || productInfo.isSelected}
+                    disabled={productInfo.existInWh}
                     onChange={(event) => selectProductIntoWarehouse(event, index)}
                   />
                 </td>

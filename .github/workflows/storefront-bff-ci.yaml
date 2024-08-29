@@ -27,13 +27,13 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f storefront-bff
       - name: Run Maven Checkstyle
         run: mvn checkstyle:checkstyle -f storefront-bff
       - uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/checkstyle-result.xml'
+      - name: Run Maven Verify
+        run: mvn clean verify -f storefront-bff
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:

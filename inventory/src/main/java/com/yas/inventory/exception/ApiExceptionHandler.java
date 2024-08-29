@@ -105,4 +105,14 @@ public class ApiExceptionHandler {
         return servletRequest.getRequest().getServletPath();
     }
 
+    @ExceptionHandler(StockExistingException.class)
+    public ResponseEntity<ErrorVm> handleStockExistingException(StockExistingException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(), message);
+        log.error(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(errorVm, HttpStatus.BAD_REQUEST);
+    }
+
 }

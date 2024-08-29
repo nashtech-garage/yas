@@ -38,6 +38,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         const productVariants: ProductVariation[] = [];
         results.forEach((item) => {
           listOptionCombine.push(item.name || '');
+
           productVariants.push({
             id: item.id,
             optionName: item.name || '',
@@ -46,8 +47,10 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
             optionPrice: item.price || 0,
             optionThumbnail: item.thumbnail,
             optionImages: item.productImages,
+            optionValuesByOptionId: item.options,
           });
         });
+
         setOptionCombines(listOptionCombine);
         setValue('productVariations', productVariants);
       }
@@ -92,54 +95,39 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
   const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    let productVar = getValue('productVariations') || [];
-    const result = generateProductOptionCombinations();
+    let formProductVariations = getValue('productVariations') || [];
+    const optionValuesByOptionId = generateProductOptionCombinations();
+    const productName = getValue('name');
+    const variationName = [productName, ...Array.from(optionValuesByOptionId.values())]
+      .join(' ')
+      .trim();
 
-    const listOptionCombine: string[] = [];
-    const productVariants: ProductVariation[] = [];
-    result.forEach((item) => {
-      listOptionCombine.push(getValue('name')?.concat(' ', item) || '');
-      productVariants.push({
-        optionName: getValue('name')?.concat(' ', item) || '',
-        optionGTin: getValue('gtin') || '',
-        optionSku: getValue('sku') || '',
-        optionPrice: getValue('price') || 0,
-      });
-    });
-    setOptionCombines(listOptionCombine);
-    setValue('productVariations', [...productVar, ...productVariants]);
+    const newVariation: ProductVariation = {
+      optionName: variationName,
+      optionGTin: getValue('gtin') ?? '',
+      optionSku: getValue('sku') ?? '',
+      optionPrice: getValue('price') ?? 0,
+      optionValuesByOptionId: Object.fromEntries(optionValuesByOptionId),
+    };
+    setOptionCombines([variationName]);
+    setValue('productVariations', [...formProductVariations, newVariation]);
   };
 
-  const generateProductOptionCombinations = (): string[] => {
-    const result: string[] = [];
-    const productOp = getValue('productOptions') || [];
+  const generateProductOptionCombinations = (): Map<number, string> => {
+    const optionValuesByOptionId = new Map<number, string>();
+    const formProductOptions = getValue('productOptions') || [];
 
     selectedOptions.forEach((option) => {
-      const combines = (document.getElementById(option) as HTMLInputElement).value
-        .split(',')
-        .map((item) => item.trim());
+      const optionValue = (document.getElementById(option) as HTMLInputElement).value;
 
       const productOption = productOptions.find((productOption) => productOption.name === option);
-      productOp.push({ productOptionId: productOption?.id, value: combines });
-      setValue('productOptions', productOp);
-
-      if (result.length === 0) {
-        combines.forEach((item) => {
-          result.push(item);
-        });
-      } else {
-        let index = 0;
-        const old = [...result];
-        for (const oldItem of old) {
-          for (const newItem of combines) {
-            result[index] = oldItem.concat(' ', newItem);
-            index++;
-          }
-        }
-      }
+      const productOptionId = productOption?.id ?? -1;
+      formProductOptions.push({ productOptionId: productOptionId, value: [optionValue] });
+      setValue('productOptions', formProductOptions);
+      optionValuesByOptionId.set(productOptionId, optionValue);
     });
 
-    return result;
+    return optionValuesByOptionId;
   };
 
   const onDeleteVariation = (variant: ProductVariation) => {

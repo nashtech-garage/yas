@@ -2,6 +2,6 @@ export type ProductInfoVm = {
   id: number;
   name: string;
   sku: string;
-  existInWH: boolean;
+  existInWh: boolean;
   isSelected: boolean;
 };

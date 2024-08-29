@@ -8,6 +8,7 @@ import iconPay04 from '../../../asset/icons/icon-pay-04.jpg';
 import iconPay05 from '../../../asset/icons/icon-pay-05.jpg';
 import { addSampleData } from '@/modules/sampledata/services/SampleDataService';
 import { AddSampleModel } from '@/modules/sampledata/models/AddSampleModel';
+import { toastError, toastSuccess } from '../../../modules/catalog/services/ToastService';
 
 const Footer = () => {
   const handleFetch = async () => {
@@ -15,10 +16,12 @@ const Footer = () => {
       const addSampleModel: AddSampleModel = { message: 'addSampleModel' };
       const response = await addSampleData(addSampleModel);
       if (response.message !== null) {
+        toastSuccess('Add sample data successfully !');
         window.location.reload();
       }
     } catch (err: any) {
-      console.log('Add sample data fail: ' + err);
+      if (err.message == 403) toastError('Please login to add sample data!');
+      else toastError('Add sample data failed. Try again');
     }
   };
   return (

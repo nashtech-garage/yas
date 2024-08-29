@@ -1,6 +1,8 @@
 package com.yas.product.viewmodel.product;
 
+import com.yas.product.model.ProductVariationSaveVm;
 import java.util.List;
+import java.util.Map;
 
 public record ProductVariationPostVm(
         String name,
@@ -9,8 +11,9 @@ public record ProductVariationPostVm(
         String gtin,
         Double price,
         Long thumbnailMediaId,
-        List<Long> productImageIds
-) implements ProductProperties {
+        List<Long> productImageIds,
+        Map<Long, String> optionValuesByOptionId
+) implements ProductVariationSaveVm {
 
     @Override
     public Long id() {
