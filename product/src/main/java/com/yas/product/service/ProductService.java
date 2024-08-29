@@ -250,7 +250,8 @@ public class ProductService {
         return processProductVariations(newVariationVms, mainProduct, allVariationImages);
     }
 
-    private List<Product> processProductVariations(List<? extends ProductVariationSaveVm> newVariationVms, Product mainProduct,
+    private List<Product> processProductVariations(List<? extends ProductVariationSaveVm> newVariationVms,
+                                                   Product mainProduct,
                                                    List<ProductImage> allVariationImages) {
         List<Product> productVariations = newVariationVms.stream()
             .map(variation -> {
