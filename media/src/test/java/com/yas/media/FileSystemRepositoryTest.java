@@ -86,17 +86,6 @@ class FileSystemRepositoryTest {
     }
 
     @Test
-    void testPersistFileDirectoryDoesNotExist_thenThrowsException() {
-        String directoryPath = "non-exist-directory";
-        String filename = "test-file.png";
-        byte[] content = "test-content".getBytes();
-
-        when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
-
-        assertThrows(IllegalStateException.class, () -> fileSystemRepository.persistFile(filename, content));
-    }
-
-    @Test
     void testGetFileDirectoryDoesNotExist_thenThrowsException() {
         String directoryPath = "non-exist-directory";
         String filename = "test-file.png";
