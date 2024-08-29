@@ -1,7 +1,7 @@
 package com.yas.location.service;
 
-import com.yas.location.exception.DuplicatedException;
-import com.yas.location.exception.NotFoundException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.location.mapper.StateOrProvinceMapper;
 import com.yas.location.model.StateOrProvince;
 import com.yas.location.repository.CountryRepository;

@@ -8,14 +8,14 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.cart.CartApplication;
-import com.yas.cart.exception.BadRequestException;
-import com.yas.cart.exception.NotFoundException;
 import com.yas.cart.service.CartService;
 import com.yas.cart.utils.Constants;
 import com.yas.cart.viewmodel.CartGetDetailVm;
 import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.cart.viewmodel.CartItemVm;
 import com.yas.cart.viewmodel.CartListVm;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +60,7 @@ class CartControllerTest {
         when(cartService.getCarts()).thenReturn(cartList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/backoffice/carts")
-            .accept("application/json"))
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(cartList)));
     }
@@ -75,7 +75,7 @@ class CartControllerTest {
         when(cartService.getCartDetailByCustomerId(customerId)).thenReturn(cartDetailList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/backoffice/carts/{customerId}", customerId)
-            .accept("application/json"))
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(cartDetailList)));
     }
@@ -91,8 +91,8 @@ class CartControllerTest {
         when(principal.getName()).thenReturn(username);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/storefront/carts")
-            .principal(principal)
-            .accept("application/json"))
+                .principal(principal)
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(cartGetDetailVm)));
     }
@@ -101,7 +101,7 @@ class CartControllerTest {
     void testGetLastCartWithNoPrincipal() throws Exception {
         // Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.get("/storefront/carts")
-            .accept("application/json"))
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().string(""));
     }
@@ -115,10 +115,10 @@ class CartControllerTest {
         when(cartService.addToCart(cartItemVms)).thenReturn(cartGetDetailVm);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/storefront/carts")
-            .contentType("application/json")
-            .content(objectWriter.writeValueAsString(cartItemVms)))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(cartGetDetailVm)));
+                .contentType("application/json")
+                .content(objectWriter.writeValueAsString(cartItemVms)))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(cartGetDetailVm)));
     }
 
     @Test
@@ -127,11 +127,11 @@ class CartControllerTest {
         List<CartItemVm> cartItemVms = List.of(new CartItemVm(4L, 6, 1L));
 
         when(cartService.addToCart(cartItemVms))
-                .thenThrow(new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT));
+            .thenThrow(new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/storefront/carts")
-            .contentType("application/json")
-            .content(objectWriter.writeValueAsString(cartItemVms)))
+                .contentType("application/json")
+                .content(objectWriter.writeValueAsString(cartItemVms)))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
@@ -143,8 +143,8 @@ class CartControllerTest {
         when(cartService.addToCart(cartItemVms)).thenThrow(new BadRequestException("Not Found"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/storefront/carts")
-            .contentType("application/json")
-            .content(objectWriter.writeValueAsString(cartItemVms)))
+                .contentType("application/json")
+                .content(objectWriter.writeValueAsString(cartItemVms)))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -162,8 +162,8 @@ class CartControllerTest {
 
         // Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.put("/cart-item")
-            .contentType("application/json")
-            .content(objectWriter.writeValueAsString(cartItemVm)))
+                .contentType("application/json")
+                .content(objectWriter.writeValueAsString(cartItemVm)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(cartItemPutVm)));
     }
@@ -179,8 +179,8 @@ class CartControllerTest {
         setUpSecurityContext(username);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/storefront/cart-item")
-            .param("productId", productId.toString())
-            .accept("application/json"))
+                .param("productId", productId.toString())
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
@@ -195,8 +195,8 @@ class CartControllerTest {
         setUpSecurityContext(username);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/storefront/cart-item/multi-delete")
-            .param("productIds", productIds.stream().map(String::valueOf).toArray(String[]::new))
-            .accept("application/json"))
+                .param("productIds", productIds.stream().map(String::valueOf).toArray(String[]::new))
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
@@ -214,8 +214,8 @@ class CartControllerTest {
         setUpSecurityContext(username);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/storefront/count-cart-items")
-            .principal(principal)
-            .accept("application/json"))
+                .principal(principal)
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().string(itemCount.toString()));
     }
@@ -231,7 +231,7 @@ class CartControllerTest {
         setUpSecurityContext(username);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/storefront/count-cart-items")
-            .accept("application/json"))
+                .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().string(itemCount.toString()));
     }

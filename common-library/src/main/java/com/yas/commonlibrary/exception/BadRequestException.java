@@ -1,10 +1,14 @@
-package com.yas.inventory.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.inventory.utils.MessagesUtils;
+import com.yas.commonlibrary.utils.MessagesUtils;
 
 public class BadRequestException extends RuntimeException {
 
     private String message;
+
+    public BadRequestException(String message) {
+        this.message = MessagesUtils.getMessage(message);
+    }
 
     public BadRequestException(String errorCode, Object... var2) {
         this.message = MessagesUtils.getMessage(errorCode, var2);

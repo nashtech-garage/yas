@@ -1,11 +1,11 @@
-package com.yas.inventory.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.inventory.utils.MessagesUtils;
+import com.yas.commonlibrary.utils.MessagesUtils;
 
-public class StockExistingException extends RuntimeException {
+public class NotFoundException extends RuntimeException {
     private String message;
 
-    public StockExistingException(String errorCode, Object... var2) {
+    public NotFoundException(String errorCode, Object... var2) {
         this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 
