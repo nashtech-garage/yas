@@ -115,7 +115,7 @@ class PaymentServiceTest {
     }
 
     private void verifyOrderServiceInteractions(CapturedPayment capturedPayment) {
-        verify(orderService, times(1)).updateCheckoutStatus(eq(capturedPayment));
+        verify(orderService, times(1)).updateCheckoutStatus((capturedPayment));
         verify(orderService, times(1)).updateOrderStatus(any(PaymentOrderStatusVm.class));
     }
 
