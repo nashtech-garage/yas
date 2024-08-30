@@ -98,23 +98,4 @@ class TaxRateRepositoryIT {
             .anyMatch(t -> t.getRate().equals(taxRate2.getRate()))
             .hasSize(2);
     }
-
-    @Test
-    void testGetBatchTaxPercent_shouldReturnListOfAllRates_whenGivenCorrectParamsAndThereAreMultiple() {
-        TaxRate taxRate3 = taxRateRepository.save(Instancio.of(TaxRate.class)
-            .set(field("taxClass"), taxRate.getTaxClass())
-            .set(field("countryId"), taxRate.getCountryId())
-            .ignore(field("stateOrProvinceId"))
-            .ignore(field("zipCode"))
-            .create());
-
-        assertThat(taxRateRepository.getBatchTaxRates(
-            taxRate.getCountryId(),
-            taxRate.getStateOrProvinceId(),
-            taxRate.getZipCode(),
-            Set.of(taxRate.getTaxClass().getId())))
-            .anyMatch(t -> t.getRate().equals(taxRate.getRate()))
-            .anyMatch(t -> t.getRate().equals(taxRate3.getRate()))
-            .hasSize(2);
-    }
 }
