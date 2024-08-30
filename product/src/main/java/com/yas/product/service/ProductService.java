@@ -142,7 +142,7 @@ public class ProductService {
 
         savedMainProduct.setHasOptions((CollectionUtils.isNotEmpty(savedVariations))
             && CollectionUtils.isNotEmpty(savedOptionValues));
-        savedMainProduct = productRepository.saveAndFlush(savedMainProduct);
+        savedMainProduct = productRepository.save(savedMainProduct);
 
         createOptionCombinations(productPostVm.variations(), savedVariations, optionsById, savedOptionValues);
 
@@ -395,7 +395,7 @@ public class ProductService {
         product.setHasOptions((CollectionUtils.isNotEmpty(newSavedVariations)
             || CollectionUtils.isNotEmpty(existingVariations))
             && CollectionUtils.isNotEmpty(productOptionValues));
-        productRepository.saveAndFlush(product);
+        productRepository.save(product);
 
         createOptionCombinations(newVariationVms, newSavedVariations, optionsById, productOptionValues);
 
