@@ -171,7 +171,10 @@ public class TaxRateService {
         return 0;
     }
 
-    public List<TaxRateVm> getBulkTaxRate(List<Long> taxClassIds, Long countryId, Long stateOrProvinceId, String zipCode) {
+    public List<TaxRateVm> getBulkTaxRate(List<Long> taxClassIds,
+                                          Long countryId,
+                                          Long stateOrProvinceId,
+                                          String zipCode) {
         return taxRateRepository.getBatchTaxRates(countryId,
             stateOrProvinceId,
             zipCode,

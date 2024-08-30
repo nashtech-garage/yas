@@ -1,6 +1,7 @@
 package com.yas.tax.repository;
 
 import com.yas.tax.model.TaxRate;
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,10 +23,12 @@ public interface TaxRateRepository extends JpaRepository<TaxRate, Long> {
         SELECT tr FROM TaxRate tr
         WHERE tr.countryId = :countryId
         AND (tr.stateOrProvinceId = :stateOrProvinceId OR  tr.stateOrProvinceId is null)
-        AND (tr.zipCode = :zipCode OR  trim(tr.zipCode) = '' OR  tr.zipCode is null )
+        AND (tr.zipCode = :zipCode OR  tr.zipCode is null )
         AND tr.taxClass.id in :taxClassIds
         """
         )
-    Set<TaxRate> getBatchTaxRates(@Param("countryId") Long countryId, @Param("stateOrProvinceId") Long stateOrProvinceId,
-                                  @Param("zipCode") String zipCode, @Param("taxClassIds") Set<Long> taxClassIds);
+    List<TaxRate> getBatchTaxRates(@Param("countryId") Long countryId,
+                                   @Param("stateOrProvinceId") Long stateOrProvinceId,
+                                   @Param("zipCode") String zipCode,
+                                   @Param("taxClassIds") Set<Long> taxClassIds);
 }
