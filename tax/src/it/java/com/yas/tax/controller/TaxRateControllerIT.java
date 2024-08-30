@@ -1,7 +1,9 @@
 package com.yas.tax.controller;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.comparesEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -14,6 +16,7 @@ import com.yas.tax.repository.TaxRateRepository;
 import com.yas.tax.service.LocationService;
 import com.yas.tax.viewmodel.location.StateOrProvinceAndCountryGetNameVm;
 import com.yas.tax.viewmodel.taxrate.TaxRatePostVm;
+import com.yas.tax.viewmodel.taxrate.TaxRateVm;
 import io.restassured.RestAssured;
 import java.util.List;
 import org.instancio.Instancio;
@@ -43,15 +46,32 @@ class TaxRateControllerIT extends AbstractControllerIT {
 
     TaxClass taxClass;
     TaxRate taxRate;
+    TaxClass taxClass2;
+    TaxRate taxRate2;
 
     final String TAX_RATE_URL = "/v1/backoffice/tax-rates";
     final String TAX_RATE_PERCENT_URL = "/v1/backoffice/tax-rates/tax-percent";
+    final String TAX_RATE_LOCATION_URL = "/v1/backoffice/tax-rates/location-based-batch";
     final String TAX_RATE_PAGING_URL = "/v1/backoffice/tax-rates/paging";
 
     @BeforeEach
     void setUp() {
         taxClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .set(field("taxClass"), taxClass)
+            .create());
+        taxClass2 = taxClassRepository.save(Instancio.of(TaxClass.class)
+            .set(field(TaxClass::getId), 2L)
+            .create());
+
+        taxRate2 = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .set(field("taxClass"), taxClass2)
+            .set(field("countryId"), taxRate.getCountryId())
+            .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
+            .set(field("zipCode"), taxRate.getZipCode())
+            .create());
+
+        taxRateRepository.save(Instancio.of(TaxRate.class)
             .set(field("taxClass"), taxClass)
             .create());
     }
@@ -86,7 +106,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
-        long wrongId = taxRate.getId() + 1;
+        long wrongId = Instancio.create(Long.class);
 
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
@@ -248,7 +268,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
 
     @Test
     void test_deleteTaxRate_shouldReturn404_whenGivenAccessTokenAndWrongId() {
-        long wrongId = taxRate.getId() + 1;
+        long wrongId = Instancio.create(Long.class);
 
         RestAssured.given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
@@ -286,7 +306,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .statusCode(HttpStatus.OK.value())
             .body("pageNo", equalTo(0))
             .body("pageSize", equalTo(10))
-            .body("totalElements", equalTo(1))
+            .body("totalElements", equalTo(3))
             .body("isLast", equalTo(true))
             .log().ifValidationFails();
     }
@@ -382,6 +402,66 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .then()
             .statusCode(HttpStatus.OK.value())
             .body(".", comparesEqualTo(0.0F))
+            .log().ifValidationFails();
+    }
+
+    @Test
+    void test_getBatchTaxRate_shouldReturn401_whenNotGivenAccessToken() {
+        RestAssured.given(getRequestSpecification())
+            .queryParam("taxClassIds", taxRate.getTaxClass().getId(), taxClass2.getId())
+            .queryParam("countryId", taxRate.getCountryId())
+            .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
+            .param("zipCode", taxRate.getZipCode())
+            .when()
+            .get(TAX_RATE_LOCATION_URL)
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    void test_getBatchTaxRate_shouldReturnData_whenGivenAccessToken(){
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .queryParam("taxClassIds", taxRate.getTaxClass().getId(), taxClass2.getId())
+            .queryParam("countryId", taxRate.getCountryId())
+            .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
+            .param("zipCode", taxRate.getZipCode())
+            .when()
+            .get(TAX_RATE_LOCATION_URL)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body(".", hasSize(2))
+            .log().ifValidationFails();
+    }
+
+    @Test
+    void test_getBatchTaxRate_shouldReturn400_whenGivenAccessTokenAndNotCountryId() {
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .queryParam("taxClassIds", taxRate.getTaxClass().getId(), taxClass2.getId())
+            .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
+            .param("zipCode", taxRate.getZipCode())
+            .when()
+            .get(TAX_RATE_LOCATION_URL)
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    void test_getBatchTaxRate_shouldReturnEmptyData_whenGivenAccessTokenAndNoTaxClassId() {
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .queryParam("taxClassIds")
+            .queryParam("countryId", taxRate.getCountryId())
+            .param("stateOrProvinceId", taxRate.getStateOrProvinceId())
+            .param("zipCode", taxRate.getZipCode())
+            .when()
+            .get(TAX_RATE_LOCATION_URL)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body(".", hasSize(0))
             .log().ifValidationFails();
     }
 }
