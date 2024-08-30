@@ -1,11 +1,12 @@
 package com.yas.tax.repository;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 
 import com.yas.tax.config.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.model.TaxRate;
+import java.util.Set;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,11 @@ class TaxRateRepositoryIT {
 
     TaxClass taxClass;
 
+    TaxClass taxClass2;
+
     TaxRate taxRate;
+
+    TaxRate taxRate2;
 
     @BeforeEach
     void setUp(){
@@ -36,8 +41,23 @@ class TaxRateRepositoryIT {
             .set(field(TaxClass::getId), 1L)
             .create());
 
+        taxClass2 = taxClassRepository.save(Instancio.of(TaxClass.class)
+            .set(field(TaxClass::getId), 2L)
+            .create());
+
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
-                .set(field("taxClass"), taxClass)
+            .set(field("taxClass"), taxClass)
+            .create());
+
+        taxRate2 = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .set(field("taxClass"), taxClass2)
+            .set(field("countryId"), taxRate.getCountryId())
+            .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
+            .set(field("zipCode"), taxRate.getZipCode())
+            .create());
+
+        taxRateRepository.save(Instancio.of(TaxRate.class)
+            .set(field("taxClass"), taxClass)
             .create());
     }
 
@@ -65,5 +85,17 @@ class TaxRateRepositoryIT {
             Instancio.of(String.class).create(),
             Instancio.of(Long.class).create()))
             .isNull();
+    }
+
+    @Test
+    void testGetBatchTaxPercent_shouldReturnListOfRates_whenGivenCorrectParams() {
+        assertThat(taxRateRepository.getBatchTaxRates(
+            taxRate.getCountryId(),
+            taxRate.getStateOrProvinceId(),
+            taxRate.getZipCode(),
+            Set.of(taxRate.getTaxClass().getId(), taxRate2.getTaxClass().getId())))
+            .anyMatch(t -> t.getRate().equals(taxRate.getRate()))
+            .anyMatch(t -> t.getRate().equals(taxRate2.getRate()))
+            .hasSize(2);
     }
 }
