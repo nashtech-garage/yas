@@ -239,12 +239,14 @@ public class ProductService {
             .build();
     }
 
-    private List<Product> createProductVariationsFromPostVm(List<ProductVariationPostVm> newVariationVms, Product mainProduct) {
+    private List<Product> createProductVariationsFromPostVm(List<ProductVariationPostVm> newVariationVms,
+                                                            Product mainProduct) {
         List<ProductImage> allVariationImages = new ArrayList<>();
         return performCreateVariations(newVariationVms, mainProduct, allVariationImages);
     }
 
-    private List<Product> createProductVariationsFromPutVm(List<ProductVariationPutVm> newVariationVms, Product mainProduct,
+    private List<Product> createProductVariationsFromPutVm(List<ProductVariationPutVm> newVariationVms,
+                                                           Product mainProduct,
                                                            List<ProductImage> existingVariationImages) {
         List<ProductImage> allVariationImages = new ArrayList<>(existingVariationImages);
         return performCreateVariations(newVariationVms, mainProduct, allVariationImages);
@@ -383,7 +385,8 @@ public class ProductService {
             return;
         }
 
-        List<Product> newSavedVariations = createProductVariationsFromPutVm(newVariationVms, product, allVariationImages);
+        List<Product> newSavedVariations =
+            createProductVariationsFromPutVm(newVariationVms, product, allVariationImages);
 
         Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPutVm.productOptionValues());
 
