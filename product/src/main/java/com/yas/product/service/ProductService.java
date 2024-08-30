@@ -134,7 +134,7 @@ public class ProductService {
             return ProductGetDetailVm.fromModel(savedMainProduct);
         }
 
-        List<Product> savedVariations = createProductVariations(productPostVm.variations(), savedMainProduct);
+        List<Product> savedVariations = createProductVariationsFromPostVm(productPostVm.variations(), savedMainProduct);
 
         Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPostVm.productOptionValues());
         List<ProductOptionValue> savedOptionValues =
@@ -239,20 +239,20 @@ public class ProductService {
             .build();
     }
 
-    private List<Product> createProductVariations(List<ProductVariationPostVm> newVariationVms, Product mainProduct) {
+    private List<Product> createProductVariationsFromPostVm(List<ProductVariationPostVm> newVariationVms, Product mainProduct) {
         List<ProductImage> allVariationImages = new ArrayList<>();
-        return processProductVariations(newVariationVms, mainProduct, allVariationImages);
+        return performCreateVariations(newVariationVms, mainProduct, allVariationImages);
     }
 
-    private List<Product> createProductVariations(List<ProductVariationPutVm> newVariationVms, Product mainProduct,
-                                                  List<ProductImage> existingVariationImages) {
+    private List<Product> createProductVariationsFromPutVm(List<ProductVariationPutVm> newVariationVms, Product mainProduct,
+                                                           List<ProductImage> existingVariationImages) {
         List<ProductImage> allVariationImages = new ArrayList<>(existingVariationImages);
-        return processProductVariations(newVariationVms, mainProduct, allVariationImages);
+        return performCreateVariations(newVariationVms, mainProduct, allVariationImages);
     }
 
-    private List<Product> processProductVariations(List<? extends ProductVariationSaveVm> newVariationVms,
-                                                   Product mainProduct,
-                                                   List<ProductImage> allVariationImages) {
+    private List<Product> performCreateVariations(List<? extends ProductVariationSaveVm> newVariationVms,
+                                                  Product mainProduct,
+                                                  List<ProductImage> allVariationImages) {
         List<Product> productVariations = newVariationVms.stream()
             .map(variation -> {
                 Product productVariation = buildProductVariationFromVm(variation, mainProduct);
@@ -383,7 +383,7 @@ public class ProductService {
             return;
         }
 
-        List<Product> newSavedVariations = createProductVariations(newVariationVms, product, allVariationImages);
+        List<Product> newSavedVariations = createProductVariationsFromPutVm(newVariationVms, product, allVariationImages);
 
         Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPutVm.productOptionValues());
 
