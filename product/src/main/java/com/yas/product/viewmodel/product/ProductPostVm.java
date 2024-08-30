@@ -33,5 +33,5 @@ public record ProductPostVm(
         List<ProductVariationPostVm> variations,
         List<ProductOptionValuePostVm> productOptionValues,
         List<Long> relatedProductIds,
-        Long taxClassId) implements ProductSaveVm {
+        Long taxClassId) implements ProductSaveVm<ProductVariationPostVm> {
 }

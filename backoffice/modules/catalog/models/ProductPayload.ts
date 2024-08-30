@@ -61,7 +61,7 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
           return {
             id: variant.id,
             name: variant.optionName,
-            slug: slugify(variant.optionName),
+            slug: slugify(variant.optionName, { lower: true, strict: true }),
             sku: variant.optionSku,
             gtin: variant.optionGTin,
             price: variant.optionPrice,
