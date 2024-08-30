@@ -149,11 +149,11 @@ public class ProductService {
         return ProductGetDetailVm.fromModel(savedMainProduct);
     }
 
-    private void validateProductVm(ProductSaveVm productSaveVm) {
+    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm) {
         validateProductVm(productSaveVm, null);
     }
 
-    private void validateProductVm(ProductSaveVm productSaveVm, Product existingProduct) {
+    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm, Product existingProduct) {
         validateExistingProductProperties(productSaveVm, existingProduct);
 
         validateProductVariationDuplicates(productSaveVm);
@@ -194,7 +194,7 @@ public class ProductService {
         });
     }
 
-    private void validateProductVariationDuplicates(ProductSaveVm productSaveVm) {
+    private <T extends ProductVariationSaveVm> void validateProductVariationDuplicates(ProductSaveVm<T> productSaveVm) {
         Set<String> seenSlugs = new HashSet<>(Collections.singletonList(productSaveVm.slug().toLowerCase()));
         Set<String> seenSkus = new HashSet<>(Collections.singletonList(productSaveVm.sku()));
         Set<String> seenGtins = new HashSet<>(Collections.singletonList(productSaveVm.gtin()));
@@ -296,7 +296,7 @@ public class ProductService {
                 .build();
             optionValues.add(optionValue);
         }));
-        return productOptionValueRepository.saveAllAndFlush(optionValues);
+        return productOptionValueRepository.saveAll(optionValues);
     }
 
     private void createOptionCombinations(
