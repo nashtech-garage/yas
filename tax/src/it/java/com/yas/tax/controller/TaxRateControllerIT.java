@@ -145,6 +145,36 @@ class TaxRateControllerIT extends AbstractControllerIT {
     }
 
     @Test
+    void test_createTaxClass_shouldReturnCreated_whenGivenAccessTokenAndProvinceIdIsNull() {
+        TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
+            .set(field("taxClassId"), taxClass.getId())
+            .ignore(field("stateOrProvinceId")).create();
+
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .body(body)
+            .post(TAX_RATE_URL)
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    void test_createTaxClass_shouldReturnCreated_whenGivenAccessTokenAndZipCodeIsNull() {
+        TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
+            .set(field("taxClassId"), taxClass.getId())
+            .ignore(field("zipCode")).create();
+
+        RestAssured.given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .body(body)
+            .post(TAX_RATE_URL)
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
     void test_createTaxClass_shouldReturn400_whenGivenAccessTokenAndMissingData() {
         TaxRatePostVm body = Instancio.of(TaxRatePostVm.class)
             .set(field("taxClassId"), taxClass.getId())
