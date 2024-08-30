@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 public record TaxRatePostVm(@NotNull Double rate,
                             @Size(max = 25) String zipCode,
                             @NotNull Long taxClassId,
-                            @NotNull Long stateOrProvinceId,
+                            Long stateOrProvinceId,
                             @NotNull Long countryId) {
 
 }

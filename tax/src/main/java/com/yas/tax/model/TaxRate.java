@@ -34,7 +34,7 @@ public class TaxRate extends AbstractAuditEntity {
     @Column(length = 25)
     private String zipCode;
 
-    @Column(nullable = false)
+    @Column
     private Long stateOrProvinceId;
 
     @Column(nullable = false)
