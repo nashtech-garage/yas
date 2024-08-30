@@ -153,7 +153,8 @@ public class ProductService {
         validateProductVm(productSaveVm, null);
     }
 
-    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm, Product existingProduct) {
+    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm, 
+                                                                      Product existingProduct) {
         validateExistingProductProperties(productSaveVm, existingProduct);
 
         validateProductVariationDuplicates(productSaveVm);
