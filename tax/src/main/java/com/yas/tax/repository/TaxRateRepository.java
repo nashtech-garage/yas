@@ -26,6 +26,6 @@ public interface TaxRateRepository extends JpaRepository<TaxRate, Long> {
         AND tr.taxClass.id in :taxClassIds
         """
         )
-    Set<TaxRate> getBulkTaxRates (@Param("countryId") Long countryId, @Param("stateOrProvinceId") Long stateOrProvinceId,
-                                   @Param("zipCode") String zipCode, @Param("taxClassIds") Set<Long> taxClassIds);
+    Set<TaxRate> getBatchTaxRates(@Param("countryId") Long countryId, @Param("stateOrProvinceId") Long stateOrProvinceId,
+                                  @Param("zipCode") String zipCode, @Param("taxClassIds") Set<Long> taxClassIds);
 }

@@ -106,8 +106,8 @@ public class TaxRateController {
         return ResponseEntity.ok(taxRateService.getTaxPercent(taxClassId, countryId, stateOrProvinceId, zipCode));
     }
 
-    @GetMapping("/location-rates")
-    public ResponseEntity<List<TaxRateVm>> getBulkTaxPercentsByAddress(
+    @GetMapping("/location-based-batch")
+    public ResponseEntity<List<TaxRateVm>> getBatchTaxPercentsByAddress(
         @RequestParam(value = "taxClassIds", required = true) final List<Long> taxClassIds,
         @RequestParam(value = "countryId", required = true) final Long countryId,
         @RequestParam(value = "stateOrProvinceId", required = false) final Long stateOrProvinceId,
