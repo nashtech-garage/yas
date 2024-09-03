@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 @Service
@@ -78,6 +79,7 @@ public class WebhookService {
         }
     }
 
+    @Transactional
     public void delete(Long id) {
         if (!webhookRepository.existsById(id)) {
             throw new NotFoundException(MessageCode.WEBHOOK_NOT_FOUND, id);
