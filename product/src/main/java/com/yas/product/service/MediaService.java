@@ -72,7 +72,6 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
     }
 
     private NoFileMediaVm handleMediaFallback(Throwable throwable) throws Throwable {
-        handleError(throwable);
-        return null;
+        return handleTypedFallback(throwable);
     }
 }
