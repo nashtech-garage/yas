@@ -49,10 +49,6 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-spring-security-adapter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.paypal.sdk</groupId>
             <artifactId>checkout-sdk</artifactId>
         </dependency>
