@@ -2,6 +2,7 @@ package com.yas.product.service;
 
 import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.DuplicatedException;
+import com.yas.product.exception.InternalServerErrorException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
@@ -48,6 +49,7 @@ import com.yas.product.viewmodel.product.ProductSlugGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailVm;
 import com.yas.product.viewmodel.product.ProductVariationGetVm;
+import com.yas.product.viewmodel.product.ProductVariationPostVm;
 import com.yas.product.viewmodel.product.ProductVariationPutVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
@@ -64,6 +66,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.data.domain.Page;
@@ -74,6 +77,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@Slf4j
 public class ProductService {
     private static final String NONE_GROUP = "None group";
     private final ProductRepository productRepository;
@@ -130,27 +134,29 @@ public class ProductService {
             return ProductGetDetailVm.fromModel(savedMainProduct);
         }
 
-        List<Product> savedVariations =
-            createProductVariations(productPostVm, savedMainProduct, Collections.emptyList());
+        List<Product> savedVariations = createProductVariationsFromPostVm(productPostVm.variations(), savedMainProduct);
 
         Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPostVm.productOptionValues());
-        List<ProductOptionValue> optionValues =
+        List<ProductOptionValue> savedOptionValues =
             createProductOptionValues(productPostVm, savedMainProduct, optionsById);
 
-        createOptionCombinations(productPostVm.variations(), savedVariations, optionsById, optionValues);
+        savedMainProduct.setHasOptions((CollectionUtils.isNotEmpty(savedVariations))
+            && CollectionUtils.isNotEmpty(savedOptionValues));
+        savedMainProduct = productRepository.save(savedMainProduct);
+
+        createOptionCombinations(productPostVm.variations(), savedVariations, optionsById, savedOptionValues);
 
         return ProductGetDetailVm.fromModel(savedMainProduct);
     }
 
-    private void validateProductVm(ProductSaveVm productSaveVm) {
+    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm) {
         validateProductVm(productSaveVm, null);
     }
 
-    private void validateProductVm(ProductSaveVm productSaveVm, Product existingProduct) {
-        // validate the properties of the main product
+    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm, 
+                                                                      Product existingProduct) {
         validateExistingProductProperties(productSaveVm, existingProduct);
 
-        // validate whether the product and its variations contain duplicate properties
         validateProductVariationDuplicates(productSaveVm);
 
         // validate whether the variations contain properties that already exist
@@ -168,7 +174,7 @@ public class ProductService {
     }
 
     private void validateExistingProductProperties(ProductProperties productProperties, Product existingProduct) {
-        checkPropertyExists(productProperties.slug(), existingProduct,
+        checkPropertyExists(productProperties.slug().toLowerCase(), existingProduct,
             productRepository::findBySlugAndIsPublishedTrue, Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED);
         // only check gtin when it's not empty
         if (StringUtils.isNotEmpty(productProperties.gtin())) {
@@ -189,12 +195,12 @@ public class ProductService {
         });
     }
 
-    private void validateProductVariationDuplicates(ProductSaveVm productSaveVm) {
-        Set<String> seenSlugs = new HashSet<>(Collections.singletonList(productSaveVm.slug()));
+    private <T extends ProductVariationSaveVm> void validateProductVariationDuplicates(ProductSaveVm<T> productSaveVm) {
+        Set<String> seenSlugs = new HashSet<>(Collections.singletonList(productSaveVm.slug().toLowerCase()));
         Set<String> seenSkus = new HashSet<>(Collections.singletonList(productSaveVm.sku()));
         Set<String> seenGtins = new HashSet<>(Collections.singletonList(productSaveVm.gtin()));
         for (ProductProperties variation : productSaveVm.variations()) {
-            if (!seenSlugs.add(variation.slug())) {
+            if (!seenSlugs.add(variation.slug().toLowerCase())) {
                 throw new DuplicatedException(Constants.ErrorCode.SLUG_ALREADY_EXISTED_OR_DUPLICATED, variation.slug());
             }
             // only check gtin when it's not empty
@@ -211,13 +217,14 @@ public class ProductService {
         return Product.builder()
             .name(productPostVm.name())
             .thumbnailMediaId(productPostVm.thumbnailMediaId())
-            .slug(productPostVm.slug())
+            .slug(productPostVm.slug().toLowerCase())
             .description(productPostVm.shortDescription())
             .shortDescription(productPostVm.description())
             .specification(productPostVm.specification())
             .sku(productPostVm.sku())
             .gtin(productPostVm.gtin())
             .price(productPostVm.price())
+            .hasOptions(false)
             .isAllowedToOrder(productPostVm.isAllowedToOrder())
             .isPublished(productPostVm.isPublished())
             .isFeatured(productPostVm.isFeatured())
@@ -233,34 +240,48 @@ public class ProductService {
             .build();
     }
 
-    private List<Product> createProductVariations(ProductSaveVm productSaveVm,
+    private List<Product> createProductVariationsFromPostVm(List<ProductVariationPostVm> newVariationVms,
+                                                            Product mainProduct) {
+        List<ProductImage> allVariationImages = new ArrayList<>();
+        return performCreateVariations(newVariationVms, mainProduct, allVariationImages);
+    }
+
+    private List<Product> createProductVariationsFromPutVm(List<ProductVariationPutVm> newVariationVms,
+                                                           Product mainProduct,
+                                                           List<ProductImage> existingVariationImages) {
+        List<ProductImage> allVariationImages = new ArrayList<>(existingVariationImages);
+        return performCreateVariations(newVariationVms, mainProduct, allVariationImages);
+    }
+
+    private List<Product> performCreateVariations(List<? extends ProductVariationSaveVm> newVariationVms,
                                                   Product mainProduct,
                                                   List<ProductImage> allVariationImages) {
-        List<ProductImage> finalAllVariationImages = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(allVariationImages)) {
-            finalAllVariationImages.addAll(allVariationImages);
-        }
-        List<Product> productVariations = productSaveVm.variations().stream()
+        List<Product> productVariations = newVariationVms.stream()
             .map(variation -> {
-                Product productVariation = Product.builder()
-                    .name(variation.name())
-                    .thumbnailMediaId(variation.thumbnailMediaId())
-                    .slug(variation.slug().toLowerCase())
-                    .sku(variation.sku())
-                    .gtin(variation.gtin())
-                    .price(variation.price())
-                    .isPublished(productSaveVm.isPublished())
-                    .parent(mainProduct).build();
+                Product productVariation = buildProductVariationFromVm(variation, mainProduct);
                 List<ProductImage> variationImages
                     = setProductImages(variation.productImageIds(), productVariation);
-                finalAllVariationImages.addAll(variationImages);
+                allVariationImages.addAll(variationImages);
                 return productVariation;
             })
             .toList();
 
         List<Product> savedVariations = productRepository.saveAllAndFlush(productVariations);
-        productImageRepository.saveAllAndFlush(finalAllVariationImages);
+        productImageRepository.saveAllAndFlush(allVariationImages);
         return savedVariations;
+    }
+
+    private Product buildProductVariationFromVm(ProductVariationSaveVm variationVm, Product mainProduct) {
+        return Product.builder()
+            .name(variationVm.name())
+            .thumbnailMediaId(variationVm.thumbnailMediaId())
+            .slug(variationVm.slug().toLowerCase())
+            .sku(variationVm.sku())
+            .gtin(variationVm.gtin())
+            .price(variationVm.price())
+            .isPublished(mainProduct.isPublished())
+            .parent(mainProduct)
+            .build();
     }
 
     private List<ProductOptionValue> createProductOptionValues(ProductPostVm productPostVm, Product savedMainProduct,
@@ -276,8 +297,7 @@ public class ProductService {
                 .build();
             optionValues.add(optionValue);
         }));
-        productOptionValueRepository.saveAllAndFlush(optionValues);
-        return optionValues;
+        return productOptionValueRepository.saveAll(optionValues);
     }
 
     private void createOptionCombinations(
@@ -290,9 +310,13 @@ public class ProductService {
             .collect(Collectors.toMap(Product::getSlug, Function.identity()));
 
         for (ProductVariationSaveVm variationVm : variationVms) {
-            Product savedVariation = variationsBySlug.get(variationVm.slug());
+            String variationSlug = variationVm.slug().toLowerCase();
+            Product savedVariation = variationsBySlug.get(variationSlug);
             if (savedVariation == null) {
-                throw new BadRequestException(Constants.ErrorCode.VARIATION_NOT_FOUND_BY_SLUG, variationVm.slug());
+                log.error(
+                    "Failed to create combinations: variation with slug '{}' not found in the saved variations map",
+                    variationSlug);
+                throw new InternalServerErrorException(Constants.ErrorCode.PRODUCT_COMBINATION_PROCESSING_FAILED);
             }
 
             variationVm.optionValuesByOptionId().forEach((optionId, optionValue) -> {
@@ -345,47 +369,53 @@ public class ProductService {
         List<ProductImage> productImages = setProductImages(productPutVm.productImageIds(), product);
         productImageRepository.saveAllAndFlush(productImages);
 
-        if (CollectionUtils.isEmpty(productPutVm.variations())
-            || CollectionUtils.isEmpty(productPutVm.productOptionValues())) {
-            return;
-        }
+        updateProductRelations(productPutVm, product);
 
         List<ProductImage> allVariationImages = new ArrayList<>();
-
         List<Product> existingVariations = product.getProducts();
         updateExistingVariants(productPutVm, allVariationImages, existingVariations);
         productRepository.saveAllAndFlush(existingVariations);
+
+        if (CollectionUtils.isEmpty(productPutVm.productOptionValues())) {
+            return;
+        }
 
         List<ProductVariationPutVm> newVariationVms = productPutVm.variations().stream()
             .filter(variant -> variant.id() == null).toList();
         if (CollectionUtils.isEmpty(newVariationVms)) {
             return;
         }
-        List<Product> newSavedVariations = createProductVariations(productPutVm, product, allVariationImages);
+
+        List<Product> newSavedVariations =
+            createProductVariationsFromPutVm(newVariationVms, product, allVariationImages);
 
         Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPutVm.productOptionValues());
+
         List<ProductOptionValue> productOptionValues = updateProductOptionValues(productPutVm, product, optionsById);
 
-        product.setHasOptions(CollectionUtils.isNotEmpty(existingVariations)
+        product.setHasOptions((CollectionUtils.isNotEmpty(newSavedVariations)
+            || CollectionUtils.isNotEmpty(existingVariations))
             && CollectionUtils.isNotEmpty(productOptionValues));
-        productRepository.saveAndFlush(product);
+        productRepository.save(product);
 
         createOptionCombinations(newVariationVms, newSavedVariations, optionsById, productOptionValues);
 
-        updateProductRelations(productPutVm, product);
     }
 
     private Map<Long, ProductOption> getProductOptionByIdMap(List<? extends ProductOptionValueSaveVm> optionValueVms) {
         List<Long> productOptionIds = optionValueVms.stream()
             .map(ProductOptionValueSaveVm::productOptionId).toList();
         List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
+        if (CollectionUtils.isEmpty(productOptions)) {
+            throw new BadRequestException(Constants.ErrorCode.NO_MATCHING_PRODUCT_OPTIONS);
+        }
         return productOptions.stream()
             .collect(Collectors.toMap(ProductOption::getId, Function.identity()));
     }
 
     public void updateMainProductFromVm(ProductPutVm productPutVm, Product product) {
         product.setName(productPutVm.name());
-        product.setSlug(productPutVm.slug());
+        product.setSlug(productPutVm.slug().toLowerCase());
         product.setThumbnailMediaId(productPutVm.thumbnailMediaId());
         product.setDescription(productPutVm.description());
         product.setShortDescription(productPutVm.shortDescription());

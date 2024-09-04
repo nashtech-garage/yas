@@ -33,6 +33,7 @@ const CompletePayment = () => {
       fetchCapturePaymentPaypal(token as string).then();
     }
   }, [router.query]);
+
   const fetchCapturePaymentPaypal = async (token: string) => {
     setIsShowSpinner(true);
     const res = await capturePaymentPaypal(token);

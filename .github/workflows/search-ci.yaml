@@ -28,10 +28,13 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Checkstyle
-        run: mvn checkstyle:checkstyle -f search
-      - uses: jwgmeligmeyling/checkstyle-github-action@master
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: mvn checkstyle:checkstyle -f search -Dcheckstyle.output.file=search-checkstyle-result.xml
+      - name: Upload Checkstyle Result
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/checkstyle-result.xml'
+          path: '**/search-checkstyle-result.xml'
       - name: Run Maven Verify
         run: mvn clean verify -f search
       - name: Test Results
@@ -47,6 +50,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f search
       - name: OWASP Dependency Check
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
         env:
           JAVA_HOME: /opt/jdk
@@ -55,6 +59,7 @@ jobs:
           path: '.'
           format: 'HTML'
       - name: Upload OWASP Dependency Check results
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
         with:
           name: OWASP Dependency Check Report

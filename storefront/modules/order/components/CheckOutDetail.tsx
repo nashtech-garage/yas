@@ -1,15 +1,44 @@
 import { formatPrice } from '@/utils/formatPrice';
+import { PaymentProvider } from '@/modules/payment/models/PaymentProvider';
+import { getEnabledPaymentProviders } from '../../payment/services/PaymentProviderService';
 import { OrderItem } from '../models/OrderItem';
 import { useEffect, useState } from 'react';
 
 type Props = {
   orderItems: OrderItem[];
   disablePaymentProcess: boolean;
+  setPaymentMethod: (method: string | null) => void;
 };
 
-const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
+const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }: Props) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [disableCheckout, setDisableCheckout] = useState<boolean>(true);
+  const [paymentProviders, setPaymentProviders] = useState<PaymentProvider[]>([]);
+  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPaymentProviders = async () => {
+      try {
+        const providers = await getEnabledPaymentProviders();
+        setPaymentProviders(providers);
+      } catch (error) {
+        console.error('Error fetching payment providers:', error);
+      }
+    };
+
+    fetchPaymentProviders();
+  }, []);
+
+  useEffect(() => {
+    if (paymentProviders.length > 0 && selectedPayment === null) {
+      setSelectedPayment(paymentProviders[0].id);
+    }
+  }, [paymentProviders]);
+
+  const paymentProviderChange = (id: string) => {
+    setSelectedPayment(selectedPayment === id ? null : id);
+    setPaymentMethod(selectedPayment === id ? null : id);
+  };
 
   useEffect(() => {
     const totalPrice = orderItems
@@ -56,6 +85,28 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess }: Props) => {
         </div>
         <div className="checkout__order__total">
           Total <span>{formatPrice(totalPrice)}</span>
+        </div>
+        <div className="checkout__order__payment__providers">
+          <h4>Payment Method</h4>
+          {paymentProviders.map((provider) => (
+            <div
+              className={`payment__provider__item ${
+                selectedPayment === provider.id ? 'payment__provider__item__active' : ''
+              }`}
+              key={provider.id}
+            >
+              <label>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={provider.id}
+                  checked={selectedPayment === provider.id}
+                  onChange={() => paymentProviderChange(provider.id)}
+                />
+                {provider.name}
+              </label>
+            </div>
+          ))}
         </div>
         <div className="checkout__input__checkbox">
           <label htmlFor="acc-or">
