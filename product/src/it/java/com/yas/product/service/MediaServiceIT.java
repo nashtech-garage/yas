@@ -1,6 +1,6 @@
 package com.yas.product.service;
 
-import static com.yas.product.constants.TestConstants.CIRCUIT_BREAKER_NAME;
+import static com.yas.product.constant.TestConstants.CIRCUIT_BREAKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
