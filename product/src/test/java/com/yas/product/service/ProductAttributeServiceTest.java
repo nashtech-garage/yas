@@ -67,7 +67,7 @@ class ProductAttributeServiceTest {
         productAttribute.setProductAttributeGroup(group);
 
         when(productAttributeGroupRepository.findById(1L)).thenReturn(Optional.of(group));
-        when(productAttributeRepository.saveAndFlush(any(ProductAttribute.class)))
+        when(productAttributeRepository.save(any(ProductAttribute.class)))
                 .thenReturn(productAttribute);
 
         ProductAttributePostVm postVm = new ProductAttributePostVm("Attribute1", 1L);
@@ -91,7 +91,7 @@ class ProductAttributeServiceTest {
 
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(existingAttr));
         when(productAttributeGroupRepository.findById(1L)).thenReturn(Optional.of(group));
-        when(productAttributeRepository.saveAndFlush(any(ProductAttribute.class)))
+        when(productAttributeRepository.save(any(ProductAttribute.class)))
                 .thenReturn(existingAttr);
 
         ProductAttributePostVm postVm = new ProductAttributePostVm("Updated Attribute", 1L);
@@ -104,7 +104,7 @@ class ProductAttributeServiceTest {
     // Save a product attribute with a null group ID
     @Test
     void test_save_product_attribute_with_null_group_id() {
-        when(productAttributeRepository.saveAndFlush(any(ProductAttribute.class)))
+        when(productAttributeRepository.save(any(ProductAttribute.class)))
                 .thenReturn(new ProductAttribute(1L, "New Attribute", null, null, null));
 
         ProductAttributePostVm postVm = new ProductAttributePostVm("New Attribute", null);
@@ -119,7 +119,7 @@ class ProductAttributeServiceTest {
     void test_update_product_attribute_with_null_group_id() {
         ProductAttribute existingAttr = new ProductAttribute(1L, "Old Attribute", null, null, null);
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(existingAttr));
-        when(productAttributeRepository.saveAndFlush(any(ProductAttribute.class)))
+        when(productAttributeRepository.save(any(ProductAttribute.class)))
                 .thenReturn(new ProductAttribute(1L, "Updated Attribute", null, null, null));
 
         ProductAttributePostVm postVm = new ProductAttributePostVm("Updated Attribute", null);

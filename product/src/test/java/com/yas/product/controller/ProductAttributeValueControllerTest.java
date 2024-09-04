@@ -120,7 +120,7 @@ class ProductAttributeValueControllerTest {
         when(productRepository.findById(ArgumentMatchers.anyLong()))
                 .thenReturn(Optional.of(new Product()));
         when(productAttributeRepository.findById(anyLong())).thenReturn(Optional.of(new ProductAttribute()));
-        when(productAttributeValueRepository.saveAndFlush(any(ProductAttributeValue.class))).thenReturn(productAttributeValue);
+        when(productAttributeValueRepository.save(any(ProductAttributeValue.class))).thenReturn(productAttributeValue);
 
         mockMvc.perform(post("/backoffice/product-attribute-value")
                         .contentType(MediaType.APPLICATION_JSON)
