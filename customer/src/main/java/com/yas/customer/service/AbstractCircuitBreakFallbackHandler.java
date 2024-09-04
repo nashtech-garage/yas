@@ -9,13 +9,13 @@ abstract class AbstractCircuitBreakFallbackHandler {
         handleError(throwable);
     }
 
-    protected Object handleFallback(Throwable throwable) throws Throwable {
-        handleError(throwable);
-        return null;
-    }
-
-    private void handleError(Throwable throwable) throws Throwable {
+    protected void handleError(Throwable throwable) throws Throwable {
         log.error("Circuit breaker records an error. Detail {}", throwable.getMessage());
         throw throwable;
+    }
+
+    protected  <T> T handleTypedFallback(Throwable throwable, T defaultValue) throws Throwable {
+        handleError(throwable);
+        return defaultValue;
     }
 }
