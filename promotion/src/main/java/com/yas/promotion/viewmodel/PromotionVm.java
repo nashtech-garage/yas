@@ -1,8 +1,9 @@
 package com.yas.promotion.viewmodel;
 
 import com.yas.promotion.model.Promotion;
-import java.time.ZonedDateTime;
 import lombok.Builder;
+
+import java.time.ZonedDateTime;
 
 @Builder
 public record PromotionVm(Long id,
