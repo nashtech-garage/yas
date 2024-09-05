@@ -37,7 +37,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
                 .body(OrderExistsByProductAndUserGetVm.class);
     }
 
-    public OrderExistsByProductAndUserGetVm handleFallback(Long productId, Throwable t) {
+    public OrderExistsByProductAndUserGetVm handleFallback(@SuppressWarnings("unused") Long productId, @SuppressWarnings("unused") Throwable t) {
         return new OrderExistsByProductAndUserGetVm(false);
     }
 }

@@ -1,10 +1,7 @@
 package com.yas.rating.service;
 
 import com.yas.rating.config.ServiceUrlConfig;
-import com.yas.rating.exception.AccessDeniedException;
-import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.CustomerVm;
-import com.yas.rating.viewmodel.OrderExistsByProductAndUserGetVm;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
