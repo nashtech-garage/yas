@@ -79,6 +79,7 @@ jobs:
         with:
           image: zricethezav/gitleaks:v8.18.4
           options: -v ${{ github.workspace }}:/work
+          shell: bash
           run: detect --source=/work --verbose --no-git
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
