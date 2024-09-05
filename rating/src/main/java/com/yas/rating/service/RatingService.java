@@ -118,8 +118,6 @@ public class RatingService {
         }
         int totalStars = (Integer.parseInt(totalStarsAndRatings.get(0)[0].toString()));
         int totalRatings = (Integer.parseInt(totalStarsAndRatings.get(0)[1].toString()));
-
-//        Double averageStars = (totalStars * 1.0) / totalRatings;
         return (totalStars * 1.0) / totalRatings;
     }
 }
