@@ -23,8 +23,7 @@ class MediaServiceIT {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:16")
-        .withReuse(true);
+    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:16");
 
     @Test
     void test_getMedia_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() {
