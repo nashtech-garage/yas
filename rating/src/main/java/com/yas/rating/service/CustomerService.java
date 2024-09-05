@@ -1,7 +1,10 @@
 package com.yas.rating.service;
 
 import com.yas.rating.config.ServiceUrlConfig;
+import com.yas.rating.exception.AccessDeniedException;
+import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.CustomerVm;
+import com.yas.rating.viewmodel.OrderExistsByProductAndUserGetVm;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
@@ -15,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 public class CustomerService extends AbstractCircuitBreakFallbackHandler {
+
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
@@ -33,5 +37,10 @@ public class CustomerService extends AbstractCircuitBreakFallbackHandler {
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .body(CustomerVm.class);
+    }
+
+    @Override
+    protected CustomerVm handleFallback(Throwable throwable) throws Throwable {
+        return null;
     }
 }

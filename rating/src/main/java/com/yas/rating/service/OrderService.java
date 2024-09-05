@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 public class OrderService extends AbstractCircuitBreakFallbackHandler {
+
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
@@ -29,11 +30,14 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
                 .queryParam("productId", productId.toString())
                 .buildAndExpand()
                 .toUri();
-
         return restClient.get()
                 .uri(url)
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .body(OrderExistsByProductAndUserGetVm.class);
+    }
+
+    public OrderExistsByProductAndUserGetVm handleFallback(Long productId, Throwable t) {
+        return new OrderExistsByProductAndUserGetVm(false);
     }
 }
