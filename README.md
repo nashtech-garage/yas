@@ -2,6 +2,7 @@
 
 YAS is a pet project aim to practice building a typical microservice application in Java
 
+[![Gitleaks-check](https://github.com/nashtech-garage/yas/actions/workflows/gitleaks-check.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/gitleaks-check.yaml)
 [![storefront-ci](https://github.com/nashtech-garage/yas/actions/workflows/storefront-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/storefront-ci.yaml)
 [![storefront-bff-ci](https://github.com/nashtech-garage/yas/actions/workflows/storefront-bff-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/storefront-bff-ci.yaml)
 [![backoffice-ci](https://github.com/nashtech-garage/yas/actions/workflows/backoffice-ci.yaml/badge.svg)](https://github.com/nashtech-garage/yas/actions/workflows/backoffice-ci.yaml)
