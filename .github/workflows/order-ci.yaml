@@ -74,6 +74,12 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Order Coverage Report'
           update-comment: true
+      - name: Gitleaks check
+        uses: addnab/docke-run-action@v2
+        with:
+          image: zricethezav/gitleaks:v8.18.4
+          options: -v {{ github.workspace }}:/work
+          run: detect --source=/work --verbose --no-git
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
