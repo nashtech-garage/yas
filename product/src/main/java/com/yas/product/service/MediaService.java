@@ -22,7 +22,7 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleMediaFallback")
     public NoFileMediaVm saveFile(MultipartFile multipartFile, String caption, String fileNameOverride) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.media()).path("/medias").build().toUri();
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
@@ -43,7 +43,7 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleMediaFallback")
     public NoFileMediaVm getMedia(Long id) {
         if (id == null) {
             //TODO return default no image url
@@ -69,5 +69,9 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .body(Void.class);
+    }
+
+    private NoFileMediaVm handleMediaFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
     }
 }
