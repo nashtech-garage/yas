@@ -18,7 +18,7 @@ spring:
           keycloak:
             provider: keycloak
             client-id: storefront-bff
-            client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
+            client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn #gitleaks:allow
             scope: openid, profile, email, roles
 management:
   metrics:

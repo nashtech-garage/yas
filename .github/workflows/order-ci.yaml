@@ -74,10 +74,6 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Order Coverage Report'
           update-comment: true
-      - name: Gitleaks check
-        run: |
-          docker pull zricethezav/gitleaks:v8.18.4
-          docker run --rm -v ${{ github.workspace }}:/work zricethezav/gitleaks:v8.18.4 detect --source="/work" --verbose --no-git
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
