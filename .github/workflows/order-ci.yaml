@@ -75,10 +75,10 @@ jobs:
           title: 'Order Coverage Report'
           update-comment: true
       - name: Gitleaks check
-        uses: addnab/docke-run-action@v2
+        uses: addnab/docker-run-action@v3
         with:
           image: zricethezav/gitleaks:v8.18.4
-          options: -v {{ github.workspace }}:/work
+          options: -v ${{ github.workspace }}:/work
           run: detect --source=/work --verbose --no-git
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
