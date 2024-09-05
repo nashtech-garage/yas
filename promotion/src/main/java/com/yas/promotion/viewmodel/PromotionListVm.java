@@ -1,7 +1,8 @@
 package com.yas.promotion.viewmodel;
 
-import java.util.List;
 import lombok.Builder;
+
+import java.util.List;
 
 @Builder
 public record PromotionListVm(

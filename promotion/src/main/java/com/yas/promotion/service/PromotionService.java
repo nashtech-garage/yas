@@ -8,15 +8,16 @@ import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,9 +34,13 @@ public class PromotionService {
                 .slug(promotionPostVm.slug())
                 .description(promotionPostVm.description())
                 .couponCode(promotionPostVm.couponCode())
+                .applyTo(promotionPostVm.applyTo())
+                .usageType(promotionPostVm.usageType())
+                .usageLimit(promotionPostVm.usageLimit())
+                .discountType(promotionPostVm.discountType())
                 .discountPercentage(promotionPostVm.discountPercentage())
                 .discountAmount(promotionPostVm.discountAmount())
-                .isActive(true)
+                .isActive(promotionPostVm.isActive())
                 .startDate(promotionPostVm.startDate())
                 .endDate(promotionPostVm.endDate())
                 .build();
