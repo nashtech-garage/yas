@@ -83,17 +83,14 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     }
 
     private List<AddressDetailVm> handleAddressDetailListFallback(Throwable throwable) throws Throwable {
-        return handleTypedFallback(throwable, Collections.emptyList());
-
+        return handleTypedFallback(throwable);
     }
 
     private AddressDetailVm handleAddressDetailFallback(Throwable throwable) throws Throwable {
-        return handleTypedFallback(throwable, null);
-
+        return handleTypedFallback(throwable);
     }
 
     private AddressVm handleAddressFallback(Throwable throwable) throws Throwable {
-        return handleTypedFallback(throwable, null);
-
+        return handleTypedFallback(throwable);
     }
 }

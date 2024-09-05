@@ -14,8 +14,8 @@ abstract class AbstractCircuitBreakFallbackHandler {
         throw throwable;
     }
 
-    protected  <T> T handleTypedFallback(Throwable throwable, T defaultValue) throws Throwable {
+    protected <T> T handleTypedFallback(Throwable throwable) throws Throwable {
         handleError(throwable);
-        return defaultValue;
+        return null;
     }
 }
