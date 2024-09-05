@@ -18,7 +18,7 @@ spring:
           api-client:
             provider: keycloak
             client-id: backoffice-bff
-            client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
+            client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF #gitleaks:allow
             scope: openid, profile, email, roles
 management:
   tracing:
