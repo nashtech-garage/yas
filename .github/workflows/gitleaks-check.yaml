@@ -1,5 +1,6 @@
-name: // At the end of every day check gitleaks
+name: GitLeaks check nightly
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
 jobs:
