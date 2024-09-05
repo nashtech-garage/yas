@@ -1,4 +1,4 @@
-TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF:/work/backoffice-bff/src/main/resources/application.yaml:generic-api-key:21
-46c49daf-fa62-4744-883d-d32e810cfb9c:/work/cart/src/it/resources/test-realm.json:generic-api-key:450
-134ac396-96f5-432a-8241-faf3de2711f6:/work/cart/src/it/resources/test-realm.json:generic-api-key:480
-8caf9d87-7e94-4597-931a-4cb5357e72b2:/work/cart/src/it/resources/test-realm.json:generic-api-key:517
+TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF:backoffice-bff/src/main/resources/application.yaml:generic-api-key:21
+46c49daf-fa62-4744-883d-d32e810cfb9c:cart/src/it/resources/test-realm.json:generic-api-key:450
+134ac396-96f5-432a-8241-faf3de2711f6:cart/src/it/resources/test-realm.json:generic-api-key:480
+8caf9d87-7e94-4597-931a-4cb5357e72b2:cart/src/it/resources/test-realm.json:generic-api-key:517
