@@ -95,6 +95,7 @@ class ProductControllerIT extends AbstractControllerIT{
             product.setCreatedOn(CREATED_ON);
             products.add(product);
         }
+        products.get(1).setParent(products.get(0));
         List<Product> productsDB = productRepository.saveAll(products);
 
         productCategoryList = new ArrayList<>();
