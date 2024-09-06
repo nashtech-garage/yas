@@ -1,6 +1,5 @@
 package com.yas.product.controller;
 
-import static org.instancio.Select.field;
 import static org.hamcrest.Matchers.hasSize;
 
 import com.yas.product.config.IntegrationTestConfiguration;
@@ -17,7 +16,6 @@ import io.restassured.RestAssured;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +46,6 @@ class ProductControllerIT extends AbstractControllerIT{
     private Category category2;
     private Brand brand1;
     private Brand brand2;
-    private NoFileMediaVm noFileMediaVm;
 
     final String PRODUCT_BACKOFFICE_BASE_URL = "/v1/backoffice/products";
     final ZonedDateTime CREATED_ON = ZonedDateTime.now();
