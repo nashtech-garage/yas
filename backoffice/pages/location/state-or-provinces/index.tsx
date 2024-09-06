@@ -119,7 +119,6 @@ const StateOrProvinceList: NextPage = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Code</th>
             <th>Type</th>
@@ -129,7 +128,6 @@ const StateOrProvinceList: NextPage = () => {
         <tbody>
           {stateOrProvinces.map((stateOrProvince) => (
             <tr key={stateOrProvince.id}>
-              <td>{stateOrProvince.id}</td>
               <td>{stateOrProvince.name}</td>
               <td>{stateOrProvince.code}</td>
               <td>{stateOrProvince.type}</td>

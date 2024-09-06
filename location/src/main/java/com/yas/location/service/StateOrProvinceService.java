@@ -15,6 +15,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,15 +42,15 @@ public class StateOrProvinceService {
      */
     @Transactional
     public StateOrProvince createStateOrProvince(final StateOrProvincePostVm stateOrProvincePostVm) {
-        if (stateOrProvinceRepository.existsByName(stateOrProvincePostVm.name())) {
-            throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED,
-                stateOrProvincePostVm.name());
-        }
-
         final Long countryId = stateOrProvincePostVm.countryId();
         final boolean isCountryExisted = countryRepository.existsById(countryId);
         if (!isCountryExisted) {
             throw new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, countryId);
+        }
+
+        if (stateOrProvinceRepository.existsByNameIgnoreCaseAndCountryId(stateOrProvincePostVm.name(), countryId)) {
+            throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED,
+                stateOrProvincePostVm.name());
         }
 
         final StateOrProvince stateOrProvince = StateOrProvince.builder()
@@ -77,8 +78,8 @@ public class StateOrProvinceService {
                 () -> new NotFoundException(Constants.ErrorCode.STATE_OR_PROVINCE_NOT_FOUND, id));
 
         //For the updating case we don't need to check for the state or province being updated
-        if (stateOrProvinceRepository.existsByNameNotUpdatingStateOrProvince(
-            stateOrProvincePostVm.name(), id)) {
+        if (stateOrProvinceRepository.existsByNameIgnoreCaseAndCountryIdAndIdNot(
+            stateOrProvincePostVm.name(), stateOrProvince.getCountry().getId(), id)) {
             throw new DuplicatedException(Constants.ErrorCode.NAME_ALREADY_EXITED,
                 stateOrProvincePostVm.name());
         }
@@ -137,7 +138,7 @@ public class StateOrProvinceService {
     @Transactional(readOnly = true)
     public StateOrProvinceListGetVm getPageableStateOrProvinces(int pageNo, int pageSize,
                                                                 Long countryId) {
-        final Pageable pageable = PageRequest.of(pageNo, pageSize);
+        final Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.ASC, "name"));
         final Page<StateOrProvince> stateOrProvincePage =
             stateOrProvinceRepository.getPageableStateOrProvincesByCountry(
                 countryId, pageable);
