@@ -35,6 +35,7 @@ import com.yas.product.viewmodel.product.ProductEsDetailVm;
 import com.yas.product.viewmodel.product.ProductExportingDetailVm;
 import com.yas.product.viewmodel.product.ProductFeatureGetVm;
 import com.yas.product.viewmodel.product.ProductGetDetailVm;
+import com.yas.product.viewmodel.product.ProductInfoForOrderVm;
 import com.yas.product.viewmodel.product.ProductInfoVm;
 import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
 import com.yas.product.viewmodel.product.ProductListGetVm;
@@ -890,6 +891,12 @@ public class ProductService {
             }).toList();
         }
         return Collections.emptyList();
+    }
+
+    public List<ProductInfoForOrderVm> getProductForOrder(List<Long> productIds){
+        return  productRepository.findAllById(productIds)
+            .stream().map(ProductInfoForOrderVm::fromProduct)
+            .toList();
     }
 
     public List<ProductExportingDetailVm> exportProducts(String productName, String brandName) {
