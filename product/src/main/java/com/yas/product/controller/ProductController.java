@@ -253,7 +253,7 @@ public class ProductController {
     @GetMapping("/backoffice/products/for-order")
     public ResponseEntity<List<ProductInfoForOrderVm>> getProductForOrder(
         @RequestParam List<Long> productIds
-    ){
+    ) {
         return ResponseEntity.ok(productService.getProductForOrder(productIds));
     }
 }

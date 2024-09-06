@@ -893,7 +893,7 @@ public class ProductService {
         return Collections.emptyList();
     }
 
-    public List<ProductInfoForOrderVm> getProductForOrder(List<Long> productIds){
+    public List<ProductInfoForOrderVm> getProductForOrder(List<Long> productIds) {
         return  productRepository.findAllById(productIds)
             .stream().map(ProductInfoForOrderVm::fromProduct)
             .toList();
