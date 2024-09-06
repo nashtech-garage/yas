@@ -38,8 +38,8 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
     }
 
     public OrderExistsByProductAndUserGetVm handleFallback(Long productId, Throwable t) {
-        if(productId != null || t != null){
-            // for sonar check, the productId and t is use by CircuitBreaker
+        // for sonar check, the productId and t is use by CircuitBreaker
+        if (productId != null || t != null) {
         }
         return new OrderExistsByProductAndUserGetVm(false);
     }

@@ -50,9 +50,9 @@ public class RatingControllerIT extends AbstractControllerIT {
         rating = ratingRepository.save(Instancio.of(Rating.class)
                 .generate(Select.field((Rating::getRatingStar)), gen -> gen.ints().min(0).max(5))
                 .create());
-        Set<Rating> list = new HashSet();
+        Set<Rating> set = new HashSet();
         for (int i = 0; i <= 5; i++) {
-            list.add(Instancio.of(Rating.class)
+            set.add(Instancio.of(Rating.class)
                     .generate(
                             Select.field((Rating::getRatingStar)),
                             gen -> gen.ints().min(0).max(5)
@@ -60,7 +60,7 @@ public class RatingControllerIT extends AbstractControllerIT {
                     .create()
             );
         }
-        ratingRepository.saveAll(list);
+        ratingRepository.saveAll(set);
     }
 
     @AfterEach
