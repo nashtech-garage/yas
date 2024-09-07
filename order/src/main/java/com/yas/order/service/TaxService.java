@@ -18,7 +18,7 @@ public class TaxService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleDoubleFallback")
     public Double getTaxPercentByAddress(Long taxClassId, Long countryId, Long stateOrProvinceId, String zipCode) {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.tax())
             .path("/backoffice/tax-rates/tax-percent")
@@ -35,5 +35,9 @@ public class TaxService extends AbstractCircuitBreakFallbackHandler {
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .body(Double.class);
+    }
+
+    private Double handleDoubleFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
     }
 }
