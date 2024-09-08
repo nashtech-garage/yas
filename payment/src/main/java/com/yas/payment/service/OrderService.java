@@ -54,11 +54,11 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
                 .body(PaymentOrderStatusVm.class);
     }
 
-    private Long handleLongFallback(Throwable throwable) throws Throwable {
+    protected Long handleLongFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 
-    private PaymentOrderStatusVm handlePaymentOrderStatusFallback(Throwable throwable) throws Throwable {
+    protected PaymentOrderStatusVm handlePaymentOrderStatusFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }

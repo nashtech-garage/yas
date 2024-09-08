@@ -35,7 +35,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .getBody();
     }
 
-    public List<ProductThumbnailVm> handleProductThumbnailFallback(Throwable throwable) throws Throwable {
+    protected List<ProductThumbnailVm> handleProductThumbnailFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }

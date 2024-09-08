@@ -36,7 +36,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             });
     }
 
-    private List<StateOrProvinceAndCountryGetNameVm> handleLocationNameListFallback(Throwable throwable)
+    protected List<StateOrProvinceAndCountryGetNameVm> handleLocationNameListFallback(Throwable throwable)
         throws Throwable {
         return handleTypedFallback(throwable);
     }
