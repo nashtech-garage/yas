@@ -92,11 +92,11 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .body(Void.class);
     }
 
-    private ProductInfoVm handleProductInfoFallback(Throwable throwable) throws Throwable {
+    protected ProductInfoVm handleProductInfoFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 
-    private List<ProductInfoVm> handleProductInfoListFallback(Throwable throwable) throws Throwable {
+    protected List<ProductInfoVm> handleProductInfoListFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }

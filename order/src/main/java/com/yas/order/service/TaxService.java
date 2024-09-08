@@ -37,7 +37,7 @@ public class TaxService extends AbstractCircuitBreakFallbackHandler {
                 .body(Double.class);
     }
 
-    private Double handleDoubleFallback(Throwable throwable) throws Throwable {
+    protected Double handleDoubleFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }

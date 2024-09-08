@@ -73,7 +73,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
                 ).toList();
     }
 
-    public List<ProductVariationVm> handleProductVariationListFallback(Throwable throwable) throws Throwable {
+    protected List<ProductVariationVm> handleProductVariationListFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }

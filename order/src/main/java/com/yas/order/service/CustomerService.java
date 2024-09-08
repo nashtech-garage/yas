@@ -35,7 +35,7 @@ public class CustomerService extends AbstractCircuitBreakFallbackHandler {
                 .body(CustomerVm.class);
     }
 
-    public CustomerVm handleCustomerFallback(Throwable throwable) throws Throwable {
+    protected CustomerVm handleCustomerFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }
