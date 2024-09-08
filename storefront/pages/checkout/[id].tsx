@@ -287,7 +287,7 @@ const Checkout = () => {
                       address={undefined}
                     />
 
-                    <h4>Billing Addresssss</h4>
+                    <h4>Billing Address</h4>
                     <div className="row mb-4">
                       <div className="col-lg-6">
                         <div className="checkout__input__checkbox">
