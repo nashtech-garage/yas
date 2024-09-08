@@ -217,10 +217,10 @@ const Checkout = () => {
   const handleCheckOutProcess = async (order: Order) => {
     const paymentMethod = order.paymentMethod ?? '';
     switch (paymentMethod.toUpperCase()) {
-      case 'CODPAYMENT':
+      case 'COD':
         processCodPayment(order);
         break;
-      case 'PAYPALPAYMENT':
+      case 'PAYPAL':
         redirectToPaypal(order);
         break;
       default:
@@ -287,7 +287,7 @@ const Checkout = () => {
                       address={undefined}
                     />
 
-                    <h4>Billing Address</h4>
+                    <h4>Billing Addresssss</h4>
                     <div className="row mb-4">
                       <div className="col-lg-6">
                         <div className="checkout__input__checkbox">
