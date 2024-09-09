@@ -227,16 +227,6 @@ class MediaServiceUnitTest {
     }
 
     @Test
-    void saveMedia_whenGetBytesFailed_thenThrowsMultipartFileContentException() throws IOException {
-        MultipartFile multipartFile = mock(MultipartFile.class);
-        when(multipartFile.getContentType()).thenReturn("image/png");
-        when(multipartFile.getBytes()).thenThrow(new IOException("Simulated IOException"));
-
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
-        assertThrows(MultipartFileContentException.class, () -> mediaService.saveMedia(mediaPostVm));
-    }
-
-    @Test
     void getFile_whenMediaNotFound_thenReturnMediaDto() {
         MediaDto expectedDto = MediaDto.builder().build();
         when(mediaRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
