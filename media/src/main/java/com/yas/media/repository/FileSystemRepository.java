@@ -52,9 +52,8 @@ public class FileSystemRepository {
         if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
             throw new IllegalArgumentException("Invalid filename");
         }
-
         // Normalize the path
-        Path filePath = Paths.get(filesystemConfig.getDirectory(), filename).toRealPath();
+        Path filePath = Paths.get(filesystemConfig.getDirectory(), filename).toAbsolutePath().normalize();
 
         // Ensure the file is within the base directory
         if (!filePath.startsWith(filesystemConfig.getDirectory())) {
