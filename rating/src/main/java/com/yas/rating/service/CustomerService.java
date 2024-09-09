@@ -36,7 +36,6 @@ public class CustomerService extends AbstractCircuitBreakFallbackHandler {
                 .body(CustomerVm.class);
     }
 
-    @Override
     protected CustomerVm handleFallback(Throwable throwable) throws Throwable {
         return null;
     }

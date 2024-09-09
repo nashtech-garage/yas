@@ -37,10 +37,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
                 .body(OrderExistsByProductAndUserGetVm.class);
     }
 
-    public OrderExistsByProductAndUserGetVm handleFallback(Long productId, Throwable t) {
-        if (productId != null || t != null) {
-            // for sonar check, the productId and t is use by CircuitBreaker
-        }
+    public OrderExistsByProductAndUserGetVm handleFallback(Throwable t) throws Throwable {
         return new OrderExistsByProductAndUserGetVm(false);
     }
 }
