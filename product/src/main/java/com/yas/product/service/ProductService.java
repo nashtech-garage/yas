@@ -120,12 +120,12 @@ public class ProductService {
 
         setProductBrand(productPostVm.brandId(), mainProduct);
 
-        Product savedMainProduct = productRepository.saveAndFlush(mainProduct);
+        Product savedMainProduct = productRepository.save(mainProduct);
 
         List<ProductCategory> productCategories = setProductCategories(productPostVm.categoryIds(), savedMainProduct);
         List<ProductImage> productImages = setProductImages(productPostVm.productImageIds(), savedMainProduct);
-        productImageRepository.saveAllAndFlush(productImages);
-        productCategoryRepository.saveAllAndFlush(productCategories);
+        productImageRepository.saveAll(productImages);
+        productCategoryRepository.saveAll(productCategories);
 
         createProductRelations(productPostVm, savedMainProduct);
 
@@ -153,7 +153,7 @@ public class ProductService {
         validateProductVm(productSaveVm, null);
     }
 
-    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm, 
+    private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm,
                                                                       Product existingProduct) {
         validateExistingProductProperties(productSaveVm, existingProduct);
 
@@ -266,8 +266,8 @@ public class ProductService {
             })
             .toList();
 
-        List<Product> savedVariations = productRepository.saveAllAndFlush(productVariations);
-        productImageRepository.saveAllAndFlush(allVariationImages);
+        List<Product> savedVariations = productRepository.saveAll(productVariations);
+        productImageRepository.saveAll(allVariationImages);
         return savedVariations;
     }
 
@@ -337,7 +337,7 @@ public class ProductService {
                 optionCombinations.add(optionCombination);
             });
         }
-        productOptionCombinationRepository.saveAllAndFlush(optionCombinations);
+        productOptionCombinationRepository.saveAll(optionCombinations);
     }
 
     private void createProductRelations(ProductPostVm productPostVm, Product savedMainProduct) {
@@ -351,7 +351,7 @@ public class ProductService {
                 .relatedProduct(relatedProduct)
                 .build())
             .toList();
-        productRelatedRepository.saveAllAndFlush(productRelations);
+        productRelatedRepository.saveAll(productRelations);
     }
 
     public void updateProduct(long productId, ProductPutVm productPutVm) {
@@ -367,14 +367,14 @@ public class ProductService {
         updateProductCategories(productPutVm, product);
 
         List<ProductImage> productImages = setProductImages(productPutVm.productImageIds(), product);
-        productImageRepository.saveAllAndFlush(productImages);
+        productImageRepository.saveAll(productImages);
 
         updateProductRelations(productPutVm, product);
 
         List<ProductImage> allVariationImages = new ArrayList<>();
         List<Product> existingVariations = product.getProducts();
         updateExistingVariants(productPutVm, allVariationImages, existingVariations);
-        productRepository.saveAllAndFlush(existingVariations);
+        productRepository.saveAll(existingVariations);
 
         if (CollectionUtils.isEmpty(productPutVm.productOptionValues())) {
             return;
@@ -438,7 +438,7 @@ public class ProductService {
         List<ProductCategory> newProductCategories = setProductCategories(productPutVm.categoryIds(), product);
         List<ProductCategory> oldProductCategories = productCategoryRepository.findAllByProductId(product.getId());
         productCategoryRepository.deleteAllInBatch(oldProductCategories);
-        productCategoryRepository.saveAllAndFlush(newProductCategories);
+        productCategoryRepository.saveAll(newProductCategories);
     }
 
     private void updateProductRelations(ProductPutVm productPutVm, Product product) {
@@ -471,7 +471,7 @@ public class ProductService {
                 .toList();
 
         productRelatedRepository.deleteAll(oldProductRelations);
-        productRelatedRepository.saveAllAndFlush(newProductRelations);
+        productRelatedRepository.saveAll(newProductRelations);
     }
 
     private List<ProductOptionValue> updateProductOptionValues(ProductPutVm productPutVm, Product product,
@@ -487,7 +487,7 @@ public class ProductService {
                 .build();
             productOptionValues.add(optionValue);
         }));
-        productOptionValueRepository.saveAllAndFlush(productOptionValues);
+        productOptionValueRepository.saveAll(productOptionValues);
         return productOptionValues;
     }
 
