@@ -1,13 +1,11 @@
-package com.yas.inventory.integration.repository;
+package com.yas.inventory.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.instancio.Select.field;
 
-import com.yas.inventory.integration.config.IntegrationTestConfiguration;
+import com.yas.inventory.config.IntegrationTestConfiguration;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.repository.StockRepository;
-import com.yas.inventory.repository.WarehouseRepository;
 import java.util.List;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -17,13 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
-@Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class StockRepositoryIT {
+class StockRepositoryIT {
 
     @Autowired
     private StockRepository stockRepository;
@@ -57,13 +53,13 @@ public class StockRepositoryIT {
     }
 
     @Test
-    void test_getProductIdsInWarehouse_shouldReturnProductId_ifWarehouseExists() {
+    void testGetProductIdsInWarehouse_ifWarehouseExists_shouldReturnProductId() {
         var actual = stockRepository.getProductIdsInWarehouse(warehouse.getId());
         assertThat(actual).asList().hasSize(1);
     }
 
     @Test
-    void test_findByWarehouseIdAndProductIdIn_shouldReturnStock_ifStockExists() {
+    void testFindByWarehouseIdAndProductIdIn_ifStockExists_shouldReturnStock() {
         var actual = stockRepository.findByWarehouseIdAndProductIdIn(warehouse.getId(), List.of(stock.getProductId()));
         assertThat(actual).asList().hasSize(1);
     }
