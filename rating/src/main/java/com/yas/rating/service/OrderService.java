@@ -20,7 +20,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleOrderServiceFallback")
     public OrderExistsByProductAndUserGetVm checkOrderExistsByProductAndUserWithStatus(final Long productId) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .getTokenValue();
@@ -37,7 +37,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
                 .body(OrderExistsByProductAndUserGetVm.class);
     }
 
-    public OrderExistsByProductAndUserGetVm handleFallback(Throwable t) throws Throwable {
+    public OrderExistsByProductAndUserGetVm handleOrderServiceFallback(Throwable t) throws Throwable {
         return new OrderExistsByProductAndUserGetVm(false);
     }
 }
