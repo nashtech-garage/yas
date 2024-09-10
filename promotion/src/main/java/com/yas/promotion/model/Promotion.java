@@ -3,6 +3,7 @@ package com.yas.promotion.model;
 import com.yas.promotion.model.enumeration.ApplyTo;
 import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,15 +11,17 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "promotion")
@@ -66,6 +69,9 @@ public class Promotion extends AbstractAuditEntity {
 
     private ZonedDateTime endDate;
 
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<PromotionApply> promotionApplies;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -75,6 +81,14 @@ public class Promotion extends AbstractAuditEntity {
             return false;
         }
         return id != null && id.equals(((Promotion) o).id);
+    }
+
+    public void setPromotionApplies(List<PromotionApply> promotionApply) {
+        if (this.promotionApplies == null) {
+            this.promotionApplies = new ArrayList<>();
+        }
+        this.promotionApplies.clear();
+        this.promotionApplies.addAll(promotionApply);
     }
 
     @Override

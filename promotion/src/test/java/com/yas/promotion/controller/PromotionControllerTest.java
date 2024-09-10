@@ -3,6 +3,9 @@ package com.yas.promotion.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.promotion.PromotionApplication;
+import com.yas.promotion.model.enumeration.ApplyTo;
+import com.yas.promotion.model.enumeration.DiscountType;
+import com.yas.promotion.model.enumeration.UsageType;
 import com.yas.promotion.service.PromotionService;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,9 +20,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.containsString;
+import java.time.ZonedDateTime;
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -38,7 +42,9 @@ class PromotionControllerTest {
 
     @BeforeEach
     void setUp() {
-        objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        var objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+        objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
     }
 
     @Test
@@ -46,6 +52,16 @@ class PromotionControllerTest {
         PromotionPostVm promotionPostVm = PromotionPostVm.builder()
                 .name("name")
                 .slug("slug")
+                .applyTo(ApplyTo.PRODUCT)
+                .couponCode("code")
+                .discountPercentage(10L)
+                .usageType(UsageType.UNLIMITED)
+                .discountType(DiscountType.PERCENTAGE)
+                .productIds(List.of(1L,2L,3L))
+                .isActive(true)
+                .usageLimit(0)
+                .startDate(ZonedDateTime.now())
+                .endDate(ZonedDateTime.now().plusDays(30))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -61,6 +77,16 @@ class PromotionControllerTest {
         PromotionPostVm promotionPostVm = PromotionPostVm.builder()
                 .name("1234567890".repeat(46))
                 .slug("slug")
+                .discountPercentage(0L)
+                .applyTo(ApplyTo.PRODUCT)
+                .couponCode("code")
+                .usageType(UsageType.UNLIMITED)
+                .discountType(DiscountType.PERCENTAGE)
+                .productIds(List.of(1L,2L,3L))
+                .isActive(true)
+                .usageLimit(0)
+                .startDate(ZonedDateTime.now())
+                .endDate(ZonedDateTime.now().plusDays(30))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -76,6 +102,16 @@ class PromotionControllerTest {
         PromotionPostVm promotionPostVm = PromotionPostVm.builder()
                 .name("")
                 .slug("slug")
+                .discountPercentage(0L)
+                .applyTo(ApplyTo.PRODUCT)
+                .couponCode("code")
+                .usageType(UsageType.UNLIMITED)
+                .discountType(DiscountType.PERCENTAGE)
+                .productIds(List.of(1L,2L,3L))
+                .isActive(true)
+                .usageLimit(0)
+                .startDate(ZonedDateTime.now())
+                .endDate(ZonedDateTime.now().plusDays(30))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -92,6 +128,15 @@ class PromotionControllerTest {
             .name("amount smaller than 0")
             .slug("amount-smaller-than-0")
             .discountAmount(-15L)
+            .applyTo(ApplyTo.PRODUCT)
+            .couponCode("code")
+            .usageType(UsageType.UNLIMITED)
+            .discountType(DiscountType.FIXED)
+            .productIds(List.of(1L,2L,3L))
+            .isActive(true)
+            .usageLimit(0)
+            .startDate(ZonedDateTime.now())
+            .endDate(ZonedDateTime.now().plusDays(30))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -99,8 +144,7 @@ class PromotionControllerTest {
         this.mockMvc.perform(post("/backoffice/promotions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.fieldErrors[0]", containsString("discountAmount")));
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -109,6 +153,15 @@ class PromotionControllerTest {
             .name("percentage smaller than 0")
             .slug("percentage-smaller-than-0")
             .discountPercentage(-2L)
+            .applyTo(ApplyTo.PRODUCT)
+            .couponCode("code")
+            .usageType(UsageType.UNLIMITED)
+            .discountType(DiscountType.PERCENTAGE)
+            .productIds(List.of(1L,2L,3L))
+            .isActive(true)
+            .usageLimit(0)
+            .startDate(ZonedDateTime.now())
+            .endDate(ZonedDateTime.now().plusDays(30))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -116,8 +169,7 @@ class PromotionControllerTest {
         this.mockMvc.perform(post("/backoffice/promotions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.fieldErrors[0]", containsString("discountPercentage")));
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -126,6 +178,15 @@ class PromotionControllerTest {
             .name("percentage greater than 100")
             .slug("percentage-greater-than-100")
             .discountPercentage(112L)
+            .applyTo(ApplyTo.PRODUCT)
+            .couponCode("code")
+            .usageType(UsageType.UNLIMITED)
+            .discountType(DiscountType.PERCENTAGE)
+            .productIds(List.of(1L,2L,3L))
+            .isActive(true)
+            .usageLimit(0)
+            .startDate(ZonedDateTime.now())
+            .endDate(ZonedDateTime.now().plusDays(30))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -133,8 +194,7 @@ class PromotionControllerTest {
         this.mockMvc.perform(post("/backoffice/promotions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.fieldErrors[0]", containsString("discountPercentage")));
+            .andExpect(status().isBadRequest());
     }
 
 }

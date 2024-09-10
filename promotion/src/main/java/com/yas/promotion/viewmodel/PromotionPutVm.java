@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,9 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PromotionPostVm extends PromotionDto {
+public class PromotionPutVm extends PromotionDto {
+    @NotNull
+    private Long id;
     @Size(min = 1, max = 450)
     private String name;
     @NotBlank
@@ -28,28 +31,27 @@ public class PromotionPostVm extends PromotionDto {
     private String description;
     @NotBlank
     private String couponCode;
-    Long minimumOrderPurchaseAmount;
-    boolean isActive;
-    @NotNull ZonedDateTime startDate;
-    @NotNull ZonedDateTime endDate;
+    private Long minimumOrderPurchaseAmount;
+    private boolean isActive;
+    @NotNull
+    private ZonedDateTime startDate;
+    @NotNull
+    private ZonedDateTime endDate;
 
-    public static List<PromotionApply> createPromotionApplies(PromotionPostVm promotionPostVm, Promotion promotion) {
+    public static List<PromotionApply> createPromotionApplies(PromotionPutVm promotionPutVm, Promotion promotion) {
         return switch (promotion.getApplyTo()) {
-            case PRODUCT -> promotionPostVm.getProductIds().stream()
+            case PRODUCT -> new ArrayList<>(promotionPutVm.getProductIds().stream()
                     .map(productId -> PromotionApply.builder().productId(productId).promotion(promotion)
                             .build())
-                    .toList();
-
-            case BRAND -> promotionPostVm.getBrandIds().stream()
+                    .toList());
+            case BRAND -> promotionPutVm.getBrandIds().stream()
                     .map(brandId -> PromotionApply.builder().brandId(brandId).promotion(promotion)
                             .build())
                     .toList();
-
-            case CATEGORY -> promotionPostVm.getCategoryIds().stream()
+            case CATEGORY -> promotionPutVm.getCategoryIds().stream()
                     .map(categoryId -> PromotionApply.builder().categoryId(categoryId).promotion(promotion)
                             .build())
                     .toList();
-
         };
     }
 }

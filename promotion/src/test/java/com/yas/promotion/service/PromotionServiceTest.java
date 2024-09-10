@@ -7,12 +7,15 @@ import com.yas.promotion.PromotionApplication;
 import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
 import com.yas.promotion.model.Promotion;
+import com.yas.promotion.model.enumeration.ApplyTo;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import java.time.ZonedDateTime;
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -89,11 +92,13 @@ class PromotionServiceTest {
                 .isActive(true)
                 .startDate(ZonedDateTime.now().plusDays(60))
                 .endDate(ZonedDateTime.now().plusDays(90))
+                .applyTo(ApplyTo.PRODUCT)
+                .productIds(List.of(1L, 2L, 3L))
                 .build();
 
         PromotionDetailVm result = promotionService.createPromotion(promotionPostVm);
-        assertEquals(promotionPostVm.slug(), result.slug());
-        assertEquals(promotionPostVm.name(), result.name());
+        assertEquals(promotionPostVm.getSlug(), result.slug());
+        assertEquals(promotionPostVm.getName(), result.name());
         assertEquals(true, result.isActive());
     }
 
@@ -103,7 +108,7 @@ class PromotionServiceTest {
                 .slug(promotion1.getSlug())
                 .build();
         assertThrows(DuplicatedException.class, () -> promotionService.createPromotion(promotionPostVm),
-                String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, promotionPostVm.slug()));
+                String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, promotionPostVm.getSlug()));
     }
 
     @Test

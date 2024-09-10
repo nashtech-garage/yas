@@ -8,6 +8,8 @@ public class Constants {
         public static final String SLUG_ALREADY_EXITED = "Slug %s is already exists";
 
         public static final String DATE_RANGE_INVALID = "End date cannot be before start date";
+        public static final String PROMOTION_IN_USE_ERROR_MESSAGE = "PROMOTION_IN_USE";
+        public static final String PROMOTION_NOT_FOUND_ERROR_MESSAGE = "PROMOTION_NOT_FOUND";
     }
 
     public final class Pageable {
