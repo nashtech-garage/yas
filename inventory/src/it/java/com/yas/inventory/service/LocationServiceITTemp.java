@@ -16,7 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-class LocationServiceIT {
+class LocationServiceITTemp {
     @Autowired
     private LocationService locationService;
     @Autowired

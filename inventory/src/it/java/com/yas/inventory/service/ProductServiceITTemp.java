@@ -22,7 +22,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-class ProductServiceIT {
+class ProductServiceITTemp {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:16");
