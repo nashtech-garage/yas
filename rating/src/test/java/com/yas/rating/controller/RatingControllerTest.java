@@ -117,7 +117,7 @@ class RatingControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.statusCode", Matchers.is("404 NOT_FOUND")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("NotFound")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("Not Found")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.detail", Matchers.is("RATING 1 is not found")));
 
         verify(ratingService, times(1)).deleteRating(anyLong());
