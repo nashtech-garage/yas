@@ -1,4 +1,6 @@
+import apiClientService from "@/common/services/ApiClientService";
+
 export async function getDistricts(id: number) {
-  const response = await fetch(`/api/location/storefront/district/${id}`);
+  const response = await apiClientService.get(`/api/location/storefront/district/${id}`);
   return response.json();
 }
