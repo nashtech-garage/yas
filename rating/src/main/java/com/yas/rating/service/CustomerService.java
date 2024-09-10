@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 public class CustomerService extends AbstractCircuitBreakFallbackHandler {
+
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
 
@@ -33,5 +34,10 @@ public class CustomerService extends AbstractCircuitBreakFallbackHandler {
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .body(CustomerVm.class);
+    }
+
+    @Override
+    protected CustomerVm handleFallback(Throwable throwable) throws Throwable {
+        return null;
     }
 }

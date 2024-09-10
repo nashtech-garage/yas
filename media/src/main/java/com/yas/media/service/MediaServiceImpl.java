@@ -1,7 +1,6 @@
 package com.yas.media.service;
 
 import com.yas.media.config.YasConfig;
-import com.yas.media.exception.MultipartFileContentException;
 import com.yas.media.exception.NotFoundException;
 import com.yas.media.exception.UnsupportedMediaTypeException;
 import com.yas.media.model.Media;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,6 +30,7 @@ public class MediaServiceImpl implements MediaService {
     private final YasConfig yasConfig;
 
     @Override
+    @SneakyThrows
     public Media saveMedia(MediaPostVm mediaPostVm) {
         MediaType mediaType = MediaType.valueOf(Objects.requireNonNull(mediaPostVm.multipartFile().getContentType()));
         if (!(MediaType.IMAGE_PNG.equals(mediaType) || MediaType.IMAGE_JPEG.equals(mediaType)
@@ -45,13 +46,10 @@ public class MediaServiceImpl implements MediaService {
         } else {
             media.setFileName(mediaPostVm.multipartFile().getOriginalFilename());
         }
-        try {
-            String filePath = fileSystemRepository.persistFile(media.getFileName(),
-                mediaPostVm.multipartFile().getBytes());
-            media.setFilePath(filePath);
-        } catch (IOException e) {
-            throw new MultipartFileContentException(e);
-        }
+        String filePath = fileSystemRepository.persistFile(media.getFileName(),
+            mediaPostVm.multipartFile().getBytes());
+        media.setFilePath(filePath);
+
         return mediaRepository.save(media);
     }
 

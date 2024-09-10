@@ -57,12 +57,12 @@ class ProductOptionServiceTest {
     void test_create_product_option_unique_name() {
         ProductOptionPostVm postVm = new ProductOptionPostVm("UniqueName");
         when(productOptionRepository.findExistedName(anyString(), isNull())).thenReturn(null);
-        when(productOptionRepository.saveAndFlush(any(ProductOption.class))).thenReturn(new ProductOption());
+        when(productOptionRepository.save(any(ProductOption.class))).thenReturn(new ProductOption());
 
         ProductOption result = productOptionService.create(postVm);
 
         assertNotNull(result);
-        verify(productOptionRepository).saveAndFlush(any(ProductOption.class));
+        verify(productOptionRepository).save(any(ProductOption.class));
     }
 
     // Update an existing product option when the name is unique
@@ -75,7 +75,7 @@ class ProductOptionServiceTest {
         ProductOptionPostVm postVm = new ProductOptionPostVm("NewUniqueName");
         when(productOptionRepository.findById(1L)).thenReturn(Optional.of(existingProductOption));
         when(productOptionRepository.findExistedName(anyString(), eq(1L))).thenReturn(null);
-        when(productOptionRepository.saveAndFlush(any(ProductOption.class))).thenReturn(existingProductOption);
+        when(productOptionRepository.save(any(ProductOption.class))).thenReturn(existingProductOption);
 
         ProductOption result = productOptionService.update(postVm, 1L);
 

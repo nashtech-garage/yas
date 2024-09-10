@@ -3,6 +3,7 @@ package com.yas.media.exception;
 import com.yas.media.viewmodel.ErrorVm;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
+@lombok.extern.slf4j.Slf4j
 public class ControllerAdvisor {
     @ExceptionHandler(UnsupportedMediaTypeException.class)
     public ResponseEntity<ErrorVm> handleUnsupportedMediaTypeException(UnsupportedMediaTypeException ex,
@@ -54,6 +56,14 @@ public class ControllerAdvisor {
         ErrorVm errorVm = new ErrorVm("400", "Bad Request",
             "Request information is not valid", errors);
         return ResponseEntity.badRequest().body(errorVm);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorVm> handleIoException(RuntimeException ex, WebRequest request) {
+        String message = ex.getMessage();
+        log.error("", ex);
+        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(), "RuntimeException", message);
+        return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)

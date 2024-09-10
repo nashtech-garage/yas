@@ -45,7 +45,7 @@ public class PromotionService {
                 .endDate(promotionPostVm.endDate())
                 .build();
 
-        return PromotionDetailVm.fromModel(promotionRepository.saveAndFlush(promotion));
+        return PromotionDetailVm.fromModel(promotionRepository.save(promotion));
     }
 
     public PromotionListVm getPromotions(

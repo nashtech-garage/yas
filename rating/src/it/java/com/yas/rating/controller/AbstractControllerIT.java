@@ -1,4 +1,4 @@
-package com.yas.inventory.integration.controller;
+package com.yas.rating.controller;
 
 import static io.restassured.RestAssured.given;
 
@@ -22,27 +22,27 @@ public class AbstractControllerIT {
     protected RequestSpecification getRequestSpecification() {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         return new RequestSpecBuilder()
-            .setPort(port)
-            .addHeader(
-                HttpHeaders.CONTENT_TYPE,
-                MediaType.APPLICATION_JSON_VALUE
-            )
-            .build();
+                .setPort(port)
+                .addHeader(
+                        HttpHeaders.CONTENT_TYPE,
+                        MediaType.APPLICATION_JSON_VALUE
+                )
+                .build();
     }
 
     protected String getAccessToken(String username, String password) {
         return given()
-            .contentType("application/x-www-form-urlencoded")
-            .formParams(Map.of(
-                "username", username,
-                "password", password,
-                "scope", "openid",
-                "grant_type", "password",
-                "client_id", "quarkus-service",
-                "client_secret", "secret"
-            ))
-            .post(authServerUrl + "/protocol/openid-connect/token")
-            .then().assertThat().statusCode(200)
-            .extract().path("access_token");
+                .contentType("application/x-www-form-urlencoded")
+                .formParams(Map.of(
+                        "username", username,
+                        "password", password,
+                        "scope", "openid",
+                        "grant_type", "password",
+                        "client_id", "quarkus-service",
+                        "client_secret", "secret"
+                ))
+                .post(authServerUrl + "/protocol/openid-connect/token")
+                .then().assertThat().statusCode(200)
+                .extract().path("access_token");
     }
 }

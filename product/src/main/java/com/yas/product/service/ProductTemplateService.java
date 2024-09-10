@@ -88,7 +88,7 @@ public class ProductTemplateService {
         List<ProductAttributeTemplate> productAttributeTemplates
             = setAttributeTemplates(productTemplatePostVm.productAttributeTemplates(), productTemplate);
         ProductTemplate mainSavedProductTemplate = productTemplateRepository.save(productTemplate);
-        productAttributeTemplateRepository.saveAllAndFlush(productAttributeTemplates);
+        productAttributeTemplateRepository.saveAll(productAttributeTemplates);
         return getProductTemplate(mainSavedProductTemplate.getId());
     }
 
@@ -103,7 +103,7 @@ public class ProductTemplateService {
             = setAttributeTemplates(productTemplatePostVm.productAttributeTemplates(), productTemplate);
         productTemplate.setName(productTemplatePostVm.name());
         productTemplateRepository.save(productTemplate);
-        productAttributeTemplateRepository.saveAllAndFlush(productAttributeTemplates);
+        productAttributeTemplateRepository.saveAll(productAttributeTemplates);
     }
 
     private List<ProductAttributeTemplate> setAttributeTemplates(
