@@ -51,8 +51,10 @@ public class ApiExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         List<String> errors = ex.getConstraintViolations().stream()
-            .map(violation -> violation.getRootBeanClass().getName() + " " +
-                violation.getPropertyPath() + ": " + violation.getMessage())
+            .map(violation -> String.format("%s %s: %s",
+                violation.getRootBeanClass().getName(),
+                violation.getPropertyPath(),
+                violation.getMessage()))
             .toList();
 
         return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
