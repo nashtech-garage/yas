@@ -1,9 +1,7 @@
 package com.yas.rating.exception;
 
 import com.yas.rating.viewmodel.ErrorVm;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,77 +19,87 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorVm> handleNotFoundException(NotFoundException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.NOT_FOUND.toString(), "NotFound", message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 404, message);
-        log.debug(ex.toString());
-        return new ResponseEntity<>(errorVm, HttpStatus.NOT_FOUND);
+
+        return buildErrorResponse(status, message, null, ex, request, 404, "");
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorVm> handleBadRequestException(BadRequestException ex, WebRequest request) {
-        String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
-        return ResponseEntity.badRequest().body(errorVm);
+        return handleBadRequest(ex, request);
     }
 
     @ExceptionHandler(ResourceExistedException.class)
-    public ResponseEntity<ErrorVm> handleResourceExistedException(
-            ResourceExistedException ex,
-            WebRequest request
-    ) {
+    public ResponseEntity<ErrorVm> handleResourceExistedException(ResourceExistedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.CONFLICT.toString(), "Resource has existed", message);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorVm);
+
+        return buildErrorResponse(status, message, null, ex, request, 409, "Resource has existed");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ErrorVm> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + " " + error.getDefaultMessage())
-                .toList();
+        HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        ErrorVm errorVm = new ErrorVm("400",
-                "Bad Request", "Request information is not valid", errors);
-        return ResponseEntity.badRequest().body(errorVm);
+        List<String> errors = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(error -> error.getField() + " " + error.getDefaultMessage())
+            .toList();
+
+        return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0, "");
     }
 
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<ErrorVm> handleConstraintViolation(ConstraintViolationException ex) {
-        List<String> errors = new ArrayList<>();
-        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-            errors.add(violation.getRootBeanClass().getName()
-                + " " + violation.getPropertyPath() + ": " + violation.getMessage());
-        }
+        HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        ErrorVm errorVm = new ErrorVm("400",
-                "Bad Request", "Request information is not valid", errors);
-        return ResponseEntity.badRequest().body(errorVm);
+        List<String> errors = ex.getConstraintViolations().stream()
+            .map(violation -> violation.getRootBeanClass().getName() + " " +
+                violation.getPropertyPath() + ": " + violation.getMessage())
+            .toList();
+
+        return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0, "");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.FORBIDDEN.toString(), "Access Denied", message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
-        log.debug(ex.toString());
-        return new ResponseEntity<>(errorVm, HttpStatus.FORBIDDEN);
+
+        return buildErrorResponse(status, message, null, ex, request, 403, "Access Denied");
     }
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 500, message);
-        log.debug(ex.toString());
-        return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return buildErrorResponse(status, message, null, ex, request, 500, "");
     }
 
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
         return servletRequest.getRequest().getServletPath();
+    }
+
+    private ResponseEntity<ErrorVm> handleBadRequest(Exception ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, request, 400, "");
+    }
+
+    private ResponseEntity<ErrorVm> buildErrorResponse(HttpStatus status, String message, List<String> errors,
+                                                       Exception ex, WebRequest request, int statusCode, String title) {
+        ErrorVm errorVm =
+            new ErrorVm(status.toString(), title.isEmpty() ? status.getReasonPhrase() : title, message, errors);
+
+        if (request != null) {
+            log.error(ERROR_LOG_FORMAT, this.getServletPath(request), statusCode, message);
+        }
+        log.error(message, ex);
+        return ResponseEntity.status(status).body(errorVm);
     }
 }

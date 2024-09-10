@@ -17,52 +17,59 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.FORBIDDEN.toString(), "Access Denied", message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
-        log.debug(ex.toString());
-        return new ResponseEntity<>(errorVm, HttpStatus.FORBIDDEN);
+
+        return buildErrorResponse(status, message, ex, request, 403, "Access Denied");
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorVm> handleNotFoundException(NotFoundException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.NOT_FOUND.toString(), "NotFound", message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 404, message);
-        log.debug(ex.toString());
-        return new ResponseEntity<>(errorVm, HttpStatus.NOT_FOUND);
+
+        return buildErrorResponse(status, message, ex, request, 404, "");
     }
 
     @ExceptionHandler(WrongEmailFormatException.class)
     public ResponseEntity<ErrorVm> handleWrongEmailFormatException(WrongEmailFormatException ex, WebRequest request) {
-        String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
-        log.debug(ex.toString());
-        return ResponseEntity.badRequest().body(errorVm);
+        return handleBadRequest(ex, request);
     }
 
     @ExceptionHandler(CreateGuestUserException.class)
     public ResponseEntity<ErrorVm> handleCreateGuestUserException(CreateGuestUserException ex, WebRequest request) {
-        String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.BAD_REQUEST.toString(), "Bad request", message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 500, message);
-        log.debug(ex.toString());
-        return ResponseEntity.badRequest().body(errorVm);
+        return handleBadRequest(ex, request);
     }
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = ex.getMessage();
-        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message);
-        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 500, message);
-        log.debug(ex.toString());
-        return new ResponseEntity<>(errorVm, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return buildErrorResponse(status, message, ex, request, 500, "");
     }
 
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
         return servletRequest.getRequest().getServletPath();
+    }
+
+    private ResponseEntity<ErrorVm> handleBadRequest(Exception ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, ex, request, 400, "");
+    }
+
+    private ResponseEntity<ErrorVm> buildErrorResponse(HttpStatus status, String message,
+                                                       Exception ex, WebRequest request, int statusCode, String title) {
+        ErrorVm errorVm =
+            new ErrorVm(status.toString(), title.isEmpty() ? status.getReasonPhrase() : title, message);
+
+        if (request != null) {
+            log.error(ERROR_LOG_FORMAT, this.getServletPath(request), statusCode, message);
+        }
+        log.error(message, ex);
+        return ResponseEntity.status(status).body(errorVm);
     }
 }
