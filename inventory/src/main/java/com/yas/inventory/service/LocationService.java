@@ -21,7 +21,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleAddressDetailFallback")
     public AddressDetailVm getAddressById(Long id) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -39,7 +39,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleAddressFallback")
     public AddressVm createAddress(AddressPostVm addressPostVm) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
@@ -89,5 +89,13 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             .headers(h -> h.setBearerAuth(jwt))
             .retrieve()
             .body(Void.class);
+    }
+
+    private AddressDetailVm handleAddressDetailFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
+    }
+
+    private AddressVm handleAddressFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
     }
 }

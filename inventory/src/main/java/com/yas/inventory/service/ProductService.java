@@ -28,7 +28,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductInfoFallback")
     public ProductInfoVm getProduct(Long id) {
         String jwt = AuthenticationUtils.extractJwt();
 
@@ -45,7 +45,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductInfoListFallback")
     public List<ProductInfoVm> filterProducts(String productName, String productSku,
                                               List<Long> productIds, FilterExistInWhSelection selection) {
 
@@ -90,5 +90,13 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .body(productQuantityPostVms)
             .retrieve()
             .body(Void.class);
+    }
+
+    protected ProductInfoVm handleProductInfoFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
+    }
+
+    protected List<ProductInfoVm> handleProductInfoListFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
     }
 }
