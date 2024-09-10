@@ -63,6 +63,11 @@
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-kafka</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.yas</groupId>
+            <artifactId>payment-paypal</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
