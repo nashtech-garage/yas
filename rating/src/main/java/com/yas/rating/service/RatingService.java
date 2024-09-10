@@ -29,14 +29,15 @@ import org.springframework.util.ObjectUtils;
 @Service
 @Transactional
 public class RatingService {
+
     private final RatingRepository ratingRepository;
     private final CustomerService customerService;
 
     private final OrderService orderService;
 
     public RatingService(RatingRepository ratingRepository,
-                         CustomerService customerService,
-                         OrderService orderService) {
+            CustomerService customerService,
+            OrderService orderService) {
         this.ratingRepository = ratingRepository;
         this.customerService = customerService;
         this.orderService = orderService;
@@ -55,10 +56,9 @@ public class RatingService {
     }
 
     public RatingListVm getRatingListWithFilter(String proName, String cusName,
-                                                String message, ZonedDateTime createdFrom,
-                                                ZonedDateTime createdTo, int pageNo, int pageSize) {
+            String message, ZonedDateTime createdFrom,
+            ZonedDateTime createdTo, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdOn").descending());
-
         Page<Rating> ratings = ratingRepository.getRatingListWithFilter(
                 proName.toLowerCase(),
                 cusName.toLowerCase(), message.toLowerCase(),
@@ -80,8 +80,14 @@ public class RatingService {
         ).isPresent()) {
             throw new AccessDeniedException(Constants.ErrorCode.ACCESS_DENIED);
         }
+
         if (ratingRepository.existsByCreatedByAndProductId(userId, ratingPostVm.productId())) {
             throw new ResourceExistedException(Constants.ErrorCode.RESOURCE_ALREADY_EXISTED);
+        }
+
+        CustomerVm customerVm = customerService.getCustomer();
+        if (customerVm == null) {
+            throw new NotFoundException(Constants.ErrorCode.CUSTOMER_NOT_FOUND, userId);
         }
 
         Rating rating = new Rating();
@@ -90,7 +96,6 @@ public class RatingService {
         rating.setProductId(ratingPostVm.productId());
         rating.setProductName(ratingPostVm.productName());
 
-        CustomerVm customerVm = customerService.getCustomer();
         rating.setLastName(customerVm.lastName());
         rating.setFirstName(customerVm.firstName());
 
@@ -113,9 +118,6 @@ public class RatingService {
         }
         int totalStars = (Integer.parseInt(totalStarsAndRatings.get(0)[0].toString()));
         int totalRatings = (Integer.parseInt(totalStarsAndRatings.get(0)[1].toString()));
-
-        Double averageStars = (totalStars * 1.0) / totalRatings;
-        log.info("Average Star: " + averageStars);
-        return averageStars;
+        return (totalStars * 1.0) / totalRatings;
     }
 }
