@@ -8,8 +8,8 @@ import lombok.Getter;
 @Builder
 public class WebhookEventNotificationDto {
 
-  private Long notificationId;
-  private String url;
-  private String secret;
-  private JsonNode payload;
+    private Long notificationId;
+    private String url;
+    private String secret;
+    private JsonNode payload;
 }
