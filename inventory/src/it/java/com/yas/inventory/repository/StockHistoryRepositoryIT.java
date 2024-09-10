@@ -1,13 +1,11 @@
-package com.yas.inventory.integration.repository;
+package com.yas.inventory.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.instancio.Select.field;
 
-import com.yas.inventory.integration.config.IntegrationTestConfiguration;
+import com.yas.inventory.config.IntegrationTestConfiguration;
 import com.yas.inventory.model.StockHistory;
 import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.repository.StockHistoryRepository;
-import com.yas.inventory.repository.WarehouseRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,13 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
-@Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class StockHistoryRepositoryIT {
+class StockHistoryRepositoryIT {
 
     @Autowired
     private StockHistoryRepository stockHistoryRepository;
@@ -55,7 +51,7 @@ public class StockHistoryRepositoryIT {
     }
 
     @Test
-    void test_findByProductIdAndWarehouseIdOrderByCreatedOnDesc_shouldReturnData() {
+    void testFindByProductIdAndWarehouseIdOrderByCreatedOnDesc_ifStockHistoryExists_shouldReturnData() {
         var actual = stockHistoryRepository.findByProductIdAndWarehouseIdOrderByCreatedOnDesc(
             stockHistory.getProductId(),
             warehouse.getId());

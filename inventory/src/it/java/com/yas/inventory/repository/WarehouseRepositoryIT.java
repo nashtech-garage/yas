@@ -1,10 +1,9 @@
-package com.yas.inventory.integration.repository;
+package com.yas.inventory.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.yas.inventory.integration.config.IntegrationTestConfiguration;
+import com.yas.inventory.config.IntegrationTestConfiguration;
 import com.yas.inventory.model.Warehouse;
-import com.yas.inventory.repository.WarehouseRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,13 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
-@Testcontainers
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class WarehouseRepositoryIT {
+class WarehouseRepositoryIT {
 
     @Autowired
     private WarehouseRepository warehouseRepository;
@@ -38,22 +35,22 @@ public class WarehouseRepositoryIT {
     }
 
     @Test
-    void test_existsByName_shouldReturnTrue_IfWarehouseExistsWithDifferentId() {
+    void testExistsByName_ifWarehouseExistsWithDifferentId_shouldReturnTrue() {
         assertThat(warehouseRepository.existsByName("test_warehouse")).isTrue();
     }
 
     @Test
-    void test_existsByName_WithDifferentId_shouldReturnFalse_IfWarehouseDoesNotExist() {
+    void testExistsByName_WithDifferentId_ifWarehouseDoesNotExist_shouldReturnFalse() {
         assertThat(warehouseRepository.existsByName("dummy_warehouse")).isFalse();
     }
 
     @Test
-    void test_existsByNameWithDifferentId_shouldReturnTrue_IfWarehouseWithSameNameExistsWithDifferentId() {
+    void testExistsByNameWithDifferentId_ifWarehouseWithSameNameExistsWithDifferentId_shouldReturnTrue() {
         assertThat(warehouseRepository.existsByNameWithDifferentId("test_warehouse", 1L)).isTrue();
     }
 
     @Test
-    void test_existsByNameWithDifferentId_shouldReturnFalse_IfWarehouseWithSameNameNotExistsWithDifferentId() {
+    void testExistsByNameWithDifferentId_ifWarehouseWithSameNameNotExistsWithDifferentId_shouldReturnFalse() {
         assertThat(warehouseRepository.existsByNameWithDifferentId("test_warehouses", 34L)).isFalse();
     }
 }
