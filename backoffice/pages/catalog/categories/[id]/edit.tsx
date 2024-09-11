@@ -147,6 +147,7 @@ const CategoryEdit: NextPage = () => {
 
   const onDeleteImage = () => {
     setCategoryImage(null);
+    setImageId(undefined);
   };
 
   return (
