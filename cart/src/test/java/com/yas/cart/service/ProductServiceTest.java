@@ -1,13 +1,8 @@
 package com.yas.cart.service;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 import com.yas.cart.config.ServiceUrlConfig;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
-import java.net.URI;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,6 +10,12 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 class ProductServiceTest {
 
@@ -42,18 +43,19 @@ class ProductServiceTest {
 
         List<Long> ids = List.of(1L, 2L, 3L);
         URI url = UriComponentsBuilder
-            .fromHttpUrl("http://api.yas.local/media")
-            .path("/storefront/products/list-featured")
-            .queryParam("productId", ids)
-            .build()
-            .toUri();
+                .fromHttpUrl("http://api.yas.local/media")
+                .path("/storefront/products/list-featured")
+                .queryParam("productId", ids)
+                .build()
+                .toUri();
 
         when(serviceUrlConfig.product()).thenReturn("http://api.yas.local/media");
         when(restClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri(url)).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductThumbnailVm>>() {}))
-            .thenReturn(ResponseEntity.ok(getProductThumbnailVms()));
+        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductThumbnailVm>>() {
+        }))
+                .thenReturn(ResponseEntity.ok(getProductThumbnailVms()));
 
         List<ProductThumbnailVm> result = productService.getProducts(ids);
 
@@ -66,22 +68,22 @@ class ProductServiceTest {
     private List<ProductThumbnailVm> getProductThumbnailVms() {
 
         ProductThumbnailVm product1 = new ProductThumbnailVm(
-            1L,
-            "Product 1",
-            "product-1",
-            "http://example.com/product1.jpg"
+                1L,
+                "Product 1",
+                "product-1",
+                "http://example.com/product1.jpg"
         );
         ProductThumbnailVm product2 = new ProductThumbnailVm(
-            2L,
-            "Product 2",
-            "product-2",
-            "http://example.com/product2.jpg"
+                2L,
+                "Product 2",
+                "product-2",
+                "http://example.com/product2.jpg"
         );
         ProductThumbnailVm product3 = new ProductThumbnailVm(
-            3L,
-            "Product 3",
-            "product-3",
-            "http://example.com/product3.jpg"
+                3L,
+                "Product 3",
+                "product-3",
+                "http://example.com/product3.jpg"
         );
 
         return List.of(product1, product2, product3);

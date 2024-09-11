@@ -1,5 +1,9 @@
 package com.yas.customer.exception;
 
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.CreateGuestUserException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.WrongEmailFormatException;
 import com.yas.customer.viewmodel.ErrorVm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

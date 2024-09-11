@@ -1,6 +1,6 @@
-package com.yas.inventory.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.inventory.utils.MessagesUtils;
+import com.yas.commonlibrary.utils.MessagesUtils;
 
 public class StockExistingException extends RuntimeException {
     private String message;

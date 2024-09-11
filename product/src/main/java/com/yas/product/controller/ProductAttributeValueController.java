@@ -1,7 +1,7 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Product;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeValue;

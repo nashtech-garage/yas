@@ -1,6 +1,6 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.BadRequestException;
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.service.CategoryService;

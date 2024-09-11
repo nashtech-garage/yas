@@ -1,8 +1,8 @@
 package com.yas.product.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.ProductApplication;
-import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductTemplate;
 import com.yas.product.repository.ProductTemplateRepository;
 import com.yas.product.service.ProductTemplateService;

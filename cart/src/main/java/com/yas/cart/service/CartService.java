@@ -1,27 +1,23 @@
 package com.yas.cart.service;
 
-import com.yas.cart.exception.BadRequestException;
-import com.yas.cart.exception.NotFoundException;
 import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
 import com.yas.cart.utils.Constants;
-import com.yas.cart.viewmodel.CartDetailVm;
-import com.yas.cart.viewmodel.CartGetDetailVm;
-import com.yas.cart.viewmodel.CartItemPutVm;
-import com.yas.cart.viewmodel.CartItemVm;
-import com.yas.cart.viewmodel.CartListVm;
-import com.yas.cart.viewmodel.ProductThumbnailVm;
+import com.yas.cart.viewmodel.*;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CartService {
@@ -39,14 +35,14 @@ public class CartService {
 
     public List<CartListVm> getCarts() {
         return cartRepository.findAll()
-            .stream().map(CartListVm::fromModel)
-            .toList();
+                .stream().map(CartListVm::fromModel)
+                .toList();
     }
 
     public List<CartGetDetailVm> getCartDetailByCustomerId(String customerId) {
         return cartRepository.findByCustomerId(customerId)
-            .stream().map(CartGetDetailVm::fromModel)
-            .toList();
+                .stream().map(CartGetDetailVm::fromModel)
+                .toList();
     }
 
     public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
@@ -65,9 +61,9 @@ public class CartService {
 
         if (cart == null) {
             cart = Cart.builder()
-                .customerId(customerId)
-                .cartItems(existedCartItems)
-                .build();
+                    .customerId(customerId)
+                    .cartItems(existedCartItems)
+                    .build();
             cart.setCreatedOn(ZonedDateTime.now());
         } else {
             existedCartItems = cartItemRepository.findAllByCart(cart);
@@ -93,8 +89,8 @@ public class CartService {
 
     public CartGetDetailVm getLastCart(String customerId) {
         return cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
-            .stream().reduce((first, second) -> second)
-            .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
+                .stream().reduce((first, second) -> second)
+                .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
     }
 
     private CartItem getCartItemByProductId(Set<CartItem> cartItems, Long productId) {
@@ -113,7 +109,7 @@ public class CartService {
 
         Long cartId = currentCart.id();
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, cartItemVm.productId())
-            .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.NON_EXISTING_CART_ITEM + cartId));
+                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.NON_EXISTING_CART_ITEM + cartId));
 
         int newQuantity = cartItemVm.quantity();
         cartItem.setQuantity(newQuantity);
@@ -156,7 +152,7 @@ public class CartService {
 
     public Long countNumberItemInCart(String customerId) {
         Optional<Cart> cartOp = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
-            .stream().reduce((first, second) -> second);
+                .stream().reduce((first, second) -> second);
         if (cartOp.isEmpty()) {
             return 0L;
         }

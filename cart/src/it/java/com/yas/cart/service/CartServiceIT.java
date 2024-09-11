@@ -1,24 +1,13 @@
 package com.yas.cart.service;
 
-import static com.yas.cart.util.SecurityContextUtils.setUpSecurityContext;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
 import com.yas.cart.config.IntegrationTestConfiguration;
-import com.yas.cart.exception.BadRequestException;
-import com.yas.cart.exception.NotFoundException;
 import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
-import com.yas.cart.viewmodel.CartGetDetailVm;
-import com.yas.cart.viewmodel.CartItemPutVm;
-import com.yas.cart.viewmodel.CartItemVm;
-import com.yas.cart.viewmodel.CartListVm;
-import com.yas.cart.viewmodel.ProductThumbnailVm;
-import java.util.List;
-import java.util.Set;
+import com.yas.cart.viewmodel.*;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,28 +17,30 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
+import java.util.Set;
+
+import static com.yas.cart.util.SecurityContextUtils.setUpSecurityContext;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
 @SpringBootTest
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CartServiceIT {
 
+    final String customerId1 = "customer-1";
     private Cart cart1;
-
     private Cart cart2;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private CartItemRepository cartItemRepository;
-
     @MockBean
     private ProductService productService;
-
     @Autowired
     private CartService cartService;
-
-    final String customerId1 = "customer-1";
 
     @BeforeEach
     void setUp() {
@@ -143,7 +134,7 @@ class CartServiceIT {
 
         assertThat(thrownException).isInstanceOf(BadRequestException.class);
         assertThat(thrownException.getMessage())
-            .isEqualTo("There is no cart item in current cart to update!");
+                .isEqualTo("There is no cart item in current cart to update!");
 
     }
 
@@ -158,7 +149,7 @@ class CartServiceIT {
 
         assertThat(thrownException).isInstanceOf(NotFoundException.class);
         assertThat(thrownException.getMessage())
-            .isEqualTo("There is no product with ID: 4 in the current cart");
+                .isEqualTo("There is no product with ID: 4 in the current cart");
 
     }
 
@@ -237,7 +228,7 @@ class CartServiceIT {
     @Test
     void addToCart_SomeProductsDoNotExist_ThrowsNotFoundException() {
         List<CartItemVm> cartItemVms = List.of(
-            new CartItemVm(2L, 2, 10L)
+                new CartItemVm(2L, 2, 10L)
         );
 
         when(productService.getProducts(List.of(2L))).thenReturn(List.of());

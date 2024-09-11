@@ -1,7 +1,8 @@
 package com.yas.cart.exception;
 
 import com.yas.cart.viewmodel.ErrorVm;
-import java.util.List;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.List;
 
 @ControllerAdvice
 @Slf4j
@@ -35,10 +38,10 @@ public class ApiExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         List<String> errors = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(error -> error.getField() + " " + error.getDefaultMessage())
-            .toList();
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + " " + error.getDefaultMessage())
+                .toList();
 
         return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
     }
@@ -66,7 +69,7 @@ public class ApiExceptionHandler {
     private ResponseEntity<ErrorVm> buildErrorResponse(HttpStatus status, String message, List<String> errors,
                                                        Exception ex, WebRequest request, int statusCode) {
         ErrorVm errorVm =
-            new ErrorVm(status.toString(), status.getReasonPhrase(), message, errors);
+                new ErrorVm(status.toString(), status.getReasonPhrase(), message, errors);
 
         if (request != null) {
             log.error(ERROR_LOG_FORMAT, this.getServletPath(request), statusCode, message);

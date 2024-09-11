@@ -1,11 +1,11 @@
 package com.yas.cart.util;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SecurityContextUtils {
 

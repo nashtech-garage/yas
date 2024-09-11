@@ -10,10 +10,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.customer.config.KeycloakPropsConfig;
-import com.yas.customer.exception.AccessDeniedException;
-import com.yas.customer.exception.NotFoundException;
-import com.yas.customer.exception.WrongEmailFormatException;
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.WrongEmailFormatException;
 import com.yas.customer.viewmodel.customer.CustomerAdminVm;
 import com.yas.customer.viewmodel.customer.CustomerListVm;
 import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;

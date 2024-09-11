@@ -1,12 +1,11 @@
-package com.yas.location.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.location.utils.MessagesUtils;
+import com.yas.commonlibrary.utils.MessagesUtils;
 
-public class BadRequestException extends RuntimeException {
-
+public class NotFoundException extends RuntimeException {
     private String message;
 
-    public BadRequestException(String errorCode, Object... var2) {
+    public NotFoundException(String errorCode, Object... var2) {
         this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 
