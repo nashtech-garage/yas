@@ -2,8 +2,8 @@
 actor Client
 box "YAS" #D6EAF8 
 participant NextJs
-participant CartService as Cart
-participant OrderService as Order
+participant CartService as cart
+participant OrderService as order
 participant CustomerService as Customer
 participant PaymentService as payment
 participant PayPalService as ppal
@@ -12,35 +12,35 @@ participant PaypalAPI as ppAPI
 ==Go to cart page==
 Client -> NextJs: GET /storefront/carts
 activate NextJs
-NextJs -> Cart: GET /api/cart/storefront/carts/{customer-id}
-activate Cart
-Cart --> NextJs: 200 OK
-deactivate Cart
+NextJs -> cart: GET /api/cart/storefront/carts/{customer-id}
+activate cart
+cart --> NextJs: 200 OK
+deactivate cart
 NextJs --> Client: 200 OK
 deactivate NextJs
 ==Create checkout==
 Client -> NextJs: Click "Proceed to check out"
 activate NextJs
-NextJs -> Order: POST /api/order/storefront/checkouts
+NextJs -> order: POST /api/order/storefront/checkouts
 note right
 Body={email, note, coupon,
 products:[{id, name, quantity, price}]}
 
 Header: Authorization
 end note
-activate Order
-Order --> NextJs: 201 CREATED
-deactivate Order
+activate order
+order --> NextJs: 201 CREATED
+deactivate order
 NextJs --> Client: 201 CREATED
 NextJs --> Client: Route to /storefront/checkout/{checkout-id}
 deactivate NextJs
 ==Go to checkout page==
 Client -> NextJs: GET /storefront/checkout/{checkout-id}
 activate NextJs
-NextJs -> Order: GET /api/order/storefront/checkout/{checkout-id}
-activate Order
-Order --> NextJs: 200 OK
-deactivate Order
+NextJs -> order: GET /api/order/storefront/checkout/{checkout-id}
+activate order
+order --> NextJs: 200 OK
+deactivate order
 NextJs -> Customer: GET /api/storefront/addresses?customerId={user-id}
 activate Customer
 Customer --> NextJs: 200 OK
@@ -56,10 +56,10 @@ Customer --> NextJs: 201 CREATED
 deactivate Customer
 NextJs --> Client: 201 CREATED
 deactivate NextJs
-==Create Order==
+==Create order==
 Client -> NextJs: Click "Proceed to payment" 
 activate NextJs
-NextJs -> Order: POST /api/order/storefront/orders
+NextJs -> order: POST /api/order/storefront/orders
 note right
 Body = {checkoutId, email, note, tax, 
 discount, number of items, total price, delivery fee, 
@@ -69,9 +69,9 @@ product price, note?, discount?, taxAmount?, taxPercent?}]}
 
 Header: Authorization
 end note
-activate Order
-Order --> NextJs: 201 CREATED
-deactivate Order
+activate order
+order --> NextJs: 201 CREATED
+deactivate order
 NextJs --> Client: 201 CREATED
 alt Paypal case
     NextJs -> ppal: POST /api/payment-paypal/init
@@ -100,14 +100,14 @@ alt Paypal case
     deactivate ppAPI
     ppal -> payment: POST "/payment/capture"
     activate payment
-    payment -> Order: PUT "/order/storefront/checkout/status"
-    activate Order
-    Order --> payment: 200 OK
-    deactivate Order
-    payment -> Order: PUT "/order/storefront/checkout/status"
-    activate Order
-    Order --> payment: 200 OK
-    deactivate Order
+    payment -> order: PUT "/order/storefront/checkout/status"
+    activate order
+    order --> payment: 200 OK
+    deactivate order
+    payment -> order: PUT "/order/storefront/checkout/status"
+    activate order
+    order --> payment: 200 OK
+    deactivate order
     payment --> ppal: 201 CREATED
     deactivate payment
     ppal --> NextJs: 201 CREATED

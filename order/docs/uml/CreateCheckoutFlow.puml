@@ -1,0 +1,23 @@
+@startuml Create checkout
+actor Client
+box "YAS" #D6EAF8 
+participant NextJs as NextJs
+participant OrderService as order
+end box
+==Create checkout==
+Client -> NextJs: Click "Proceed to check out"
+activate NextJs
+NextJs -> order: POST /api/order/storefront/checkouts
+note right
+Body={email, note, coupon,
+products:[{id, name, quantity, price}]}
+
+Header: Authorization
+end note
+activate order
+order --> NextJs: 201 CREATED
+deactivate order
+NextJs --> Client: 201 CREATED
+NextJs --> Client: Route to /storefront/checkout/{checkout-id}
+deactivate NextJs
+@enduml
