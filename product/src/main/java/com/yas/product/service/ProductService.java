@@ -536,18 +536,19 @@ public class ProductService {
     public List<ProductImage> setProductImages(List<Long> imageMediaIds, Product product) {
         List<ProductImage> productImages = new ArrayList<>();
         if (CollectionUtils.isEmpty(imageMediaIds)) {
+            productImageRepository.deleteByProductId(product.getId());
             return productImages;
         }
         if (product.getProductImages() == null) {
             productImages = imageMediaIds.stream()
-                    .map(id -> ProductImage.builder().imageId(id).product(product).build()).toList();
+                .map(id -> ProductImage.builder().imageId(id).product(product).build()).toList();
         } else {
             List<Long> productImageIds = product.getProductImages().stream().map(ProductImage::getImageId).toList();
             List<Long> newImageIds = imageMediaIds.stream().filter(id -> !productImageIds.contains(id)).toList();
             List<Long> deletedImageIds = productImageIds.stream().filter(id -> !imageMediaIds.contains(id)).toList();
             if (CollectionUtils.isNotEmpty(newImageIds)) {
                 productImages = newImageIds.stream()
-                        .map(id -> ProductImage.builder().imageId(id).product(product).build()).toList();
+                    .map(id -> ProductImage.builder().imageId(id).product(product).build()).toList();
             }
             if (CollectionUtils.isNotEmpty(deletedImageIds)) {
                 productImageRepository.deleteByImageIdInAndProductId(deletedImageIds, product.getId());
