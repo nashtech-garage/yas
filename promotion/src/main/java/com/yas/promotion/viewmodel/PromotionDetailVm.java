@@ -4,9 +4,8 @@ import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.enumeration.ApplyTo;
 import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;
-import lombok.Builder;
-
 import java.time.ZonedDateTime;
+import lombok.Builder;
 
 @Builder
 public record PromotionDetailVm(Long id,

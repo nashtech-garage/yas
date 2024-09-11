@@ -2,12 +2,20 @@ package com.yas.promotion.service;
 
 import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
+import com.yas.promotion.exception.NotFoundException;
 import com.yas.promotion.model.Promotion;
+import com.yas.promotion.model.PromotionApply;
 import com.yas.promotion.repository.PromotionRepository;
+import com.yas.promotion.repository.PromotionUsageRepository;
 import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
+import com.yas.promotion.viewmodel.PromotionPutVm;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,37 +23,69 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class PromotionService {
     private final PromotionRepository promotionRepository;
+    private final PromotionUsageRepository promotionUsageRepository;
 
     public PromotionDetailVm createPromotion(PromotionPostVm promotionPostVm) {
-        validateIfPromotionExistedSlug(promotionPostVm.slug());
-        validateIfPromotionEndDateIsBeforeStartDate(promotionPostVm.startDate(), promotionPostVm.endDate());
+        validateIfPromotionExistedSlug(promotionPostVm.getSlug());
+        validateIfPromotionEndDateIsBeforeStartDate(promotionPostVm.getStartDate(), promotionPostVm.getEndDate());
 
         Promotion promotion = Promotion.builder()
-                .name(promotionPostVm.name())
-                .slug(promotionPostVm.slug())
-                .description(promotionPostVm.description())
-                .couponCode(promotionPostVm.couponCode())
-                .applyTo(promotionPostVm.applyTo())
-                .usageType(promotionPostVm.usageType())
-                .usageLimit(promotionPostVm.usageLimit())
-                .discountType(promotionPostVm.discountType())
-                .discountPercentage(promotionPostVm.discountPercentage())
-                .discountAmount(promotionPostVm.discountAmount())
+                .name(promotionPostVm.getName())
+                .slug(promotionPostVm.getSlug())
+                .description(promotionPostVm.getDescription())
+                .couponCode(promotionPostVm.getCouponCode())
+                .applyTo(promotionPostVm.getApplyTo())
+                .usageType(promotionPostVm.getUsageType())
+                .usageLimit(promotionPostVm.getUsageLimit())
+                .discountType(promotionPostVm.getDiscountType())
+                .discountPercentage(promotionPostVm.getDiscountPercentage())
+                .discountAmount(promotionPostVm.getDiscountAmount())
                 .isActive(promotionPostVm.isActive())
-                .startDate(promotionPostVm.startDate())
-                .endDate(promotionPostVm.endDate())
+                .startDate(promotionPostVm.getStartDate())
+                .endDate(promotionPostVm.getEndDate())
+                .minimumOrderPurchaseAmount(promotionPostVm.getMinimumOrderPurchaseAmount())
                 .build();
 
+        List<PromotionApply> promotionApplies =
+                PromotionPostVm.createPromotionApplies(promotionPostVm, promotion);
+        promotion.setPromotionApplies(promotionApplies);
+
         return PromotionDetailVm.fromModel(promotionRepository.save(promotion));
+    }
+
+    public PromotionDetailVm updatePromotion(PromotionPutVm promotionPutVm) {
+        Optional<Promotion> promotionOp = promotionRepository.findById(promotionPutVm.getId());
+
+        if (promotionOp.isEmpty()) {
+            throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE, promotionPutVm.getId());
+        }
+
+        Promotion promotion = promotionOp.get();
+
+        promotion.setApplyTo(promotionPutVm.getApplyTo());
+        promotion.setName(promotionPutVm.getName());
+        promotion.setDescription(promotionPutVm.getDescription());
+        promotion.setCouponCode(promotionPutVm.getCouponCode());
+        promotion.setUsageType(promotionPutVm.getUsageType());
+        promotion.setUsageLimit(promotionPutVm.getUsageLimit());
+        promotion.setSlug(promotionPutVm.getSlug());
+        promotion.setDiscountType(promotionPutVm.getDiscountType());
+        promotion.setDiscountPercentage(promotionPutVm.getDiscountPercentage());
+        promotion.setDiscountAmount(promotionPutVm.getDiscountAmount());
+        promotion.setIsActive(promotionPutVm.isActive());
+        promotion.setStartDate(promotionPutVm.getStartDate());
+        promotion.setEndDate(promotionPutVm.getEndDate());
+        promotion.setMinimumOrderPurchaseAmount(promotionPutVm.getMinimumOrderPurchaseAmount());
+
+        promotion.setPromotionApplies(PromotionPutVm.createPromotionApplies(promotionPutVm, promotion));
+
+        promotion = promotionRepository.save(promotion);
+        return PromotionDetailVm.fromModel(promotion);
     }
 
     public PromotionListVm getPromotions(
@@ -93,5 +133,12 @@ public class PromotionService {
         if (endDate != null && startDate != null && endDate.isBefore(startDate)) {
             throw new BadRequestException(String.format(Constants.ErrorCode.DATE_RANGE_INVALID));
         }
+    }
+
+    public void deletePromotion(Long id) {
+        if (promotionUsageRepository.existsByPromotionId(id)) {
+            throw new BadRequestException(Constants.ErrorCode.PROMOTION_IN_USE_ERROR_MESSAGE, id);
+        }
+        promotionRepository.deleteById(id);
     }
 }
