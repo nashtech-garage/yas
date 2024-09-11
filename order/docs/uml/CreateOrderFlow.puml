@@ -1,7 +1,7 @@
 @startuml Create order flow
 actor Client
 box "YAS" #D6EAF8
-participant NextJs
+participant Storefront as NextJs
 participant CartService as cart
 participant OrderService as order
 participant PaymentService as payment

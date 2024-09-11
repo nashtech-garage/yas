@@ -1,10 +1,10 @@
 @startuml Current Order flow
 actor Client
 box "YAS" #D6EAF8 
-participant NextJs
+participant storefront as NextJs
 participant CartService as cart
 participant OrderService as order
-participant CustomerService as Customer
+participant CustomerService as customer
 participant PaymentService as payment
 participant PayPalService as ppal
 end box
@@ -41,19 +41,19 @@ NextJs -> order: GET /api/order/storefront/checkout/{checkout-id}
 activate order
 order --> NextJs: 200 OK
 deactivate order
-NextJs -> Customer: GET /api/storefront/addresses?customerId={user-id}
-activate Customer
-Customer --> NextJs: 200 OK
-deactivate Customer
+NextJs -> customer: GET /api/storefront/addresses?customerId={user-id}
+activate customer
+customer --> NextJs: 200 OK
+deactivate customer
 NextJs --> Client: 200 OK
 deactivate NextJs
 ==Add new address (optional) if user has default address==
 Client -> NextJs: Click "Add new address"
 activate NextJs
-NextJs -> Customer: POST /api/customer/storefront/user-address
-activate Customer
-Customer --> NextJs: 201 CREATED
-deactivate Customer
+NextJs -> customer: POST /api/customer/storefront/user-address
+activate customer
+customer --> NextJs: 201 CREATED
+deactivate customer
 NextJs --> Client: 201 CREATED
 deactivate NextJs
 ==Create order==

@@ -1,7 +1,7 @@
 @startuml Create checkout
 actor Client
 box "YAS" #D6EAF8 
-participant NextJs as NextJs
+participant Storefront as NextJs
 participant OrderService as order
 end box
 ==Create checkout==
