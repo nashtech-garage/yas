@@ -1,0 +1,122 @@
+@startuml Current Order flow
+actor Client
+box "YAS" #D6EAF8 
+participant NextJs
+participant CartService as Cart
+participant OrderService as Order
+participant CustomerService as Customer
+participant PaymentService as payment
+participant PayPalService as ppal
+end box
+participant PaypalAPI as ppAPI
+==Go to cart page==
+Client -> NextJs: GET /storefront/carts
+activate NextJs
+NextJs -> Cart: GET /api/cart/storefront/carts/{customer-id}
+activate Cart
+Cart --> NextJs: 200 OK
+deactivate Cart
+NextJs --> Client: 200 OK
+deactivate NextJs
+==Create checkout==
+Client -> NextJs: Click "Proceed to check out"
+activate NextJs
+NextJs -> Order: POST /api/order/storefront/checkouts
+note right
+Body={email, note, coupon,
+products:[{id, name, quantity, price}]}
+
+Header: Authorization
+end note
+activate Order
+Order --> NextJs: 201 CREATED
+deactivate Order
+NextJs --> Client: 201 CREATED
+NextJs --> Client: Route to /storefront/checkout/{checkout-id}
+deactivate NextJs
+==Go to checkout page==
+Client -> NextJs: GET /storefront/checkout/{checkout-id}
+activate NextJs
+NextJs -> Order: GET /api/order/storefront/checkout/{checkout-id}
+activate Order
+Order --> NextJs: 200 OK
+deactivate Order
+NextJs -> Customer: GET /api/storefront/addresses?customerId={user-id}
+activate Customer
+Customer --> NextJs: 200 OK
+deactivate Customer
+NextJs --> Client: 200 OK
+deactivate NextJs
+==Add new address (optional) if user has default address==
+Client -> NextJs: Click "Add new address"
+activate NextJs
+NextJs -> Customer: POST /api/customer/storefront/user-address
+activate Customer
+Customer --> NextJs: 201 CREATED
+deactivate Customer
+NextJs --> Client: 201 CREATED
+deactivate NextJs
+==Create Order==
+Client -> NextJs: Click "Proceed to payment" 
+activate NextJs
+NextJs -> Order: POST /api/order/storefront/orders
+note right
+Body = {checkoutId, email, note, tax, 
+discount, number of items, total price, delivery fee, 
+coupon code, delivery method, payment status="PENDING",
+order items: [{id, product id, product name, quantity,
+product price, note?, discount?, taxAmount?, taxPercent?}]}
+
+Header: Authorization
+end note
+activate Order
+Order --> NextJs: 201 CREATED
+deactivate Order
+NextJs --> Client: 201 CREATED
+alt Paypal case
+    NextJs -> ppal: POST /api/payment-paypal/init
+    activate ppal
+    ppal -> ppAPI: POST /orders
+    activate ppAPI
+    ppAPI --> ppal: Redirect API
+    deactivate ppAPI
+    ppal --> NextJs: Redirect API
+    deactivate ppal
+    NextJs --> Client: Redirect to PayPal payment
+    deactivate NextJs
+    Client -> ppAPI: GET payment page
+    activate ppAPI
+    ppAPI --> Client: 200 OK
+    Client -> ppAPI: POST payment
+    ppAPI --> Client: Redirect "/complete-payment/capture"
+    deactivate ppAPI
+    Client -> NextJs: GET "/complete-payment/capture"
+    activate NextJs
+    NextJs -> ppal: POST "/payment-paypal/capture"
+    activate ppal
+    ppal -> ppAPI: GET order captures
+    activate ppAPI
+    ppAPI --> ppal: 200 OK
+    deactivate ppAPI
+    ppal -> payment: POST "/payment/capture"
+    activate payment
+    payment -> Order: PUT "/order/storefront/checkout/status"
+    activate Order
+    Order --> payment: 200 OK
+    deactivate Order
+    payment -> Order: PUT "/order/storefront/checkout/status"
+    activate Order
+    Order --> payment: 200 OK
+    deactivate Order
+    payment --> ppal: 201 CREATED
+    deactivate payment
+    ppal --> NextJs: 201 CREATED
+    deactivate ppal
+    NextJs --> Client: 200 OK
+else COD case
+    NextJs -> Client: Not implemented
+end
+    deactivate NextJs
+    
+deactivate NextJs
+@enduml
