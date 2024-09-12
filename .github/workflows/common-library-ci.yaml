@@ -41,7 +41,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
-          name: Common-Service-Unit-Test-Results
+          name: Common-Library-Unit-Test-Results
           path: "common-library/**/*-reports/TEST*.xml"
           reporter: java-junit
       - name: OWASP Dependency Check
