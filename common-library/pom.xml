@@ -8,7 +8,7 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>commonlibrary</artifactId>
+    <artifactId>common-library</artifactId>
     <name>Common Library</name>
     <packaging>jar</packaging>
     <description>YAS Common Library service</description>

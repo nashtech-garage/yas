@@ -1,4 +1,4 @@
-name: commonlibrary service ci
+name: common-library service ci
 
 on:
   push:
@@ -6,14 +6,14 @@ on:
     paths:
       - "common-library/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/commonlibrary-ci.yaml"
+      - ".github/workflows/common-library-ci.yaml"
       - "pom.xml"
   pull_request:
     branches: [ "main" ]
     paths:
-      - "commonlibrary/**"
+      - "common-library/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/commonlibrary-ci.yaml"
+      - ".github/workflows/common-library-ci.yaml"
       - "pom.xml"
   workflow_dispatch:
 
@@ -29,20 +29,20 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -f commonlibrary -Dcheckstyle.output.file=commonlibrary-checkstyle-result.xml
+        run: mvn checkstyle:checkstyle -f common-library -Dcheckstyle.output.file=common-library-checkstyle-result.xml
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/commonlibrary-checkstyle-result.xml'
+          path: '**/common-library-checkstyle-result.xml'
       - name: Run Maven Verify
-        run: mvn clean verify -f commonlibrary
+        run: mvn clean verify -f common-library
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Common-Service-Unit-Test-Results
-          path: "commonlibrary/**/*-reports/TEST*.xml"
+          path: "common-library/**/*-reports/TEST*.xml"
           reporter: java-junit
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -63,12 +63,12 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl commonlibrary -am
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl common-library -am
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
-          paths: ${{github.workspace}}/commonlibrary/target/site/jacoco/jacoco.xml
+          paths: ${{github.workspace}}/common-library/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
           min-coverage-overall: 80
           min-coverage-changed-files: 60
@@ -85,6 +85,6 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
-          context: ./commonlibrary
+          context: ./common-library
           push: true
-          tags: ghcr.io/nashtech-garage/yas-commonlibrary:latest
+          tags: ghcr.io/nashtech-garage/yas-common-library:latest

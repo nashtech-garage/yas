@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>com.yas</groupId>
-            <artifactId>commonlibrary</artifactId>
+            <artifactId>common-library</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
