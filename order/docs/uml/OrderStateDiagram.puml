@@ -26,4 +26,6 @@ After Step 26 of sequence diagram
 end note
 PAYMENT_FAILED: order.orderStatus = ACCEPTED
 PAYMENT_FAILED: order.paymentStatus = CANCELLED
+PAID --> [*]
+PAYMENT_FAILED --> [*]
 @enduml
