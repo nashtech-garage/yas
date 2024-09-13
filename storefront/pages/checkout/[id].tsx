@@ -217,10 +217,10 @@ const Checkout = () => {
   const handleCheckOutProcess = async (order: Order) => {
     const paymentMethod = order.paymentMethod ?? '';
     switch (paymentMethod.toUpperCase()) {
-      case 'CODPAYMENT':
+      case 'COD':
         processCodPayment(order);
         break;
-      case 'PAYPALPAYMENT':
+      case 'PAYPAL':
         redirectToPaypal(order);
         break;
       default:
