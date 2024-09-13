@@ -875,7 +875,8 @@ public class ProductService {
                 ));
                 ImageVm image = null;
                 if (product.getThumbnailMediaId() != null) {
-                    image = new ImageVm(product.getThumbnailMediaId(), mediaService.getMedia(product.getThumbnailMediaId()).url());
+                    image = new ImageVm(product.getThumbnailMediaId(),
+                        mediaService.getMedia(product.getThumbnailMediaId()).url());
                 }
                 return new ProductVariationGetVm(
                         product.getId(),
