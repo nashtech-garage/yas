@@ -3,6 +3,7 @@ actor Client
 box "YAS" #D6EAF8 
 participant Storefront as NextJs
 participant CartService as cart
+participant ProductService as product
 participant OrderService as order
 participant CustomerService as customer
 participant PaymentService as payment
@@ -70,6 +71,14 @@ product price, note?, discount?, taxAmount?, taxPercent?}]}
 Header: Authorization
 end note
 activate order
+order -> product: PUT /api/backoffice/products/subtract-quantity
+activate product
+product --> order: 204 NO CONTENT
+deactivate product
+order -> cart: DELETE /api/storefront/carts/multi-item?productIds=
+activate cart
+cart --> order: 204 NO CONTENT
+deactivate cart
 order --> NextJs: 201 CREATED
 deactivate order
 NextJs --> Client: 201 CREATED
