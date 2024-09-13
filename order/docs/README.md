@@ -12,3 +12,7 @@ Check out is created to snap shot the state of the cart as check out time
 This is the main order placing flow at the moment, the COD flow is still in development.
 ### Sequence diagram
 !["Sequence diagram for placing order flow"](./img/Create%20order%20flow.png)
+
+### State diagram
+This is the states transition of an order during this flow. Please reference the sequence diagram to know when each transition happens.
+!["Order state diagram during this sequence"](./img/Order%20State%20diagram.png)
