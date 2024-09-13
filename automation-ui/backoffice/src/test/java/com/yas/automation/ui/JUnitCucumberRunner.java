@@ -18,4 +18,5 @@ public class JUnitCucumberRunner extends AbstractTestNGCucumberTests {
     public Object[][] scenarios() {
         return super.scenarios();
     }
+
 }

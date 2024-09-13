@@ -15,7 +15,6 @@
     <name>yas</name>
 
     <modules>
-        <module>common-library</module>
         <module>backoffice-bff</module>
         <module>cart</module>
         <module>customer</module>
@@ -33,6 +32,7 @@
         <module>tax</module>
         <module>webhook</module>
         <module>sampledata</module>
+        <module>automation-ui</module>
     </modules>
 
     <properties>
@@ -62,6 +62,13 @@
         <testcontainers-keycloak.version>3.3.0</testcontainers-keycloak.version>
         <rest-assured.version>5.4.0</rest-assured.version>
         <instancio-junit.version>4.8.1</instancio-junit.version>
+        <selenium-java.version>4.14.0</selenium-java.version>
+        <webdrivermanager.version>5.7.0</webdrivermanager.version>
+        <cucumber-java.version>7.18.1</cucumber-java.version>
+        <testng.version>7.10.2</testng.version>
+        <cucumber-testng.version>7.18.1</cucumber-testng.version>
+        <cucumber-spring.version>7.14.0</cucumber-spring.version>
+
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -143,6 +150,42 @@
                 <groupId>com.github.dasniko</groupId>
                 <artifactId>testcontainers-keycloak</artifactId>
                 <version>${testcontainers-keycloak.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <version>${selenium-java.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.github.bonigarcia</groupId>
+                <artifactId>webdrivermanager</artifactId>
+                <version>${webdrivermanager.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${cucumber-java.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-testng</artifactId>
+                <version>${cucumber-testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-spring</artifactId>
+                <version>${cucumber-spring.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -312,14 +355,6 @@
                             </goals>
                         </execution>
                     </executions>
-                    <configuration>
-                        <excludes>
-                            <exclude>com/yas/**/*Application.class</exclude>
-                            <exclude>com/yas/**/config/**</exclude>
-                            <exclude>com/yas/**/exception/**</exclude>
-                            <exclude>com/yas/**/constants/**</exclude>
-                        </excludes>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
