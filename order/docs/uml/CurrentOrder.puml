@@ -11,6 +11,7 @@ participant PayPalService as ppal
 end box
 participant PaypalAPI as ppAPI
 ==Go to cart page==
+autonumber 1.1 "<b> 0.0"
 Client -> NextJs: Browse /storefront/carts
 activate NextJs
 NextJs -> cart: GET /api/cart/storefront/carts/{customer-id}
@@ -20,6 +21,7 @@ deactivate cart
 NextJs --> Client: 200 OK
 deactivate NextJs
 ==Create checkout==
+autonumber inc A
 Client -> NextJs: Click "Proceed to check out"
 activate NextJs
 NextJs -> order: POST /api/order/storefront/checkouts
@@ -36,6 +38,7 @@ NextJs --> Client: 201 CREATED
 NextJs --> Client: Route to /storefront/checkout/{checkout-id}
 deactivate NextJs
 ==Go to checkout page==
+autonumber inc A
 Client -> NextJs: Browse /storefront/checkout/{checkout-id}
 activate NextJs
 NextJs -> order: GET /api/order/storefront/checkout/{checkout-id}
@@ -49,6 +52,7 @@ deactivate customer
 NextJs --> Client: 200 OK
 deactivate NextJs
 ==Add new address (optional) if user has default address==
+autonumber inc A
 Client -> NextJs: Click "Add new address"
 activate NextJs
 NextJs -> customer: POST /api/customer/storefront/user-address
@@ -58,6 +62,7 @@ deactivate customer
 NextJs --> Client: 201 CREATED
 deactivate NextJs
 ==Create order==
+autonumber inc A
 Client -> NextJs: Click "Proceed to payment" 
 activate NextJs
 NextJs -> order: POST /api/order/storefront/orders
@@ -83,6 +88,7 @@ order --> NextJs: 201 CREATED
 deactivate order
 NextJs --> Client: 201 CREATED
 alt Paypal case
+    autonumber 5.9.1.1
     NextJs -> ppal: POST /api/payment-paypal/init
     activate ppal
     ppal -> ppAPI: POST /orders
@@ -123,9 +129,11 @@ alt Paypal case
     deactivate ppal
     NextJs --> Client: 200 OK
 else COD case
+    autonumber inc C
     NextJs -> Client: Not implemented
 end
-    deactivate NextJs
+autonumber 5.10 "<b> 0.0"
+deactivate NextJs
     
 deactivate NextJs
 @enduml
