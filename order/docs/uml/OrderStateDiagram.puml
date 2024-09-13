@@ -13,14 +13,14 @@ end note
 ACCEPTED: order.orderStatus = ACCEPTED
 ACCEPTED: order.paymentStatus = PENDING
 
-ACCEPTED --> PAID: User request capture paypal payment, payment result is success
+ACCEPTED --> PAID: User request capture paypal payment, payment result is COMPLETED
 note on link
 After Step 26 of sequence diagram
 end note
 PAID: order.orderStatus = ACCEPTED
-PAID: order.paymentStatus = PAID
+PAID: order.paymentStatus = COMPLETED
 
-ACCEPTED --> PAYMENT_FAILED: User request capture paypal payment, payment result is cancelled
+ACCEPTED --> PAYMENT_FAILED: User request capture paypal payment, payment result is CANCELLED
 note on link
 After Step 26 of sequence diagram
 end note
