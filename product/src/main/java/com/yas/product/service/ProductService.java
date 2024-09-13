@@ -509,7 +509,7 @@ public class ProductService {
         }
     }
 
-    private static void setValuesForVariantExisting(
+    private void setValuesForVariantExisting(
         List<ProductImage> newProductImages,
         ProductVariationPutVm variant,
         Product variantInDb
@@ -521,15 +521,14 @@ public class ProductService {
             variantInDb.setSku(variant.sku());
             variantInDb.setGtin(variant.gtin());
             variantInDb.setPrice(variant.price());
-            List<ProductImage> productImages = variantInDb.getProductImages();
+            productImageRepository.deleteByProductId(variant.id());
             if (CollectionUtils.isNotEmpty(variant.productImageIds())) {
                 variant.productImageIds().forEach(imageId -> {
-                    if (productImages.stream().noneMatch(productImage -> imageId.equals(productImage.getImageId()))) {
-                        newProductImages.add(ProductImage.builder()
-                            .imageId(imageId).product(variantInDb).build());
-                    }
+                    newProductImages.add(ProductImage.builder()
+                        .imageId(imageId).product(variantInDb).build());
                 });
             }
+            productImageRepository.saveAll(newProductImages);
         }
     }
 
@@ -874,6 +873,10 @@ public class ProductService {
                         productOptionCombination -> productOptionCombination.getProductOption().getId(),
                         ProductOptionCombination::getValue
                 ));
+                ImageVm image = null;
+                if (product.getThumbnailMediaId() != null) {
+                    image = new ImageVm(product.getThumbnailMediaId(), mediaService.getMedia(product.getThumbnailMediaId()).url());
+                }
                 return new ProductVariationGetVm(
                         product.getId(),
                         product.getName(),
@@ -881,8 +884,7 @@ public class ProductService {
                         product.getSku(),
                         product.getGtin(),
                         product.getPrice(),
-                        new ImageVm(product.getThumbnailMediaId(),
-                            mediaService.getMedia(product.getThumbnailMediaId()).url()),
+                        image,
                         product.getProductImages().stream()
                             .map(productImage -> new ImageVm(productImage.getImageId(),
                                 mediaService.getMedia(productImage.getImageId()).url())).toList(),
