@@ -5,6 +5,7 @@ participant Storefront as NextJs
 participant OrderService as order
 end box
 ==Create checkout==
+autonumber
 Client -> NextJs: Click "Proceed to check out"
 activate NextJs
 NextJs -> order: POST /api/order/storefront/checkouts
