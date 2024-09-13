@@ -63,11 +63,11 @@ ppAPI --> ppal: 200 OK
 deactivate ppAPI
 ppal -> payment: POST /api/payment/capture
 activate payment
-payment -> order: PUT /api/order/storefront/checkout/status
+payment -> order: PUT /api/order/storefront/checkouts/status
 activate order
 order --> payment: 200 OK
 deactivate order
-payment -> order: PUT /api/order/storefront/checkout/status
+payment -> order: PUT /api/order/storefront/orders/status
 activate order
 order --> payment: 200 OK
 deactivate order
