@@ -1,7 +1,7 @@
 @startuml Current Order flow
 actor Client
 box "YAS" #D6EAF8 
-participant storefront as NextJs
+participant Storefront as NextJs
 participant CartService as cart
 participant OrderService as order
 participant CustomerService as customer
@@ -10,7 +10,7 @@ participant PayPalService as ppal
 end box
 participant PaypalAPI as ppAPI
 ==Go to cart page==
-Client -> NextJs: GET /storefront/carts
+Client -> NextJs: Browse /storefront/carts
 activate NextJs
 NextJs -> cart: GET /api/cart/storefront/carts/{customer-id}
 activate cart
@@ -35,7 +35,7 @@ NextJs --> Client: 201 CREATED
 NextJs --> Client: Route to /storefront/checkout/{checkout-id}
 deactivate NextJs
 ==Go to checkout page==
-Client -> NextJs: GET /storefront/checkout/{checkout-id}
+Client -> NextJs: Browse /storefront/checkout/{checkout-id}
 activate NextJs
 NextJs -> order: GET /api/order/storefront/checkout/{checkout-id}
 activate order
@@ -88,23 +88,23 @@ alt Paypal case
     activate ppAPI
     ppAPI --> Client: 200 OK
     Client -> ppAPI: POST payment
-    ppAPI --> Client: Redirect "/complete-payment/capture"
+    ppAPI --> Client: Redirect /complete-payment/capture
     deactivate ppAPI
-    Client -> NextJs: GET "/complete-payment/capture"
+    Client -> NextJs: GET /complete-payment/capture
     activate NextJs
-    NextJs -> ppal: POST "/payment-paypal/capture"
+    NextJs -> ppal: POST /api/payment-paypal/capture
     activate ppal
     ppal -> ppAPI: GET order captures
     activate ppAPI
     ppAPI --> ppal: 200 OK
     deactivate ppAPI
-    ppal -> payment: POST "/payment/capture"
+    ppal -> payment: POST /api/payment/capture
     activate payment
-    payment -> order: PUT "/order/storefront/checkout/status"
+    payment -> order: PUT /api/order/storefront/checkout/status
     activate order
     order --> payment: 200 OK
     deactivate order
-    payment -> order: PUT "/order/storefront/checkout/status"
+    payment -> order: PUT /api/order/storefront/checkout/status
     activate order
     order --> payment: 200 OK
     deactivate order

@@ -39,26 +39,26 @@ Client -> ppAPI: GET payment page
 activate ppAPI
 ppAPI --> Client: 200 OK
 Client -> ppAPI: POST payment
-ppAPI --> Client: Redirect "/complete-payment/capture"
+ppAPI --> Client: Redirect /complete-payment/capture
 note left
 token=
 end note
 deactivate ppAPI
-Client -> NextJs: GET "/complete-payment/capture?token="
+Client -> NextJs: GET /complete-payment/capture
 activate NextJs
-NextJs -> ppal: POST "/payment-paypal/capture" with token
+NextJs -> ppal: POST /api/payment-paypal/capture
 activate ppal
-ppal -> ppAPI: GET order captures with token
+ppal -> ppAPI: GET order captures
 activate ppAPI
 ppAPI --> ppal: 200 OK
 deactivate ppAPI
-ppal -> payment: POST "/payment/capture"
+ppal -> payment: POST /api/payment/capture
 activate payment
-payment -> order: PUT "/order/storefront/checkout/status"
+payment -> order: PUT /api/order/storefront/checkout/status
 activate order
 order --> payment: 200 OK
 deactivate order
-payment -> order: PUT "/order/storefront/checkout/status"
+payment -> order: PUT /api/order/storefront/checkout/status
 activate order
 order --> payment: 200 OK
 deactivate order
@@ -67,7 +67,5 @@ deactivate payment
 ppal --> NextJs: 201 CREATED
 deactivate ppal
 NextJs --> Client: 200 OK
-deactivate NextJs
-
 deactivate NextJs
 @enduml
