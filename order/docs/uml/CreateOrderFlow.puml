@@ -1,4 +1,5 @@
 @startuml Create order flow
+autonumber
 actor Client
 box "YAS" #D6EAF8
 participant Storefront as NextJs
