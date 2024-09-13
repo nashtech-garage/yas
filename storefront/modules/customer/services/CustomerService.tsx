@@ -18,7 +18,7 @@ export async function getUserAddressDefault(): Promise<Address> {
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
-  return Promise.reject(response.status);
+  throw new Error(response.statusText);
 }
 
 export async function deleteUserAddress(id: number) {
