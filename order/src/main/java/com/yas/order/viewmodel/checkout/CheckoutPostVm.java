@@ -9,6 +9,5 @@ public record CheckoutPostVm(
         String couponCode,
         @NotNull
         List<CheckoutItemPostVm> checkoutItemPostVms
-
 ) {
 }
