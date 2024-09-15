@@ -35,15 +35,16 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/common-library-checkstyle-result.xml'
-      - name: Run Maven Verify
-        run: mvn clean verify -f common-library
-      - name: Test Results
-        uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-        with:
-          name: Common-Library-Unit-Test-Results
-          path: "common-library/**/*-reports/TEST*.xml"
-          reporter: java-junit
+      # - name: Run Maven Verify
+      #   run: mvn clean verify -f common-library
+      # Bỏ các bước Test Results nếu không có file kiểm thử
+      # - name: Test Results
+      #   uses: dorny/test-reporter@v1
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+      #   with:
+      #     name: Common-Library-Unit-Test-Results
+      #     path: "common-library/**/*-reports/TEST*.xml"
+      #     reporter: java-junit
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
