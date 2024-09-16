@@ -36,7 +36,7 @@ jobs:
         with:
           path: '**/common-library-checkstyle-result.xml'
       - name: Run Maven Verify
-        run: mvn clean verify -f common-library
+        run: mvn clean install -f common-library
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
