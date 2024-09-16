@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-common-library:
+  Build:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
@@ -74,3 +74,5 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Common Library Coverage Report'
           update-comment: true
+      - name: Run Maven Verify
+        run: mvn deploy -f common-library

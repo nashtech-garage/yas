@@ -17,7 +17,7 @@ on:
       - "pom.xml"
   workflow_dispatch:
   workflow_run:
-    workflows: [common-library service ci]
+    workflows: ["common-library service ci"]
     types:
       - completed
 
