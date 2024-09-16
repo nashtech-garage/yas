@@ -248,4 +248,9 @@ public class ProductController {
         productService.subtractStockQuantity(productQuantityPutVm);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/backoffice/products/by-ids")
+    public ResponseEntity<List<ProductListVm>> getProductByIds(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok(productService.getProductByIds(ids));
+    }
 }

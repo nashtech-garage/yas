@@ -72,4 +72,8 @@ public class BrandService {
     private boolean checkExistedName(String name, Long id) {
         return brandRepository.findExistedName(name, id) != null;
     }
+
+    public List<BrandVm> getBrandsByIds(List<Long> ids) {
+        return brandRepository.findAllById(ids).stream().map(BrandVm::fromModel).toList();
+    }
 }

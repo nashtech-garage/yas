@@ -1073,6 +1073,10 @@ public class ProductService {
         };
     }
 
+    public List<ProductListVm> getProductByIds(List<Long> productIds) {
+        return this.productRepository.findAllByIdIn(productIds).stream().map(ProductListVm::fromModel).toList();
+    }
+
     public void restoreStockQuantity(List<ProductQuantityPutVm> productQuantityItems) {
         ListUtils.partition(productQuantityItems, 5)
                 .forEach(it -> partitionUpdateStockQuantityByCalculation(it, this.restoreStockQuantity()));

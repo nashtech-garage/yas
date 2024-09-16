@@ -124,15 +124,13 @@ public class CategoryService {
         );
     }
 
-    public List<CategoryGetVm> getCategories() {
-        List<Category> category = categoryRepository.findAll();
+    public List<CategoryGetVm> getCategories(String categoryName) {
+        List<Category> category = categoryRepository.findByNameContainingIgnoreCase(categoryName);
         List<CategoryGetVm> categoryGetVms = new ArrayList<>();
-        category.stream().forEach(cate -> {
+        category.forEach(cate -> {
             ImageVm categoryImage = null;
             if (cate.getImageId() != null) {
-                if (cate.getImageId() != null) {
-                    categoryImage = new ImageVm(cate.getImageId(), mediaService.getMedia(cate.getImageId()).url());
-                }
+                categoryImage = new ImageVm(cate.getImageId(), mediaService.getMedia(cate.getImageId()).url());
             }
             Category parent = cate.getParent();
             long parentId = parent == null ? -1 : parent.getId();
@@ -167,5 +165,9 @@ public class CategoryService {
         } else {
             return true;
         }
+    }
+
+    public List<CategoryGetVm> getCategoryByIds(List<Long> ids) {
+        return categoryRepository.findAllById(ids).stream().map(CategoryGetVm::fromModel).toList();
     }
 }

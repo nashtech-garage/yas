@@ -7,25 +7,30 @@ import com.yas.promotion.PromotionApplication;
 import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
 import com.yas.promotion.model.Promotion;
+import com.yas.promotion.model.PromotionApply;
 import com.yas.promotion.model.enumeration.ApplyTo;
+import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
-import java.time.ZonedDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest(classes = PromotionApplication.class)
 class PromotionServiceTest {
     @Autowired
     private PromotionRepository promotionRepository;
+    @MockBean
+    private ProductService productService;
     @Autowired
     private PromotionService promotionService;
 
@@ -43,8 +48,11 @@ class PromotionServiceTest {
                 .discountAmount(100L)
                 .discountPercentage(10L)
                 .isActive(true)
-                .startDate(ZonedDateTime.now())
-                .endDate(ZonedDateTime.now().plusDays(30))
+                .startDate(Instant.now())
+                .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
+                .applyTo(ApplyTo.BRAND)
+                .promotionApplies(
+                    List.of(PromotionApply.builder().brandId(1L).build()))
                 .build();
         promotion1 = promotionRepository.save(promotion1);
 
@@ -56,8 +64,11 @@ class PromotionServiceTest {
                 .discountAmount(200L)
                 .discountPercentage(20L)
                 .isActive(false)
-                .startDate(ZonedDateTime.now().minusDays(30))
-                .endDate(ZonedDateTime.now().plusDays(60))
+                .startDate(Instant.now().plus(30, ChronoUnit.DAYS))
+                .endDate(Instant.now().plus(60, ChronoUnit.DAYS))
+                .applyTo(ApplyTo.PRODUCT)
+                .promotionApplies(
+                    List.of(PromotionApply.builder().productId(1L).build()))
                 .build();
         promotionRepository.save(promotion2);
 
@@ -68,9 +79,10 @@ class PromotionServiceTest {
             .couponCode("codeWrong")
             .discountAmount(200L)
             .discountPercentage(20L)
+            .applyTo(ApplyTo.PRODUCT)
             .isActive(false)
-            .startDate(ZonedDateTime.now().minusDays(30))
-            .endDate(ZonedDateTime.now().minusDays(60))
+            .startDate(Instant.now().plus(30, ChronoUnit.DAYS))
+            .endDate(Instant.now().plus(60, ChronoUnit.DAYS))
             .build();
         wrongRangeDatePromotion = promotionRepository.save(wrongRangeDatePromotion);
     }
@@ -87,11 +99,12 @@ class PromotionServiceTest {
                 .slug("promotion-3")
                 .description("Description 3")
                 .couponCode("code3")
+                .discountType(DiscountType.FIXED)
                 .discountAmount(300L)
                 .discountPercentage(30L)
                 .isActive(true)
-                .startDate(ZonedDateTime.now().plusDays(60))
-                .endDate(ZonedDateTime.now().plusDays(90))
+                .startDate(Instant.now().plus(60, ChronoUnit.DAYS))
+                .endDate(Instant.now().plus(90, ChronoUnit.DAYS))
                 .applyTo(ApplyTo.PRODUCT)
                 .productIds(List.of(1L, 2L, 3L))
                 .build();
@@ -106,6 +119,13 @@ class PromotionServiceTest {
     void createPromotion_WhenExistedSlug_ThenDuplicatedExceptionThrown() {
         promotionPostVm = PromotionPostVm.builder()
                 .slug(promotion1.getSlug())
+                .applyTo(ApplyTo.PRODUCT)
+                .name("12345")
+                .couponCode("cp-12345")
+                .productIds(List.of(1L, 2L, 3L))
+                .discountType(DiscountType.FIXED)
+                .discountAmount(300L)
+                .discountPercentage(30L)
                 .build();
         assertThrows(DuplicatedException.class, () -> promotionService.createPromotion(promotionPostVm),
                 String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, promotionPostVm.getSlug()));
@@ -114,8 +134,12 @@ class PromotionServiceTest {
     @Test
     void createPromotion_WhenEndDateBeforeStartDate_ThenDateRangeExceptionThrown() {
         promotionPostVm = PromotionPostVm.builder()
-            .endDate(wrongRangeDatePromotion.getEndDate())
-            .startDate(wrongRangeDatePromotion.getStartDate())
+            .applyTo(ApplyTo.PRODUCT)
+            .name("12345")
+            .couponCode("cp-12345")
+            .productIds(List.of(1L, 2L, 3L))
+            .endDate(Instant.now().minus(2, ChronoUnit.DAYS))
+            .startDate(Instant.now())
             .build();
 
         BadRequestException exception = assertThrows(BadRequestException.class, () ->
@@ -128,7 +152,7 @@ class PromotionServiceTest {
     void getPromotionList_ThenSuccess() {
         PromotionListVm result = promotionService.getPromotions(0, 5,
                 "Promotion", "code",
-                ZonedDateTime.now().minusDays(120), ZonedDateTime.now().plusDays(120));
+                Instant.now().minus(120, ChronoUnit.DAYS), Instant.now().plus(120, ChronoUnit.DAYS));
         assertEquals(2, result.promotionDetailVmList().size());
         PromotionDetailVm promotionDetailVm = result.promotionDetailVmList().getFirst();
         assertEquals("promotion-1", promotionDetailVm.slug());

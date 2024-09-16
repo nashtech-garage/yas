@@ -58,7 +58,7 @@ class CategoryControllerTest {
         CategoryGetVm category2 =
                 new CategoryGetVm(3L, "Category 2", "category-2", 1L, new ImageVm(3L, ""));
 
-        when(categoryService.getCategories()).thenReturn(Arrays.asList(category1, category2));
+        when(categoryService.getCategories(any())).thenReturn(Arrays.asList(category1, category2));
 
         mockMvc.perform(get("/backoffice/categories"))
                 .andExpect(status().isOk())

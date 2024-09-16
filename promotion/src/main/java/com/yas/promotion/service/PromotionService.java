@@ -8,14 +8,16 @@ import com.yas.promotion.model.PromotionApply;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.repository.PromotionUsageRepository;
 import com.yas.promotion.utils.Constants;
+import com.yas.promotion.viewmodel.BrandVm;
+import com.yas.promotion.viewmodel.CategoryGetVm;
+import com.yas.promotion.viewmodel.ProductVm;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PromotionService {
     private final PromotionRepository promotionRepository;
     private final PromotionUsageRepository promotionUsageRepository;
+    private final ProductService productService;
 
     public PromotionDetailVm createPromotion(PromotionPostVm promotionPostVm) {
         validateIfPromotionExistedSlug(promotionPostVm.getSlug());
@@ -93,8 +96,8 @@ public class PromotionService {
         int pageSize,
         String promotionName,
         String couponCode,
-        ZonedDateTime startDate,
-        ZonedDateTime endDate
+        Instant startDate,
+        Instant endDate
     ) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
@@ -111,8 +114,8 @@ public class PromotionService {
         List<PromotionDetailVm> promotionDetailVmList = promotionPage
                 .getContent()
                 .stream()
-                .map(PromotionDetailVm::fromModel)
-                .collect(Collectors.toList());
+                .map(this::toPromotionDetail)
+                .toList();
 
         return PromotionListVm.builder()
                 .promotionDetailVmList(promotionDetailVmList)
@@ -123,13 +126,35 @@ public class PromotionService {
                 .build();
     }
 
+    private PromotionDetailVm toPromotionDetail(Promotion promotion) {
+        List<BrandVm> brandVms = null;
+        List<CategoryGetVm> categoryGetVms = null;
+        List<ProductVm> productVms = null;
+        List<PromotionApply> promotionApplies = promotion.getPromotionApplies();
+        switch (promotion.getApplyTo()) {
+            case CATEGORY ->
+                categoryGetVms = productService.getCategoryByIds(promotionApplies.stream()
+                    .map(PromotionApply::getCategoryId).toList());
+            case BRAND ->
+                brandVms = productService.getBrandByIds(promotionApplies.stream()
+                    .map(PromotionApply::getBrandId).toList());
+            case PRODUCT ->
+                productVms = productService.getProductByIds(promotionApplies.stream()
+                    .map(PromotionApply::getProductId).toList());
+            default -> {
+                break;
+            }
+        }
+        return PromotionDetailVm.fromModel(promotion, brandVms, categoryGetVms, productVms);
+    }
+
     private void validateIfPromotionExistedSlug(String slug) {
         if (promotionRepository.findBySlugAndIsActiveTrue(slug).isPresent()) {
             throw new DuplicatedException(String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, slug));
         }
     }
 
-    private void validateIfPromotionEndDateIsBeforeStartDate(ZonedDateTime startDate, ZonedDateTime endDate) {
+    private void validateIfPromotionEndDateIsBeforeStartDate(Instant startDate, Instant endDate) {
         if (endDate != null && startDate != null && endDate.isBefore(startDate)) {
             throw new BadRequestException(String.format(Constants.ErrorCode.DATE_RANGE_INVALID));
         }

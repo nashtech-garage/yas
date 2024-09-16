@@ -1,5 +1,8 @@
 package com.yas.promotion.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.promotion.PromotionApplication;
@@ -8,6 +11,9 @@ import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;
 import com.yas.promotion.service.PromotionService;
 import com.yas.promotion.viewmodel.PromotionPostVm;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,12 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = PromotionController.class)
@@ -60,8 +60,8 @@ class PromotionControllerTest {
                 .productIds(List.of(1L,2L,3L))
                 .isActive(true)
                 .usageLimit(0)
-                .startDate(ZonedDateTime.now())
-                .endDate(ZonedDateTime.now().plusDays(30))
+                .startDate(Instant.now())
+                .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -85,8 +85,8 @@ class PromotionControllerTest {
                 .productIds(List.of(1L,2L,3L))
                 .isActive(true)
                 .usageLimit(0)
-                .startDate(ZonedDateTime.now())
-                .endDate(ZonedDateTime.now().plusDays(30))
+                .startDate(Instant.now())
+                .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -110,8 +110,8 @@ class PromotionControllerTest {
                 .productIds(List.of(1L,2L,3L))
                 .isActive(true)
                 .usageLimit(0)
-                .startDate(ZonedDateTime.now())
-                .endDate(ZonedDateTime.now().plusDays(30))
+                .startDate(Instant.now())
+                .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -135,8 +135,8 @@ class PromotionControllerTest {
             .productIds(List.of(1L,2L,3L))
             .isActive(true)
             .usageLimit(0)
-            .startDate(ZonedDateTime.now())
-            .endDate(ZonedDateTime.now().plusDays(30))
+            .startDate(Instant.now())
+            .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -160,8 +160,8 @@ class PromotionControllerTest {
             .productIds(List.of(1L,2L,3L))
             .isActive(true)
             .usageLimit(0)
-            .startDate(ZonedDateTime.now())
-            .endDate(ZonedDateTime.now().plusDays(30))
+            .startDate(Instant.now())
+            .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -185,8 +185,8 @@ class PromotionControllerTest {
             .productIds(List.of(1L,2L,3L))
             .isActive(true)
             .usageLimit(0)
-            .startDate(ZonedDateTime.now())
-            .endDate(ZonedDateTime.now().plusDays(30))
+            .startDate(Instant.now())
+            .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);

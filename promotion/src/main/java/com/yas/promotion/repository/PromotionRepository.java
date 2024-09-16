@@ -1,7 +1,7 @@
 package com.yas.promotion.repository;
 
 import com.yas.promotion.model.Promotion;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,12 +17,12 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Query("SELECT p FROM Promotion p "
             + "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%',:name,'%')) "
             + "AND LOWER(p.couponCode) LIKE LOWER(CONCAT('%',:couponCode,'%')) "
-            + "AND p.startDate >= :startDate "
-            + "AND p.endDate <= :endDate")
+            + "AND p.startDate BETWEEN :startDate AND :endDate "
+            + "AND p.endDate BETWEEN :startDate AND :endDate")
     Page<Promotion> findPromotions(@Param("name") String name,
                                    @Param("couponCode") String couponCode,
-                                   @Param("startDate") ZonedDateTime startDate,
-                                   @Param("endDate") ZonedDateTime endDate,
+                                   @Param("startDate") Instant startDate,
+                                   @Param("endDate") Instant endDate,
                                    Pageable pageable);
 
 }

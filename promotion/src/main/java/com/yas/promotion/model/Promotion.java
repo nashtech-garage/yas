@@ -13,7 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -65,9 +65,9 @@ public class Promotion extends AbstractAuditEntity {
 
     private Boolean isActive;
 
-    private ZonedDateTime startDate;
+    private Instant startDate;
 
-    private ZonedDateTime endDate;
+    private Instant endDate;
 
     @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
     List<PromotionApply> promotionApplies;
