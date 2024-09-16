@@ -1,37 +1,32 @@
 import { Address } from '@/modules/address/models/AddressModel';
+import apiClientService from '@/common/services/ApiClientService';
+
+const userAddressUrl = '/api/customer/storefront/user-address';
 
 export async function createUserAddress(address: Address) {
-  const response = await fetch(`/api/customer/storefront/user-address`, {
-    method: 'POST',
-    headers: { 'Content-type': 'application/json' },
-    body: JSON.stringify(address),
-  });
+  const response = await apiClientService.post(userAddressUrl, JSON.stringify(address));
   return response.json();
 }
 
 export async function getUserAddress() {
-  const response = await fetch(`/api/customer/storefront/user-address`);
+  const response = await apiClientService.get(userAddressUrl);
   return response.json();
 }
 
 export async function getUserAddressDefault(): Promise<Address> {
-  const response = await fetch(`/api/customer/storefront/user-address/default-address`);
+  const response = await apiClientService.get(`${userAddressUrl}/default-address`);
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
-  return Promise.reject(response.status);
+  throw new Error(response.statusText);
 }
 
 export async function deleteUserAddress(id: number) {
-  const response = await fetch(`/api/customer/storefront/user-address/${id}`, {
-    method: 'DELETE',
-  });
+  const response = await apiClientService.delete(`${userAddressUrl}/${id}`);
   return await response;
 }
 
 export async function chooseDefaultAddress(id: number) {
-  const response = await fetch(`/api/customer/storefront/user-address/${id}`, {
-    method: 'PUT',
-  });
+  const response = await apiClientService.put(`${userAddressUrl}/${id}`, null);
   return await response;
 }
