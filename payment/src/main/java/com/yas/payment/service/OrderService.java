@@ -34,7 +34,9 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
 
         return restClient.put()
                 .uri(url)
-                .body(checkoutStatusVm).retrieve().body(Long.class);
+                .body(checkoutStatusVm)
+            .retrieve()
+            .body(Long.class);
     }
 
     @Retry(name = "restApi")

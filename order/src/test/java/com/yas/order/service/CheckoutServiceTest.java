@@ -24,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {CheckoutMapperImpl.class, CheckoutService.class})
 class CheckoutServiceTest {
+
     @MockBean
     CheckoutRepository checkoutRepository;
     @MockBean
@@ -65,11 +66,11 @@ class CheckoutServiceTest {
 
     @Test
     void createCheckout() {
-        // set up
+
         when(checkoutRepository.save(any())).thenReturn(checkoutCreated);
-        // run
+
          var res = checkoutService.createCheckout(checkoutPostVm);
-         // assert
+
         assertThat(res)
             .hasFieldOrPropertyWithValue("id", checkoutId)
             .hasFieldOrPropertyWithValue("email", checkoutPostVm.email())
