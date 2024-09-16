@@ -1,3 +1,5 @@
+package com.yas.commonlibrary;
+
 import com.yas.commonlibrary.config.ServiceUrlConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
