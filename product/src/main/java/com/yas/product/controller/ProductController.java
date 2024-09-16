@@ -9,6 +9,7 @@ import com.yas.product.viewmodel.product.ProductEsDetailVm;
 import com.yas.product.viewmodel.product.ProductExportingDetailVm;
 import com.yas.product.viewmodel.product.ProductFeatureGetVm;
 import com.yas.product.viewmodel.product.ProductGetDetailVm;
+import com.yas.product.viewmodel.product.ProductInfoForOrderVm;
 import com.yas.product.viewmodel.product.ProductInfoVm;
 import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
 import com.yas.product.viewmodel.product.ProductListGetVm;
@@ -247,5 +248,12 @@ public class ProductController {
     ) {
         productService.subtractStockQuantity(productQuantityPutVm);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/backoffice/products/for-order")
+    public ResponseEntity<List<ProductInfoForOrderVm>> getProductForOrder(
+        @RequestParam List<Long> productIds
+    ) {
+        return ResponseEntity.ok(productService.getProductForOrder(productIds));
     }
 }
