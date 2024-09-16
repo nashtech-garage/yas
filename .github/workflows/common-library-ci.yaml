@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  build-common-library:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
@@ -37,13 +37,13 @@ jobs:
           path: '**/common-library-checkstyle-result.xml'
       - name: Run Maven Verify
         run: mvn clean verify -f common-library
-#      - name: Test Results
-#        uses: dorny/test-reporter@v1
-#        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-#        with:
-#          name: Common-Library-Unit-Test-Results
-#          path: "common-library/**/*-reports/TEST*.xml"
-#          reporter: java-junit
+      - name: Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Common-Library-Unit-Test-Results
+          path: "common-library/**/*-reports/TEST*.xml"
+          reporter: java-junit
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
@@ -74,17 +74,3 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Common Library Coverage Report'
           update-comment: true
-#      - name: Log in to the Container registry
-#        if: ${{ github.ref == 'refs/heads/main' }}
-#        uses: docker/login-action@v3
-#        with:
-#          registry: ghcr.io
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build and push Docker images
-#        if: ${{ github.ref == 'refs/heads/main' }}
-#        uses: docker/build-push-action@v6
-#        with:
-#          context: ./common-library
-#          push: true
-#          tags: ghcr.io/nashtech-garage/yas-common-library:latest
