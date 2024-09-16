@@ -2,7 +2,6 @@ package com.yas.media.service;
 
 import com.yas.media.config.YasConfig;
 import com.yas.media.exception.NotFoundException;
-import com.yas.media.exception.UnsupportedMediaTypeException;
 import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
 import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;
@@ -12,9 +11,7 @@ import com.yas.media.utils.StringUtils;
 import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
@@ -32,11 +29,6 @@ public class MediaServiceImpl implements MediaService {
     @Override
     @SneakyThrows
     public Media saveMedia(MediaPostVm mediaPostVm) {
-        MediaType mediaType = MediaType.valueOf(Objects.requireNonNull(mediaPostVm.multipartFile().getContentType()));
-        if (!(MediaType.IMAGE_PNG.equals(mediaType) || MediaType.IMAGE_JPEG.equals(mediaType)
-            || MediaType.IMAGE_GIF.equals(mediaType))) {
-            throw new UnsupportedMediaTypeException();
-        }
         Media media = new Media();
         media.setCaption(mediaPostVm.caption());
         media.setMediaType(mediaPostVm.multipartFile().getContentType());

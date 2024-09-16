@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import com.yas.media.config.YasConfig;
 import com.yas.media.exception.NotFoundException;
-import com.yas.media.exception.UnsupportedMediaTypeException;
 import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
 import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;
@@ -150,20 +149,6 @@ class MediaServiceUnitTest {
         assertNotNull(mediaSave);
         assertEquals("media", mediaSave.getCaption());
         assertEquals("fileName", mediaSave.getFileName());
-    }
-
-    @Test
-    void saveMedia_whenInvalidData_thenThrowsUnsupportedMediaTypeException() {
-        byte[] textContent = new byte[] {};
-        MultipartFile multipartFile = new MockMultipartFile(
-            "file",
-            "example.txt",
-            "plain/text",
-            textContent
-        );
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
-
-        assertThrows(UnsupportedMediaTypeException.class, () -> mediaService.saveMedia(mediaPostVm));
     }
 
     @Test
