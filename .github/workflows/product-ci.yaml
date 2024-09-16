@@ -15,11 +15,11 @@ on:
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
       - "pom.xml"
+  workflow_dispatch:
   workflow_run:
-    workflows: [ "common-library service ci" ]  # Tên workflow của common library
+    workflows: [common-library service ci]
     types:
       - completed
-  workflow_dispatch:
 
 jobs:
   Build:
