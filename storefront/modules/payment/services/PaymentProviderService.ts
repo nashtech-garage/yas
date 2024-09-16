@@ -1,6 +1,7 @@
 import { PaymentProvider } from '../models/PaymentProvider';
+import apiClientService from '@/common/services/ApiClientService';
 
 export const getEnabledPaymentProviders = async (): Promise<PaymentProvider[]> => {
-  const response = await fetch('/api/payment/storefront/payment-providers');
+  const response = await apiClientService.get('/api/payment/storefront/payment-providers');
   return response.json();
 };
