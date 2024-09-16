@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +37,12 @@ public class PromotionController {
             @RequestParam(defaultValue = "") String couponCode,
             @RequestParam(
                 defaultValue =
-                    "#{T(java.time.ZonedDateTime).of(1970, 1, 1, 0, 0, 0, 0, T(java.time.ZoneId).systemDefault())}"
+                    "#{T(java.time.Instant).ofEpochSecond(0)}"
+
             )
-            ZonedDateTime startDate,
-            @RequestParam(defaultValue = "#{T(java.time.ZonedDateTime).now(T(java.time.ZoneId).systemDefault())}")
-            ZonedDateTime endDate
+            Instant startDate,
+            @RequestParam(defaultValue = "#{T(java.time.Instant).now()}")
+            Instant endDate
     ) {
         return ResponseEntity.ok(promotionService.getPromotions(
             pageNo, pageSize, promotionName, couponCode, startDate, endDate));

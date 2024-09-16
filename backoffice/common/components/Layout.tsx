@@ -1,19 +1,20 @@
 import Head from 'next/head';
+import Link from 'next/link';
+import { MouseEventHandler, useState } from 'react';
 import { Navbar } from 'react-bootstrap';
 import { ToastContainer } from 'react-toastify';
-import styles from '../../styles/Layout.module.css';
-import AuthenticationInfo from './AuthenticationInfo';
-import { MouseEventHandler, useState } from 'react';
-import Link from 'next/link';
 import {
   menu_catalog_item_data,
   menu_customer_item_data,
   menu_inventory_item_data,
   menu_location_item_data,
-  menu_tax_item_data,
+  menu_promotion_item_data,
   menu_sale_item_data,
   menu_system_item_data,
+  menu_tax_item_data,
 } from '../../asset/data/sidebar';
+import styles from '../../styles/Layout.module.css';
+import AuthenticationInfo from './AuthenticationInfo';
 
 interface DataProps {
   id: number;
@@ -175,7 +176,7 @@ const Sidebar = (menu: MenuProps) => {
             data-target="#salesSubmenu"
             data-bs-toggle="collapse"
             aria-controls="salesSubmenu"
-            aria-expanded="false"
+            aria-expanded="true"
             className="dropdown-toggle"
           >
             <span className="fa fa-shopping-cart"></span> Sales
@@ -229,6 +230,27 @@ const Sidebar = (menu: MenuProps) => {
           <ul className="collapse list-unstyled" id="inventorySubmenu">
             <ListItem
               data={menu_inventory_item_data}
+              childActive={menu.childActive}
+              changeChildMenu={menu.changeChildMenu}
+            />
+          </ul>
+        </li>
+
+        <li className={menuActive == 'promotion' ? 'active' : ''}>
+          <Link
+            href="#promotionSubmenu"
+            data-target="#promotionSubmenu"
+            data-bs-toggle="collapse"
+            aria-controls="promotionSubmenu"
+            aria-expanded="false"
+            className="dropdown-toggle"
+            onClick={() => changeMenu('promotion')}
+          >
+            <span className="fa fa-money"></span> Promotion
+          </Link>
+          <ul className="collapse list-unstyled" id="promotionSubmenu">
+            <ListItem
+              data={menu_promotion_item_data}
               childActive={menu.childActive}
               changeChildMenu={menu.changeChildMenu}
             />

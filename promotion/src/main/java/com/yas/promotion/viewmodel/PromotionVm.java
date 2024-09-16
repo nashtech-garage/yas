@@ -1,6 +1,7 @@
 package com.yas.promotion.viewmodel;
 
 import com.yas.promotion.model.Promotion;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import lombok.Builder;
 
@@ -12,8 +13,8 @@ public record PromotionVm(Long id,
                           Long discountPercentage,
                           Long discountAmount,
                           Boolean isActive,
-                          ZonedDateTime startDate,
-                          ZonedDateTime endDate
+                          Instant startDate,
+                          Instant endDate
 ) {
     public static PromotionVm fromModel(Promotion promotion) {
         return PromotionVm.builder()

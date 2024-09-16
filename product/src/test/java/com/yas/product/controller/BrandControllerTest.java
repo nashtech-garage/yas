@@ -51,7 +51,7 @@ class BrandControllerTest {
     @Test
     void testListBrands() throws Exception {
 
-        when(brandRepository.findAll()).thenReturn(Arrays.asList(
+        when(brandRepository.findByNameContainingIgnoreCase(any())).thenReturn(Arrays.asList(
                 createBrand(1L, "Brand 1"),
                 createBrand(2L, "Brand 2")
         ));

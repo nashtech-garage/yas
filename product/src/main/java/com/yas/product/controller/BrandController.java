@@ -42,9 +42,9 @@ public class BrandController {
     }
 
     @GetMapping({"/backoffice/brands", "/storefront/brands"})
-    public ResponseEntity<List<BrandVm>> listBrands() {
+    public ResponseEntity<List<BrandVm>> listBrands(@RequestParam(required = false) String brandName) {
         log.info("[Test logging with trace] Got a request");
-        List<BrandVm> brandVms = brandRepository.findAll().stream()
+        List<BrandVm> brandVms = brandRepository.findByNameContainingIgnoreCase(brandName).stream()
                 .map(BrandVm::fromModel)
                 .toList();
         return ResponseEntity.ok(brandVms);
@@ -118,4 +118,14 @@ public class BrandController {
         brandRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/backoffice/brands/by-ids")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
+        @ApiResponse(responseCode = "404", description = "Not found",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<List<BrandVm>> getBrandsByIds(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok(brandService.getBrandsByIds(ids));
+    }
+
 }
