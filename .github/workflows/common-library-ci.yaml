@@ -74,5 +74,3 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Common Library Coverage Report'
           update-comment: true
-      - name: Run Maven Verify
-        run: mvn deploy -f common-library
