@@ -15,12 +15,15 @@ on:
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
       - "pom.xml"
+  workflow_run:
+    workflows: [ "common-library service ci" ]  # Tên workflow của common library
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
   Build:
     runs-on: ubuntu-latest
-    needs: build-common-library
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
