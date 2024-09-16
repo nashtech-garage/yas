@@ -106,12 +106,15 @@ By contributing, you agree that your contributions will be licensed under MIT Li
     </thead>
     <tbody>
         <tr valign="top">
-            <td><img src="screenshots/yas-backoffice.png" alt="Yas Backoffice"/></td>
-            <td><img src="screenshots/yas-grafana-tracing.png" alt="Yas Grafana Tracing"/></td>
-        </tr>
-        <tr valign="top">
-            <td><img src="screenshots/yas-storefront.png" alt="Yas Storefront"/></td>
-            <td><img src="screenshots/yas-grafana-metrics.png" alt="Yas Grafana Metrics"/></td>
+            <td>
+                <img src="screenshots/yas-backoffice.png" alt="Yas Backoffice"/>
+                <img src="screenshots/yas-storefront.png" alt="Yas Storefront"/>
+                <img src="screenshots/yas-swagger.png" alt="Yas Swagger"/>
+            </td>
+            <td>
+                <img src="screenshots/yas-grafana-tracing.png" alt="Yas Grafana Tracing"/>
+                <img src="screenshots/yas-grafana-metrics.png" alt="Yas Grafana Metrics"/>
+            </td>
         </tr>
     </tbody>
 </table>
