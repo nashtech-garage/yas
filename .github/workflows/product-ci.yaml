@@ -16,10 +16,6 @@ on:
       - ".github/workflows/product-ci.yaml"
       - "pom.xml"
   workflow_dispatch:
-  workflow_run:
-    workflows: ["common-library service ci"]
-    types:
-      - completed
 
 jobs:
   Build:
@@ -33,14 +29,14 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl product -am -Dcheckstyle.output.file=product-checkstyle-result.xml
+        run: mvn clean install checkstyle:checkstyle -pl product -am -Dcheckstyle.output.file=product-checkstyle-result.xml
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/product-checkstyle-result.xml'
-      - name: Run Maven Verify
-        run: mvn clean verify -f product
+#      - name: Run Maven Verify
+#        run: mvn clean verify -f product
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
