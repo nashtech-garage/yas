@@ -2,6 +2,9 @@ package com.yas.media.utils;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import lombok.SneakyThrows;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,9 +30,15 @@ public class FileTypeValidator implements ConstraintValidator<ValidFileType, Mul
         }
         for (String type : allowedTypes) {
             if (type.equals(file.getContentType())) {
-                return true;
+                try {
+                    BufferedImage image = ImageIO.read(file.getInputStream());
+                    return image != null;
+                } catch (IOException e) {
+                    return false;
+                }
             }
         }
+
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
         return false;
