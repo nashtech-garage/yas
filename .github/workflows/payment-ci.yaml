@@ -27,14 +27,8 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
-      - name: Download payment-paypal JAR
-        uses: actions/download-artifact@v3
-        with:
-          name: payment-paypal-jar
-      - name: Install payment-paypal JAR into local Maven repository
-        run: |
-          PAYMENT_PAYPAL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          mvn install:install-file -Dfile=payment-paypal-${{ env.PAYMENT_PAYPAL_VERSION }}.jar -DgroupId=com.yas -DartifactId=payment-paypal -Dversion=${{ env.PAYMENT_PAYPAL_VERSION }} -Dpackaging=jar
+      - name: Run Maven Install
+        run: mvn clean ínstall -pl payment
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl payment -am -Dcheckstyle.output.file=payment-checkstyle-result.xml

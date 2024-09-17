@@ -27,16 +27,17 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
+      - name: Run Maven Install
+        run: mvn clean ínstall -f payment-paypal
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn clean install checkstyle:checkstyle -f payment-paypal -Dcheckstyle.output.file=payment-paypal-checkstyle-result.xml
+        run: mvn checkstyle:checkstyle -pl payment-paypal -am -Dcheckstyle.output.file=payment-paypal-checkstyle-result.xml
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/payment-paypal-checkstyle-result.xml'
-#      - name: Run Maven Verify
-#        run: mvn clean verify -f payment-paypal
+
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
@@ -74,20 +75,20 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Payment Paypal Coverage Report'
           update-comment: true
-      - name: Build JAR for payment-paypal
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn clean package -f payment-paypal
-      - name: Extract JAR Version
-        id: extract-version
-        run: |
-          PAYMENT_PAYPAL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "PAYMENT_PAYPAL_VERSION=$PAYMENT_PAYPAL_VERSION" >> $GITHUB_ENV
-      - name: Upload JAR Artifact
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: payment-paypal-jar
-          path: payment-paypal/target/payment-paypal-${{ env.PAYMENT_PAYPAL_VERSION }}.jar
+#      - name: Build JAR for payment-paypal
+#        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+#        run: mvn clean package -f payment-paypal
+#      - name: Extract JAR Version
+#        id: extract-version
+#        run: |
+#          PAYMENT_PAYPAL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+#          echo "PAYMENT_PAYPAL_VERSION=$PAYMENT_PAYPAL_VERSION" >> $GITHUB_ENV
+#      - name: Upload JAR Artifact
+#        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: payment-paypal-jar
+#          path: payment-paypal/target/payment-paypal-${{ env.PAYMENT_PAYPAL_VERSION }}.jar
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3

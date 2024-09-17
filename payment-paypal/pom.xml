@@ -9,7 +9,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>payment-paypal</artifactId>
-    <version>${revision}</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>payment-paypal</name>
     <description>Payment with paypal service for yas project</description>
