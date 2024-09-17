@@ -1,0 +1,39 @@
+@startuml Order Lifecycle
+title Order Lifecycle
+[*] --> UNPAID : place-order
+UNPAID --> PAYMENT_COMPLETED: process-payment
+UNPAID -right-> CANCELLED: cancel
+UNPAID -right-> CANCELLED: expired (time to live)
+PAYMENT_COMPLETED --> READY_TO_SHIP: prepare-parcel
+PAYMENT_COMPLETED -left-> PAYMENT_CANCELLED: cancel-order
+PAYMENT_CANCELLED --> REFUND_PROCESSING: refund-payment
+REFUND_PROCESSING --> CANCELLED: confirm-refund
+
+READY_TO_SHIP --> SHIPPED: ship-parcel
+READY_TO_SHIP --> PAYMENT_CANCELLED: cancel
+SHIPPED --> SHIPMENT_CANCELLED: cancel
+SHIPPED --> SHIPMENT_FAILED: report-failure
+SHIPMENT_FAILED --> REFUND_PROCESSING: confirm-failure
+SHIPMENT_CANCELLED --> REFUND_PROCESSING: refund
+SHIPPED -right-> RECEIVED: deliver-parcel
+RECEIVED -down-> CONFIRMED: confirm-receipt
+CONFIRMED --> [*]
+CANCELLED --> [*]
+
+UNPAID: process-payment
+UNPAID: cancel
+UNPAID: expired
+PAYMENT_COMPLETED: prepare-parcel
+PAYMENT_COMPLETED: cancel
+PAYMENT_CANCELLED: refund-payment
+REFUND_PROCESSING: confirm-refund
+READY_TO_SHIP: ship-parcel
+READY_TO_SHIP: cancel
+SHIPPED: deliver-parcel
+SHIPPED: report-failure
+SHIPPED: cancel
+SHIPMENT_FAILED: confirm-failure
+SHIPMENT_CANCELLED: refund
+RECEIVED: confirm-receipt
+
+@enduml

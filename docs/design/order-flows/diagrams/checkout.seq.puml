@@ -1,0 +1,58 @@
+@startuml Checkout Flow
+
+title Checkout Flow
+
+actor Customer as customer #fad7a0
+
+box YAS 
+    participant "Order Service" as order_service #3498db
+    entity "Shopping Cart" as shopping_cart #3498db
+    entity "Checkout" as checkout #3498db
+    entity "Order" as order #3498db
+    participant "Payment Service" as payment_service #73c6b6
+    participant "Shipment Service" as shipment_service #c39bd3
+    participant "Inventory Service" as inventory_service #808b96
+    participant "Customer Service" as customer_service #fad7a0
+end box 
+
+customer -> order_service: PUT /order/cart/items/{product_id} \n { quantity }
+activate order_service #a9cce3
+  order_service -> shopping_cart: Update item quantity
+deactivate order_service
+
+customer -> order_service: POST /order/checkouts
+activate order_service #a9cce3
+  order_service -> checkout **: Create Checkout
+  order_service <-- checkout
+  customer <-- order_service: checkout
+deactivate order_service
+
+customer -> payment_service: GET /payment/methods
+activate payment_service #73c6b6
+  customer <-- payment_service: payment_methods
+deactivate payment_service
+
+customer -> customer: pick a payment method
+
+customer -> shipment_service: GET /shipment/providers
+activate shipment_service #c39bd3
+  customer <-- shipment_service: shipment_providers
+deactivate shipment_service
+customer -> customer: pick a shipment provider
+
+customer -> customer_service: GET /customer/addresses
+activate customer_service #fad7a0
+  customer <-- customer_service: addresses
+deactivate customer_service
+customer -> customer: pick a shipping address
+
+customer -> order_service: POST /order/orders { checkout.id, payment_method, shipment_provider, address } 
+activate order_service #a9cce3
+  order_service -> order **: Create Order
+  order_service <-- order: order
+  order_service -> shopping_cart: Clear cart
+  order_service -> inventory_service: POST /inventory/stock { order.id, order.items }
+  customer <-- order_service: order
+deactivate order_service
+
+@enduml
