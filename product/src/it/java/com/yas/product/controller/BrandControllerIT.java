@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus;
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class BrandControllerIT extends AbstractControllerIT {
+class BrandControllerIT extends AbstractControllerIT {
 
     @Autowired
     private BrandService brandService;
@@ -140,6 +140,7 @@ public class BrandControllerIT extends AbstractControllerIT {
     void test_getListBrandsBackoffice_shouldReturnListBrands() {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin","admin"))
+            .param("brandName", "a")
             .when()
             .get(BRAND_BACKOFFICE_URL)
             .then()
@@ -152,6 +153,7 @@ public class BrandControllerIT extends AbstractControllerIT {
     void test_getListBrandsStorefront_shouldReturnListBrands() {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin","admin"))
+            .param("brandName", "a")
             .when()
             .get(BRAND_STOREFRONT_URL)
             .then()
@@ -240,18 +242,18 @@ public class BrandControllerIT extends AbstractControllerIT {
             .log().ifValidationFails();
     }
 
-//    @Test
-//    void test_deleteBrand_shouldReturn400_whenContainsProduct() {
-//        product.setBrand(brandTwo);
-//        productRepository.save(product);
-//        Long brandId = brandTwo.getId();
-//        given(getRequestSpecification())
-//            .auth().oauth2(getAccessToken("admin","admin"))
-//            .pathParam("id", brandId)
-//            .when()
-//            .delete(BRAND_BACKOFFICE_URL + "/{id}")
-//            .then()
-//            .statusCode(HttpStatus.BAD_REQUEST.value())
-//            .log().ifValidationFails();
-//    }
+    @Test
+    void test_getListBrandsByIds_shouldReturnListBrands() {
+        Long brandOneId = brandOne.getId();
+        Long brandTwoId = brandTwo.getId();
+        given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin","admin"))
+            .param("ids", List.of(brandOneId, brandTwoId))
+            .when()
+            .get(BRAND_BACKOFFICE_URL+ "/by-ids")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body(".", hasSize(2))
+            .log().ifValidationFails();
+    }
 }

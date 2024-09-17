@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus;
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CategoryControllerIT extends AbstractControllerIT {
+class CategoryControllerIT extends AbstractControllerIT {
 
     @Autowired
     private CategoryService categoryService;
@@ -69,6 +69,7 @@ public class CategoryControllerIT extends AbstractControllerIT {
     void test_getAllCategoriesBackoffice_shouldReturnListCategories() {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin","admin"))
+            .param("categoryName", "a")
             .when()
             .get(CATEGORY_BACKOFFICE_URL)
             .then()
@@ -80,6 +81,7 @@ public class CategoryControllerIT extends AbstractControllerIT {
     @Test
     void test_getAllCategoriesStorefront_shouldReturnListCategories() {
         given(getRequestSpecification())
+            .param("categoryName", "a")
             .when()
             .get(CATEGORY_STOREFRONT_URL)
             .then()
@@ -382,28 +384,18 @@ public class CategoryControllerIT extends AbstractControllerIT {
             .log().ifValidationFails();
     }
 
-//    @Test
-//    void test_deleteCategory_shouldReturn400_whenContainsProduct() {
-//        Product product = new Product();
-//        product.setName("Product");
-//        productRepository.save(product);
-//
-//        ProductCategory productCategory = new ProductCategory();
-//        productCategory.setProduct(product);
-//        productCategory.setCategory(categoryOne);
-//        productCategoryRepository.save(productCategory);
-//
-//        categoryOne.setProductCategories(new ArrayList<>(List.of(productCategory)));
-//        categoryRepository.save(categoryOne);
-//        Long categoryId = categoryOne.getId();
-//
-//        given(getRequestSpecification())
-//            .auth().oauth2(getAccessToken("admin","admin"))
-//            .pathParam("id", categoryId)
-//            .when()
-//            .delete(CATEGORY_BACKOFFICE_URL + "/{id}")
-//            .then()
-//            .statusCode(HttpStatus.BAD_REQUEST.value())
-//            .log().ifValidationFails();
-//    }
+    @Test
+    void test_getAllCategoriesByIds_shouldReturnListCategories() {
+        Long categoryOneId = categoryOne.getId();
+        Long categoryTwoId = categoryTwo.getId();
+        given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin","admin"))
+            .param("ids", new ArrayList<>(List.of(categoryOneId, categoryTwoId)))
+            .when()
+            .get(CATEGORY_BACKOFFICE_URL + "/by-ids")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body(".", hasSize(2))
+            .log().ifValidationFails();
+    }
 }
