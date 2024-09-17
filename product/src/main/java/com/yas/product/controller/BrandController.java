@@ -1,7 +1,6 @@
 package com.yas.product.controller;
 
 import com.yas.product.constants.PageableConstant;
-import com.yas.product.exception.BadRequestException;
 import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.repository.BrandRepository;
