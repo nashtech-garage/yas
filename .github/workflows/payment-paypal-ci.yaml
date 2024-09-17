@@ -29,14 +29,14 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -f payment-paypal -Dcheckstyle.output.file=payment-paypal-checkstyle-result.xml
+        run: mvn clean install checkstyle:checkstyle -f payment-paypal -Dcheckstyle.output.file=payment-paypal-checkstyle-result.xml
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/payment-paypal-checkstyle-result.xml'
-      - name: Run Maven Verify
-        run: mvn clean verify -f payment-paypal
+#      - name: Run Maven Verify
+#        run: mvn clean verify -f payment-paypal
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
