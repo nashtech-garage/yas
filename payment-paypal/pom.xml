@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.yas</groupId>
         <artifactId>yas</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>payment-paypal</artifactId>
-    <version>1.0.0</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
     <name>payment-paypal</name>
     <description>Payment with paypal service for yas project</description>

@@ -66,7 +66,7 @@
         <dependency>
             <groupId>com.yas</groupId>
             <artifactId>payment-paypal</artifactId>
-            <version>1.0.0</version>
+            <version>${revision}</version>
         </dependency>
     </dependencies>
     <build>
