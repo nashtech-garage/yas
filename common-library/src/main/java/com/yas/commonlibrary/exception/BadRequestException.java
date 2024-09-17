@@ -4,7 +4,7 @@ import com.yas.commonlibrary.utils.MessagesUtils;
 
 public class BadRequestException extends RuntimeException {
 
-    private String message;
+    private final String message;
 
     public BadRequestException(String message) {
         this.message = MessagesUtils.getMessage(message);
@@ -19,7 +19,4 @@ public class BadRequestException extends RuntimeException {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

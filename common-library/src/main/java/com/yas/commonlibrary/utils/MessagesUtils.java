@@ -7,7 +7,7 @@ import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
 public class MessagesUtils {
-    public static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
+    private static final ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
         Locale.getDefault());
 
     private MessagesUtils() {
