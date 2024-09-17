@@ -110,12 +110,7 @@ public class BrandController {
         @ApiResponse(responseCode = "400", description = "Bad request",
             content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteBrand(@PathVariable long id) {
-        Brand brand = brandRepository.findById(id).orElseThrow(
-            () -> new NotFoundException(Constants.ErrorCode.BRAND_NOT_FOUND, id));
-        if (!brand.getProducts().isEmpty()) {
-            throw new BadRequestException(Constants.ErrorCode.MAKE_SURE_BRAND_DONT_CONTAINS_ANY_PRODUCT);
-        }
-        brandRepository.deleteById(id);
+        brandService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
