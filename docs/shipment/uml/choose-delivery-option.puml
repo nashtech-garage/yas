@@ -1,0 +1,64 @@
+@startuml choose-delivery-option
+actor Buyer as buyer
+box "YAS" #D6EAF8
+participant Storefront as nextjs
+participant ShipmentService as shipment
+participant InventoryService as inventory
+participant LocationService as location
+end box
+participant FedEx as fedex
+participant GiaoHangNhanh as ghn
+
+buyer -> nextjs: Choose/Enter address
+activate nextjs
+nextjs -> shipment: Get delivery fee
+note right
+Body={productId,
+buyerLocation}
+end note
+activate shipment
+shipment -> inventory: Get product warehouse details
+activate inventory
+inventory -> location: Get warehouse location
+activate location
+location --> inventory: Return warehouse location
+note left
+Body={countryId, 
+stateOrProvinceId, 
+city, zipCode, etc.}
+end note
+deactivate location
+inventory --> shipment: Return product warehouse details
+note left
+Body={id, 
+location}
+end note
+deactivate inventory
+par
+shipment -> fedex: Get available delivery services
+activate fedex
+note right
+Body={warehouseLocation,
+buyerLocation,
+productLength, productWidth,
+productHeight, productWeight}
+end note
+fedex --> shipment: Return delivery services
+note left
+Body={serviceId,
+deliveryFee, deliveryTime}
+end note
+deactivate fedex
+shipment -> ghn: Get available delivery services
+activate ghn
+ghn --> shipment: Return delivery services
+deactivate ghn
+end
+shipment -> shipment: Categorize delivery services into delivery options
+shipment --> nextjs: Return delivery options
+deactivate shipment
+nextjs -> buyer: Show delivery options
+deactivate nextjs
+buyer -> nextjs: Select preferred delivery option
+buyer -> nextjs: Continue on the creating order process
+@enduml
