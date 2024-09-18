@@ -55,12 +55,12 @@ https://dev-online-gateway.ghn.vn/shiip/public-api
 
 **Endpoint:** `POST /v2/shipping-order/create`
 
-### Request Headers
+**Request Headers**
 
 - `Token`: The GHN API token for authentication.
 - `ShopId`: The ID of the shop. This shop's location will be used as the pickup address if no other address is provided in the request body.
 
-### Request Body
+**Request Body**
 
 | Parameter            | Type      | Required | Description                                                                                                                                                                                                                                                         |
 |----------------------|-----------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -88,7 +88,7 @@ https://dev-online-gateway.ghn.vn/shiip/public-api
 | `note`               | `string`  | Optional | Any additional notes for the delivery.                                                                                                                                                                                                                              |
 | `items`              | `object`  | Optional | A list of items to be shipped. For example: "items": [{"name": "Product 1", "quantity": 2}]                                                                                                                                                                         |
 
-### Response
+**Response**
 
 | Field                    | Type     | Description                                                |
 |--------------------------|----------|------------------------------------------------------------|
