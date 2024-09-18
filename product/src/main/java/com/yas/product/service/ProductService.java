@@ -289,14 +289,29 @@ public class ProductService {
     }
 
     private List<ProductOptionValue> createProductOptionValues(ProductPostVm productPostVm, Product savedMainProduct,
-                                                               Map<Long, ProductOption> optionsById) {
-        List<ProductOptionValuePostVm> productOptionValues = productPostVm.productOptionValues();
+            Map<Long, ProductOption> optionsById) {
+
+        List<ProductOptionValueSaveVm> productOptionValues = productPostVm.productOptionValues();
         Map<Long, Set<String>> optionValuesMap = new HashMap<>();
+        List<ProductOptionValue> optionValues = createOptionValuesList(
+                productOptionValues,
+                optionValuesMap,
+                savedMainProduct,
+                optionsById);
+        return productOptionValueRepository.saveAll(optionValues);
+    }
+
+    private List<ProductOptionValue> createOptionValuesList(
+            List<ProductOptionValueSaveVm> productOptionValues,
+            Map<Long, Set<String>> optionValuesMap,
+            Product product,
+            Map<Long, ProductOption> optionsById
+    ) {
         List<ProductOptionValue> optionValues = new ArrayList<>();
 
-        for (ProductOptionValuePostVm productOptionValuePostVm : productOptionValues) {
-            Long productOptionId = productOptionValuePostVm.productOptionId();
-            List<String> values = productOptionValuePostVm.value();
+        for (ProductOptionValueSaveVm productOptionValueSaveVm : productOptionValues) {
+            Long productOptionId = productOptionValueSaveVm.productOptionId();
+            List<String> values = productOptionValueSaveVm.value();
 
             Set<String> set;
             if (optionValuesMap.containsKey(productOptionId)) {
@@ -309,18 +324,18 @@ public class ProductService {
             for (String value : values) {
                 if (!set.contains(value)) {
                     ProductOptionValue optionValue = ProductOptionValue.builder()
-                        .product(savedMainProduct)
-                        .displayOrder(productOptionValuePostVm.displayOrder())
-                        .displayType(productOptionValuePostVm.displayType())
-                        .productOption(optionsById.get(productOptionId))
-                        .value(value)
-                        .build();
+                            .product(product)
+                            .displayOrder(productOptionValueSaveVm.displayOrder())
+                            .displayType(productOptionValueSaveVm.displayType())
+                            .productOption(optionsById.get(productOptionId))
+                            .value(value)
+                            .build();
                     optionValues.add(optionValue);
                     set.add(value);
                 }
             }
         }
-        return productOptionValueRepository.saveAll(optionValues);
+        return optionValues;
     }
 
     private void createOptionCombinations(
@@ -498,11 +513,12 @@ public class ProductService {
     }
 
     private List<ProductOptionValue> updateProductOptionValues(ProductPutVm productPutVm, Product product,
-                                                               Map<Long, ProductOption> optionsById) {
-        List<ProductOptionValuePutVm> productOptionValues = productPutVm.productOptionValues();
+            Map<Long, ProductOption> optionsById) {
+        List<ProductOptionValueSaveVm> productOptionValues = productPutVm.productOptionValues();
         List<ProductOptionValueProjection> savedOptionValues
-            = productOptionValueRepository.findAllProjectedByProduct(product);
+                = productOptionValueRepository.findAllProjectedByProduct(product);
         Map<Long, Set<String>> optionValuesMap = new HashMap<>();
+
         for (ProductOptionValueProjection optionValue : savedOptionValues) {
             Long productOptionId = optionValue.getProductOption().getId();
             Set<String> set;
@@ -515,34 +531,12 @@ public class ProductService {
             set.add(optionValue.getValue());
         }
 
-        List<ProductOptionValue> optionValues = new ArrayList<>();
-
-        for (ProductOptionValuePutVm productOptionValuePutVm : productOptionValues) {
-            Long productOptionId = productOptionValuePutVm.productOptionId();
-            List<String> values = productOptionValuePutVm.value();
-
-            Set<String> set;
-            if (optionValuesMap.containsKey(productOptionId)) {
-                set = optionValuesMap.get(productOptionId);
-            } else {
-                set = new HashSet<>();
-                optionValuesMap.put(productOptionId, set);
-            }
-
-            for (String value : values) {
-                if (!set.contains(value)) {
-                    ProductOptionValue optionValue = ProductOptionValue.builder()
-                        .product(product)
-                        .displayOrder(productOptionValuePutVm.displayOrder())
-                        .displayType(productOptionValuePutVm.displayType())
-                        .productOption(optionsById.get(productOptionId))
-                        .value(value)
-                        .build();
-                    optionValues.add(optionValue);
-                    set.add(value);
-                }
-            }
-        }
+        List<ProductOptionValue> optionValues = createOptionValuesList(
+                productOptionValues,
+                optionValuesMap,
+                product,
+                optionsById
+        );
         productOptionValueRepository.saveAll(optionValues);
         return productOptionValueRepository.findAllByProduct(product);
     }
