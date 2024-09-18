@@ -290,6 +290,8 @@ public class ProductService {
 
     private List<ProductOptionValue> createProductOptionValues(ProductPostVm productPostVm, Product savedMainProduct,
                                                                Map<Long, ProductOption> optionsById) {
+        List<ProductOptionValuePostVm> productOptionValues = productPostVm.productOptionValues();
+        Map<Long, Set<String>> optionValuesMap = new HashMap<>();
         List<ProductOptionValue> optionValues = new ArrayList<>();
 
         for (ProductOptionValuePostVm productOptionValuePostVm : productOptionValues) {
