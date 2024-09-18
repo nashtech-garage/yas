@@ -1,12 +1,14 @@
 @startuml Checkout Lifecycle
-title Checkout Lifecycle
-[*] --> NEW : check-out from Shopping Cart
-NEW --> FULFILLED: place-order
-FULFILLED --> [*]: auto removed after 2 days
-NEW --> [*]: auto removed after 2 days
 
-NEW: place-order
-NEW: auto removed
-FULFILLED: auto removed
+title Checkout Lifecycle
+[*] --> CHECKED_OUT : check-out (from Shopping Cart)
+CHECKED_OUT -down-> PAYMENT_CONFIRMED: process-payment
+CHECKED_OUT -up-> CHECKED_OUT: update-info \n (payment method, \n shipment provider, \n shipping address)
+PAYMENT_CONFIRMED -down-> FULFILLED: create-order
+FULFILLED -down-> [*]
+
+CHECKED_OUT: update-info
+CHECKED_OUT: process-payment
+PAYMENT_CONFIRMED: create-order
 
 @enduml

@@ -6,16 +6,37 @@ actor Customer as customer #fad7a0
 
 box YAS 
     participant "Order Service" as order_service #3498db
-    entity "Shopping Cart" as shopping_cart #3498db
-    entity "Checkout" as checkout #3498db
-    entity "Order" as order #3498db
     participant "Payment Service" as payment_service #73c6b6
+    participant "Order Service" as order_service #3498db
+    entity "Order" as order #3498db
     participant "Shipment Service" as shipment_service #c39bd3
-    participant "Inventory Service" as inventory_service #808b96
-    participant "Customer Service" as customer_service #fad7a0
 end box 
 
 collections "Shipment Providers" as shipment_provider #c39bd3 
 participant "Payment Gateway" as payment_gateway #73c6b6
+
+customer -> order_service: POST /orders/{id}/estimate
+activate order_service
+  order_service -> shipment_service: POST /shipment/calculate {shipment_provider, address, items}
+  order_service -> order **: find by id
+  activate shipment_service 
+    shipment_service -> shipment_provider: POST /shipment/calculate {order.address, order.items}
+    activate shipment_provider
+      shipment_service <-- shipment_provider: [shipment_cost and VAT for each item]
+    deactivate shipment_provider
+  deactivate shipment_service
+  order_service -> order: update [shipment_cost, shipment_tax]
+  customer <-- order_service: [order_cost, shipment_cost, tax, total]
+deactivate order_service
+
+customer -> order_service: POST /orders/{id}/process-payment
+activate order_service
+  order_service -> payment_service: POST /payment/process {order.id, payment_method, total}
+  activate payment_service
+    
+  deactivate payment_service
+  order_service -> order: update [payment_status]
+  customer <-- order_service: 
+deactivate order_service 
 
 @enduml
