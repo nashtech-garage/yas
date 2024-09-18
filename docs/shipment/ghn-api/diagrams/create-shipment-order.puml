@@ -1,0 +1,64 @@
+@startuml create-shipment-order
+actor GHNShipmentClient as ghnClient
+participant GiaoHangNhanhAPI as ghnAPI
+ghnClient -> ghnAPI: Get supported provinces (GET /master-data/province)
+activate ghnAPI
+ghnAPI --> ghnClient: Return provinces
+deactivate ghnAPI
+note left
+{[
+    {"ProvinceID": 202,
+    "ProvinceName": "Hồ Chí Minh"}
+]}
+end note
+ghnClient -> ghnAPI: Get districts (GET /master-data/district?province_id=)
+activate ghnAPI
+ghnAPI --> ghnClient: Return districts
+deactivate ghnAPI
+note left
+{[
+    {"DistrictID": 1457,
+    "DistrictName": "Quận Phú Nhuận"}
+]}
+end note
+ghnClient -> ghnAPI: Get wards (GET /master-data/ward?district_id=)
+activate ghnAPI
+ghnAPI --> ghnClient: Return wards
+deactivate ghnAPI
+note left
+{[
+    {"WardCode": "21715",
+    "WardName": "Phường 17"}
+]}
+end note
+ghnClient -> ghnAPI: Get available services (POST /v2/shipping-order/available-services?)
+note right
+Queries:
+- from_district
+- to_district
+end note
+activate ghnAPI
+ghnAPI --> ghnClient: Return services
+deactivate ghnAPI
+note left
+{[
+    {"service_id": 53322,
+    "short_name": "Hàng nhẹ"}
+]}
+end note
+ghnClient -> ghnAPI: Create shipment order (POST /v2/shipping-order/create)
+note right
+Body={from_address, to_address,
+service_id, payment_type_id,
+weight, length, width, height}
+end note
+activate ghnAPI
+ghnAPI --> ghnClient: Return created order details
+deactivate ghnAPI
+note left
+{
+    "order_code": AAAAAA,
+    "total_fee": 20000
+}
+end note
+@enduml
