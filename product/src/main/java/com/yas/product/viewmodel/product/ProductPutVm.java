@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.yas.product.model.ProductOptionValueSaveVm;
 import com.yas.product.validation.ValidateProductPrice;
-//import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -32,7 +31,6 @@ public record ProductPutVm(
         Long thumbnailMediaId,
         List<Long> productImageIds,
         List<ProductVariationPutVm> variations,
-//        List<ProductOptionValuePutVm> productOptionValues,
         List<ProductOptionValueSaveVm> productOptionValues,
         List<Long> relatedProductIds,
         Long taxClassId) implements ProductSaveVm<ProductVariationPutVm> {

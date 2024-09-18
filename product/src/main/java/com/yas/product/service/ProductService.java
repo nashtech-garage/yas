@@ -438,7 +438,7 @@ public class ProductService {
 
     }
 
-    private Map<Long, ProductOption> getProductOptionByIdMap(List<? extends ProductOptionValueSaveVm> optionValueVms) {
+    private Map<Long, ProductOption> getProductOptionByIdMap(List<ProductOptionValueSaveVm> optionValueVms) {
         List<Long> productOptionIds = optionValueVms.stream()
             .map(ProductOptionValueSaveVm::productOptionId).toList();
         List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
