@@ -54,9 +54,13 @@ import com.yas.product.viewmodel.product.ProductVariationPutVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
+import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
+import com.yas.product.viewmodel.productoption.ProductOptionValueProjection;
+import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
 import io.micrometer.common.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -287,16 +291,33 @@ public class ProductService {
     private List<ProductOptionValue> createProductOptionValues(ProductPostVm productPostVm, Product savedMainProduct,
                                                                Map<Long, ProductOption> optionsById) {
         List<ProductOptionValue> optionValues = new ArrayList<>();
-        productPostVm.productOptionValues().forEach(optionValueVm -> optionValueVm.value().forEach(value -> {
-            ProductOptionValue optionValue = ProductOptionValue.builder()
-                .product(savedMainProduct)
-                .displayOrder(optionValueVm.displayOrder())
-                .displayType(optionValueVm.displayType())
-                .productOption(optionsById.get(optionValueVm.productOptionId()))
-                .value(value)
-                .build();
-            optionValues.add(optionValue);
-        }));
+
+        for (ProductOptionValuePostVm productOptionValuePostVm : productOptionValues) {
+            Long productOptionId = productOptionValuePostVm.productOptionId();
+            List<String> values = productOptionValuePostVm.value();
+
+            Set<String> set;
+            if (optionValuesMap.containsKey(productOptionId)) {
+                set = optionValuesMap.get(productOptionId);
+            } else {
+                set = new HashSet<>();
+                optionValuesMap.put(productOptionId, set);
+            }
+
+            for (String value : values) {
+                if (!set.contains(value)) {
+                    ProductOptionValue optionValue = ProductOptionValue.builder()
+                        .product(savedMainProduct)
+                        .displayOrder(productOptionValuePostVm.displayOrder())
+                        .displayType(productOptionValuePostVm.displayType())
+                        .productOption(optionsById.get(productOptionId))
+                        .value(value)
+                        .build();
+                    optionValues.add(optionValue);
+                    set.add(value);
+                }
+            }
+        }
         return productOptionValueRepository.saveAll(optionValues);
     }
 
@@ -475,20 +496,53 @@ public class ProductService {
     }
 
     private List<ProductOptionValue> updateProductOptionValues(ProductPutVm productPutVm, Product product,
-                                                            Map<Long, ProductOption> optionsById) {
-        List<ProductOptionValue> productOptionValues = new ArrayList<>();
-        productPutVm.productOptionValues().forEach(optionValueVm -> optionValueVm.value().forEach(value -> {
-            ProductOptionValue optionValue = ProductOptionValue.builder()
-                .product(product)
-                .displayOrder(optionValueVm.displayOrder())
-                .displayType(optionValueVm.displayType())
-                .productOption(optionsById.get(optionValueVm.productOptionId()))
-                .value(value)
-                .build();
-            productOptionValues.add(optionValue);
-        }));
-        productOptionValueRepository.saveAll(productOptionValues);
-        return productOptionValues;
+                                                               Map<Long, ProductOption> optionsById) {
+        List<ProductOptionValuePutVm> productOptionValues = productPutVm.productOptionValues();
+        List<ProductOptionValueProjection> savedOptionValues
+            = productOptionValueRepository.findAllProjectedByProduct(product);
+        Map<Long, Set<String>> optionValuesMap = new HashMap<>();
+        for (ProductOptionValueProjection optionValue : savedOptionValues) {
+            Long productOptionId = optionValue.getProductOption().getId();
+            Set<String> set;
+            if (optionValuesMap.containsKey(productOptionId)) {
+                set = optionValuesMap.get(productOptionId);
+            } else {
+                set = new HashSet<>();
+                optionValuesMap.put(productOptionId, set);
+            }
+            set.add(optionValue.getValue());
+        }
+
+        List<ProductOptionValue> optionValues = new ArrayList<>();
+
+        for (ProductOptionValuePutVm productOptionValuePutVm : productOptionValues) {
+            Long productOptionId = productOptionValuePutVm.productOptionId();
+            List<String> values = productOptionValuePutVm.value();
+
+            Set<String> set;
+            if (optionValuesMap.containsKey(productOptionId)) {
+                set = optionValuesMap.get(productOptionId);
+            } else {
+                set = new HashSet<>();
+                optionValuesMap.put(productOptionId, set);
+            }
+
+            for (String value : values) {
+                if (!set.contains(value)) {
+                    ProductOptionValue optionValue = ProductOptionValue.builder()
+                        .product(product)
+                        .displayOrder(productOptionValuePutVm.displayOrder())
+                        .displayType(productOptionValuePutVm.displayType())
+                        .productOption(optionsById.get(productOptionId))
+                        .value(value)
+                        .build();
+                    optionValues.add(optionValue);
+                    set.add(value);
+                }
+            }
+        }
+        productOptionValueRepository.saveAll(optionValues);
+        return productOptionValueRepository.findAllByProduct(product);
     }
 
     private void updateExistingVariants(
