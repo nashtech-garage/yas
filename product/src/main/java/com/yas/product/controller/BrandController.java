@@ -41,7 +41,8 @@ public class BrandController {
     }
 
     @GetMapping({"/backoffice/brands", "/storefront/brands"})
-    public ResponseEntity<List<BrandVm>> listBrands(@RequestParam(required = false) String brandName) {
+    public ResponseEntity<List<BrandVm>> listBrands(
+        @RequestParam(required = false, defaultValue = "") String brandName) {
         log.info("[Test logging with trace] Got a request");
         List<BrandVm> brandVms = brandRepository.findByNameContainingIgnoreCase(brandName).stream()
                 .map(BrandVm::fromModel)

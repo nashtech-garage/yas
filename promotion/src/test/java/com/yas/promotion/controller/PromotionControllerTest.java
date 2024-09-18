@@ -1,28 +1,16 @@
 package com.yas.promotion.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.yas.promotion.PromotionApplication;
-import com.yas.promotion.model.enumeration.ApplyTo;
-import com.yas.promotion.model.enumeration.DiscountType;
-import com.yas.promotion.model.enumeration.UsageType;
-import com.yas.promotion.service.PromotionService;
-import com.yas.promotion.viewmodel.PromotionDetailVm;
-import com.yas.promotion.viewmodel.PromotionListVm;
-import com.yas.promotion.viewmodel.PromotionPostVm;
-import com.yas.promotion.viewmodel.PromotionPutVm;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +25,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.yas.promotion.PromotionApplication;
+import com.yas.promotion.model.enumeration.ApplyTo;
+import com.yas.promotion.model.enumeration.DiscountType;
+import com.yas.promotion.model.enumeration.UsageType;
+import com.yas.promotion.service.PromotionService;
+import com.yas.promotion.viewmodel.PromotionDetailVm;
+import com.yas.promotion.viewmodel.PromotionListVm;
+import com.yas.promotion.viewmodel.PromotionPostVm;
+import com.yas.promotion.viewmodel.PromotionPutVm;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = PromotionController.class)
@@ -72,8 +72,8 @@ class PromotionControllerTest {
                 .productIds(List.of(1L, 2L, 3L))
                 .isActive(true)
                 .usageLimit(0)
-                .startDate(Instant.now())
-                .endDate(Instant.now().plusSeconds(2592000))
+                .startDate(Date.from(Instant.now()))
+                .endDate(Date.from(Instant.now().plus(30, ChronoUnit.DAYS)))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -97,8 +97,8 @@ class PromotionControllerTest {
                 .productIds(List.of(1L, 2L, 3L))
                 .isActive(true)
                 .usageLimit(0)
-                .startDate(Instant.now())
-                .endDate(Instant.now().plusSeconds(2592000))
+                .startDate(Date.from(Instant.now()))
+                .endDate(Date.from(Instant.now().plus(30, ChronoUnit.DAYS)))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -122,8 +122,8 @@ class PromotionControllerTest {
                 .productIds(List.of(1L, 2L, 3L))
                 .isActive(true)
                 .usageLimit(0)
-                .startDate(Instant.now())
-                .endDate(Instant.now().plusSeconds(2592000))
+                .startDate(Date.from(Instant.now()))
+                .endDate(Date.from(Instant.now().plus(30, ChronoUnit.DAYS)))
                 .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -147,8 +147,8 @@ class PromotionControllerTest {
             .productIds(List.of(1L, 2L, 3L))
             .isActive(true)
             .usageLimit(0)
-            .startDate(Instant.now())
-            .endDate(Instant.now().plusSeconds(2592000))
+            .startDate(Date.from(Instant.now()))
+            .endDate(Date.from(Instant.now().plus(30, ChronoUnit.DAYS)))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -172,8 +172,8 @@ class PromotionControllerTest {
             .productIds(List.of(1L, 2L, 3L))
             .isActive(true)
             .usageLimit(0)
-            .startDate(Instant.now())
-            .endDate(Instant.now().plusSeconds(2592000))
+            .startDate(Date.from(Instant.now()))
+            .endDate(Date.from(Instant.now().plus(30, ChronoUnit.DAYS)))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -197,8 +197,8 @@ class PromotionControllerTest {
             .productIds(List.of(1L, 2L, 3L))
             .isActive(true)
             .usageLimit(0)
-            .startDate(Instant.now())
-            .endDate(Instant.now().plusSeconds(2592000))
+            .startDate(Date.from(Instant.now()))
+            .endDate(Date.from(Instant.now().plus(30, ChronoUnit.DAYS)))
             .build();
 
         String request = objectWriter.writeValueAsString(promotionPostVm);
@@ -321,8 +321,8 @@ class PromotionControllerTest {
         promotionPutVm.setProductIds(List.of(1L));
         Instant startDate = Instant.parse("2024-12-01T00:00:00Z");
         Instant endDate = Instant.parse("2024-12-31T23:59:59Z");
-        promotionPutVm.setStartDate(startDate);
-        promotionPutVm.setEndDate(endDate);
+        promotionPutVm.setStartDate(Date.from(startDate));
+        promotionPutVm.setEndDate(Date.from(endDate));
         return promotionPutVm;
     }
 

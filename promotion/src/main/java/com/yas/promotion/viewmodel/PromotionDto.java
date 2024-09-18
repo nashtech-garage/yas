@@ -1,5 +1,6 @@
 package com.yas.promotion.viewmodel;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.yas.promotion.model.enumeration.ApplyTo;
 import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;
@@ -15,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonDeserialize
 public class PromotionDto {
     @NotNull
     private ApplyTo applyTo;

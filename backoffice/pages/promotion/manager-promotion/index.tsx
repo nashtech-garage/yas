@@ -42,7 +42,7 @@ const PromotionList: NextPage = () => {
     setPageNo(selected);
   };
 
-  const convertToStringDate = (date: Date) => {
+  const convertToStringDate = (date: Date | string) => {
     if (typeof date === 'string') {
       date = new Date(date);
     }
@@ -57,7 +57,7 @@ const PromotionList: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Promotions</h2>
         </div>
         <div className="col-md-4 text-right">
-          <Link href="/catalog/brands/create">
+          <Link href="/promotion/manager-promotion/create">
             <Button>Add new Promotion</Button>
           </Link>
         </div>
