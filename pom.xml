@@ -15,9 +15,9 @@
     <name>yas</name>
 
     <modules>
-        <module>common-library</module>
         <module>backoffice-bff</module>
         <module>cart</module>
+        <module>common-library</module>
         <module>customer</module>
         <module>inventory</module>
         <module>location</module>
