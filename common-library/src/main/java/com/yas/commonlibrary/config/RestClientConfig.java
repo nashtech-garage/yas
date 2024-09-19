@@ -1,4 +1,4 @@
-package com.yas.cart.config;
+package com.yas.commonlibrary.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
