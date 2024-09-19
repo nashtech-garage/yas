@@ -1,6 +1,7 @@
 package com.yas.webhook.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,5 +61,18 @@ class ProductEventServiceTest {
 
         verify(webhookEventNotificationRepository).save(any(WebhookEventNotification.class));
         verify(webhookService).notifyToWebhook(any(WebhookEventNotificationDto.class));
+    }
+
+    @Test
+    void test_onProductEvent_shouldNotDoAnythingWhenOpUnknown() {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("op", "k");
+
+        productEventService.onProductEvent(objectNode);
+
+        verify(webhookEventNotificationRepository, times(0)).save(any(WebhookEventNotification.class));
+        verify(webhookService, times(0)).notifyToWebhook(any(WebhookEventNotificationDto.class));
     }
 }
