@@ -1,6 +1,5 @@
-package com.yas.product.model;
+package com.yas.product.viewmodel.product;
 
-import com.yas.product.viewmodel.product.ProductProperties;
 import java.util.List;
 import java.util.Map;
 

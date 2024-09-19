@@ -1,6 +1,5 @@
 package com.yas.product.viewmodel.product;
 
-import com.yas.product.model.ProductVariationSaveVm;
 import java.util.List;
 import java.util.Map;
 
