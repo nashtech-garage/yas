@@ -1,5 +1,9 @@
 package com.yas.product.exception;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.InternalServerErrorException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;

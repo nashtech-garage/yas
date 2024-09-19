@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.location.LocationApplication;
-import com.yas.location.exception.NotFoundException;
 import com.yas.location.model.Address;
 import com.yas.location.model.Country;
 import com.yas.location.model.District;

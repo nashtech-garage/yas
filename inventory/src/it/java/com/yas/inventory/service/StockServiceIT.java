@@ -13,9 +13,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.yas.inventory.exception.BadRequestException;
-import com.yas.inventory.exception.NotFoundException;
-import com.yas.inventory.exception.StockExistingException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.StockExistingException;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.repository.StockRepository;

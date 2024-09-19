@@ -1,4 +1,4 @@
-package com.yas.inventory.utils;
+package com.yas.commonlibrary.utils;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -7,9 +7,12 @@ import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
 public class MessagesUtils {
-
-    static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
+    private static final ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
         Locale.getDefault());
+
+    private MessagesUtils() {
+        //Add constructor
+    }
 
     public static String getMessage(String errorCode, Object... var2) {
         String message;

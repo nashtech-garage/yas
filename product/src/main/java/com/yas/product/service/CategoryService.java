@@ -1,8 +1,8 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.utils.Constants;

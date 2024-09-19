@@ -1,7 +1,7 @@
 package com.yas.product.service;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.ProductApplication;
-import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;

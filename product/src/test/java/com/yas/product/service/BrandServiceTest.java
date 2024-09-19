@@ -1,7 +1,7 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.viewmodel.brand.BrandListGetVm;

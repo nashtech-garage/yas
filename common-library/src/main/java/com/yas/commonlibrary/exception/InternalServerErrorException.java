@@ -1,6 +1,6 @@
-package com.yas.product.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.product.utils.MessagesUtils;
+import com.yas.commonlibrary.utils.MessagesUtils;
 
 public class InternalServerErrorException extends RuntimeException {
 
