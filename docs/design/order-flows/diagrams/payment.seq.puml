@@ -1,0 +1,96 @@
+@startuml Payment Flow
+
+title Payment Flow
+
+actor Customer as customer #fad7a0
+
+box YAS
+    participant "Storefront" as storefront #fdf2e9        
+    participant "Order Service" as order_service #3498db    
+    entity "Checkout" as checkout #3498db
+    entity "Order" as order #3498db
+    participant "Payment Service" as payment_service #73c6b6
+    entity "Checkout Payment" as checkout_payment #73c6b6
+    participant "Notification Service" as notification_service #fad7a0
+end box 
+
+box "Payment Provider" #eafaf1
+    participant "Payment Provider" as payment_provider #73c6b6
+    entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
+end box
+
+customer -> storefront: Proceed to checkout
+activate storefront #fdf2e9   
+  storefront -> order_service: POST /order/checkouts/{checkout_id}/process-payment
+  activate order_service #3498db
+    order_service -> checkout **: find by {checkout_id}
+    order_service <-- checkout: checkout
+    order_service -> payment_service: POST /payment/payments { checkout }
+    note right of order_service
+      checkout includes:
+        - payment_method
+        - product_items
+        - shipment_fees
+        - taxes
+    end note 
+    activate payment_service #73c6b6      
+      payment_service -> checkout_payment **:  { checkout_id, product_items, shipment_fees, taxes, status=NEW }
+      payment_service -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+      activate payment_provider #73c6b6
+        payment_provider -> payment_provider_checkout **: create checkout
+        payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
+        payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
+      deactivate payment_provider
+      payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
+      order_service <-- payment_service: checkout_payment { payment_provider_checkout_id }
+      note right of order_service
+        checkout_payment:
+          - payment_provider_checkout_id
+          - checkout
+      end note 
+    deactivate payment_service
+    storefront <-- order_service: checkout_payment    
+  deactivate order_service
+  storefront --> customer: redirect to payment_provider : Payment Provider: Checkout { payment_provider_checkout_id }
+deactivate storefront
+activate customer
+  customer -> payment_provider: execute payment { payment_provider_checkout_id }
+deactivate customer
+activate payment_provider #73c6b6
+  payment_provider -> payment_provider_checkout: update { status=COMPETED, payment_provider_checkout_id }  
+  payment_provider --> payment_service: { checkout_id, payment_provider_checkout_id, status=COMPETED/FAILURE }
+  activate payment_service #73c6b6
+    payment_service -> checkout_payment: update { status=COMPLETED }
+    payment_service --> notification_service: Event: PaymentCompleted { checkout_payment }
+    activate notification_service #fad7a0
+      notification_service --> customer: notification for payment completion
+    deactivate notification_service
+    payment_service --> order_service: Event: PaymentCompleted { checkout_id }
+  deactivate payment_service
+  activate order_service #3498db
+    order_service -> checkout: update { status=PAYMENT_CONFIRMED }
+    order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
+    order_service --> notification_service
+    activate notification_service #fad7a0
+      notification_service --> customer: notification for order creation
+    deactivate notification_service
+  deactivate order_service
+  payment_provider --> customer: redirect to storefront with confirmation
+deactivate payment_provider
+customer -> storefront: confirmation page
+activate storefront #fdf2e9
+  storefront --> customer: payment confirmation
+  loop "reload to get order"
+    storefront -> order_service: GET /order/orders/checkout/{checkout_id}
+    activate order_service #3498db
+      order_service -> order: find order by {checkout_id}
+      order_service <-- order: order
+    deactivate order_service
+    storefront <-- order_service: order
+    storefront --> customer: redirect to order details
+  end 
+deactivate storefront
+
+@enduml
+
+
