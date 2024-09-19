@@ -35,7 +35,9 @@ public class PromotionService {
 
     public PromotionDetailVm createPromotion(PromotionPostVm promotionPostVm) {
         validateIfPromotionExistedSlug(promotionPostVm.getSlug());
-        validateIfPromotionEndDateIsBeforeStartDate(promotionPostVm.getStartDate(), promotionPostVm.getEndDate());
+        validateIfPromotionEndDateIsBeforeStartDate(
+            promotionPostVm.getStartDate().toInstant(),
+            promotionPostVm.getEndDate().toInstant());
 
         Promotion promotion = Promotion.builder()
                 .name(promotionPostVm.getName())
@@ -49,8 +51,8 @@ public class PromotionService {
                 .discountPercentage(promotionPostVm.getDiscountPercentage())
                 .discountAmount(promotionPostVm.getDiscountAmount())
                 .isActive(promotionPostVm.isActive())
-                .startDate(promotionPostVm.getStartDate())
-                .endDate(promotionPostVm.getEndDate())
+                .startDate(promotionPostVm.getStartDate().toInstant())
+                .endDate(promotionPostVm.getEndDate().toInstant())
                 .minimumOrderPurchaseAmount(promotionPostVm.getMinimumOrderPurchaseAmount())
                 .build();
 
@@ -81,8 +83,8 @@ public class PromotionService {
         promotion.setDiscountPercentage(promotionPutVm.getDiscountPercentage());
         promotion.setDiscountAmount(promotionPutVm.getDiscountAmount());
         promotion.setIsActive(promotionPutVm.isActive());
-        promotion.setStartDate(promotionPutVm.getStartDate());
-        promotion.setEndDate(promotionPutVm.getEndDate());
+        promotion.setStartDate(promotionPutVm.getStartDate().toInstant());
+        promotion.setEndDate(promotionPutVm.getEndDate().toInstant());
         promotion.setMinimumOrderPurchaseAmount(promotionPutVm.getMinimumOrderPurchaseAmount());
 
         promotion.setPromotionApplies(PromotionPutVm.createPromotionApplies(promotionPutVm, promotion));
@@ -165,5 +167,13 @@ public class PromotionService {
             throw new BadRequestException(Constants.ErrorCode.PROMOTION_IN_USE_ERROR_MESSAGE, id);
         }
         promotionRepository.deleteById(id);
+    }
+
+    public PromotionDetailVm getPromotion(Long promotionId) {
+        Optional<Promotion> promotionOp = promotionRepository.findById(promotionId);
+        if (promotionOp.isEmpty()) {
+            throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE, promotionId);
+        }
+        return toPromotionDetail(promotionOp.get());
     }
 }

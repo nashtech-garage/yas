@@ -255,3 +255,41 @@ a[data-toggle='collapse'] {
   border-radius: 5px;
   color: black;
 }
+
+.autocomplete-container {
+  position: relative;
+}
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: white;
+  z-index: 1000;
+}
+.autocomplete-item {
+  padding: 8px;
+  cursor: pointer;
+}
+.autocomplete-item:hover {
+  background-color: #eee;
+}
+.selected-options {
+  margin-top: 10px;
+}
+.selected-item {
+  display: inline-block;
+  margin: 5px;
+  padding: 5px 10px;
+  background-color: #e0e0e0;
+  border-radius: 20px;
+}
+.selected-item button {
+  background: none;
+  border: none;
+  margin-left: 5px;
+  cursor: pointer;
+}

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,9 +36,9 @@ public class PromotionPutVm extends PromotionDto {
     private Long minimumOrderPurchaseAmount;
     private boolean isActive;
     @NotNull
-    private Instant startDate;
+    private Date startDate;
     @NotNull
-    private Instant endDate;
+    private Date endDate;
 
     public static List<PromotionApply> createPromotionApplies(PromotionPutVm promotionPutVm, Promotion promotion) {
         return switch (promotion.getApplyTo()) {

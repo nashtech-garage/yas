@@ -22,6 +22,7 @@ import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
 import config.IntegrationTestConfiguration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -110,8 +111,8 @@ class PromotionServiceIT {
                 .discountAmount(300L)
                 .discountPercentage(30L)
                 .isActive(true)
-                .startDate(Instant.now().plusSeconds(5184000))
-                .endDate(Instant.now().plusSeconds(7776000))
+                .startDate(Date.from(Instant.now().plusSeconds(5184000)))
+                .endDate(Date.from(Instant.now().plusSeconds(7776000)))
                 .applyTo(ApplyTo.PRODUCT)
                 .productIds(List.of(1L, 2L, 3L))
                 .build();
@@ -134,8 +135,8 @@ class PromotionServiceIT {
     @Test
     void createPromotion_WhenEndDateBeforeStartDate_ThenDateRangeExceptionThrown() {
         promotionPostVm = PromotionPostVm.builder()
-            .endDate(wrongRangeDatePromotion.getEndDate())
-            .startDate(wrongRangeDatePromotion.getStartDate())
+            .endDate(Date.from(wrongRangeDatePromotion.getEndDate()))
+            .startDate(Date.from(wrongRangeDatePromotion.getStartDate()))
             .build();
 
         BadRequestException exception = assertThrows(BadRequestException.class, () ->
@@ -169,8 +170,8 @@ class PromotionServiceIT {
             .discountAmount(100L)
             .discountPercentage(20L)
             .isActive(true)
-            .startDate(Instant.now().plusSeconds(5184000))
-            .endDate(Instant.now().plusSeconds(7776000))
+            .startDate(Date.from(Instant.now().plusSeconds(5184000)))
+            .endDate(Date.from(Instant.now().plusSeconds(7776000)))
             .applyTo(ApplyTo.PRODUCT)
             .productIds(List.of(1L, 2L, 3L))
             .build();
@@ -189,7 +190,7 @@ class PromotionServiceIT {
         PromotionPutVm promotionPutVm = PromotionPutVm.builder()
             .id(433L)
             .name("Promotion 1")
-            .endDate(Instant.now().plusSeconds(7776000))
+            .endDate(Date.from(Instant.now().plusSeconds(7776000)))
             .applyTo(ApplyTo.PRODUCT)
             .productIds(List.of(1L, 2L, 3L))
             .build();

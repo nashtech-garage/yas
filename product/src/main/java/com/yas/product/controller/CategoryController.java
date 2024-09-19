@@ -38,7 +38,8 @@ public class CategoryController {
     }
 
     @GetMapping({"/backoffice/categories", "/storefront/categories"})
-    public ResponseEntity<List<CategoryGetVm>> listCategories(@RequestParam(required = false) String categoryName) {
+    public ResponseEntity<List<CategoryGetVm>> listCategories(
+        @RequestParam(required = false, defaultValue = "") String categoryName) {
         return ResponseEntity.ok(categoryService.getCategories(categoryName));
     }
 
