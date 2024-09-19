@@ -29,6 +29,10 @@ The Checkout flow happens between when the user begin the checkout process and w
 - The user can iteratively change their order information at this step. After each change, the order amount, delivery fee, and tax amount will be recalculated and displayed to them.  
 - After the customer is satisfied with all their information, they will confirm by clicking ‘Proceed to payment,’ at which point the system will start the payment process for the order.
 
+### Payment flow
+
+![Payment Flow](./imgs/Payment%20Flow.png)
+
 ## Order Processing
 
 The Order will be created after the payment processed is finished and will be the entry point for the fulfilment cycle.
