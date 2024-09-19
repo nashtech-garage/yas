@@ -1,5 +1,7 @@
-package com.yas.product.model;
+package com.yas.product.viewmodel.productoption;
+
 import java.util.List;
+
 public record ProductOptionValueSaveVm(
         Long productOptionId,
         String displayType,
