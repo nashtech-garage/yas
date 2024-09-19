@@ -15,16 +15,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {CheckoutMapperImpl.class})
 class CheckoutMapperTest {
+
     @Autowired
     CheckoutMapper checkoutMapper;
 
     @Test
     void testCheckoutItemPostVmToModel_convertToCorrectCheckoutItem(){
-        // set up
+
         var src = Instancio.create(CheckoutItemPostVm.class);
-        // run
+
         var res = checkoutMapper.toModel(src);
-        // assert
+
         Assertions.assertThat(res)
             .hasFieldOrPropertyWithValue("productId", src.productId())
             .hasFieldOrPropertyWithValue("productName", src.productName())
@@ -38,12 +39,12 @@ class CheckoutMapperTest {
 
     @Test
     void testCheckoutPostVmToModel_convertToCorrectCheckout(){
-        // set up
+
         CheckoutPostVm checkoutPostVm = Instancio.of(CheckoutPostVm.class)
             .create();
-        // run
+
         var res = checkoutMapper.toModel(checkoutPostVm);
-        // assert
+
         Assertions.assertThat(res)
             .hasFieldOrPropertyWithValue("email", checkoutPostVm.email())
             .hasFieldOrPropertyWithValue("note", checkoutPostVm.note())
@@ -55,11 +56,11 @@ class CheckoutMapperTest {
 
     @Test
     void testCheckoutToVm_convertToCheckoutVmCorrectly(){
-        // set up
+
         Checkout checkout = Instancio.create(Checkout.class);
-        // run
+
         var res = checkoutMapper.toVm(checkout);
-        // assert
+
         Assertions.assertThat(res).hasFieldOrPropertyWithValue("id", checkout.getId())
             .hasFieldOrPropertyWithValue("email", checkout.getEmail())
             .hasFieldOrPropertyWithValue("note", checkout.getNote())
@@ -70,11 +71,11 @@ class CheckoutMapperTest {
 
     @Test
     void testCheckoutItemToVm_convertCheckoutItemCorrectly(){
-        // set up
+
         CheckoutItem checkoutItem = Instancio.create(CheckoutItem.class);
-        // run
+
         var res = checkoutMapper.toVm(checkoutItem);
-        // assert
+
         Assertions.assertThat(res)
             .hasFieldOrPropertyWithValue("id", checkoutItem.getId())
             .hasFieldOrPropertyWithValue("productId", checkoutItem.getProductId())

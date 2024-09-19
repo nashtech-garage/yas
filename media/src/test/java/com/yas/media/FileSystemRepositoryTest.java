@@ -2,7 +2,7 @@ package com.yas.media;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 import com.yas.media.config.FilesystemConfig;
 import com.yas.media.repository.FileSystemRepository;
@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +65,18 @@ class FileSystemRepositoryTest {
         when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
 
         assertThrows(IllegalStateException.class, () -> fileSystemRepository.persistFile(filename, content));
+    }
+
+    @Test
+    void testPersistFile_filePathNotContainsDirectory() {
+
+        String filename = "test-file.png";
+        byte[] content = "test-content".getBytes();
+
+        File directory = new File(TEST_URL);
+        directory.mkdirs();
+        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        assertThrows(IllegalArgumentException.class, () -> fileSystemRepository.persistFile(filename, content));
     }
 
     @Test

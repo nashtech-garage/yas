@@ -1,22 +1,21 @@
-package com.yas.payment.serivce;
+package com.yas.payment.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.mockito.ArgumentCaptor;
+
 import com.yas.payment.model.Payment;
 import com.yas.payment.model.enumeration.PaymentMethod;
-import com.yas.payment.repository.PaymentRepository;
-import com.yas.payment.service.OrderService;
-import com.yas.payment.service.PaymentService;
 import com.yas.payment.model.enumeration.PaymentStatus;
+import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.viewmodel.CapturedPayment;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
