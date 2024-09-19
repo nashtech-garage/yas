@@ -10,6 +10,7 @@
     </parent>
     <artifactId>common-library</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>common library</name>
     <description>YAS Common Library service</description>
 
