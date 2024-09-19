@@ -1,11 +1,14 @@
 import PromotionGeneralInformation from 'modules/promotion/components/PromotionGeneralInformation';
 import { PromotionDto } from 'modules/promotion/models/Promotion';
-import { createPromotion } from 'modules/promotion/services/PromotionService';
+import { cancel, createPromotion } from 'modules/promotion/services/PromotionService';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 const PromotionCreate: NextPage = () => {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -38,13 +41,9 @@ const PromotionCreate: NextPage = () => {
 
     createPromotion(promotion).then((response) => {
       if (response.status === 201) {
-        window.location.href = '/promotion/manager-promotion';
+        router.replace('/promotion/manager-promotion');
       }
     });
-  };
-
-  const cancel = () => {
-    window.location.href = '/promotion/manager-promotion';
   };
 
   const submitForm = () => {

@@ -25,14 +25,31 @@ const PromotionGeneralInformation = ({
   const [discountType, setDiscountType] = useState(promotion?.discountType);
   const [usageType, setUsageType] = useState(promotion?.usageType);
   const [applyTo, setApplyTo] = useState(promotion?.applyTo);
-  const [brands, setBrands] = useState(promotion?.brands.map((brand) => brand.id) ?? []);
+  const [brands, setBrands] = useState(promotion?.brands?.map((brand) => brand.id) ?? []);
   const [categories, setCategories] = useState(
-    promotion?.categories.map((category) => category.id) ?? []
+    promotion?.categories?.map((category) => category.id) ?? []
   );
-  const [products, setProducts] = useState(promotion?.products.map((product) => product.id) ?? []);
+  const [products, setProducts] = useState(promotion?.products?.map((product) => product.id) ?? []);
   const [productVms, setProductVms] = useState(promotion?.products ?? []);
   const [brandVms, setBrandVms] = useState(promotion?.brands ?? []);
   const [categoryVms, setCategoryVms] = useState(promotion?.categories ?? []);
+
+  useEffect(() => {
+    if (promotion) {
+      setDiscountType(promotion.discountType);
+      setUsageType(promotion.usageType);
+      setApplyTo(promotion.applyTo);
+
+      setProducts(promotion.products?.map((product) => product.id) ?? []);
+      setProductVms(promotion.products ?? []);
+
+      setBrands(promotion.brands?.map((brand) => brand.id) ?? []);
+      setBrandVms(promotion.brands ?? []);
+
+      setCategories(promotion.categories?.map((category) => category.id) ?? []);
+      setCategoryVms(promotion.categories ?? []);
+    }
+  }, [promotion]);
 
   useEffect(() => {
     if (applyTo === 'PRODUCT') {
@@ -45,10 +62,13 @@ const PromotionGeneralInformation = ({
   const convertDateToString = (date?: Date | string) => {
     if (date) {
       if (typeof date === 'string') {
-        return date;
+        date = new Date(date);
       }
       const month = date.getMonth() + 1;
-      return `${date.getFullYear()}-${month > 9 ? month : '0' + month}-${date.getDate()}`;
+      const dateInMonth = date.getDate();
+      return `${date.getFullYear()}-${month > 9 ? month : '0' + month}-${
+        dateInMonth > 9 ? dateInMonth : '0' + dateInMonth
+      }`;
     }
     return '';
   };
@@ -161,7 +181,6 @@ const PromotionGeneralInformation = ({
           setDiscountType(event.target.value);
         }}
       />
-
       {discountType === 'PERCENTAGE' && (
         <Input
           labelText="Discount percentage"
@@ -265,7 +284,6 @@ const PromotionGeneralInformation = ({
         <MultipleAutoComplete
           labelText="Product"
           field="product"
-          defaultValue={promotion?.products}
           register={register}
           registerOptions={{
             required: { value: true, message: 'Product is required' },
@@ -276,13 +294,13 @@ const PromotionGeneralInformation = ({
           optionSelectedIds={products}
           isSubmitting={isSubmitting}
           onRemoveElement={(id) => removeProduct(id)}
+          addedOptions={promotion?.products}
         />
       )}
       {!isSubmitting && applyTo === 'CATEGORY' && (
         <MultipleAutoComplete
           labelText="Category"
           field="category"
-          defaultValue={promotion?.categories}
           register={register}
           registerOptions={{
             required: { value: true, message: 'Category is required' },
@@ -293,13 +311,13 @@ const PromotionGeneralInformation = ({
           optionSelectedIds={categories}
           isSubmitting={isSubmitting}
           onRemoveElement={(id) => removeCategory(id)}
+          addedOptions={promotion?.categories}
         />
       )}
       {!isSubmitting && applyTo === 'BRAND' && (
         <MultipleAutoComplete
           labelText="Brand"
           field="brand"
-          defaultValue={promotion?.brands}
           register={register}
           registerOptions={{
             required: { value: true, message: 'Brand is required' },
@@ -310,6 +328,7 @@ const PromotionGeneralInformation = ({
           optionSelectedIds={brands}
           isSubmitting={isSubmitting}
           onRemoveElement={(id) => removeBrand(id)}
+          addedOptions={promotion?.brands}
         />
       )}
     </>
