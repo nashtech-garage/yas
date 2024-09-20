@@ -2,13 +2,18 @@
 
 title Checkout Lifecycle
 [*] --> CHECKED_OUT : check-out (from Shopping Cart)
-CHECKED_OUT -down-> PAYMENT_CONFIRMED: process-payment
 CHECKED_OUT -up-> CHECKED_OUT: update-info \n (payment method, \n shipment provider, \n shipping address)
+CHECKED_OUT -down-> PAYMENT_PROCESSING: process-payment
+PAYMENT_PROCESSING -down-> PAYMENT_CONFIRMED: payment-confirmed
+PAYMENT_PROCESSING -[#red]-> CHECKED_OUT: out-of-stock/\npayment-error
 PAYMENT_CONFIRMED -down-> FULFILLED: create-order
 FULFILLED -down-> [*]
 
 CHECKED_OUT: update-info
 CHECKED_OUT: process-payment
+PAYMENT_PROCESSING: payment-confirmed
+PAYMENT_PROCESSING: out-of-stock
+PAYMENT_PROCESSING: payment-error
 PAYMENT_CONFIRMED: create-order
 
 @enduml
