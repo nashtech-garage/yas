@@ -54,7 +54,6 @@ import com.yas.product.viewmodel.product.ProductVariationPutVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupGetVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueVm;
-import com.yas.product.viewmodel.productoption.ProductOptionValueProjection;
 import io.micrometer.common.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -512,12 +511,14 @@ public class ProductService {
 
     private List<ProductOptionValue> updateProductOptionValues(ProductPutVm productPutVm, Product product,
             Map<Long, ProductOption> optionsById) {
+        
         List<ProductOptionValueSaveVm> productOptionValues = productPutVm.productOptionValues();
-        List<ProductOptionValueProjection> savedOptionValues
-                = productOptionValueRepository.findAllProjectedByProduct(product);
+        List<ProductOptionValue> savedOptionValues
+                = productOptionValueRepository.findAllByProduct(product);
+        
         Map<Long, Set<String>> optionValuesMap = new HashMap<>();
-
-        for (ProductOptionValueProjection optionValue : savedOptionValues) {
+        
+        for (ProductOptionValue optionValue : savedOptionValues) {
             Long productOptionId = optionValue.getProductOption().getId();
             Set<String> set;
             if (optionValuesMap.containsKey(productOptionId)) {
