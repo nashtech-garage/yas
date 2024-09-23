@@ -57,21 +57,26 @@ activate storefront #fdf2e9
         - shipment_fees
         - taxes
     end note 
-    activate payment_service #73c6b6      
-      payment_service -> checkout_payment **:  { checkout_id, product_items, shipment_fees, taxes, status=NEW }
-      payment_service -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
-      activate payment_provider #73c6b6
-        payment_provider -> payment_provider_checkout **: create checkout
-        payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
-        payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
-      deactivate payment_provider
-      payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
+    activate payment_service #73c6b6 
+      alt checkout.payment_method is not COD
+        payment_service -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+        activate payment_provider #73c6b6          
+          payment_provider -> payment_provider_checkout **: create checkout
+          payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
+          payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
+        deactivate payment_provider
+        payment_service -> checkout_payment **: create { status=PROCESSING, payment_provider_checkout_id, checkout_id, product_items, shipment_fees, taxes, payment_type: checkout.payment_method }
+      else COD      
+        payment_service -> checkout_payment: create { status=NEW, checkout_id, product_items, shipment_fees, taxes, payment_type: COD } 
+      end
       order_service <-- payment_service: checkout_payment { payment_provider_checkout_id }
       note right of order_service
         checkout_payment:
           - payment_provider_checkout_id
           - checkout
+          - payment_type
       end note 
+      
     deactivate payment_service
     storefront <-- order_service: checkout_payment    
   deactivate order_service
