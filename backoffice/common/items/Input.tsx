@@ -153,7 +153,6 @@ export const Select = <T extends FieldValues>({
       id={field}
       className={`form-select ${error ? 'border-danger' : ''}`}
       {...register(field, registerOptions)}
-      defaultValue={defaultValue}
       disabled={disabled}
       multiple={isMultiple}
       onChange={onChange}
@@ -162,7 +161,7 @@ export const Select = <T extends FieldValues>({
         {placeholder}
       </option>
       {options.map((item) => (
-        <option key={item.value} value={item.value}>
+        <option key={item.value} value={item.value} selected={item.value === defaultValue}>
           {item.label}
         </option>
       ))}

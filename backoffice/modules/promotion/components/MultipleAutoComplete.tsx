@@ -14,11 +14,12 @@ type props = {
   onRemoveElement: (value: any) => void;
   optionSelectedIds: number[];
   isSubmitting: boolean;
+  addedOptions?: any[];
 };
 
 const MultipleAutoComplete = (props: props) => {
   const [isFocusing, setIsFocusing] = useState(false);
-  const [optionSelecteds, setOptionSelecteds] = useState<any[]>([]);
+  const [optionSelecteds, setOptionSelecteds] = useState<any[]>(props.addedOptions ?? []);
   const queryData = (query: string) => {
     props.fetchOptions(query);
   };

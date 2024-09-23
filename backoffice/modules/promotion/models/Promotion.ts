@@ -16,8 +16,8 @@ export type PromotionDetail = {
   discountPercentage: number;
   discountAmount: number;
   isActive: boolean;
-  startDate: Date | string;
-  endDate: Date | string;
+  startDate: string;
+  endDate: string;
   brands: BrandVm[];
   categories: CategoryGetVm[];
   products: ProductVm[];
@@ -51,8 +51,8 @@ export type PromotionDto = {
   discountPercentage?: number;
   discountAmount?: number;
   isActive: boolean;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   brandIds: number[];
   categoryIds: number[];
   productIds: number[];

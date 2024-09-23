@@ -47,7 +47,10 @@ const PromotionList: NextPage = () => {
       date = new Date(date);
     }
     const month = date.getMonth() + 1;
-    return `${date.getFullYear()}-${month > 9 ? month : '0' + month}-${date.getDate()}`;
+    const dateNumber = date.getDate();
+    return `${date.getFullYear()}-${month > 9 ? month : '0' + month}-${
+      dateNumber > 9 ? dateNumber : '0' + dateNumber
+    }`;
   };
 
   return (
@@ -118,7 +121,7 @@ const PromotionList: NextPage = () => {
                 <td>{convertToStringDate(promotion.startDate)}</td>
                 <td>{convertToStringDate(promotion.endDate)}</td>
                 <td>
-                  <Link href={`/promotion/manager-promotion/${promotion.id}`}>
+                  <Link href={`/promotion/manager-promotion/${promotion.id}/edit`}>
                     <button className="btn btn-outline-primary btn-sm" type="button">
                       Edit
                     </button>
