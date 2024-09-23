@@ -58,28 +58,35 @@ activate storefront #fdf2e9
         - taxes
     end note 
     activate payment_service #73c6b6 
-      alt checkout.payment_method is not COD
-        payment_service -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
-        activate payment_provider #73c6b6          
-          payment_provider -> payment_provider_checkout **: create checkout
-          payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
-          payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
-        deactivate payment_provider
-        payment_service -> checkout_payment **: create { status=PROCESSING, payment_provider_checkout_id, checkout_id, product_items, shipment_fees, taxes, payment_type: checkout.payment_method }
-      else COD      
-        payment_service -> checkout_payment: create { status=NEW, checkout_id, product_items, shipment_fees, taxes, payment_type: COD } 
-      end
-      order_service <-- payment_service: checkout_payment { payment_provider_checkout_id }
+      payment_service -> checkout_payment **: create { status=(payment_type is COD ? PROCESSING : NEW), payment_provider_checkout_id, checkout_id, product_items, shipment_fees, taxes, payment_type: checkout.payment_method }
+      order_service <-- payment_service: checkout_payment
       note right of order_service
         checkout_payment:
           - payment_provider_checkout_id
           - checkout
           - payment_type
-      end note 
-      
+      end note
     deactivate payment_service
     storefront <-- order_service: checkout_payment    
+    checkout_payment --> payment_service: [CDC Create Event]
   deactivate order_service
+  activate payment_service #73c6b6 
+    alt payment_type is NOT COD:
+      payment_service  -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+      activate payment_provider #73c6b6          
+        payment_provider -> payment_provider_checkout **: create checkout
+        payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
+        payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
+      deactivate payment_provider
+      payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
+    end 
+  deactivate payment_service
+  loop reload to get payment information util payment status is PROCESSING and payment_provider_checkout_id existing (if not COD)
+    storefront -> payment_service: GET /payment/payments/checkout/{checkout_id} 
+    activate payment_service #73c6b6
+      storefront <-- payment_service: { status=PROCESSING, payment_provider_checkout_id }
+    deactivate payment_service
+  end 
   storefront --> customer: redirect to payment_provider : Payment Provider: Checkout { payment_provider_checkout_id }
 deactivate storefront
 activate customer
@@ -106,16 +113,20 @@ activate payment_provider #73c6b6
   deactivate order_service
   payment_provider --> customer: redirect to storefront with confirmation
 deactivate payment_provider
-customer -> storefront: confirmation page
+activate customer
+  customer -> storefront: confirmation page
+deactivate customer
 activate storefront #fdf2e9
-  storefront --> customer: payment confirmation
+  storefront --> customer: show payment confirmation
   loop "reload to get order"
     storefront -> order_service: GET /order/orders/checkout/{checkout_id}
     activate order_service #3498db
       order_service -> order: find order by {checkout_id}
-      order_service <-- order: order
-    deactivate order_service
-    storefront <-- order_service: order
+      activate order #3498db
+        order_service <-- order: order
+      deactivate order
+      storefront <-- order_service: order
+    deactivate order_service    
     storefront --> customer: redirect to order details
   end 
 deactivate storefront
