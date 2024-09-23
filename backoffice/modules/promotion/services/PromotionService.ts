@@ -21,6 +21,11 @@ export async function getPromotion(id: number) {
   return (await apiClientService.get(url)).json();
 }
 
+export async function deletePromotion(id: number) {
+  const url = `${baseUrl}/${id}`;
+  return await apiClientService.delete(url);
+}
+
 function createRequestFromObject(request: any): string {
   return Object.keys(request)
     .map(function (key) {
