@@ -1,5 +1,5 @@
 export type ProductAttributeOfTemplate = {
-  ProductAttributeId?: number;
+  productAttributeId?: number;
   displayOrder?: number;
 };
 export type productAttribute = {
@@ -14,7 +14,7 @@ export type ProductAttributeTemplate = {
 
 export type FromProductTemplate = {
   name?: string;
-  ProductAttributeTemplates?: ProductAttributeOfTemplate[];
+  productAttributeTemplates?: ProductAttributeOfTemplate[];
 };
 
 export type ProductTemplate = {
