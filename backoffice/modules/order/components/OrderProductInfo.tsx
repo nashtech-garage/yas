@@ -1,5 +1,5 @@
 import { Order } from '../models/Order';
-import { formatPriceVND } from 'utils/formatPrice';
+import {formatPriceUSD, formatPriceVND} from 'utils/formatPrice';
 import { Stack, Table } from 'react-bootstrap';
 import Link from 'next/link';
 type Props = {
@@ -46,10 +46,10 @@ const OrderProductInfo = ({ order }: Props) => {
                   {order.orderItemVms?.map((item) => (
                     <tr key={item.id}>
                       <td>{item.productName}</td>
-                      <td>{formatPriceVND(item.productPrice)}</td>
+                      <td>{formatPriceUSD(item.productPrice)}</td>
                       <td>{item.quantity}</td>
                       <td>{item.discountAmount}</td>
-                      <td>{formatPriceVND(item.productPrice * item.quantity)}</td>
+                      <td>{formatPriceUSD(item.productPrice * item.quantity)}</td>
                       <td style={{ width: '12%' }}>
                         <Stack direction="vertical" gap={3}>
                           <Link href={`/sales/orders/${order.id}/edit`}>

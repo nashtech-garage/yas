@@ -10,7 +10,7 @@ import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
 import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
-import { formatPriceVND } from 'utils/formatPrice';
+import {formatPriceUSD, formatPriceVND} from 'utils/formatPrice';
 import Link from 'next/link';
 
 const Orders: NextPage = () => {
@@ -186,7 +186,7 @@ const Orders: NextPage = () => {
                 </td>
                 <td>{order.billingAddressVm.phone}</td>
                 <td>{moment(order.createdOn).format('MMMM Do YYYY, h:mm:ss a')}</td>
-                <td>{formatPriceVND(order.totalPrice)}</td>
+                <td>{formatPriceUSD(order.totalPrice)}</td>
                 <td style={{ width: '10%' }}>
                   <Stack direction="horizontal" gap={3}>
                     <Link href={`/sales/orders/${order.id}/edit`}>
