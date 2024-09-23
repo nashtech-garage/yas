@@ -17,7 +17,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CartServiceTest {
+class CartServiceTest {
 
     private CartService cartService;
     private CartRepository cartRepository;
@@ -33,7 +33,7 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testAddToCart_ProductNotFound() {
+    void testAddToCart_ProductNotFound() {
         List<CartItemVm> cartItemVms = Collections.singletonList(new CartItemVm(1L, 2, null));
         when(productService.getProducts(anyList())).thenReturn(Collections.emptyList());
 
@@ -41,7 +41,7 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testUpdateCartItems_ItemNotFound() {
+    void testUpdateCartItems_ItemNotFound() {
         String customerId = "customerId";
         CartItemVm cartItemVm = new CartItemVm(1L, 2, null);
         when(cartRepository.findByCustomerIdAndOrderIdIsNull(customerId))
@@ -51,7 +51,7 @@ public class CartServiceTest {
     }
 
     @Test
-    public void testCountNumberItemInCart_EmptyCart() {
+    void testCountNumberItemInCart_EmptyCart() {
         String customerId = "customerId";
         when(cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)).thenReturn(Collections.emptyList());
 
