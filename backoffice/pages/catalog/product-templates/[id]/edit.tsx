@@ -44,13 +44,13 @@ const ProductTemplateEdit: NextPage = () => {
         let att = [];
         for (const element of data.productAttributeTemplates) {
           let attribute: ProductAttributeOfTemplate = {
-            ProductAttributeId: element.productAttribute.id,
+            productAttributeId: element.productAttribute.id,
             displayOrder: element.displayOrder,
           };
           attributes.push(attribute);
           att.push(element.productAttribute.name);
           setSelectedAtts(att);
-          setValue('ProductAttributeTemplates', attributes);
+          setValue('productAttributeTemplates', attributes);
         }
       });
       setLoading(false);
@@ -60,17 +60,17 @@ const ProductTemplateEdit: NextPage = () => {
   const onAddAttributeList = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     let attributeName = (document.getElementById('attribute') as HTMLSelectElement).value;
-    let atts = getValues('ProductAttributeTemplates') || [];
+    let atts = getValues('productAttributeTemplates') || [];
     if (selectedAtts.indexOf(attributeName) === -1) {
       setSelectedAtts([...selectedAtts, attributeName]);
       let att = productAtts.find((attribute) => attribute.name === attributeName);
       if (att) {
         let newAttr: ProductAttributeOfTemplate = {
-          ProductAttributeId: att.id,
+          productAttributeId: att.id,
           displayOrder: 0,
         };
         atts.push(newAttr);
-        setValue('ProductAttributeTemplates', atts);
+        setValue('productAttributeTemplates', atts);
       }
     } else {
       toast.info(`${attributeName} is selected`);
@@ -80,7 +80,7 @@ const ProductTemplateEdit: NextPage = () => {
   const handleSubmitEditProductTemplate = async (event: FromProductTemplate) => {
     let fromProductTemplate: FromProductTemplate = {
       name: event.name,
-      ProductAttributeTemplates: getValues('ProductAttributeTemplates'),
+      productAttributeTemplates: getValues('productAttributeTemplates') || [],
     };
 
     const response = await updateProductTemplate(+id, fromProductTemplate);
@@ -92,15 +92,15 @@ const ProductTemplateEdit: NextPage = () => {
 
   const onDelete = (event: React.MouseEvent<HTMLElement>, attName: string) => {
     event.preventDefault();
-    let atts = getValues('ProductAttributeTemplates') || [];
+    let atts = getValues('productAttributeTemplates') || [];
     const attribute = productTemplate?.productAttributeTemplates?.find(
       (attribute) => attribute?.productAttribute?.name === attName
     );
     let filter = selectedAtts.filter((item) => item !== attName);
     let attFilter = atts.filter(
-      (att) => att.ProductAttributeId !== attribute?.productAttribute?.id
+      (att) => att.productAttributeId !== attribute?.productAttribute?.id
     );
-    setValue('ProductAttributeTemplates', attFilter);
+    setValue('productAttributeTemplates', attFilter);
     setSelectedAtts(filter);
   };
 
