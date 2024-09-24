@@ -1,24 +1,5 @@
 package com.yas.product.service;
 
-import com.yas.commonlibrary.exception.DuplicatedException;
-import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.product.model.ProductOption;
-import com.yas.product.repository.ProductOptionRepository;
-import com.yas.product.viewmodel.productoption.ProductOptionListGetVm;
-import com.yas.product.viewmodel.productoption.ProductOptionPostVm;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -30,7 +11,25 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.product.model.ProductOption;
+import com.yas.product.repository.ProductOptionRepository;
+import com.yas.product.viewmodel.productoption.ProductOptionListGetVm;
+import com.yas.product.viewmodel.productoption.ProductOptionPostVm;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+@ExtendWith(MockitoExtension.class)
 class ProductOptionServiceTest {
 
     @Mock

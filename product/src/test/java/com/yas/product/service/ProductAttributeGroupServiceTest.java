@@ -1,22 +1,5 @@
 package com.yas.product.service;
 
-import com.yas.commonlibrary.exception.DuplicatedException;
-import com.yas.product.model.attribute.ProductAttributeGroup;
-import com.yas.product.repository.ProductAttributeGroupRepository;
-import com.yas.product.viewmodel.productattribute.ProductAttributeGroupListGetVm;
-import com.yas.product.viewmodel.productattribute.ProductAttributeGroupVm;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -28,9 +11,24 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-class ProductAttributeGroupServiceTest {
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.product.model.attribute.ProductAttributeGroup;
+import com.yas.product.repository.ProductAttributeGroupRepository;
+import com.yas.product.viewmodel.productattribute.ProductAttributeGroupListGetVm;
+import com.yas.product.viewmodel.productattribute.ProductAttributeGroupVm;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+@ExtendWith(MockitoExtension.class)
+class ProductAttributeGroupServiceTest {
 
     @Mock
     private ProductAttributeGroupRepository repository;
