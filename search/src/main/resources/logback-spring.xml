@@ -21,6 +21,8 @@
 		</encoder>
 	</appender>
 
+	<logger name="org.apache.http.wire" level="DEBUG" />
+
 	<root level="INFO">
 		<appender-ref ref="CONSOLE" />
 	</root>
