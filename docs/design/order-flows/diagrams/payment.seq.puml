@@ -20,7 +20,7 @@ box "Payment Provider" #eafaf1
     entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
 end box
 
-customer -> storefront: Proceed to checkout
+customer -> storefront: Proceed to payment
 activate storefront #fdf2e9   
   storefront -> order_service: POST /order/checkouts/{checkout_id}/process-payment
   activate order_service #3498db
