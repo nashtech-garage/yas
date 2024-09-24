@@ -17,8 +17,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Query("SELECT p FROM Promotion p "
             + "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%',:name,'%')) "
             + "AND LOWER(p.couponCode) LIKE LOWER(CONCAT('%',:couponCode,'%')) "
-            + "AND p.startDate BETWEEN :startDate AND :endDate "
-            + "AND p.endDate BETWEEN :startDate AND :endDate")
+            + "AND (cast(:startDate as date) is null or (p.startDate BETWEEN :startDate AND :endDate)) "
+            + "AND (cast(:startDate as date) is null or (p.endDate BETWEEN :startDate AND :endDate))")
     Page<Promotion> findPromotions(@Param("name") String name,
                                    @Param("couponCode") String couponCode,
                                    @Param("startDate") Instant startDate,

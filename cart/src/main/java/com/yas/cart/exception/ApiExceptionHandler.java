@@ -1,6 +1,8 @@
 package com.yas.cart.exception;
 
 import com.yas.cart.viewmodel.ErrorVm;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

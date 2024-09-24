@@ -1,8 +1,8 @@
 package com.yas.product.controller;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.constants.PageableConstant;
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.service.BrandService;
@@ -42,7 +42,8 @@ public class BrandController {
     }
 
     @GetMapping({"/backoffice/brands", "/storefront/brands"})
-    public ResponseEntity<List<BrandVm>> listBrands(@RequestParam(required = false) String brandName) {
+    public ResponseEntity<List<BrandVm>> listBrands(
+        @RequestParam(required = false, defaultValue = "") String brandName) {
         log.info("[Test logging with trace] Got a request");
         List<BrandVm> brandVms = brandRepository.findByNameContainingIgnoreCase(brandName).stream()
                 .map(BrandVm::fromModel)
@@ -110,12 +111,7 @@ public class BrandController {
         @ApiResponse(responseCode = "400", description = "Bad request",
             content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteBrand(@PathVariable long id) {
-        Brand brand = brandRepository.findById(id).orElseThrow(
-            () -> new NotFoundException(Constants.ErrorCode.BRAND_NOT_FOUND, id));
-        if (!brand.getProducts().isEmpty()) {
-            throw new BadRequestException(Constants.ErrorCode.MAKE_SURE_BRAND_DONT_CONTAINS_ANY_PRODUCT);
-        }
-        brandRepository.deleteById(id);
+        brandService.delete(id);
         return ResponseEntity.noContent().build();
     }
 

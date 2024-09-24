@@ -107,6 +107,19 @@ public class WebhookControllerIT extends AbstractControllerIT {
   }
 
   @Test
+  public void test_deleteWebhook_shouldFailedWhenNotFindId() {
+    given(getRequestSpecification())
+        .auth().oauth2(getAccessToken("admin", "admin"))
+        .contentType(ContentType.JSON)
+        .pathParam("id", 10)
+        .when()
+        .delete(WEBHOOK_URL + "/{id}")
+        .then()
+        .statusCode(HttpStatus.NOT_FOUND.value())
+        .log().ifValidationFails();
+  }
+
+  @Test
   public void test_getWebhook_shouldReturnSuccessfully() {
     given(getRequestSpecification())
         .auth().oauth2(getAccessToken("admin", "admin"))
@@ -117,6 +130,19 @@ public class WebhookControllerIT extends AbstractControllerIT {
         .then()
         .statusCode(HttpStatus.OK.value())
         .body("contentType", equalTo("application/json"))
+        .log().ifValidationFails();
+  }
+
+  @Test
+  public void test_getWebhook_shouldReturn404_whenWebhookNotFound() {
+    given(getRequestSpecification())
+        .auth().oauth2(getAccessToken("admin", "admin"))
+        .contentType(ContentType.JSON)
+        .pathParam("id", 10)
+        .when()
+        .get(WEBHOOK_URL + "/{id}")
+        .then()
+        .statusCode(HttpStatus.NOT_FOUND.value())
         .log().ifValidationFails();
   }
 
@@ -143,7 +169,7 @@ public class WebhookControllerIT extends AbstractControllerIT {
         .statusCode(HttpStatus.OK.value())
         .body("pageNo", equalTo(0))
         .body("pageSize", equalTo(10))
-        .body("totalElements", equalTo(4))
+        .body("totalElements", equalTo(5))
         .body("totalPages", equalTo(1))
         .log().ifValidationFails();
   }

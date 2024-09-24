@@ -35,14 +35,8 @@ public class PromotionController {
             @RequestParam(defaultValue = "5") int pageSize,
             @RequestParam(defaultValue = "") String promotionName,
             @RequestParam(defaultValue = "") String couponCode,
-            @RequestParam(
-                defaultValue =
-                    "#{T(java.time.Instant).ofEpochSecond(0)}"
-
-            )
-            Instant startDate,
-            @RequestParam(defaultValue = "#{T(java.time.Instant).now()}")
-            Instant endDate
+            @RequestParam(required = false) Instant startDate,
+            @RequestParam(required = false) Instant endDate
     ) {
         return ResponseEntity.ok(promotionService.getPromotions(
             pageNo, pageSize, promotionName, couponCode, startDate, endDate));
@@ -102,5 +96,11 @@ public class PromotionController {
     public ResponseEntity<Void> deletePromotion(@PathVariable("promotionId") Long promotionId) {
         promotionService.deletePromotion(promotionId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/backoffice/promotions/{promotionId}")
+    public ResponseEntity<PromotionDetailVm> getPromotion(@PathVariable("promotionId") Long promotionId) {
+        PromotionDetailVm promotionDetailVm = promotionService.getPromotion(promotionId);
+        return new ResponseEntity<>(promotionDetailVm, HttpStatus.OK);
     }
 }

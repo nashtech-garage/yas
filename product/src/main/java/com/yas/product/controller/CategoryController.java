@@ -1,6 +1,6 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.BadRequestException;
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.service.CategoryService;
@@ -38,7 +38,8 @@ public class CategoryController {
     }
 
     @GetMapping({"/backoffice/categories", "/storefront/categories"})
-    public ResponseEntity<List<CategoryGetVm>> listCategories(@RequestParam(required = false) String categoryName) {
+    public ResponseEntity<List<CategoryGetVm>> listCategories(
+        @RequestParam(required = false, defaultValue = "") String categoryName) {
         return ResponseEntity.ok(categoryService.getCategories(categoryName));
     }
 

@@ -1,7 +1,8 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.product.model.Brand;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.utils.Constants;
@@ -75,5 +76,14 @@ public class BrandService {
 
     public List<BrandVm> getBrandsByIds(List<Long> ids) {
         return brandRepository.findAllById(ids).stream().map(BrandVm::fromModel).toList();
+    }
+
+    public void delete(long id) {
+        Brand brand = brandRepository.findById(id).orElseThrow(
+            () -> new NotFoundException(Constants.ErrorCode.BRAND_NOT_FOUND, id));
+        if (!brand.getProducts().isEmpty()) {
+            throw new BadRequestException(Constants.ErrorCode.MAKE_SURE_BRAND_DONT_CONTAINS_ANY_PRODUCT);
+        }
+        brandRepository.deleteById(id);
     }
 }

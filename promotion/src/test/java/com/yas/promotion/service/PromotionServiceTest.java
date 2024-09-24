@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.yas.promotion.PromotionApplication;
 import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
+import com.yas.promotion.exception.NotFoundException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.PromotionApply;
 import com.yas.promotion.model.enumeration.ApplyTo;
@@ -17,6 +18,7 @@ import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +47,7 @@ class PromotionServiceTest {
                 .slug("promotion-1")
                 .description("Description 1")
                 .couponCode("code1")
+                .discountType(DiscountType.PERCENTAGE)
                 .discountAmount(100L)
                 .discountPercentage(10L)
                 .isActive(true)
@@ -103,8 +106,8 @@ class PromotionServiceTest {
                 .discountAmount(300L)
                 .discountPercentage(30L)
                 .isActive(true)
-                .startDate(Instant.now().plus(60, ChronoUnit.DAYS))
-                .endDate(Instant.now().plus(90, ChronoUnit.DAYS))
+                .startDate(Date.from(Instant.now().plus(60, ChronoUnit.DAYS)))
+                .endDate(Date.from(Instant.now().plus(90, ChronoUnit.DAYS)))
                 .applyTo(ApplyTo.PRODUCT)
                 .productIds(List.of(1L, 2L, 3L))
                 .build();
@@ -138,8 +141,8 @@ class PromotionServiceTest {
             .name("12345")
             .couponCode("cp-12345")
             .productIds(List.of(1L, 2L, 3L))
-            .endDate(Instant.now().minus(2, ChronoUnit.DAYS))
-            .startDate(Instant.now())
+            .endDate(Date.from(Instant.now().minus(2, ChronoUnit.DAYS)))
+            .startDate(Date.from(Instant.now()))
             .build();
 
         BadRequestException exception = assertThrows(BadRequestException.class, () ->
@@ -156,5 +159,24 @@ class PromotionServiceTest {
         assertEquals(2, result.promotionDetailVmList().size());
         PromotionDetailVm promotionDetailVm = result.promotionDetailVmList().getFirst();
         assertEquals("promotion-1", promotionDetailVm.slug());
+    }
+
+    @Test
+    void getPromotion_ThenSuccess() {
+        PromotionDetailVm result = promotionService.getPromotion(promotion1.getId());
+        assertEquals("promotion-1", result.slug());
+        assertEquals("Promotion 1", result.name());
+        assertEquals("code1", result.couponCode());
+        assertEquals(DiscountType.PERCENTAGE, result.discountType());
+        assertEquals(10L, result.discountPercentage().longValue());
+        assertEquals(100L, result.discountAmount().longValue());
+        assertEquals(true, result.isActive());
+        assertEquals(ApplyTo.BRAND, result.applyTo());
+    }
+
+    @Test
+    void getPromotion_WhenNotExist_ThenNotFoundExceptionThrown() {
+        var exception = assertThrows(NotFoundException.class, () -> promotionService.getPromotion(0L));
+        assertEquals(String.format(Constants.ErrorCode.PROMOTION_NOT_FOUND, 0L), exception.getMessage());
     }
 }

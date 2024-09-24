@@ -1,6 +1,6 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Product;
 import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRepository;

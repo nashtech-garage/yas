@@ -1,7 +1,7 @@
 package com.yas.customer.service;
 
-import com.yas.customer.exception.AccessDeniedException;
-import com.yas.customer.exception.NotFoundException;
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.customer.model.UserAddress;
 import com.yas.customer.repository.UserAddressRepository;
 import com.yas.customer.utils.Constants;

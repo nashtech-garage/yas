@@ -1,6 +1,6 @@
 package com.yas.location.service;
 
-import com.yas.location.exception.NotFoundException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.location.model.Address;
 import com.yas.location.model.Country;
 import com.yas.location.repository.AddressRepository;

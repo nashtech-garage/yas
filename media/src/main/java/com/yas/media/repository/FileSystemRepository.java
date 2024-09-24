@@ -47,7 +47,7 @@ public class FileSystemRepository {
         }
     }
 
-    private Path buildFilePath(String filename) throws IOException {
+    private Path buildFilePath(String filename) {
         // Validate the filename
         if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
             throw new IllegalArgumentException("Invalid filename");

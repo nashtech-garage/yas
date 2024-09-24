@@ -1,6 +1,7 @@
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { PromotionListRequest, PromotionPage } from 'modules/promotion/models/Promotion';
-import { getPromotions } from 'modules/promotion/services/PromotionService';
+import { deletePromotion, getPromotions } from 'modules/promotion/services/PromotionService';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -14,6 +15,9 @@ const PromotionList: NextPage = () => {
   const [promotionName, setPromotionName] = useState<string>('');
   const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [totalPage, setTotalPage] = useState<number>(1);
+  const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
+  const [promotionNameWantToDelete, setPromotionNameWantToDelete] = useState<string>('');
+  const [promotionIdWantToDelete, setPromotionIdWantToDelete] = useState<number>(-1);
 
   useEffect(() => {
     setIsLoading(true);
@@ -42,12 +46,24 @@ const PromotionList: NextPage = () => {
     setPageNo(selected);
   };
 
-  const convertToStringDate = (date: Date) => {
+  const convertToStringDate = (date: Date | string) => {
     if (typeof date === 'string') {
       date = new Date(date);
     }
     const month = date.getMonth() + 1;
-    return `${date.getFullYear()}-${month > 9 ? month : '0' + month}-${date.getDate()}`;
+    const dateNumber = date.getDate();
+    return `${date.getFullYear()}-${month > 9 ? month : '0' + month}-${
+      dateNumber > 9 ? dateNumber : '0' + dateNumber
+    }`;
+  };
+
+  const handleClose: any = () => setShowModalDelete(false);
+
+  const handleDeletePromotion = () => {
+    deletePromotion(promotionIdWantToDelete).then(() => {
+      setShowModalDelete(false);
+      getPromotionList();
+    });
   };
 
   return (
@@ -57,7 +73,7 @@ const PromotionList: NextPage = () => {
           <h2 className="text-danger font-weight-bold mb-3">Promotions</h2>
         </div>
         <div className="col-md-4 text-right">
-          <Link href="/catalog/brands/create">
+          <Link href="/promotion/manager-promotion/create">
             <Button>Add new Promotion</Button>
           </Link>
         </div>
@@ -118,17 +134,36 @@ const PromotionList: NextPage = () => {
                 <td>{convertToStringDate(promotion.startDate)}</td>
                 <td>{convertToStringDate(promotion.endDate)}</td>
                 <td>
-                  <Link href={`/promotion/manager-promotion/${promotion.id}`}>
+                  <Link href={`/promotion/manager-promotion/${promotion.id}/edit`}>
                     <button className="btn btn-outline-primary btn-sm" type="button">
                       Edit
                     </button>
                   </Link>
+                  &nbsp;
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    type="button"
+                    onClick={() => {
+                      setShowModalDelete(true);
+                      setPromotionIdWantToDelete(promotion.id);
+                      setPromotionNameWantToDelete(promotion.name);
+                    }}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={promotionNameWantToDelete}
+        handleDelete={handleDeletePromotion}
+        action="delete"
+      />
       {totalPage > 1 && (
         <ReactPaginate
           forcePage={pageNo}

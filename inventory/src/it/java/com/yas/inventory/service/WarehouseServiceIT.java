@@ -16,8 +16,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.yas.inventory.exception.DuplicatedException;
-import com.yas.inventory.exception.NotFoundException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.repository.StockRepository;

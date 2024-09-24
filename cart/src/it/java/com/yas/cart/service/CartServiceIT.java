@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.yas.cart.config.IntegrationTestConfiguration;
-import com.yas.cart.exception.BadRequestException;
-import com.yas.cart.exception.NotFoundException;
 import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
@@ -17,6 +15,8 @@ import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.cart.viewmodel.CartItemVm;
 import com.yas.cart.viewmodel.CartListVm;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
@@ -33,31 +33,25 @@ import org.springframework.context.annotation.Import;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CartServiceIT {
 
+    final String customerId1 = "customer-1";
     private Cart cart1;
-
     private Cart cart2;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private CartItemRepository cartItemRepository;
-
     @MockBean
     private ProductService productService;
-
     @Autowired
     private CartService cartService;
-
-    final String customerId1 = "customer-1";
 
     @BeforeEach
     void setUp() {
 
         cart1 = cartRepository.save(Cart
-                .builder().customerId(customerId1).build());
+            .builder().customerId(customerId1).build());
         cart2 = cartRepository.save(Cart
-                .builder().customerId("customer-2").build());
+            .builder().customerId("customer-2").build());
 
         CartItem cartItem1 = new CartItem();
         cartItem1.setProductId(1L);
@@ -131,7 +125,7 @@ class CartServiceIT {
     void removeCartItemListByProductIdList_NoCartItems_ThrowBadRequestException() {
 
         Cart cart3 = cartRepository.save(Cart
-                .builder().customerId("customer-3").build());
+            .builder().customerId("customer-3").build());
 
         cartRepository.save(cart3);
 
@@ -179,7 +173,7 @@ class CartServiceIT {
     void countNumberItemInCart_EmptyCart_ReturnsZero() {
 
         Cart cart3 = cartRepository.save(Cart
-                .builder().customerId("customer-3").build());
+            .builder().customerId("customer-3").build());
 
         cartRepository.save(cart3);
 
@@ -197,11 +191,11 @@ class CartServiceIT {
     void addToCart_ProductsExist_AddsItemsToNewCart() {
 
         List<CartItemVm> cartItemVms = List.of(
-                new CartItemVm(1L, 2, 10L)
+            new CartItemVm(1L, 2, 10L)
         );
 
         List<ProductThumbnailVm> productThumbnails = List.of(
-                new ProductThumbnailVm(1L, "A21", "A22", "A23")
+            new ProductThumbnailVm(1L, "A21", "A22", "A23")
         );
 
         when(productService.getProducts(List.of(1L))).thenReturn(productThumbnails);
@@ -217,11 +211,11 @@ class CartServiceIT {
     @Test
     void addToCart_ProductsExist_AddsItemsToExistingCart() {
         List<CartItemVm> cartItemVms = List.of(
-                new CartItemVm(3L, 2, 10L)
+            new CartItemVm(3L, 2, 10L)
         );
 
         List<ProductThumbnailVm> productThumbnails = List.of(
-                new ProductThumbnailVm(3L, "A21", "A22", "A23")
+            new ProductThumbnailVm(3L, "A21", "A22", "A23")
         );
 
         when(productService.getProducts(List.of(3L))).thenReturn(productThumbnails);
@@ -248,7 +242,7 @@ class CartServiceIT {
 
         assertThat(thrownException).isInstanceOf(NotFoundException.class);
         assertThat(thrownException.getMessage())
-                .isEqualTo("Not found product [2]");
+            .isEqualTo("Not found product [2]");
 
     }
 
