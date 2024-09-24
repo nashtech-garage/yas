@@ -1,0 +1,56 @@
+@startuml Payment Flow Sub 3
+
+title Payment Flow Finish Payment and Place Order
+
+actor Customer as customer #fad7a0
+
+box YAS
+    participant "Storefront" as storefront #fdf2e9        
+    participant "Order Service" as order_service #3498db    
+    entity "Checkout" as checkout #3498db
+    entity "Order" as order #3498db
+    participant "Payment Service" as payment_service #73c6b6
+    participant "Inventory Service" as inventory_service #808b96
+    entity "Checkout Payment" as checkout_payment #73c6b6
+    participant "Notification Service" as notification_service #fad7a0
+end box 
+
+box "Payment Provider" #eafaf1
+    participant "Payment Provider" as payment_provider #73c6b6
+    entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
+end box
+loop reload to get payment information util payment status is PROCESSING and payment_provider_checkout_id existing (if not COD)
+  storefront -> payment_service: GET /payment/payments/checkout/{checkout_id} 
+  activate payment_service #73c6b6
+    payment_service -> checkout_payment: find by checkout_id
+    storefront <-- payment_service: { status=PROCESSING, payment_provider_checkout_id }
+  deactivate payment_service
+end 
+storefront --> customer: redirect to payment_provider : Payment Provider: Checkout { payment_provider_checkout_id }
+deactivate storefront
+activate customer
+  customer -> payment_provider: execute payment { payment_provider_checkout_id }
+deactivate customer
+activate payment_provider #73c6b6
+  payment_provider -> payment_provider_checkout: update { status=COMPETED, payment_provider_checkout_id }  
+  payment_provider --> payment_service: { checkout_id, payment_provider_checkout_id, status=COMPETED/FAILURE }
+  activate payment_service #73c6b6
+    payment_service -> checkout_payment: update { status=COMPLETED }
+    payment_service --> notification_service: Event: PaymentCompleted { checkout_payment }
+    activate notification_service #fad7a0
+      notification_service --> customer: notification for payment completion
+    deactivate notification_service
+    payment_service --> order_service: Event: PaymentCompleted { checkout_id }
+  deactivate payment_service
+  activate order_service #3498db
+    order_service -> checkout: update { status=PAYMENT_CONFIRMED }
+    order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
+    order_service --> notification_service
+    activate notification_service #fad7a0
+      notification_service --> customer: notification for order creation
+    deactivate notification_service
+  deactivate order_service
+  payment_provider --> customer: redirect to storefront with confirmation
+deactivate payment_provider
+
+@enduml

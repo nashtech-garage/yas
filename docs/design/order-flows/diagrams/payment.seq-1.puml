@@ -1,0 +1,70 @@
+@startuml Payment Flow Sub 1
+
+title Payment Flow Init Internal PaymentCheckout 
+
+actor Customer as customer #fad7a0
+
+box YAS
+    participant "Storefront" as storefront #fdf2e9        
+    participant "Order Service" as order_service #3498db    
+    entity "Checkout" as checkout #3498db
+    participant "Inventory Service" as inventory_service #808b96
+    participant "Payment Service" as payment_service #73c6b6
+    entity "Checkout Payment" as checkout_payment #73c6b6
+    participant "Notification Service" as notification_service #fad7a0
+end box 
+
+box "Payment Provider" #eafaf1
+    participant "Payment Provider" as payment_provider #73c6b6
+    entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
+end box
+
+customer -> storefront: Proceed to payment
+activate storefront #fdf2e9   
+  storefront -> order_service: POST /order/checkouts/{checkout_id}/process-payment
+  activate order_service #3498db
+    order_service -> checkout **: find by {checkout_id}
+    order_service <-- checkout: checkout
+    order_service -> inventory_service: POST /inventory/products/stocks { product_items }
+    note right of order_service
+      lock stocks for product_items
+      product_items:
+        - product_id
+        - quantity
+    end note
+    activate inventory_service #808b96
+      inventory_service --> order_service: confirmation { product_items }
+      note right of inventory_service
+        Stock confirmation, list out state of stock
+        {
+          <product_id_01>: OK,
+          <product_id_02>: OUT_OF_STOCK,
+          <product_id_03>: OK
+        }
+      end note
+    deactivate inventory_service
+    alt #f1948a "any out of stock"
+      order_service --> storefront: 400 Bad Request { ERROR_CODE: OUT_OF_STOCK, payload: { <product_id_02>: OUT_OF_STOCK } }
+      storefront --> customer: out of stock error
+    end
+    order_service -> checkout: update { status=PAYMENT_PROCESSING }
+    order_service -> payment_service: POST /payment/payments { checkout }
+    note right of order_service
+      checkout includes:
+        - payment_method
+        - product_items
+        - shipment_fees
+        - taxes
+    end note 
+    activate payment_service #73c6b6 
+      payment_service -> checkout_payment **: create { status=(payment_type is COD ? PROCESSING : NEW), payment_provider_checkout_id, checkout_id, product_items, shipment_fees, taxes, payment_type: checkout.payment_method }
+      order_service <-- payment_service: checkout_payment
+      note right of order_service
+        checkout_payment:
+          - payment_provider_checkout_id
+          - checkout
+          - payment_type
+      end note
+    deactivate payment_service
+    storefront <-- order_service: checkout_payment
+@enduml

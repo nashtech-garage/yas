@@ -15,13 +15,13 @@
 ### Checkout Lifecycle
 ![Checkout Lifecycle](./imgs/Checkout%20Lifecycle.png)
 
-`Checkout` is an intemediate object created to **snap shot** and **seal the items** for the order placing process. The `Checkout` object will also contains information collected before the order is placed.
+When the user begins the checkout process, the `Shopping Cart` is sealed and saved as a snapshot in a `Checkout` object, allowing the user to focus on making the decision to place an order. The `Checkout` object will also contains information collected before the order is placed.
  - It will be created with the `CHECKED_OUT` status when the user start the checkout process by clicking the *"Proceed to checkout"* button on the *Cart page*. At this stage, the `Checkout` object will only contains the products' types and quantities that the customer wants to order.
  - The customer will then update the `Checkout` object with their desired shipping address, shipping provider, and payment method information. 
- - After all the information required has been fulfilled and reflects the customer desired order, the payment amount with detailed breakdown can be calculated and review by the customer, after which they can confirm, and start the payment process. This will change that state of the `Checkout` object to `PAYMENT_PROCESSING`.
+ - After all the information required has been fulfilled and reflects the customer desired order, the payment amount with detailed breakdown can be calculated and review by the customer after which they can confirm, and start the payment process. This will change that state of the `Checkout` object to `PAYMENT_PROCESSING`.
  - After the payment has been processed and confirmed by the `payment-confirmed` action, the `Checkout` object will be changed to the `PAYMENT_CONFIRMED` state. At this stage, the system can start the `create-order` process, which will place the necessary block on the inventory, and create a new order for the customer.
- - In case some products in the `Checkout` object is out-of-stock or the payment-process encounter an error, the `Checkout` object's status will be revert back to `CHECKED_OUT`.
- - After an order has been placed, the `Checkout` has served its purpose, thus its state will be changed to `FULFILLED`. 
+ - In case some products in the `Checkout` object is out-of-stock or the `process-payment` action encounters an error, the `Checkout` object's status will be revert back to `CHECKED_OUT`. The last encountered error will also be attached to the `Checkout` object
+ - After an order has been placed, the `Checkout`    has served its purpose, thus its state will be changed to `FULFILLED`. 
 
 ### Checkout flow
 
@@ -37,16 +37,30 @@ The Checkout flow happens between when the user begin the checkout process and t
 
 ![Payment Flow](./imgs/Payment%20Flow.png)
 
-The payment flow is the point at which the customer confirm their payment for the order so that the system can place their order and start the fulfilment cycle. This process includes:
-- The Customer will start this process by clicking *"Proceed to payment"* on the *Checkout page*. This will send a request to start the payment process to the `Order Service`.
-- The `Order Service` will then request the Inventory service to place a reservation on the products requested in the `Checkout` object.
-- In case the reservation process fail due to some products being out of stock, the Inventory Service will return the error to the `Order Service` which will forward it to `Storefront`. The `Storefront` will then notified the Customer and stop the payment process.
-- If the reservation process succeed, the `Order Service` will trigger the creation of a `CheckoutPayment` object which will be managed by the `Payment Service`. Information about this object will be send back to the `Storefront` page.
-- After returning the information about the `CheckoutPayment` object to `Storefront`, the `Payment Service` will then contact the external payment provider to create a Checkout object on their server with a reference id. The `Payment Service` will then update this id into the `CheckoutPayment` object and change its status to `PROCESSING`.
-- The `Storefront` page will then periodically query the `Payment Service` the status of the `CheckoutPayment` object until its status changed to `PROCESSING`.
-- The `Storefront` page will then navigate the user to the external payment provider payment page where the customer can execute the payment.
-- After the payment has been processed by the external provider, they will navigate the customer back to the *Payment confirmation page* of our `Storefront`. 
-- At the same time, the external payment provider will also notify our `Backend` through a webhook registered to them. This webhook will then trigger the `Payment Completed` chain in our system, change the `CheckoutPayment` object status to `PAYMENT_COMPLETED`, notify the customer and create an `Order` object with the `PAYMENT_CONFIRMED` status in our system.
+The payment flow is the point at which the customer confirm their payment for the order so that the system can place their order and start the fulfilment cycle. This process can be divided into 3 phases including:
+
+![Payment Flow Sub 1](./imgs/Payment%20Flow%20Sub%201.png)
+
+- The first phase's goal is to create an internal `PaymentCheckout` object that will keep track of the payment status for the order. This phase includes the following steps:
+  - The Customer will start this phase by clicking *"Proceed to payment"* on the *Checkout page*. This will send a request to start the payment process to the `Order Service`.
+  - The `Order Service` will then request the `Inventory service` to place a reservation on the products requested in the `Checkout` object.
+  - In case the reservation process fail due to some products being out of stock, the `Inventory Service` will return the error to the `Order Service` which will forward it to `Storefront`. The `Storefront` will then notified the Customer and stop the payment process.
+  - If the reservation process succeed, the `Order Service` will trigger the creation of a `CheckoutPayment` object which will be managed by the `Payment Service`. Information about this object will be send back to the `Storefront` page which marks the end of phase 1. At the end of this phase, a `CheckoutPayment` object for the order must have been created.
+  
+![Payment Flow Sub 2](./imgs/Payment%20Flow%20Sub%202.png)
+- The second phase of the payment process will concern the communication with the external payment provider and creating a `Checkout` object on their server to serve as a basis for the Payment process. This phase includes the following steps:
+    - The creation of an internal `CheckoutPayment` object will be captured with a CDC event which will trigger the start of this phase.
+    - If the created `CheckoutPayment`'s `payment_type` is not `COD` and its `status` is `NEW`, the `Payment Service` will then contact the external payment provider to create a Checkout object on their server with a reference id which will be sent back to the `Payment Service`.
+    - The `Payment Service` will then update this id into the `CheckoutPayment` object and change its status to `PROCESSING`.
+    - At the end of this stage, the `CheckoutPayment` object status need to be changed to `PROCESSING`, and in case `payment_type` is not `COD`, the `CheckoutPayment` object should contains the external payment provider's `Checkout`'s id.
+
+![Payment Flow 3](./imgs/Payment%20Flow%20Sub%203.png)
+- The final phase of the payment process will concern the payment completion and placing order into our system. This phase includes the steps below:
+- After receiving the `CheckoutPayment` object id from phase 1, the `Storefront` page will periodically query the `Payment Service` for the status of the `CheckoutPayment` object. This will be repeated until the `CheckoutPayment`'s status changed to `PROCESSING`.
+  - The `Storefront` page will then navigate the user to the external payment provider payment page using the provided external payment provider's `Checkout` object's id. The customer can execute the payment on the external provider page.
+  - After the payment has been processed by the external provider, they will navigate the customer back to the *Payment confirmation page* of our `Storefront`. 
+  - At the same time, the external payment provider will also notify our `Backend` through a webhook registered to them. This webhook will then trigger the `Payment Completed` chain in our system, change the `CheckoutPayment` object status to `PAYMENT_COMPLETED`, notify the customer and create an `Order` object with the `PAYMENT_CONFIRMED` status in our system.
+  - After this phase, an `Order` object must be created in our system. This object will be the starting point for the order fulfilment cycle.
 - After the `Order` object has been created, we will send a notification to the customer, then the `Storefront` can request and display the `Order` info to Customer.
 
 ## Order Processing
