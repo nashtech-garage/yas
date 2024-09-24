@@ -307,6 +307,29 @@ class PromotionControllerTest {
 
     }
 
+    @Test
+    void test_getPromotion_success() throws Exception {
+        PromotionDetailVm promoDetail = PromotionDetailVm.builder()
+            .id(1L)
+            .name("Winter Sale")
+            .slug("winter-sale")
+            .description("Get up to 50% off on winter clothing.")
+            .couponCode("WINTER50")
+            .usageLimit(100)
+            .usageCount(25)
+            .discountType(DiscountType.PERCENTAGE)
+            .discountPercentage(50L)
+            .discountAmount(null)
+            .isActive(true)
+            .build();
+
+        when(promotionService.getPromotion(1L)).thenReturn(promoDetail);
+        mockMvc.perform(MockMvcRequestBuilders.get("/backoffice/promotions/{promotionId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(promoDetail)));
+    }
+
     private static @NotNull PromotionPutVm getPromotionPutVm() {
         PromotionPutVm promotionPutVm = new PromotionPutVm();
         promotionPutVm.setId(1L);

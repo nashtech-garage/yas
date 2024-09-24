@@ -1,6 +1,7 @@
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { PromotionListRequest, PromotionPage } from 'modules/promotion/models/Promotion';
-import { getPromotions } from 'modules/promotion/services/PromotionService';
+import { deletePromotion, getPromotions } from 'modules/promotion/services/PromotionService';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -14,6 +15,9 @@ const PromotionList: NextPage = () => {
   const [promotionName, setPromotionName] = useState<string>('');
   const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
   const [totalPage, setTotalPage] = useState<number>(1);
+  const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
+  const [promotionNameWantToDelete, setPromotionNameWantToDelete] = useState<string>('');
+  const [promotionIdWantToDelete, setPromotionIdWantToDelete] = useState<number>(-1);
 
   useEffect(() => {
     setIsLoading(true);
@@ -51,6 +55,15 @@ const PromotionList: NextPage = () => {
     return `${date.getFullYear()}-${month > 9 ? month : '0' + month}-${
       dateNumber > 9 ? dateNumber : '0' + dateNumber
     }`;
+  };
+
+  const handleClose: any = () => setShowModalDelete(false);
+
+  const handleDeletePromotion = () => {
+    deletePromotion(promotionIdWantToDelete).then(() => {
+      setShowModalDelete(false);
+      getPromotionList();
+    });
   };
 
   return (
@@ -126,12 +139,31 @@ const PromotionList: NextPage = () => {
                       Edit
                     </button>
                   </Link>
+                  &nbsp;
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    type="button"
+                    onClick={() => {
+                      setShowModalDelete(true);
+                      setPromotionIdWantToDelete(promotion.id);
+                      setPromotionNameWantToDelete(promotion.name);
+                    }}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={promotionNameWantToDelete}
+        handleDelete={handleDeletePromotion}
+        action="delete"
+      />
       {totalPage > 1 && (
         <ReactPaginate
           forcePage={pageNo}

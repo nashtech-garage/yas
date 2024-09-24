@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.yas.promotion.PromotionApplication;
 import com.yas.promotion.exception.BadRequestException;
 import com.yas.promotion.exception.DuplicatedException;
+import com.yas.promotion.exception.NotFoundException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.PromotionApply;
 import com.yas.promotion.model.enumeration.ApplyTo;
@@ -46,6 +47,7 @@ class PromotionServiceTest {
                 .slug("promotion-1")
                 .description("Description 1")
                 .couponCode("code1")
+                .discountType(DiscountType.PERCENTAGE)
                 .discountAmount(100L)
                 .discountPercentage(10L)
                 .isActive(true)
@@ -157,5 +159,24 @@ class PromotionServiceTest {
         assertEquals(2, result.promotionDetailVmList().size());
         PromotionDetailVm promotionDetailVm = result.promotionDetailVmList().getFirst();
         assertEquals("promotion-1", promotionDetailVm.slug());
+    }
+
+    @Test
+    void getPromotion_ThenSuccess() {
+        PromotionDetailVm result = promotionService.getPromotion(promotion1.getId());
+        assertEquals("promotion-1", result.slug());
+        assertEquals("Promotion 1", result.name());
+        assertEquals("code1", result.couponCode());
+        assertEquals(DiscountType.PERCENTAGE, result.discountType());
+        assertEquals(10L, result.discountPercentage().longValue());
+        assertEquals(100L, result.discountAmount().longValue());
+        assertEquals(true, result.isActive());
+        assertEquals(ApplyTo.BRAND, result.applyTo());
+    }
+
+    @Test
+    void getPromotion_WhenNotExist_ThenNotFoundExceptionThrown() {
+        var exception = assertThrows(NotFoundException.class, () -> promotionService.getPromotion(0L));
+        assertEquals(String.format(Constants.ErrorCode.PROMOTION_NOT_FOUND, 0L), exception.getMessage());
     }
 }
