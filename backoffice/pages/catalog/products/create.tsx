@@ -49,7 +49,7 @@ const ProductCreate: NextPage = () => {
         const responseBody = await productResponse.json();
         for (const att of data.productAttributes || []) {
           let productAtt: ProductAttributeValuePost = {
-            ProductId: responseBody.id,
+            productId: responseBody.id,
             productAttributeId: att.id,
             value: att.value,
           };
