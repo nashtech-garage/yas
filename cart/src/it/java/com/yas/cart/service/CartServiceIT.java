@@ -10,6 +10,7 @@ import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.repository.CartRepository;
+import com.yas.cart.viewmodel.CartDetailVm;
 import com.yas.cart.viewmodel.CartGetDetailVm;
 import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.cart.viewmodel.CartItemVm;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -33,9 +35,11 @@ import org.springframework.context.annotation.Import;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CartServiceIT {
 
-    final String customerId1 = "customer-1";
+    final String CUSTOMER_2 = "customer-2";
+    final String CUSTOMER_1 = "customer-1";
     private Cart cart1;
     private Cart cart2;
+
     @Autowired
     private CartRepository cartRepository;
     @Autowired
@@ -48,10 +52,8 @@ class CartServiceIT {
     @BeforeEach
     void setUp() {
 
-        cart1 = cartRepository.save(Cart
-            .builder().customerId(customerId1).build());
-        cart2 = cartRepository.save(Cart
-            .builder().customerId("customer-2").build());
+        cart1 = cartRepository.save(Cart.builder().customerId(CUSTOMER_1).build());
+        cart2 = cartRepository.save(Cart.builder().customerId(CUSTOMER_2).build());
 
         CartItem cartItem1 = new CartItem();
         cartItem1.setProductId(1L);
@@ -84,7 +86,7 @@ class CartServiceIT {
     @Test
     void getCartDetailByCustomerId_ExistingCustomer_Success() {
 
-        List<CartGetDetailVm> cartDetailVms = cartService.getCartDetailByCustomerId(customerId1);
+        List<CartGetDetailVm> cartDetailVms = cartService.getCartDetailByCustomerId(CUSTOMER_1);
 
         assertThat(cartDetailVms).hasSize(1);
 
@@ -97,7 +99,7 @@ class CartServiceIT {
 
     @Test
     void getLastCart_ExistingCarts_ReturnsLatestCart() {
-        CartGetDetailVm lastCart = cartService.getLastCart(customerId1);
+        CartGetDetailVm lastCart = cartService.getLastCart(CUSTOMER_1);
         assertThat(lastCart).isNotNull();
         assertThat(lastCart.id()).isEqualTo(cart1.getId());
     }
@@ -115,7 +117,7 @@ class CartServiceIT {
 
         List<Long> productIdList = List.of(1L);
 
-        cartService.removeCartItemListByProductIdList(productIdList, customerId1);
+        cartService.removeCartItemListByProductIdList(productIdList, CUSTOMER_1);
 
         Set<CartItem> remainingItems = cartItemRepository.findAllByCart(cart1);
         assertThat(remainingItems).isEmpty();
@@ -147,7 +149,7 @@ class CartServiceIT {
         List<Long> productIdList = List.of(4L);
 
         NotFoundException thrownException = assertThrows(NotFoundException.class, () -> {
-            cartService.removeCartItemListByProductIdList(productIdList, customerId1);
+            cartService.removeCartItemListByProductIdList(productIdList, CUSTOMER_1);
         });
 
         assertThat(thrownException).isInstanceOf(NotFoundException.class);
@@ -158,7 +160,7 @@ class CartServiceIT {
 
     @Test
     void removeCartItemByProductId_ProductExists_RemovesItem() {
-        cartService.removeCartItemByProductId(1L, customerId1);
+        cartService.removeCartItemByProductId(1L, CUSTOMER_1);
         Set<CartItem> remainingItems = cartItemRepository.findAllByCart(cart1);
         assertThat(remainingItems).isEmpty();
     }
@@ -183,29 +185,35 @@ class CartServiceIT {
 
     @Test
     void countNumberItemInCart_NonEmptyCart_ReturnsCorrectCount() {
-        Long itemCount = cartService.countNumberItemInCart(customerId1);
+        Long itemCount = cartService.countNumberItemInCart(CUSTOMER_1);
         assertThat(itemCount).isEqualTo(2);
     }
 
     @Test
+    @DisplayName("Add to cart the product which is already in cart")
     void addToCart_ProductsExist_AddsItemsToNewCart() {
-
+        // Given
+        int quantity = 2;
         List<CartItemVm> cartItemVms = List.of(
-            new CartItemVm(1L, 2, 10L)
+            new CartItemVm(1L, quantity, 10L)
         );
-
         List<ProductThumbnailVm> productThumbnails = List.of(
             new ProductThumbnailVm(1L, "A21", "A22", "A23")
         );
 
+        // When
         when(productService.getProducts(List.of(1L))).thenReturn(productThumbnails);
+        setUpSecurityContext(CUSTOMER_1);
+        long cartQuantity = cartService.countNumberItemInCart(CUSTOMER_1);
 
-        setUpSecurityContext(customerId1);
-
+        // Then
         CartGetDetailVm actual = cartService.addToCart(cartItemVms);
-        assertThat(actual.customerId()).isEqualTo(customerId1);
-        assertThat(actual.cartDetails()).hasSize(1);
-
+        assertThat(actual.customerId()).isEqualTo(CUSTOMER_1);
+        assertThat(actual.cartDetails())
+                .hasSize(1)
+                .first()
+                .extracting(CartDetailVm::quantity)
+                .isEqualTo((int) (cartQuantity + quantity));
     }
 
     @Test
@@ -252,8 +260,8 @@ class CartServiceIT {
 
         CartItemVm cartItemVm = new CartItemVm(1L, 2, 10L);
 
-        setUpSecurityContext(customerId1);
-        CartItemPutVm actual = cartService.updateCartItems(cartItemVm, customerId1);
+        setUpSecurityContext(CUSTOMER_1);
+        CartItemPutVm actual = cartService.updateCartItems(cartItemVm, CUSTOMER_1);
 
         assertThat(actual.status()).isEqualTo("PRODUCT UPDATED");
     }
@@ -263,8 +271,8 @@ class CartServiceIT {
 
         CartItemVm cartItemVm = new CartItemVm(1L, 0, 10L);
 
-        setUpSecurityContext(customerId1);
-        CartItemPutVm actual = cartService.updateCartItems(cartItemVm, customerId1);
+        setUpSecurityContext(CUSTOMER_1);
+        CartItemPutVm actual = cartService.updateCartItems(cartItemVm, CUSTOMER_1);
 
         assertThat(actual.status()).isEqualTo("PRODUCT DELETED");
     }

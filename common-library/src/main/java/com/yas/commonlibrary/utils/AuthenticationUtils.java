@@ -8,13 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-public class AuthenticationUtils {
+public final class AuthenticationUtils {
 
     private AuthenticationUtils() {
     }
 
     public static String extractUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = getAuthentication();
 
         if (authentication instanceof AnonymousAuthenticationToken) {
             throw new AccessDeniedException(ApiConstant.ACCESS_DENIED);
@@ -26,6 +26,10 @@ public class AuthenticationUtils {
     }
 
     public static String extractJwt() {
-        return ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+        return ((Jwt) getAuthentication().getPrincipal()).getTokenValue();
+    }
+
+    public static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 }

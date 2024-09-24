@@ -1,5 +1,8 @@
 package com.yas.cart.service;
 
+import static java.util.stream.Collectors.toMap;
+
+import com.yas.cart.mapper.CartGetDetailMapper;
 import com.yas.cart.model.Cart;
 import com.yas.cart.model.CartItem;
 import com.yas.cart.repository.CartItemRepository;
@@ -13,25 +16,33 @@ import com.yas.cart.viewmodel.CartListVm;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.utils.AuthenticationUtils;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.function.Function;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CartService {
     private static final String CART_ITEM_UPDATED_MSG = "PRODUCT %s";
+
+    private final CartGetDetailMapper cartGetDetailMapper;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
 
-    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository,
-                       ProductService productService) {
+    public CartService(
+            CartGetDetailMapper cartGetDetailMapper,
+            CartRepository cartRepository,
+            CartItemRepository cartItemRepository,
+            ProductService productService
+    ) {
+        this.cartGetDetailMapper = cartGetDetailMapper;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productService = productService;
@@ -43,12 +54,30 @@ public class CartService {
             .toList();
     }
 
+    @Transactional
     public List<CartGetDetailVm> getCartDetailByCustomerId(String customerId) {
         return cartRepository.findByCustomerId(customerId)
             .stream().map(CartGetDetailVm::fromModel)
             .toList();
     }
 
+    /**
+     * Handles the process of adding items to the shopping cart.
+     * This method will create a new cart if one does not exist for the current user, and
+     * it will add or update cart items accordingly.
+     *
+     * <p><strong>Cart:</strong><br>
+     * - If the current user does not have an existing cart, the system will create a new cart.<br>
+     *
+     * <p><strong>Cart Item:</strong><br>
+     * - If the cart item does not exist, a new one will be created.<br>
+     * - If the cart item already exists, the quantity will be updated by adding the requested quantity
+     *   to the current quantity.
+     *
+     * @param cartItemVms the list of {@link CartItemVm} objects representing the cart items to be added or updated.
+     * @return the {@link CartGetDetailVm} object containing the updated cart details.
+     */
+    @Transactional
     public CartGetDetailVm addToCart(List<CartItemVm> cartItemVms) {
         // Call API to check all products will be added to cart are existed
         List<Long> productIds = cartItemVms.stream().map(CartItemVm::productId).toList();
@@ -57,12 +86,9 @@ public class CartService {
             throw new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT, productIds);
         }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String customerId = auth.getName();
-
+        String customerId = AuthenticationUtils.getAuthentication().getName();
         Cart cart = cartRepository.findByCustomerIdAndOrderIdIsNull(customerId).stream().findFirst().orElse(null);
         Set<CartItem> existedCartItems = new HashSet<>();
-
         if (cart == null) {
             cart = Cart.builder()
                 .customerId(customerId)
@@ -70,40 +96,33 @@ public class CartService {
                 .build();
             cart.setCreatedOn(ZonedDateTime.now());
         } else {
-            existedCartItems = cartItemRepository.findAllByCart(cart);
+            existedCartItems = cart.getCartItems();
         }
 
+        Map<Long, CartItem> productIdToCartItemMap = existedCartItems
+                .stream()
+                .collect(toMap(CartItem::getProductId, Function.identity()));
         for (CartItemVm cartItemVm : cartItemVms) {
-            CartItem cartItem = getCartItemByProductId(existedCartItems, cartItemVm.productId());
-            if (cartItem.getId() != null) {
+            CartItem cartItem;
+            if (productIdToCartItemMap.containsKey(cartItemVm.productId())) {
+                cartItem = productIdToCartItemMap.get(cartItemVm.productId());
                 cartItem.setQuantity(cartItem.getQuantity() + cartItemVm.quantity());
             } else {
+                cartItem = new CartItem();
                 cartItem.setCart(cart);
-                cartItem.setProductId(cartItemVm.productId());
                 cartItem.setQuantity(cartItemVm.quantity());
+                cartItem.setProductId(cartItemVm.productId());
                 cartItem.setParentProductId(cartItemVm.parentProductId());
-                cart.getCartItems().add(cartItem);
             }
+            cart.getCartItems().add(cartItem);
         }
-        cart = cartRepository.save(cart);
-        cartItemRepository.saveAll(cart.getCartItems());
-
-        return CartGetDetailVm.fromModel(cart);
+        return cartGetDetailMapper.toVm(cartRepository.save(cart));
     }
 
     public CartGetDetailVm getLastCart(String customerId) {
         return cartRepository.findByCustomerIdAndOrderIdIsNull(customerId)
             .stream().reduce((first, second) -> second)
             .map(CartGetDetailVm::fromModel).orElse(CartGetDetailVm.fromModel(new Cart()));
-    }
-
-    private CartItem getCartItemByProductId(Set<CartItem> cartItems, Long productId) {
-        for (CartItem cartItem : cartItems) {
-            if (cartItem.getProductId().equals(productId)) {
-                return cartItem;
-            }
-        }
-        return new CartItem();
     }
 
     public CartItemPutVm updateCartItems(CartItemVm cartItemVm, String customerId) {
