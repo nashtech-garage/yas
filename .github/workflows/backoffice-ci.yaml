@@ -68,7 +68,7 @@ jobs:
           tags: ghcr.io/nashtech-garage/yas-backoffice:latest
       - name: Run Trivy vulnerability scanner
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: 'ghcr.io/nashtech-garage/yas-backoffice:latest'
           format: 'sarif'
@@ -80,6 +80,6 @@ jobs:
           push: true
           tags: ghcr.io/nashtech-garage/yas-backoffice:latest
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
