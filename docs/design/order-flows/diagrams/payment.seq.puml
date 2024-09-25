@@ -9,6 +9,8 @@ box YAS
     participant "Order Service" as order_service #3498db    
     entity "Checkout" as checkout #3498db
     entity "Order" as order #3498db
+    participant "Shopping Cart" as shopping_cart #a9cce3
+    participant "Promotion Service" as promotion_service #8af1f0
     participant "Payment Service" as payment_service #73c6b6
     participant "Inventory Service" as inventory_service #808b96
     entity "Checkout Payment" as checkout_payment #73c6b6
@@ -106,6 +108,9 @@ activate payment_provider #73c6b6
   activate order_service #3498db
     order_service -> checkout: update { status=PAYMENT_CONFIRMED }
     order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
+    order --> order_service: order
+    order_service --> shopping_cart: DELETE cart/items?{products:[{productIds, quantity}]}
+    order_service --> promotion_service: PATCH /promotion/promotions/{PROMOCODE}/usage/{id}/state /n {state = USED}
     order_service --> notification_service
     activate notification_service #fad7a0
       notification_service --> customer: notification for order creation

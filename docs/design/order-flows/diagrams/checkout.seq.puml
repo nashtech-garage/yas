@@ -8,12 +8,12 @@ box YAS
     participant "Storefront" as storefront #fdf2e9        
     participant "Order Service" as order_service #3498db    
     entity "Checkout" as checkout #3498db
-    participant "Shopping Cart" as shopping_cart #a9cce3
     participant "Payment Service" as payment_service #73c6b6
     participant "Shipment Service" as shipment_service #c39bd3
-    participant "Inventory Service" as inventory_service #808b96
+    participant "Promotion Service" as promotion_service #8af1f0
     participant "Product Service" as product_service #28b463 
     participant "Customer Service" as customer_service #fad7a0
+    participant "Shopping Cart" as shopping_cart #a9cce3
 end box 
 
 participant "Shipment Provider" as shipment_provider #c39bd3
@@ -42,7 +42,6 @@ activate storefront #fdf2e9
     deactivate product_service
     order_service -> checkout **: Create Checkout
     order_service <-- checkout
-    order_service -> shopping_cart: DELETE cart/items
     storefront <-- order_service: checkout
   deactivate order_service
   storefront -> payment_service: GET /payment/methods
@@ -95,6 +94,29 @@ activate customer
     deactivate checkout 
   deactivate storefront
 
+  'Add coupon code
+  customer -> storefront: Add coupon code
+  activate storefront #fdf2e9
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { coupon_code }
+    activate order_service #3498db
+      order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/usage /n {checkoutDetail, state = RESERVED}
+      activate promotion_service #8af1f0
+      promotion_service -> promotion_service: verify applicability
+        alt #f1948a "Promo code not applicable"
+          promotion_service --> order_service: 400 BAD REQUEST
+          order_service --> storefront: 400 BAD REQUEST
+          storefront --> customer: Code not applicable
+        else #baf18a "Apply successfully" 
+          promotion_service --> order_service: 201 CREATED {usageId, couponContent}
+          deactivate promotion_service
+          order_service -> checkout: Add Promocode and update payment amount
+          deactivate order_service
+          activate checkout #3498db
+            checkout --> order_service: Event: calculate-shipping-fees
+          deactivate checkout 
+        end
+  deactivate storefront
+   
   'Pick a shipping address
   customer -> storefront: Pick a shipping address
   activate storefront #fdf2e9
