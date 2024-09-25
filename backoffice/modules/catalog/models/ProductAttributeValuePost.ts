@@ -1,5 +1,5 @@
 export type ProductAttributeValuePost = {
-  ProductId: number;
+  productId: number;
   productAttributeId?: number;
   value: string;
 };
