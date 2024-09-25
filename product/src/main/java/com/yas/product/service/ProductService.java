@@ -820,6 +820,18 @@ public class ProductService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND, id));
         product.setPublished(false);
+
+        if (!Objects.isNull(product.getParent())) {
+
+            Optional<ProductOptionCombination> productOptionCombination = productOptionCombinationRepository
+                .findByProductId(id);
+
+            productOptionCombination.ifPresent(poc -> {
+                productOptionCombinationRepository.deleteByProductId(id);
+                productOptionValueRepository.deleteByProductIdAndValue(product.getParent().getId(), poc.getValue());
+            });
+        }
+
         productRepository.save(product);
     }
 
