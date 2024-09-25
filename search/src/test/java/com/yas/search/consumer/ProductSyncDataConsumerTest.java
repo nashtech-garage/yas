@@ -5,7 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.gson.JsonObject;
-import com.yas.search.constants.Action;
+import com.yas.search.constant.Action;
 import com.yas.search.service.ProductSyncDataService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;

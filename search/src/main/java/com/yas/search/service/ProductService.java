@@ -4,9 +4,10 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import com.yas.search.constant.documentations.ProductField;
+import com.yas.search.constant.ProductField;
 import com.yas.search.constant.enums.SortType;
-import com.yas.search.document.Product;
+import com.yas.search.model.Product;
+import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.viewmodel.ProductGetVm;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameGetVm;
@@ -37,15 +38,7 @@ public class ProductService {
         this.elasticsearchOperations = elasticsearchOperations;
     }
 
-    public ProductListGetVm findProductAdvance(String keyword,
-                                               Integer page,
-                                               Integer size,
-                                               String brand,
-                                               String category,
-                                               String attribute,
-                                               Double minPrice,
-                                               Double maxPrice,
-                                               SortType sortType) {
+    public ProductListGetVm findProductAdvance(ProductCriteriaDto productCriteria) {
         NativeQueryBuilder nativeQuery = NativeQuery.builder()
                 .withAggregation("categories", Aggregation.of(a -> a
                         .terms(ta -> ta.field(ProductField.CATEGORIES))))
@@ -58,28 +51,28 @@ public class ProductService {
                                 .should(s -> s
                                         .multiMatch(m -> m
                                                 .fields(ProductField.NAME, ProductField.BRAND)
-                                                .query(keyword)
+                                                .query(productCriteria.keyword())
                                                 .fuzziness(Fuzziness.ONE.asString())
                                         )
                                 )
                         )
                 )
-                .withPageable(PageRequest.of(page, size));
+                .withPageable(PageRequest.of(productCriteria.page(), productCriteria.size()));
 
 
         nativeQuery.withFilter(f -> f
                 .bool(b -> {
-                    extractedStr(brand, ProductField.BRAND, b);
-                    extractedStr(category, ProductField.CATEGORIES, b);
-                    extractedStr(attribute, ProductField.ATTRIBUTES, b);
-                    extractedRange(minPrice, maxPrice, ProductField.PRICE, b);
+                    extractedStr(productCriteria.brand(), ProductField.BRAND, b);
+                    extractedStr(productCriteria.category(), ProductField.CATEGORIES, b);
+                    extractedStr(productCriteria.attribute(), ProductField.ATTRIBUTES, b);
+                    extractedRange(productCriteria.minPrice(), productCriteria.maxPrice(), b);
                     return b;
                 })
         );
 
-        if (sortType == SortType.PRICE_ASC) {
+        if (productCriteria.sortType() == SortType.PRICE_ASC) {
             nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.PRICE));
-        } else if (sortType == SortType.PRICE_DESC) {
+        } else if (productCriteria.sortType() == SortType.PRICE_DESC) {
             nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
         } else {
             nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.CREATE_ON));
@@ -116,11 +109,11 @@ public class ProductService {
         }
     }
 
-    private void extractedRange(Number min, Number max, String productField, BoolQuery.Builder b) {
+    private void extractedRange(Number min, Number max, BoolQuery.Builder bool) {
         if (min != null || max != null) {
-            b.must(m -> m
+            bool.must(m -> m
                     .range(r -> r
-                            .field(productField)
+                            .field(ProductField.PRICE)
                             .from(min != null ? min.toString() : null)
                             .to(max != null ? max.toString() : null)
                     )

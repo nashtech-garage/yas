@@ -1,4 +1,4 @@
-package com.yas.search.constants;
+package com.yas.search.constant;
 
 public final class Action {
     public static final String UPDATE = "u";
