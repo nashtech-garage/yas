@@ -133,7 +133,8 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       if (isEmptyOptions) return;
       const optionValue = (document.getElementById(option) as HTMLInputElement).value;
       if (optionValue === '') {
-        return (isEmptyOptions = true);
+        isEmptyOptions = true;
+        return;
       }
       const productOption = productOptions.find((productOption) => productOption.name === option);
       const productOptionId = productOption?.id ?? -1;

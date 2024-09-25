@@ -1,6 +1,5 @@
 import { Media } from './Media';
 import { ProductAttributeValue } from './ProductAttributeValue';
-import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariation } from './ProductVariation';
 
 export type FormProduct = {

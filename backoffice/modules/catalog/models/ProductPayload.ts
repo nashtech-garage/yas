@@ -80,9 +80,9 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
 
 const createProductOptionValues = (productVariations: ProductVariation[]) => {
   let productOptionValues: ProductOptionValuePost[] = [];
-  productVariations.map((variation) => {
+  productVariations.forEach((variation) => {
     const option = variation.optionValuesByOptionId;
-    Object.entries(option).map((entry) => {
+    Object.entries(option).forEach((entry) => {
       const id = +entry[0];
       const value = entry[1];
       let optionValue = productOptionValues.find((option) => {
