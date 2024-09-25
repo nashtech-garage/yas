@@ -95,12 +95,23 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
   const onGenerate = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    let formProductVariations = getValue('productVariations') || [];
+    const formProductVariations = getValue('productVariations') || [];
     const optionValuesByOptionId = generateProductOptionCombinations();
+    
+    if (optionValuesByOptionId.size === 0) {
+      return toast.warn("Please Input Values Option")
+    }
+    
     const productName = getValue('name');
     const variationName = [productName, ...Array.from(optionValuesByOptionId.values())]
       .join(' ')
       .trim();
+    
+      const checkVariationName = formProductVariations.some(variation => variation.optionName == variationName)
+
+    if (checkVariationName) {
+      return toast.warning("Combined Option Values are Duplicated")
+    }
 
     const newVariation: ProductVariation = {
       optionName: variationName,
@@ -115,19 +126,16 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
   const generateProductOptionCombinations = (): Map<number, string> => {
     const optionValuesByOptionId = new Map<number, string>();
-    const formProductOptions = getValue('productOptions') || [];
-
+    let isEmptyOptions = false
     selectedOptions.forEach((option) => {
+      if (isEmptyOptions) return;
       const optionValue = (document.getElementById(option) as HTMLInputElement).value;
-
+      if (optionValue === "") { return isEmptyOptions = true }
       const productOption = productOptions.find((productOption) => productOption.name === option);
       const productOptionId = productOption?.id ?? -1;
-      formProductOptions.push({ productOptionId: productOptionId, value: [optionValue] });
-      setValue('productOptions', formProductOptions);
       optionValuesByOptionId.set(productOptionId, optionValue);
     });
-
-    return optionValuesByOptionId;
+    return isEmptyOptions ? new Map<number, string>() : optionValuesByOptionId;
   };
 
   const onDeleteVariation = (variant: ProductVariation) => {
