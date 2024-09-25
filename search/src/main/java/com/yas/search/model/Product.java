@@ -1,4 +1,4 @@
-package com.yas.search.document;
+package com.yas.search.model;
 
 import java.time.ZonedDateTime;
 import java.util.List;

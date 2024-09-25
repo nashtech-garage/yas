@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.yas.search.ElasticsearchApplication;
 import com.yas.search.constant.enums.SortType;
+import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.service.ProductService;
 import com.yas.search.viewmodel.ProductGetVm;
 import com.yas.search.viewmodel.ProductListGetVm;
@@ -61,8 +62,10 @@ class ProductControllerTest {
         ProductListGetVm mockResponse = new ProductListGetVm(
             List.of(productGetVm), 0, 1, 1, 1, true, Map.of()
         );
-        when(productService.findProductAdvance(eq("test"), eq(0), eq(12), any(), any(),
-            any(), any(), any(), eq(SortType.DEFAULT)))
+
+
+
+        when(productService.findProductAdvance(any(ProductCriteriaDto.class)))
             .thenReturn(mockResponse);
 
         mockMvc.perform(get("/storefront/catalog-search")
