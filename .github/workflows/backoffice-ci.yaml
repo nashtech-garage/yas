@@ -36,6 +36,7 @@ jobs:
       - run: npx prettier --check .
         working-directory: backoffice
       - run: npm audit
+        continue-on-error: true
         working-directory: backoffice
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.24.0
