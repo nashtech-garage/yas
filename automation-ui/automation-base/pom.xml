@@ -14,7 +14,7 @@
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <!-- TODO: request create sonar key       -->
-        <sonar.projectKey>nashtech-garage_yas-automation-ui-automation_base</sonar.projectKey>
+        <sonar.projectKey>nashtech-garage_yas-automation-ui-base</sonar.projectKey>
     </properties>
 
     <dependencies>
