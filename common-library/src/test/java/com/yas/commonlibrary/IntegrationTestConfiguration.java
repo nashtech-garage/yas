@@ -1,4 +1,4 @@
-package com.yas.product.config;
+package com.yas.commonlibrary;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.springframework.boot.test.context.TestConfiguration;
