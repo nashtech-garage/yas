@@ -78,6 +78,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
+          context: ./backoffice
           tags: ghcr.io/nashtech-garage/yas-backoffice:latest
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
