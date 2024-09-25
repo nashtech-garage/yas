@@ -7,42 +7,48 @@
         <groupId>com.yas</groupId>
         <artifactId>automation-ui</artifactId>
         <version>${revision}</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
-    <artifactId>storefront</artifactId>
+    <artifactId>automation-base</artifactId>
 
     <properties>
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-automation-ui-storefront</sonar.projectKey>
+        <!-- TODO: request create sonar key       -->
+        <sonar.projectKey>nashtech-garage_yas-automation-ui-base</sonar.projectKey>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.yas</groupId>
-            <artifactId>automation-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>${cucumber-testng.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
