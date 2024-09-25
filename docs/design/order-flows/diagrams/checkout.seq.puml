@@ -90,33 +90,10 @@ activate customer
       order_service -> checkout: Update shipment provider
     deactivate order_service
     activate checkout #3498db
-      checkout --> order_service: Event: calculate-shipping-fees
+      checkout --> order_service: CDC Event: calculate-payment-amount
     deactivate checkout 
   deactivate storefront
 
-  'Add coupon code
-  customer -> storefront: Add coupon code
-  activate storefront #fdf2e9
-    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { coupon_code }
-    activate order_service #3498db
-      order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/usage /n {checkoutDetail, state = RESERVED}
-      activate promotion_service #8af1f0
-      promotion_service -> promotion_service: verify applicability
-        alt #f1948a "Promo code not applicable"
-          promotion_service --> order_service: 400 BAD REQUEST
-          order_service --> storefront: 400 BAD REQUEST
-          storefront --> customer: Code not applicable
-        else #baf18a "Apply successfully" 
-          promotion_service --> order_service: 201 CREATED {usageId, couponContent}
-          deactivate promotion_service
-          order_service -> checkout: Add Promocode and update payment amount
-          deactivate order_service
-          activate checkout #3498db
-            checkout --> order_service: Event: calculate-shipping-fees
-          deactivate checkout 
-        end
-  deactivate storefront
-   
   'Pick a shipping address
   customer -> storefront: Pick a shipping address
   activate storefront #fdf2e9
@@ -125,13 +102,36 @@ activate customer
       order_service -> checkout: Update shipping address
     deactivate order_service
     activate checkout #3498db
-      checkout --> order_service: Event: calculate-shipping-fees
+      checkout --> order_service: CDC Event: calculate-payment-amount
     deactivate checkout 
   deactivate storefront
+  
+  'Add coupon code
+  customer -> storefront: Add coupon code
+  activate storefront #fdf2e9
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { coupon_code }
+    activate order_service #3498db
+      order_service -> promotion_service: GET /promotion/promotions/{PROMOCODE}/check /n {checkoutDetail}
+      activate promotion_service #8af1f0
+      promotion_service -> promotion_service: verify applicability
+        alt #f1948a "Promo code not applicable"
+          promotion_service --> order_service: 200 OK {status: Invalid, details: {cause}}
+          order_service --> storefront: 404 NOT FOUND
+          storefront --> customer: Code does not exist or has run out
+        else #baf18a "Promo code is applicable" 
+          promotion_service --> order_service: 200 OK {status: Valid, details: couponContent}
+          deactivate promotion_service
+          order_service -> checkout: Add Promocode and update payment amount
+          deactivate order_service
+          activate checkout #3498db
+            checkout --> order_service: CDC Event: calculate-payment-amount
+          deactivate checkout 
+          activate order_service #3498db  
+        end
+  deactivate storefront 
 deactivate customer
 
-alt "checkout has full shipment infomation"
-  activate order_service #3498db  
+alt "checkout has full required infomation"
     order_service -> shipment_service: POST /shipment/calculate {shipment_provider, address, items}
     activate shipment_service #c39bd3
       shipment_service -> shipment_provider: POST /shipment/calculate {shipment_provider, address, items}
@@ -146,7 +146,7 @@ end
 
 storefront --> storefront: reload checkout for fulfill information
 activate storefront #fdf2e9
-  loop  "reload to get shipment fees"
+  loop  "reload to get payment amount"
     storefront -> order_service: GET /order/checkouts/{checkout_id}
     activate order_service #3498db
       order_service -> checkout: load Checkout information

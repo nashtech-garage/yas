@@ -28,6 +28,17 @@ activate storefront #fdf2e9
   activate order_service #3498db
     order_service -> checkout **: find by {checkout_id}
     order_service <-- checkout: checkout
+    order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/usage {checkout_id, state: APPLIED}
+    activate promotion_service #8af1f0
+    alt #f1948a "Fail to apply"
+    promotion_service --> order_service: 422 UNPROCESSABLE CONTENT {ERROR_CODE: PROMOCODE_RAN_OUT| PROMOCODE_EXPIRED}
+    order_service --> checkout: Remove promo code
+    order_service --> storefront: 400 BAD REQUEST {ERROR_CODE: PROMOCODE_RAN_OUT| PROMOCODE_EXPIRED}
+    storefront --> customer:  PROMOCODE ran out of usage| Promocode expired
+    else #baf18a "Apply successfully"
+    promotion_service --> order_service: 201 CREATED 
+    end
+    deactivate promotion_service
     order_service -> inventory_service: POST /inventory/products/stocks { product_items }
     note right of order_service
       lock stocks for product_items
@@ -47,6 +58,7 @@ activate storefront #fdf2e9
       end note
     deactivate inventory_service
     alt #f1948a "any out of stock"
+      order_service --> promotion_service: Event: rollback promocode usage
       order_service --> storefront: 400 Bad Request { ERROR_CODE: OUT_OF_STOCK, payload: { <product_id_02>: OUT_OF_STOCK } }
       storefront --> customer: out of stock error
     end
@@ -110,7 +122,6 @@ activate payment_provider #73c6b6
     order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
     order --> order_service: order
     order_service --> shopping_cart: DELETE cart/items?{products:[{productIds, quantity}]}
-    order_service --> promotion_service: PATCH /promotion/promotions/{PROMOCODE}/usage/{id}/state /n {state = USED}
     order_service --> notification_service
     activate notification_service #fad7a0
       notification_service --> customer: notification for order creation
