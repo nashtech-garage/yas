@@ -97,20 +97,22 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     event.preventDefault();
     const formProductVariations = getValue('productVariations') || [];
     const optionValuesByOptionId = generateProductOptionCombinations();
-    
+
     if (optionValuesByOptionId.size === 0) {
-      return toast.warn("Please Input Values Option")
+      return toast.warn('Please Input Values Option');
     }
-    
+
     const productName = getValue('name');
     const variationName = [productName, ...Array.from(optionValuesByOptionId.values())]
       .join(' ')
       .trim();
-    
-      const checkVariationName = formProductVariations.some(variation => variation.optionName == variationName)
+
+    const checkVariationName = formProductVariations.some(
+      (variation) => variation.optionName == variationName
+    );
 
     if (checkVariationName) {
-      return toast.warning("Combined Option Values are Duplicated")
+      return toast.warning('Combined Option Values are Duplicated');
     }
 
     const newVariation: ProductVariation = {
@@ -126,11 +128,13 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
   const generateProductOptionCombinations = (): Map<number, string> => {
     const optionValuesByOptionId = new Map<number, string>();
-    let isEmptyOptions = false
+    let isEmptyOptions = false;
     selectedOptions.forEach((option) => {
       if (isEmptyOptions) return;
       const optionValue = (document.getElementById(option) as HTMLInputElement).value;
-      if (optionValue === "") { return isEmptyOptions = true }
+      if (optionValue === '') {
+        return (isEmptyOptions = true);
+      }
       const productOption = productOptions.find((productOption) => productOption.name === option);
       const productOptionId = productOption?.id ?? -1;
       optionValuesByOptionId.set(productOptionId, optionValue);

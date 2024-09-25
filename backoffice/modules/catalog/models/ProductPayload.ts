@@ -59,18 +59,18 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
     productImageIds: data.productImageMedias?.map((image) => image.id),
     variations: data.productVariations
       ? data.productVariations.map((variant) => {
-        return {
-          id: variant.id,
-          name: variant.optionName,
-          slug: slugify(variant.optionName, { lower: true, strict: true }),
-          sku: variant.optionSku,
-          gtin: variant.optionGTin,
-          price: variant.optionPrice,
-          thumbnailMediaId: variant.optionThumbnail?.id,
-          productImageIds: variant.optionImages?.map((image) => image.id),
-          optionValuesByOptionId: variant.optionValuesByOptionId,
-        };
-      })
+          return {
+            id: variant.id,
+            name: variant.optionName,
+            slug: slugify(variant.optionName, { lower: true, strict: true }),
+            sku: variant.optionSku,
+            gtin: variant.optionGTin,
+            price: variant.optionPrice,
+            thumbnailMediaId: variant.optionThumbnail?.id,
+            productImageIds: variant.optionImages?.map((image) => image.id),
+            optionValuesByOptionId: variant.optionValuesByOptionId,
+          };
+        })
       : [],
     productOptionValues: createProductOptionValues(data.productVariations || []),
     relatedProductIds: data.relateProduct,
@@ -81,24 +81,25 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
 const createProductOptionValues = (productVariations: ProductVariation[]) => {
   let productOptionValues: ProductOptionValuePost[] = [];
   productVariations.map((variation) => {
-    const option = variation.optionValuesByOptionId
+    const option = variation.optionValuesByOptionId;
     Object.entries(option).map((entry) => {
       const id = +entry[0];
       const value = entry[1];
-      let optionValue = productOptionValues.find((option) => { return option.productOptionId === id })
+      let optionValue = productOptionValues.find((option) => {
+        return option.productOptionId === id;
+      });
       if (optionValue) {
         if (!optionValue.value.includes(value)) {
-          optionValue.value.push(value)
+          optionValue.value.push(value);
         }
-      }
-      else {
+      } else {
         productOptionValues.push({
           productOptionId: id,
           displayOrder: 1,
-          value: [value]
-        })
+          value: [value],
+        });
       }
-    })
-  })
-  return productOptionValues
-}
+    });
+  });
+  return productOptionValues;
+};
