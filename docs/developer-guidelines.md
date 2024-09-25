@@ -63,4 +63,4 @@ The frontend (storefont and backoffice) needs to run behind the bff, storefront-
 
 - Notes for working with `Search` service and `ElasticSearch`
   - In `application.properties` of search module: change spring.kafka.consumer.bootstrap-servers=`kafka:9092` to `http://localhost:29092`
-  - In logback-spring.xml of search module: add `<logger name="org.springframework.data.elasticsearch.client.WIRE" level="trace" />` to show query generated in console
+  - In logback-spring.xml of search module: add `<logger name="org.apache.http.wire" level="DEBUG"/>` to show query generated in console
