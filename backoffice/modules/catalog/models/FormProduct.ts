@@ -29,6 +29,5 @@ export type FormProduct = {
   crossSell?: number[]; // product id
   productAttributes?: ProductAttributeValue[];
   productVariations?: ProductVariation[];
-  productOptions?: ProductOptionValuePost[];
   taxClassId?: number;
 };
