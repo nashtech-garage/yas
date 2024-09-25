@@ -56,7 +56,7 @@ The payment flow is the point at which the customer confirm their payment for th
 
 ![Payment Flow 3](./imgs/Payment%20Flow%20Sub%203.png)
 - The final phase of the payment process will concern the payment completion and placing order into our system. This phase includes the steps below:
-- After receiving the `CheckoutPayment` object id from phase 1, the `Storefront` page will periodically query the `Payment Service` for the status of the `CheckoutPayment` object. This will be repeated until the `CheckoutPayment`'s status changed to `PROCESSING`.
+  - After receiving the `CheckoutPayment` object id from phase 1, the `Storefront` page will periodically query the `Payment Service` for the status of the `CheckoutPayment` object. This will be repeated until the `CheckoutPayment`'s status changed to `PROCESSING`.
   - The `Storefront` page will then navigate the user to the external payment provider payment page using the provided external payment provider's `Checkout` object's id. The customer can execute the payment on the external provider page.
   - After the payment has been processed by the external provider, they will navigate the customer back to the *Payment confirmation page* of our `Storefront`. 
   - At the same time, the external payment provider will also notify our `Backend` through a webhook registered to them. This webhook will then trigger the `Payment Completed` chain in our system, change the `CheckoutPayment` object status to `PAYMENT_COMPLETED`, notify the customer and create an `Order` object with the `PAYMENT_CONFIRMED` status in our system.
