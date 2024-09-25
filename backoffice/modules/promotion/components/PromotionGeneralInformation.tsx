@@ -183,6 +183,7 @@ const PromotionGeneralInformation = ({
       />
       {discountType === 'PERCENTAGE' && (
         <Input
+          type="number"
           labelText="Discount percentage"
           field="discountPercentage"
           defaultValue={promotion?.discountPercentage}
@@ -195,6 +196,7 @@ const PromotionGeneralInformation = ({
       )}
       {discountType === 'FIXED' && (
         <Input
+          type="number"
           labelText="Discount amount"
           field="discountAmount"
           defaultValue={promotion?.discountAmount}
@@ -225,6 +227,7 @@ const PromotionGeneralInformation = ({
       />
       {usageType === 'LIMITED' && (
         <Input
+          type="number"
           labelText="Usage limit"
           field="usageLimit"
           defaultValue={promotion?.usageLimit}
@@ -235,6 +238,17 @@ const PromotionGeneralInformation = ({
           error={errors.usageLimit?.message}
         />
       )}
+      <Input
+        type="number"
+        labelText="Minimum order purchase amount"
+        field="minimumOrderPurchaseAmount"
+        defaultValue={promotion?.minimumOrderPurchaseAmount}
+        register={register}
+        registerOptions={{
+          required: { value: true, message: 'Minimum order purchase amount' },
+        }}
+        error={errors.minimumOrderPurchaseAmount?.message}
+      />
       <Switch
         labelText="Active"
         field="isActive"

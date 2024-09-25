@@ -47,6 +47,7 @@ const PromotionUpdate: NextPage = () => {
     setValue('usageLimit', promotion.usageLimit);
     setValue('usageType', promotion.usageType);
     setValue('discountType', promotion.discountType);
+    setValue('minimumOrderPurchaseAmount', promotion.minimumOrderPurchaseAmount);
     setValue('description', promotion.description);
     setValue('brandIds', promotion.brands?.map((brand) => brand.id) ?? []);
     setValue('categoryIds', promotion.categories?.map((category) => category.id) ?? []);

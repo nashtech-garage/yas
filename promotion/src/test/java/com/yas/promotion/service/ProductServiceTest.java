@@ -64,20 +64,8 @@ class ProductServiceTest {
         when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
 
-        ProductVm product = new ProductVm(
-            1L,
-            "Example Product",
-            "example-product",
-            true,
-            true,
-            false,
-            true,
-            ZonedDateTime.now(),
-            2L
-        );
-
         when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductVm>>() {}))
-            .thenReturn(ResponseEntity.ok(List.of(product)));
+            .thenReturn(ResponseEntity.ok(createProductVms()));
 
         List<ProductVm> result = productService.getProductByIds(ids);
 
@@ -154,9 +142,80 @@ class ProductServiceTest {
         assertThat(result.getFirst().id()).isEqualTo(3);
     }
 
+    @Test
+    void testGetProductByCategoryIds_ifNormalCase_returnProductVms() {
+
+        List<Long> ids = List.of(1L);
+
+        URI url = UriComponentsBuilder
+            .fromHttpUrl(serviceUrlConfig.product())
+            .path("/backoffice/products/by-categories")
+            .queryParams(createIdParams(ids))
+            .build()
+            .toUri();
+
+        RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(url)).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+
+        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductVm>>() {}))
+            .thenReturn(ResponseEntity.ok(createProductVms()));
+
+        List<ProductVm> result = productService.getProductByCategoryIds(ids);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().id()).isEqualTo(1);
+    }
+
+    @Test
+    void testGetProductByBrandIds_ifNormalCase_returnProductVms() {
+
+        List<Long> ids = List.of(1L);
+
+        URI url = UriComponentsBuilder
+            .fromHttpUrl(serviceUrlConfig.product())
+            .path("/backoffice/products/by-brands")
+            .queryParams(createIdParams(ids))
+            .build()
+            .toUri();
+
+        RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(url)).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+
+        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductVm>>() {}))
+            .thenReturn(ResponseEntity.ok(createProductVms()));
+
+        List<ProductVm> result = productService.getProductByBrandIds(ids);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().id()).isEqualTo(1);
+    }
+
     private MultiValueMap<String, String> createIdParams(List<Long> ids) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         ids.stream().map(Objects::toString).forEach(id -> params.add("ids", id));
         return params;
+    }
+
+    private List<ProductVm> createProductVms() {
+        return List.of(
+            new ProductVm(
+                1L,
+                "Product 01",
+                "product-01",
+                true,
+                true,
+                false,
+                true,
+                10000000.0,
+                ZonedDateTime.now(),
+                2L
+            )
+        );
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     Optional<Promotion> findBySlugAndIsActiveTrue(String slug);
 
+    Optional<Promotion> findByCouponCodeAndIsActiveTrue(String couponCode);
+
     @Query("SELECT p FROM Promotion p "
             + "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%',:name,'%')) "
             + "AND LOWER(p.couponCode) LIKE LOWER(CONCAT('%',:couponCode,'%')) "

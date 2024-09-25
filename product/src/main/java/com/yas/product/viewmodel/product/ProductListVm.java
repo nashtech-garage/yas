@@ -10,6 +10,7 @@ public record ProductListVm(Long id,
                             Boolean isPublished,
                             Boolean isFeatured,
                             Boolean isVisibleIndividually,
+                            Double price,
                             ZonedDateTime createdOn,
                             Long taxClassId) {
     public static ProductListVm fromModel(Product product) {
@@ -21,6 +22,7 @@ public record ProductListVm(Long id,
                 product.isPublished(),
                 product.isFeatured(),
                 product.isVisibleIndividually(),
+                product.getPrice(),
                 product.getCreatedOn(),
                 product.getTaxClassId()
         );
