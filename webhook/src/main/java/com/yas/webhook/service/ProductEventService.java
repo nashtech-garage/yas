@@ -10,11 +10,10 @@ import com.yas.webhook.model.enums.EventName;
 import com.yas.webhook.model.enums.Operation;
 import com.yas.webhook.repository.EventRepository;
 import com.yas.webhook.repository.WebhookEventNotificationRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -30,14 +29,14 @@ public class ProductEventService extends AbstractWebhookEventNotificationService
             return;
         }
         Event event = eventRepository.findByName(EventName.ON_PRODUCT_UPDATED)
-                .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, EventName.ON_PRODUCT_UPDATED));
+            .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, EventName.ON_PRODUCT_UPDATED));
         List<WebhookEvent> hookEvents = event.getWebhookEvents();
         hookEvents.forEach(hookEvent -> {
             JsonNode payload = updatedEvent.get("after");
             Long notificationId = super.persistNotification(hookEvent.getId(), payload);
 
             WebhookEventNotificationDto dto = super.createNotificationDto(hookEvent, payload,
-                    notificationId);
+                notificationId);
             webhookService.notifyToWebhook(dto);
         });
     }

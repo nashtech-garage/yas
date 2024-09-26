@@ -21,7 +21,7 @@ public class WebhookApi {
     public void notify(String url, String secret, JsonNode jsonNode) {
 
         RequestBodySpec requestBodySpec = restClient.post()
-                .uri(url);
+            .uri(url);
 
         if (StringUtils.isNoneEmpty(secret)) {
             String secretToken = HmacUtils.hash(jsonNode.toString(), secret);
@@ -29,7 +29,7 @@ public class WebhookApi {
         }
 
         requestBodySpec.body(jsonNode)
-                .retrieve()
-                .toBodilessEntity();
+            .retrieve()
+            .toBodilessEntity();
     }
 }

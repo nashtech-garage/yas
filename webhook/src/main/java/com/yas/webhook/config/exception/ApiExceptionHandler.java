@@ -5,6 +5,7 @@ import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.webhook.model.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolationException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-
-import java.util.List;
 
 @ControllerAdvice
 @Slf4j
@@ -42,10 +41,10 @@ public class ApiExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + " " + error.getDefaultMessage())
-                .toList();
+            .getFieldErrors()
+            .stream()
+            .map(error -> error.getField() + " " + error.getDefaultMessage())
+            .toList();
 
         return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
     }
@@ -55,11 +54,11 @@ public class ApiExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         List<String> errors = ex.getConstraintViolations().stream()
-                .map(violation -> String.format("%s %s: %s",
-                        violation.getRootBeanClass().getName(),
-                        violation.getPropertyPath(),
-                        violation.getMessage()))
-                .toList();
+            .map(violation -> String.format("%s %s: %s",
+                violation.getRootBeanClass().getName(),
+                violation.getPropertyPath(),
+                violation.getMessage()))
+            .toList();
 
         return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
     }
@@ -82,7 +81,7 @@ public class ApiExceptionHandler {
     private ResponseEntity<ErrorVm> handleBadRequest(Exception ex, boolean isUsingNestedException, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String message =
-                isUsingNestedException ? NestedExceptionUtils.getMostSpecificCause(ex).getMessage() : ex.getMessage();
+            isUsingNestedException ? NestedExceptionUtils.getMostSpecificCause(ex).getMessage() : ex.getMessage();
 
         return buildErrorResponse(status, message, null, ex, request, 400);
     }
@@ -90,7 +89,7 @@ public class ApiExceptionHandler {
     private ResponseEntity<ErrorVm> buildErrorResponse(HttpStatus status, String message, List<String> errors,
                                                        Exception ex, WebRequest request, int statusCode) {
         ErrorVm errorVm =
-                new ErrorVm(status.toString(), status.getReasonPhrase(), message, errors);
+            new ErrorVm(status.toString(), status.getReasonPhrase(), message, errors);
 
         if (request != null) {
             log.error(ERROR_LOG_FORMAT, this.getServletPath(request), statusCode, message);

@@ -1,6 +1,8 @@
 package com.yas.webhook.config;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.ApplicationContextInitializer;
@@ -15,9 +17,6 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @TestConfiguration
 public class IntegrationTestConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
@@ -25,20 +24,20 @@ public class IntegrationTestConfiguration implements ApplicationContextInitializ
     @Bean(destroyMethod = "stop")
     public PostgreSQLContainer<?> postgresContainer() {
         return new PostgreSQLContainer<>("postgres:16")
-                .withDatabaseName("integration-tests-db")
-                .withReuse(true);
+            .withDatabaseName("integration-tests-db")
+            .withReuse(true);
     }
 
     @Bean(destroyMethod = "stop")
     public KeycloakContainer keycloakContainer(DynamicPropertyRegistry registry) {
         KeycloakContainer keycloak = new KeycloakContainer()
-                .withRealmImportFiles("/test-realm.json")
-                .withReuse(true);
+            .withRealmImportFiles("/test-realm.json")
+            .withReuse(true);
 
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                () -> keycloak.getAuthServerUrl() + "/realms/quarkus");
+            () -> keycloak.getAuthServerUrl() + "/realms/quarkus");
         registry.add("spring.security.oauth2.resourceserver.jwt.jwk-set-uri",
-                () -> keycloak.getAuthServerUrl() + "/realms/quarkus/protocol/openid-connect/certs");
+            () -> keycloak.getAuthServerUrl() + "/realms/quarkus/protocol/openid-connect/certs");
         return keycloak;
     }
 
@@ -46,7 +45,7 @@ public class IntegrationTestConfiguration implements ApplicationContextInitializ
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         KafkaContainer kafka = new KafkaContainer(
-                DockerImageName.parse("confluentinc/cp-kafka:7.2.2.arm64"));
+            DockerImageName.parse("confluentinc/cp-kafka:7.2.2.arm64"));
         kafka.start();
         setProperties(environment, "spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
     }

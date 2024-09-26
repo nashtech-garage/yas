@@ -13,7 +13,7 @@ public class OrderEventInbound {
     private final OrderEventService orderEventService;
 
     @KafkaListener(topics = {
-            "${webhook.integration.kafka.order.topic-name}"}, groupId = "${spring.kafka.consumer.group-id}")
+        "${webhook.integration.kafka.order.topic-name}"}, groupId = "${spring.kafka.consumer.group-id}")
     public void onOrderEvent(JsonNode productEvent) {
         orderEventService.onOrderEvent(productEvent);
     }

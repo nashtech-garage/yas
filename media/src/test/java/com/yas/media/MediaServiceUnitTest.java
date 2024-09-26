@@ -1,5 +1,15 @@
 package com.yas.media;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.media.config.YasConfig;
 import com.yas.media.model.Media;
@@ -11,6 +21,7 @@ import com.yas.media.service.MediaServiceImpl;
 import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,12 +29,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class MediaServiceUnitTest {
     @Mock
@@ -91,12 +96,12 @@ class MediaServiceUnitTest {
 
     @Test
     void saveMedia_whenTypePNG_thenSaveSuccess() {
-        byte[] pngFileContent = new byte[]{};
+        byte[] pngFileContent = new byte[] {};
         MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "example.png",
-                "image/png",
-                pngFileContent
+            "file",
+            "example.png",
+            "image/png",
+            pngFileContent
         );
         MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
 
@@ -110,12 +115,12 @@ class MediaServiceUnitTest {
 
     @Test
     void saveMedia_whenTypeJPEG_thenSaveSuccess() {
-        byte[] pngFileContent = new byte[]{};
+        byte[] pngFileContent = new byte[] {};
         MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "example.jpeg",
-                "image/jpeg",
-                pngFileContent
+            "file",
+            "example.jpeg",
+            "image/jpeg",
+            pngFileContent
         );
         MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
 
@@ -129,12 +134,12 @@ class MediaServiceUnitTest {
 
     @Test
     void saveMedia_whenTypeGIF_thenSaveSuccess() {
-        byte[] gifFileContent = new byte[]{};
+        byte[] gifFileContent = new byte[] {};
         MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "example.gif",
-                "image/gif",
-                gifFileContent
+            "file",
+            "example.gif",
+            "image/gif",
+            gifFileContent
         );
         MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
 
@@ -148,12 +153,12 @@ class MediaServiceUnitTest {
 
     @Test
     void saveMedia_whenFileNameIsNull_thenOk() {
-        byte[] pngFileContent = new byte[]{};
+        byte[] pngFileContent = new byte[] {};
         MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "example.png",
-                "image/png",
-                pngFileContent
+            "file",
+            "example.png",
+            "image/png",
+            pngFileContent
         );
         MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, null);
 
@@ -167,12 +172,12 @@ class MediaServiceUnitTest {
 
     @Test
     void saveMedia_whenFileNameIsEmpty_thenOk() {
-        byte[] pngFileContent = new byte[]{};
+        byte[] pngFileContent = new byte[] {};
         MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "example.png",
-                "image/png",
-                pngFileContent
+            "file",
+            "example.png",
+            "image/png",
+            pngFileContent
         );
         MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "");
 
@@ -186,12 +191,12 @@ class MediaServiceUnitTest {
 
     @Test
     void saveMedia_whenFileNameIsBlank_thenOk() {
-        byte[] pngFileContent = new byte[]{};
+        byte[] pngFileContent = new byte[] {};
         MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "example.png",
-                "image/png",
-                pngFileContent
+            "file",
+            "example.png",
+            "image/png",
+            pngFileContent
         );
         MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "   ");
 

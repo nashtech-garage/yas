@@ -10,12 +10,11 @@ import com.yas.webhook.model.enums.EventName;
 import com.yas.webhook.model.enums.Operation;
 import com.yas.webhook.repository.EventRepository;
 import com.yas.webhook.repository.WebhookEventNotificationRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -29,14 +28,14 @@ public class OrderEventService extends AbstractWebhookEventNotificationService {
         Optional<EventName> optionalEventName = getEventName(updatedEvent);
         if (optionalEventName.isPresent()) {
             Event event = eventRepository.findByName(optionalEventName.get())
-                    .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, optionalEventName.get()));
+                .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, optionalEventName.get()));
             List<WebhookEvent> hookEvents = event.getWebhookEvents();
             hookEvents.forEach(hookEvent -> {
                 JsonNode payload = updatedEvent.get("after");
                 Long notificationId = super.persistNotification(hookEvent.getId(), payload);
 
                 WebhookEventNotificationDto dto = super.createNotificationDto(hookEvent, payload,
-                        notificationId);
+                    notificationId);
                 webhookService.notifyToWebhook(dto);
             });
         }

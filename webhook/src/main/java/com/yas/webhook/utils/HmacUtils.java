@@ -1,16 +1,19 @@
 package com.yas.webhook.utils;
 
-import lombok.experimental.UtilityClass;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class HmacUtils {
 
     public static final String HMAC_SHA_256 = "HmacSHA256";
+
+    public HmacUtils() {
+        //Add private constructor to pass sonar
+    }
 
     public static String hash(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
         SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_SHA_256);

@@ -1,15 +1,14 @@
 package com.yas.commonlibrary.utils;
 
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
-
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
 
 public class MessagesUtils {
     private static final ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
-            Locale.getDefault());
+        Locale.getDefault());
 
     private MessagesUtils() {
         //Add constructor

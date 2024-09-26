@@ -1,5 +1,8 @@
 package com.yas.webhook.controller;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
 import com.yas.webhook.config.IntegrationTestConfiguration;
 import com.yas.webhook.config.constants.ApiConstant;
 import com.yas.webhook.model.Event;
@@ -20,9 +23,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 
 @EnableTransactionManagement
 @Import(IntegrationTestConfiguration.class)
@@ -61,114 +61,114 @@ public class WebhookControllerIT extends AbstractControllerIT {
     @Test
     public void test_createWebhook_shouldSuccess() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .body("""
-                        {"id":1,"payloadUrl":"","secret":"","contentType":"","isActive":true
-                        ,"events":[{"id":1,"name":"ON_PRODUCT_UPDATED"}]}
-                        """)
-                .when()
-                .post(WEBHOOK_URL)
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .body("""
+                {"id":1,"payloadUrl":"","secret":"","contentType":"","isActive":true
+                ,"events":[{"id":1,"name":"ON_PRODUCT_UPDATED"}]}
+                """)
+            .when()
+            .post(WEBHOOK_URL)
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+            .log().ifValidationFails();
     }
 
     @Test
     public void test_updateWebhook_shouldSuccess() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .body("""
-                        {"id":1,"payloadUrl":"","secret":"","contentType":"","isActive":true
-                        ,"events":[{"id":1,"name":"ON_PRODUCT_UPDATED"}]}
-                        """)
-                .pathParam("id", 1)
-                .when()
-                .put(WEBHOOK_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.NO_CONTENT.value())
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .body("""
+                {"id":1,"payloadUrl":"","secret":"","contentType":"","isActive":true
+                ,"events":[{"id":1,"name":"ON_PRODUCT_UPDATED"}]}
+                """)
+            .pathParam("id", 1)
+            .when()
+            .put(WEBHOOK_URL + "/{id}")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .log().ifValidationFails();
     }
 
     @Test
     public void test_deleteWebhook_shouldSuccess() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .pathParam("id", 1)
-                .when()
-                .delete(WEBHOOK_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.NO_CONTENT.value())
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .pathParam("id", 1)
+            .when()
+            .delete(WEBHOOK_URL + "/{id}")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+            .log().ifValidationFails();
     }
 
     @Test
     public void test_deleteWebhook_shouldFailedWhenNotFindId() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .pathParam("id", 10)
-                .when()
-                .delete(WEBHOOK_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value())
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .pathParam("id", 10)
+            .when()
+            .delete(WEBHOOK_URL + "/{id}")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .log().ifValidationFails();
     }
 
     @Test
     public void test_getWebhook_shouldReturnSuccessfully() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .pathParam("id", 1)
-                .when()
-                .get(WEBHOOK_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("contentType", equalTo("application/json"))
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .pathParam("id", 1)
+            .when()
+            .get(WEBHOOK_URL + "/{id}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("contentType", equalTo("application/json"))
+            .log().ifValidationFails();
     }
 
     @Test
     public void test_getWebhook_shouldReturn404_whenWebhookNotFound() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .pathParam("id", 10)
-                .when()
-                .get(WEBHOOK_URL + "/{id}")
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value())
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .pathParam("id", 10)
+            .when()
+            .get(WEBHOOK_URL + "/{id}")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .log().ifValidationFails();
     }
 
     @Test
     public void test_listWebhooks_shouldReturnSuccessfully() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .when()
-                .get(WEBHOOK_URL)
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .when()
+            .get(WEBHOOK_URL)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .log().ifValidationFails();
     }
 
     @Test
     public void test_getPageableWebhooks_shouldReturnSuccessfully() {
         given(getRequestSpecification())
-                .auth().oauth2(getAccessToken("admin", "admin"))
-                .contentType(ContentType.JSON)
-                .when()
-                .get(WEBHOOK_URL + "/paging")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("pageNo", equalTo(0))
-                .body("pageSize", equalTo(10))
-                .body("totalElements", equalTo(5))
-                .body("totalPages", equalTo(1))
-                .log().ifValidationFails();
+            .auth().oauth2(getAccessToken("admin", "admin"))
+            .contentType(ContentType.JSON)
+            .when()
+            .get(WEBHOOK_URL + "/paging")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("pageNo", equalTo(0))
+            .body("pageSize", equalTo(10))
+            .body("totalElements", equalTo(5))
+            .body("totalPages", equalTo(1))
+            .log().ifValidationFails();
     }
 }
