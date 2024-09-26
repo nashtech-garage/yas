@@ -1,6 +1,6 @@
-@startuml Payment Flow Sub 2
+@startuml Initialize Payment in Paypal
 
-title Payment Flow Init External Checkout object 
+title Initialize Payment in Paypal
 
 box YAS
     queue "KafkaTopic: CheckoutPaymentEvents" as checkout_payment_topic
