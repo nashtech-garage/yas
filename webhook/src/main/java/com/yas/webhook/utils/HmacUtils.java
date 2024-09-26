@@ -11,10 +11,6 @@ public class HmacUtils {
 
     public static final String HMAC_SHA_256 = "HmacSHA256";
 
-    public HmacUtils() {
-        //Add private constructor to pass sonar
-    }
-
     public static String hash(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
         SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_SHA_256);
         Mac mac = Mac.getInstance(HMAC_SHA_256);
