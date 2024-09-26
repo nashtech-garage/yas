@@ -42,7 +42,10 @@ export default function ProductDetails({
 
   const initCurrentSelectedOption = useMemo(() => {
     if (!productOptions?.length || !productVariations?.length) {
-      setListImages(product.productImageMediaUrls);
+      setListImages([
+        ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
+        ...product.productImageMediaUrls,
+      ]);
       return {};
     }
 
@@ -58,8 +61,14 @@ export default function ProductDetails({
 
     setListImages(
       productWithColor
-        ? productWithColor.productImages.map((image) => image.url)
-        : product.productImageMediaUrls
+        ? [
+            ...(productWithColor.thumbnail?.url ? [productWithColor.thumbnail.url] : []),
+            ...productWithColor.productImages.map((image) => image.url),
+          ]
+        : [
+            ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
+            ...product.productImageMediaUrls,
+          ]
     );
     return productWithColor ? productWithColor.options : productVariations[0].options;
   }, [productOptions, productVariations, pvid]);
@@ -84,30 +93,68 @@ export default function ProductDetails({
   }, [productOptions, productVariations, pvid, currentProduct.id]);
 
   useEffect(() => {
-    if (productOptions?.length && productVariations?.length) {
-      const productVariation = productVariations.find((item) => {
+    const isOptionSelected = (
+      key: string,
+      currentSelectedOption: CurrentSelectedOption,
+      item: ProductVariation
+    ) => {
+      return currentSelectedOption[+key] === item.options[+key];
+    };
+
+    const areAllOptionsSelected = (
+      optionKeys: string[],
+      currentSelectedOption: CurrentSelectedOption,
+      item: ProductVariation
+    ) => {
+      return optionKeys.every((key: string) => isOptionSelected(key, currentSelectedOption, item));
+    };
+
+    const findProductVariation = () => {
+      return productVariations?.find((item) => {
+        const optionKeys = Object.keys(item.options);
         return (
-          Object.keys(item.options).length === Object.keys(currentSelectedOption).length &&
-          Object.keys(item.options).every((key) => {
-            return currentSelectedOption[+key] === item.options[+key];
-          })
+          optionKeys.length === Object.keys(currentSelectedOption).length &&
+          areAllOptionsSelected(optionKeys, currentSelectedOption, item)
         );
       });
-      if (productVariation) {
-        setListImages(productVariation.productImages.map((image) => image.url));
-        setCurrentProduct(productVariation);
-      } else {
-        const productSelected = productVariations.find((item) => {
-          return item.options[+Object.keys(optionSelected)[0]] == Object.values(optionSelected)[0];
-        });
-        if (productSelected) {
-          const colorId = getColorId(productOptions);
-          if (colorId === +Object.keys(optionSelected)[0]) {
-            const urlList = productSelected.productImages.map((image) => image.url);
-            setListImages(urlList);
-          }
-          setCurrentProduct(productSelected);
+    };
+
+    const updateListImages = (variation: ProductVariation) => {
+      const urls = [
+        ...(variation.thumbnail?.url ? [variation.thumbnail.url] : []),
+        ...variation.productImages.map((image) => image.url),
+      ];
+      setListImages(urls);
+      setCurrentProduct(variation);
+    };
+
+    const updateListImagesBySelectedProduct = (
+      productVariations: ProductVariation[],
+      productOptions: ProductOptions[]
+    ) => {
+      const productSelected = productVariations.find((item) => {
+        return item.options[+Object.keys(optionSelected)[0]] == Object.values(optionSelected)[0];
+      });
+
+      if (productSelected) {
+        const colorId = getColorId(productOptions);
+        if (colorId === +Object.keys(optionSelected)[0]) {
+          const urlList = productSelected.productImages.map((image) => image.url);
+          setListImages([
+            ...(productSelected.thumbnail?.url ? [productSelected.thumbnail.url] : []),
+            ...urlList,
+          ]);
         }
+        setCurrentProduct(productSelected);
+      }
+    };
+
+    if (productOptions?.length && productVariations?.length) {
+      const productVariation = findProductVariation();
+      if (productVariation) {
+        updateListImages(productVariation);
+      } else {
+        updateListImagesBySelectedProduct(productVariations, productOptions);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
