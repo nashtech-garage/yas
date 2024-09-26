@@ -6,7 +6,11 @@ This document contains some key findings about Paypal API and flow that might be
 This is the flow recommended by Paypal for integration between e-commerce platforms and their checkout service. However, this approach is fairly different from the approach used by other payment providers, which might requires a separate implementation for Paypal.
 
 Paypal recommend the use of the Smart Checkout button through the Paypal JS SDK. To use it, we need to implement the `createOrder()` and `onApprove()` props in the `PaypalButtons` component. 
+![Paypal buttons](./imgs/PaypalButtons.png)
+*The Paypal Smart Checkout Buttons*
 - The `createOrder()` function should send a request to Backend to initiate a process to create an `Order` object on Paypal's system, then obtain and return the `id` of the created `Order` object
+![Paypal popups](./imgs/Paypal%20pop-up.png)
+*Paypal's Order Id is used to direct the customer to the correct Paypal Popup. The shop's frontend is still loaded in the background* 
   - In the current design, the `createOrder()` function will be responsible for calling the `POST /order/checkouts/{checkout_id}/process-payment` API and repeatedly loop the `GET /payment/payments/checkout/{checkout_id}` until the payment status is `PROCESSING` and `payment_provider_id` for the order exists.
 - The `onApprove()` function will be the entry point for handling the `Order` after the customer has finished authorizing.
   - For Paypal's system, after the customer has fulfiled all the payment information and authorize the payment, the merchant's system (YAS in this case) should send a request to Paypal to `CAPTURE` the payment to complete the transaction.
@@ -14,7 +18,15 @@ Paypal recommend the use of the Smart Checkout button through the Paypal JS SDK.
 ### 1.2. Redirect flow
 We can also implement a redirecting payment flow similar to the one used by Stripe. This is not the recommended flow by Paypal, but it is closer to the flow used by others payment providers which can simplify the integration process for other payment providers as well as provide us with more control over the process.
 
-To do so, when making a `POST /v2/checkout/orders` request, we need to provide a `returnUrl` in the request body (Example will be provided in the API section). We will also need to manually redirect user to the payment page after the `Checkout.Order` object has been created on Paypal's system.
+To do so, when making a `POST /v2/checkout/orders` request, we need to provide a `returnUrl` in the request body (Example will be provided in the API section).
+
+We will also need to manually redirect user to the payment page after the `Checkout.Order` object has been created on Paypal's system.
+![Payment page](./imgs/PaymentPage.png)
+*Payment page hosted by paypal*
+
+After the user has complete the payment actions on Paypal page, they will be redirected back to the `return_url` provided
+![Return page](./imgs/RedirectTo.png)
+*User browser redirect to*
 
 The `CAPTURE` payment action in this case should be triggered asynchronously through an `CHECKOUT.ORDER.APPROVED` event sent to a webhook registered to Paypal.
 ## 2. Paypal REST API Notes
