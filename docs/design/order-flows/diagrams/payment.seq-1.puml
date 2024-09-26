@@ -29,10 +29,8 @@ activate storefront #fdf2e9
     order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/usage {checkout_id, state: APPLIED}
     activate promotion_service #8af1f0
     promotion_service --> order_service: 201 CREATED 
-    alt #f1948a "Fail to apply"
-    promotion_service --> order_service: 422 UNPROCESSABLE CONTENT {ERROR_CODE: PROMOCODE_RAN_OUT| PROMOCODE_EXPIRED}
     deactivate promotion_service
-    order_service --> checkout: Remove promo code
+    alt #f1948a "Fail to apply"
     order_service --> storefront: 400 BAD REQUEST {ERROR_CODE: PROMOCODE_RAN_OUT| PROMOCODE_EXPIRED}
     storefront --> customer:  PROMOCODE ran out of usage| Promocode expired
     end
