@@ -37,7 +37,9 @@ public class IntegrationTestConfiguration extends ElasticsearchContainer impleme
 
     @Bean(destroyMethod = "stop")
     public ElasticTestContainer elasticTestContainer() {
-        return new ElasticTestContainer();
+        ElasticTestContainer elasticTestContainer = new ElasticTestContainer();
+        elasticTestContainer.start();
+        return elasticTestContainer;
     }
 
     @Override
