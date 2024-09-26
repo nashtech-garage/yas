@@ -120,8 +120,14 @@ activate payment_provider #73c6b6
   activate order_service #3498db
     order_service -> checkout: update { status=PAYMENT_CONFIRMED }
     order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
-    order --> order_service: order
-    order_service --> shopping_cart: DELETE cart/items?{products:[{productIds, quantity}]}
+    activate order #3498db
+      order --> shopping_cart: [CDC Create Order Event]
+      activate shopping_cart #a9cce3
+        shopping_cart --> shopping_cart: update for remove order items     
+      deactivate shopping_cart      
+      order_service <-- order: order
+    deactivate order
+    
     order_service --> notification_service
     activate notification_service #fad7a0
       notification_service --> customer: notification for order creation
