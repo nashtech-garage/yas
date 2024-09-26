@@ -84,6 +84,44 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .getBody();
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    public List<ProductVm> getProductByCategoryIds(List<Long> categoryIds) {
+        String jwt = AuthenticationUtils.extractJwt();
+        final URI url = UriComponentsBuilder
+            .fromHttpUrl(serviceUrlConfig.product())
+            .path("/backoffice/products/by-categories")
+            .queryParams(createIdParams(categoryIds))
+            .build()
+            .toUri();
+        return restClient.get()
+            .uri(url)
+            .headers(h -> h.setBearerAuth(jwt))
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<List<ProductVm>>() {
+            })
+            .getBody();
+    }
+
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    public List<ProductVm> getProductByBrandIds(List<Long> brandIds) {
+        String jwt = AuthenticationUtils.extractJwt();
+        final URI url = UriComponentsBuilder
+            .fromHttpUrl(serviceUrlConfig.product())
+            .path("/backoffice/products/by-brands")
+            .queryParams(createIdParams(brandIds))
+            .build()
+            .toUri();
+        return restClient.get()
+            .uri(url)
+            .headers(h -> h.setBearerAuth(jwt))
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<List<ProductVm>>() {
+            })
+            .getBody();
+    }
+
     private static MultiValueMap<String, String> createIdParams(List<Long> ids) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         ids.stream().map(Objects::toString).forEach(id -> params.add("ids", id));

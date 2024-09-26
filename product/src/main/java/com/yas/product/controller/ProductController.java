@@ -253,4 +253,16 @@ public class ProductController {
     public ResponseEntity<List<ProductListVm>> getProductByIds(@RequestParam List<Long> ids) {
         return ResponseEntity.ok(productService.getProductByIds(ids));
     }
+
+    @GetMapping("/backoffice/products/by-categories")
+    public ResponseEntity<List<ProductListVm>> getProductByCategories(
+        @RequestParam("ids") List<Long> categoryIds) {
+        return ResponseEntity.ok(productService.getProductByCategoryIds(categoryIds));
+    }
+
+    @GetMapping("/backoffice/products/by-brands")
+    public ResponseEntity<List<ProductListVm>> getProductByBrands(
+        @RequestParam("ids") List<Long> brandIds) {
+        return ResponseEntity.ok(productService.getProductByBrandIds(brandIds));
+    }
 }

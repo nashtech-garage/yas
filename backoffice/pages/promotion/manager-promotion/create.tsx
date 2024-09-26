@@ -29,6 +29,7 @@ const PromotionCreate: NextPage = () => {
       endDate: event.endDate,
       discountAmount: event.discountAmount ?? 0,
       discountPercentage: event.discountPercentage ?? 0,
+      minimumOrderPurchaseAmount: event.minimumOrderPurchaseAmount,
       usageLimit: event.usageLimit,
       usageType: event.usageType,
       discountType: event.discountType,

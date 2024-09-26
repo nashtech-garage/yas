@@ -67,4 +67,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findProductForWarehouse(@Param("name") String name, @Param("sku") String sku,
                                           @Param("productIds") List<Long> productIds,
                                           @Param("selection") String selection);
+
+    @Query("SELECT DISTINCT p FROM Product p JOIN p.productCategories pc WHERE pc.id IN :categoryIds")
+    List<Product> findByCategoryIdsIn(@Param("categoryIds") List<Long> categoryIds);
+
+    @Query("SELECT p FROM Product p JOIN p.brand b WHERE b.id IN :brandIds")
+    List<Product> findByBrandIdsIn(@Param("brandIds") List<Long> brandIds);
 }

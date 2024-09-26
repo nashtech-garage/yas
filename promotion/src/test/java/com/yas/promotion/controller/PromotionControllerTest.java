@@ -1,10 +1,13 @@
 package com.yas.promotion.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.yas.promotion.viewmodel.PromotionVerifyResultDto;
+import com.yas.promotion.viewmodel.PromotionVerifyVm;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -328,6 +332,30 @@ class PromotionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(promoDetail)));
+    }
+
+    @Test
+    void verify_promotion_with_valid_data_returns_expected_result() {
+        PromotionVerifyVm promotionVerifyInfo = new PromotionVerifyVm(
+            "coupon-code-1",
+            100000L,
+            List.of(1L)
+        );
+        // Set valid data in promotionVerifyInfo
+        PromotionVerifyResultDto expectedResult = new PromotionVerifyResultDto(
+            true,
+            1L,
+            DiscountType.FIXED,
+            10000L
+        );
+        // Set expected result data
+
+        when(promotionService.verifyPromotion(promotionVerifyInfo)).thenReturn(expectedResult);
+
+        PromotionController promotionController = new PromotionController(promotionService);
+        ResponseEntity<PromotionVerifyResultDto> response = promotionController.verifyPromotion(promotionVerifyInfo);
+
+        assertEquals(expectedResult, response.getBody());
     }
 
     private static @NotNull PromotionPutVm getPromotionPutVm() {
