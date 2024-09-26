@@ -113,25 +113,18 @@ activate customer
     activate order_service #3498db
       order_service -> promotion_service: GET /promotion/promotions/{PROMOCODE}/check /n {checkoutDetail}
       activate promotion_service #8af1f0
-      promotion_service -> promotion_service: verify applicability
-        alt #f1948a "Promo code not applicable"
-          promotion_service --> order_service: 200 OK {status: Invalid, details: {cause}}
-          order_service --> storefront: 404 NOT FOUND
-          storefront --> customer: Code does not exist or has run out
-        else #baf18a "Promo code is applicable" 
-          promotion_service --> order_service: 200 OK {status: Valid, details: couponContent}
-          deactivate promotion_service
-          order_service -> checkout: Add Promocode and update payment amount
-          deactivate order_service
-          activate checkout #3498db
-            checkout --> order_service: CDC Event: calculate-payment-amount
-          deactivate checkout 
-          activate order_service #3498db  
-        end
+        promotion_service --> order_service: 200 OK {status: Valid/Invalid}
+      deactivate promotion_service
+      order_service -> checkout: Add Promocode and update payment amount
+    deactivate order_service
+    activate checkout #3498db
+      checkout --> order_service: CDC Event: calculate-payment-amount
+    deactivate checkout 
   deactivate storefront 
 deactivate customer
 
 alt "checkout has full required infomation"
+    activate order_service #3498db  
     order_service -> shipment_service: POST /shipment/calculate {shipment_provider, address, items}
     activate shipment_service #c39bd3
       shipment_service -> shipment_provider: POST /shipment/calculate {shipment_provider, address, items}
