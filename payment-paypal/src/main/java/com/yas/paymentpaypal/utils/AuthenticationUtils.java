@@ -1,6 +1,6 @@
 package com.yas.paymentpaypal.utils;
 
-import com.yas.paymentpaypal.exception.SignInRequiredException;
+import com.yas.commonlibrary.exception.SignInRequiredException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

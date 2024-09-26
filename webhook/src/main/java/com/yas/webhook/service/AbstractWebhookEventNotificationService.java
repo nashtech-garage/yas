@@ -6,6 +6,7 @@ import com.yas.webhook.model.WebhookEventNotification;
 import com.yas.webhook.model.dto.WebhookEventNotificationDto;
 import com.yas.webhook.model.enums.NotificationStatus;
 import com.yas.webhook.repository.WebhookEventNotificationRepository;
+
 import java.time.ZonedDateTime;
 
 abstract class AbstractWebhookEventNotificationService {
@@ -23,15 +24,15 @@ abstract class AbstractWebhookEventNotificationService {
     }
 
     protected WebhookEventNotificationDto createNotificationDto(WebhookEvent webhookEvent, JsonNode payload,
-        Long notificationId) {
+                                                                Long notificationId) {
         String url = webhookEvent.getWebhook().getPayloadUrl();
         String secret = webhookEvent.getWebhook().getSecret();
 
         return WebhookEventNotificationDto.builder()
-            .secret(secret)
-            .payload(payload)
-            .url(url)
-            .notificationId(notificationId)
-            .build();
+                .secret(secret)
+                .payload(payload)
+                .url(url)
+                .notificationId(notificationId)
+                .build();
     }
 }

@@ -3,11 +3,7 @@ package com.yas.webhook.config;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.OAuthFlow;
-import io.swagger.v3.oas.annotations.security.OAuthFlows;
-import io.swagger.v3.oas.annotations.security.OAuthScope;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.*;
 import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(info = @Info(title = "Webhook Service API",
@@ -18,7 +14,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
         flows = @OAuthFlows(authorizationCode = @OAuthFlow(
                 authorizationUrl = "${springdoc.oauthflow.authorization-url}",
                 tokenUrl = "${springdoc.oauthflow.token-url}", scopes = {
-                    @OAuthScope(name = "openid", description = "openid")
-                })))
+                @OAuthScope(name = "openid", description = "openid")
+        })))
 public class SwaggerConfig {
 }

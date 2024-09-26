@@ -2,8 +2,8 @@ package com.yas.rating.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.rating.RatingApplication;
-import com.yas.rating.exception.NotFoundException;
 import com.yas.rating.service.RatingService;
 import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.RatingListVm;

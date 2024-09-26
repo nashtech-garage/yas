@@ -1,10 +1,5 @@
 package com.yas.webhook.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yas.webhook.integration.api.WebhookApi;
@@ -15,13 +10,17 @@ import com.yas.webhook.model.WebhookEventNotification;
 import com.yas.webhook.model.enums.EventName;
 import com.yas.webhook.repository.EventRepository;
 import com.yas.webhook.repository.WebhookEventNotificationRepository;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderEventServiceTest {
@@ -71,10 +70,10 @@ class OrderEventServiceTest {
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("op", "u");
         ObjectNode before = objectMapper.createObjectNode();
-        before.put("order_status","NEW");
+        before.put("order_status", "NEW");
         objectNode.set("before", before);
         ObjectNode after = objectMapper.createObjectNode();
-        after.put("order_status","PAID");
+        after.put("order_status", "PAID");
         objectNode.set("after", after);
 
         Event event = new Event();
@@ -115,10 +114,10 @@ class OrderEventServiceTest {
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("op", "u");
         ObjectNode before = objectMapper.createObjectNode();
-        before.put("order_status","NEW");
+        before.put("order_status", "NEW");
         objectNode.set("before", before);
         ObjectNode after = objectMapper.createObjectNode();
-        after.put("order_status","NEW");
+        after.put("order_status", "NEW");
         objectNode.set("after", after);
 
         orderEventService.onOrderEvent(objectNode);

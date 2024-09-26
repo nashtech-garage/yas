@@ -2,7 +2,7 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.Constants.ErrorCode.ORDER_NOT_FOUND;
 
-import com.yas.order.exception.NotFoundException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;

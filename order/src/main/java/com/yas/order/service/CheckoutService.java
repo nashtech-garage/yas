@@ -2,8 +2,8 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
 
-import com.yas.order.exception.Forbidden;
-import com.yas.order.exception.NotFoundException;
+import com.yas.commonlibrary.exception.Forbidden;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.CheckoutMapper;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.Order;

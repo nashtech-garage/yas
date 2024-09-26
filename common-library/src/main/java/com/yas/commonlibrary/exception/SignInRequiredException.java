@@ -1,11 +1,11 @@
-package com.yas.order.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.order.utils.MessagesUtils;
+import com.yas.commonlibrary.utils.MessagesUtils;
 
-public class Forbidden extends RuntimeException {
+public class SignInRequiredException extends RuntimeException {
     private String message;
 
-    public Forbidden(String errorCode, Object... var2) {
+    public SignInRequiredException(String errorCode, Object... var2) {
         this.message = MessagesUtils.getMessage(errorCode, var2);
     }
 

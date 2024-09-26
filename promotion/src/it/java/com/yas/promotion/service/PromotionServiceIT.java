@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.promotion.PromotionApplication;
-import com.yas.promotion.exception.BadRequestException;
-import com.yas.promotion.exception.DuplicatedException;
-import com.yas.promotion.exception.NotFoundException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.PromotionUsage;
 import com.yas.promotion.model.enumeration.ApplyTo;

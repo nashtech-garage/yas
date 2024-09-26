@@ -1,5 +1,9 @@
 package com.yas.rating.exception;
 
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.ResourceExistedException;
 import com.yas.rating.viewmodel.ErrorVm;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;

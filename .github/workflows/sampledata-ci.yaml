@@ -27,6 +27,8 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
+      - name: Run Maven Build Command
+        run: mvn clean install -pl sampledata -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -f sampledata -Dcheckstyle.output.file=sampledata-checkstyle-result.xml
@@ -35,8 +37,6 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/sampledata-checkstyle-result.xml'
-      - name: Run Maven Verify
-        run: mvn clean verify -f sampledata
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
