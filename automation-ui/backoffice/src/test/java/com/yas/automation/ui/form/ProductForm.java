@@ -136,6 +136,9 @@ public class ProductForm extends BaseForm {
     @FindBy(id = "checkbox-5")
     private WebElement catMappingLaptopChkBox;
 
+    @FindBy(xpath = "//*[@id=\"Layout_main__c1pHS\"]/div/form/div[2]/button")
+    private WebElement saveBtn;
+
     public ProductForm(WebDriver webDriver) {
         super(webDriver);
         PageFactory.initElements(webDriver, this);
@@ -145,4 +148,10 @@ public class ProductForm extends BaseForm {
     public WebElement getSubmitBtn() {
         return createBtn;
     }
+
+    @Override
+    public WebElement getSaveBtn() {
+        return saveBtn;
+    }
+
 }

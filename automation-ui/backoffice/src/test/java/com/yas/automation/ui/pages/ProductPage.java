@@ -1,5 +1,9 @@
 package com.yas.automation.ui.pages;
 
+import static com.yas.automation.ui.enumerate.ProductAttribute.BASE_XPATH;
+import static com.yas.automation.ui.util.WebElementUtil.getWebElementBy;
+import static org.junit.Assert.assertTrue;
+
 import com.yas.automation.ui.enumerate.ProductAttribute;
 import com.yas.automation.ui.form.InputType;
 import com.yas.automation.ui.form.ProductForm;
@@ -7,6 +11,7 @@ import com.yas.automation.ui.hook.WebDriverFactory;
 import com.yas.automation.ui.page.BasePage;
 import com.yas.automation.ui.service.InputDelegateService;
 import com.yas.automation.ui.util.WebElementUtil;
+import lombok.Getter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -18,10 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.yas.automation.ui.enumerate.ProductAttribute.BASE_XPATH;
-import static com.yas.automation.ui.util.WebElementUtil.getWebElementBy;
-import static org.junit.Assert.assertTrue;
-
 @Component
 public class ProductPage extends BasePage {
 
@@ -29,6 +30,8 @@ public class ProductPage extends BasePage {
     public static final int NUM_OF_DEFAULT_ATTRIBUTE = 7;
     public static final String SAMPLE_TEMPLATE = "Sample Template";
     public static final String DUMP_FILE_PATH = "sampledata/images/dell.jpg";
+    @Getter
+    public String productName;
 
     private final WebDriverFactory webDriverFactory;
     private final InputDelegateService inputDelegateService;
@@ -125,9 +128,9 @@ public class ProductPage extends BasePage {
         for (int i = 1; i < NUM_OF_DEFAULT_ATTRIBUTE; i++) {
             WebElementUtil.getWebElementBy(
                     webDriverFactory.getChromeDriver(),
-                            How.XPATH,
-                            BASE_XPATH.formatted(i)
-                    ).sendKeys(UUID.randomUUID().toString());
+                    How.XPATH,
+                    BASE_XPATH.formatted(i)
+            ).sendKeys(UUID.randomUUID().toString());
         }
         scrollTo(productForm.getProductAttributeCreateBtn());
     }
@@ -175,11 +178,13 @@ public class ProductPage extends BasePage {
      * This method used to look up all pages until we find the created product.
      * Currently, It does not show at first page, as sample data lack of lastModified field
      * (product list is order by lastModified desc then sample data always on top pages)
+     *
      * @param newProductName productName which we look for
      * @return is the new product show in all pages or not.
      */
     public boolean isNewProductShow(String newProductName) {
         final WebDriver chromeDriver = webDriverFactory.getChromeDriver();
+
         WebElement paginationBar = getWebElementBy(
                 chromeDriver,
                 How.CLASS_NAME,
@@ -213,4 +218,48 @@ public class ProductPage extends BasePage {
         return false;
     }
 
+
+    // Locate all the rows in the basket table
+    public List<WebElement> getAllRowsInTable() {
+        // Get all rows (tr) inside the table body
+        return webDriverFactory.getChromeDriver().findElements(By.cssSelector("table tbody tr"));
+    }
+
+    public void clickToEditProductBtn() {
+        this.wait(Duration.ofSeconds(1));
+        List<WebElement> rows = getAllRowsInTable();
+        if (!rows.isEmpty()) {
+            WebElement editBtn = rows.getFirst().findElement(By.xpath("//a[contains(@href, '/catalog/products/') and contains(@href, '/edit')]/button"));
+            editBtn.click();
+        }
+    }
+
+    public void setNewProductName() {
+        WebElement txtProductName = getWebElementBy(webDriverFactory.getChromeDriver(), How.ID, "name");
+        txtProductName.sendKeys("Test Edit");
+    }
+
+    public void clickToDeleteProductBtn() {
+        this.wait(Duration.ofSeconds(1));
+        List<WebElement> rows = getAllRowsInTable();
+        if (!rows.isEmpty()) {
+            WebElement deleteBtn = rows.getFirst().findElement(By.xpath("//*[@id=\"Layout_main__c1pHS\"]/table/tbody/tr[1]/td[7]/div/button"));
+            WebElement colProductName = rows.getFirst().findElement(By.xpath("//*[@id=\"Layout_main__c1pHS\"]/table/tbody/tr[1]/td[2]"));
+            productName = colProductName.getText();
+            deleteBtn.click();
+        }
+    }
+
+    public boolean existedDeleteDialog() {
+        return WebElementUtil.isElementPresent(webDriverFactory.getChromeDriver(), How.XPATH, "/html/body/div[3]/div/div/div[2]/button[2]");
+    }
+
+    public void clickToDeleteBtn() {
+        WebElement deleteBtn = getWebElementBy(webDriverFactory.getChromeDriver(), How.XPATH, "/html/body/div[3]/div/div/div[2]/button[2]");
+        deleteBtn.click();
+    }
+
+    public String getProductName() {
+        return productName;
+    }
 }
