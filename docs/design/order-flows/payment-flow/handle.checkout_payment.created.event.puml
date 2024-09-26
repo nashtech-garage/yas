@@ -1,0 +1,50 @@
+@startuml Payment Flow Sub 2
+
+title Payment Flow Init External Checkout object 
+
+box YAS
+    queue "KafkaTopic: CheckoutPaymentEvents" as checkout_payment_topic
+    participant "Payment Service" as payment_service
+    database "Payment Database" as payment_database
+    entity "Checkout Payment" as checkout_payment
+    participant "Paypal Adapter" as payment_adapter#3498db
+end box 
+
+box "Paypal"
+    participant "Paypal" as payment_provider #2874a6
+    entity "Paypal: Checkout" as payment_provider_checkout #2874a6
+end box
+
+
+checkout_payment_topic --> payment_service: [CDC Create Event] checkout_payment record
+note right of checkout_payment_topic
+  CheckoutPaymentEvents: { checkout_id, payment_type }
+end note
+
+
+activate payment_service
+    alt payment_type is NOT COD:
+
+      payment_service -> payment_database: find checkout { checkout_id }
+      activate payment_database
+        payment_database -> checkout_payment **: find checkout_payment
+        payment_database --> payment_service: checkout_payment
+      deactivate payment_database
+
+      payment_service -> payment_service: find correct payment provider by payment_type
+
+      payment_service  -> payment_adapter: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+      activate payment_adapter #3498db
+        payment_adapter -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+
+        activate payment_provider #2874a6        
+          payment_provider -> payment_provider_checkout **: create checkout
+          payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }          
+          payment_adapter <-- payment_provider: { payment_provider_checkout_id }
+        deactivate payment_provider  
+        payment_adapter -> payment_service: { payment_provider_checkout_id }
+      deactivate payment_adapter
+      payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
+    end 
+deactivate payment_service
+@enduml
