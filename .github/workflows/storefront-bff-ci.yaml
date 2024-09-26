@@ -31,7 +31,7 @@ jobs:
         run: mvn clean install -pl storefront-bff -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -f storefront-bff -Dcheckstyle.output.file=storefront-bff-checkstyle-result.xml
+        run: mvn checkstyle:checkstyle -pl storefront-bff -am -Dcheckstyle.output.file=storefront-bff-checkstyle-result.xml
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master

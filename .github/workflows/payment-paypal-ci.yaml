@@ -31,7 +31,7 @@ jobs:
         run: mvn clean install -pl payment-paypal -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -f payment-paypal -Dcheckstyle.output.file=payment-paypal-checkstyle-result.xml
+        run: mvn checkstyle:checkstyle -pl payment-paypal -am -Dcheckstyle.output.file=payment-paypal-checkstyle-result.xml
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
