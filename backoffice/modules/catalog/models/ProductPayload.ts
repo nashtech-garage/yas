@@ -4,6 +4,7 @@ import { FormProduct } from './FormProduct';
 import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariationPost } from './ProductVariationPost';
 import { ProductVariationPut } from './ProductVariationPut';
+import { ProductVariation } from './ProductVariation';
 
 export type ProductPayload = {
   name?: string;
@@ -71,8 +72,34 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
           };
         })
       : [],
-    productOptionValues: data.productOptions?.map((option) => ({ ...option, displayOrder: 1 })),
+    productOptionValues: createProductOptionValues(data.productVariations || []),
     relatedProductIds: data.relateProduct,
     taxClassId: data.taxClassId,
   };
 }
+
+const createProductOptionValues = (productVariations: ProductVariation[]) => {
+  let productOptionValues: ProductOptionValuePost[] = [];
+  productVariations.forEach((variation) => {
+    const option = variation.optionValuesByOptionId;
+    Object.entries(option).forEach((entry) => {
+      const id = +entry[0];
+      const value = entry[1];
+      let optionValue = productOptionValues.find((option) => {
+        return option.productOptionId === id;
+      });
+      if (optionValue) {
+        if (!optionValue.value.includes(value)) {
+          optionValue.value.push(value);
+        }
+      } else {
+        productOptionValues.push({
+          productOptionId: id,
+          displayOrder: 1,
+          value: [value],
+        });
+      }
+    });
+  });
+  return productOptionValues;
+};

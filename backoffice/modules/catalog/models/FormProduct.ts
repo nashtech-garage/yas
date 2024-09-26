@@ -1,6 +1,5 @@
 import { Media } from './Media';
 import { ProductAttributeValue } from './ProductAttributeValue';
-import { ProductOptionValuePost } from './ProductOptionValuePost';
 import { ProductVariation } from './ProductVariation';
 
 export type FormProduct = {
@@ -29,6 +28,5 @@ export type FormProduct = {
   crossSell?: number[]; // product id
   productAttributes?: ProductAttributeValue[];
   productVariations?: ProductVariation[];
-  productOptions?: ProductOptionValuePost[];
   taxClassId?: number;
 };
