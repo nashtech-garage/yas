@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Figure } from 'react-bootstrap';
 
 import ImageWithFallback from './ImageWithFallback';
@@ -8,6 +8,10 @@ export interface IProductImageGalleryProps {
 }
 
 export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [listImages]);
+
   const NO_SLIDER_IMAGE = 3;
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
