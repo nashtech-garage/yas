@@ -10,7 +10,7 @@ import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
 import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
-import {formatPriceUSD, formatPriceVND} from 'utils/formatPrice';
+import { formatPriceUSD } from 'utils/formatPrice';
 import Link from 'next/link';
 
 const Orders: NextPage = () => {

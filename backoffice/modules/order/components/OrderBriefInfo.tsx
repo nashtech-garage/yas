@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Order } from '../models/Order';
-import {formatPriceUSD, formatPriceVND} from 'utils/formatPrice';
+import { formatPriceUSD } from 'utils/formatPrice';
 type Props = {
   order: Order;
 };

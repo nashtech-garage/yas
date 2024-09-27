@@ -1,5 +1,5 @@
 import { Order } from '../models/Order';
-import {formatPriceUSD, formatPriceVND} from 'utils/formatPrice';
+import { formatPriceUSD } from 'utils/formatPrice';
 import { Stack, Table } from 'react-bootstrap';
 import Link from 'next/link';
 type Props = {
