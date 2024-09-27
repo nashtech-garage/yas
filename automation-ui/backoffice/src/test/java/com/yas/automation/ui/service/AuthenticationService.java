@@ -1,7 +1,7 @@
 package com.yas.automation.ui.service;
 
 import com.yas.automation.ui.configuration.BackOfficeConfiguration;
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import com.yas.automation.ui.pages.LoginPage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

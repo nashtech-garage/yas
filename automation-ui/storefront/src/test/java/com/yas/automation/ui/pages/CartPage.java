@@ -1,18 +1,17 @@
 package com.yas.automation.ui.pages;
 
-import static com.yas.automation.ui.util.WebElementUtil.getWebElementBy;
-
-import com.yas.automation.ui.hook.WebDriverFactory;
-import com.yas.automation.ui.page.BasePage;
-import com.yas.automation.ui.util.WebElementUtil;
+import com.yas.automation.base.hook.WebDriverFactory;
+import com.yas.automation.base.page.BasePage;
+import com.yas.automation.base.util.WebElementUtil;
+import static com.yas.automation.base.util.WebElementUtil.getWebElementBy;
+import static com.yas.automation.base.util.WebElementUtil.waitElement;
+import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.How;
 import org.springframework.stereotype.Component;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Objects;
 
 @Component
 public class CartPage extends BasePage {
@@ -24,11 +23,8 @@ public class CartPage extends BasePage {
     }
 
     public boolean checkProductName(String productName) {
-        this.wait(Duration.ofSeconds(1));
-
-        // Get all rows (tr) inside the table body
+        wait(Duration.ofSeconds(1)); // hidden popup and reload pave
         List<WebElement> rows = getAllRowsInBasket();
-
         // Loop through each row and get the product name
         for (WebElement row : rows) {
             // Get the product title in the current row
@@ -41,7 +37,6 @@ public class CartPage extends BasePage {
         return false;
     }
 
-    // Locate all the rows in the basket table
     public List<WebElement> getAllRowsInBasket() {
         // Locate the table body containing the products
         WebElement tableBody = getWebElementBy(webDriverFactory.getChromeDriver(), How.XPATH, "//div[@class='shop__cart__table']//tbody");
@@ -54,12 +49,12 @@ public class CartPage extends BasePage {
     public void clickDeleteButton() {
         List<WebElement> rows = getAllRowsInBasket();
         // Locate the delete button in the row
-        WebElement deleteButton = rows.get(0).findElement(By.className("remove_product"));
-        deleteButton.click();  // Perform click action to delete the product
+        WebElement deleteButton = rows.getFirst().findElement(By.className("remove_product"));
+        deleteButton.click();
     }
 
     public boolean existedRemoveButton() {
-        this.wait(Duration.ofSeconds(1));
+        waitElement(webDriverFactory.getChromeDriver(), How.XPATH, "//button[@type='button' and contains(text(),'Remove')]", 1);
         return WebElementUtil.isElementPresent(webDriverFactory.getChromeDriver(), How.XPATH, "//button[@type='button' and contains(text(),'Remove')]");
     }
 
@@ -71,7 +66,7 @@ public class CartPage extends BasePage {
     public String getProductName() {
         List<WebElement> rows = getAllRowsInBasket();
         // Locate the delete button in the row
-        WebElement product = rows.get(0).findElement(By.className("product-link"));
+        WebElement product = rows.getFirst().findElement(By.className("product-link"));
         return product.getText();
     }
 }
