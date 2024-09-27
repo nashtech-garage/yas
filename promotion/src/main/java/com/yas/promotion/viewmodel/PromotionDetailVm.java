@@ -22,6 +22,7 @@ public record PromotionDetailVm(Long id,
                                 UsageType usageType,
                                 Long discountPercentage,
                                 Long discountAmount,
+                                Long minimumOrderPurchaseAmount,
                                 Boolean isActive,
                                 Instant startDate,
                                 Instant endDate,
@@ -42,6 +43,7 @@ public record PromotionDetailVm(Long id,
                 .usageType(promotion.getUsageType())
                 .description(promotion.getDescription())
                 .discountPercentage(promotion.getDiscountPercentage())
+                .minimumOrderPurchaseAmount(promotion.getMinimumOrderPurchaseAmount())
                 .discountAmount(promotion.getDiscountAmount())
                 .isActive(promotion.getIsActive())
                 .startDate(promotion.getStartDate())
@@ -64,6 +66,7 @@ public record PromotionDetailVm(Long id,
             .description(promotion.getDescription())
             .discountPercentage(promotion.getDiscountPercentage())
             .discountAmount(promotion.getDiscountAmount())
+            .minimumOrderPurchaseAmount(promotion.getMinimumOrderPurchaseAmount())
             .isActive(promotion.getIsActive())
             .startDate(promotion.getStartDate())
             .endDate(promotion.getEndDate())

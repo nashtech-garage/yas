@@ -10,6 +10,7 @@ public record ProductVm(Long id,
                         Boolean isPublished,
                         Boolean isFeatured,
                         Boolean isVisibleIndividually,
+                        Double price,
                         ZonedDateTime createdOn,
                         Long taxClassId) {
 }

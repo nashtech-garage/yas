@@ -5,6 +5,8 @@ import com.yas.promotion.exception.DuplicatedException;
 import com.yas.promotion.exception.NotFoundException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.PromotionApply;
+import com.yas.promotion.model.enumeration.DiscountType;
+import com.yas.promotion.model.enumeration.UsageType;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.repository.PromotionUsageRepository;
 import com.yas.promotion.utils.Constants;
@@ -15,10 +17,16 @@ import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
+import com.yas.promotion.viewmodel.PromotionVerifyResultDto;
+import com.yas.promotion.viewmodel.PromotionVerifyVm;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,10 +42,7 @@ public class PromotionService {
     private final ProductService productService;
 
     public PromotionDetailVm createPromotion(PromotionPostVm promotionPostVm) {
-        validateIfPromotionExistedSlug(promotionPostVm.getSlug());
-        validateIfPromotionEndDateIsBeforeStartDate(
-            promotionPostVm.getStartDate().toInstant(),
-            promotionPostVm.getEndDate().toInstant());
+        validateNewPromotion(promotionPostVm);
 
         Promotion promotion = Promotion.builder()
                 .name(promotionPostVm.getName())
@@ -61,6 +66,14 @@ public class PromotionService {
         promotion.setPromotionApplies(promotionApplies);
 
         return PromotionDetailVm.fromModel(promotionRepository.save(promotion));
+    }
+
+    private void validateNewPromotion(PromotionPostVm promotionPostVm) {
+        validateIfPromotionExistedSlug(promotionPostVm.getSlug());
+        validateIfCouponCodeIsExisted(promotionPostVm.getCouponCode());
+        validateIfPromotionEndDateIsBeforeStartDate(
+            promotionPostVm.getStartDate().toInstant(),
+            promotionPostVm.getEndDate().toInstant());
     }
 
     public PromotionDetailVm updatePromotion(PromotionPutVm promotionPutVm) {
@@ -162,6 +175,12 @@ public class PromotionService {
         }
     }
 
+    private void validateIfCouponCodeIsExisted(String couponCode) {
+        if (promotionRepository.findByCouponCodeAndIsActiveTrue(couponCode).isPresent()) {
+            throw new DuplicatedException(Constants.ErrorCode.COUPON_CODE_ALREADY_EXISTED, couponCode);
+        }
+    }
+
     public void deletePromotion(Long id) {
         if (promotionUsageRepository.existsByPromotionId(id)) {
             throw new BadRequestException(Constants.ErrorCode.PROMOTION_IN_USE_ERROR_MESSAGE, id);
@@ -175,5 +194,81 @@ public class PromotionService {
             throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE, promotionId);
         }
         return toPromotionDetail(promotionOp.get());
+    }
+
+    public PromotionVerifyResultDto verifyPromotion(PromotionVerifyVm promotionVerifyData) {
+        Optional<Promotion> promotionOp =
+            promotionRepository.findByCouponCodeAndIsActiveTrue(promotionVerifyData.couponCode());
+        if (promotionOp.isEmpty()) {
+            throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE,
+                promotionVerifyData.couponCode());
+        }
+
+        Promotion promotion = promotionOp.get();
+
+        if (isExhaustedUsageQuantity(promotion)) {
+            throw new BadRequestException(Constants.ErrorCode.EXHAUSTED_USAGE_QUANTITY);
+        }
+
+        if (isInvalidOrderPrice(promotionVerifyData, promotion)) {
+            throw new BadRequestException(Constants.ErrorCode.INVALID_MINIMUM_ORDER_PURCHASE_AMOUNT);
+        }
+
+        List<ProductVm> products = getProductsCanApplyPromotion(promotion);
+        if (CollectionUtils.isEmpty(products)) {
+            throw new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND_TO_APPLY_PROMOTION);
+        }
+
+        List<Long> productInPromotionIds = products.stream().map(ProductVm::id).toList();
+        List<Long> commonProductIds = new ArrayList<>(promotionVerifyData.productIds());
+        commonProductIds.retainAll(productInPromotionIds);
+        if (CollectionUtils.isEmpty(commonProductIds)) {
+            throw new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND_TO_APPLY_PROMOTION);
+        }
+
+        List<ProductVm> productsCanApply = products.stream()
+            .filter(product -> commonProductIds.contains(product.id()))
+                .sorted(Comparator.comparing(ProductVm::price)).toList();
+
+        return new PromotionVerifyResultDto(true, productsCanApply.getFirst().id(),
+            promotion.getDiscountType(),
+            DiscountType.FIXED.equals(promotion.getDiscountType())
+                ? promotion.getDiscountAmount() : promotion.getDiscountPercentage());
+    }
+
+    private boolean isInvalidOrderPrice(PromotionVerifyVm promotionVerifyData, Promotion promotion) {
+        return promotionVerifyData.orderPrice() <= 0
+            || promotionVerifyData.orderPrice() < promotion.getMinimumOrderPurchaseAmount();
+    }
+
+    private boolean isExhaustedUsageQuantity(Promotion promotion) {
+        return UsageType.LIMITED.equals(promotion.getUsageType())
+            && promotion.getUsageLimit() <= promotion.getUsageCount();
+    }
+
+    private List<ProductVm> getProductsCanApplyPromotion(Promotion promotion) {
+        switch (promotion.getApplyTo()) {
+            case CATEGORY -> {
+                List<Long> categoryIds = promotion.getPromotionApplies().stream()
+                    .map(PromotionApply::getCategoryId)
+                    .toList();
+                return productService.getProductByCategoryIds(categoryIds);
+            }
+            case BRAND -> {
+                List<Long> brandIds = promotion.getPromotionApplies().stream()
+                    .map(PromotionApply::getBrandId)
+                    .toList();
+                return productService.getProductByBrandIds(brandIds);
+            }
+            case PRODUCT -> {
+                List<Long> productIds = promotion.getPromotionApplies().stream()
+                    .map(PromotionApply::getProductId)
+                    .toList();
+                return productService.getProductByIds(productIds);
+            }
+            default -> {
+                return Collections.emptyList();
+            }
+        }
     }
 }

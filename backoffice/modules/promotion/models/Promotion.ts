@@ -15,6 +15,7 @@ export type PromotionDetail = {
   usageType: string;
   discountPercentage: number;
   discountAmount: number;
+  minimumOrderPurchaseAmount: number;
   isActive: boolean;
   startDate: string;
   endDate: string;
@@ -50,6 +51,7 @@ export type PromotionDto = {
   usageType: string;
   discountPercentage?: number;
   discountAmount?: number;
+  minimumOrderPurchaseAmount: number;
   isActive: boolean;
   startDate: string;
   endDate: string;

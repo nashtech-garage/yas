@@ -996,6 +996,7 @@ public class ProductService {
                                 productRelated.getRelatedProduct().isPublished(),
                                 productRelated.getRelatedProduct().isFeatured(),
                                 productRelated.getRelatedProduct().isVisibleIndividually(),
+                                productRelated.getRelatedProduct().getPrice(),
                                 productRelated.getRelatedProduct().getCreatedOn(),
                                 productRelated.getRelatedProduct().getTaxClassId()
                         )
@@ -1111,4 +1112,13 @@ public class ProductService {
         var q2 = p2.quantity();
         return new ProductQuantityPutVm(p1.productId(), q1 + q2);
     }
+
+    public List<ProductListVm> getProductByCategoryIds(List<Long> categoryIds) {
+        return this.productRepository.findByCategoryIdsIn(categoryIds).stream().map(ProductListVm::fromModel).toList();
+    }
+
+    public List<ProductListVm> getProductByBrandIds(List<Long> brandIds) {
+        return this.productRepository.findByBrandIdsIn(brandIds).stream().map(ProductListVm::fromModel).toList();
+    }
+
 }

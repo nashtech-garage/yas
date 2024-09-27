@@ -23,6 +23,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
   });
   const [category, setCategory] = useState<string | undefined>(searchParams.category);
   const [brand, setBrand] = useState<string | undefined>(searchParams.brand);
+  const [attribute, setAttribute] = useState<string | undefined>(searchParams.attribute);
 
   const handleChangePrice = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
@@ -96,6 +97,8 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
       setBrand(queries.length > 0 ? updatedQuery : undefined);
     } else if (fieldName === 'category') {
       setCategory(queries.length > 0 ? updatedQuery : undefined);
+    } else if (fieldName === 'attribute') {
+      setAttribute(queries.length > 0 ? updatedQuery : undefined);
     }
 
     if (queries.length > 0) {
@@ -121,7 +124,7 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
   };
 
   const handleClearAll = () => {
-    if (rangePrice.min || rangePrice.max || category || brand) {
+    if (rangePrice.min || rangePrice.max || category || brand || attribute) {
       setRangePrice({ min: 0, max: 0 });
       setSearchParams({
         ...searchParams,
@@ -129,13 +132,16 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
         maxPrice: undefined,
         category: undefined,
         brand: undefined,
+        attribute: undefined,
       });
       setCategory(undefined);
       setBrand(undefined);
+      setAttribute(undefined);
       delete router.query.minPrice;
       delete router.query.maxPrice;
       delete router.query.category;
       delete router.query.brand;
+      delete router.query.attribute;
       delete router.query.page;
       router
         .replace(
@@ -195,6 +201,28 @@ const SearchFilter = ({ aggregations, searchParams, setSearchParams }: SearchFil
                 />
                 <label htmlFor={`brand-${index}`}>
                   {item.charAt(0).toUpperCase() + item.slice(1)} ({aggregations['brands'][item]})
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {aggregations['attributes'] && Object.keys(aggregations['attributes']).length > 0 && (
+        <div className={styles['filter-group']}>
+          <div className={styles['filter-group__title']}>Attribute</div>
+          <div className={styles['filter-group__list']}>
+            {Object.keys(aggregations['attributes']).map((item, index) => (
+              <div className={styles['filter-group__list-item']} key={item}>
+                <input
+                  type="checkbox"
+                  id={`attribute-${index}`}
+                  value={item.toLowerCase()}
+                  checked={attribute?.toLowerCase().includes(item.toLowerCase())}
+                  onChange={(e) => handleFilter(e, item, 'attribute')}
+                />
+                <label htmlFor={`attribute-${index}`}>
+                  {item} ({aggregations['attributes'][item]})
                 </label>
               </div>
             ))}

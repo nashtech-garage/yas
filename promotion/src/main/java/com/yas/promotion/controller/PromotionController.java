@@ -5,6 +5,8 @@ import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
+import com.yas.promotion.viewmodel.PromotionVerifyResultDto;
+import com.yas.promotion.viewmodel.PromotionVerifyVm;
 import com.yas.promotion.viewmodel.error.ErrorVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -102,5 +104,10 @@ public class PromotionController {
     public ResponseEntity<PromotionDetailVm> getPromotion(@PathVariable("promotionId") Long promotionId) {
         PromotionDetailVm promotionDetailVm = promotionService.getPromotion(promotionId);
         return new ResponseEntity<>(promotionDetailVm, HttpStatus.OK);
+    }
+
+    @GetMapping({"/storefront/promotions/verify", "/backoffice/promotions/verify"})
+    public ResponseEntity<PromotionVerifyResultDto> verifyPromotion(PromotionVerifyVm promotionVerifyInfo) {
+        return ResponseEntity.ok(promotionService.verifyPromotion(promotionVerifyInfo));
     }
 }

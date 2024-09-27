@@ -1,6 +1,6 @@
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Container, Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -191,7 +191,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
       <div className="container" style={{ marginTop: '70px' }}>
         <Table>
           {product.productAttributeGroups.map((attributeGroup) => (
-            <>
+            <Fragment key={attributeGroup.name}>
               <thead key={attributeGroup.name}>
                 <tr className="product_detail_tr">
                   <th className="product_detail_th">{attributeGroup.name} :</th>
@@ -207,7 +207,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
                   </tr>
                 ))}
               </tbody>
-            </>
+            </Fragment>
           ))}
         </Table>
       </div>

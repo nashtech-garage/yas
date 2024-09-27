@@ -34,33 +34,40 @@ export default function ProductDetails({
   averageStar,
   totalRating,
 }: ProductDetailProps) {
+  const [listImages, setListImages] = useState<string[]>([]);
+
+  const getColorId = (options: ProductOptions[]) => {
+    return options.find((attr) => attr.name === 'COLOR')?.id;
+  };
+
   const initCurrentSelectedOption = useMemo(() => {
-    if (
-      productOptions &&
-      productOptions.length > 0 &&
-      productVariations &&
-      productVariations.length > 0
-    ) {
-      if (pvid) {
-        const productVariation = productVariations?.find((item) => item.id.toString() === pvid);
-        if (productVariation) {
-          return Object.keys(productVariation.options).reduce((acc, cur) => {
-            return {
-              ...acc,
-              [cur]: productVariation.options[+cur],
-            };
-          }, {});
-        }
-      }
-      return productVariations[0].options;
-    } else {
+    if (!productOptions?.length || !productVariations?.length) {
+      setListImages(product.productImageMediaUrls);
       return {};
     }
+
+    const productVariation = pvid && productVariations.find((item) => item.id.toString() === pvid);
+    if (productVariation) {
+      return productVariation.options;
+    }
+
+    const colorId = getColorId(productOptions);
+    const productWithColor = productVariations.find(
+      (variant) => String(colorId) in variant.options
+    );
+
+    setListImages(
+      productWithColor
+        ? productWithColor.productImages.map((image) => image.url)
+        : product.productImageMediaUrls
+    );
+    return productWithColor ? productWithColor.options : productVariations[0].options;
   }, [productOptions, productVariations, pvid]);
 
   const router = useRouter();
   const [currentSelectedOption, setCurrentSelectedOption] =
     useState<CurrentSelectedOption>(initCurrentSelectedOption);
+  const [optionSelected, setOptionSelected] = useState<CurrentSelectedOption>({});
   const [currentProduct, setCurrentProduct] = useState<ProductDetail | ProductVariation>(product);
   const { fetchNumberCartItems } = useCartContext();
   useEffect(() => {
@@ -77,12 +84,7 @@ export default function ProductDetails({
   }, [productOptions, productVariations, pvid, currentProduct.id]);
 
   useEffect(() => {
-    if (
-      productOptions &&
-      productOptions.length > 0 &&
-      productVariations &&
-      productVariations.length > 0
-    ) {
+    if (productOptions?.length && productVariations?.length) {
       const productVariation = productVariations.find((item) => {
         return (
           Object.keys(item.options).length === Object.keys(currentSelectedOption).length &&
@@ -92,7 +94,20 @@ export default function ProductDetails({
         );
       });
       if (productVariation) {
+        setListImages(productVariation.productImages.map((image) => image.url));
         setCurrentProduct(productVariation);
+      } else {
+        const productSelected = productVariations.find((item) => {
+          return item.options[+Object.keys(optionSelected)[0]] == Object.values(optionSelected)[0];
+        });
+        if (productSelected) {
+          const colorId = getColorId(productOptions);
+          if (colorId === +Object.keys(optionSelected)[0]) {
+            const urlList = productSelected.productImages.map((image) => image.url);
+            setListImages(urlList);
+          }
+          setCurrentProduct(productSelected);
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,6 +140,7 @@ export default function ProductDetails({
       productVariations.length > 0
     ) {
       setCurrentSelectedOption({ ...currentSelectedOption, [optionId]: optionValue });
+      setOptionSelected({ [optionId]: optionValue });
     }
   };
   return (
@@ -137,7 +153,7 @@ export default function ProductDetails({
 
       <div className="row justify-content-center">
         <div className="col-6">
-          <ProductImageGallery listImages={product.productImageMediaUrls} />
+          <ProductImageGallery listImages={listImages} />
         </div>
 
         <div className="col-6">

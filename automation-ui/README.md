@@ -1,54 +1,47 @@
-# Automation project for YAS application
+# 🛠️ Automation Project for YAS Application
 
-## Tentative technologies and frameworks
+This project automates tests for the YAS application using modern Java technologies.
 
-- Java 21
-- Spring boot 3.2
-- Cucumber
-- Cucumber-Spring
-- Selenium
-- Cucumber-Junit
-- SonarCloud
+## 🧑‍💻 Technologies and Frameworks
+- **Java 21**
+- **Spring Boot 3.2**
+- **Cucumber**
+- **Cucumber-Spring**
+- **Selenium**
+- **Cucumber-JUnit**
+- **SonarCloud**
 
+## 🏗️ Local Development Architecture
+```mermaid
+flowchart TD
+  TestRunner("Test Runner (JUnit, TestNG)")
+  FeatureFile("Feature File (.feature)")
+  StepDefinitions("Step Definitions (using Java)")
+  Selenium("Selenium WebDriver")
+  WebApp("Web Application")
 
-## Local development architecture
+  TestRunner --> FeatureFile
+  FeatureFile --> StepDefinitions
+  StepDefinitions --> Selenium
+  Selenium --> WebApp
 ```
-+----------------------------------------+
-|      **Test Runner** (JUnit, TestNG)   |
-|  - Executes the Cucumber scenarios     |
-|  - Initiates WebDriver & test flow     |
-+----------------------------------------+
-                    |
-                    v
-+----------------------------------------+
-|      **Feature File** (.feature)       |
-|  - Written in Gherkin language         |
-|  - Defines scenarios (Given, When, Then)|
-+----------------------------------------+
-                    |
-                    v
-+----------------------------------------+
-|   **Step Definitions** (using Java)    |
-|  - Maps Gherkin steps to actual code   |
-|  - Uses Selenium WebDriver for actions |
-+----------------------------------------+
-                    |
-                    v
-+----------------------------------------+
-|      **Selenium WebDriver**            |
-|  - Automates browser interactions      |
-|  - Opens browser, simulates actions    |
-|  - Fetches web elements, etc.          |
-+----------------------------------------+
-                    |
-                    v
-+----------------------------------------+
-|      **Web Application**               |
-|  - The actual application under test   |
-+----------------------------------------+
-```
+## 🚀 Getting Started
 
-## Getting started :
+To run the tests locally, follow the steps below:
 
-1. Make sure Yas application is up and running.
-2. If you want to execute all scenarios in storefront, go to storefront project and execute command: mvn clean test , all test scenarios will be executed. Another way is running JUnitCucumberRunner class using IDE.
+### 1. Start the YAS Application
+Ensure the YAS application is running in your local environment.
+
+### 2. Running Tests via Maven
+You can run the tests in two modes:
+
+- **Normal Mode**: Run the tests normally with the following command:
+  ```bash
+  mvn clean test
+  ```
+
+- **Headless Mode**: 
+  To run the tests in headless mode, use the following command:
+  ```bash
+  mvn clean test -Dheadless
+  ```

@@ -28,6 +28,7 @@ import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.product.ProductFeatureGetVm;
 import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
 import com.yas.product.viewmodel.product.ProductListGetVm;
+import com.yas.product.viewmodel.product.ProductListVm;
 import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
@@ -359,5 +360,23 @@ class ProductServiceIT {
         assertEquals(1, result.totalElements());
         assertEquals(1, result.totalPages());
         assertTrue(result.isLast());
+    }
+
+    @Test
+    void getProductsByCategoryIds_WhenFindAllByCategoryIds_ThenSuccess() {
+        generateTestData();
+        List<Long> categoryIds = List.of(1L, 2L);
+        List<ProductListVm>  actualResponse = productService.getProductByCategoryIds(categoryIds);
+        assertEquals(0, actualResponse.size());
+    }
+
+    @Test
+    void getProductsByBrandIds_WhenFindAllByBrandIds_ThenSuccess() {
+        generateTestData();
+        List<Long> brandIds = List.of(brand1.getId(), brand2.getId());
+        List<ProductListVm>  actualResponse = productService.getProductByBrandIds(brandIds);
+        assertEquals(10, actualResponse.size());
+        assertEquals("product9", actualResponse.getFirst().name());
+        assertEquals("slug9", actualResponse.getFirst().slug());
     }
 }
