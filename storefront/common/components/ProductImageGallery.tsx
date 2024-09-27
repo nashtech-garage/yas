@@ -20,12 +20,13 @@ export function ProductImageGallery({ listImages }: IProductImageGalleryProps) {
 
   const currentMax = Math.max(currentIndex - Math.floor(NO_SLIDER_IMAGE / 2), 0);
 
-  if (currentMax < listImages.length - NO_SLIDER_IMAGE) {
+  let remainingImages = listImages.length - NO_SLIDER_IMAGE;
+  if (currentMax < remainingImages) {
     // If there are enough images after the current index to fill the slider, start the slider at the current max
     startSliderIndex = currentMax;
-  } else {
+  } else if (remainingImages >= 0) {
     // Otherwise, start the slider at the end of the list minus the maximum number of images to show
-    startSliderIndex = listImages.length - NO_SLIDER_IMAGE;
+    startSliderIndex = remainingImages;
   }
 
   const visibleImages =
