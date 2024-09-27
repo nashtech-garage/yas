@@ -39,6 +39,36 @@ public class BasePage {
         }
     }
 
+    public void waitWithRetry(Duration duration, Supplier<Boolean> booleanSupplier) {
+        int attempts = 0;
+        int maxRetries = 5;
+
+        // Keep checking the supplier until it returns false or max retries are reached
+        while (attempts < maxRetries) {
+            // If the condition returns false, stop retrying
+            if (!booleanSupplier.get()) {
+                System.out.println("Condition met on attempt " + (attempts + 1));
+                return;
+            }
+
+            // Sleep for the provided duration between retries
+            try {
+                System.out.println("Attempt " + (attempts + 1) + ": Condition not met, retrying after " + duration.toSeconds() + " seconds.");
+                Thread.sleep(duration.toMillis());
+            } catch (InterruptedException e) {
+                // Handle interruption and exit the retry loop if interrupted
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Thread was interrupted", e);
+            }
+
+            // Increment the retry counter
+            attempts++;
+        }
+
+        // If max retries are reached, log a message or throw an exception
+        System.out.println("Max retry limit reached, condition was not met.");
+    }
+
     public void scrollDown() {
         JavascriptExecutor javascriptExecutor = (JavascriptExecutor) getWebDriver();
         javascriptExecutor.executeScript("window.scrollBy(0,document.body.scrollHeight)");

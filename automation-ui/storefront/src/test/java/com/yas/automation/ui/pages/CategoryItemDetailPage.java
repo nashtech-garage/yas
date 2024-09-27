@@ -10,6 +10,7 @@ import org.openqa.selenium.support.How;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 @Component
 public class CategoryItemDetailPage extends BasePage {
@@ -21,7 +22,10 @@ public class CategoryItemDetailPage extends BasePage {
     }
 
     public boolean existedButtonAddToCart() {
-        this.wait(Duration.ofSeconds(1));
+        Supplier<Boolean> checkButton = () -> {
+            return !WebElementUtil.isElementPresent(webDriverFactory.getChromeDriver(), How.XPATH, "//button[span[text()='Add to cart']]");
+        };
+        this.waitWithRetry(Duration.ofSeconds(1), checkButton);
         return WebElementUtil.isElementPresent(webDriverFactory.getChromeDriver(), How.XPATH, "//button[span[text()='Add to cart']]");
     }
 
@@ -31,7 +35,7 @@ public class CategoryItemDetailPage extends BasePage {
     }
 
     public void clickObBasket() {
-        this.wait(Duration.ofSeconds(5));
+        this.wait(Duration.ofSeconds(2));
         WebElement btnBasket = getWebElementBy(webDriverFactory.getChromeDriver(), How.CLASS_NAME, "header-cart");
         btnBasket.click();
     }
