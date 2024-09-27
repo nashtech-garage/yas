@@ -69,25 +69,21 @@
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-java</artifactId>
                 <version>${selenium-java.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.github.bonigarcia</groupId>
                 <artifactId>webdrivermanager</artifactId>
                 <version>${webdrivermanager.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-java</artifactId>
                 <version>${cucumber-java.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-spring</artifactId>
                 <version>${cucumber-spring.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -118,10 +114,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -137,10 +129,6 @@
 
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>

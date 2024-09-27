@@ -1,11 +1,11 @@
 package com.yas.automation.ui.pages;
 
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.How;
 import org.springframework.stereotype.Component;
 
-import static com.yas.automation.ui.util.WebElementUtil.getWebElementBy;
+import static com.yas.automation.base.util.WebElementUtil.getWebElementBy;
 
 @Component
 public class HomePage {
