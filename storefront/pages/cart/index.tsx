@@ -34,6 +34,8 @@ const Cart = () => {
 
   const [items, setItems] = useState<Item[]>([]);
 
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<number>>(new Set());
+
   const [loaded, setLoaded] = useState(false);
 
   const [productIdRemove, setProductIdRemove] = useState<number>(0);
@@ -56,6 +58,18 @@ const Cart = () => {
     ],
   });
   const { fetchNumberCartItems } = useCartContext();
+
+  useEffect(() => {
+    const selectedItems = getSelectedItems();
+    const newTotalPrice = selectedItems
+      .map((item) => item.price * item.quantity)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    setTotalPrice(newTotalPrice);
+  }, [items, selectedProductIds]);
+
+  const getSelectedItems = () => {
+    return items.filter((item) => selectedProductIds.has(item.productId));
+  };
 
   const calculateProductPrice = (item: Item) => {
     return formatPrice(item.price * item.quantity);
@@ -96,16 +110,16 @@ const Cart = () => {
       });
   };
 
-  useEffect(() => {
-    const totalPrice = items
-      .map((item) => item.price * item.quantity)
-      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    setTotalPrice(totalPrice);
-  }, [items]);
-
   const removeProduct = (productId: number) => {
     removeProductInCart(productId)
-      .then(() => loadCart())
+      .then(() => {
+        loadCart();
+        setSelectedProductIds((prevSelectedProductIds) => {
+          const newSelectedItems = new Set(prevSelectedProductIds);
+          newSelectedItems.delete(productId);
+          return newSelectedItems;
+        });
+      })
       .catch((err) => {
         console.log('remove product in cart fail: ' + err.message);
       });
@@ -196,7 +210,8 @@ const Cart = () => {
   }, [loaded]);
 
   const handleCheckout = () => {
-    const checkoutItems = convertItemsToCheckoutItems(items);
+    const selectedItems = getSelectedItems();
+    const checkoutItems = selectedItems.map((item) => convertItemToCheckoutItem(item));
 
     let checkout: Checkout = {
       email: email,
@@ -223,8 +238,25 @@ const Cart = () => {
     };
   };
 
-  const convertItemsToCheckoutItems = (items: Item[]): CheckoutItem[] => {
-    return items.map(convertItemToCheckoutItem);
+  const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const allProductIds = items.map((item) => item.productId);
+      setSelectedProductIds(new Set(allProductIds));
+    } else {
+      setSelectedProductIds(new Set());
+    }
+  };
+
+  const handleSelectItemChange = (productId: number) => {
+    setSelectedProductIds((prevSelectedProductIds) => {
+      const newSelectedProductIds = new Set(prevSelectedProductIds);
+      if (newSelectedProductIds.has(productId)) {
+        newSelectedProductIds.delete(productId);
+      } else {
+        newSelectedProductIds.add(productId);
+      }
+      return newSelectedProductIds;
+    });
   };
 
   return (
@@ -239,6 +271,18 @@ const Cart = () => {
                 <table>
                   <thead>
                     <tr>
+                      <th>
+                        <label className="item-checkbox-label" htmlFor="select-all-checkbox">
+                          {''}
+                          <input
+                            id="select-all-checkbox"
+                            type="checkbox"
+                            className="form-check-input item-checkbox"
+                            onChange={handleSelectAllChange}
+                            checked={selectedProductIds.size === items.length}
+                          />
+                        </label>
+                      </th>
                       <th>Product</th>
                       <th>Price</th>
                       <th>Quantity</th>
@@ -250,6 +294,17 @@ const Cart = () => {
                     {items.map((item) => {
                       return (
                         <tr key={item.quantity.toString() + item.productId.toString()}>
+                          <td>
+                            <label className="item-checkbox-label" htmlFor="select-item-checkbox">
+                              {''}
+                              <input
+                                className="form-check-input item-checkbox"
+                                type="checkbox"
+                                checked={selectedProductIds.has(item.productId)}
+                                onChange={() => handleSelectItemChange(item.productId)}
+                              />
+                            </label>
+                          </td>
                           <td className="cart__product__item d-flex align-items-center">
                             <div className="h-100">
                               <Link
@@ -327,7 +382,7 @@ const Cart = () => {
                                 openRemoveConfirmDialog(item.productId);
                               }}
                             >
-                              <i className="bi bi-x-lg"></i>
+                              <i className="bi bi-x-lg fs-5"></i>
                             </button>{' '}
                           </td>
                         </tr>
@@ -372,9 +427,13 @@ const Cart = () => {
                 </li>
               </ul>
 
-              <a className="primary-btn" onClick={handleCheckout} style={{ cursor: 'pointer' }}>
+              <Button
+                className="primary-btn"
+                onClick={handleCheckout}
+                disabled={selectedProductIds?.size === 0}
+              >
                 Proceed to checkout
-              </a>
+              </Button>
             </div>
           </div>
         </div>
