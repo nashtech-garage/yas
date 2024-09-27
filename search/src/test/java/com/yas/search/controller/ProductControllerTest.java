@@ -2,7 +2,6 @@ package com.yas.search.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -10,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.yas.search.ElasticsearchApplication;
-import com.yas.search.constant.enums.SortType;
 import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.service.ProductService;
 import com.yas.search.viewmodel.ProductGetVm;
