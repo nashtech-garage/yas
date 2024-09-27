@@ -221,6 +221,10 @@
   border-radius: 50px;
   text-align: center;
   padding: 12px 0 10px;
+  width: 100%;
+  background-color: #ca1515;
+  border: none;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
 }
 
 /*---------------------
@@ -591,4 +595,25 @@
 
 .product-link:hover {
   color: #273ac8 !important;
+}
+
+.item-checkbox-label {
+  padding: 10px;
+}
+
+.item-checkbox {
+  width: 22px;
+  height: 22px;
+  margin-right: 20px;
+  margin-top: 0px;
+}
+
+.form-check-input:checked {
+  background-color: #444444;
+  border-color: #444444;
+}
+
+.form-check-input:focus {
+  box-shadow: none;
+  border-color: #444444;
 }
