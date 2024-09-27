@@ -1,0 +1,19 @@
+@startuml Handle stock ran out
+Title "Handle stock ran out"
+box "Promotion service"
+    participant "Promotion Service" as promtion_service
+    database "PromotionUsage table" as promtion_db
+    entity "PromotionUsage" as promotion_usage
+end box
+queue "Kafka Topic: Events.Order.Checkouts" as checkout_eq
+
+checkout_eq --> promtion_service: EVT_ERR_PROMO_APPLY_FAILED \n {PROMOCODE, checkoutId}
+activate promtion_service
+promtion_service -> promtion_db: SELECT * FROM promotion_usages WHERE checkout_id=? \n AND promo_code=? \n FOR UPDATE
+activate promtion_db
+    promtion_db -> promotion_usage**: find promotion_usage
+    promtion_db --> promtion_service: promotion_usage
+deactivate promtion_db
+promtion_service -> promtion_db: Delete(promotion_usage.promocode="")   
+deactivate promtion_service
+@enduml

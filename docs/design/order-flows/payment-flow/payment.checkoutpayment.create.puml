@@ -1,0 +1,41 @@
+@startuml Create checkout payment
+participant "Order Service" as order_service
+box "Payment service"   
+    participant "Payment service" as payment_service
+    database "checkout_payments table" as payment_db
+    entity "CheckoutPayment" as checkout_payment
+end box
+queue "Kafka Topic: Events.Payment.CheckoutPayments" as payment_eq
+activate order_service
+order_service -> payment_service: POST /payment/payments { checkout }
+    note right of order_service
+      checkout includes:
+        - payment_method
+        - product_items
+        - shipment_fees
+        - taxes
+    end note 
+    activate payment_service #73c6b6 
+      payment_service -> checkout_payment **: create
+      note right of checkout_payment
+      { status=payment_type is COD ? PROCESSING : NEW,
+       checkout_id,
+       product_items, 
+       shipment_fees, 
+       taxes, 
+       payment_type: checkout.payment_method }
+      end note 
+      payment_service -> payment_db: save(checkout_payment)
+      activate payment_db
+      payment_db --> payment_service: checkout_payment
+      deactivate payment_db
+      payment_db --> payment_eq: [CDC EVENT]: EVT_PAYMENT_CHECKOUT_CREATED
+      order_service <-- payment_service: checkout_payment
+      note right of order_service
+        checkout_payment:
+          - payment_provider_checkout_id
+          - checkout
+          - payment_type
+      end note
+    deactivate payment_service
+@enduml

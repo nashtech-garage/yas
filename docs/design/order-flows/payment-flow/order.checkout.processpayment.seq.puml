@@ -1,0 +1,75 @@
+@startuml Process payment for checkout
+title "Process payment for checkout"
+participant "Storefront" as storefront
+box "Order Service"
+    participant "Order Service" as order_service
+    database "Checkout table" as checkout_db
+    entity "Checkout" as checkout
+end box
+queue "Kafka Topic: Events.Order.Checkouts" as checkout_eq
+participant "Promotion service" as promotion_service
+participant "Inventory service" as inventory_service
+participant "Payment service" as payment_service
+
+activate storefront
+storefront -> order_service: POST /order/checkouts/{checkout_id}/process_payment
+activate order_service
+order_service -> checkout_db: SELECT * FROM checkouts WHERE id=
+activate checkout_db
+    checkout_db -> checkout**: find checkout
+    checkout_db --> order_service: checkout
+deactivate checkout_db
+order_service -> order_service: Validate checkout owner
+order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/usage {checkout_id, state: APPLIED}
+activate promotion_service #8af1f0
+    promotion_service --> order_service: 201 CREATED 
+deactivate promotion_service
+alt #f1948a "Fail to apply"
+    order_service -> checkout_eq: EVT_ERR_PROMO_APPLY_FAILED \n {PROMOCODE, checkoutId}
+    order_service --> storefront: 400 BAD REQUEST \n {ERROR_CODE: PROMOCODE_RAN_OUT| PROMOCODE_EXPIRED}
+end
+
+order_service -> inventory_service: POST /inventory/products/stocks/reservations \n {orderId, items}
+note right of order_service
+items is a list of items, each includes:
+    - productId
+    - quantity
+end note
+activate inventory_service
+order_service <-- inventory_service: 200 OK
+deactivate inventory_service
+note left of inventory_service
+        Stock confirmation, list out state of stock
+        {
+          <product_id_01>: OK,
+          <product_id_02>: OUT_OF_STOCK,
+          <product_id_03>: OK
+        }
+end note
+alt #f1948a
+    order_service -> checkout_eq: EVT_ERR_STOCK_RAN_OUT \n {checkoutId}
+    order_service --> storefront: 400 BAD REQUEST \n {ERROR_CODE: STOCK_RAN_OUT}
+end
+order_service -> checkout: checkout.STATE=PAYMENT_PROCESSING
+order_service -> checkout_db: Update(checkout)
+order_service -> payment_service: POST /payment/payments { checkout }
+    note right of order_service
+      checkout includes:
+        - payment_method
+        - product_items
+        - shipment_fees
+        - taxes
+    end note 
+    activate payment_service #73c6b6 
+      order_service <-- payment_service: checkout_payment
+      note right of order_service
+        checkout_payment:
+          - payment_provider_checkout_id
+          - checkout
+          - payment_type
+      end note
+    deactivate payment_service
+order_service --> storefront: checkout payment
+deactivate order_service
+deactivate storefront
+@enduml

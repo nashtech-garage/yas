@@ -1,0 +1,29 @@
+@startuml Handle Paypal webhook event
+title "Handle Paypal CHECKOUT.ORDER.APPROVED webhook event"
+box YAS
+    queue "KafkaTopic: CheckoutPaymentEvents" as checkout_payment_topic
+    queue "KafkaTopic: Payment.Paypal.Events" as paypal_topic
+    participant "Paypal Adapter" as payment_adapter#3498db
+end box 
+
+participant "Paypal" as payment_provider #2874a6
+
+activate payment_provider
+    payment_provider -> payment_adapter: POST  /payment-paypal/webhooks/events \n {type: CHECKOUT.ORDER.APPROVED}
+    activate payment_adapter
+        payment_adapter -> paypal_topic: Event: PAYMENT_APPROVED {paypal_order_id, checkoutId(internal)}
+        payment_adapter --> payment_provider: 200 OK
+    deactivate payment_provider
+deactivate payment_adapter
+
+group Capture payment
+    paypal_topic --> payment_adapter: Event: PAYMENT_APPROVED {paypal_order_id, checkoutId(internal)}
+    activate payment_adapter
+        payment_adapter -> payment_provider: POST /v2/checkout/orders/{order_id}/capture
+        activate payment_provider
+            payment_adapter <-- payment_provider: 201 CREATED
+        deactivate payment_provider
+        payment_adapter -> checkout_payment_topic: Event: CHECKOUT_PAYMENT_CONFIRMED_BY_PROVIDER {checkoutId}
+    deactivate payment_adapter
+end
+@enduml

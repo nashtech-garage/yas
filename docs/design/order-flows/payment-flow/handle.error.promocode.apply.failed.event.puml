@@ -1,0 +1,20 @@
+@startuml Handle apply promocode failed
+Title "Handle apply promocode failed"
+box "Order Service"
+    participant "Order Service" as order_service
+    database "Checkout table" as checkout_db
+    entity "Checkout" as checkout
+end box
+queue "Kafka Topic: Events.Order.Checkouts" as checkout_eq
+checkout_eq --> order_service: EVT_ERR_PROMO_APPLY_FAILED \n {PROMOCODE, checkoutId}
+activate order_service
+order_service -> checkout_db: SELECT * FROM checkouts WHERE id= \n FOR UPDATE
+activate checkout_db
+    checkout_db -> checkout**: find checkout
+    checkout_db --> order_service: checkout
+deactivate checkout_db
+order_service -> order_service: Check if PROMOCODE \n to removed is still there
+order_service -> checkout: Remove promo code
+order_service -> checkout_db: Update(checkout.promocode="")   
+deactivate order_service
+@enduml

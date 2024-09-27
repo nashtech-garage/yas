@@ -1,0 +1,34 @@
+@startuml Handle CHECKOUT_PAYMENT_COMPLETED
+
+title "Handle CHECKOUT_PAYMENT_COMPLETED"
+
+queue "KafkaTopic: CheckoutPaymentEvents" as checkout_payment_topic
+box "Order Service"
+    participant "Order Service" as order_service
+    database "Checkout table" as checkout_db
+    entity "Checkout" as checkout
+    database "Order Table" as order_db
+    entity "Order" as order
+end box
+queue "KafkaTopic: Order.Orders.Events" as order_topic
+checkout_payment_topic --> order_service: Event: CHECKOUT_PAYMENT_COMPLETED {checkout_id}
+activate order_service
+    order_service -> checkout_db: SELECT * FROM checkouts WHERE id=
+    activate checkout_db
+        checkout_db -> checkout**: find checkout
+        checkout_db --> order_service: checkout
+    deactivate checkout_db
+    order_service -> checkout: update(status: PAYMENT_CONFIRMED)
+    order_service -> checkout_db: update(Checkout)
+    activate checkout_db 
+        checkout_db --> order_service: checkout
+    deactivate checkout_db
+    order_service -> order **: create(status=PAYMENT_CONFIRMED \nitems = checkout.items, \n addresses = checkout.addresses \n ...)
+    order --> order_service: order
+    order_service -> order_db: save(order)
+    activate order_db
+        order_db --> order_service: order
+    deactivate order_db
+    order_service -> order_topic: Event: PAYMENT_CONFIRMED_ORDER_CREATED (orderId)
+deactivate order_service
+@enduml
