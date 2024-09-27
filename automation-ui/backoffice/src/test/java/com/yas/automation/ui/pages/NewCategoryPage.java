@@ -2,11 +2,11 @@ package com.yas.automation.ui.pages;
 
 import com.yas.automation.ui.constants.CategoryConstants;
 import com.yas.automation.ui.form.CategoryForm;
-import com.yas.automation.ui.form.InputType;
-import com.yas.automation.ui.hook.WebDriverFactory;
-import com.yas.automation.ui.page.BasePage;
-import com.yas.automation.ui.service.InputDelegateService;
-import com.yas.automation.ui.util.WebElementUtil;
+import com.yas.automation.base.form.InputType;
+import com.yas.automation.base.hook.WebDriverFactory;
+import com.yas.automation.base.page.BasePage;
+import com.yas.automation.base.service.InputDelegateService;
+import com.yas.automation.base.util.WebElementUtil;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
