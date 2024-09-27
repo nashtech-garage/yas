@@ -2,8 +2,8 @@ package com.yas.search.service;
 
 import com.yas.search.config.ServiceUrlConfig;
 import com.yas.search.constant.MessageCode;
-import com.yas.search.model.Product;
 import com.yas.search.exception.NotFoundException;
+import com.yas.search.model.Product;
 import com.yas.search.repository.ProductRepository;
 import com.yas.search.viewmodel.ProductEsDetailVm;
 import java.net.URI;
