@@ -4,4 +4,8 @@ RUN    apk add --no-cache --virtual .debezium-build-deps gcc clang15 llvm15 git 
          && git clone https://github.com/eulerto/wal2json -b master --single-branch \
          && (cd /wal2json && git checkout tags/$WAL2JSON_TAG -b $WAL2JSON_TAG && make && make install) \
          && rm -rf wal2json \
+         && git clone https://github.com/pgvector/pgvector.git \
+         && cd pgvector \
+         && make && make install \
+         && rm -rf pgvector \
          && apk del .debezium-build-deps

@@ -1,54 +1,33 @@
 package com.yas.product.controller;
 
 import com.yas.product.model.enumeration.FilterExistInWhSelection;
+import com.yas.product.service.ProductRecommendationService;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.error.ErrorVm;
-import com.yas.product.viewmodel.product.ProductDetailGetVm;
-import com.yas.product.viewmodel.product.ProductDetailVm;
-import com.yas.product.viewmodel.product.ProductEsDetailVm;
-import com.yas.product.viewmodel.product.ProductExportingDetailVm;
-import com.yas.product.viewmodel.product.ProductFeatureGetVm;
-import com.yas.product.viewmodel.product.ProductGetDetailVm;
-import com.yas.product.viewmodel.product.ProductInfoVm;
-import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
-import com.yas.product.viewmodel.product.ProductListGetVm;
-import com.yas.product.viewmodel.product.ProductListVm;
-import com.yas.product.viewmodel.product.ProductPostVm;
-import com.yas.product.viewmodel.product.ProductPutVm;
-import com.yas.product.viewmodel.product.ProductQuantityPostVm;
-import com.yas.product.viewmodel.product.ProductQuantityPutVm;
-import com.yas.product.viewmodel.product.ProductSlugGetVm;
-import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
-import com.yas.product.viewmodel.product.ProductThumbnailVm;
-import com.yas.product.viewmodel.product.ProductVariationGetVm;
-import com.yas.product.viewmodel.product.ProductsGetVm;
+import com.yas.product.viewmodel.product.*;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Validated
 @RestController
 public class ProductController {
     private final ProductService productService;
+    private final ProductRecommendationService productRecommendationService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductRecommendationService productRecommendationService) {
         this.productService = productService;
+        this.productRecommendationService = productRecommendationService;
     }
 
     @GetMapping("/backoffice/products")
@@ -271,5 +250,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.getLatestProducts(count));
     }
 
-
+    @GetMapping("/storefront/products/detail/{productId}")
+    public ResponseEntity<ProductDetailInfoVm> getProductDetailById(@PathVariable("productId") long productId) {
+        return ResponseEntity.ok(productRecommendationService.getProductDetailById(productId));
+    }
 }
