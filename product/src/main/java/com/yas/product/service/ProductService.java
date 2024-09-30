@@ -476,6 +476,7 @@ public class ProductService {
 
     private List<ProductOptionValue> updateProductOptionValues(ProductPutVm productPutVm, Product product,
                                                             Map<Long, ProductOption> optionsById) {
+        productOptionValueRepository.deleteAllByProductId(product.getId());
         List<ProductOptionValue> productOptionValues = new ArrayList<>();
         productPutVm.productOptionValues().forEach(optionValueVm -> optionValueVm.value().forEach(value -> {
             ProductOptionValue optionValue = ProductOptionValue.builder()

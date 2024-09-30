@@ -12,5 +12,7 @@ public interface ProductOptionValueRepository extends JpaRepository<ProductOptio
     List<ProductOptionValue> findAllByProduct(Product product);
 
     void deleteByProductIdAndValue(Long productId, String value);
+    
+    void deleteAllByProductId(Long productId);
 
 }
