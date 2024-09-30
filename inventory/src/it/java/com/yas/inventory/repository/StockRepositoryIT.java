@@ -3,7 +3,7 @@ package com.yas.inventory.repository;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.instancio.Select.field;
 
-import com.yas.inventory.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
 import java.util.List;

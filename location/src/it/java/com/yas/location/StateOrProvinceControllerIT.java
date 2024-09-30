@@ -1,11 +1,11 @@
-package com.yas.location.integration.controller;
+package com.yas.location;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
-import com.yas.location.integration.config.AbstractControllerIT;
-import com.yas.location.integration.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.AbstractControllerIT;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.location.model.Country;
 import com.yas.location.model.StateOrProvince;
 import com.yas.location.repository.CountryRepository;
