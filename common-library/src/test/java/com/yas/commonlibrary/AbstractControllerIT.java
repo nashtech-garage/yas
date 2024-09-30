@@ -1,4 +1,4 @@
-package com.yas.product.config;
+package com.yas.commonlibrary;
 
 import static io.restassured.RestAssured.given;
 

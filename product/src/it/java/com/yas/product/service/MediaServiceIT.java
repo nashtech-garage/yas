@@ -3,7 +3,7 @@ package com.yas.product.service;
 import static com.yas.product.constant.TestConstants.CIRCUIT_BREAKER_NAME;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.yas.product.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.junit.jupiter.api.AfterEach;
