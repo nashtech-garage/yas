@@ -33,6 +33,7 @@
         <module>tax</module>
         <module>webhook</module>
         <module>sampledata</module>
+        <module>recommendation</module>
     </modules>
 
     <properties>
