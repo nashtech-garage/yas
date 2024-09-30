@@ -11,11 +11,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "cart_item")
+@DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItem {

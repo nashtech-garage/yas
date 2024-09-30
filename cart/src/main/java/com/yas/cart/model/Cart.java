@@ -32,7 +32,7 @@ public class Cart extends AbstractAuditEntity {
 
     private Long orderId;
 
-    @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private Set<CartItem> cartItems = new HashSet<>();
 
     @Override
