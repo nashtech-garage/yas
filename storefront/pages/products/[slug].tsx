@@ -34,6 +34,22 @@ type Props = {
   pvid: string | null;
 };
 
+// Function to fetch and sort product variations
+const fetchAndSortProductVariations = async (productId: number): Promise<ProductVariation[]> => {
+  try {
+    let productVariations = await getProductVariationsByParentId(productId);
+    if (productVariations && productVariations.length > 0) {
+      productVariations = productVariations.sort((a, b) => {
+        return Object.keys(a.options).length - Object.keys(b.options).length;
+      });
+    }
+    return productVariations;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -72,11 +88,7 @@ export const getServerSideProps: GetServerSideProps = async (
     }
 
     // fetch product variations
-    try {
-      productVariations = await getProductVariationsByParentId(product.id);
-    } catch (error) {
-      console.error(error);
-    }
+    productVariations = await fetchAndSortProductVariations(product.id);
   }
 
   return {
