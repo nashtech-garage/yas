@@ -11,7 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.search.constant.enums.SortType;
-import com.yas.search.document.Product;
+import com.yas.search.model.Product;
+import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameGetVm;
 import com.yas.search.viewmodel.ProductNameListVm;
@@ -66,10 +67,10 @@ class ProductServiceTest {
 
         when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
 
-        ProductListGetVm result = productService.findProductAdvance(
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
             "test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, SortType.PRICE_ASC
-        );
+            "testAttribute", 10.0, 100.0, SortType.PRICE_ASC);
+        ProductListGetVm result = productService.findProductAdvance(criteriaDto);
 
         verify(elasticsearchOperations, times(1))
             .search(captor.capture(), eq(Product.class));
@@ -103,10 +104,9 @@ class ProductServiceTest {
 
         when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
 
-        productService.findProductAdvance(
-            "test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, SortType.PRICE_DESC
-        );
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto("test", 0, 10, "testBrand", "testCategory",
+            "testAttribute", 10.0, 100.0, SortType.PRICE_DESC);
+        productService.findProductAdvance(criteriaDto);
 
         verify(elasticsearchOperations, times(1))
             .search(captor.capture(), eq(Product.class));
@@ -131,10 +131,10 @@ class ProductServiceTest {
 
         when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
 
-        productService.findProductAdvance(
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
             "test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, SortType.DEFAULT
-        );
+            "testAttribute", 10.0, 100.0, SortType.DEFAULT);
+        productService.findProductAdvance(criteriaDto);
 
         verify(elasticsearchOperations, times(1))
             .search(captor.capture(), eq(Product.class));

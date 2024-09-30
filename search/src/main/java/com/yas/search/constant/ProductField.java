@@ -1,4 +1,4 @@
-package com.yas.search.constant.documentations;
+package com.yas.search.constant;
 
 public class ProductField {
     public static final String NAME = "name";

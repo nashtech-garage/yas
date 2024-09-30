@@ -2,7 +2,7 @@ package com.yas.search.consumer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.yas.search.constants.Action;
+import com.yas.search.constant.Action;
 import com.yas.search.service.ProductSyncDataService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
