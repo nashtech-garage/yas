@@ -35,7 +35,7 @@ jobs:
         working-directory: backoffice
       - run: npx prettier --check .
         working-directory: backoffice
-      - run: npm audit
+      - run: npm audit --omit=dev
         continue-on-error: true
         working-directory: backoffice
       - name: Run Trivy vulnerability scanner
