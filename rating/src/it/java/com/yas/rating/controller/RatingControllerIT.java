@@ -3,7 +3,8 @@ package com.yas.rating.controller;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.anyLong;
 
-import com.yas.rating.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.AbstractControllerIT;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.service.CustomerService;

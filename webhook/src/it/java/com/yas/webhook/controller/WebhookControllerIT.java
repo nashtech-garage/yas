@@ -3,7 +3,8 @@ package com.yas.webhook.controller;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-import com.yas.webhook.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.AbstractControllerIT;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.webhook.config.constants.ApiConstant;
 import com.yas.webhook.model.Event;
 import com.yas.webhook.model.Webhook;

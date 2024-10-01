@@ -7,7 +7,8 @@ import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.yas.tax.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.AbstractControllerIT;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.model.TaxRate;
 import com.yas.tax.repository.TaxClassRepository;

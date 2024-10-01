@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.OrderApplication;
-import com.yas.order.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
