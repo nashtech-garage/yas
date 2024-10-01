@@ -10,8 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.media.config.YasConfig;
-import com.yas.media.exception.NotFoundException;
 import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
 import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;

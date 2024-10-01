@@ -1,8 +1,8 @@
 package com.yas.tax.service;
 
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.tax.constants.MessageCode;
-import com.yas.tax.exception.DuplicatedException;
-import com.yas.tax.exception.NotFoundException;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.repository.TaxClassRepository;
 import com.yas.tax.viewmodel.taxclass.TaxClassListGetVm;

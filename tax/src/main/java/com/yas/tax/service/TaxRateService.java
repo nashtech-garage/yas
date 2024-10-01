@@ -1,7 +1,7 @@
 package com.yas.tax.service;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.tax.constants.MessageCode;
-import com.yas.tax.exception.NotFoundException;
 import com.yas.tax.model.TaxRate;
 import com.yas.tax.repository.TaxClassRepository;
 import com.yas.tax.repository.TaxRateRepository;

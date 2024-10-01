@@ -4,7 +4,6 @@ import dasniko.testcontainers.keycloak.KeycloakContainer;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;

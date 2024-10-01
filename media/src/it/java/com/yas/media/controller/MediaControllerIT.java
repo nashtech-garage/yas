@@ -5,13 +5,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.yas.media.config.IntegrationTestConfiguration;
 import com.yas.media.config.FilesystemConfig;
+import com.yas.media.config.IntegrationTestConfiguration;
 import com.yas.media.config.YasConfig;
 import com.yas.media.model.Media;
 import com.yas.media.repository.FileSystemRepository;
-import com.yas.media.service.MediaService;
 import com.yas.media.repository.MediaRepository;
+import com.yas.media.service.MediaService;
 import com.yas.media.viewmodel.MediaPostVm;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -38,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MediaControllerIT extends AbstractControllerIT {
 
+    private static final String MEDIA_URL = "/v1/medias";
     @Autowired
     private MediaRepository mediaRepository;
     @MockBean
@@ -50,7 +51,9 @@ class MediaControllerIT extends AbstractControllerIT {
     private MediaService mediaService;
     private Media media;
 
-    private static final String MEDIA_URL = "/v1/medias";
+    public static InputStream createFakeInputStream(String content) {
+        return new ByteArrayInputStream(content.getBytes());
+    }
 
     @BeforeEach
     public void insertTestData() {
@@ -81,10 +84,6 @@ class MediaControllerIT extends AbstractControllerIT {
             "image/" + typeImage,
             fileContent
         );
-    }
-
-    public static InputStream createFakeInputStream(String content) {
-        return new ByteArrayInputStream(content.getBytes());
     }
 
     @AfterEach
@@ -119,7 +118,7 @@ class MediaControllerIT extends AbstractControllerIT {
     void test_deleteMedia_shouldDelete_ifProvideValidAccessTokenAndValidId() {
         Long mediaId = media.getId();
         given(getRequestSpecification())
-            .auth().oauth2(getAccessToken("admin","admin"))
+            .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
             .delete(MEDIA_URL + '/' + mediaId)
             .then()
@@ -130,7 +129,7 @@ class MediaControllerIT extends AbstractControllerIT {
     @Test
     void test_deleteMedia_shouldReturn404_ifProvideValidAccessTokenAndInvalidId() {
         given(getRequestSpecification())
-            .auth().oauth2(getAccessToken("admin","admin"))
+            .auth().oauth2(getAccessToken("admin", "admin"))
             .when()
             .delete(MEDIA_URL + '/' + 1000)
             .then()
@@ -155,7 +154,8 @@ class MediaControllerIT extends AbstractControllerIT {
         MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
         given(getRequestSpecification())
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(),
+                mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", mediaPostVm.fileNameOverride())
             .when()
@@ -172,7 +172,8 @@ class MediaControllerIT extends AbstractControllerIT {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(),
+                mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", mediaPostVm.fileNameOverride())
             .when()
@@ -192,7 +193,8 @@ class MediaControllerIT extends AbstractControllerIT {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(),
+                mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", mediaPostVm.fileNameOverride())
             .when()
@@ -212,7 +214,8 @@ class MediaControllerIT extends AbstractControllerIT {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(),
+                mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", mediaPostVm.fileNameOverride())
             .when()
@@ -232,7 +235,8 @@ class MediaControllerIT extends AbstractControllerIT {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getName(), mediaPostVm.multipartFile().getBytes(),
+                mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", mediaPostVm.fileNameOverride())
             .when()
@@ -249,7 +253,8 @@ class MediaControllerIT extends AbstractControllerIT {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getOriginalFilename(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getOriginalFilename(),
+                mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", mediaPostVm.fileNameOverride())
             .when()
@@ -269,7 +274,8 @@ class MediaControllerIT extends AbstractControllerIT {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getOriginalFilename(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getOriginalFilename(),
+                mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", "")
             .when()
@@ -289,7 +295,8 @@ class MediaControllerIT extends AbstractControllerIT {
         given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .multiPart("multipartFile", mediaPostVm.multipartFile().getOriginalFilename(), mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
+            .multiPart("multipartFile", mediaPostVm.multipartFile().getOriginalFilename(),
+                mediaPostVm.multipartFile().getBytes(), mediaPostVm.multipartFile().getContentType())
             .formParam("caption", mediaPostVm.caption())
             .formParam("fileNameOverride", "  ")
             .when()

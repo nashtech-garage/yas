@@ -1,9 +1,9 @@
 package com.yas.rating.service;
 
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.rating.RatingApplication;
-import com.yas.rating.exception.AccessDeniedException;
-import com.yas.rating.exception.NotFoundException;
-import com.yas.rating.exception.ResourceExistedException;
+import com.yas.commonlibrary.exception.ResourceExistedException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.viewmodel.*;

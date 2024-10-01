@@ -64,6 +64,11 @@
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-kafka</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.yas</groupId>
+            <artifactId>common-library</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

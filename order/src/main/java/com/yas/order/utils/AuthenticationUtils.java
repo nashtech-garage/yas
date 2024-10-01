@@ -1,6 +1,6 @@
 package com.yas.order.utils;
 
-import com.yas.order.exception.SignInRequiredException;
+import com.yas.commonlibrary.exception.SignInRequiredException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

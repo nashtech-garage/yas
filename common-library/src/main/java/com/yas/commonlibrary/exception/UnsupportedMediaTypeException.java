@@ -1,4 +1,4 @@
-package com.yas.media.exception;
+package com.yas.commonlibrary.exception;
 
 public class UnsupportedMediaTypeException extends RuntimeException {
     public UnsupportedMediaTypeException() {

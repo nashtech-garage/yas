@@ -6,7 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.yas.payment.exception.NotFoundException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.viewmodel.PaymentProviderVm;

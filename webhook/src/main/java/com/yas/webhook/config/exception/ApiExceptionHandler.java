@@ -1,5 +1,8 @@
 package com.yas.webhook.config.exception;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.webhook.model.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;

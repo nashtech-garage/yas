@@ -1,6 +1,6 @@
 package com.yas.payment.service;
 
-import com.yas.payment.exception.NotFoundException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.utils.Constants;

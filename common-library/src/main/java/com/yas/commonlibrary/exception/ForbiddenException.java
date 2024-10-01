@@ -1,6 +1,6 @@
-package com.yas.paymentpaypal.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.paymentpaypal.utils.MessagesUtils;
+import com.yas.commonlibrary.utils.MessagesUtils;
 
 public class ForbiddenException extends RuntimeException {
     private final String message;
