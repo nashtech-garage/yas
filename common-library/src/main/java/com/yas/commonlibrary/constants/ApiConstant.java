@@ -3,7 +3,6 @@ package com.yas.commonlibrary.constants;
 public final class ApiConstant {
     public static final String WAREHOUSE_URL = "/backoffice/warehouses";
     public static final String STOCK_HISTORY_URL = "/backoffice/stocks/histories";
-    public static final String STOCK_URL = "/backoffice/stocks";
     public static final String CODE_200 = "200";
     public static final String OK = "Ok";
     public static final String CODE_404 = "404";
