@@ -11,7 +11,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,13 +55,22 @@ public class ProductOptionValueController {
     public ResponseEntity<List<ProductOptionValueGetVm>> listProductOptionValueOfProduct(
         @PathVariable("productId") Long productId
     ) {
+
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND, productId));
+
         List<ProductOptionValueGetVm> productVariations = productOptionValueRepository
                 .findAllByProduct(product).stream()
                 .map(ProductOptionValueGetVm::fromModel)
                 .toList();
-        return ResponseEntity.ok(productVariations);
+
+        return ResponseEntity.ok(new ArrayList<>(productVariations
+            .stream().collect(Collectors.toMap(
+                p -> Arrays.asList(p.productOptionId(), p.productOptionValue()),
+                p -> p,
+                (existing, replacement) -> existing
+            )).values())
+        );
     }
 }
