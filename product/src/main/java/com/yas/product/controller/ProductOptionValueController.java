@@ -23,8 +23,8 @@ public class ProductOptionValueController {
     private final ProductRepository productRepository;
 
     public ProductOptionValueController(
-            ProductOptionValueRepository productOptionValueRepository,
-            ProductRepository productRepository
+        ProductOptionValueRepository productOptionValueRepository,
+        ProductRepository productRepository
     ) {
         this.productOptionValueRepository = productOptionValueRepository;
         this.productRepository = productRepository;
@@ -35,9 +35,9 @@ public class ProductOptionValueController {
         listProductOptionValues() {
         List<com.yas.product.viewmodel.productoption.ProductOptionValueGetVm> productOptionGetVms
             = productOptionValueRepository
-                .findAll().stream()
-                .map(com.yas.product.viewmodel.productoption.ProductOptionValueGetVm::fromModel)
-                .toList();
+            .findAll().stream()
+            .map(com.yas.product.viewmodel.productoption.ProductOptionValueGetVm::fromModel)
+            .toList();
         return ResponseEntity.ok(productOptionGetVms);
     }
 
@@ -53,12 +53,12 @@ public class ProductOptionValueController {
         @PathVariable("productId") Long productId
     ) {
         Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND, productId));
+            .findById(productId)
+            .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_NOT_FOUND, productId));
         List<ProductOptionValueGetVm> productVariations = productOptionValueRepository
-                .findAllByProduct(product).stream()
-                .map(ProductOptionValueGetVm::fromModel)
-                .toList();
+            .findAllByProduct(product).stream()
+            .map(ProductOptionValueGetVm::fromModel)
+            .toList();
         return ResponseEntity.ok(productVariations);
     }
 }

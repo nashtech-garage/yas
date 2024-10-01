@@ -17,7 +17,7 @@ export async function getProductDetail(slug: string): Promise<ProductDetail> {
 
 export async function getProductOptionValues(productId: number): Promise<ProductOptionValueGet[]> {
   const res = await fetch(
-    `${process.env.API_BASE_PATH}/product/storefront/product-option-values/${productId}`
+    `${process.env.API_BASE_PATH}/product/storefront/product-option-combinations/${productId}/values`
   );
   if (res.status >= 200 && res.status < 300) return res.json();
   return Promise.reject(res);
