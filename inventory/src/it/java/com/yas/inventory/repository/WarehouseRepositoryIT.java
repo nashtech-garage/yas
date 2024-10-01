@@ -2,7 +2,7 @@ package com.yas.inventory.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.yas.inventory.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.inventory.model.Warehouse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
