@@ -23,7 +23,6 @@
             <groupId>com.yas</groupId>
             <artifactId>automation-base</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <!--  Selenium Dependency      -->

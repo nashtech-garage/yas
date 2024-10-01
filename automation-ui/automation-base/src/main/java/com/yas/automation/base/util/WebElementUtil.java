@@ -1,4 +1,4 @@
-package com.yas.automation.ui.util;
+package com.yas.automation.base.util;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

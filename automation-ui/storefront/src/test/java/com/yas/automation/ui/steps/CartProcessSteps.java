@@ -3,8 +3,8 @@ package com.yas.automation.ui.steps;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.yas.automation.ui.hook.WebDriverFactory;
-import com.yas.automation.ui.page.BasePage;
+import com.yas.automation.base.hook.WebDriverFactory;
+import com.yas.automation.base.page.BasePage;
 import com.yas.automation.ui.pages.CartPage;
 import com.yas.automation.ui.pages.CategoryItemDetailPage;
 import com.yas.automation.ui.pages.CategoryItemPage;

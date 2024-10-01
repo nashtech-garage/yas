@@ -4,7 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.yas.automation.ui.form.ProductForm;
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import com.yas.automation.ui.pages.HomePage;
 import com.yas.automation.ui.pages.ProductPage;
 import com.yas.automation.ui.service.AuthenticationService;

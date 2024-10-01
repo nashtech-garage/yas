@@ -1,16 +1,16 @@
 package com.yas.automation.ui.pages;
 
 import static com.yas.automation.ui.enumerate.ProductAttribute.BASE_XPATH;
-import static com.yas.automation.ui.util.WebElementUtil.getWebElementBy;
+import static com.yas.automation.base.util.WebElementUtil.getWebElementBy;
 import static org.junit.Assert.assertTrue;
 
 import com.yas.automation.ui.enumerate.ProductAttribute;
-import com.yas.automation.ui.form.InputType;
+import com.yas.automation.base.form.InputType;
 import com.yas.automation.ui.form.ProductForm;
-import com.yas.automation.ui.hook.WebDriverFactory;
-import com.yas.automation.ui.page.BasePage;
-import com.yas.automation.ui.service.InputDelegateService;
-import com.yas.automation.ui.util.WebElementUtil;
+import com.yas.automation.base.hook.WebDriverFactory;
+import com.yas.automation.base.page.BasePage;
+import com.yas.automation.base.service.InputDelegateService;
+import com.yas.automation.base.util.WebElementUtil;
 import lombok.Getter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

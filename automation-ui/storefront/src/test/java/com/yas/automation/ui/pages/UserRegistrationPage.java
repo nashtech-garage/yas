@@ -1,13 +1,13 @@
 package com.yas.automation.ui.pages;
 
-import static com.yas.automation.ui.util.WebElementUtil.getWebElementBy;
+import static com.yas.automation.base.util.WebElementUtil.getWebElementBy;
 
-import com.yas.automation.ui.form.InputType;
+import com.yas.automation.base.form.InputType;
 import com.yas.automation.ui.form.UserRegisterForm;
-import com.yas.automation.ui.hook.WebDriverFactory;
-import com.yas.automation.ui.page.BasePage;
-import com.yas.automation.ui.service.InputDelegateService;
-import com.yas.automation.ui.util.WebElementUtil;
+import com.yas.automation.base.hook.WebDriverFactory;
+import com.yas.automation.base.page.BasePage;
+import com.yas.automation.base.service.InputDelegateService;
+import com.yas.automation.base.util.WebElementUtil;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.How;
 import org.springframework.stereotype.Component;

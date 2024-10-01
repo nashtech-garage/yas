@@ -1,6 +1,6 @@
-package com.yas.automation.ui.page;
+package com.yas.automation.base.page;
 
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import lombok.Getter;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
