@@ -69,9 +69,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                           @Param("productIds") List<Long> productIds,
                                           @Param("selection") String selection);
 
-    @Query("SELECT DISTINCT p FROM Product p JOIN p.productCategories pc WHERE pc.id IN :categoryIds ORDER BY p.id ASC ")
+    @Query("SELECT DISTINCT p FROM Product p JOIN p.productCategories pc WHERE pc.id IN :categoryIds ORDER BY p.id ASC")
     List<Product> findByCategoryIdsIn(@Param("categoryIds") List<Long> categoryIds);
 
-    @Query("SELECT p FROM Product p JOIN p.brand b WHERE b.id IN :brandIds ORDER BY p.id ASC ")
+    @Query("SELECT p FROM Product p JOIN p.brand b WHERE b.id IN :brandIds ORDER BY p.id ASC")
     List<Product> findByBrandIdsIn(@Param("brandIds") List<Long> brandIds);
 }
