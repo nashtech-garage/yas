@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findAllByBrandAndIsPublishedTrue(Brand brand);
+    List<Product> findAllByBrandAndIsPublishedTrueOrderByIdAsc(Brand brand);
 
     Optional<Product> findBySlugAndIsPublishedTrue(String slug);
 
@@ -25,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             + "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = '')) "
             + "AND p.isVisibleIndividually = TRUE "
             + "AND p.isPublished = TRUE "
-            + "ORDER BY p.lastModifiedOn DESC")
+            + "ORDER BY p.id ASC ")
     Page<Product> getProductsWithFilter(@Param("productName") String productName,
                                         @Param("brandName") String brandName,
                                         Pageable pageable);
@@ -34,14 +34,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             + "AND (p.brand.name IN :brandName OR (:brandName is null OR :brandName = '')) "
             + "AND p.isVisibleIndividually = TRUE "
             + "AND p.isPublished = TRUE "
-            + "ORDER BY p.lastModifiedOn DESC")
+            + "ORDER BY p.id ASC ")
     List<Product> getExportingProducts(@Param("productName") String productName, @Param("brandName") String brandName);
 
     List<Product> findAllByIdIn(List<Long> productIds);
 
     @Query(value = "FROM Product p WHERE p.isFeatured = TRUE "
             + "AND p.isVisibleIndividually = TRUE "
-            + "AND p.isPublished = TRUE ORDER BY p.lastModifiedOn DESC")
+            + "AND p.isPublished = TRUE ORDER BY p.id ASC ")
     Page<Product> getFeaturedProduct(Pageable pageable);
 
     @Query(value = "SELECT p FROM Product p LEFT JOIN p.productCategories pc LEFT JOIN pc.category c "
@@ -51,7 +51,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             + "AND (:endPrice IS NULL OR p.price <= :endPrice) "
             + "AND p.isVisibleIndividually = TRUE "
             + "AND p.isPublished = TRUE "
-            + "ORDER BY p.lastModifiedOn DESC")
+            + "ORDER BY p.id ASC ")
     Page<Product> findByProductNameAndCategorySlugAndPriceBetween(@Param("productName") String productName,
                                                                   @Param("categorySlug") String categorySlug,
                                                                   @Param("startPrice") Double startPrice,
@@ -63,14 +63,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             + "OR LOWER(p.sku) LIKE concat('%', LOWER(:sku), '%')) "
             + "AND ((:selection = 'ALL') "
             + "OR ((:selection = 'YES' and p.id in :productIds ) "
-            + "OR (:selection = 'NO' and ((coalesce(:productIds) is null) or p.id not in :productIds)))) ")
+            + "OR (:selection = 'NO' and ((coalesce(:productIds) is null) or p.id not in :productIds)))) "
+            + "ORDER BY p.id ASC ")
     List<Product> findProductForWarehouse(@Param("name") String name, @Param("sku") String sku,
                                           @Param("productIds") List<Long> productIds,
                                           @Param("selection") String selection);
 
-    @Query("SELECT DISTINCT p FROM Product p JOIN p.productCategories pc WHERE pc.id IN :categoryIds")
+    @Query("SELECT DISTINCT p FROM Product p JOIN p.productCategories pc WHERE pc.id IN :categoryIds ORDER BY p.id ASC")
     List<Product> findByCategoryIdsIn(@Param("categoryIds") List<Long> categoryIds);
 
-    @Query("SELECT p FROM Product p JOIN p.brand b WHERE b.id IN :brandIds")
+    @Query("SELECT p FROM Product p JOIN p.brand b WHERE b.id IN :brandIds ORDER BY p.id ASC")
     List<Product> findByBrandIdsIn(@Param("brandIds") List<Long> brandIds);
 }

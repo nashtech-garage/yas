@@ -669,7 +669,7 @@ public class ProductService {
         Brand brand = brandRepository
                 .findBySlug(brandSlug)
                 .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.BRAND_NOT_FOUND, brandSlug));
-        List<Product> products = productRepository.findAllByBrandAndIsPublishedTrue(brand);
+        List<Product> products = productRepository.findAllByBrandAndIsPublishedTrueOrderByIdAsc(brand);
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailVm(
                     product.getId(),
