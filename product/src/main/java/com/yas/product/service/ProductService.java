@@ -822,17 +822,14 @@ public class ProductService {
         product.setPublished(false);
 
         if (!Objects.isNull(product.getParent())) {
-
-            Optional<ProductOptionCombination> productOptionCombination = productOptionCombinationRepository
-                .findByProductId(id);
-
-            productOptionCombination.ifPresent(poc -> {
-                productOptionCombinationRepository.deleteByProductId(id);
-                productOptionValueRepository.deleteByProductIdAndValue(product.getParent().getId(), poc.getValue());
-            });
+            List<ProductOptionCombination> productOptionCombinationList = productOptionCombinationRepository
+                    .findAllByProduct(product);
+            if (CollectionUtils.isNotEmpty(productOptionCombinationList)) {
+                productOptionCombinationRepository.deleteAll(productOptionCombinationList);
+            }
         }
-
         productRepository.save(product);
+
     }
 
     public ProductsGetVm getProductsByMultiQuery(
