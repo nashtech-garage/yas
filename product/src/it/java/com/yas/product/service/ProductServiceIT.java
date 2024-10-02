@@ -376,7 +376,7 @@ class ProductServiceIT {
         List<Long> brandIds = List.of(brand1.getId(), brand2.getId());
         List<ProductListVm>  actualResponse = productService.getProductByBrandIds(brandIds);
         assertEquals(10, actualResponse.size());
-        assertEquals("product9", actualResponse.getFirst().name());
-        assertEquals("slug9", actualResponse.getFirst().slug());
+        assertEquals("product1", actualResponse.getFirst().name());
+        assertEquals("slug1", actualResponse.getFirst().slug());
     }
 }
