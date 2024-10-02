@@ -1,11 +1,10 @@
 package com.yas.search.controller;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
+import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.search.config.IntegrationTestConfiguration;
 import com.yas.search.model.Product;
 import com.yas.search.repository.ProductRepository;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.RefreshPolicy;
 import org.springframework.http.HttpStatus;
 

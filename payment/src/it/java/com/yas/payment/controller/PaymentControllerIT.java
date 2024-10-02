@@ -1,6 +1,7 @@
 package com.yas.payment.controller;
 
-import com.yas.payment.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.AbstractControllerIT;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.payment.model.Payment;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.OrderService;

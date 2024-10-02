@@ -5,8 +5,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.media.config.FilesystemConfig;
-import com.yas.media.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.media.config.YasConfig;
 import com.yas.media.model.Media;
 import com.yas.media.repository.FileSystemRepository;

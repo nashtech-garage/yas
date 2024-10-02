@@ -57,6 +57,14 @@
 			<artifactId>common-library</artifactId>
 			<version>${revision}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.yas</groupId>
+			<artifactId>common-library</artifactId>
+			<version>${revision}</version>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
