@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  title: Carts API
+  description: API for managing a shopping cart
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server
+paths:
+  /cart/items:
+    get:
+      summary: Get all carts of current customer  
+      operationId: getCartItems    
+      responses:
+        '200':
+          description: A list of carts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItem' 
+  /cart/items/{productId}:
+    put: 
+      summary: Update a cart item of current customer
+      operationId: updateCartItem
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItemQuantity'
+      responses:
+        '200':
+          description: Cart Item will be created if not exists, otherwise updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItem'
+    delete: 
+      summary: Delete a cart item of current customer
+      operationId: deleteCartItem
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Delete Cart Item successfully
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: SESSION
+  schemas:
+    CartItemQuantity:
+      type: object
+      required:
+        - quantity
+      properties:
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+    CartItem:
+      type: object
+      required:
+        - customerId
+        - productId
+        - quantity
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+        createAt: 
+          type: string
+          format: date-time
+        createBy:
+          type: string
+          format: uuid
+        lastUpdateAt:
+          type: string
+          format: date-time
+        lastUpdateBy:
+          type: string
+          format: uuid
+security:
+  - cookieAuth: []
