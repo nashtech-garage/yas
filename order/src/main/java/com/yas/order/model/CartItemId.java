@@ -15,4 +15,8 @@ import lombok.Setter;
 public class CartItemId implements Serializable {
     private String customerId;
     private Long productId;
+
+    public static CartItemId of(String customerId, Long productId) {
+        return new CartItemId(customerId, productId);
+    }
 }
