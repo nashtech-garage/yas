@@ -2,7 +2,6 @@ package com.yas.order.service;
 
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.order.mapper.CartItemMapper;
 import com.yas.order.model.CartItem;
 import com.yas.order.model.CartItemId;
 import com.yas.order.repository.CartItemRepository;

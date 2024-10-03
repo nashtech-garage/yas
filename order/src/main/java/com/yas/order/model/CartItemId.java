@@ -17,6 +17,9 @@ public class CartItemId implements Serializable {
     private Long productId;
 
     public static CartItemId of(String customerId, Long productId) {
-        return new CartItemId(customerId, productId);
+        CartItemId cartItemId = new CartItemId();
+        cartItemId.setCustomerId(customerId);
+        cartItemId.setProductId(productId);
+        return cartItemId;
     }
 }

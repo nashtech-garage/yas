@@ -44,7 +44,7 @@ class CartItemServiceTest {
     private CartItemService cartItemService;
 
     @Spy
-    private CartItemMapper cartItemMapper = new CartItemMapper();
+    private final CartItemMapper cartItemMapper = new CartItemMapper();
 
     @BeforeEach
     void setUp() {
