@@ -40,4 +40,9 @@ public class UserRegisterForm extends BaseForm {
     public WebElement getSubmitBtn() {
         return btnRegister;
     }
+
+    @Override
+    public WebElement getSaveBtn() {
+        return null;
+    }
 }

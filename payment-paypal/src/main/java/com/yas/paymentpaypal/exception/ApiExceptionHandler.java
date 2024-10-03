@@ -1,5 +1,9 @@
 package com.yas.paymentpaypal.exception;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.ForbiddenException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.SignInRequiredException;
 import com.yas.paymentpaypal.viewmodel.ErrorVm;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;

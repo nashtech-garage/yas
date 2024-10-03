@@ -1,5 +1,8 @@
 package com.yas.search.exception;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.search.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

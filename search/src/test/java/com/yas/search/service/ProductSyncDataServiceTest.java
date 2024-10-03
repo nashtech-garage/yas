@@ -7,9 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.search.config.ServiceUrlConfig;
-import com.yas.search.document.Product;
-import com.yas.search.exception.NotFoundException;
+import com.yas.search.model.Product;
 import com.yas.search.repository.ProductRepository;
 import com.yas.search.viewmodel.ProductEsDetailVm;
 import java.net.URI;

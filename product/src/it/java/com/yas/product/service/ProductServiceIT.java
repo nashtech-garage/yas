@@ -6,17 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
 import com.yas.product.model.ProductOption;
 import com.yas.product.model.ProductOptionCombination;
-import com.yas.product.model.ProductOptionValue;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
@@ -300,29 +302,39 @@ class ProductServiceIT {
         ProductOption productOption = new ProductOption();
         productOption.setName(value);
         productOption.setCreatedOn(CREATED_ON);
-        ProductOption afterProductOption = productOptionRepository.save(productOption);
+
+        String cpu = "I5";
+        ProductOption productOption2 = new ProductOption();
+        productOption2.setName(cpu);
+        productOption2.setCreatedOn(CREATED_ON);
 
         ProductOptionCombination productOptionCombination = new ProductOptionCombination();
         productOptionCombination.setValue(value);
         productOptionCombination.setDisplayOrder(1);
+
+        ProductOptionCombination productOptionCombination2 = new ProductOptionCombination();
+        productOptionCombination2.setValue(cpu);
+        productOptionCombination2.setDisplayOrder(1);
 
         Product parent = productRepository.findAll().getFirst();
         Product product = getVariant(parent);
         Product afterProduct = productRepository.save(product);
 
         productOptionCombination.setProduct(afterProduct);
+        ProductOption afterProductOption = productOptionRepository.save(productOption);
         productOptionCombination.setProductOption(afterProductOption);
+
+        productOptionCombination2.setProduct(afterProduct);
+        ProductOption afterProductOption2 = productOptionRepository.save(productOption2);
+        productOptionCombination2.setProductOption(afterProductOption2);
+
         ProductOptionCombination productOptionCombinationSaved
             = productOptionCombinationRepository.save(productOptionCombination);
-        assertTrue(productOptionCombinationRepository.findById(productOptionCombinationSaved.getId()).isPresent());
+        ProductOptionCombination productOptionCombinationSaved2
+            = productOptionCombinationRepository.save(productOptionCombination2);
 
-        ProductOptionValue productOptionValue = new ProductOptionValue();
-        productOptionValue.setProduct(parent);
-        productOptionValue.setValue(value);
-        productOptionValue.setDisplayOrder(1);
-        productOptionValue.setProductOption(afterProductOption);
-        ProductOptionValue productOptionValueSaved = productOptionValueRepository.save(productOptionValue);
-        assertTrue(productOptionValueRepository.findById(productOptionValueSaved.getId()).isPresent());
+        assertTrue(productOptionCombinationRepository.findById(productOptionCombinationSaved.getId()).isPresent());
+        assertTrue(productOptionCombinationRepository.findById(productOptionCombinationSaved2.getId()).isPresent());
 
         productService.deleteProduct(afterProduct.getId());
         Optional<Product> result = productRepository.findById(afterProduct.getId());
@@ -330,7 +342,23 @@ class ProductServiceIT {
         assertTrue(result.isPresent());
         assertFalse(result.get().isPublished());
         assertFalse(productOptionCombinationRepository.findById(productOptionCombinationSaved.getId()).isPresent());
-        assertFalse(productOptionValueRepository.findById(productOptionValueSaved.getId()).isPresent());
+        assertFalse(productOptionCombinationRepository.findById(productOptionCombinationSaved2.getId()).isPresent());
+
+    }
+
+    @Test
+    void deleteProduct_givenNoOption_noDeleteAll() {
+
+        generateTestData();
+        Product parent = productRepository.findAll().getFirst();
+        Product product = getVariant(parent);
+        Product afterProduct = productRepository.save(product);
+
+        productService.deleteProduct(afterProduct.getId());
+        Optional<Product> result = productRepository.findById(afterProduct.getId());
+
+        assertTrue(result.isPresent());
+        assertFalse(result.get().isPublished());
 
     }
 
@@ -376,7 +404,7 @@ class ProductServiceIT {
         List<Long> brandIds = List.of(brand1.getId(), brand2.getId());
         List<ProductListVm>  actualResponse = productService.getProductByBrandIds(brandIds);
         assertEquals(10, actualResponse.size());
-        assertEquals("product9", actualResponse.getFirst().name());
-        assertEquals("slug9", actualResponse.getFirst().slug());
+        assertEquals("product1", actualResponse.getFirst().name());
+        assertEquals("slug1", actualResponse.getFirst().slug());
     }
 }

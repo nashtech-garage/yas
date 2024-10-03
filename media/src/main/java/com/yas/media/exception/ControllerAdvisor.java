@@ -1,5 +1,7 @@
 package com.yas.media.exception;
 
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.UnsupportedMediaTypeException;
 import com.yas.media.viewmodel.ErrorVm;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;

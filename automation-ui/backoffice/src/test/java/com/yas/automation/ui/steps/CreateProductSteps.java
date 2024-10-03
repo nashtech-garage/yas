@@ -1,5 +1,8 @@
 package com.yas.automation.ui.steps;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.yas.automation.ui.form.ProductForm;
 import com.yas.automation.ui.hook.WebDriverFactory;
 import com.yas.automation.ui.pages.HomePage;
@@ -8,8 +11,6 @@ import com.yas.automation.ui.service.AuthenticationService;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-
-import static org.junit.Assert.assertTrue;
 
 public class CreateProductSteps {
 
@@ -80,5 +81,54 @@ public class CreateProductSteps {
                 "New product must be shown on product list",
                 productPage.isNewProductShow(this.productName)
         );
+    }
+
+    @When("I click to edit icon on row")
+    public void iClickToEditIconOnRow() {
+        productPage.clickToEditProductBtn();
+    }
+
+    @Then("I should be in edit product page")
+    public void iShouldBeInEditProductPage() {
+        String currentUrl = webDriverFactory.getChromeDriver().getCurrentUrl();
+        assertTrue(currentUrl.contains("/edit"));
+    }
+
+    @Given("I update necessary data for product and submit")
+    public void iUpdateNecessaryDataForProductAndSubmit() {
+        ProductForm productForm = new ProductForm(webDriverFactory.getChromeDriver());
+        productPage.setNewProductName();
+        productPage.scrollTo(productForm.getSaveBtn());
+        productForm.saveForm();
+        productName = productForm.getName().getAttribute("value");
+    }
+
+    @Then("Updated product shown in product list")
+    public void updatedProductShownInProductList() {
+        assertTrue(
+                "Updated product must be shown on product list with new name.",
+                productPage.isNewProductShow(this.productName)
+        );
+    }
+
+    @When("I click to delete icon on row")
+    public void iClickToDeleteIconOnRow() {
+        productPage.clickToDeleteProductBtn();
+    }
+
+    @Then("It shows popup confirm with button Delete")
+    public void itShowsPopupConfirmWithButtonDelete() {
+        assertTrue(productPage.existedDeleteDialog());
+    }
+
+    @When("I click on button Delete")
+    public void iClickOnButtonDelete() {
+        productPage.clickToDeleteBtn();
+    }
+
+    @Then("This item is not existed in product list")
+    public void thisItemIsNotExistedInProductList() {
+        String productName = productPage.getProductName();
+        assertFalse(productPage.isNewProductShow(productName));
     }
 }

@@ -1,14 +1,12 @@
 package com.yas.webhook.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.webhook.config.constants.MessageCode;
-import com.yas.webhook.config.exception.NotFoundException;
 import com.yas.webhook.model.Event;
 import com.yas.webhook.model.WebhookEvent;
-import com.yas.webhook.model.WebhookEventNotification;
 import com.yas.webhook.model.dto.WebhookEventNotificationDto;
 import com.yas.webhook.model.enums.EventName;
-import com.yas.webhook.model.enums.NotificationStatus;
 import com.yas.webhook.model.enums.Operation;
 import com.yas.webhook.repository.EventRepository;
 import com.yas.webhook.repository.WebhookEventNotificationRepository;
@@ -31,7 +29,7 @@ public class ProductEventService extends AbstractWebhookEventNotificationService
             return;
         }
         Event event = eventRepository.findByName(EventName.ON_PRODUCT_UPDATED)
-                .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, EventName.ON_PRODUCT_UPDATED));
+            .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, EventName.ON_PRODUCT_UPDATED));
         List<WebhookEvent> hookEvents = event.getWebhookEvents();
         hookEvents.forEach(hookEvent -> {
             JsonNode payload = updatedEvent.get("after");

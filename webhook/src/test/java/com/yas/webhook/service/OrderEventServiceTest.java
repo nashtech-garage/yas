@@ -71,10 +71,10 @@ class OrderEventServiceTest {
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("op", "u");
         ObjectNode before = objectMapper.createObjectNode();
-        before.put("order_status","NEW");
+        before.put("order_status", "NEW");
         objectNode.set("before", before);
         ObjectNode after = objectMapper.createObjectNode();
-        after.put("order_status","PAID");
+        after.put("order_status", "PAID");
         objectNode.set("after", after);
 
         Event event = new Event();
@@ -115,10 +115,10 @@ class OrderEventServiceTest {
         ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("op", "u");
         ObjectNode before = objectMapper.createObjectNode();
-        before.put("order_status","NEW");
+        before.put("order_status", "NEW");
         objectNode.set("before", before);
         ObjectNode after = objectMapper.createObjectNode();
-        after.put("order_status","NEW");
+        after.put("order_status", "NEW");
         objectNode.set("after", after);
 
         orderEventService.onOrderEvent(objectNode);

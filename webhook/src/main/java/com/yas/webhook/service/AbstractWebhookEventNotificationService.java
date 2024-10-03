@@ -23,7 +23,7 @@ abstract class AbstractWebhookEventNotificationService {
     }
 
     protected WebhookEventNotificationDto createNotificationDto(WebhookEvent webhookEvent, JsonNode payload,
-        Long notificationId) {
+                                                                Long notificationId) {
         String url = webhookEvent.getWebhook().getPayloadUrl();
         String secret = webhookEvent.getWebhook().getSecret();
 

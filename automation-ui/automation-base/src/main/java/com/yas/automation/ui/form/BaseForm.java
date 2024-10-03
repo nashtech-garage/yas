@@ -12,7 +12,8 @@ public abstract class BaseForm {
 
     private WebDriver driver;
 
-    private BaseForm() {}
+    private BaseForm() {
+    }
 
     public BaseForm(WebDriver driver) {
         this.driver = driver;
@@ -23,4 +24,10 @@ public abstract class BaseForm {
     }
 
     public abstract WebElement getSubmitBtn();
+
+    public abstract WebElement getSaveBtn();
+
+    public void saveForm() {
+        getSaveBtn().click();
+    }
 }

@@ -77,6 +77,7 @@ export default function ProductDetails({
   const [currentSelectedOption, setCurrentSelectedOption] =
     useState<CurrentSelectedOption>(initCurrentSelectedOption);
   const [optionSelected, setOptionSelected] = useState<CurrentSelectedOption>({});
+  const [isUnchecking, setIsUnchecking] = useState<boolean>(false);
   const [currentProduct, setCurrentProduct] = useState<ProductDetail | ProductVariation>(product);
   const { fetchNumberCartItems } = useCartContext();
   useEffect(() => {
@@ -109,7 +110,7 @@ export default function ProductDetails({
       return optionKeys.every((key: string) => isOptionSelected(key, currentSelectedOption, item));
     };
 
-    const findProductVariation = () => {
+    const findProductVariationMatchAllOptions = () => {
       return productVariations?.find((item) => {
         const optionKeys = Object.keys(item.options);
         return (
@@ -119,42 +120,38 @@ export default function ProductDetails({
       });
     };
 
-    const updateListImages = (variation: ProductVariation) => {
+    const updateListImagesByProductVariationMatchAllOptions = (variation: ProductVariation) => {
       const urls = [
         ...(variation.thumbnail?.url ? [variation.thumbnail.url] : []),
         ...variation.productImages.map((image) => image.url),
       ];
       setListImages(urls);
       setCurrentProduct(variation);
+      setCurrentSelectedOption(variation.options);
     };
 
-    const updateListImagesBySelectedProduct = (
-      productVariations: ProductVariation[],
-      productOptions: ProductOptions[]
-    ) => {
+    const updateListImagesBySelectedOption = (productVariations: ProductVariation[]) => {
       const productSelected = productVariations.find((item) => {
         return item.options[+Object.keys(optionSelected)[0]] == Object.values(optionSelected)[0];
       });
 
       if (productSelected) {
-        const colorId = getColorId(productOptions);
-        if (colorId === +Object.keys(optionSelected)[0]) {
-          const urlList = productSelected.productImages.map((image) => image.url);
-          setListImages([
-            ...(productSelected.thumbnail?.url ? [productSelected.thumbnail.url] : []),
-            ...urlList,
-          ]);
-        }
+        const urlList = productSelected.productImages.map((image) => image.url);
+        setListImages([
+          ...(productSelected.thumbnail?.url ? [productSelected.thumbnail.url] : []),
+          ...urlList,
+        ]);
+        setCurrentSelectedOption(productSelected.options);
         setCurrentProduct(productSelected);
       }
     };
 
     if (productOptions?.length && productVariations?.length) {
-      const productVariation = findProductVariation();
-      if (productVariation) {
-        updateListImages(productVariation);
-      } else {
-        updateListImagesBySelectedProduct(productVariations, productOptions);
+      const productVariationMatchAllOptions = findProductVariationMatchAllOptions();
+      if (productVariationMatchAllOptions) {
+        updateListImagesByProductVariationMatchAllOptions(productVariationMatchAllOptions);
+      } else if (!isUnchecking) {
+        updateListImagesBySelectedOption(productVariations);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -186,8 +183,20 @@ export default function ProductDetails({
       productVariations &&
       productVariations.length > 0
     ) {
-      setCurrentSelectedOption({ ...currentSelectedOption, [optionId]: optionValue });
-      setOptionSelected({ [optionId]: optionValue });
+      if (currentSelectedOption[+optionId] === optionValue) {
+        if (Object.keys(currentSelectedOption).length > 1) {
+          setCurrentSelectedOption((prev) => {
+            const newOption = { ...prev };
+            delete newOption[+optionId];
+            return newOption;
+          });
+          setIsUnchecking(true);
+        }
+      } else {
+        setCurrentSelectedOption({ ...currentSelectedOption, [optionId]: optionValue });
+        setOptionSelected({ [optionId]: optionValue });
+        setIsUnchecking(false);
+      }
     }
   };
   return (

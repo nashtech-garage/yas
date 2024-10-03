@@ -5,8 +5,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 
+import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.tax.constants.PageableConstant;
-import com.yas.tax.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.repository.TaxClassRepository;
 import com.yas.tax.repository.TaxRateRepository;
@@ -26,7 +27,7 @@ import org.springframework.http.HttpStatus;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class TaxClassControllerIT extends AbstractControllerIT{
+class TaxClassControllerIT extends AbstractControllerIT {
     final String TAX_CLASS_BASE_URL="/v1/backoffice/tax-classes";
     final String TAX_CLASS_PAGING_URL="/v1/backoffice/tax-classes/paging";
     @Autowired

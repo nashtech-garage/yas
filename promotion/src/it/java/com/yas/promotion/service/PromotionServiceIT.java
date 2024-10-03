@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.IntegrationTestConfiguration;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.promotion.PromotionApplication;
-import com.yas.promotion.exception.BadRequestException;
-import com.yas.promotion.exception.DuplicatedException;
-import com.yas.promotion.exception.NotFoundException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.PromotionUsage;
 import com.yas.promotion.model.enumeration.ApplyTo;
@@ -20,7 +21,6 @@ import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
-import config.IntegrationTestConfiguration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -176,13 +176,9 @@ class PromotionServiceIT {
             .productIds(List.of(1L, 2L, 3L))
             .build();
 
-        promotionService.updatePromotion(promotionPutVm);
+        PromotionDetailVm promotionDetailVmActual = promotionService.updatePromotion(promotionPutVm);
 
-        PromotionListVm actual =  getPromotionListVm();
-        assertEquals(2, result.promotionDetailVmList().size());
-
-        PromotionDetailVm promotionDetailVmActual = actual.promotionDetailVmList().getFirst();
-        assertEquals("Description 123", promotionDetailVmActual.description());
+        assertEquals(promotionPutVm.getDescription(), promotionDetailVmActual.description());
     }
 
     @Test

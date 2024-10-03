@@ -2,7 +2,7 @@ package com.yas.tax.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.yas.tax.config.IntegrationTestConfiguration;
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
