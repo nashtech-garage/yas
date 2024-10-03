@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.order.mapper.CartItemMapper;
 import com.yas.order.model.CartItem;
 import com.yas.order.model.CartItemId;
 import com.yas.order.repository.CartItemRepository;
@@ -43,12 +42,9 @@ class CartItemServiceTest {
     @InjectMocks
     private CartItemService cartItemService;
 
-    @Spy
-    private final CartItemMapper cartItemMapper = new CartItemMapper();
-
     @BeforeEach
     void setUp() {
-        Mockito.reset(cartItemRepository, productService, cartItemMapper);
+        Mockito.reset(cartItemRepository, productService);
     }
 
     @Nested
