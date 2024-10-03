@@ -6,9 +6,7 @@ public final class Constants {
         public static final String CHECKOUT_NOT_FOUND = "CHECKOUT_NOT_FOUND";
         public static final String SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED";
         public static final String FORBIDDEN = "FORBIDDEN";
-    }
-
-    public final class Message {
-        public static final String SUCCESS_MESSAGE = "SUCCESS";
+        public static final String NEGATIVE_CART_ITEM_QUANTITY = "NEGATIVE_CART_ITEM_QUANTITY";
+        public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
     }
 }
