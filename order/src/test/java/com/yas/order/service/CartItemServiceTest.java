@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.NotFoundException;
@@ -60,16 +63,10 @@ class CartItemServiceTest {
         }
 
         @Test
-        void testAddCartItem_whenQuantityIsNegative_thenThrowBadRequestException() {
-            CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.quantity(-1).build();
-            assertThrows(BadRequestException.class, () -> cartItemService.addCartItem(cartItemPostVm));
-        }
-
-        @Test
         void testAddCartItem_whenProductNotFound_thenThrowBadRequestException() {
             cartItemPostVmBuilder.productId(-1L);
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
-            Mockito.when(productService.getProductById(cartItemPostVm.productId()))
+            when(productService.getProductById(cartItemPostVm.productId()))
                 .thenThrow(new NotFoundException(anyString()));
             assertThrows(BadRequestException.class, () -> cartItemService.addCartItem(cartItemPostVm));
         }
@@ -87,13 +84,13 @@ class CartItemServiceTest {
             int expectedQuantity = existingCartItem.getQuantity() + cartItemPostVm.quantity();
 
             mockCurrentUserId(currentUserId);
-            Mockito.when(productService.getProductById(cartItemPostVm.productId()))
-                .thenReturn(Mockito.mock(ProductThumbnailGetVm.class));
-            Mockito.when(cartItemRepository.findById(any())).thenReturn(Optional.of(existingCartItem));
+            when(productService.getProductById(cartItemPostVm.productId()))
+                .thenReturn(mock(ProductThumbnailGetVm.class));
+            when(cartItemRepository.findById(any())).thenReturn(Optional.of(existingCartItem));
 
             cartItemService.addCartItem(cartItemPostVm);
 
-            Mockito.verify(cartItemRepository).save(any());
+            verify(cartItemRepository).save(any());
             assertEquals(expectedQuantity, existingCartItem.getQuantity());
         }
 
@@ -103,14 +100,14 @@ class CartItemServiceTest {
             String currentUserId = "customerId";
 
             mockCurrentUserId(currentUserId);
-            Mockito.when(productService.getProductById(cartItemPostVm.productId()))
-                .thenReturn(Mockito.mock(ProductThumbnailGetVm.class));
-            Mockito.when(cartItemRepository.findById(any(CartItemId.class))).thenReturn(java.util.Optional.empty());
+            when(productService.getProductById(cartItemPostVm.productId()))
+                .thenReturn(mock(ProductThumbnailGetVm.class));
+            when(cartItemRepository.findById(any(CartItemId.class))).thenReturn(java.util.Optional.empty());
 
             cartItemService.addCartItem(cartItemPostVm);
 
             ArgumentCaptor<CartItem> cartItemCaptor = ArgumentCaptor.forClass(CartItem.class);
-            Mockito.verify(cartItemRepository).save(cartItemCaptor.capture());
+            verify(cartItemRepository).save(cartItemCaptor.capture());
             CartItem savedCartItem = cartItemCaptor.getValue();
 
             assertEquals(currentUserId, savedCartItem.getCustomerId());
@@ -120,13 +117,13 @@ class CartItemServiceTest {
     }
 
     private void mockCurrentUserId(String userIdToMock) {
-        Jwt jwt = Mockito.mock(Jwt.class);
+        Jwt jwt = mock(Jwt.class);
         JwtAuthenticationToken jwtToken = new JwtAuthenticationToken(jwt);
 
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(jwtToken);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(jwtToken);
 
-        Mockito.when(jwt.getSubject()).thenReturn(userIdToMock);
+        when(jwt.getSubject()).thenReturn(userIdToMock);
         SecurityContextHolder.setContext(securityContext);
     }
 

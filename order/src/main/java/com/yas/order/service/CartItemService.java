@@ -50,10 +50,6 @@ public class CartItemService {
     }
 
     private void validateCartItemPostVm(CartItemPostVm cartItemPostVm) {
-        if (cartItemPostVm.quantity() <= 0) {
-            throw new BadRequestException(Constants.ErrorCode.NEGATIVE_CART_ITEM_QUANTITY);
-        }
-
         try {
             productService.getProductById(cartItemPostVm.productId());
         } catch (NotFoundException e) {
