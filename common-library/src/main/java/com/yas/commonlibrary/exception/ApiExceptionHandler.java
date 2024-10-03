@@ -1,10 +1,10 @@
-package com.yas.cart.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.cart.viewmodel.ErrorVm;
-import com.yas.commonlibrary.exception.BadRequestException;
-import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.viewmodel.error.ErrorVm;
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,11 +24,6 @@ public class ApiExceptionHandler {
         String message = ex.getMessage();
 
         return buildErrorResponse(status, message, null, ex, request, 404);
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorVm> handleBadRequestException(BadRequestException ex, WebRequest request) {
-        return handleBadRequest(ex, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -51,6 +46,43 @@ public class ApiExceptionHandler {
         String message = ex.getMessage();
 
         return buildErrorResponse(status, message, null, ex, request, 500);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorVm> handleBadRequestException(BadRequestException ex, WebRequest request) {
+        return handleBadRequest(ex, request);
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity<ErrorVm> handleConstraintViolation(ConstraintViolationException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        List<String> errors = ex.getConstraintViolations().stream()
+            .map(violation -> String.format("%s %s: %s",
+                violation.getRootBeanClass().getName(),
+                violation.getPropertyPath(),
+                violation.getMessage()))
+            .toList();
+
+        return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorVm> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        return handleBadRequest(ex, true, null);
+    }
+
+    @ExceptionHandler(DuplicatedException.class)
+    protected ResponseEntity<ErrorVm> handleDuplicated(DuplicatedException ex) {
+        return handleBadRequest(ex, false, null);
+    }
+
+    @ExceptionHandler(InternalServerErrorException.class)
+    protected ResponseEntity<ErrorVm> handleInternalServerErrorException(InternalServerErrorException e) {
+        log.error("Internal server error exception: ", e);
+        ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage());
+        return ResponseEntity.internalServerError().body(errorVm);
     }
 
     private String getServletPath(WebRequest webRequest) {
