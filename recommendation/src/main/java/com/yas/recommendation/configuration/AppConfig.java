@@ -1,4 +1,4 @@
-package com.yas.recommendation.config;
+package com.yas.recommendation.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
