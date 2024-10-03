@@ -78,7 +78,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductThumbnailFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductThumbnailListFallback")
     public List<ProductThumbnailGetVm> getProducts(List<Long> ids) {
         final URI url = UriComponentsBuilder
             .fromHttpUrl(serviceUrlConfig.product())
@@ -102,7 +102,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         return products.getFirst();
     }
 
-    protected List<ProductThumbnailGetVm> handleProductThumbnailFallback(Throwable throwable) throws Throwable {
+    protected List<ProductThumbnailGetVm> handleProductThumbnailListFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 

@@ -5,18 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.CartItemMapper;
 import com.yas.order.model.CartItem;
 import com.yas.order.model.CartItemId;
 import com.yas.order.repository.CartItemRepository;
-import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.cart.CartItemPostVm;
 import com.yas.order.viewmodel.product.ProductThumbnailGetVm;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -58,58 +60,62 @@ class CartItemServiceTest {
         }
 
         @Test
-        void testAddCartItem_whenQuantityIsNegative_thenThrowIllegalArgumentException() {
+        void testAddCartItem_whenQuantityIsNegative_thenThrowBadRequestException() {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.quantity(-1).build();
-            IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> cartItemService.addCartItem(cartItemPostVm));
-            assertEquals(Constants.ErrorCode.NEGATIVE_CART_ITEM_QUANTITY, exception.getMessage());
+            assertThrows(BadRequestException.class, () -> cartItemService.addCartItem(cartItemPostVm));
         }
 
         @Test
-        void testAddCartItem_whenProductNotFound_thenThrowIllegalArgumentException() {
+        void testAddCartItem_whenProductNotFound_thenThrowBadRequestException() {
             cartItemPostVmBuilder.productId(-1L);
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
             Mockito.when(productService.getProductById(cartItemPostVm.productId()))
                 .thenThrow(new NotFoundException(anyString()));
-            IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> cartItemService.addCartItem(cartItemPostVm));
-            assertEquals(Constants.ErrorCode.PRODUCT_NOT_FOUND, exception.getMessage());
+            assertThrows(BadRequestException.class, () -> cartItemService.addCartItem(cartItemPostVm));
         }
 
         @Test
         void testAddCartItem_whenCartItemExists_thenUpdateQuantity() {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
-            Mockito.when(productService.getProductById(cartItemPostVm.productId()))
-                .thenReturn(Mockito.mock(ProductThumbnailGetVm.class));
-
-            mockCurrentUserId("customerId");
-
+            String currentUserId = "customerId";
             CartItem existingCartItem = CartItem
                 .builder()
-                .customerId("customerId")
+                .customerId(currentUserId)
                 .productId(cartItemPostVm.productId())
                 .quantity(1)
                 .build();
-            Mockito.when(cartItemRepository.findById(any())).thenReturn(java.util.Optional.of(existingCartItem));
+            int expectedQuantity = existingCartItem.getQuantity() + cartItemPostVm.quantity();
+
+            mockCurrentUserId(currentUserId);
+            Mockito.when(productService.getProductById(cartItemPostVm.productId()))
+                .thenReturn(Mockito.mock(ProductThumbnailGetVm.class));
+            Mockito.when(cartItemRepository.findById(any())).thenReturn(Optional.of(existingCartItem));
 
             cartItemService.addCartItem(cartItemPostVm);
 
             Mockito.verify(cartItemRepository).save(any());
+            assertEquals(expectedQuantity, existingCartItem.getQuantity());
         }
 
         @Test
         void testAddCartItem_whenCartItemDoesNotExist_thenCreateCartItem() {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
+            String currentUserId = "customerId";
+
+            mockCurrentUserId(currentUserId);
             Mockito.when(productService.getProductById(cartItemPostVm.productId()))
                 .thenReturn(Mockito.mock(ProductThumbnailGetVm.class));
-
-            mockCurrentUserId("customerId");
-
             Mockito.when(cartItemRepository.findById(any(CartItemId.class))).thenReturn(java.util.Optional.empty());
 
             cartItemService.addCartItem(cartItemPostVm);
 
-            Mockito.verify(cartItemRepository).save(any());
+            ArgumentCaptor<CartItem> cartItemCaptor = ArgumentCaptor.forClass(CartItem.class);
+            Mockito.verify(cartItemRepository).save(cartItemCaptor.capture());
+            CartItem savedCartItem = cartItemCaptor.getValue();
+
+            assertEquals(currentUserId, savedCartItem.getCustomerId());
+            assertEquals(cartItemPostVm.productId(), savedCartItem.getProductId());
+            assertEquals(cartItemPostVm.quantity(), savedCartItem.getQuantity());
         }
     }
 
