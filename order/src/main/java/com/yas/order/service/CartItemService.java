@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CartItemService {
     private final CartItemRepository cartItemRepository;
-    private final CartItemMapper cartItemMapper;
     private final ProductService productService;
 
     public void addCartItem(CartItemPostVm cartItemPostVm) {
