@@ -69,12 +69,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorVm> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        return handleBadRequest(ex, true, null);
+        return handleBadRequest(ex,  null);
     }
 
     @ExceptionHandler(DuplicatedException.class)
     protected ResponseEntity<ErrorVm> handleDuplicated(DuplicatedException ex) {
-        return handleBadRequest(ex, false, null);
+        return handleBadRequest(ex,  null);
     }
 
     @ExceptionHandler(InternalServerErrorException.class)
