@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.yas.cart", "com.yas.commonlibrary"})
 @EnableConfigurationProperties(ServiceUrlConfig.class)
 public class CartApplication {
 
