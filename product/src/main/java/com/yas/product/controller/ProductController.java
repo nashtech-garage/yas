@@ -3,25 +3,7 @@ package com.yas.product.controller;
 import com.yas.product.model.enumeration.FilterExistInWhSelection;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.error.ErrorVm;
-import com.yas.product.viewmodel.product.ProductDetailGetVm;
-import com.yas.product.viewmodel.product.ProductDetailVm;
-import com.yas.product.viewmodel.product.ProductEsDetailVm;
-import com.yas.product.viewmodel.product.ProductExportingDetailVm;
-import com.yas.product.viewmodel.product.ProductFeatureGetVm;
-import com.yas.product.viewmodel.product.ProductGetDetailVm;
-import com.yas.product.viewmodel.product.ProductInfoVm;
-import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
-import com.yas.product.viewmodel.product.ProductListGetVm;
-import com.yas.product.viewmodel.product.ProductListVm;
-import com.yas.product.viewmodel.product.ProductPostVm;
-import com.yas.product.viewmodel.product.ProductPutVm;
-import com.yas.product.viewmodel.product.ProductQuantityPostVm;
-import com.yas.product.viewmodel.product.ProductQuantityPutVm;
-import com.yas.product.viewmodel.product.ProductSlugGetVm;
-import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
-import com.yas.product.viewmodel.product.ProductThumbnailVm;
-import com.yas.product.viewmodel.product.ProductVariationGetVm;
-import com.yas.product.viewmodel.product.ProductsGetVm;
+import com.yas.product.viewmodel.product.*;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -264,5 +246,10 @@ public class ProductController {
     public ResponseEntity<List<ProductListVm>> getProductByBrands(
         @RequestParam("ids") List<Long> brandIds) {
         return ResponseEntity.ok(productService.getProductByBrandIds(brandIds));
+    }
+
+    @GetMapping("/backoffice/products/detail/{productId}")
+    public ResponseEntity<ProductDetailInfoVm> getProductDetailById(@PathVariable("productId") long productId) {
+        return ResponseEntity.ok(productService.getProductDetailById(productId));
     }
 }

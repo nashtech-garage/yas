@@ -24,7 +24,7 @@ public class ProductService {
                 .getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(config.getApiUrl())
-                .path("/backoffice/products/" + productId)
+                .path("/backoffice/products/detail/" + productId)
                 .buildAndExpand()
                 .toUri();
 

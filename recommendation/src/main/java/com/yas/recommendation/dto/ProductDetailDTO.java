@@ -1,7 +1,13 @@
 package com.yas.recommendation.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import java.util.List;
 
+@JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductDetailDTO(
         long id,
         String name,
@@ -22,6 +28,9 @@ public record ProductDetailDTO(
         String metaTitle,
         String metaKeyword,
         String metaDescription,
-        Long taxClassId
+        Long taxClassId,
+        String brandName,
+        List<ProductAttributeValueDTO> attributeValues,
+        List<ProductVariationDTO> variations
 ) {
 }
