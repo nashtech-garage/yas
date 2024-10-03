@@ -1,4 +1,6 @@
-package com.yas.recommendation.vectorstore.document;
+package com.yas.recommendation.vector.document;
+
+import static com.yas.recommendation.vector.document.ProductDocument.QUERY_FORMAT;
 
 import java.util.Collection;
 import java.util.Map;
@@ -9,14 +11,24 @@ import org.springframework.ai.document.id.IdGenerator;
 import org.springframework.ai.model.Media;
 
 /**
- * Represents a document that contains product-related information. The content of this document
- * is formatted using a custom content formatter.
+ * Represents a document that contains product-related information.
+ * The content of this document is formatted using a custom content formatter.
  */
+@DocumentMetadata(
+    queryFormat = QUERY_FORMAT,
+    embeddingContentFormatter = ProductDocument.EMBEDDING_CONTENT_FORMAT
+)
 public class ProductDocument extends Document {
 
-    public static final ContentFormatter CUSTOM_CONTENT_FORMATTER = DefaultContentFormatter.builder()
+    public static final String  QUERY_FORMAT =
+        "{name}| {shortDescription}| {specification}| {price}| {brand}| {categories}| {metaTitle}| {metaKeyword}| {metaDescription}";
+
+    public static final String EMBEDDING_CONTENT_FORMAT = "{content}";
+
+    public static final ContentFormatter CUSTOM_CONTENT_FORMATTER =
+        DefaultContentFormatter.builder()
         .from(DefaultContentFormatter.defaultConfig())
-        .withTextTemplate("{content}")
+        .withTextTemplate(EMBEDDING_CONTENT_FORMAT)
         .build();
 
     public ProductDocument(String content) {
@@ -49,4 +61,5 @@ public class ProductDocument extends Document {
         super(id, content, media, metadata);
         setContentFormatter(CUSTOM_CONTENT_FORMATTER);
     }
+
 }

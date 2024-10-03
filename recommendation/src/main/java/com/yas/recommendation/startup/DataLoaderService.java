@@ -1,6 +1,6 @@
 package com.yas.recommendation.startup;
 
-import static com.yas.recommendation.vectorstore.document.ProductDocument.CUSTOM_CONTENT_FORMATTER;
+import static com.yas.recommendation.vector.document.ProductDocument.CUSTOM_CONTENT_FORMATTER;
 
 import java.util.Map;
 import org.slf4j.Logger;
