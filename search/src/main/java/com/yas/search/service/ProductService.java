@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -96,7 +97,7 @@ public class ProductService {
     }
 
     private void extractedTermsFilter(String fieldValues, String productField, BoolQuery.Builder b) {
-        if (fieldValues != null && !fieldValues.isBlank()) {
+        if (StringUtils.isNotBlank(fieldValues)) {
             String[] valuesArray = fieldValues.split(",");
             b.must(m -> {
                 BoolQuery.Builder innerBool = new BoolQuery.Builder();
