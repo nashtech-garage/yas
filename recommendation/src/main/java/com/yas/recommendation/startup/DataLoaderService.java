@@ -1,7 +1,6 @@
 package com.yas.recommendation.startup;
 
-import static com.yas.recommendation.vector.document.ProductDocument.CUSTOM_CONTENT_FORMATTER;
-
+import com.yas.recommendation.vector.common.document.BaseDocument;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ class DataLoaderService {
             jsonReader
                 .get()
                 .stream()
-                .peek(doc -> doc.setContentFormatter(CUSTOM_CONTENT_FORMATTER))
+                .peek(doc -> doc.setContentFormatter(BaseDocument.DEFAULT_CONTENT_FORMATTER))
                 .toList()
         );
         logger.info("Load data: %s.".formatted(laptopResource.getFilename()));

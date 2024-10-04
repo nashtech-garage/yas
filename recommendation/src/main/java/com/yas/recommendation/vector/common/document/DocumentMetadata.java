@@ -1,5 +1,6 @@
-package com.yas.recommendation.vector.document;
+package com.yas.recommendation.vector.common.document;
 
+import com.yas.recommendation.vector.common.formatter.DocumentFormatter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,18 +28,29 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface DocumentMetadata {
 
+    String DEFAULT_CONTENT_FORMATTER = "{content}";
+
+    String docIdPrefix();
+
     /**
      * Specifies the format of the query used for vector searches.
      *
      * @return the query format.
      */
-    String queryFormat();
+    String contentFormat();
 
     /**
      * Specifies the formatter for embedding content will be stored in vector db.
      *
      * @return the embedding content formatter.
      */
-    String embeddingContentFormatter();
+    String embeddingContentFormatter() default DEFAULT_CONTENT_FORMATTER;
+
+    /**
+     * Specifies the class responsible for formatting the document.
+     *
+     * @return the document formatter class.
+     */
+    Class<? extends DocumentFormatter> documentFormatter();
 
 }

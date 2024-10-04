@@ -1,24 +1,31 @@
-package com.yas.recommendation.vector.query;
+package com.yas.recommendation.vector.common.query;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
-import com.yas.recommendation.vector.document.DocumentMetadata;
+import com.yas.recommendation.vector.common.document.BaseDocument;
+import com.yas.recommendation.vector.common.document.DocumentMetadata;
+import com.yas.recommendation.vector.common.formatter.DocumentFormatter;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import org.apache.commons.text.StringSubstitutor;
+import lombok.SneakyThrows;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 /**
  * Abstract service for performing similarity searches on a vector store.
  *
- * @param <D> the document type, must be annotated with {@link DocumentMetadata}, to know how the query will be formatted
+ * @param <D> the document type, must be annotated with {@link DocumentMetadata},
+ *           to know how the query will be formatted
  * @param <P> the product result type handled by the service.
  */
-public abstract class VectorQueryService<D extends Document, P> {
+public abstract class VectorQueryService<D  extends BaseDocument, P> {
+
+    private ObjectMapper objectMapper;
+    private EmbeddingSearchConfiguration embeddingSearchConfiguration;
 
     @Getter
     private final Class<D> docType;
@@ -26,37 +33,31 @@ public abstract class VectorQueryService<D extends Document, P> {
     @Getter
     private final Class<P> resultType;
 
-    private final DocumentMetadata documentMetadata;
-    private final ObjectMapper objectMapper;
     private final VectorStore vectorStore;
-    private final EmbeddingSearchConfiguration embeddingSearchConfiguration;
+    private final DocumentMetadata documentMetadata;
+    private final DocumentFormatter documentFormatter;
 
     /**
      * Constructor for VectorQueryService.
      *
      * @param docType the document class type.
      * @param resultType the result class type.
-     * @param objectMapper the object mapper.
-     * @param vectorStore the vector store.
-     * @param embeddingSearchConfiguration the search configuration.
      */
+    @SneakyThrows
     protected VectorQueryService(
         Class<D> docType,
         Class<P> resultType,
-        ObjectMapper objectMapper,
-        VectorStore vectorStore,
-        EmbeddingSearchConfiguration embeddingSearchConfiguration
+        VectorStore vectorStore
     ) {
         Assert.isTrue(
             docType.isAnnotationPresent(DocumentMetadata.class),
             "Document must be annotated by '@DocumentFormat'"
         );
-        this.documentMetadata = docType.getAnnotation(DocumentMetadata.class);
         this.docType = docType;
         this.resultType = resultType;
-        this.objectMapper = objectMapper;
         this.vectorStore = vectorStore;
-        this.embeddingSearchConfiguration = embeddingSearchConfiguration;
+        this.documentMetadata = docType.getAnnotation(DocumentMetadata.class);
+        this.documentFormatter = documentMetadata.documentFormatter().getDeclaredConstructor().newInstance();
     }
 
     /**
@@ -75,8 +76,7 @@ public abstract class VectorQueryService<D extends Document, P> {
      */
     public List<P> similaritySearch(Long id) {
         final var entityMap = getEntity(id);
-        StringSubstitutor sub = new StringSubstitutor(entityMap);
-        final var query = sub.replace(documentMetadata.queryFormat());
+        final var query = documentFormatter.format(entityMap, documentMetadata.contentFormat());
         return toResult(doSimilaritySearch(SearchRequest.query(query)));
     }
 
@@ -104,4 +104,13 @@ public abstract class VectorQueryService<D extends Document, P> {
         searchRequest.withSimilarityThreshold(embeddingSearchConfiguration.similarityThreshold());
     }
 
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    @Autowired
+    public void setEmbeddingSearchConfiguration(EmbeddingSearchConfiguration embeddingSearchConfiguration) {
+        this.embeddingSearchConfiguration = embeddingSearchConfiguration;
+    }
 }

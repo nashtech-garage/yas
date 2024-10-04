@@ -19,8 +19,8 @@ public class ProductService {
     private final RecommendationConfig config;
 
     public ProductDetailDTO getProductDetail(long productId) {
-        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-                .getTokenValue();
+//        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+//                .getTokenValue();
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(config.getApiUrl())
                 .path("/storefront/products/detail/" + productId)
@@ -29,7 +29,7 @@ public class ProductService {
 
         return restClient.get()
                 .uri(url)
-                .headers(h -> h.setBearerAuth(jwt))
+//                .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<ProductDetailDTO>() {
                 })

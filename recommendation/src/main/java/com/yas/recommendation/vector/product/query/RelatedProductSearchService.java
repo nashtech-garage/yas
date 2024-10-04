@@ -1,11 +1,11 @@
-package com.yas.recommendation.vector.query;
+package com.yas.recommendation.vector.product.query;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
 import com.yas.recommendation.dto.ProductDetailDTO;
 import com.yas.recommendation.dto.RelatedProductDto;
 import com.yas.recommendation.service.ProductService;
-import com.yas.recommendation.vector.document.ProductDocument;
+import com.yas.recommendation.vector.common.query.VectorQueryService;
+import com.yas.recommendation.vector.product.document.ProductDocument;
 import java.util.Map;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
@@ -15,18 +15,17 @@ import org.springframework.stereotype.Service;
  * Extends {@link VectorQueryService} for {@link RelatedProductDto} results.
  */
 @Service
-public class RelatedProductSearch extends VectorQueryService<ProductDocument, RelatedProductDto> {
+public class RelatedProductSearchService extends VectorQueryService<ProductDocument, RelatedProductDto> {
 
     private final ObjectMapper objectMapper;
     private final ProductService productService;
 
-    protected RelatedProductSearch(
+    protected RelatedProductSearchService(
         VectorStore vectorStore,
         ObjectMapper objectMapper,
-        ProductService productService,
-        EmbeddingSearchConfiguration searchConfig
+        ProductService productService
     ) {
-        super(ProductDocument.class, RelatedProductDto.class, objectMapper, vectorStore, searchConfig);
+        super(ProductDocument.class, RelatedProductDto.class, vectorStore);
         this.objectMapper = objectMapper;
         this.productService = productService;
     }
