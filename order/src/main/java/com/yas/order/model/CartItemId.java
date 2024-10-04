@@ -3,14 +3,10 @@ package com.yas.order.model;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @EqualsAndHashCode
 public class CartItemId implements Serializable {
     private String customerId;
@@ -18,5 +14,21 @@ public class CartItemId implements Serializable {
 
     public static CartItemId of(String customerId, Long productId) {
         return new CartItemId(customerId, productId);
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 }
