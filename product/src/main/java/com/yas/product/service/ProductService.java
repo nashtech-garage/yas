@@ -376,10 +376,6 @@ public class ProductService {
         updateExistingVariants(productPutVm, allVariationImages, existingVariations);
         productRepository.saveAll(existingVariations);
 
-        if (CollectionUtils.isEmpty(productPutVm.productOptionValues())) {
-            return;
-        }
-
         List<ProductVariationPutVm> newVariationVms = productPutVm.variations().stream()
             .filter(variant -> variant.id() == null).toList();
         if (CollectionUtils.isEmpty(newVariationVms)) {
