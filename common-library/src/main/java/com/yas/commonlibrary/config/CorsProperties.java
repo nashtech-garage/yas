@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class CorsProperties {
     private String[] allowedOrigins;
 
-    // Getter và Setter cho allowedOrigins
     public String[] getAllowedOrigins() {
         return allowedOrigins;
     }
