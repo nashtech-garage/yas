@@ -2,8 +2,7 @@ package com.yas.recommendation.vector.query;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
-import com.yas.recommendation.vector.document.DocumentFormat;
-import com.yas.recommendation.vector.document.IDocument;
+import com.yas.recommendation.vector.document.DocumentMetadata;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -14,61 +13,70 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.util.Assert;
 
 /**
- * An abstract service class for performing similarity searches on a vector store.
+ * Abstract service for performing similarity searches on a vector store.
  *
- * @param <P> the type of product result that this service handles.
+ * @param <D> the document type, must be annotated with {@link DocumentMetadata}, to know how the query will be formatted
+ * @param <P> the product result type handled by the service.
  */
-public abstract class VectorQueryService<D extends Document & IDocument, P> {
+public abstract class VectorQueryService<D extends Document, P> {
 
     @Getter
-    private final Class<D> productDocType;
+    private final Class<D> docType;
 
     @Getter
-    private final Class<P> productResultType;
+    private final Class<P> resultType;
 
-    private final String queryFormat;
+    private final DocumentMetadata documentMetadata;
     private final ObjectMapper objectMapper;
     private final VectorStore vectorStore;
     private final EmbeddingSearchConfiguration embeddingSearchConfiguration;
 
     /**
-     * Constructs a VectorQueryService with the specified parameters.
+     * Constructor for VectorQueryService.
      *
-     * @param productResultType the class type of the product result.
-     * @param vectorStore the vector store used for performing similarity searches.
-     * @param embeddingSearchConfiguration the configuration settings for embedding search.
+     * @param docType the document class type.
+     * @param resultType the result class type.
+     * @param objectMapper the object mapper.
+     * @param vectorStore the vector store.
+     * @param embeddingSearchConfiguration the search configuration.
      */
     protected VectorQueryService(
-        Class<D> productDocType,
-        Class<P> productResultType,
+        Class<D> docType,
+        Class<P> resultType,
         ObjectMapper objectMapper,
         VectorStore vectorStore,
         EmbeddingSearchConfiguration embeddingSearchConfiguration
     ) {
         Assert.isTrue(
-            productDocType.isAnnotationPresent(DocumentFormat.class),
+            docType.isAnnotationPresent(DocumentMetadata.class),
             "Document must be annotated by '@DocumentFormat'"
         );
-        this.productDocType = productDocType;
-        this.productResultType = productResultType;
+        this.documentMetadata = docType.getAnnotation(DocumentMetadata.class);
+        this.docType = docType;
+        this.resultType = resultType;
         this.objectMapper = objectMapper;
         this.vectorStore = vectorStore;
         this.embeddingSearchConfiguration = embeddingSearchConfiguration;
-        this.queryFormat = this.productDocType.getAnnotation(DocumentFormat.class).value();
     }
 
-    public abstract Map<String, String> getEntity(Long productId);
+    /**
+     * Retrieves the entity data for a given product ID.
+     *
+     * @param id the ID.
+     * @return a map of entity attributes where keys are attribute names and values are their corresponding values.
+     */
+    public abstract Map<String, String> getEntity(Long id);
 
     /**
      * Performs a similarity search based on a product ID.
      *
-     * @param productId the ID of the product for which to perform the similarity search.
+     * @param id the ID of the product for which to perform the similarity search.
      * @return a list of product results that are similar to the specified product.
      */
-    public List<P> similaritySearch(Long productId) {
-        final var entityMap = getEntity(productId);
+    public List<P> similaritySearch(Long id) {
+        final var entityMap = getEntity(id);
         StringSubstitutor sub = new StringSubstitutor(entityMap);
-        final var query = sub.replace(queryFormat);
+        final var query = sub.replace(documentMetadata.queryFormat());
         return toResult(doSimilaritySearch(SearchRequest.query(query)));
     }
 
@@ -82,7 +90,7 @@ public abstract class VectorQueryService<D extends Document & IDocument, P> {
         return documents
             .stream()
             .filter(doc -> doc.getMetadata() != null)
-            .map(doc -> objectMapper.convertValue(doc.getMetadata(), productResultType))
+            .map(doc -> objectMapper.convertValue(doc.getMetadata(), resultType))
             .toList();
     }
 

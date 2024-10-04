@@ -1,6 +1,6 @@
 package com.yas.recommendation.vector.document;
 
-import static com.yas.recommendation.vector.document.ProductDocument.FORMAT;
+import static com.yas.recommendation.vector.document.ProductDocument.QUERY_FORMAT;
 
 import java.util.Collection;
 import java.util.Map;
@@ -11,16 +11,16 @@ import org.springframework.ai.document.id.IdGenerator;
 import org.springframework.ai.model.Media;
 
 /**
- * Represents a document that contains product-related information. The content of this document
- * is formatted using a custom content formatter.
+ * Represents a document that contains product-related information.
+ * The content of this document is formatted using a custom content formatter.
  */
-@DocumentFormat(
-    value = FORMAT,
+@DocumentMetadata(
+    queryFormat = QUERY_FORMAT,
     embeddingContentFormatter = ProductDocument.EMBEDDING_CONTENT_FORMAT
 )
-public class ProductDocument extends Document implements IDocument {
+public class ProductDocument extends Document {
 
-    public static final String FORMAT =
+    public static final String  QUERY_FORMAT =
         "{name}| {shortDescription}| {specification}| {price}| {brand}| {categories}| {metaTitle}| {metaKeyword}| {metaDescription}";
 
     public static final String EMBEDDING_CONTENT_FORMAT = "{content}";
@@ -62,13 +62,4 @@ public class ProductDocument extends Document implements IDocument {
         setContentFormatter(CUSTOM_CONTENT_FORMATTER);
     }
 
-    @Override
-    public String getContentFormat() {
-        return FORMAT;
-    }
-
-    @Override
-    public String getEmbeddingContentFormat() {
-        return EMBEDDING_CONTENT_FORMAT;
-    }
 }
