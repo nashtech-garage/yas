@@ -1,12 +1,13 @@
 package com.yas.cart;
 
+import com.yas.commonlibrary.config.CorsProperties;
 import com.yas.commonlibrary.config.ServiceUrlConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication(scanBasePackages = {"com.yas.cart", "com.yas.commonlibrary"})
-@EnableConfigurationProperties(ServiceUrlConfig.class)
+@EnableConfigurationProperties({ServiceUrlConfig.class, CorsProperties.class})
 public class CartApplication {
 
     public static void main(String[] args) {
