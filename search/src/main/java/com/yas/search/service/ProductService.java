@@ -97,22 +97,23 @@ public class ProductService {
     }
 
     private void extractedTermsFilter(String fieldValues, String productField, BoolQuery.Builder b) {
-        if (StringUtils.isNotBlank(fieldValues)) {
-            String[] valuesArray = fieldValues.split(",");
-            b.must(m -> {
-                BoolQuery.Builder innerBool = new BoolQuery.Builder();
-                for (String value : valuesArray) {
-                    innerBool.should(s -> s
-                        .term(t -> t
-                            .field(productField)
-                            .value(value)
-                            .caseInsensitive(true)
-                        )
-                    );
-                }
-                return new Query.Builder().bool(innerBool.build());
-            });
+        if (StringUtils.isBlank(fieldValues)) {
+            return;
         }
+        String[] valuesArray = fieldValues.split(",");
+        b.must(m -> {
+            BoolQuery.Builder innerBool = new BoolQuery.Builder();
+            for (String value : valuesArray) {
+                innerBool.should(s -> s
+                    .term(t -> t
+                        .field(productField)
+                        .value(value)
+                        .caseInsensitive(true)
+                    )
+                );
+            }
+            return new Query.Builder().bool(innerBool.build());
+        });
     }
 
     private void extractedRange(Number min, Number max, BoolQuery.Builder bool) {
