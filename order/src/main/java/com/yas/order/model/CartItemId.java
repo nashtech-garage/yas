@@ -2,12 +2,14 @@ package com.yas.order.model;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@lombok.Getter
+@lombok.Setter
+@EqualsAndHashCode
 public class CartItemId implements Serializable {
     private String customerId;
     private Long productId;
