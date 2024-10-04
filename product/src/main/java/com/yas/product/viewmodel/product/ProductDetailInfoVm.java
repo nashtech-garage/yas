@@ -1,6 +1,7 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.model.Category;
+import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueGetVm;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +35,8 @@ public class ProductDetailInfoVm {
     private String brandName;
     private List<ProductAttributeValueGetVm> attributeValues;
     private List<ProductVariationGetVm> variations;
+    private ImageVm thumbnail;
+    private List<ImageVm> productImages;
 
     public ProductDetailInfoVm(long id, String name, String shortDescription, String description,
                                String specification, String sku, String gtin, String slug,
@@ -42,7 +45,7 @@ public class ProductDetailInfoVm {
                                Long brandId, List<Category> categories, String metaTitle,
                                String metaKeyword, String metaDescription, Long taxClassId,
                                String brandName, List<ProductAttributeValueGetVm> attributeValues,
-                               List<ProductVariationGetVm> variations) {
+                               List<ProductVariationGetVm> variations, ImageVm thumbnail, List<ImageVm> productImages) {
         this.id = id;
         this.name = name;
         this.shortDescription = shortDescription;
@@ -66,5 +69,7 @@ public class ProductDetailInfoVm {
         this.brandName = brandName;
         this.attributeValues = (attributeValues != null) ? attributeValues : new ArrayList<>();  // Handle null
         this.variations = (variations != null) ? variations : new ArrayList<>();  // Handle null
+        this.thumbnail = thumbnail;
+        this.productImages = productImages;
     }
 }

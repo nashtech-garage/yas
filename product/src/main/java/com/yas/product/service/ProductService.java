@@ -1126,8 +1126,8 @@ public class ProductService {
                                 pro.getSku(),
                                 pro.getGtin(),
                                 pro.getPrice(),
-                                null,
-                                null,
+                                getThumbnailFromProduct(pro),
+                                getImagesFromProduct(pro),
                                 options
                         );
                     }).toList();
@@ -1154,6 +1154,24 @@ public class ProductService {
                 product.getTaxClassId(),
                 brandName,
                 productAttributes,
-                variations);
+                variations,
+                getThumbnailFromProduct(product),
+                getImagesFromProduct(product)
+        );
+    }
+
+    private ImageVm getThumbnailFromProduct(Product product) {
+        return Optional.ofNullable(product.getThumbnailMediaId())
+                .map(thumbnailId -> new ImageVm(thumbnailId, mediaService.getMedia(thumbnailId).url()))
+                .orElse(null);
+
+    }
+
+    private List<ImageVm> getImagesFromProduct(Product product) {
+        return Optional.ofNullable(product.getProductImages())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(image -> new ImageVm(image.getImageId(), mediaService.getMedia(image.getImageId()).url()))
+                .toList();
     }
 }
