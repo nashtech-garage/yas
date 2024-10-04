@@ -248,7 +248,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductByBrandIds(brandIds));
     }
 
-    @GetMapping("/backoffice/products/detail/{productId}")
+    @GetMapping("/storefront/products/detail/{productId}")
     public ResponseEntity<ProductDetailInfoVm> getProductDetailById(@PathVariable("productId") long productId) {
         return ResponseEntity.ok(productService.getProductDetailById(productId));
     }
