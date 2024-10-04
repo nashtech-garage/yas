@@ -8,6 +8,9 @@ import static org.mockito.Mockito.verify;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,10 +31,27 @@ class ProductServiceIT {
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
-    @Test
-    void test_getProductVariations_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
-        circuitBreakerRegistry.circuitBreaker(CIRCUIT_BREAKER_NAME).transitionToOpenState();
-        assertThrows(CallNotPermittedException.class, () -> productService.getProductVariations(1L));
-        verify(productService, atLeastOnce()).handleProductVariationListFallback(any());
+    @Nested
+    class CircuitFallbackTest {
+
+        @AfterEach
+        void tearDown() {
+            circuitBreakerRegistry.circuitBreaker(CIRCUIT_BREAKER_NAME).transitionToClosedState();
+        }
+
+        @Test
+        void test_getProductVariations_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
+            circuitBreakerRegistry.circuitBreaker(CIRCUIT_BREAKER_NAME).transitionToOpenState();
+            assertThrows(CallNotPermittedException.class, () -> productService.getProductVariations(1L));
+            verify(productService, atLeastOnce()).handleProductVariationListFallback(any());
+        }
+
+        @Test
+        void test_getProducts_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
+            List<Long> productsIds = List.of(1L);
+            circuitBreakerRegistry.circuitBreaker(CIRCUIT_BREAKER_NAME).transitionToOpenState();
+            assertThrows(CallNotPermittedException.class, () -> productService.getProducts(productsIds));
+            verify(productService, atLeastOnce()).handleProductThumbnailListFallback(any());
+        }
     }
 }
