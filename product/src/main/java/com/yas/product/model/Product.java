@@ -21,11 +21,12 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "product")
-@Getter
-@Setter
+@lombok.Getter
+@lombok.Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SuppressWarnings("javaarchitecture:S7027")
 public class Product extends AbstractAuditEntity {
     @OneToMany(mappedBy = "product")
     @Builder.Default
@@ -53,6 +54,10 @@ public class Product extends AbstractAuditEntity {
     private String metaKeyword;
     private String metaDescription;
     private Long thumbnailMediaId;
+    private Double weight;
+    private Double length;
+    private Double width;
+    private Double height;
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;
