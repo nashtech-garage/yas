@@ -2,7 +2,7 @@ package com.yas.recommendation.controller;
 
 import com.yas.recommendation.dto.RelatedProductDto;
 import com.yas.recommendation.vector.product.document.ProductDocument;
-import com.yas.recommendation.vector.common.query.VectorQueryService;
+import com.yas.recommendation.vector.common.query.VectorQuery;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("embedding")
 public class EmbeddingQueryController {
 
-    private final VectorQueryService<ProductDocument, RelatedProductDto> relatedProductSearch;
+    private final VectorQuery<ProductDocument, RelatedProductDto> relatedProductSearch;
 
-    public EmbeddingQueryController(VectorQueryService<ProductDocument, RelatedProductDto> relatedProductSearch) {
+    public EmbeddingQueryController(VectorQuery<ProductDocument, RelatedProductDto> relatedProductSearch) {
         this.relatedProductSearch = relatedProductSearch;
     }
 

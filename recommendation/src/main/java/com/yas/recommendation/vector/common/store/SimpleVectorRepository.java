@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
  * @param <D> the type of document
  */
 @Component
-public abstract class VectorStoreService<D extends BaseDocument, E> implements VectorRepository<D, E> {
+public abstract class SimpleVectorRepository<D extends BaseDocument, E> implements VectorRepository<D, E> {
 
     private ObjectMapper objectMapper;
 
@@ -30,7 +30,7 @@ public abstract class VectorStoreService<D extends BaseDocument, E> implements V
     private final DocumentFormatter documentFormatter;
 
     @SneakyThrows
-    public VectorStoreService(Class<D> docType, VectorStore vectorStore) {
+    public SimpleVectorRepository(Class<D> docType, VectorStore vectorStore) {
         Assert.isTrue(
             docType.isAnnotationPresent(DocumentMetadata.class),
             "Document must be annotated by '@DocumentFormat'"

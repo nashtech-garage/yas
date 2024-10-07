@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
  *           to know how the query will be formatted
  * @param <P> the product result type handled by the service.
  */
-public abstract class VectorQueryService<D  extends BaseDocument, P> {
+public abstract class VectorQuery<D  extends BaseDocument, P> {
 
     private ObjectMapper objectMapper;
     private EmbeddingSearchConfiguration embeddingSearchConfiguration;
@@ -44,7 +44,7 @@ public abstract class VectorQueryService<D  extends BaseDocument, P> {
      * @param resultType the result class type.
      */
     @SneakyThrows
-    protected VectorQueryService(
+    protected VectorQuery(
         Class<D> docType,
         Class<P> resultType,
         VectorStore vectorStore
