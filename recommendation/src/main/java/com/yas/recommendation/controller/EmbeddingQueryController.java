@@ -26,5 +26,4 @@ public class EmbeddingQueryController {
     public List<RelatedProductDto> searchProduct(@PathVariable("id") Long productId) {
         return relatedProductSearch.similaritySearch(productId);
     }
-
 }
