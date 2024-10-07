@@ -1,7 +1,7 @@
 package com.yas.cart.service;
 
-import com.yas.commonlibrary.config.ServiceUrlConfig;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
+import com.yas.commonlibrary.config.ServiceUrlConfig;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
