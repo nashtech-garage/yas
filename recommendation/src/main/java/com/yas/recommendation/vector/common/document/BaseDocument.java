@@ -9,6 +9,9 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.document.id.IdGenerator;
 import org.springframework.util.Assert;
 
+/**
+ * Represent for base vector document structure.
+ */
 @Getter
 @Setter
 public abstract class BaseDocument {
@@ -23,6 +26,14 @@ public abstract class BaseDocument {
         .withTextTemplate(DocumentMetadata.DEFAULT_CONTENT_FORMATTER)
         .build();
 
+    /**
+     * Convert {@link BaseDocument} base document type to {@link Document}
+     * including content formatter and id generator (define metadata {@link DocumentMetadata}
+     * in class extends {@link BaseDocument}).
+     *
+     * @param idGenerator id generator.
+     * @return {@link Document} to save in db
+     */
     public Document toDocument(IdGenerator idGenerator) {
         Assert.isTrue(
             this.getClass().isAnnotationPresent(DocumentMetadata.class),
