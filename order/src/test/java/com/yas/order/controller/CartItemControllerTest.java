@@ -35,7 +35,10 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @ContextConfiguration(classes = {CartItemController.class, ApiExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
 class CartItemControllerTest {
+
     private static final String CART_ITEM_BASE_URL = "/storefront/cart/items";
+    private static final String ADD_CART_ITEM_URL = CART_ITEM_BASE_URL;
+    private static final String UPDATE_CART_ITEM_TEMPLATE = CART_ITEM_BASE_URL + "/%d";
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,7 +51,7 @@ class CartItemControllerTest {
 
     @Nested
     class AddToCartTest {
-        private static final String ADD_CART_ITEM_URL = CART_ITEM_BASE_URL;
+
         private CartItemPostVm.CartItemPostVmBuilder cartItemPostVmBuilder;
 
         @BeforeEach
@@ -76,6 +79,18 @@ class CartItemControllerTest {
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
+        @Test
+        void testAddToCart_whenRequestIsValid_thenReturnSuccess() throws Exception {
+            CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
+
+            doNothing().when(cartItemService).addCartItem(any(CartItemPostVm.class));
+
+            mockMvc.perform(buildAddCartItemRequest(cartItemPostVm))
+                .andExpect(status().isOk());
+
+            verify(cartItemService).addCartItem(cartItemPostVm);
+        }
+
         private void performAddCartItemAndExpectBadRequest(CartItemPostVm cartItemPostVm)
             throws Exception {
             mockMvc.perform(buildAddCartItemRequest(cartItemPostVm))
@@ -88,24 +103,12 @@ class CartItemControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(cartItemPostVm));
         }
-
-        @Test
-        void testAddToCart_whenRequestIsValid_thenReturnSuccess() throws Exception {
-            CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
-
-            doNothing().when(cartItemService).addCartItem(any(CartItemPostVm.class));
-
-            mockMvc.perform(buildAddCartItemRequest(cartItemPostVm))
-                .andExpect(status().isOk());
-
-            verify(cartItemService).addCartItem(cartItemPostVm);
-        }
     }
 
     @Nested
     class UpdateCartItemTest {
+
         private static final Long PRODUCT_ID_SAMPLE = 1L;
-        private static final String UPDATE_CART_ITEM_TEMPLATE = CART_ITEM_BASE_URL + "/%d";
 
         @Test
         void testUpdateCartItem_whenQuantityIsNull_thenReturnBadRequest() throws Exception {
@@ -117,23 +120,6 @@ class CartItemControllerTest {
         void testUpdateCartItem_whenQuantityIsLessThanOne_thenReturnBadRequest() throws Exception {
             CartItemPutVm cartItemPutVm = CartItemPutVm.builder().quantity(0).build();
             performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
-        }
-
-        private void performUpdateCartItemAndExpectBadRequest(CartItemPutVm cartItemPutVm)
-            throws Exception {
-            mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
-                .andExpect(status().isBadRequest());
-        }
-
-        private MockHttpServletRequestBuilder buildUpdateCartItemRequest(Long productId, CartItemPutVm cartItemPutVm)
-            throws Exception {
-            return put(getUpdateCartItemUrl(productId))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(cartItemPutVm));
-        }
-
-        private String getUpdateCartItemUrl(Long productId) {
-            return String.format(UPDATE_CART_ITEM_TEMPLATE, productId);
         }
 
         @Test
@@ -155,6 +141,22 @@ class CartItemControllerTest {
 
             verify(cartItemService).updateCartItem(anyLong(), any());
         }
-    }
 
+        private void performUpdateCartItemAndExpectBadRequest(CartItemPutVm cartItemPutVm)
+            throws Exception {
+            mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
+                .andExpect(status().isBadRequest());
+        }
+
+        private MockHttpServletRequestBuilder buildUpdateCartItemRequest(Long productId, CartItemPutVm cartItemPutVm)
+            throws Exception {
+            return put(getUpdateCartItemUrl(productId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(cartItemPutVm));
+        }
+
+        private String getUpdateCartItemUrl(Long productId) {
+            return String.format(UPDATE_CART_ITEM_TEMPLATE, productId);
+        }
+    }
 }

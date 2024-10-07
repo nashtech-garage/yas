@@ -118,17 +118,6 @@ class CartItemServiceTest {
         }
     }
 
-    private void mockCurrentUserId(String userIdToMock) {
-        Jwt jwt = mock(Jwt.class);
-        JwtAuthenticationToken jwtToken = new JwtAuthenticationToken(jwt);
-
-        SecurityContext securityContext = mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(jwtToken);
-
-        when(jwt.getSubject()).thenReturn(userIdToMock);
-        SecurityContextHolder.setContext(securityContext);
-    }
-
     @Nested
     class UpdateCartItemTest {
         private CartItemPutVm.CartItemPutVmBuilder cartItemPutVmBuilder;
@@ -186,5 +175,16 @@ class CartItemServiceTest {
             assertEquals(PRODUCT_ID_SAMPLE, createdCartItem.productId());
             assertEquals(cartItemPutVm.quantity(), createdCartItem.quantity());
         }
+    }
+
+    private void mockCurrentUserId(String userIdToMock) {
+        Jwt jwt = mock(Jwt.class);
+        JwtAuthenticationToken jwtToken = new JwtAuthenticationToken(jwt);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(jwtToken);
+
+        when(jwt.getSubject()).thenReturn(userIdToMock);
+        SecurityContextHolder.setContext(securityContext);
     }
 }

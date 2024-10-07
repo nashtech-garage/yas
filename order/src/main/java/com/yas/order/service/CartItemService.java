@@ -37,6 +37,30 @@ public class CartItemService {
         }
     }
 
+    public CartItemGetVm updateCartItem(Long productId, CartItemPutVm cartItemPutVm) {
+        validateProduct(productId);
+
+        String currentUserId = AuthenticationUtils.getCurrentUserId();
+        CartItemId cartItemId = CartItemId.of(currentUserId, productId);
+
+        Optional<CartItem> cartItemOpt = cartItemRepository.findById(cartItemId);
+
+        CartItem cartItem;
+        if (cartItemOpt.isPresent()) {
+            cartItem = cartItemOpt.get();
+            cartItem.setQuantity(cartItemPutVm.quantity());
+        } else {
+            cartItem = CartItem.builder()
+                .customerId(currentUserId)
+                .productId(productId)
+                .quantity(cartItemPutVm.quantity())
+                .build();
+        }
+
+        cartItem = cartItemRepository.save(cartItem);
+        return cartItemMapper.toGetVm(cartItem);
+    }
+
     private void createNewCartItem(CartItemPostVm cartItemPostVm, String currentUserId) {
         CartItem cartItem = cartItemMapper.toCartItem(cartItemPostVm, currentUserId);
         cartItemRepository.save(cartItem);
@@ -57,30 +81,5 @@ public class CartItemService {
         } catch (NotFoundException e) {
             throw new BadRequestException(Constants.ErrorCode.PRODUCT_NOT_FOUND, productId);
         }
-    }
-
-    public CartItemGetVm updateCartItem(Long productId, CartItemPutVm cartItemPutVm) {
-        validateProduct(productId);
-
-        String currentUserId = AuthenticationUtils.getCurrentUserId();
-        CartItemId cartItemId = CartItemId.of(currentUserId, productId);
-
-        Optional<CartItem> cartItemOpt = cartItemRepository.findById(cartItemId);
-
-        CartItem cartItem;
-        if (cartItemOpt.isPresent()) {
-            cartItem = cartItemOpt.get();
-            cartItem.setQuantity(cartItemPutVm.quantity());
-        }
-        else {
-            cartItem = CartItem.builder()
-                .customerId(currentUserId)
-                .productId(productId)
-                .quantity(cartItemPutVm.quantity())
-                .build();
-        }
-
-        cartItem = cartItemRepository.save(cartItem);
-        return cartItemMapper.toGetVm(cartItem);
     }
 }
