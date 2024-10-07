@@ -3,7 +3,7 @@ package com.yas.recommendation.consumer;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.yas.recommendation.constant.Action;
-import com.yas.recommendation.service.ProductSyncDataService;
+import com.yas.recommendation.vector.product.service.ProductVectorSyncService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 public class ProductSyncDataConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumer.class);
     @Autowired
-    private ProductSyncDataService productSyncDataService;
+    private ProductVectorSyncService productVectorSyncService;
 
-//    @KafkaListener(topics = "${product.topic.name}")
+    @KafkaListener(topics = "${product.topic.name}")
     public void listen(ConsumerRecord<?, ?> consumerRecord) {
 
         if (consumerRecord != null) {
@@ -28,16 +28,18 @@ public class ProductSyncDataConsumer {
                 if (valueObject != null) {
                     String action = String.valueOf(valueObject.get("op")).replaceAll("\"", "");
                     Long id = keyObject.get("id").getAsLong();
+                    JsonObject productObject = valueObject.get("after").getAsJsonObject();
+                    boolean isPublished = productObject != null && productObject.get("is_published").getAsBoolean();
 
                     switch (action) {
                         case Action.CREATE, Action.READ:
-                            productSyncDataService.createProduct(id);
+                            productVectorSyncService.createProductVector(id, isPublished);
                             break;
                         case Action.UPDATE:
-                            productSyncDataService.updateProduct(id);
+                            productVectorSyncService.updateProductVector(id, isPublished);
                             break;
                         case Action.DELETE:
-                            productSyncDataService.deleteProduct(id);
+                            productVectorSyncService.deleteProductVector(id);
                             break;
                         default:
                             break;
