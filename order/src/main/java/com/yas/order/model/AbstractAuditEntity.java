@@ -1,6 +1,7 @@
 package com.yas.order.model;
 
 import com.yas.order.listener.CustomAuditingEntityListener;
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.ZonedDateTime;
@@ -17,9 +18,11 @@ import org.springframework.data.annotation.LastModifiedBy;
 @EntityListeners(CustomAuditingEntityListener.class)
 public class AbstractAuditEntity {
     @CreationTimestamp
+    @Column(updatable = false)
     private ZonedDateTime createdOn;
 
     @CreatedBy
+    @Column(updatable = false)
     private String createdBy;
 
     @UpdateTimestamp

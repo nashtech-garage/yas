@@ -62,25 +62,25 @@ class CartItemControllerTest {
         }
 
         @Test
-        void testAddToCart_whenProductIdIsNull_thenReturnBadRequest() throws Exception {
+        void testAddToCart_whenProductIdIsNull_shouldReturnBadRequest() throws Exception {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.productId(null).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
-        void testAddToCart_whenQuantityIsNull_thenReturnBadRequest() throws Exception {
+        void testAddToCart_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.quantity(null).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
-        void testAddToCart_whenQuantityIsLessThanOne_thenReturnBadRequest() throws Exception {
+        void testAddToCart_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.quantity(0).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
-        void testAddToCart_whenRequestIsValid_thenReturnSuccess() throws Exception {
+        void testAddToCart_whenRequestIsValid_shouldReturnSuccess() throws Exception {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
 
             doNothing().when(cartItemService).addCartItem(any(CartItemPostVm.class));
@@ -111,19 +111,19 @@ class CartItemControllerTest {
         private static final Long PRODUCT_ID_SAMPLE = 1L;
 
         @Test
-        void testUpdateCartItem_whenQuantityIsNull_thenReturnBadRequest() throws Exception {
+        void testUpdateCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
             CartItemPutVm cartItemPutVm = CartItemPutVm.builder().quantity(null).build();
             performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
-        void testUpdateCartItem_whenQuantityIsLessThanOne_thenReturnBadRequest() throws Exception {
+        void testUpdateCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
             CartItemPutVm cartItemPutVm = CartItemPutVm.builder().quantity(0).build();
             performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
-        void testUpdateCartItem_whenRequestIsValid_thenReturnUpdatedCartItemGetVm() throws Exception {
+        void testUpdateCartItem_whenRequestIsValid_shouldReturnUpdatedCartItemGetVm() throws Exception {
             CartItemPutVm cartItemPutVm = CartItemPutVm.builder().quantity(1).build();
             CartItemGetVm expectedCartItemGetVm = CartItemGetVm
                 .builder()

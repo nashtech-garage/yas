@@ -41,24 +41,16 @@ public class CartItemService {
         validateProduct(productId);
 
         String currentUserId = AuthenticationUtils.getCurrentUserId();
-        CartItemId cartItemId = CartItemId.of(currentUserId, productId);
 
-        Optional<CartItem> cartItemOpt = cartItemRepository.findById(cartItemId);
+        CartItem cartItem = CartItem
+            .builder()
+            .customerId(currentUserId)
+            .productId(productId)
+            .quantity(cartItemPutVm.quantity())
+            .build();
 
-        CartItem cartItem;
-        if (cartItemOpt.isPresent()) {
-            cartItem = cartItemOpt.get();
-            cartItem.setQuantity(cartItemPutVm.quantity());
-        } else {
-            cartItem = CartItem.builder()
-                .customerId(currentUserId)
-                .productId(productId)
-                .quantity(cartItemPutVm.quantity())
-                .build();
-        }
-
-        cartItem = cartItemRepository.save(cartItem);
-        return cartItemMapper.toGetVm(cartItem);
+        CartItem savedCartItem = cartItemRepository.save(cartItem);
+        return cartItemMapper.toGetVm(savedCartItem);
     }
 
     private void createNewCartItem(CartItemPostVm cartItemPostVm, String currentUserId) {

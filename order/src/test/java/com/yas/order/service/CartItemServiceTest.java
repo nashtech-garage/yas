@@ -53,7 +53,7 @@ class CartItemServiceTest {
         Mockito.reset(cartItemRepository, productService);
     }
 
-    private static final String CURRENT_USER_ID_SAMPLE = "customerId";
+    private static final String CURRENT_USER_ID_SAMPLE = "userId";
 
     @Nested
     class AddCartItemTest {
@@ -67,7 +67,7 @@ class CartItemServiceTest {
         }
 
         @Test
-        void testAddCartItem_whenProductNotFound_thenThrowBadRequestException() {
+        void testAddCartItem_whenProductNotFound_shouldThrowBadRequestException() {
             cartItemPostVmBuilder.productId(-1L);
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
             when(productService.getProductById(cartItemPostVm.productId()))
@@ -76,7 +76,7 @@ class CartItemServiceTest {
         }
 
         @Test
-        void testAddCartItem_whenCartItemExists_thenUpdateQuantity() {
+        void testAddCartItem_whenCartItemExists_shouldUpdateQuantity() {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
             CartItem existingCartItem = CartItem
                 .builder()
@@ -98,7 +98,7 @@ class CartItemServiceTest {
         }
 
         @Test
-        void testAddCartItem_whenCartItemDoesNotExist_thenCreateCartItem() {
+        void testAddCartItem_whenCartItemDoesNotExist_shouldCreateCartItem() {
             CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
@@ -129,7 +129,7 @@ class CartItemServiceTest {
         }
 
         @Test
-        void testUpdateCartItem_whenProductNotFound_thenThrowBadRequestException() {
+        void testUpdateCartItem_whenProductNotFound_shouldThrowBadRequestException() {
             Long notExistingProductId = -1L;
             CartItemPutVm cartItemPutVm = cartItemPutVmBuilder.build();
             when(productService.getProductById(notExistingProductId)).thenThrow(new NotFoundException(anyString()));
@@ -138,17 +138,11 @@ class CartItemServiceTest {
         }
 
         @Test
-        void testUpdateCartItem_whenCartItemExists_thenUpdateQuantity() {
+        void testUpdateCartItem_whenRequestIsValid_shouldReturnCartItem() {
             CartItemPutVm cartItemPutVm = cartItemPutVmBuilder.build();
-            CartItem existingCartItem = CartItem.builder()
-                .customerId(CURRENT_USER_ID_SAMPLE)
-                .productId(PRODUCT_ID_SAMPLE)
-                .quantity(1)
-                .build();
 
-            mockCurrentUserId(existingCartItem.getCustomerId());
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.getProductById(PRODUCT_ID_SAMPLE)).thenReturn(mock(ProductThumbnailGetVm.class));
-            when(cartItemRepository.findById(any())).thenReturn(Optional.of(existingCartItem));
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemGetVm updatedCartItem = cartItemService.updateCartItem(PRODUCT_ID_SAMPLE, cartItemPutVm);
@@ -157,23 +151,6 @@ class CartItemServiceTest {
             assertEquals(CURRENT_USER_ID_SAMPLE, updatedCartItem.customerId());
             assertEquals(PRODUCT_ID_SAMPLE, updatedCartItem.productId());
             assertEquals(cartItemPutVm.quantity(), updatedCartItem.quantity());
-        }
-
-        @Test
-        void testUpdateCartItem_whenCartItemDoesNotExist_thenCreateCartItem() {
-            CartItemPutVm cartItemPutVm = cartItemPutVmBuilder.build();
-
-            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
-            when(productService.getProductById(PRODUCT_ID_SAMPLE)).thenReturn(mock(ProductThumbnailGetVm.class));
-            when(cartItemRepository.findById(any(CartItemId.class))).thenReturn(Optional.empty());
-            when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-            CartItemGetVm createdCartItem = cartItemService.updateCartItem(PRODUCT_ID_SAMPLE, cartItemPutVm);
-
-            verify(cartItemRepository).save(any());
-            assertEquals(CURRENT_USER_ID_SAMPLE, createdCartItem.customerId());
-            assertEquals(PRODUCT_ID_SAMPLE, createdCartItem.productId());
-            assertEquals(cartItemPutVm.quantity(), createdCartItem.quantity());
         }
     }
 

@@ -1,6 +1,5 @@
 package com.yas.order.controller;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
@@ -11,7 +10,6 @@ import com.yas.order.service.ProductService;
 import com.yas.order.viewmodel.cart.CartItemPostVm;
 import com.yas.order.viewmodel.cart.CartItemPutVm;
 import com.yas.order.viewmodel.product.ProductThumbnailGetVm;
-import io.restassured.specification.RequestSpecification;
 import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,26 +80,8 @@ class CartItemControllerIT extends AbstractControllerIT {
     class UpdateCartItemTest {
 
         @Test
-        void testUpdateCartItem_whenCartItemDoesNotExist_shouldReturnCreatedCartItem() {
+        void testUpdateCartItem_whenRequestIsValid_shouldReturnCreatedCartItem() {
             CartItemPutVm cartItemPutVm = new CartItemPutVm(1);
-
-            when(productService.getProductById(existingProduct.id())).thenReturn(existingProduct);
-
-            givenLoggedInAsAdmin()
-                .body(cartItemPutVm)
-                .when()
-                .put(getUpdateCartItemUrl(existingProduct.id()))
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("productId", equalTo(existingProduct.id()))
-                .body("quantity", equalTo(cartItemPutVm.quantity()))
-                .log().ifValidationFails();
-        }
-
-        @Test
-        void testUpdateCartItem_whenCartItemExists_shouldReturnUpdatedCartItem() {
-            createCartItem(existingProduct.id());
-            CartItemPutVm cartItemPutVm = new CartItemPutVm(2);
 
             when(productService.getProductById(existingProduct.id())).thenReturn(existingProduct);
 
@@ -120,15 +100,6 @@ class CartItemControllerIT extends AbstractControllerIT {
             return String.format(UPDATE_CART_ITEM_TEMPLATE, productId);
         }
 
-    }
-
-    private void createCartItem(Long productId) {
-        givenLoggedInAsAdmin()
-            .body(CartItemPostVm.builder().productId(productId).quantity(1).build())
-            .when()
-            .post(ADD_CART_ITEM_URL)
-            .then()
-            .statusCode(HttpStatus.OK.value());
     }
 
     private Long generateRandomLong() {
