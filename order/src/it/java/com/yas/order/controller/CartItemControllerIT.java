@@ -122,11 +122,6 @@ class CartItemControllerIT extends AbstractControllerIT {
 
     }
 
-    private RequestSpecification givenLoggedInAsAdmin() {
-        return given(getRequestSpecification())
-            .auth().oauth2(getAccessToken("admin", "admin"));
-    }
-
     private void createCartItem(Long productId) {
         givenLoggedInAsAdmin()
             .body(CartItemPostVm.builder().productId(productId).quantity(1).build())
