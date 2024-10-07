@@ -7,6 +7,7 @@ import com.yas.rating.viewmodel.RatingVm;
 import com.yas.rating.viewmodel.ResponeStatusVm;
 import jakarta.validation.Valid;
 import java.time.ZonedDateTime;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,6 +45,11 @@ public class RatingController {
         return ResponseEntity.ok(ratingService.getRatingListWithFilter(productName, cusName,
                 message, createdFrom, createdTo,
                 pageNo, pageSize));
+    }
+
+    @GetMapping("/backoffice/ratings/latest/{count}")
+    public ResponseEntity<List<RatingVm>> getLatestRatings(@PathVariable int count) {
+        return ResponseEntity.ok(ratingService.getLatestRatings(count));
     }
 
     @DeleteMapping("/backoffice/ratings/{id}")

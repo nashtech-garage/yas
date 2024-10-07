@@ -31,6 +31,7 @@ import com.yas.product.viewmodel.product.ProductListVm;
 import com.yas.product.viewmodel.product.ProductThumbnailGetVm;
 import com.yas.product.viewmodel.product.ProductThumbnailVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ import org.springframework.context.annotation.Import;
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ProductServiceIT {
-
+    private final ZonedDateTime CREATED_ON = ZonedDateTime.now();
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -130,6 +131,7 @@ class ProductServiceIT {
                 product.setBrand(brand1);
                 product.setPrice(5.0);
             }
+            product.setCreatedOn(CREATED_ON.minusDays(i));
             products.add(product);
         }
         productRepository.saveAll(products);
@@ -360,8 +362,8 @@ class ProductServiceIT {
         Double startPrice = 1.0;
         Double endPrice = 10.0;
         String productName = "product2";
-        ProductsGetVm result
-                = productService.getProductsByMultiQuery(pageNo, pageSize, productName, category2.getSlug(), startPrice, endPrice);
+        ProductsGetVm result = productService.getProductsByMultiQuery(pageNo,
+            pageSize, productName, category2.getSlug(), startPrice, endPrice);
 
         // Assert result
         assertEquals(1, result.productContent().size());
@@ -391,4 +393,52 @@ class ProductServiceIT {
         assertEquals("product1", actualResponse.getFirst().name());
         assertEquals("slug1", actualResponse.getFirst().slug());
     }
+
+
+    @Test
+    void testGetLatestProducts_WhenHasListProductListVm_returnListProductListVm() {
+
+        List<Product>  actualResponse = productRepository.findAll();
+
+        assertEquals(10, actualResponse.size());
+
+        actualResponse.getFirst().setCreatedOn(CREATED_ON.minusDays(1));
+        actualResponse.get(1).setCreatedOn(CREATED_ON.minusDays(2));
+        actualResponse.get(2).setCreatedOn(CREATED_ON.minusDays(3));
+        actualResponse.get(3).setCreatedOn(CREATED_ON.minusDays(4));
+        actualResponse.get(4).setCreatedOn(CREATED_ON.minusDays(5));
+        actualResponse.get(5).setCreatedOn(CREATED_ON.minusDays(6));
+        actualResponse.get(6).setCreatedOn(CREATED_ON.minusDays(7));
+        actualResponse.get(7).setCreatedOn(CREATED_ON.minusDays(8));
+        actualResponse.get(8).setCreatedOn(CREATED_ON.minusDays(9));
+        productRepository.saveAll(actualResponse);
+
+        List<ProductListVm>  newResponse = productService.getLatestProducts(5);
+        assertEquals(5, newResponse.size());
+        assertEquals("product10", newResponse.getFirst().name());
+        assertEquals("product1", newResponse.get(1).name());
+        assertEquals("product2", newResponse.get(2).name());
+        assertEquals("product3", newResponse.get(3).name());
+        assertEquals("product4", newResponse.get(4).name());
+    }
+
+    @Test
+    void testGetLatestProducts_WhenCountLessThen1_returnEmpty() {
+        List<ProductListVm> newResponse = productService.getLatestProducts(-1);
+        assertEquals(0, newResponse.size());
+    }
+
+    @Test
+    void testGetLatestProducts_WhenCountIs0_returnEmpty() {
+        List<ProductListVm> newResponse = productService.getLatestProducts(0);
+        assertEquals(0, newResponse.size());
+    }
+
+    @Test
+    void testGetLatestProducts_WhenProductsEmpty_returnEmpty() {
+        tearDown();
+        List<ProductListVm> newResponse = productService.getLatestProducts(5);
+        assertEquals(0, newResponse.size());
+    }
+
 }

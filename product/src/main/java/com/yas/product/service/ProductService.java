@@ -678,6 +678,24 @@ public class ProductService {
         );
     }
 
+    public List<ProductListVm> getLatestProducts(int count) {
+
+        if (count <= 0) {
+            return List.of();
+        }
+
+        Pageable pageable = PageRequest.of(0, count);
+        List<Product> products =  productRepository.getLatestProducts(pageable);
+
+        if (CollectionUtils.isEmpty(products)) {
+            return List.of();
+        }
+
+        return products.stream()
+                .map(ProductListVm::fromModel)
+                .toList();
+    }
+
     public List<ProductThumbnailVm> getProductsByBrand(String brandSlug) {
         List<ProductThumbnailVm> productThumbnailVms = new ArrayList<>();
         Brand brand = brandRepository

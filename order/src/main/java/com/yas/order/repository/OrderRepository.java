@@ -52,4 +52,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             Pageable pageable);
 
     Optional<Order> findByCheckoutId(String checkoutId);
+
+    @Query("SELECT o FROM Order o ORDER BY o.createdOn DESC")
+    List<Order> getLatestOrders(Pageable pageable);
 }

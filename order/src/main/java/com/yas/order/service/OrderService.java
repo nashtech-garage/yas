@@ -163,6 +163,24 @@ public class OrderService {
         return new OrderListVm(orderVms, orderPage.getTotalElements(), orderPage.getTotalPages());
     }
 
+    public List<OrderBriefVm> getLatestOrders(int count) {
+
+        if (count <= 0) {
+            return List.of();
+        }
+
+        Pageable pageable = PageRequest.of(0, count);
+        List<Order> orders =  orderRepository.getLatestOrders(pageable);
+
+        if (CollectionUtils.isEmpty(orders)) {
+            return List.of();
+        }
+
+        return orders.stream()
+                .map(OrderBriefVm::fromModel)
+                .toList();
+    }
+
     public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {
 
         String userId = AuthenticationUtils.getCurrentUserId();

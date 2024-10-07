@@ -2,6 +2,7 @@ package com.yas.order.controller;
 
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.service.OrderService;
+import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
 import com.yas.order.viewmodel.order.OrderGetVm;
 import com.yas.order.viewmodel.order.OrderListVm;
@@ -84,5 +85,10 @@ public class OrderController {
                 email,
                 pageNo,
                 pageSize));
+    }
+
+    @GetMapping("/backoffice/orders/latest/{count}")
+    public ResponseEntity<List<OrderBriefVm>> getLatestOrders(@PathVariable int count) {
+        return ResponseEntity.ok(orderService.getLatestOrders(count));
     }
 }
