@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.yas.search.constant.ProductField;
 import com.yas.search.constant.enums.SortType;
 import com.yas.search.model.Product;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -62,9 +64,9 @@ public class ProductService {
 
         nativeQuery.withFilter(f -> f
                 .bool(b -> {
-                    extractedStr(productCriteria.brand(), ProductField.BRAND, b);
-                    extractedStr(productCriteria.category(), ProductField.CATEGORIES, b);
-                    extractedStr(productCriteria.attribute(), ProductField.ATTRIBUTES, b);
+                    extractedTermsFilter(productCriteria.brand(), ProductField.BRAND, b);
+                    extractedTermsFilter(productCriteria.category(), ProductField.CATEGORIES, b);
+                    extractedTermsFilter(productCriteria.attribute(), ProductField.ATTRIBUTES, b);
                     extractedRange(productCriteria.minPrice(), productCriteria.maxPrice(), b);
                     return b;
                 })
@@ -94,19 +96,24 @@ public class ProductService {
                 getAggregations(searchHitsResult));
     }
 
-    private void extractedStr(String strField, String productField, BoolQuery.Builder b) {
-        if (strField != null && !strField.isBlank()) {
-            String[] strFields = strField.split(",");
-            for (String str : strFields) {
-                b.should(s -> s
-                        .term(t -> t
-                                .field(productField)
-                                .value(str)
-                                .caseInsensitive(true)
-                        )
+    private void extractedTermsFilter(String fieldValues, String productField, BoolQuery.Builder b) {
+        if (StringUtils.isBlank(fieldValues)) {
+            return;
+        }
+        String[] valuesArray = fieldValues.split(",");
+        b.must(m -> {
+            BoolQuery.Builder innerBool = new BoolQuery.Builder();
+            for (String value : valuesArray) {
+                innerBool.should(s -> s
+                    .term(t -> t
+                        .field(productField)
+                        .value(value)
+                        .caseInsensitive(true)
+                    )
                 );
             }
-        }
+            return new Query.Builder().bool(innerBool.build());
+        });
     }
 
     private void extractedRange(Number min, Number max, BoolQuery.Builder bool) {
