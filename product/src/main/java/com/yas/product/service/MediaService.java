@@ -1,6 +1,6 @@
 package com.yas.product.service;
 
-import com.yas.product.config.ServiceUrlConfig;
+import com.yas.commonlibrary.config.ServiceUrlConfig;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
