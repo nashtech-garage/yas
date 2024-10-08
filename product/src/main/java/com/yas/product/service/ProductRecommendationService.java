@@ -26,10 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service class responsible for managing product recommendations.
  */
-
+@Slf4j
 @Service
 @Transactional
-@Slf4j
 public class ProductRecommendationService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
