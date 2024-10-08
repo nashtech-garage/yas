@@ -10,6 +10,11 @@ export type Product = {
   sku: string;
   gtin: string;
   slug: string;
+  weight: number;
+  dimensionUnit: string;
+  length: number;
+  width: number;
+  height: number;
   price: number;
   metaTitle: string;
   metaKeyword: string;

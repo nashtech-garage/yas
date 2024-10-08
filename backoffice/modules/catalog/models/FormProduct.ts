@@ -12,6 +12,11 @@ export type FormProduct = {
   specification?: string;
   sku?: string;
   gtin?: string;
+  weight?: number;
+  dimensionUnit?: string;
+  length?: number;
+  width?: number;
+  height?: number;
   price?: number;
   isAllowedToOrder?: boolean;
   isPublished?: boolean;

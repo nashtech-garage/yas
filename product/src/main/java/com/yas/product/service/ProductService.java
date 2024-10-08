@@ -17,6 +17,7 @@ import com.yas.product.model.ProductRelated;
 import com.yas.product.model.ProductVariationSaveVm;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.model.attribute.ProductAttributeValue;
+import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.model.enumeration.FilterExistInWhSelection;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
@@ -223,6 +224,11 @@ public class ProductService {
             .specification(productPostVm.specification())
             .sku(productPostVm.sku())
             .gtin(productPostVm.gtin())
+            .weight(productPostVm.weight())
+            .dimensionUnit(productPostVm.dimensionUnit())
+            .length(productPostVm.length())
+            .width(productPostVm.width())
+            .height(productPostVm.height())
             .price(productPostVm.price())
             .hasOptions(false)
             .isAllowedToOrder(productPostVm.isAllowedToOrder())
@@ -428,6 +434,11 @@ public class ProductService {
         product.setMetaKeyword(productPutVm.metaKeyword());
         product.setMetaDescription(productPutVm.metaDescription());
         product.setTaxClassId(productPutVm.taxClassId());
+        product.setWeight(productPutVm.weight());
+        product.setDimensionUnit(productPutVm.dimensionUnit());
+        product.setLength(productPutVm.length());
+        product.setWidth(productPutVm.width());
+        product.setHeight(productPutVm.height());
     }
 
     private void updateProductCategories(ProductPutVm productPutVm, Product product) {
@@ -651,6 +662,11 @@ public class ProductService {
             product.isVisibleIndividually(),
             product.isStockTrackingEnabled(),
             product.getPrice(),
+            product.getDimensionUnit(),
+            product.getWeight(),
+            product.getLength(),
+            product.getWidth(),
+            product.getHeight(),
             brandId,
             categories,
             product.getMetaTitle(),

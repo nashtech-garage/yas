@@ -4,16 +4,16 @@ import { FieldErrorsImpl, UseFormRegister, UseFormSetValue } from 'react-hook-fo
 import { toast } from 'react-toastify';
 import slugify from 'slugify';
 
-import { CheckBox, Input, TextArea } from '../../../common/items/Input';
+import { TaxClass } from '@taxModels/TaxClass';
+import { getTaxClasses } from '@taxServices/TaxClassService';
+import { CheckBox, Input, Select, TextArea } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
+import TextEditor from '../../../common/items/TextEditor';
 import { Brand } from '../models/Brand';
 import { FormProduct } from '../models/FormProduct';
 import { Product } from '../models/Product';
 import { getBrands } from '../services/BrandService';
 import { getProduct } from '../services/ProductService';
-import TextEditor from '../../../common/items/TextEditor';
-import { getTaxClasses } from '@taxServices/TaxClassService';
-import { TaxClass } from '@taxModels/TaxClass';
 
 type Props = {
   register: UseFormRegister<FormProduct>;
@@ -133,6 +133,74 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         registerOptions={{
           required: { value: true, message: 'Product price is required' },
           validate: { positive: (v) => v > 0 || 'Price must be greater than 0' },
+        }}
+      />
+
+      <Input
+        labelText="Weight"
+        field="weight"
+        defaultValue={product?.weight}
+        register={register}
+        error={errors.price?.message}
+        type="number"
+        registerOptions={{
+          required: { value: true, message: 'Product weight is required' },
+          validate: { positive: (v) => v > 0 || 'Weight must be greater than 0' },
+        }}
+      />
+
+      <Select
+        labelText="Dimension Unit"
+        field="dimensionUnit"
+        placeholder="Select Unit"
+        defaultValue={product?.dimensionUnit}
+        register={register}
+        registerOptions={{
+          required: { value: true, message: 'Dimension Unit is required' },
+        }}
+        error={errors.dimensionUnit?.message}
+        options={[
+          { value: 'CM', label: 'Centimeters' },
+          { value: 'INCH', label: 'Inches' },
+        ]}
+      />
+
+      <Input
+        labelText="Length"
+        field="length"
+        defaultValue={product?.length}
+        register={register}
+        error={errors.price?.message}
+        type="number"
+        registerOptions={{
+          required: { value: true, message: 'Product length is required' },
+          validate: { positive: (v) => v > 0 || 'Length must be greater than 0' },
+        }}
+      />
+
+      <Input
+        labelText="Width"
+        field="width"
+        defaultValue={product?.width}
+        register={register}
+        error={errors.price?.message}
+        type="number"
+        registerOptions={{
+          required: { value: true, message: 'Product width is required' },
+          validate: { positive: (v) => v > 0 || 'Width must be greater than 0' },
+        }}
+      />
+
+      <Input
+        labelText="Height"
+        field="height"
+        defaultValue={product?.height}
+        register={register}
+        error={errors.price?.message}
+        type="number"
+        registerOptions={{
+          required: { value: true, message: 'Product height is required' },
+          validate: { positive: (v) => v > 0 || 'Height must be greater than 0' },
         }}
       />
 

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.yas.product.ProductApplication;
+import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.product.ProductListVm;
 import com.yas.product.viewmodel.product.ProductPostVm;
@@ -60,8 +61,9 @@ class ProductControllerTest {
         ProductPostVm productPostVm = new ProductPostVm(
                 "Laptop","laptop-1",1L,
                 List.of(1L),"short-description","description",
-                "specification","laptop-sku", "laptop-gtin",50000D,
-                true, true,true, true, true,
+                "specification","laptop-sku", "laptop-gtin",
+                10d, DimensionUnit.CM, 10d, 10d, 10d,50000D,
+                true, true,true, true,  true,
                 "laptop-meta", "laptop-keywords", "laptop--meta-description",
                 1L,null,null,null, null, 1L);
         String jsonBody = objectMapper.writeValueAsString(productPostVm);
@@ -78,7 +80,8 @@ class ProductControllerTest {
                 "Laptop","laptop-1",50000D,
                 true,true, true, true, true,
                 1L, List.of(1L), "laptop-short-description",
-                "laptop-description",null,null,null, "laptop-meta-title", "laptop-meta-key",
+                "laptop-description",null,null,null,
+                10d, DimensionUnit.CM, 10d, 10d, 10d,"laptop-meta-title", "laptop-meta-key",
                 "laptop--meta-description", 1L, null, null, null,
                 null,  null
 

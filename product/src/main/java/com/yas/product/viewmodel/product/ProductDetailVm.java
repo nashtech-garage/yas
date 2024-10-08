@@ -1,6 +1,7 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.model.Category;
+import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.viewmodel.ImageVm;
 import java.util.List;
 
@@ -18,6 +19,11 @@ public record ProductDetailVm(
         Boolean isFeatured,
         Boolean isVisible,
         Boolean stockTrackingEnabled,
+        Double weight,
+        DimensionUnit dimensionUnit,
+        Double length,
+        Double width,
+        Double height,
         Double price,
         Long brandId,
         List<Category> categories,

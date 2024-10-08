@@ -2,8 +2,11 @@ package com.yas.product.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yas.product.model.attribute.ProductAttributeValue;
+import com.yas.product.model.enumeration.DimensionUnit;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,11 +24,12 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "product")
-@Getter
-@Setter
+@lombok.Getter
+@lombok.Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SuppressWarnings("javaarchitecture:S7027")
 public class Product extends AbstractAuditEntity {
     @OneToMany(mappedBy = "product")
     @Builder.Default
@@ -53,6 +57,12 @@ public class Product extends AbstractAuditEntity {
     private String metaKeyword;
     private String metaDescription;
     private Long thumbnailMediaId;
+    private Double weight;
+    @Enumerated(EnumType.STRING)
+    private DimensionUnit dimensionUnit;
+    private Double length;
+    private Double width;
+    private Double height;
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;
