@@ -15,7 +15,9 @@ import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.repository.ProductImageRepository;
+import com.yas.product.repository.ProductOptionCombinationRepository;
 import com.yas.product.repository.ProductOptionRepository;
+import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRelatedRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.service.ProductService;
@@ -26,11 +28,14 @@ import com.yas.product.viewmodel.product.ProductQuantityPutVm;
 import com.yas.product.viewmodel.product.ProductVariationPostVm;
 import com.yas.product.viewmodel.product.ProductVariationPutVm;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePostVm;
+import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
 import io.restassured.specification.RequestSpecification;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -59,6 +64,10 @@ class ProductControllerIT extends AbstractControllerIT {
     private ProductOptionRepository productOptionRepository;
     @Autowired
     private ProductRelatedRepository productRelatedRepository;
+    @Autowired
+    private ProductOptionCombinationRepository productOptionCombinationRepository;
+    @Autowired
+    private ProductOptionValueRepository productOptionValueRepository;
 
     private Product productOne;
     private Product productTwo;
@@ -67,7 +76,7 @@ class ProductControllerIT extends AbstractControllerIT {
     private Category category;
     private ProductPostVm productPostVm;
     private ProductPutVm productPutVm;
-
+    private ProductOption productOption;
     private static final String PRODUCT_BACKOFFICE_URL = "/v1/backoffice/products";
     private static final String PRODUCT_STOREFRONT_URL = "/v1/storefront/products";
 
@@ -115,6 +124,12 @@ class ProductControllerIT extends AbstractControllerIT {
         productRelatedRepository.saveAll(List.of(new ProductRelated(3L, productOne, productTwo)));
     }
 
+    void initProductOption() {
+        productOption = new ProductOption();
+        productOption.setName("Product-option");
+        productOptionRepository.save(productOption);
+    }
+
     void initProductPostVm() {
         initBrandData();
         initCategoryData();
@@ -123,10 +138,7 @@ class ProductControllerIT extends AbstractControllerIT {
             "Sample Product", "sample-product", "SKU12345", "GTIN1234567890",
             29.99, 101L, new ArrayList<>(), new HashMap<>());
 
-        ProductOption productOption = new ProductOption();
-        productOption.setName("Product-option");
-        productOptionRepository.save(productOption);
-
+        initProductOption();
         ProductOptionValuePostVm productOptionValuePostVm = new ProductOptionValuePostVm(
             productOption.getId(),
             "Visible",
@@ -145,22 +157,41 @@ class ProductControllerIT extends AbstractControllerIT {
     }
 
     void initProductPutVm() {
-        ProductVariationPutVm productVariationPutVm = new ProductVariationPutVm(
-            1L, "Sample Product", "sample-product", "SKU12345",
-            "GTIN1234", 29.99, 101L, new ArrayList<>(), new HashMap<>());
+        initProductOption();
+
+        ProductVariationPutVm productVariationPutVm1 = new ProductVariationPutVm(
+                1L, "Sample Product Variation 2", "sample-product-variation-1", "SKU1",
+                "GTIN1", 19.99, 101L, new ArrayList<>(), new HashMap<>(Map.of(productOption.getId(), "product-option-value-1")));
+        ProductVariationPutVm productVariationPutVm2 = new ProductVariationPutVm(
+                null, "Sample Product Variation 2", "sample-product-variation-2", "SKU2",
+                "GTIN2", 29.99, 102L, new ArrayList<>(), new HashMap<>(Map.of(productOption.getId(), "product-option-value-2")));
+        ProductOptionValuePutVm productOptionValuePutVm = new ProductOptionValuePutVm(
+                productOption.getId(),
+                "Visible",
+                1,
+                List.of("product-option-value-1", "product-option-value-2")
+        );
 
         productPutVm = new ProductPutVm(
-            "Sample Update", "sample-update", 29.99, true, true,
-            false, true, true, brand.getId(), new ArrayList<>(),
-            "Short description", "Detailed description", "Specifications",
-            "SKU123456", "GTIN123456", "Meta Title", "Meta", "Meta",
-            10L, new ArrayList<>(), new ArrayList<>(List.of(productVariationPutVm)),
-            new ArrayList<>(), new ArrayList<>(), 2L);
+                "Sample Update", "sample-update", 29.99, true, true,
+                false, true, true, brand.getId(), new ArrayList<>(),
+                "Short description", "Detailed description", "Specifications",
+                "SKU123456", "GTIN123456", "Meta Title", "Meta", "Meta",
+                null, new ArrayList<>(),
+                new ArrayList<>(List.of(productVariationPutVm1, productVariationPutVm2)),
+                new ArrayList<>(List.of(productOptionValuePutVm)), new ArrayList<>(), 2L);
+    }
+
+    @BeforeEach
+    public void insertTestData() {
+        initProductData();
     }
 
     @AfterEach
     public void clearTestData() {
         productRelatedRepository.deleteAll();
+        productOptionValueRepository.deleteAll();
+        productOptionCombinationRepository.deleteAll();
         productOptionRepository.deleteAll();
         productImageRepository.deleteAll();
         productCategoryRepository.deleteAll();
@@ -171,7 +202,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductListBackoffice_shouldReturnProductList() {
-        initProductData();
         getGivenSpecificationWithAdmin()
             .when()
             .get(PRODUCT_BACKOFFICE_URL)
@@ -183,7 +213,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductFeature_shouldReturnProductList() {
-        initProductData();
         getGivenSpecificationWithAdmin()
             .when()
             .get(PRODUCT_STOREFRONT_URL + "/featured")
@@ -195,7 +224,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductFeatureById_shouldReturnProductList() {
-        initProductData();
         Long productOneId = productOne.getId();
         Long productTwoId = productTwo.getId();
 
@@ -211,7 +239,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductByBrand_shouldReturnProducts() {
-        initProductData();
         String brandSlug = brand.getSlug();
 
         getGivenSpecificationWithAdmin()
@@ -226,7 +253,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductById_shouldReturnProduct() {
-        initProductData();
         Long productId = productOne.getId();
         String name = productOne.getName();
 
@@ -242,7 +268,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductSlugStorefrontById_shouldReturnProduct() {
-        initProductData();
         Long productId = productOne.getId();
         String slug = productOne.getSlug();
 
@@ -258,7 +283,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductByIds_shouldReturnProduct() {
-        initProductData();
         Long productId = productOne.getId();
 
         getGivenSpecificationWithAdmin()
@@ -273,7 +297,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductSlugById_shouldReturnProduct() {
-        initProductData();
         Long productId = productOne.getId();
         String slug = productOne.getSlug();
 
@@ -289,7 +312,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductDetail_shouldReturnProduct() {
-        initProductData();
         Long productId = productOne.getId();
         String name = productOne.getName();
 
@@ -305,7 +327,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductDetailWithSlug_shouldReturnProduct() {
-        initProductData();
         String slug = productOne.getSlug();
         String name = productOne.getName();
 
@@ -336,7 +357,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_updateProduct_shouldSuccess() {
-        initProductData();
         initProductPutVm();
         Long productId = productOne.getId();
 
@@ -351,8 +371,61 @@ class ProductControllerIT extends AbstractControllerIT {
     }
 
     @Test
+    void test_updateProduct_whenNoVariation_shouldSuccess() {
+        productPutVm = new ProductPutVm(
+                "Sample Update", "sample-update", 29.99, true, true,
+                false, true, true, brand.getId(), new ArrayList<>(),
+                "Updated short description", "updated detailed description", "Updated Specifications",
+                "sku-1", "gtin-1", "Meta Title", "Meta", "Meta",
+                null, new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), 2L);
+        Long productId = productOne.getId();
+
+        getGivenSpecificationWithAdmin()
+                .pathParam("id", productId)
+                .body(productPutVm)
+                .when()
+                .put(PRODUCT_BACKOFFICE_URL + "/{id}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .log().ifValidationFails();
+
+        getGivenSpecificationWithAdmin()
+                .pathParam("productId", productId)
+                .when()
+                .get(PRODUCT_BACKOFFICE_URL + "/{productId}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo(productPutVm.name()))
+                .body("slug", equalTo(productPutVm.slug()))
+                .body("shortDescription", equalTo(productPutVm.shortDescription()))
+                .body("description", equalTo(productPutVm.description()))
+                .body("specification", equalTo(productPutVm.specification()))
+                .body("sku", equalTo(productPutVm.sku()))
+                .body("gtin", equalTo(productPutVm.gtin()))
+                .body("sku", equalTo(productOne.getSku()))
+                .body("gtin", equalTo(productOne.getGtin()))
+                .log().ifValidationFails();
+    }
+
+    @Test
+    void test_updateProduct_whenProductNotExist_shouldThrowNotFoundException() {
+        initProductPutVm();
+        Long productId = 0L;
+
+        getGivenSpecificationWithAdmin()
+                .pathParam("id", productId)
+                .body(productPutVm)
+                .when()
+                .put(PRODUCT_BACKOFFICE_URL + "/{id}")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().ifValidationFails();
+    }
+
+    @Test
     void test_exportProduct_shouldSuccess() {
-        initProductData();
         String productName = productOne.getName();
         String brandName = brand.getName();
 
@@ -368,7 +441,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getRelatedProductBackoffice_shouldReturnProducts() {
-        initProductData();
         initProductRelativeData();
         Long productId = productOne.getId();
 
@@ -384,7 +456,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getRelatedProductStorefront_shouldReturnProducts() {
-        initProductData();
         initProductRelativeData();
         Long productId = productOne.getId();
 
@@ -400,7 +471,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductForWarehouse_shouldReturnProduct() {
-        initProductData();
         String name = productOne.getName();
         String sku = productOne.getSku();
 
@@ -418,7 +488,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_updateProductQuantity_shouldSuccess() {
-        initProductData();
         ProductQuantityPostVm productQuantityPostVm = new ProductQuantityPostVm(productOne.getId(), 1000L);
 
         getGivenSpecificationWithAdmin()
@@ -432,7 +501,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_subtractProductQuantity_shouldSuccess() {
-        initProductData();
         ProductQuantityPutVm productQuantityPutVm = new ProductQuantityPutVm(productOne.getId(), 500L);
 
         getGivenSpecificationWithAdmin()

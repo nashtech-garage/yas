@@ -376,10 +376,6 @@ public class ProductService {
         updateExistingVariants(productPutVm, allVariationImages, existingVariations);
         productRepository.saveAll(existingVariations);
 
-        if (CollectionUtils.isEmpty(productPutVm.productOptionValues())) {
-            return;
-        }
-
         List<ProductVariationPutVm> newVariationVms = productPutVm.variations().stream()
             .filter(variant -> variant.id() == null).toList();
         if (CollectionUtils.isEmpty(newVariationVms)) {
@@ -475,7 +471,9 @@ public class ProductService {
     }
 
     private List<ProductOptionValue> updateProductOptionValues(ProductPutVm productPutVm, Product product,
-                                                               Map<Long, ProductOption> optionsById) {
+                                                            Map<Long, ProductOption> optionsById) {
+        productOptionValueRepository.deleteAllByProductId(product.getId());
+
         List<ProductOptionValue> productOptionValues = new ArrayList<>();
         productPutVm.productOptionValues().forEach(optionValueVm -> optionValueVm.value().forEach(value -> {
             ProductOptionValue optionValue = ProductOptionValue.builder()
