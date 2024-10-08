@@ -1,12 +1,15 @@
 package com.yas.cart.service;
 
+import com.yas.cart.utils.Constants;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.config.ServiceUrlConfig;
+import com.yas.commonlibrary.exception.NotFoundException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -33,6 +36,14 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .toEntity(new ParameterizedTypeReference<List<ProductThumbnailVm>>() {
             })
             .getBody();
+    }
+
+    public ProductThumbnailVm getProductById(Long id) {
+        List<ProductThumbnailVm> products = getProducts(List.of(id));
+        if (CollectionUtils.isEmpty(products)) {
+            throw new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT);
+        }
+        return products.getFirst();
     }
 
     protected List<ProductThumbnailVm> handleProductThumbnailFallback(Throwable throwable) throws Throwable {
