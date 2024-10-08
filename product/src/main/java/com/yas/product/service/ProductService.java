@@ -569,7 +569,7 @@ public class ProductService {
         if (CollectionUtils.isNotEmpty(vmCategoryIds)) {
             List<Long> categoryIds
                 = product.getProductCategories().stream().map(productCategory
-                -> productCategory.getCategory().getId()).sorted().toList();
+                    -> productCategory.getCategory().getId()).sorted().toList();
             if (!CollectionUtils.isEqualCollection(categoryIds, vmCategoryIds.stream().sorted().toList())) {
                 List<Category> categoryList = categoryRepository.findAllById(vmCategoryIds);
                 if (categoryList.isEmpty()) {
