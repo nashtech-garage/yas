@@ -21,6 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring-ai.version>1.0.0-M2</spring-ai.version>
+        <commons-text.version>1.12.0</commons-text.version>
     </properties>
 
     <dependencies>
@@ -37,9 +38,12 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <!--  Common Library      -->
         <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
