@@ -23,7 +23,7 @@ public class CartItemService {
     private final CartItemMapper cartItemMapper;
 
     public void addCartItem(CartItemPostVm cartItemPostVm) {
-        validateCartItemPostVm(cartItemPostVm);
+        validateProduct(cartItemPostVm.productId());
 
         String currentUserId = AuthenticationUtils.getCurrentUserId();
         CartItemId cartItemId = CartItemId.of(currentUserId, cartItemPostVm.productId());
@@ -41,13 +41,7 @@ public class CartItemService {
         validateProduct(productId);
 
         String currentUserId = AuthenticationUtils.getCurrentUserId();
-
-        CartItem cartItem = CartItem
-            .builder()
-            .customerId(currentUserId)
-            .productId(productId)
-            .quantity(cartItemPutVm.quantity())
-            .build();
+        CartItem cartItem = cartItemMapper.toCartItem(currentUserId, productId, cartItemPutVm.quantity());
 
         CartItem savedCartItem = cartItemRepository.save(cartItem);
         return cartItemMapper.toGetVm(savedCartItem);
@@ -61,10 +55,6 @@ public class CartItemService {
     private void updateExistingCartItem(CartItemPostVm cartItemPostVm, CartItem existingCartItem) {
         existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemPostVm.quantity());
         cartItemRepository.save(existingCartItem);
-    }
-
-    private void validateCartItemPostVm(CartItemPostVm cartItemPostVm) {
-        validateProduct(cartItemPostVm.productId());
     }
 
     private void validateProduct(Long productId) {
