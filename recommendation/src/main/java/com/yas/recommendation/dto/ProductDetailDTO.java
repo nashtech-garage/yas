@@ -31,6 +31,8 @@ public record ProductDetailDTO(
         Long taxClassId,
         String brandName,
         List<ProductAttributeValueDTO> attributeValues,
-        List<ProductVariationDTO> variations
+        List<ProductVariationDTO> variations,
+        ImageDTO thumbnail,
+        List<ImageDTO> productImages
 ) {
 }
