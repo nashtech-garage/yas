@@ -11,13 +11,13 @@ import com.yas.recommendation.vector.common.formatter.DefaultDocumentFormatter;
  * The content of this document is formatted using a custom content formatter.
  */
 @DocumentMetadata(
-    docIdPrefix = ProductDocument.PREFIX_PRODUCT,
-    contentFormat = CONTENT_FORMAT,
-    documentFormatter = DefaultDocumentFormatter.class
+        docIdPrefix = ProductDocument.PREFIX_PRODUCT,
+        contentFormat = CONTENT_FORMAT,
+        documentFormatter = DefaultDocumentFormatter.class
 )
 public class ProductDocument extends BaseDocument {
 
     public static final String PREFIX_PRODUCT = "PRODUCT";
     public static final String CONTENT_FORMAT =
-        "{name}| {shortDescription}| {specification}| {price}| {brand}| {categories}| {metaTitle}| {metaKeyword}| {metaDescription}";
+            "{name}| {shortDescription}| {specification}| Price: {price}| {brandName}| {categories}| {metaTitle}| {metaKeyword}| {metaDescription}| {attributeValues}";
 }
