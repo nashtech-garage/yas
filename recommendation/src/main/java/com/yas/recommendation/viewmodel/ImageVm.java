@@ -1,6 +1,6 @@
-package com.yas.recommendation.dto;
+package com.yas.recommendation.viewmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ImageDto(Long id, String url) {}
+public record ImageVm(Long id, String url) {}

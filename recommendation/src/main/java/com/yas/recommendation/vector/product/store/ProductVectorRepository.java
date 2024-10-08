@@ -1,6 +1,6 @@
 package com.yas.recommendation.vector.product.store;
 
-import com.yas.recommendation.dto.ProductDetailDto;
+import com.yas.recommendation.viewmodel.ProductDetailVm;
 import com.yas.recommendation.service.ProductService;
 import com.yas.recommendation.vector.common.store.SimpleVectorRepository;
 import com.yas.recommendation.vector.product.document.ProductDocument;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Component for managing vector store operations specifically for {@link ProductDocument}.
  */
 @Component
-public class ProductVectorRepository extends SimpleVectorRepository<ProductDocument, ProductDetailDto> {
+public class ProductVectorRepository extends SimpleVectorRepository<ProductDocument, ProductDetailVm> {
 
     private final ProductService productService;
 
@@ -21,7 +21,7 @@ public class ProductVectorRepository extends SimpleVectorRepository<ProductDocum
     }
 
     @Override
-    public ProductDetailDto getEntity(Long id) {
+    public ProductDetailVm getEntity(Long id) {
         return productService.getProductDetail(id);
     }
 }

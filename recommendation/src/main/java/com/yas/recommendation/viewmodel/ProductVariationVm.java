@@ -1,4 +1,4 @@
-package com.yas.recommendation.dto;
+package com.yas.recommendation.viewmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,7 +8,7 @@ import java.util.Map;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ProductVariationDto(
+public record ProductVariationVm(
         Long id,
         String name,
         String slug,
