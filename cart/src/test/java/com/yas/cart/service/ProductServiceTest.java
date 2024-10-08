@@ -4,7 +4,7 @@ package com.yas.cart.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.yas.cart.config.ServiceUrlConfig;
+import com.yas.commonlibrary.config.ServiceUrlConfig;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import java.net.URI;
 import java.util.List;

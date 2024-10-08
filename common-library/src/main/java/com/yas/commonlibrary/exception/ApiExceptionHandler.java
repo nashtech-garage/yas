@@ -1,14 +1,9 @@
-package com.yas.product.exception;
+package com.yas.commonlibrary.exception;
 
-import com.yas.commonlibrary.exception.BadRequestException;
-import com.yas.commonlibrary.exception.DuplicatedException;
-import com.yas.commonlibrary.exception.InternalServerErrorException;
-import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.product.viewmodel.error.ErrorVm;
+import com.yas.commonlibrary.viewmodel.error.ErrorVm;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.NestedExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +26,9 @@ public class ApiExceptionHandler {
         return buildErrorResponse(status, message, null, ex, request, 404);
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorVm> handleBadRequestException(BadRequestException ex, WebRequest request) {
-        return handleBadRequest(ex, false, request);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ErrorVm> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         List<String> errors = ex.getBindingResult()
@@ -47,6 +38,19 @@ public class ApiExceptionHandler {
             .toList();
 
         return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, request, 500);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorVm> handleBadRequestException(BadRequestException ex, WebRequest request) {
+        return handleBadRequest(ex, request);
     }
 
     @ExceptionHandler({ConstraintViolationException.class})
@@ -65,12 +69,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorVm> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        return handleBadRequest(ex, true, null);
+        return handleBadRequest(ex,  null);
     }
 
     @ExceptionHandler(DuplicatedException.class)
     protected ResponseEntity<ErrorVm> handleDuplicated(DuplicatedException ex) {
-        return handleBadRequest(ex, false, null);
+        return handleBadRequest(ex,  null);
     }
 
     @ExceptionHandler(InternalServerErrorException.class)
@@ -81,23 +85,14 @@ public class ApiExceptionHandler {
         return ResponseEntity.internalServerError().body(errorVm);
     }
 
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorVm> handleOtherException(Exception ex, WebRequest request) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String message = ex.getMessage();
-
-        return buildErrorResponse(status, message, null, ex, request, 500);
-    }
-
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
         return servletRequest.getRequest().getServletPath();
     }
 
-    private ResponseEntity<ErrorVm> handleBadRequest(Exception ex, boolean isUsingNestedException, WebRequest request) {
+    private ResponseEntity<ErrorVm> handleBadRequest(Exception ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String message =
-            isUsingNestedException ? NestedExceptionUtils.getMostSpecificCause(ex).getMessage() : ex.getMessage();
+        String message = ex.getMessage();
 
         return buildErrorResponse(status, message, null, ex, request, 400);
     }
