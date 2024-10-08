@@ -1,8 +1,8 @@
 package com.yas.recommendation.vector.product.formatter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yas.recommendation.dto.CategoryDTO;
-import com.yas.recommendation.dto.ProductAttributeValueDTO;
+import com.yas.recommendation.dto.CategoryDto;
+import com.yas.recommendation.dto.ProductAttributeValueDto;
 import com.yas.recommendation.vector.common.formatter.DocumentFormatter;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +27,8 @@ public class ProductDocumentFormatter implements DocumentFormatter {
             return "[]";
         }
         List<?> attributeValuesNew = (List<?>) attributeValues;
-        List<ProductAttributeValueDTO> productAttributeValueList = attributeValuesNew.stream()
-                .map(item -> objectMapper.convertValue(item, ProductAttributeValueDTO.class))
+        List<ProductAttributeValueDto> productAttributeValueList = attributeValuesNew.stream()
+                .map(item -> objectMapper.convertValue(item, ProductAttributeValueDto.class))
                 .toList();
 
         return productAttributeValueList.stream()
@@ -42,12 +42,12 @@ public class ProductDocumentFormatter implements DocumentFormatter {
         }
         List<?> categoriesNew = (List<?>) categories;
         // Convert each LinkedHashMap to ProductAttributeValueDTO
-        List<CategoryDTO> categoriesList = categoriesNew.stream()
-                .map(item -> objectMapper.convertValue(item, CategoryDTO.class))
+        List<CategoryDto> categoriesList = categoriesNew.stream()
+                .map(item -> objectMapper.convertValue(item, CategoryDto.class))
                 .toList();
 
         return categoriesList.stream()
-                .map(CategoryDTO::name)
+                .map(CategoryDto::name)
                 .collect(Collectors.joining(", ", "[", "]"));
     }
 
