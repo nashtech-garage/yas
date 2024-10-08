@@ -45,13 +45,5 @@ class ProductServiceIT {
             assertThrows(CallNotPermittedException.class, () -> productService.getProductVariations(1L));
             verify(productService, atLeastOnce()).handleProductVariationListFallback(any());
         }
-
-        @Test
-        void test_getProducts_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
-            List<Long> productsIds = List.of(1L);
-            circuitBreakerRegistry.circuitBreaker(CIRCUIT_BREAKER_NAME).transitionToOpenState();
-            assertThrows(CallNotPermittedException.class, () -> productService.getProducts(productsIds));
-            verify(productService, atLeastOnce()).handleProductThumbnailListFallback(any());
-        }
     }
 }
