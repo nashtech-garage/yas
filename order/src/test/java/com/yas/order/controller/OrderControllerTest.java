@@ -19,6 +19,7 @@ import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.service.OrderService;
+import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
 import com.yas.order.viewmodel.order.OrderGetVm;
 import com.yas.order.viewmodel.order.OrderItemPostVm;
@@ -31,6 +32,7 @@ import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -203,6 +205,19 @@ class OrderControllerTest {
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content()
                 .json(objectWriter.writeValueAsString(orderListVm)));
+    }
+
+    @Test
+    void testGetLatestOrders_whenRequestIsValid_thenReturnOrderListVm() throws Exception {
+
+        List<OrderBriefVm> list = new ArrayList<>();
+        when(orderService.getLatestOrders(1)).thenReturn(list);
+
+        mockMvc.perform(get("/backoffice/orders/latest/1")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content()
+                .json(objectWriter.writeValueAsString(list)));
     }
 
     private OrderVm getOrderVm() {

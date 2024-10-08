@@ -265,4 +265,11 @@ public class ProductController {
         @RequestParam("ids") List<Long> brandIds) {
         return ResponseEntity.ok(productService.getProductByBrandIds(brandIds));
     }
+
+    @GetMapping("/backoffice/products/latest/{count}")
+    public ResponseEntity<List<ProductListVm>> getLatestProducts(@PathVariable int count) {
+        return ResponseEntity.ok(productService.getLatestProducts(count));
+    }
+
+
 }

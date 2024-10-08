@@ -15,6 +15,7 @@ import com.yas.product.viewmodel.product.ProductPostVm;
 import com.yas.product.viewmodel.product.ProductPutVm;
 import com.yas.product.viewmodel.product.ProductQuantityPutVm;
 import java.time.ZonedDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = ProductController.class)
@@ -257,5 +255,27 @@ class ProductControllerTest {
 
         // Verify interaction with the service
         verify(productService, times(1)).getProductByBrandIds(anyList());
+    }
+
+    @Test
+    void testGetLatestProducts_Success() throws Exception {
+
+        List<ProductListVm> mockProductList = List.of(
+                new ProductListVm(3L, "Product 3", "product3", true, true,
+                        false, true, 100.0, ZonedDateTime.now(), 1L),
+                new ProductListVm(4L, "Product 4", "product4", true, true,
+                        false, true, 200.0, ZonedDateTime.now(), 1L)
+        );
+        when(productService.getLatestProducts(1)).thenReturn(mockProductList);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/backoffice/products/latest/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(3L))
+                .andExpect(jsonPath("$[0].name").value("Product 3"))
+                .andExpect(jsonPath("$[1].id").value(4L))
+                .andExpect(jsonPath("$[1].name").value("Product 4"));
+
+        verify(productService, times(1)).getLatestProducts(1);
     }
 }

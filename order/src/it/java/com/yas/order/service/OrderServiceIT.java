@@ -6,14 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.OrderApplication;
-import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
+import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderItemPostVm;
 import com.yas.order.viewmodel.order.OrderListVm;
 import com.yas.order.viewmodel.order.OrderPostVm;
@@ -280,5 +281,30 @@ class OrderServiceIT {
         assertEquals("Order 2 is not found", exception.getMessage());
     }
 
+
+    @Test
+    void testGetLatestOrders_WhenHasListOrderListVm_returnListOrderListVm() {
+        orderService.createOrder(orderPostVm);
+        List<OrderBriefVm> orderList = orderService.getLatestOrders(1);
+        assertNotNull(orderList);
+    }
+
+    @Test
+    void testGetLatestOrders_WhenCountLessThen1_returnEmpty() {
+        List<OrderBriefVm>  newResponse = orderService.getLatestOrders(-1);
+        assertEquals(0, newResponse.size());
+    }
+
+    @Test
+    void testGetLatestOrders_WhenCountIs0_returnEmpty() {
+        List<OrderBriefVm>  newResponse = orderService.getLatestOrders(0);
+        assertEquals(0, newResponse.size());
+    }
+
+    @Test
+    void testGetLatestOrders_WhenProductsEmpty_returnEmpty() {
+        List<OrderBriefVm>  newResponse = orderService.getLatestOrders(5);
+        assertEquals(0, newResponse.size());
+    }
 
 }

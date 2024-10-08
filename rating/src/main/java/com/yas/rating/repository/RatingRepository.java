@@ -31,4 +31,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     List<Object[]> getTotalStarsAndTotalRatings(@Param("productId") long productId);
 
     boolean existsByCreatedByAndProductId(String createdBy, Long productId);
+
+    @Query("SELECT r FROM Rating r ORDER BY r.createdOn DESC")
+    List<Rating> getLatestRatings(Pageable pageable);
 }

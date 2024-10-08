@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 @Slf4j
@@ -70,6 +71,24 @@ public class RatingService {
         }
 
         return new RatingListVm(ratingVmList, ratings.getTotalElements(), ratings.getTotalPages());
+    }
+
+    public List<RatingVm> getLatestRatings(int count) {
+
+        if (count <= 0) {
+            return List.of();
+        }
+
+        Pageable pageable = PageRequest.of(0, count);
+        List<Rating> ratings =  ratingRepository.getLatestRatings(pageable);
+
+        if (CollectionUtils.isEmpty(ratings)) {
+            return List.of();
+        }
+
+        return ratings.stream()
+                .map(RatingVm::fromModel)
+                .toList();
     }
 
     public RatingVm createRating(RatingPostVm ratingPostVm) {
