@@ -32,7 +32,7 @@ public record ProductDetailDTO(
         String brandName,
         List<ProductAttributeValueDTO> attributeValues,
         List<ProductVariationDTO> variations,
-        ImageDTO thumbnail,
-        List<ImageDTO> productImages
+        ImageDto thumbnail,
+        List<ImageDto> productImages
 ) {
 }

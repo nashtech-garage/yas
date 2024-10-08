@@ -29,6 +29,8 @@ import org.springframework.util.Assert;
 public abstract class SimpleVectorRepository<D extends BaseDocument, E> implements VectorRepository<D, E> {
 
     public static final String FIELD_ID = "id";
+    public static final String TYPE_METADATA = "type";
+
     private ObjectMapper objectMapper;
     private EmbeddingSearchConfiguration embeddingSearchConfiguration;
 
@@ -74,8 +76,11 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
     public void add(Long entityId) {
         final var entity = getEntity(entityId);
         final var entityContentMap = objectMapper.convertValue(entity, Map.class);
+
         D document = docType.getDeclaredConstructor().newInstance();
-        document.setContent(documentFormatter.format(entityContentMap, documentMetadata.contentFormat()));
+        document.setContent(documentFormatter.format(entityContentMap, documentMetadata.contentFormat(), objectMapper));
+
+        entityContentMap.put(TYPE_METADATA, documentMetadata.docIdPrefix());
         document.setMetadata(entityContentMap);
 
         final IdGenerator idGenerator = getIdGenerator(entityId);
@@ -115,7 +120,7 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
     public List<D> search(Long id) {
         final var entity = getEntity(id);
         final var entityContentMap = objectMapper.convertValue(entity, Map.class);
-        final var content = documentFormatter.format(entityContentMap, documentMetadata.contentFormat());
+        final var content = documentFormatter.format(entityContentMap, documentMetadata.contentFormat(), objectMapper);
         return vectorStore.similaritySearch(
                 SearchRequest
                     .query(content)
@@ -151,7 +156,7 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
     }
 
     @Autowired
-    public void setEmbeddingSearchConfiguration(EmbeddingSearchConfiguration embeddingSearchConfiguration) {
+    private void setEmbeddingSearchConfiguration(EmbeddingSearchConfiguration embeddingSearchConfiguration) {
         this.embeddingSearchConfiguration = embeddingSearchConfiguration;
     }
 }

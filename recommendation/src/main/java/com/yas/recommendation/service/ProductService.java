@@ -7,7 +7,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
 
 @Service
@@ -30,5 +29,4 @@ public class ProductService {
                 })
                 .getBody();
     }
-
 }

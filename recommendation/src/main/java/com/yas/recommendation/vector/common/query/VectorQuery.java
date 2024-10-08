@@ -1,5 +1,6 @@
 package com.yas.recommendation.vector.common.query;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.recommendation.vector.common.document.BaseDocument;
 import com.yas.recommendation.vector.common.document.DocumentMetadata;
@@ -65,12 +66,12 @@ public abstract class VectorQuery<D extends BaseDocument, P> {
     }
 
     @Autowired
-    public void setObjectMapper(ObjectMapper objectMapper) {
+    private void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Autowired
-    public void setJdbcVectorService(JdbcVectorService jdbcVectorService) {
+    private void setJdbcVectorService(JdbcVectorService jdbcVectorService) {
         this.jdbcVectorService = jdbcVectorService;
     }
 }

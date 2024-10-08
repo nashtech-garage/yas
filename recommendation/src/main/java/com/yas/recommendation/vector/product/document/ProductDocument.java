@@ -4,7 +4,7 @@ import static com.yas.recommendation.vector.product.document.ProductDocument.CON
 
 import com.yas.recommendation.vector.common.document.BaseDocument;
 import com.yas.recommendation.vector.common.document.DocumentMetadata;
-import com.yas.recommendation.vector.common.formatter.DefaultDocumentFormatter;
+import com.yas.recommendation.vector.product.formatter.ProductDocumentFormatter;
 
 /**
  * Represents a document that contains product-related information.
@@ -13,7 +13,7 @@ import com.yas.recommendation.vector.common.formatter.DefaultDocumentFormatter;
 @DocumentMetadata(
         docIdPrefix = ProductDocument.PREFIX_PRODUCT,
         contentFormat = CONTENT_FORMAT,
-        documentFormatter = DefaultDocumentFormatter.class
+        documentFormatter = ProductDocumentFormatter.class
 )
 public class ProductDocument extends BaseDocument {
 
