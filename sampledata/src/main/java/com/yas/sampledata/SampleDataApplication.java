@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class}, scanBasePackages = {"com.yas.sampledata", "com.yas.commonlibrary"})
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class},
+    scanBasePackages = {"com.yas.sampledata", "com.yas.commonlibrary"})
 @EnableConfigurationProperties(ServiceUrlConfig.class)
 public class SampleDataApplication {
 
