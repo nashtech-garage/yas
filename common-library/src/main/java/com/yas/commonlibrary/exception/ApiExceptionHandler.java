@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -83,6 +84,27 @@ public class ApiExceptionHandler {
         ErrorVm errorVm = new ErrorVm(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
             HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage());
         return ResponseEntity.internalServerError().body(errorVm);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    protected ResponseEntity<ErrorVm> handleMissingParams(MissingServletRequestParameterException e) {
+        return handleBadRequest(e, null);
+    }
+
+    @ExceptionHandler(ResourceExistedException.class)
+    public ResponseEntity<ErrorVm> handleResourceExistedException(ResourceExistedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, request, 409);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, request, 403);
     }
 
     private String getServletPath(WebRequest webRequest) {
