@@ -3,19 +3,20 @@ package com.yas.cart.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.yas.cart.mapper.CartItemMapperV2;
-import com.yas.cart.model.CartItemIdV2;
+import com.yas.cart.mapper.CartItemV2Mapper;
 import com.yas.cart.model.CartItemV2;
-import com.yas.cart.repository.CartItemRepositoryV2;
-import com.yas.cart.viewmodel.CartItemGetVmV2;
-import com.yas.cart.viewmodel.CartItemPostVmV2;
+import com.yas.cart.repository.CartItemV2Repository;
+import com.yas.cart.viewmodel.CartItemV2GetVm;
+import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.InternalServerErrorException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,24 +28,25 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
-class CartItemServiceV2Test {
+class CartItemV2ServiceTest {
     @Mock
-    private CartItemRepositoryV2 cartItemRepository;
+    private CartItemV2Repository cartItemRepository;
 
     @Mock
     private ProductService productService;
 
     @Spy
-    private CartItemMapperV2 cartItemMapper = new CartItemMapperV2();
+    private CartItemV2Mapper cartItemMapper = new CartItemV2Mapper();
 
     @InjectMocks
-    private CartItemServiceV2 cartItemService;
+    private CartItemV2Service cartItemService;
 
     @BeforeEach
     void setUp() {
@@ -55,11 +57,11 @@ class CartItemServiceV2Test {
 
     @Nested
     class AddCartItemTest {
-        private CartItemPostVmV2.CartItemPostVmV2Builder cartItemPostVmBuilder;
+        private CartItemV2PostVm.CartItemV2PostVmBuilder cartItemPostVmBuilder;
 
         @BeforeEach
         void setUp() {
-            cartItemPostVmBuilder = CartItemPostVmV2.builder()
+            cartItemPostVmBuilder = CartItemV2PostVm.builder()
                 .productId(1L)
                 .quantity(1);
         }
@@ -67,7 +69,7 @@ class CartItemServiceV2Test {
         @Test
         void testAddCartItem_whenProductNotFound_shouldThrowBadRequestException() {
             cartItemPostVmBuilder.productId(-1L);
-            CartItemPostVmV2 cartItemPostVm = cartItemPostVmBuilder.build();
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.build();
 
             when(productService.getProductById(cartItemPostVm.productId()))
                 .thenThrow(new NotFoundException(anyString()));
@@ -77,7 +79,7 @@ class CartItemServiceV2Test {
 
         @Test
         void testAddCartItem_whenCartItemExists_shouldUpdateQuantity() {
-            CartItemPostVmV2 cartItemPostVm = cartItemPostVmBuilder.build();
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.build();
             CartItemV2 existingCartItem = CartItemV2
                 .builder()
                 .customerId(CURRENT_USER_ID_SAMPLE)
@@ -87,12 +89,11 @@ class CartItemServiceV2Test {
             int expectedQuantity = existingCartItem.getQuantity() + cartItemPostVm.quantity();
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
-            when(productService.getProductById(cartItemPostVm.productId()))
-                .thenReturn(mock(ProductThumbnailVm.class));
-            when(cartItemRepository.findByIdWithLock(any())).thenReturn(Optional.of(existingCartItem));
+            when(productService.getProductById(cartItemPostVm.productId())).thenReturn(mock(ProductThumbnailVm.class));
+            when(cartItemRepository.findWithLock(anyString(), anyLong())).thenReturn(Optional.of(existingCartItem));
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-            CartItemGetVmV2 cartItem = cartItemService.addCartItem(cartItemPostVm);
+            CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);
 
             verify(cartItemRepository).save(any());
             assertEquals(expectedQuantity, cartItem.quantity());
@@ -102,20 +103,31 @@ class CartItemServiceV2Test {
 
         @Test
         void testAddCartItem_whenCartItemDoesNotExist_shouldCreateCartItem() {
-            CartItemPostVmV2 cartItemPostVm = cartItemPostVmBuilder.build();
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.build();
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
-            when(productService.getProductById(cartItemPostVm.productId()))
-                .thenReturn(mock(ProductThumbnailVm.class));
-            when(cartItemRepository.findByIdWithLock(any(CartItemIdV2.class))).thenReturn(java.util.Optional.empty());
+            when(productService.getProductById(cartItemPostVm.productId())).thenReturn(mock(ProductThumbnailVm.class));
+            when(cartItemRepository.findWithLock(anyString(), anyLong())).thenReturn(java.util.Optional.empty());
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-            CartItemGetVmV2 cartItem = cartItemService.addCartItem(cartItemPostVm);
+            CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);
 
             verify(cartItemRepository).save(any());
             assertEquals(CURRENT_USER_ID_SAMPLE, cartItem.customerId());
             assertEquals(cartItemPostVm.productId(), cartItem.productId());
             assertEquals(cartItemPostVm.quantity(), cartItem.quantity());
+        }
+
+        @Test
+        void testAddCartItem_whenAcquireLockFailed_shouldThrowInternalServerErrorException() {
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.build();
+
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            when(productService.getProductById(cartItemPostVm.productId())).thenReturn(mock(ProductThumbnailVm.class));
+            when(cartItemRepository.findWithLock(anyString(), anyLong()))
+                .thenThrow(new PessimisticLockingFailureException("Locking failed"));
+
+            assertThrows(InternalServerErrorException.class, () -> cartItemService.addCartItem(cartItemPostVm));
         }
     }
 

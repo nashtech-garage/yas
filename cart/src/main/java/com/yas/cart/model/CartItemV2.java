@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "cart_item_v2")
-@IdClass(CartItemIdV2.class)
+@IdClass(CartItemV2Id.class)
 @NoArgsConstructor
 @AllArgsConstructor
 @lombok.Getter

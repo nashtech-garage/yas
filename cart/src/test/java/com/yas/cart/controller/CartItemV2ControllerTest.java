@@ -7,9 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yas.cart.service.CartItemServiceV2;
-import com.yas.cart.viewmodel.CartItemGetVmV2;
-import com.yas.cart.viewmodel.CartItemPostVmV2;
+import com.yas.cart.service.CartItemV2Service;
+import com.yas.cart.viewmodel.CartItemV2GetVm;
+import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.commonlibrary.exception.ApiExceptionHandler;
 import javax.ws.rs.core.MediaType;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,9 +27,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest
-@ContextConfiguration(classes = {CartItemControllerV2.class, ApiExceptionHandler.class})
+@ContextConfiguration(classes = {CartItemV2Controller.class, ApiExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
-class CartItemControllerV2Test {
+class CartItemV2ControllerTest {
 
     private static final String CART_ITEM_BASE_URL = "/storefront/cart/items";
     private static final String ADD_CART_ITEM_URL = CART_ITEM_BASE_URL;
@@ -41,42 +41,42 @@ class CartItemControllerV2Test {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private CartItemServiceV2 cartItemService;
+    private CartItemV2Service cartItemService;
 
     @Nested
     class AddToCartTest {
 
-        private CartItemPostVmV2.CartItemPostVmV2Builder cartItemPostVmBuilder;
+        private CartItemV2PostVm.CartItemV2PostVmBuilder cartItemPostVmBuilder;
 
         @BeforeEach
         void setUp() {
-            cartItemPostVmBuilder = CartItemPostVmV2.builder()
+            cartItemPostVmBuilder = CartItemV2PostVm.builder()
                 .productId(1L)
                 .quantity(1);
         }
 
         @Test
         void testAddToCart_whenProductIdIsNull_shouldReturnBadRequest() throws Exception {
-            CartItemPostVmV2 cartItemPostVm = cartItemPostVmBuilder.productId(null).build();
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.productId(null).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
         void testAddToCart_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
-            CartItemPostVmV2 cartItemPostVm = cartItemPostVmBuilder.quantity(null).build();
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.quantity(null).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
         void testAddToCart_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
-            CartItemPostVmV2 cartItemPostVm = cartItemPostVmBuilder.quantity(0).build();
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.quantity(0).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
         void testAddToCart_whenRequestIsValid_shouldReturnCartItem() throws Exception {
-            CartItemPostVmV2 cartItemPostVm = cartItemPostVmBuilder.build();
-            CartItemGetVmV2 expectedCartItem = CartItemGetVmV2.builder()
+            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.build();
+            CartItemV2GetVm expectedCartItem = CartItemV2GetVm.builder()
                 .productId(cartItemPostVm.productId())
                 .quantity(cartItemPostVm.quantity())
                 .build();
@@ -91,13 +91,13 @@ class CartItemControllerV2Test {
             verify(cartItemService).addCartItem(cartItemPostVm);
         }
 
-        private void performAddCartItemAndExpectBadRequest(CartItemPostVmV2 cartItemPostVm)
+        private void performAddCartItemAndExpectBadRequest(CartItemV2PostVm cartItemPostVm)
             throws Exception {
             mockMvc.perform(buildAddCartItemRequest(cartItemPostVm))
                 .andExpect(status().isBadRequest());
         }
 
-        private MockHttpServletRequestBuilder buildAddCartItemRequest(CartItemPostVmV2 cartItemPostVm)
+        private MockHttpServletRequestBuilder buildAddCartItemRequest(CartItemV2PostVm cartItemPostVm)
             throws Exception {
             return post(ADD_CART_ITEM_URL)
                 .contentType(MediaType.APPLICATION_JSON)

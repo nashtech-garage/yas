@@ -1,14 +1,14 @@
 package com.yas.cart.mapper;
 
 import com.yas.cart.model.CartItemV2;
-import com.yas.cart.viewmodel.CartItemGetVmV2;
-import com.yas.cart.viewmodel.CartItemPostVmV2;
+import com.yas.cart.viewmodel.CartItemV2GetVm;
+import com.yas.cart.viewmodel.CartItemV2PostVm;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CartItemMapperV2 {
-    public CartItemGetVmV2 toGetVm(CartItemV2 cartItem) {
-        return CartItemGetVmV2
+public class CartItemV2Mapper {
+    public CartItemV2GetVm toGetVm(CartItemV2 cartItem) {
+        return CartItemV2GetVm
             .builder()
             .customerId(cartItem.getCustomerId())
             .productId(cartItem.getProductId())
@@ -16,7 +16,7 @@ public class CartItemMapperV2 {
             .build();
     }
 
-    public CartItemV2 toCartItem(CartItemPostVmV2 cartItemPostVm, String currentUserId) {
+    public CartItemV2 toCartItem(CartItemV2PostVm cartItemPostVm, String currentUserId) {
         return CartItemV2
             .builder()
             .customerId(currentUserId)
