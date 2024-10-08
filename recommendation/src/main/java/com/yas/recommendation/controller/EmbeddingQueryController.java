@@ -1,6 +1,6 @@
 package com.yas.recommendation.controller;
 
-import com.yas.recommendation.dto.RelatedProductDto;
+import com.yas.recommendation.viewmodel.RelatedProductVm;
 import com.yas.recommendation.vector.product.document.ProductDocument;
 import com.yas.recommendation.vector.common.query.VectorQuery;
 import java.util.List;
@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("embedding")
 public class EmbeddingQueryController {
 
-    private final VectorQuery<ProductDocument, RelatedProductDto> relatedProductSearch;
+    private final VectorQuery<ProductDocument, RelatedProductVm> relatedProductSearch;
 
-    public EmbeddingQueryController(VectorQuery<ProductDocument, RelatedProductDto> relatedProductSearch) {
+    public EmbeddingQueryController(VectorQuery<ProductDocument, RelatedProductVm> relatedProductSearch) {
         this.relatedProductSearch = relatedProductSearch;
     }
 
     @GetMapping("/product/{id}/similarity")
-    public List<RelatedProductDto> searchProduct(@PathVariable("id") Long productId) {
+    public List<RelatedProductVm> searchProduct(@PathVariable("id") Long productId) {
         return relatedProductSearch.similaritySearch(productId);
     }
 }
