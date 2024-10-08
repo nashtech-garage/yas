@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @Transactional
-public class ProductRecommendationService {
+public class ProductDetailService {
     private final ProductRepository productRepository;
     private final MediaService mediaService;
     private final ProductOptionCombinationRepository productOptionCombinationRepository;
@@ -42,8 +42,8 @@ public class ProductRecommendationService {
      *                                           with products
      * @param productOptionCombinationRepository the repository for managing product option combinations
      */
-    public ProductRecommendationService(ProductRepository productRepository, MediaService mediaService,
-                                        ProductOptionCombinationRepository productOptionCombinationRepository) {
+    public ProductDetailService(ProductRepository productRepository, MediaService mediaService,
+                                ProductOptionCombinationRepository productOptionCombinationRepository) {
         this.productRepository = productRepository;
         this.mediaService = mediaService;
         this.productOptionCombinationRepository = productOptionCombinationRepository;
