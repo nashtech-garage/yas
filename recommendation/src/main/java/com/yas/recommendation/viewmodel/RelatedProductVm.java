@@ -1,4 +1,4 @@
-package com.yas.recommendation.dto;
+package com.yas.recommendation.viewmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RelatedProductDto {
+public class RelatedProductVm {
 
     @JsonProperty("id")
     private Integer productId;
@@ -30,11 +30,11 @@ public class RelatedProductDto {
     @JsonProperty("specification")
     private String specification;
 
-    private ImageDto thumbnail;
+    private ImageVm thumbnail;
 
-    private List<ImageDto> productImages;
+    private List<ImageVm> productImages;
 
-    public RelatedProductDto() {
+    public RelatedProductVm() {
     }
 }
 
