@@ -11,6 +11,7 @@ import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductOption;
 import com.yas.product.model.ProductRelated;
+import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.repository.ProductCategoryRepository;
@@ -149,7 +150,8 @@ class ProductControllerIT extends AbstractControllerIT {
         productPostVm = new ProductPostVm(
             "Sample Product Name", "sample-product-slug", brand.getId(),
             List.of(category.getId()), "Short description", "Detailed description",
-            "Product specifications", "SKU123456", "GTIN1234567890123", 10d, 10d, 10d, 10d, 19.99,
+            "Product specifications", "SKU123456", "GTIN1234567890123",
+            10d, DimensionUnit.CM, 10d, 10d, 10d, 19.99,
             true, true, false, true, true,
             "Meta Title", "meta", "Meta description ", null,
             List.of(789L, 101L, 112L), new ArrayList<>(List.of(productVariationPostVm)),
@@ -176,7 +178,7 @@ class ProductControllerIT extends AbstractControllerIT {
             "Sample Update", "sample-update", 29.99, true, true,
             false, true, true, brand.getId(), new ArrayList<>(),
             "Short description", "Detailed description", "Specifications",
-            "SKU123456", "GTIN123456", 10d, 10d, 10d, 10d,
+            "SKU123456", "GTIN123456", 10d, DimensionUnit.CM,10d, 10d, 10d,
             "Meta Title", "Meta", "Meta",
             null, new ArrayList<>(),
             new ArrayList<>(List.of(productVariationPutVm1, productVariationPutVm2)),
@@ -377,7 +379,7 @@ class ProductControllerIT extends AbstractControllerIT {
                 "Sample Update", "sample-update", 29.99, true, true,
                 false, true, true, brand.getId(), new ArrayList<>(),
                 "Updated short description", "updated detailed description", "Updated Specifications",
-                "sku-1", "gtin-1", 10d, 10d, 10d,
+                "sku-1", "gtin-1", 10d, DimensionUnit.CM ,10d, 10d,
                 10d,"Meta Title", "Meta", "Meta",
                 null, new ArrayList<>(),
                 new ArrayList<>(),

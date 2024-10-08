@@ -2,6 +2,7 @@ package com.yas.product.viewmodel.product;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.validation.ValidateProductPrice;
 import com.yas.product.viewmodel.productoption.ProductOptionValuePutVm;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,6 +27,7 @@ public record ProductPutVm(
         String sku,
         String gtin,
         Double weight,
+        DimensionUnit dimensionUnit,
         Double length,
         Double width,
         Double height,

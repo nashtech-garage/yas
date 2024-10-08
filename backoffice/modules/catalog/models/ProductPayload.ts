@@ -17,6 +17,7 @@ export type ProductPayload = {
   sku?: string;
   gtin?: string;
   weight?: number;
+  dimensionUnit?: string;
   length?: number;
   width?: number;
   height?: number;
@@ -50,6 +51,7 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
     sku: data.sku,
     gtin: data.gtin,
     weight: data.weight,
+    dimensionUnit: data.dimensionUnit,
     length: data.length,
     width: data.width,
     height: data.height,

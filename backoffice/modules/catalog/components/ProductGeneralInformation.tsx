@@ -6,7 +6,7 @@ import slugify from 'slugify';
 
 import { TaxClass } from '@taxModels/TaxClass';
 import { getTaxClasses } from '@taxServices/TaxClassService';
-import { CheckBox, Input, TextArea } from '../../../common/items/Input';
+import { CheckBox, Input, Select, TextArea } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
 import TextEditor from '../../../common/items/TextEditor';
 import { Brand } from '../models/Brand';
@@ -137,7 +137,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
       />
 
       <Input
-        labelText="Weight (cm)"
+        labelText="Weight"
         field="weight"
         defaultValue={product?.weight}
         register={register}
@@ -149,8 +149,24 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         }}
       />
 
+      <Select
+        labelText="Dimension Unit"
+        field="dimensionUnit"
+        placeholder="Select Unit"
+        defaultValue={product?.dimensionUnit}
+        register={register}
+        registerOptions={{
+          required: { value: true, message: 'Dimension Unit is required' },
+        }}
+        error={errors.dimensionUnit?.message}
+        options={[
+          { value: 'CM', label: 'Centimeters' },
+          { value: 'INCH', label: 'Inches' },
+        ]}
+      />
+
       <Input
-        labelText="Length (cm)"
+        labelText="Length"
         field="length"
         defaultValue={product?.length}
         register={register}
@@ -163,7 +179,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
       />
 
       <Input
-        labelText="Width (cm)"
+        labelText="Width"
         field="width"
         defaultValue={product?.width}
         register={register}
@@ -176,7 +192,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
       />
 
       <Input
-        labelText="Height (cm)"
+        labelText="Height"
         field="height"
         defaultValue={product?.height}
         register={register}

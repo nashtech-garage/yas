@@ -11,6 +11,7 @@ export type Product = {
   gtin: string;
   slug: string;
   weight: number;
+  dimensionUnit: string;
   length: number;
   width: number;
   height: number;

@@ -13,6 +13,7 @@ export type FormProduct = {
   sku?: string;
   gtin?: string;
   weight?: number;
+  dimensionUnit?: string;
   length?: number;
   width?: number;
   height?: number;
