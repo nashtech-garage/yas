@@ -1,7 +1,7 @@
 package com.yas.recommendation.service;
 
 import com.yas.recommendation.configuration.RecommendationConfig;
-import com.yas.recommendation.dto.ProductDetailDTO;
+import com.yas.recommendation.dto.ProductDetailDto;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,9 +23,9 @@ public class ProductService {
      * Retrieves detailed information about a product from an external API using the product's unique identifier.
      *
      * @param productId the unique identifier of the product to fetch details for
-     * @return a {@link ProductDetailDTO} containing the detailed product information retrieved from the external API
+     * @return a {@link ProductDetailDto} containing the detailed product information retrieved from the external API
      */
-    public ProductDetailDTO getProductDetail(long productId) {
+    public ProductDetailDto getProductDetail(long productId) {
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(config.getApiUrl())
                 .path("/storefront/products/detail/" + productId)
@@ -35,7 +35,7 @@ public class ProductService {
         return restClient.get()
                 .uri(url)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<ProductDetailDTO>() {
+                .toEntity(new ParameterizedTypeReference<ProductDetailDto>() {
                 })
                 .getBody();
     }

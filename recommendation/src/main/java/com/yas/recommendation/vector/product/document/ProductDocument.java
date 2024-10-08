@@ -1,6 +1,7 @@
 package com.yas.recommendation.vector.product.document;
 
 import static com.yas.recommendation.vector.product.document.ProductDocument.CONTENT_FORMAT;
+import static com.yas.recommendation.vector.product.document.ProductDocument.PREFIX_PRODUCT;
 
 import com.yas.recommendation.vector.common.document.BaseDocument;
 import com.yas.recommendation.vector.common.document.DocumentMetadata;
@@ -11,7 +12,7 @@ import com.yas.recommendation.vector.product.formatter.ProductDocumentFormatter;
  * The content of this document is formatted using a custom content formatter.
  */
 @DocumentMetadata(
-        docIdPrefix = ProductDocument.PREFIX_PRODUCT,
+        docIdPrefix = PREFIX_PRODUCT,
         contentFormat = CONTENT_FORMAT,
         documentFormatter = ProductDocumentFormatter.class
 )

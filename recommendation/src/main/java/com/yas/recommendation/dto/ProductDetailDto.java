@@ -8,7 +8,7 @@ import java.util.List;
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ProductDetailDTO(
+public record ProductDetailDto(
         long id,
         String name,
         String shortDescription,
@@ -24,14 +24,14 @@ public record ProductDetailDTO(
         Boolean stockTrackingEnabled,
         Double price,
         Long brandId,
-        List<CategoryDTO> categories,
+        List<CategoryDto> categories,
         String metaTitle,
         String metaKeyword,
         String metaDescription,
         Long taxClassId,
         String brandName,
-        List<ProductAttributeValueDTO> attributeValues,
-        List<ProductVariationDTO> variations,
+        List<ProductAttributeValueDto> attributeValues,
+        List<ProductVariationDto> variations,
         ImageDto thumbnail,
         List<ImageDto> productImages
 ) {
