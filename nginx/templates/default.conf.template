@@ -54,6 +54,9 @@ server {
   location /sampledata/ {
     proxy_pass http://sampledata;
   }
+  location /recommendation/ {
+    proxy_pass http://recommendation;
+  }
 }
 
 server {
