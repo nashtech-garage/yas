@@ -591,6 +591,18 @@ services:
       - kafka-connect
     networks:
       - yas-network
+  redis:
+    image: redis:7.4.1-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    environment:
+      - SPRING_DATA_REDIS_HOST
+      - SPRING_DATA_REDIS_PORT
+    volumes:
+      - redis:/data
+    networks:
+      - yas-network
 
 networks:
   yas-network:
@@ -600,3 +612,4 @@ networks:
 volumes:
   postgres:
   pgadmin:
+  redis:
