@@ -8,7 +8,6 @@ import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.InternalServerErrorException;
-import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.utils.AuthenticationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,9 @@ public class CartItemV2Service {
 
     @Transactional
     public CartItemV2GetVm addCartItem(CartItemV2PostVm cartItemPostVm) {
-        validateProduct(cartItemPostVm.productId());
+        if (!productService.existsById(cartItemPostVm.productId())) {
+            throw new BadRequestException(Constants.ErrorCode.NOT_FOUND_PRODUCT);
+        }
 
         String currentUserId = AuthenticationUtils.extractUserId();
         CartItemV2 cartItem = performAddCartItem(cartItemPostVm, currentUserId);
@@ -42,14 +43,6 @@ public class CartItemV2Service {
         } catch (PessimisticLockingFailureException e) {
             log.error("Failed to acquire lock for adding cart item", e);
             throw new InternalServerErrorException(Constants.ErrorCode.ADD_CART_ITEM_FAILED);
-        }
-    }
-
-    private void validateProduct(Long productId) {
-        try {
-            productService.getProductById(productId);
-        } catch (NotFoundException e) {
-            throw new BadRequestException(Constants.ErrorCode.NOT_FOUND_PRODUCT, productId);
         }
     }
 
