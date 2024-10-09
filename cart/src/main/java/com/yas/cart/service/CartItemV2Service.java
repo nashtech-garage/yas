@@ -6,8 +6,8 @@ import com.yas.cart.repository.CartItemV2Repository;
 import com.yas.cart.utils.Constants;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
-import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.InternalServerErrorException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.utils.AuthenticationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +25,18 @@ public class CartItemV2Service {
 
     @Transactional
     public CartItemV2GetVm addCartItem(CartItemV2PostVm cartItemPostVm) {
-        if (!productService.existsById(cartItemPostVm.productId())) {
-            throw new BadRequestException(Constants.ErrorCode.NOT_FOUND_PRODUCT);
-        }
+        validateProduct(cartItemPostVm.productId());
 
         String currentUserId = AuthenticationUtils.extractUserId();
         CartItemV2 cartItem = performAddCartItem(cartItemPostVm, currentUserId);
 
         return cartItemMapper.toGetVm(cartItem);
+    }
+
+    private void validateProduct(Long productId) {
+        if (!productService.existsById(productId)) {
+            throw new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT);
+        }
     }
 
     private CartItemV2 performAddCartItem(CartItemV2PostVm cartItemPostVm, String currentUserId) {

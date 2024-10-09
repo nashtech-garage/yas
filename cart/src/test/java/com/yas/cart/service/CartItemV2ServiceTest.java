@@ -14,8 +14,8 @@ import com.yas.cart.model.CartItemV2;
 import com.yas.cart.repository.CartItemV2Repository;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
-import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.InternalServerErrorException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -65,13 +65,13 @@ class CartItemV2ServiceTest {
         }
 
         @Test
-        void testAddCartItem_whenProductNotFound_shouldThrowBadRequestException() {
+        void testAddCartItem_whenProductNotFound_shouldThrowNotFoundException() {
             cartItemPostVmBuilder.productId(-1L);
             CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.build();
 
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(false);
 
-            assertThrows(BadRequestException.class, () -> cartItemService.addCartItem(cartItemPostVm));
+            assertThrows(NotFoundException.class, () -> cartItemService.addCartItem(cartItemPostVm));
         }
 
         @Test
