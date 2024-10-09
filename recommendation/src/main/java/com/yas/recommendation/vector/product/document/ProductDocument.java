@@ -20,5 +20,6 @@ public class ProductDocument extends BaseDocument {
 
     public static final String PREFIX_PRODUCT = "PRODUCT";
     public static final String CONTENT_FORMAT =
-            "{name}| {shortDescription}| {specification}| Price: {price}| {brandName}| {categories}| {metaTitle}| {metaKeyword}| {metaDescription}| {attributeValues}";
+            "{name}| {shortDescription}| {specification}| Price: {price}| {brandName}| {categories}| {metaTitle}"
+                    + "| {metaKeyword}| {metaDescription}| {attributeValues}";
 }

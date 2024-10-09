@@ -31,9 +31,9 @@ class JdbcVectorService {
     private final EmbeddingSearchConfiguration embeddingSearchConfiguration;
 
     public JdbcVectorService(
-        JdbcTemplate jdbcClient,
-        ObjectMapper objectMapper,
-        EmbeddingSearchConfiguration embeddingSearchConfiguration
+            JdbcTemplate jdbcClient,
+            ObjectMapper objectMapper,
+            EmbeddingSearchConfiguration embeddingSearchConfiguration
     ) {
         this.jdbcClient = jdbcClient;
         this.documentRowMapper = new DocumentRowMapper(objectMapper);
@@ -42,19 +42,19 @@ class JdbcVectorService {
 
     public <D extends BaseDocument> List<Document> similarityProduct(Long id, Class<D> docType) {
         String docIdPrefix = getDocIdPrefix(docType);
-        UUID idStr = generateUUID(docIdPrefix, id);
+        UUID idStr = generateUuid(docIdPrefix, id);
 
         return jdbcClient.query(getFormattedQuery(), getPreparedStatementSetter(idStr), documentRowMapper);
     }
 
     private String getDocIdPrefix(Class<?> docType) {
         return Optional.ofNullable(docType)
-            .map(dt -> dt.getAnnotation(DocumentMetadata.class))
-            .map(DocumentMetadata::docIdPrefix)
-            .orElse(DEFAULT_DOCID_PREFIX);
+                .map(dt -> dt.getAnnotation(DocumentMetadata.class))
+                .map(DocumentMetadata::docIdPrefix)
+                .orElse(DEFAULT_DOCID_PREFIX);
     }
 
-    private UUID generateUUID(String docIdPrefix, Long id) {
+    private UUID generateUuid(String docIdPrefix, Long id) {
         return UUID.nameUUIDFromBytes("%s-%s".formatted(docIdPrefix, id).getBytes());
     }
 
@@ -62,38 +62,40 @@ class JdbcVectorService {
         return ps -> {
             StatementCreatorUtils.setParameterValue(ps, 1, Integer.MIN_VALUE, idStr);
             StatementCreatorUtils.setParameterValue(ps, 2, Integer.MIN_VALUE, idStr);
-            StatementCreatorUtils.setParameterValue(ps, 3, Integer.MIN_VALUE, embeddingSearchConfiguration.similarityThreshold());
-            StatementCreatorUtils.setParameterValue(ps, 4, Integer.MIN_VALUE, embeddingSearchConfiguration.topK());
+            StatementCreatorUtils.setParameterValue(ps, 3, Integer.MIN_VALUE,
+                    embeddingSearchConfiguration.similarityThreshold());
+            StatementCreatorUtils.setParameterValue(ps, 4, Integer.MIN_VALUE,
+                    embeddingSearchConfiguration.topK());
         };
     }
 
     private String getFormattedQuery() {
         return """
-            WITH entity AS (
+                WITH entity AS (
+                    SELECT
+                        id,
+                        content,
+                        metadata,
+                        embedding
+                    FROM
+                        %s
+                    WHERE
+                        id = ?
+                )
                 SELECT
-                    id,
-                    content,
-                    metadata,
-                    embedding
+                    vs.id,
+                    vs.content,
+                    vs.metadata,
+                    (vs.embedding <=> entity.embedding) AS similarity
                 FROM
-                    %s
-                WHERE
-                    id = ?
-            )
-            SELECT
-                vs.id,
-                vs.content,
-                vs.metadata,
-                (vs.embedding <=> entity.embedding) AS similarity
-            FROM
-                vector_store vs
-            JOIN
-                entity ON true
-            WHERE vs.id <> ? AND (vs.embedding <=> entity.embedding) > ?
-            ORDER BY
-                similarity
-            LIMIT ?
-            """.formatted(vectorTableName);
+                    vector_store vs
+                JOIN
+                    entity ON true
+                WHERE vs.id <> ? AND (vs.embedding <=> entity.embedding) > ?
+                ORDER BY
+                    similarity
+                LIMIT ?
+                """.formatted(vectorTableName);
     }
 }
 
