@@ -1,6 +1,8 @@
 package com.yas.cart.controller;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import com.yas.cart.repository.CartItemV2Repository;
@@ -10,29 +12,24 @@ import com.yas.cart.viewmodel.CartItemV2PutVm;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
-import java.util.concurrent.ThreadLocalRandom;
+import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CartItemV2ControllerIT extends AbstractControllerIT {
 
-    private static final String CART_ITEM_BASE_URL = "/v1/storefront/cart/items";
-    private static final String ADD_CART_ITEM_URL = CART_ITEM_BASE_URL;
-    private static final String UPDATE_CART_ITEM_TEMPLATE = CART_ITEM_BASE_URL + "/%d";
-
-    @SpyBean
+    @Autowired
     private CartItemV2Repository cartItemRepository;
 
     @MockBean
@@ -44,8 +41,8 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
     void setUp() {
         existingProduct = ProductThumbnailVm
             .builder()
-            .id(generateRandomLong())
-            .name(RandomStringUtils.randomAlphabetic(5))
+            .id(Long.MIN_VALUE)
+            .name("product-name")
             .slug("product-slug")
             .thumbnailUrl("thumbnail-url")
             .build();
@@ -63,16 +60,34 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
         void testAddCartItem_whenRequestIsValid_shouldReturnCartItemGetVm() {
             CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 1);
 
-            when(productService.getProductById(existingProduct.id())).thenReturn(existingProduct);
+            when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
 
-            givenLoggedInAsAdmin()
-                .body(cartItemPostVm)
-                .when()
-                .post(ADD_CART_ITEM_URL)
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("productId", equalTo(cartItemPostVm.productId()))
+            performCreateCartItemAndExpectSuccess(cartItemPostVm)
+                .body("productId", is(cartItemPostVm.productId()))
                 .body("quantity", equalTo(cartItemPostVm.quantity()))
+                .log().ifValidationFails();
+        }
+
+        @Test
+        void testAddCartItem_whenCartItemExists_shouldUpdateCartItemQuantity() {
+            CartItemV2PostVm addCartItemVm = CartItemV2PostVm
+                .builder()
+                .productId(existingProduct.id())
+                .quantity(1)
+                .build();
+            when(productService.existsById(anyLong())).thenReturn(true);
+            performCreateCartItemAndExpectSuccess(addCartItemVm);
+
+            CartItemV2PostVm addDuplicatedCartItemVm = CartItemV2PostVm
+                .builder()
+                .productId(addCartItemVm.productId())
+                .quantity(1)
+                .build();
+            int expectedQuantity = addCartItemVm.quantity() + addDuplicatedCartItemVm.quantity();
+
+            performCreateCartItemAndExpectSuccess(addDuplicatedCartItemVm)
+                .body("productId", equalTo(addDuplicatedCartItemVm.productId()))
+                .body("quantity", equalTo(expectedQuantity))
                 .log().ifValidationFails();
         }
     }
@@ -84,25 +99,49 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
         void testUpdateCartItem_whenRequestIsValid_shouldReturnCartItemGetVm() {
             CartItemV2PutVm cartItemPutVm = new CartItemV2PutVm(1);
 
-            when(productService.getProductById(existingProduct.id())).thenReturn(existingProduct);
+            when(productService.existsById(existingProduct.id())).thenReturn(true);
 
             givenLoggedInAsAdmin()
                 .body(cartItemPutVm)
                 .when()
-                .put(getUpdateCartItemUrl(existingProduct.id()))
+                .put("/v1/storefront/cart/items/" + existingProduct.id())
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("productId", equalTo(existingProduct.id()))
                 .body("quantity", equalTo(cartItemPutVm.quantity()))
                 .log().ifValidationFails();
         }
-
-        private String getUpdateCartItemUrl(Long productId) {
-            return String.format(UPDATE_CART_ITEM_TEMPLATE, productId);
-        }
     }
 
-    private Long generateRandomLong() {
-        return ThreadLocalRandom.current().nextLong();
+    @Nested
+    class GetCartItemsTest {
+
+        @Test
+        void testGetCartItems_whenCartItemsExist_shouldReturnCartItems() {
+            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 1);
+
+            when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
+            performCreateCartItemAndExpectSuccess(cartItemPostVm);
+
+            givenLoggedInAsAdmin()
+                .when()
+                .get("/v1/storefront/cart/items")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(1))
+                .body("[0].productId", equalTo(cartItemPostVm.productId()))
+                .body("[0].quantity", equalTo(cartItemPostVm.quantity()))
+                .log().ifValidationFails();
+        }
+
+    }
+
+    private ValidatableResponse performCreateCartItemAndExpectSuccess(CartItemV2PostVm cartItemPostVm) {
+        return givenLoggedInAsAdmin()
+            .body(cartItemPostVm)
+            .when()
+            .post("/v1/storefront/cart/items")
+            .then()
+            .statusCode(HttpStatus.OK.value());
     }
 }

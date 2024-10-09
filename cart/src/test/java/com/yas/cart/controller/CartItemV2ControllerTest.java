@@ -37,11 +37,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @AutoConfigureMockMvc(addFilters = false)
 class CartItemV2ControllerTest {
 
-    private static final String CART_ITEM_BASE_URL = "/storefront/cart/items";
-    private static final String ADD_CART_ITEM_URL = CART_ITEM_BASE_URL;
-    private static final String UPDATE_CART_ITEM_TEMPLATE = CART_ITEM_BASE_URL + "/%d";
-    private static final String GET_CART_ITEMS_URL = CART_ITEM_BASE_URL;
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -107,7 +102,7 @@ class CartItemV2ControllerTest {
 
         private MockHttpServletRequestBuilder buildAddCartItemRequest(CartItemV2PostVm cartItemPostVm)
             throws Exception {
-            return post(ADD_CART_ITEM_URL)
+            return post("/storefront/cart/items")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(cartItemPostVm));
         }
@@ -160,13 +155,9 @@ class CartItemV2ControllerTest {
 
         private MockHttpServletRequestBuilder buildUpdateCartItemRequest(Long productId, CartItemV2PutVm cartItemPutVm)
             throws Exception {
-            return put(getUpdateCartItemUrl(productId))
+            return put("/storefront/cart/items/" + productId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(cartItemPutVm));
-        }
-
-        private String getUpdateCartItemUrl(Long productId) {
-            return String.format(UPDATE_CART_ITEM_TEMPLATE, productId);
         }
     }
 
@@ -182,7 +173,7 @@ class CartItemV2ControllerTest {
 
             when(cartItemService.getCartItems()).thenReturn(List.of(expectedCartItem));
 
-            mockMvc.perform(get(GET_CART_ITEMS_URL))
+            mockMvc.perform(get("/storefront/cart/items"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].productId").value(expectedCartItem.productId()))
                 .andExpect(jsonPath("$[0].quantity").value(expectedCartItem.quantity()));
