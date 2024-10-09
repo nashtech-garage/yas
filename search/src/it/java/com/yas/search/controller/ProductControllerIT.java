@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
 import com.yas.commonlibrary.AbstractControllerIT;
-import com.yas.search.config.IntegrationTestConfiguration;
+import com.yas.search.config.IntegrationTestConfig;
 import com.yas.search.model.Product;
 import com.yas.search.repository.ProductRepository;
 import io.restassured.http.ContentType;
@@ -20,7 +20,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.elasticsearch.core.RefreshPolicy;
 import org.springframework.http.HttpStatus;
 
-@Import(IntegrationTestConfiguration.class)
+@Import(IntegrationTestConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @PropertySource("classpath:application.properties")
 public class ProductControllerIT extends AbstractControllerIT {
