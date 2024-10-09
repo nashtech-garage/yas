@@ -7,6 +7,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -33,6 +34,18 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .toEntity(new ParameterizedTypeReference<List<ProductThumbnailVm>>() {
             })
             .getBody();
+    }
+
+    public ProductThumbnailVm getProductById(Long id) {
+        List<ProductThumbnailVm> products = getProducts(List.of(id));
+        if (CollectionUtils.isEmpty(products)) {
+            return null;
+        }
+        return products.getFirst();
+    }
+
+    public boolean existsById(Long id) {
+        return getProductById(id) != null;
     }
 
     protected List<ProductThumbnailVm> handleProductThumbnailFallback(Throwable throwable) throws Throwable {
