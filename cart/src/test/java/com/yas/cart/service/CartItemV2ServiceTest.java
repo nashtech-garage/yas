@@ -10,10 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.cart.mapper.CartItemV2Mapper;
-import com.yas.cart.model.CartItem;
 import com.yas.cart.model.CartItemV2;
 import com.yas.cart.repository.CartItemV2Repository;
-import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
@@ -21,7 +19,6 @@ import com.yas.commonlibrary.exception.InternalServerErrorException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
