@@ -10,13 +10,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.cart.mapper.CartItemV2Mapper;
+import com.yas.cart.model.CartItem;
 import com.yas.cart.model.CartItemV2;
 import com.yas.cart.repository.CartItemV2Repository;
+import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.commonlibrary.exception.InternalServerErrorException;
 import com.yas.commonlibrary.exception.NotFoundException;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -125,6 +129,62 @@ class CartItemV2ServiceTest {
                 .thenThrow(new PessimisticLockingFailureException("Locking failed"));
 
             assertThrows(InternalServerErrorException.class, () -> cartItemService.addCartItem(cartItemPostVm));
+        }
+    }
+
+    @Nested
+    class UpdateCartItemTest {
+        private static final Long PRODUCT_ID_SAMPLE = 1L;
+        private CartItemV2PutVm cartItemPutVm;
+
+        @BeforeEach
+        void setUp() {
+            cartItemPutVm = new CartItemV2PutVm(1);
+        }
+
+        @Test
+        void testUpdateCartItem_whenProductNotFound_shouldThrowBadRequestException() {
+            Long notExistingProductId = -1L;
+            when(productService.getProductById(notExistingProductId)).thenThrow(new NotFoundException(anyString()));
+            assertThrows(BadRequestException.class,
+                () -> cartItemService.updateCartItem(notExistingProductId, cartItemPutVm));
+        }
+
+        @Test
+        void testUpdateCartItem_whenRequestIsValid_shouldReturnCartItem() {
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            when(productService.getProductById(PRODUCT_ID_SAMPLE)).thenReturn(mock(ProductThumbnailVm.class));
+            when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+            CartItemV2GetVm updatedCartItem = cartItemService.updateCartItem(PRODUCT_ID_SAMPLE, cartItemPutVm);
+
+            verify(cartItemRepository).save(any());
+            assertEquals(CURRENT_USER_ID_SAMPLE, updatedCartItem.customerId());
+            assertEquals(PRODUCT_ID_SAMPLE, updatedCartItem.productId());
+            assertEquals(cartItemPutVm.quantity(), updatedCartItem.quantity());
+        }
+    }
+
+    @Nested
+    class GetCartItemsTest {
+
+        @Test
+        void testGetCartItems_shouldReturnCartItems() {
+            CartItemV2 existingCartItem = CartItemV2.builder()
+                .customerId(CURRENT_USER_ID_SAMPLE)
+                .productId(1L)
+                .quantity(1)
+                .build();
+            List<CartItemV2> existingCartItems = List.of(existingCartItem);
+
+            when(cartItemRepository.findByCustomerId(CURRENT_USER_ID_SAMPLE))
+                .thenReturn(existingCartItems);
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+
+            List<CartItemV2GetVm> cartItemGetVms = cartItemService.getCartItems();
+
+            verify(cartItemRepository).findByCustomerId(CURRENT_USER_ID_SAMPLE);
+            assertEquals(existingCartItems.size(), cartItemGetVms.size());
         }
     }
 

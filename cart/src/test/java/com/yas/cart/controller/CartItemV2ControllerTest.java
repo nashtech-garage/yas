@@ -1,8 +1,12 @@
 package com.yas.cart.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -10,7 +14,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.cart.service.CartItemV2Service;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
+import com.yas.cart.viewmodel.CartItemV2PutVm;
 import com.yas.commonlibrary.exception.ApiExceptionHandler;
+import java.util.List;
 import javax.ws.rs.core.MediaType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -33,6 +39,8 @@ class CartItemV2ControllerTest {
 
     private static final String CART_ITEM_BASE_URL = "/storefront/cart/items";
     private static final String ADD_CART_ITEM_URL = CART_ITEM_BASE_URL;
+    private static final String UPDATE_CART_ITEM_TEMPLATE = CART_ITEM_BASE_URL + "/%d";
+    private static final String GET_CART_ITEMS_URL = CART_ITEM_BASE_URL;
 
     @Autowired
     private MockMvc mockMvc;
@@ -102,6 +110,84 @@ class CartItemV2ControllerTest {
             return post(ADD_CART_ITEM_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(cartItemPostVm));
+        }
+    }
+
+    @Nested
+    class UpdateCartItemTest {
+
+        private static final Long PRODUCT_ID_SAMPLE = 1L;
+        private CartItemV2PutVm cartItemPutVm;
+
+        @Test
+        void testUpdateCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
+            cartItemPutVm = new CartItemV2PutVm(null);
+            performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
+        }
+
+        @Test
+        void testUpdateCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
+            cartItemPutVm = new CartItemV2PutVm(0);
+            performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
+        }
+
+        @Test
+        void testUpdateCartItem_whenRequestIsValid_shouldReturnUpdatedCartItemGetVm() throws Exception {
+            cartItemPutVm = new CartItemV2PutVm(1);
+            CartItemV2GetVm expectedCartItemGetVm = CartItemV2GetVm
+                .builder()
+                .productId(PRODUCT_ID_SAMPLE)
+                .quantity(1)
+                .customerId("customerId")
+                .build();
+
+            when(cartItemService.updateCartItem(anyLong(), any())).thenReturn(expectedCartItemGetVm);
+
+            mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerId").value(expectedCartItemGetVm.customerId()))
+                .andExpect(jsonPath("$.productId").value(expectedCartItemGetVm.productId()))
+                .andExpect(jsonPath("$.quantity").value(expectedCartItemGetVm.quantity()));
+
+            verify(cartItemService).updateCartItem(anyLong(), any());
+        }
+
+        private void performUpdateCartItemAndExpectBadRequest(CartItemV2PutVm cartItemPutVm)
+            throws Exception {
+            mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
+                .andExpect(status().isBadRequest());
+        }
+
+        private MockHttpServletRequestBuilder buildUpdateCartItemRequest(Long productId, CartItemV2PutVm cartItemPutVm)
+            throws Exception {
+            return put(getUpdateCartItemUrl(productId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(cartItemPutVm));
+        }
+
+        private String getUpdateCartItemUrl(Long productId) {
+            return String.format(UPDATE_CART_ITEM_TEMPLATE, productId);
+        }
+    }
+
+    @Nested
+    class GetCartItemsTest {
+
+        @Test
+        void testGetCartItems_whenRequestIsValid_shouldReturnCartItems() throws Exception {
+            CartItemV2GetVm expectedCartItem = CartItemV2GetVm.builder()
+                .productId(1L)
+                .quantity(1)
+                .build();
+
+            when(cartItemService.getCartItems()).thenReturn(List.of(expectedCartItem));
+
+            mockMvc.perform(get(GET_CART_ITEMS_URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].productId").value(expectedCartItem.productId()))
+                .andExpect(jsonPath("$[0].quantity").value(expectedCartItem.quantity()));
+
+            verify(cartItemService).getCartItems();
         }
     }
 }

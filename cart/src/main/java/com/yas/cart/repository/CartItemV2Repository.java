@@ -4,6 +4,7 @@ import com.yas.cart.model.CartItemV2;
 import com.yas.cart.model.CartItemV2Id;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -15,4 +16,6 @@ public interface CartItemV2Repository extends JpaRepository<CartItemV2, CartItem
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "0")})
     @Query("SELECT c FROM CartItemV2 c WHERE c.customerId = :customerId AND c.productId = :productId")
     Optional<CartItemV2> findWithLock(String customerId, Long productId);
+
+    List<CartItemV2> findByCustomerId(String customerId);
 }

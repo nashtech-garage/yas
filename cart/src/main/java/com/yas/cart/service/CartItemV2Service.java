@@ -9,6 +9,7 @@ import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.commonlibrary.exception.InternalServerErrorException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.utils.AuthenticationUtils;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.PessimisticLockingFailureException;
@@ -37,6 +38,23 @@ public class CartItemV2Service {
         if (!productService.existsById(productId)) {
             throw new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT);
         }
+    }
+    
+    @Transactional
+    public CartItemV2GetVm updateCartItem(Long productId, CartItemV2PutVm cartItemPutVm) {
+        validateProduct(productId);
+
+        String currentUserId = AuthenticationUtils.extractUserId();
+        CartItemV2 cartItemV2 = cartItemMapper.toCartItem(currentUserId, productId, cartItemPutVm.quantity());
+
+        CartItemV2 savedCartItem = cartItemRepository.save(cartItemV2);
+        return cartItemMapper.toGetVm(savedCartItem);
+    }
+
+    public List<CartItemV2GetVm> getCartItems() {
+        String currentUserId = AuthenticationUtils.extractUserId();
+        return cartItemRepository.findByCustomerId(currentUserId)
+            .stream().map(cartItemMapper::toGetVm).toList();
     }
 
     private CartItemV2 performAddCartItem(CartItemV2PostVm cartItemPostVm, String currentUserId) {
