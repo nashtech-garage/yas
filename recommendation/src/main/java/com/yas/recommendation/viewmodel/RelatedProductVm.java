@@ -27,7 +27,6 @@ public class RelatedProductVm {
 
     private String metaDescription;
 
-    @JsonProperty("specification")
     private String specification;
 
     private ImageVm thumbnail;
