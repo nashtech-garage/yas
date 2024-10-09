@@ -15,7 +15,6 @@ import com.yas.cart.repository.CartItemV2Repository;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
-import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.exception.InternalServerErrorException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.List;
@@ -144,7 +143,9 @@ class CartItemV2ServiceTest {
         @Test
         void testUpdateCartItem_whenProductNotFound_shouldThrowNotFoundException() {
             Long notExistingProductId = -1L;
-            when(productService.getProductById(notExistingProductId)).thenThrow(new NotFoundException(anyString()));
+
+            when(productService.existsById(notExistingProductId)).thenReturn(false);
+
             assertThrows(NotFoundException.class,
                 () -> cartItemService.updateCartItem(notExistingProductId, cartItemPutVm));
         }
@@ -152,7 +153,7 @@ class CartItemV2ServiceTest {
         @Test
         void testUpdateCartItem_whenRequestIsValid_shouldReturnCartItem() {
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
-            when(productService.getProductById(PRODUCT_ID_SAMPLE)).thenReturn(mock(ProductThumbnailVm.class));
+            when(productService.existsById(PRODUCT_ID_SAMPLE)).thenReturn(true);
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemV2GetVm updatedCartItem = cartItemService.updateCartItem(PRODUCT_ID_SAMPLE, cartItemPutVm);
