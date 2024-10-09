@@ -273,7 +273,7 @@ const PromotionGeneralInformation = ({
         register={register}
         registerOptions={{
           required: { value: true, message: 'Start date is required' },
-          validate: validateDate(promotion?.endDate, 'start'),
+          validate: promotion ? validateDate(promotion.endDate || '', 'start') : undefined,
         }}
         error={errors.startDate?.message}
       />
@@ -284,7 +284,7 @@ const PromotionGeneralInformation = ({
         register={register}
         registerOptions={{
           required: { value: true, message: 'End date is required' },
-          validate: validateDate(promotion?.startDate, 'end'),
+          validate: promotion ? validateDate(promotion.startDate || '', 'end') : undefined,
         }}
         error={errors.endDate?.message}
       />
