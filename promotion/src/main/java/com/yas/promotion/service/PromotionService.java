@@ -95,7 +95,7 @@ public class PromotionService {
         promotion.setDiscountType(promotionPutVm.getDiscountType());
         promotion.setDiscountPercentage(promotionPutVm.getDiscountPercentage());
         promotion.setDiscountAmount(promotionPutVm.getDiscountAmount());
-        promotion.setIsActive(promotionPutVm.isActive());
+        promotion.setIsActive(promotionPutVm.getIsActive());
         promotion.setStartDate(promotionPutVm.getStartDate().toInstant());
         promotion.setEndDate(promotionPutVm.getEndDate().toInstant());
         promotion.setMinimumOrderPurchaseAmount(promotionPutVm.getMinimumOrderPurchaseAmount());

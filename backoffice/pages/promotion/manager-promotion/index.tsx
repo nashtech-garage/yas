@@ -126,7 +126,7 @@ const PromotionList: NextPage = () => {
                 <td>{promotion.couponCode}</td>
                 <td>{promotion.slug}</td>
                 <td>{promotion.description}</td>
-                <td>{promotion.isActive}</td>
+                <td>{promotion.isActive ? 'Yes' : 'No'}</td>
                 <td>{promotion.discountType}</td>
                 <td>{promotion.usageCount}</td>
                 <td>{promotion.usageLimit}</td>
