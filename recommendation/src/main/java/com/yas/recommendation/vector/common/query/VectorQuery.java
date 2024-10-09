@@ -1,6 +1,5 @@
 package com.yas.recommendation.vector.common.query;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.recommendation.vector.common.document.BaseDocument;
 import com.yas.recommendation.vector.common.document.DocumentMetadata;
@@ -45,7 +44,7 @@ public abstract class VectorQuery<D extends BaseDocument, P> {
      *
      * @param id the ID of the product for which to perform the similarity search.
      * @return a list of product results that are similar to the specified product in db,
-     * result will not include specified product.
+     *      result will not include specified product.
      */
     public List<P> similaritySearch(Long id) {
         return toResult(jdbcVectorService.similarityProduct(id, this.getDocType()));

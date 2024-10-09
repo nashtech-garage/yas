@@ -3,14 +3,14 @@ package com.yas.product.viewmodel.product;
 import com.yas.product.model.Category;
 import com.yas.product.viewmodel.ImageVm;
 import com.yas.product.viewmodel.productattribute.ProductAttributeValueGetVm;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+/**
+ * ViewModel class that represents detailed information about a product.
+ */
+@lombok.Getter
+@lombok.Setter
 public class ProductDetailInfoVm {
     private long id;
     private String name;
@@ -38,6 +38,9 @@ public class ProductDetailInfoVm {
     private ImageVm thumbnail;
     private List<ImageVm> productImages;
 
+    /**
+     * Constructs a new {@code ProductDetailInfoVm} instance with detailed product information.
+     **/
     public ProductDetailInfoVm(long id, String name, String shortDescription, String description,
                                String specification, String sku, String gtin, String slug,
                                Boolean isAllowedToOrder, Boolean isPublished, Boolean isFeatured,

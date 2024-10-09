@@ -40,7 +40,7 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
     private final DocumentFormatter documentFormatter;
 
     /**
-     * Constructor for SimpleVectorRepository
+     * Constructor for SimpleVectorRepository.
      *
      * @param docType     type of document will be store.
      * @param vectorStore vector store service.
@@ -72,7 +72,7 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
      *
      * @param entityId the ID of the entity to fetch and add to the vector database
      */
-    @SneakyThrows
+    @lombok.SneakyThrows
     public void add(Long entityId) {
         final var entity = getEntity(entityId);
         final var entityContentMap = objectMapper.convertValue(entity, Map.class);

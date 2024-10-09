@@ -1,9 +1,9 @@
 package com.yas.recommendation.vector.product.formatter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yas.recommendation.vector.common.formatter.DocumentFormatter;
 import com.yas.recommendation.viewmodel.CategoryVm;
 import com.yas.recommendation.viewmodel.ProductAttributeValueVm;
-import com.yas.recommendation.vector.common.formatter.DocumentFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

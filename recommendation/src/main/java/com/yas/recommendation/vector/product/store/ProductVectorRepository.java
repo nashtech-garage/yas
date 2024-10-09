@@ -1,9 +1,9 @@
 package com.yas.recommendation.vector.product.store;
 
-import com.yas.recommendation.viewmodel.ProductDetailVm;
 import com.yas.recommendation.service.ProductService;
 import com.yas.recommendation.vector.common.store.SimpleVectorRepository;
 import com.yas.recommendation.vector.product.document.ProductDocument;
+import com.yas.recommendation.viewmodel.ProductDetailVm;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 

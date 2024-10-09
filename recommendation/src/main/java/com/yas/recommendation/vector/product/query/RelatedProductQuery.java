@@ -1,8 +1,8 @@
 package com.yas.recommendation.vector.product.query;
 
-import com.yas.recommendation.viewmodel.RelatedProductVm;
 import com.yas.recommendation.vector.common.query.VectorQuery;
 import com.yas.recommendation.vector.product.document.ProductDocument;
+import com.yas.recommendation.viewmodel.RelatedProductVm;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
