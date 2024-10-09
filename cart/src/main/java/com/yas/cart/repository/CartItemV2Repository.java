@@ -1,7 +1,7 @@
 package com.yas.cart.repository;
 
-import com.yas.cart.model.CartItemV2Id;
 import com.yas.cart.model.CartItemV2;
+import com.yas.cart.model.CartItemV2Id;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import java.util.List;
