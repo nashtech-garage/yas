@@ -4,8 +4,10 @@ import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.kafka.annotation.EnableKafkaStreams;
 
 @SpringBootApplication
+@EnableKafkaStreams
 @EnableConfigurationProperties(EmbeddingSearchConfiguration.class)
 public class RecommendationApplication {
 
