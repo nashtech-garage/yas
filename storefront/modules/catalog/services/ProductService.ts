@@ -4,6 +4,7 @@ import { ProductAll, ProductFeature } from '../models/ProductFeature';
 import { ProductOptionValueGet } from '../models/ProductOptionValueGet';
 import { ProductVariation } from '../models/ProductVariation';
 import { ProductsGet } from '../models/ProductsGet';
+import { SimilarProduct } from '../models/SimilarProduct';
 
 export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
   const response = await fetch(`api/product/storefront/products/featured?pageNo=${pageNo}`);
@@ -46,6 +47,17 @@ export async function getProductSlug(productId: number): Promise<ProductSlug> {
 
 export async function getRelatedProductsByProductId(productId: number): Promise<ProductsGet> {
   const res = await fetch(`/api/product/storefront/products/related-products/${productId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (res.status >= 200 && res.status < 300) return res.json();
+  return Promise.reject(res);
+}
+
+export async function getSimilarProductsByProductId(productId: number): Promise<SimilarProduct[]> {
+  const res = await fetch(`/api/recommendation/embedding/product/${productId}/similarity`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

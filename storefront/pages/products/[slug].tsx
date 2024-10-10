@@ -8,7 +8,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { ProductDetails, RelatedProduct } from '../../modules/catalog/components';
+import { ProductDetails, RelatedProduct, SimilarProduct } from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
 import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
@@ -260,6 +260,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
 
       {/* Related products */}
       <RelatedProduct productId={product.id} />
+      <SimilarProduct productId={product.id} />
     </Container>
   );
 };
