@@ -6,6 +6,7 @@ import com.yas.recommendation.constant.Action;
 import com.yas.recommendation.vector.product.service.ProductVectorSyncService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProductSyncDataConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumer.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductSyncDataConsumer.class);
 
     /**
      * Service to handle synchronization of product vectors.
@@ -37,9 +39,9 @@ public class ProductSyncDataConsumer {
      *                       The key contains product identifier, and the
      *                       value contains the action type and product data.
      */
-    @KafkaListener(topics = "${product.topic.name}")
+//    @KafkaListener(topics = "${product.topic.name}")
     public void listen(ConsumerRecord<?, ?> consumerRecord) {
-
+        StringSerializer a = null;
         if (consumerRecord != null) {
             JsonObject keyObject = new Gson().fromJson((String) consumerRecord.key(), JsonObject.class);
             if (keyObject != null) {
