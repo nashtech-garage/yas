@@ -4,8 +4,10 @@ import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
+@ComponentScan({"com.yas.recommendation", "com.yas.commonlibrary.kafka.config"})
 @EnableConfigurationProperties(EmbeddingSearchConfiguration.class)
 public class RecommendationApplication {
 
