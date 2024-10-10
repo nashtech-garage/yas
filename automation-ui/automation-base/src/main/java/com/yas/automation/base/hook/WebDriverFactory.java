@@ -1,4 +1,4 @@
-package com.yas.automation.ui.hook;
+package com.yas.automation.base.hook;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;

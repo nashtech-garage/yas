@@ -1,6 +1,6 @@
-package com.yas.automation.ui.page;
+package com.yas.automation.base.page;
 
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import lombok.Getter;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  */
 @Getter
 public class BasePage {
-
+    public static final int MAX_RETRIES = 5;
     private final WebDriverFactory webDriverFactory;
 
     public BasePage(WebDriverFactory webDriverFactory) {
@@ -37,6 +37,35 @@ public class BasePage {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void waitWithRetry(Duration duration, Supplier<Boolean> booleanSupplier) {
+        int attempts = 0;
+
+        // Keep checking the supplier until it returns false or max retries are reached
+        while (attempts < MAX_RETRIES) {
+            // If the condition returns false, stop retrying
+            if (!booleanSupplier.get()) {
+                System.out.println("Condition met on attempt " + (attempts + 1));
+                return;
+            }
+
+            // Sleep for the provided duration between retries
+            try {
+                System.out.println("Attempt " + (attempts + 1) + ": Condition not met, retrying after " + duration.toSeconds() + " seconds.");
+                Thread.sleep(duration.toMillis());
+            } catch (InterruptedException e) {
+                // Handle interruption and exit the retry loop if interrupted
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Thread was interrupted", e);
+            }
+
+            // Increment the retry counter
+            attempts++;
+        }
+
+        // If max retries are reached, log a message or throw an exception
+        System.out.println("Max retry limit reached, condition was not met.");
     }
 
     public void scrollDown() {

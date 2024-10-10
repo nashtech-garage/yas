@@ -1,4 +1,4 @@
-package com.yas.automation.ui.service;
+package com.yas.automation.base.service;
 
 import org.openqa.selenium.WebElement;
 
