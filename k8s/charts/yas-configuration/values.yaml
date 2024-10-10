@@ -84,6 +84,7 @@ applicationConfig:
       search: http://search/search
       tax: http://tax/tax
       sampledata: http://sampledata/sampledata
+      recommendation: http://recommendation/recommendation
 
 # Gateway config for bff microservices
 gatewayRoutesConfig:
