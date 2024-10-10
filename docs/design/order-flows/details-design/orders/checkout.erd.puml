@@ -5,11 +5,13 @@ entity checkout {
   --
   promotion_code: string 
   status: string
+  progress: string
   customer_id: UUID,
   shipment_method_id: UUID,
   payment_method_id: UUID,
   shipping_address_id: UUID,
-  last_error: json,
+  last_error: json,  
+  attributes: json,
   total_amount: numeric(12, 4)
   total_shipment_fee: numeric(12, 4)
   total_shipment_tax: numeric(12, 4)

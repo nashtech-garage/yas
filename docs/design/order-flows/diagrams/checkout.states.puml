@@ -5,15 +5,40 @@ title Checkout Lifecycle
 CHECKED_OUT -up-> CHECKED_OUT: update-info \n (payment method, \n shipment provider, \n shipping address)
 CHECKED_OUT -down-> PAYMENT_PROCESSING: process-payment
 PAYMENT_PROCESSING -down-> PAYMENT_CONFIRMED: payment-confirmed
-PAYMENT_PROCESSING -[#red]-> CHECKED_OUT: out-of-stock/\npayment-error
+PAYMENT_PROCESSING -[#red]-> CHECKED_OUT: update-info
+PAYMENT_PROCESSING -[#red]right-> PAYMENT_FAILED #f1948a: payment-failure
+PAYMENT_FAILED -[#red]up-> CHECKED_OUT: update-info
 PAYMENT_CONFIRMED -down-> FULFILLED: create-order
 FULFILLED -down-> [*]
+
+state PAYMENT_PROCESSING {
+  [*] -> PROMOTION_CODE_APPLIED: apply-promotion-code
+  [*] -> STOCK_LOCKED: lock-stocks
+  PROMOTION_CODE_APPLIED -[#red]-> PROMOTION_CODE_APPLYING_FAILED #f1948a: apply-promotion-code-failed
+  PROMOTION_CODE_APPLIED -> STOCK_LOCKED: lock-stocks
+  STOCK_LOCKED -[#red]-> STOCK_LOCKING_FAILED #f1948a: lock-stocks-failed
+  STOCK_LOCKED -> PAYMENT_CREATED: create-payment
+  PAYMENT_CREATED -[#red]down-> PAYMENT_CREATING_FAILED #f1948a: create-payment-failed
+  PAYMENT_CREATED -right-> [*]
+  PAYMENT_CREATING_FAILED -[#red]up-> [*]
+  
+  PROMOTION_CODE_APPLIED: lock-stocks
+  STOCK_LOCKED: create-payment
+  PROMOTION_CODE_APPLYING_FAILED: update-info
+  STOCK_LOCKING_FAILED: rollback-promotion
+  STOCK_LOCKING_FAILED: update-info
+  PAYMENT_CREATING_FAILED: rollback-promotion
+  PAYMENT_CREATING_FAILED: rollback-product-stocks
+  PAYMENT_CREATING_FAILED: update-info
+  PAYMENT_CREATED: process-payment
+  PAYMENT_CREATED: confirm-cod
+}
 
 CHECKED_OUT: update-info
 CHECKED_OUT: process-payment
 PAYMENT_PROCESSING: payment-confirmed
 PAYMENT_PROCESSING: out-of-stock
-PAYMENT_PROCESSING: payment-error
+PAYMENT_PROCESSING: payment-failure
 PAYMENT_CONFIRMED: create-order
-
+PAYMENT_FAILED: update-info
 @enduml

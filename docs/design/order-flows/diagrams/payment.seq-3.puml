@@ -48,7 +48,7 @@ activate payment_provider #73c6b6
     order_service -> checkout: update { status=PAYMENT_CONFIRMED }
     order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
     order --> order_service: order
-    order_service --> shopping_cart: DELETE cart/items?{products:[{productIds, quantity}]}
+    order_service --> shopping_cart: POST cart/items/remove {products:[{productIds, quantity}]}
     order_service --> notification_service
     activate notification_service #fad7a0
       notification_service --> customer: notification for order creation

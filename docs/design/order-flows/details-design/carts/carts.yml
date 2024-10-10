@@ -20,6 +20,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CartItem' 
+  /cart/items/remove:
+    post:
+      summary: Adjust Shopping Cart 
+      operationId: adjustCartItems  
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                type: array
+                items:
+                  type: object 
+                  properties:
+                    productId:
+                      type: integer
+                      format: int64
+                    quantity:
+                      type: integer
+                      format: int32
+                      minimum: 1
+      responses:
+        '200':
+          description: A list of carts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItem' 
   /cart/items/{productId}:
     put: 
       summary: Update a cart item of current customer
@@ -55,6 +84,7 @@ paths:
       responses:
         '204':
           description: Delete Cart Item successfully
+  
 components:
   securitySchemes:
     cookieAuth:
