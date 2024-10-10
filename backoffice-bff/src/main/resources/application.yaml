@@ -20,6 +20,12 @@ spring:
             client-id: backoffice-bff
             client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF #gitleaks:allow
             scope: openid, profile, email, roles
+  data:
+    redis:
+      host: redis
+      port: 6379
+  session:
+    store-type: redis
 management:
   tracing:
     sampling:
@@ -42,6 +48,8 @@ spring:
       on-profile: "dev"
   cloud:
     gateway:
+      default-filters:
+        - SaveSession
       routes:
         # Changes for your local development should not be committed
         - id: api_servicename_local
@@ -69,6 +77,8 @@ spring:
       on-profile: "prod"
   cloud:
     gateway:
+      default-filters:
+        - SaveSession
       routes:
         - id: api
           uri: http://nginx
