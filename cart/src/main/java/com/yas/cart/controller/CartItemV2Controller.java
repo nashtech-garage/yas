@@ -1,6 +1,7 @@
 package com.yas.cart.controller;
 
 import com.yas.cart.service.CartItemV2Service;
+import com.yas.cart.viewmodel.CartItemV2DeleteVm;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
@@ -36,6 +37,13 @@ public class CartItemV2Controller {
     @GetMapping("/storefront/cart/items")
     public ResponseEntity<List<CartItemV2GetVm>> getCartItems() {
         List<CartItemV2GetVm> cartItemGetVms = cartItemService.getCartItems();
+        return ResponseEntity.ok(cartItemGetVms);
+    }
+
+    @PostMapping("/storefront/cart/items/remove")
+    public ResponseEntity<List<CartItemV2GetVm>> removeCartItems(
+        @RequestBody List<@Valid CartItemV2DeleteVm> cartItemDeleteVms) {
+        List<CartItemV2GetVm> cartItemGetVms = cartItemService.adjustOrDeleteCartItem(cartItemDeleteVms);
         return ResponseEntity.ok(cartItemGetVms);
     }
 }

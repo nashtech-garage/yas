@@ -1,6 +1,7 @@
 package com.yas.cart.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.cart.service.CartItemV2Service;
+import com.yas.cart.viewmodel.CartItemV2DeleteVm;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
@@ -37,6 +39,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @AutoConfigureMockMvc(addFilters = false)
 class CartItemV2ControllerTest {
 
+    private static final Long PRODUCT_ID_SAMPLE = 1L;
+    private static final String CUSTOMER_ID_SAMPLE = "customerId";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -54,7 +59,7 @@ class CartItemV2ControllerTest {
         @BeforeEach
         void setUp() {
             cartItemPostVmBuilder = CartItemV2PostVm.builder()
-                .productId(1L)
+                .productId(PRODUCT_ID_SAMPLE)
                 .quantity(1);
         }
 
@@ -111,7 +116,6 @@ class CartItemV2ControllerTest {
     @Nested
     class UpdateCartItemTest {
 
-        private static final Long PRODUCT_ID_SAMPLE = 1L;
         private CartItemV2PutVm cartItemPutVm;
 
         @Test
@@ -133,7 +137,7 @@ class CartItemV2ControllerTest {
                 .builder()
                 .productId(PRODUCT_ID_SAMPLE)
                 .quantity(1)
-                .customerId("customerId")
+                .customerId(CUSTOMER_ID_SAMPLE)
                 .build();
 
             when(cartItemService.updateCartItem(anyLong(), any())).thenReturn(expectedCartItemGetVm);
@@ -179,6 +183,58 @@ class CartItemV2ControllerTest {
                 .andExpect(jsonPath("$[0].quantity").value(expectedCartItem.quantity()));
 
             verify(cartItemService).getCartItems();
+        }
+    }
+
+    @Nested
+    class AdjustOrDeleteCartItemTest {
+
+        private CartItemV2DeleteVm cartItemPutVm;
+
+        @Test
+        void testAdjustOrDeleteCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
+            cartItemPutVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, null);
+            performAdjustOrDeleteCartItemAndExpectBadRequest(cartItemPutVm);
+        }
+
+        @Test
+        void testAdjustOrDeleteCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
+            cartItemPutVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, -1);
+            performAdjustOrDeleteCartItemAndExpectBadRequest(cartItemPutVm);
+        }
+
+        @Test
+        void testAdjustOrDeleteCartItem_whenRequestIsValid_shouldReturnUpdatedCartItems() throws Exception {
+            CartItemV2DeleteVm cartItemDeleteVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, 1);
+            CartItemV2GetVm expectedCartItemGetVm = CartItemV2GetVm
+                .builder()
+                .productId(PRODUCT_ID_SAMPLE)
+                .quantity(1)
+                .customerId(CUSTOMER_ID_SAMPLE)
+                .build();
+
+            when(cartItemService.adjustOrDeleteCartItem(anyList())).thenReturn(List.of(expectedCartItemGetVm));
+
+            mockMvc.perform(buildAdjustOrDeleteCartItemRequest(cartItemDeleteVm))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].customerId").value(expectedCartItemGetVm.customerId()))
+                .andExpect(jsonPath("$[0].productId").value(expectedCartItemGetVm.productId()))
+                .andExpect(jsonPath("$[0].quantity").value(expectedCartItemGetVm.quantity()));
+
+            verify(cartItemService).adjustOrDeleteCartItem(anyList());
+        }
+
+        private void performAdjustOrDeleteCartItemAndExpectBadRequest(CartItemV2DeleteVm cartItemDeleteVm)
+            throws Exception {
+            mockMvc.perform(buildAdjustOrDeleteCartItemRequest(cartItemDeleteVm))
+                .andExpect(status().isBadRequest());
+        }
+
+        private MockHttpServletRequestBuilder buildAdjustOrDeleteCartItemRequest(CartItemV2DeleteVm cartItemDeleteVm)
+            throws Exception {
+            return post("/storefront/cart/items/remove")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of(cartItemDeleteVm)));
         }
     }
 }

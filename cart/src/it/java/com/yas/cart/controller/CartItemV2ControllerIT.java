@@ -5,14 +5,17 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import com.yas.cart.model.CartItemV2;
 import com.yas.cart.repository.CartItemV2Repository;
 import com.yas.cart.service.ProductService;
+import com.yas.cart.viewmodel.CartItemV2DeleteVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import io.restassured.response.ValidatableResponse;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -134,6 +137,56 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
                 .log().ifValidationFails();
         }
 
+    }
+
+    @Nested
+    class AdjustOrDeleteCartItemTest {
+        private CartItemV2 existingCartItem;
+
+        @BeforeEach
+        void setUp() {
+            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 10);
+            when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
+            performCreateCartItemAndExpectSuccess(cartItemPostVm);
+            existingCartItem = CartItemV2
+                .builder()
+                .productId(cartItemPostVm.productId())
+                .quantity(cartItemPostVm.quantity())
+                .build();
+        }
+
+        @Test
+        void testAdjustOrDeleteCartItem_whenDeleteQuantityIsGreaterThanOrEqualToCartItemQuantity_shouldDeleteCartItem() {
+            CartItemV2DeleteVm cartItemDeleteVm =
+                new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() + 1);
+
+            givenLoggedInAsAdmin()
+                .when()
+                .body(List.of(cartItemDeleteVm))
+                .post("/v1/storefront/cart/items/remove")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(0))
+                .log().ifValidationFails();
+        }
+
+        @Test
+        void testAdjustOrDeleteCartItem_whenDeleteQuantityIsLessThanCartItemQuantity_shouldAdjustCartItemQuantity() {
+            CartItemV2DeleteVm cartItemDeleteVm =
+                new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() - 1);
+            int expectedQuantity = existingCartItem.getQuantity() - cartItemDeleteVm.quantity();
+
+            givenLoggedInAsAdmin()
+                .when()
+                .body(List.of(cartItemDeleteVm))
+                .post("/v1/storefront/cart/items/remove")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(1))
+                .body("[0].productId", equalTo(existingCartItem.getProductId()))
+                .body("[0].quantity", equalTo(expectedQuantity))
+                .log().ifValidationFails();
+        }
     }
 
     private ValidatableResponse performCreateCartItemAndExpectSuccess(CartItemV2PostVm cartItemPostVm) {

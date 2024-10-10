@@ -15,7 +15,12 @@ public interface CartItemV2Repository extends JpaRepository<CartItemV2, CartItem
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "0")})
     @Query("SELECT c FROM CartItemV2 c WHERE c.customerId = :customerId AND c.productId = :productId")
-    Optional<CartItemV2> findWithLock(String customerId, Long productId);
+    Optional<CartItemV2> findOneWithLock(String customerId, Long productId);
 
     List<CartItemV2> findByCustomerId(String customerId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "0")})
+    @Query("SELECT c FROM CartItemV2 c WHERE c.customerId = :customerId AND c.productId IN :productIds")
+    List<CartItemV2> findWithLock(String customerId, List<Long> productIds);
 }
