@@ -55,7 +55,7 @@
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <keycloak-spring-security-adapter.version>21.0.2</keycloak-spring-security-adapter.version>
-        <org.keycloak.version>16.1.0</org.keycloak.version>
+        <org.keycloak.version>24.0.0</org.keycloak.version>
         <commons-validator.version>1.7</commons-validator.version>
         <org.elasticsearch.version>8.14.0</org.elasticsearch.version>
         <paypal-checkout-sdk.version>2.0.0</paypal-checkout-sdk.version>
