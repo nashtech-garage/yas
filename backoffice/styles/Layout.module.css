@@ -14,7 +14,6 @@
 #main {
   transition: all 0.3s;
   min-height: calc(100vh - 60px - 10rem);
-  padding-left: 3rem;
 }
 
 .footer {

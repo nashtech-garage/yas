@@ -15,6 +15,11 @@ export async function getProducts(
   return (await apiClientService.get(url)).json();
 }
 
+export async function getLatestProducts(count: number): Promise<Product[]> {
+  const url = `${baseUrl}/products/latest/${count}`;
+  return (await apiClientService.get(url)).json();
+}
+
 export async function exportProducts(productName: string, brandName: string) {
   const url = `${baseUrl}/export/products?product-name=${productName}&brand-name=${brandName}`;
   return (await apiClientService.get(url)).json();

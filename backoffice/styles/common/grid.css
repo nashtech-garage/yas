@@ -1,0 +1,20 @@
+.id-column {
+  width: 50px;
+  word-wrap: break-word;
+}
+
+.identify-column {
+  min-width: 300px;
+  width: 500px;
+  word-wrap: break-word;
+}
+
+.created-on-column {
+  width: 300px;
+  word-wrap: break-word;
+}
+
+.details-column {
+  width: 40px;
+  word-wrap: break-word;
+}

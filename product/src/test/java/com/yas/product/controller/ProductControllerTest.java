@@ -212,9 +212,11 @@ class ProductControllerTest {
         // Mock the response from productService
         List<ProductListVm> mockProductList = List.of(
             new ProductListVm(1L, "Product 1", "product1", true,
-                true, false, true, 100.0, ZonedDateTime.now(), 1L),
+                true, false, true,
+                100.0, ZonedDateTime.now(), 1L, 1L),
             new ProductListVm(2L, "Product 2", "product2", true,
-                true, false, true, 200.0, ZonedDateTime.now(), 1L)
+                true, false, true, 200.0,
+                ZonedDateTime.now(), 1L, 1L)
         );
         when(productService.getProductByCategoryIds(anyList())).thenReturn(mockProductList);
 
@@ -237,9 +239,9 @@ class ProductControllerTest {
         // Mock the response from productService
         List<ProductListVm> mockProductList = List.of(
             new ProductListVm(3L, "Product 3", "product3", true, true,
-                false, true, 100.0, ZonedDateTime.now(), 1L),
+                false, true, 100.0, ZonedDateTime.now(), 1L, 1L),
             new ProductListVm(4L, "Product 4", "product4", true, true,
-                false, true, 200.0, ZonedDateTime.now(), 1L)
+                false, true, 200.0, ZonedDateTime.now(), 1L, 1L)
         );
         when(productService.getProductByBrandIds(anyList())).thenReturn(mockProductList);
 
@@ -262,9 +264,11 @@ class ProductControllerTest {
 
         List<ProductListVm> mockProductList = List.of(
                 new ProductListVm(3L, "Product 3", "product3", true, true,
-                        false, true, 100.0, ZonedDateTime.now(), 1L),
+                        false, true, 100.0,
+                    ZonedDateTime.now(), 1L, 1L),
                 new ProductListVm(4L, "Product 4", "product4", true, true,
-                        false, true, 200.0, ZonedDateTime.now(), 1L)
+                        false, true, 200.0,
+                    ZonedDateTime.now(), 1L, 1L)
         );
         when(productService.getLatestProducts(1)).thenReturn(mockProductList);
 

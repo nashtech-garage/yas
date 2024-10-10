@@ -34,5 +34,6 @@ public record ProductDetailVm(
         String metaDescription,
         ImageVm thumbnailMedia,
         List<ImageVm> productImageMedias,
-        Long taxClassId) {
+        Long taxClassId,
+        Long parentId) {
 }

@@ -31,4 +31,5 @@ export type Product = {
   productImageMedias: Media[];
   createdOn: Date;
   taxClassId: number;
+  parentId: number;
 };
