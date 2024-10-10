@@ -648,34 +648,37 @@ public class ProductService {
         if (null != product.getBrand()) {
             brandId = product.getBrand().getId();
         }
-        return new ProductDetailVm(product.getId(),
-            product.getName(),
-            product.getShortDescription(),
-            product.getDescription(),
-            product.getSpecification(),
-            product.getSku(),
-            product.getGtin(),
-            product.getSlug(),
-            product.isAllowedToOrder(),
-            product.isPublished(),
-            product.isFeatured(),
-            product.isVisibleIndividually(),
-            product.isStockTrackingEnabled(),
-            product.getPrice(),
-            product.getDimensionUnit(),
-            product.getWeight(),
-            product.getLength(),
-            product.getWidth(),
-            product.getHeight(),
-            brandId,
-            categories,
-            product.getMetaTitle(),
-            product.getMetaKeyword(),
-            product.getMetaDescription(),
-            thumbnailMedia,
-            productImageMedias,
-            product.getTaxClassId()
-        );
+
+        return ProductDetailVm.builder()
+            .id(product.getId())
+            .name(product.getName())
+            .shortDescription(product.getShortDescription())
+            .description(product.getDescription())
+            .specification(product.getSpecification())
+            .sku(product.getSku())
+            .gtin(product.getGtin())
+            .slug(product.getSlug())
+            .isAllowedToOrder(product.isAllowedToOrder())
+            .isPublished(product.isPublished())
+            .isFeatured(product.isFeatured())
+            .isVisible(product.isVisibleIndividually())
+            .stockTrackingEnabled(product.isStockTrackingEnabled())
+            .weight(product.getWeight())
+            .dimensionUnit(product.getDimensionUnit())
+            .length(product.getLength())
+            .width(product.getWidth())
+            .height(product.getHeight())
+            .price(product.getPrice())
+            .brandId(brandId)
+            .categories(categories)
+            .metaTitle(product.getMetaTitle())
+            .metaKeyword(product.getMetaKeyword())
+            .metaDescription(product.getMetaDescription())
+            .thumbnailMedia(thumbnailMedia)
+            .productImageMedias(productImageMedias)
+            .taxClassId(product.getTaxClassId())
+            .build();
+
     }
 
     public List<ProductListVm> getLatestProducts(int count) {
