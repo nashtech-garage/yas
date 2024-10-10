@@ -34,11 +34,21 @@ const MultipleAutoComplete = (props: props) => {
     }, 150);
   };
 
-  const selectOption = (option: any) => {
-    setOptionSelecteds([...optionSelecteds, option]);
-    props.onSelect(option.id);
-  };
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const selectOption = (option: any) => {
+    const isOptionAlreadySelected = optionSelecteds.some(
+      (selectedOption) => selectedOption.id === option.id
+    );
+
+    if (!isOptionAlreadySelected) {
+      setOptionSelecteds([...optionSelecteds, option]);
+      props.onSelect(option.id);
+      setErrorMessage(null);
+    } else {
+      setErrorMessage('These options have been selected. Please choose another option.');
+    }
+  };
   const removeOption = (option: any) => {
     setOptionSelecteds(optionSelecteds.filter((item) => item.id !== option.id));
     props.onRemoveElement(option.id);
@@ -102,6 +112,12 @@ const MultipleAutoComplete = (props: props) => {
               ></span>
             </div>
           ))}
+
+          {errorMessage && (
+            <div className="alert alert-danger" style={{ color: 'red', marginTop: '10px' }}>
+              {errorMessage}
+            </div>
+          )}
         </div>
       )}
     </div>
