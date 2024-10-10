@@ -107,14 +107,6 @@ public class ApiExceptionHandler {
         return buildErrorResponse(status, message, null, ex, request, 403);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorVm> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
-        HttpStatus status = HttpStatus.FORBIDDEN;
-        String message = ex.getMessage();
-
-        return buildErrorResponse(status, message, null, ex, request, 403);
-    }
-
     @ExceptionHandler(WrongEmailFormatException.class)
     public ResponseEntity<ErrorVm> handleWrongEmailFormatException(WrongEmailFormatException ex, WebRequest request) {
         return handleBadRequest(ex, request);
@@ -145,16 +137,6 @@ public class ApiExceptionHandler {
 
         return buildErrorResponse(status, message, null, ex, request, 403);
     }
-
-    @ExceptionHandler(ResourceExistedException.class)
-    public ResponseEntity<ErrorVm> handleResourceExistedException(ResourceExistedException ex, WebRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        String message = ex.getMessage();
-
-        return buildErrorResponse(status, message, null, ex, request, 409);
-    }
-
-
 
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
