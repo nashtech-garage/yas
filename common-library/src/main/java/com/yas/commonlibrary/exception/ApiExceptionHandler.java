@@ -107,6 +107,37 @@ public class ApiExceptionHandler {
         return buildErrorResponse(status, message, null, ex, request, 403);
     }
 
+    @ExceptionHandler(WrongEmailFormatException.class)
+    public ResponseEntity<ErrorVm> handleWrongEmailFormatException(WrongEmailFormatException ex, WebRequest request) {
+        return handleBadRequest(ex, request);
+    }
+
+    @ExceptionHandler(CreateGuestUserException.class)
+    public ResponseEntity<ErrorVm> handleCreateGuestUserException(CreateGuestUserException ex, WebRequest request) {
+        return handleBadRequest(ex, request);
+    }
+
+    @ExceptionHandler(StockExistingException.class)
+    public ResponseEntity<ErrorVm> handleStockExistingException(StockExistingException ex, WebRequest request) {
+        return handleBadRequest(ex, request);
+    }
+
+    @ExceptionHandler({SignInRequiredException.class})
+    public ResponseEntity<ErrorVm> handleSignInRequired(SignInRequiredException ex) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, null, 403);
+    }
+
+    @ExceptionHandler({Forbidden.class})
+    public ResponseEntity<ErrorVm> handleForbidden(NotFoundException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        String message = ex.getMessage();
+
+        return buildErrorResponse(status, message, null, ex, request, 403);
+    }
+
     private String getServletPath(WebRequest webRequest) {
         ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
         return servletRequest.getRequest().getServletPath();
