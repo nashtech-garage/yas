@@ -2,13 +2,11 @@ package com.yas.recommendation.kafka.consumer;
 
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
 import com.yas.recommendation.vector.product.service.ProductVectorSyncService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
  * Product Sync Data service, support sync product data based on Product CDC message.
  */
-@Slf4j
 @Service
 public class ProductSyncService {
 
@@ -38,7 +36,6 @@ public class ProductSyncService {
                     productVectorSyncService.deleteProductVector(product.getId());
                     break;
                 default:
-                    log.info("Unsupported operation '{}' for product: '{}'", operation, product.getId());
                     break;
             }
         }

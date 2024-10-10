@@ -7,21 +7,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Product CDC kafka listener, support convert product cdc message to java object.
  */
 @EnableKafka
 @Configuration
+@EnableScheduling
 public class ProductCdcKafkaListenerConfig extends BaseKafkaListenerConfig<ProductCdcMessage> {
-
-    public static final String PRODUCT_CDC_LISTENER_CONTAINER_FACTORY = "productCdcListenerContainerFactory";
 
     public ProductCdcKafkaListenerConfig(KafkaProperties kafkaProperties) {
         super(ProductCdcMessage.class, kafkaProperties);
     }
 
-    @Bean(name = PRODUCT_CDC_LISTENER_CONTAINER_FACTORY)
+    @Bean(name = "productCdcListenerContainerFactory")
     @Override
     public ConcurrentKafkaListenerContainerFactory<String, ProductCdcMessage> listenerContainerFactory() {
         return super.kafkaListenerContainerFactory();
