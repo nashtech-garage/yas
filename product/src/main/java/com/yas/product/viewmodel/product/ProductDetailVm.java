@@ -4,7 +4,9 @@ import com.yas.product.model.Category;
 import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.viewmodel.ImageVm;
 import java.util.List;
+import lombok.Builder;
 
+@Builder(toBuilder = true)
 public record ProductDetailVm(
         long id,
         String name,
