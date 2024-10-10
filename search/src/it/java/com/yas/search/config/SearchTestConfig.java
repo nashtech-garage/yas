@@ -6,7 +6,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
-public class IntegrationTestConfig extends IntegrationTestConfiguration {
+public class SearchTestConfig extends IntegrationTestConfiguration {
 
     @Bean(destroyMethod = "stop")
     @ServiceConnection
