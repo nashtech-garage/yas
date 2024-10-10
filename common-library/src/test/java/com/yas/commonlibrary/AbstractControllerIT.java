@@ -45,4 +45,9 @@ public class AbstractControllerIT {
             .then().assertThat().statusCode(200)
             .extract().path("access_token");
     }
+
+    protected RequestSpecification givenLoggedInAsAdmin() {
+        return given(getRequestSpecification())
+            .auth().oauth2(getAccessToken("admin", "admin"));
+    }
 }
