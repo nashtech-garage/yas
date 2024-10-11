@@ -19,7 +19,7 @@ public interface CartItemV2Repository extends JpaRepository<CartItemV2, CartItem
      * @param customerId the ID of the customer whose cart item is being retrieved
      * @param productId the ID of the product for which the cart item should be retrieved
      * @return an {@link Optional} containing the {@link CartItemV2} entity associated with the specified customer
-     * and product ID, or an empty {@link Optional} if no matching cart item is found
+     *         and product ID, or an empty {@link Optional} if no matching cart item is found
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "0")})
