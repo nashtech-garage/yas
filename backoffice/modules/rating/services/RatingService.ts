@@ -10,6 +10,11 @@ export async function getRatings(
   return (await apiClientService.get(url)).json();
 }
 
+export async function getLatestRatings(count: number): Promise<Rating[]> {
+  const url = `${baseUrl}/latest/${count}`;
+  return (await apiClientService.get(url)).json();
+}
+
 export async function deleteRatingById(id: number) {
   const url = `${baseUrl}/${id}`;
   return (await apiClientService.delete(url)).json();

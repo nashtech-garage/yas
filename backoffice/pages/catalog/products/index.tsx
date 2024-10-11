@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, InputGroup, Stack, Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import { FaSearch } from 'react-icons/fa';

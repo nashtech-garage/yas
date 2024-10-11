@@ -7,14 +7,15 @@ export async function getOrders(
   params: string
 ): Promise<{ orderList: Order[]; totalPages: number; totalElements: number }> {
   const url = `${baseUrl}?${params}`;
-  const response = await apiClientService.get(url);
-  if (response.status >= 200 && response.status < 300) return response.json();
-  return Promise.reject(response);
+  return (await apiClientService.get(url)).json();
+}
+
+export async function getLatestOrders(count: number): Promise<Order[]> {
+  const url = `${baseUrl}/latest/${count}`;
+  return (await apiClientService.get(url)).json();
 }
 
 export async function getOrderById(id: number) {
   const url = `${baseUrl}/${id}`;
-  const response = await apiClientService.get(url);
-  if (response.status >= 200 && response.status < 300) return response.json();
-  return Promise.reject(response);
+  return (await apiClientService.get(url)).json();
 }
