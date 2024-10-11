@@ -1,14 +1,8 @@
 package com.yas.product.controller;
 
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.yas.product.ProductApplication;
 import com.yas.product.model.enumeration.DimensionUnit;
+import com.yas.product.service.ProductDetailService;
 import com.yas.product.service.ProductService;
 import com.yas.product.viewmodel.product.ProductListVm;
 import com.yas.product.viewmodel.product.ProductPostVm;
@@ -18,6 +12,10 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,6 +25,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith(SpringExtension.class)
@@ -39,6 +39,9 @@ class ProductControllerTest {
 
     @MockBean
     private ProductService productService;
+
+    @MockBean
+    private ProductDetailService productDetailService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -57,13 +60,13 @@ class ProductControllerTest {
     @Test
     void testCreateProductEndpoint() throws Exception {
         ProductPostVm productPostVm = new ProductPostVm(
-                "Laptop","laptop-1",1L,
-                List.of(1L),"short-description","description",
-                "specification","laptop-sku", "laptop-gtin",
-                10d, DimensionUnit.CM, 10d, 10d, 10d,50000D,
-                true, true,true, true,  true,
+                "Laptop", "laptop-1", 1L,
+                List.of(1L), "short-description", "description",
+                "specification", "laptop-sku", "laptop-gtin",
+                10d, DimensionUnit.CM, 10d, 10d, 10d, 50000D,
+                true, true, true, true, true,
                 "laptop-meta", "laptop-keywords", "laptop--meta-description",
-                1L,null,null,null, null, 1L);
+                1L, null, null, null, null, 1L);
         String jsonBody = objectMapper.writeValueAsString(productPostVm);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/backoffice/products")
@@ -75,13 +78,13 @@ class ProductControllerTest {
     @Test
     void testUpdateProductEndpoint() throws Exception {
         ProductPutVm productPutVm = new ProductPutVm(
-                "Laptop","laptop-1",50000D,
-                true,true, true, true, true,
+                "Laptop", "laptop-1", 50000D,
+                true, true, true, true, true,
                 1L, List.of(1L), "laptop-short-description",
-                "laptop-description",null,null,null,
-                10d, DimensionUnit.CM, 10d, 10d, 10d,"laptop-meta-title", "laptop-meta-key",
+                "laptop-description", null, null, null,
+                10d, DimensionUnit.CM, 10d, 10d, 10d, "laptop-meta-title", "laptop-meta-key",
                 "laptop--meta-description", 1L, null, null, null,
-                null,  null
+                null, null
 
         );
         String jsonBody = objectMapper.writeValueAsString(productPutVm);
@@ -197,7 +200,7 @@ class ProductControllerTest {
 
     @Test
     void testSubtractProductQuantity() throws Exception {
-        List<ProductQuantityPutVm> productQuantityPutVmList = List.of(new ProductQuantityPutVm(1L ,10L));
+        List<ProductQuantityPutVm> productQuantityPutVmList = List.of(new ProductQuantityPutVm(1L, 10L));
 
         String jsonBody = objectMapper.writeValueAsString(productQuantityPutVmList);
 
@@ -222,13 +225,13 @@ class ProductControllerTest {
 
         // Perform the GET request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.get("/backoffice/products/by-categories")
-                .param("ids", "1", "2")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].id").value(1L))
-            .andExpect(jsonPath("$[0].name").value("Product 1"))
-            .andExpect(jsonPath("$[1].id").value(2L))
-            .andExpect(jsonPath("$[1].name").value("Product 2"));
+                        .param("ids", "1", "2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].name").value("Product 1"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].name").value("Product 2"));
 
         // Verify interaction with the service
         verify(productService, times(1)).getProductByCategoryIds(anyList());
@@ -247,13 +250,13 @@ class ProductControllerTest {
 
         // Perform the GET request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.get("/backoffice/products/by-brands")
-                .param("ids", "3", "4")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].id").value(3L))
-            .andExpect(jsonPath("$[0].name").value("Product 3"))
-            .andExpect(jsonPath("$[1].id").value(4L))
-            .andExpect(jsonPath("$[1].name").value("Product 4"));
+                        .param("ids", "3", "4")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(3L))
+                .andExpect(jsonPath("$[0].name").value("Product 3"))
+                .andExpect(jsonPath("$[1].id").value(4L))
+                .andExpect(jsonPath("$[1].name").value("Product 4"));
 
         // Verify interaction with the service
         verify(productService, times(1)).getProductByBrandIds(anyList());
@@ -281,5 +284,11 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$[1].name").value("Product 4"));
 
         verify(productService, times(1)).getLatestProducts(1);
+    }
+
+    @Test
+    void testGetProductDetailById() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/storefront/products/detail/{productId}", 1))
+                .andExpect(status().isOk());
     }
 }
