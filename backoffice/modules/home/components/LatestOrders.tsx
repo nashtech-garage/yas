@@ -14,6 +14,9 @@ const LatestOrders = () => {
       try {
         const res = await getLatestOrders(5);
         setOrders(res);
+      } catch (error) {
+        console.log(error);
+        setOrders([]);
       } finally {
         setLoading(false);
       }

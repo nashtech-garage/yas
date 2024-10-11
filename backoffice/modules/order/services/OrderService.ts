@@ -12,7 +12,9 @@ export async function getOrders(
 
 export async function getLatestOrders(count: number): Promise<Order[]> {
   const url = `${baseUrl}/latest/${count}`;
-  return (await apiClientService.get(url)).json();
+  const response = await apiClientService.get(url);
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(new Error(response.statusText));
 }
 
 export async function getOrderById(id: number) {

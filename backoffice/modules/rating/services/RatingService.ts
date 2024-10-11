@@ -12,7 +12,9 @@ export async function getRatings(
 
 export async function getLatestRatings(count: number): Promise<Rating[]> {
   const url = `${baseUrl}/latest/${count}`;
-  return (await apiClientService.get(url)).json();
+  const response = await apiClientService.get(url);
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(new Error(response.statusText));
 }
 
 export async function deleteRatingById(id: number) {
