@@ -116,7 +116,7 @@ public class CartItemV2Service {
     }
 
     private void validateCartItemDeleteVms(List<CartItemV2DeleteVm> cartItemDeleteVms) {
-        Map<Long, Integer> quantityByProductId  = new HashMap<>();
+        Map<Long, Integer> quantityByProductId = new HashMap<>();
 
         for (CartItemV2DeleteVm cartItemDeleteVm : cartItemDeleteVms) {
             Integer existingQuantity = quantityByProductId.get(cartItemDeleteVm.productId());
@@ -131,8 +131,13 @@ public class CartItemV2Service {
 
     private Map<Long, CartItemV2> getCartItemsByProductIds(List<CartItemV2DeleteVm> cartItemDeleteVms) {
         String currentUserId = AuthenticationUtils.extractUserId();
-        List<Long> productIds = cartItemDeleteVms.stream().map(CartItemV2DeleteVm::productId).toList();
+        List<Long> productIds = cartItemDeleteVms
+            .stream()
+            .map(CartItemV2DeleteVm::productId)
+            .toList();
         List<CartItemV2> cartItems = cartItemRepository.findWithLock(currentUserId, productIds);
-        return cartItems.stream().collect(Collectors.toMap(CartItemV2::getProductId, Function.identity()));
+        return cartItems
+            .stream()
+            .collect(Collectors.toMap(CartItemV2::getProductId, Function.identity()));
     }
 }

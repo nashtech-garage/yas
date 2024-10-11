@@ -36,6 +36,9 @@ public class CartItemV2Mapper {
     }
 
     public List<CartItemV2GetVm> toGetVmList(List<CartItemV2> cartItems) {
-        return cartItems.stream().map(this::toGetVm).toList();
+        return cartItems
+            .stream()
+            .map(this::toGetVm)
+            .toList();
     }
 }
