@@ -187,24 +187,24 @@ class CartItemV2ControllerTest {
     }
 
     @Nested
-    class AdjustOrDeleteCartItemTest {
+    class DeleteOrAdjustCartItemTest {
 
         private CartItemV2DeleteVm cartItemPutVm;
 
         @Test
-        void testAdjustOrDeleteCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
+        void testDeleteOrAdjustCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
             cartItemPutVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, null);
-            performAdjustOrDeleteCartItemAndExpectBadRequest(cartItemPutVm);
+            performDeleteOrAdjustCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
-        void testAdjustOrDeleteCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
+        void testDeleteOrAdjustCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
             cartItemPutVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, -1);
-            performAdjustOrDeleteCartItemAndExpectBadRequest(cartItemPutVm);
+            performDeleteOrAdjustCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
-        void testAdjustOrDeleteCartItem_whenRequestIsValid_shouldReturnUpdatedCartItems() throws Exception {
+        void testDeleteOrAdjustCartItem_whenRequestIsValid_shouldReturnUpdatedCartItems() throws Exception {
             CartItemV2DeleteVm cartItemDeleteVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, 1);
             CartItemV2GetVm expectedCartItemGetVm = CartItemV2GetVm
                 .builder()
@@ -213,24 +213,24 @@ class CartItemV2ControllerTest {
                 .customerId(CUSTOMER_ID_SAMPLE)
                 .build();
 
-            when(cartItemService.adjustOrDeleteCartItem(anyList())).thenReturn(List.of(expectedCartItemGetVm));
+            when(cartItemService.deleteOrAdjustCartItem(anyList())).thenReturn(List.of(expectedCartItemGetVm));
 
-            mockMvc.perform(buildAdjustOrDeleteCartItemRequest(cartItemDeleteVm))
+            mockMvc.perform(buildDeleteOrAdjustCartItemRequest(cartItemDeleteVm))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].customerId").value(expectedCartItemGetVm.customerId()))
                 .andExpect(jsonPath("$[0].productId").value(expectedCartItemGetVm.productId()))
                 .andExpect(jsonPath("$[0].quantity").value(expectedCartItemGetVm.quantity()));
 
-            verify(cartItemService).adjustOrDeleteCartItem(anyList());
+            verify(cartItemService).deleteOrAdjustCartItem(anyList());
         }
 
-        private void performAdjustOrDeleteCartItemAndExpectBadRequest(CartItemV2DeleteVm cartItemDeleteVm)
+        private void performDeleteOrAdjustCartItemAndExpectBadRequest(CartItemV2DeleteVm cartItemDeleteVm)
             throws Exception {
-            mockMvc.perform(buildAdjustOrDeleteCartItemRequest(cartItemDeleteVm))
+            mockMvc.perform(buildDeleteOrAdjustCartItemRequest(cartItemDeleteVm))
                 .andExpect(status().isBadRequest());
         }
 
-        private MockHttpServletRequestBuilder buildAdjustOrDeleteCartItemRequest(CartItemV2DeleteVm cartItemDeleteVm)
+        private MockHttpServletRequestBuilder buildDeleteOrAdjustCartItemRequest(CartItemV2DeleteVm cartItemDeleteVm)
             throws Exception {
             return post("/storefront/cart/items/remove")
                 .contentType(MediaType.APPLICATION_JSON)

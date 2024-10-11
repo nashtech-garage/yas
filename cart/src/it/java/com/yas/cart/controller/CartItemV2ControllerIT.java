@@ -140,7 +140,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
     }
 
     @Nested
-    class AdjustOrDeleteCartItemTest {
+    class DeleteOrAdjustCartItemTest {
         private CartItemV2 existingCartItem;
 
         @BeforeEach
@@ -156,7 +156,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
         }
 
         @Test
-        void testAdjustOrDeleteCartItem_whenDeleteQuantityIsGreaterThanOrEqualToCartItemQuantity_shouldDeleteCartItem() {
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityIsGreaterThanOrEqualToCartItemQuantity_shouldDeleteCartItem() {
             CartItemV2DeleteVm cartItemDeleteVm =
                 new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() + 1);
 
@@ -171,7 +171,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
         }
 
         @Test
-        void testAdjustOrDeleteCartItem_whenDeleteQuantityIsLessThanCartItemQuantity_shouldAdjustCartItemQuantity() {
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityIsLessThanCartItemQuantity_shouldAdjustCartItemQuantity() {
             CartItemV2DeleteVm cartItemDeleteVm =
                 new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() - 1);
             int expectedQuantity = existingCartItem.getQuantity() - cartItemDeleteVm.quantity();

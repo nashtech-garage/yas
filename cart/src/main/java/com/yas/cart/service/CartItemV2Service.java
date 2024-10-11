@@ -60,7 +60,7 @@ public class CartItemV2Service {
     }
 
     @Transactional
-    public List<CartItemV2GetVm> adjustOrDeleteCartItem(List<CartItemV2DeleteVm> cartItemDeleteVms) {
+    public List<CartItemV2GetVm> deleteOrAdjustCartItem(List<CartItemV2DeleteVm> cartItemDeleteVms) {
         validateCartItemDeleteVms(cartItemDeleteVms);
 
         Map<Long, CartItemV2> cartItemById = getCartItemsByProductIds(cartItemDeleteVms);

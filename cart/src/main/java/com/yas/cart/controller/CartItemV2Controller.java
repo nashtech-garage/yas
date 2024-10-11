@@ -43,7 +43,7 @@ public class CartItemV2Controller {
     @PostMapping("/storefront/cart/items/remove")
     public ResponseEntity<List<CartItemV2GetVm>> removeCartItems(
         @RequestBody List<@Valid CartItemV2DeleteVm> cartItemDeleteVms) {
-        List<CartItemV2GetVm> cartItemGetVms = cartItemService.adjustOrDeleteCartItem(cartItemDeleteVms);
+        List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
         return ResponseEntity.ok(cartItemGetVms);
     }
 }

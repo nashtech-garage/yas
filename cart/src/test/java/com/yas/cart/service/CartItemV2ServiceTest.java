@@ -191,21 +191,21 @@ class CartItemV2ServiceTest {
     }
 
     @Nested
-    class AdjustOrDeleteCartItemTest {
+    class DeleteOrAdjustCartItemTest {
 
         @Test
-        void testAdjustOrDeleteCartItem_whenCartItemDeleteVmsDuplicated_shouldThrowBadRequestException() {
+        void testDeleteOrAdjustCartItem_whenCartItemDeleteVmsDuplicated_shouldThrowBadRequestException() {
             CartItemV2DeleteVm cartItemDeleteVm1 = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, 1);
             CartItemV2DeleteVm cartItemDeleteVm2 = new CartItemV2DeleteVm(cartItemDeleteVm1.productId(), 2);
 
             List<CartItemV2DeleteVm> cartItemDeleteVms = List.of(cartItemDeleteVm1, cartItemDeleteVm2);
 
             assertThrows(BadRequestException.class,
-                () -> cartItemService.adjustOrDeleteCartItem(cartItemDeleteVms));
+                () -> cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms));
         }
 
         @Test
-        void testAdjustOrDeleteCartItem_whenDeleteQuantityGreaterThanCartItemQuantity_shouldDeleteCartItem() {
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityGreaterThanCartItemQuantity_shouldDeleteCartItem() {
             CartItemV2 existingCartItem = CartItemV2.builder()
                 .customerId(CURRENT_USER_ID_SAMPLE)
                 .productId(PRODUCT_ID_SAMPLE)
@@ -218,14 +218,14 @@ class CartItemV2ServiceTest {
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(cartItemRepository.findWithLock(any(), any())).thenReturn(List.of(existingCartItem));
 
-            List<CartItemV2GetVm> cartItemGetVms = cartItemService.adjustOrDeleteCartItem(cartItemDeleteVms);
+            List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
 
             verify(cartItemRepository).deleteAll(List.of(existingCartItem));
             assertEquals(0, cartItemGetVms.size());
         }
 
         @Test
-        void testAdjustOrDeleteCartItem_whenDeleteQuantityLessThanCartItemQuantity_shouldUpdateCartItem() {
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityLessThanCartItemQuantity_shouldUpdateCartItem() {
             CartItemV2DeleteVm cartItemDeleteVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, 1);
             CartItemV2 existingCartItem = CartItemV2.builder()
                 .customerId(CURRENT_USER_ID_SAMPLE)
@@ -239,7 +239,7 @@ class CartItemV2ServiceTest {
             when(cartItemRepository.findWithLock(any(), any())).thenReturn(List.of(existingCartItem));
             when(cartItemRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-            List<CartItemV2GetVm> cartItemGetVms = cartItemService.adjustOrDeleteCartItem(cartItemDeleteVms);
+            List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
 
             verify(cartItemRepository).saveAll(List.of(existingCartItem));
             assertEquals(1, cartItemGetVms.size());
