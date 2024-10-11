@@ -19,41 +19,41 @@ server {
   location /cart/ {
     proxy_pass http://cart;
   }
-#  location /rating/ {
-#    proxy_pass http://rating;
-#  }
-#  location /order/ {
-#    proxy_pass http://order;
-#  }
-#  location /location/ {
-#    proxy_pass http://location;
-#  }
-#  location /inventory/ {
-#    proxy_pass http://inventory;
-#  }
-#  location /tax/ {
-#    proxy_pass http://tax;
-#  }
-#  location /promotion/ {
-#    proxy_pass http://promotion;
-#  }
-#  location /search/ {
-#    #hack to prevent nginx to resolve container's host on start up
-#    set $docker_search_host "search";
-#    proxy_pass http://$docker_search_host;
-#  }
-#  location /payment/ {
-#    proxy_pass http://payment;
-#  }
-#  location /payment-paypal/ {
-#    proxy_pass http://payment-paypal;
-#  }
-#  location /webhook/ {
-#    proxy_pass http://webhook;
-#  }
-#  location /sampledata/ {
-#    proxy_pass http://sampledata;
-#  }
+  location /rating/ {
+    proxy_pass http://rating;
+  }
+  location /order/ {
+    proxy_pass http://order;
+  }
+  location /location/ {
+    proxy_pass http://location;
+  }
+  location /inventory/ {
+    proxy_pass http://inventory;
+  }
+  location /tax/ {
+    proxy_pass http://tax;
+  }
+  location /promotion/ {
+    proxy_pass http://promotion;
+  }
+  location /search/ {
+    #hack to prevent nginx to resolve container's host on start up
+    set $docker_search_host "search";
+    proxy_pass http://$docker_search_host;
+  }
+  location /payment/ {
+    proxy_pass http://payment;
+  }
+  location /payment-paypal/ {
+    proxy_pass http://payment-paypal;
+  }
+  location /webhook/ {
+    proxy_pass http://webhook;
+  }
+  location /sampledata/ {
+    proxy_pass http://sampledata;
+  }
 }
 
 server {
