@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,7 +93,8 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong())).thenReturn(Optional.of(existingCartItem));
+            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong())).thenReturn(
+                Optional.of(existingCartItem));
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);
@@ -109,7 +111,8 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong())).thenReturn(java.util.Optional.empty());
+            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong())).thenReturn(
+                java.util.Optional.empty());
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);

@@ -88,6 +88,12 @@ public class CartItemV2Service {
         return cartItemMapper.toGetVmList(updatedCartItems);
     }
 
+    @Transactional
+    public void deleteCartItem(Long productId) {
+        String currentUserId = AuthenticationUtils.extractUserId();
+        cartItemRepository.deleteByCustomerIdAndProductId(currentUserId, productId);
+    }
+
     private void validateProduct(Long productId) {
         if (!productService.existsById(productId)) {
             throw new NotFoundException(Constants.ErrorCode.NOT_FOUND_PRODUCT, productId);

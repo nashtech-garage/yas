@@ -3,8 +3,10 @@ package com.yas.cart.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -235,6 +237,19 @@ class CartItemV2ControllerTest {
             return post("/storefront/cart/items/remove")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(List.of(cartItemDeleteVm)));
+        }
+    }
+
+    @Nested
+    class DeleteCartItemTest {
+        @Test
+        void testDeleteCartItem_whenRequestIsValid_shouldReturnNoContent() throws Exception {
+            doNothing().when(cartItemService).deleteCartItem(PRODUCT_ID_SAMPLE);
+
+            mockMvc.perform(delete("/storefront/cart/items/1"))
+                .andExpect(status().isNoContent());
+
+            verify(cartItemService).deleteCartItem(PRODUCT_ID_SAMPLE);
         }
     }
 }

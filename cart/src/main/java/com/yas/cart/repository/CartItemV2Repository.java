@@ -37,4 +37,6 @@ public interface CartItemV2Repository extends JpaRepository<CartItemV2, CartItem
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "0")})
     @Query("SELECT c FROM CartItemV2 c WHERE c.customerId = :customerId AND c.productId IN :productIds")
     List<CartItemV2> findByCustomerIdAndProductIdIn(String customerId, List<Long> productIds);
+
+    void deleteByCustomerIdAndProductId(String customerId, Long productId);
 }
