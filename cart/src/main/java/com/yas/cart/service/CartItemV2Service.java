@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -69,17 +71,15 @@ public class CartItemV2Service {
         List<CartItemV2> cartItemsToAdjust = new ArrayList<>();
 
         for (CartItemV2DeleteVm cartItemDeleteVm : cartItemDeleteVms) {
-            CartItemV2 cartItem = cartItemById.get(cartItemDeleteVm.productId());
-            if (cartItem == null) {
-                continue;
-            }
-
-            if (cartItem.getQuantity() <= cartItemDeleteVm.quantity()) {
-                cartItemsToDelete.add(cartItem);
-            } else {
-                cartItem.setQuantity(cartItem.getQuantity() - cartItemDeleteVm.quantity());
-                cartItemsToAdjust.add(cartItem);
-            }
+            Optional<CartItemV2> optionalCartItem = Optional.ofNullable(cartItemById.get(cartItemDeleteVm.productId()));
+            optionalCartItem.ifPresent(cartItem -> {
+                if (cartItem.getQuantity() <= cartItemDeleteVm.quantity()) {
+                    cartItemsToDelete.add(cartItem);
+                } else {
+                    cartItem.setQuantity(cartItem.getQuantity() - cartItemDeleteVm.quantity());
+                    cartItemsToAdjust.add(cartItem);
+                }
+            });
         }
 
         cartItemRepository.deleteAll(cartItemsToDelete);
@@ -96,7 +96,7 @@ public class CartItemV2Service {
 
     private CartItemV2 performAddCartItem(CartItemV2PostVm cartItemPostVm, String currentUserId) {
         try {
-            return cartItemRepository.findOneWithLock(currentUserId, cartItemPostVm.productId())
+            return cartItemRepository.findByCustomerIdAndProductId(currentUserId, cartItemPostVm.productId())
                 .map(existingCartItem -> updateExistingCartItem(cartItemPostVm, existingCartItem))
                 .orElseGet(() -> createNewCartItem(cartItemPostVm, currentUserId));
         } catch (PessimisticLockingFailureException e) {
@@ -121,7 +121,7 @@ public class CartItemV2Service {
         for (CartItemV2DeleteVm cartItemDeleteVm : cartItemDeleteVms) {
             Integer existingQuantity = quantityByProductId.get(cartItemDeleteVm.productId());
 
-            if (existingQuantity != null && !existingQuantity.equals(cartItemDeleteVm.quantity())) {
+            if (!Objects.isNull(existingQuantity) && !existingQuantity.equals(cartItemDeleteVm.quantity())) {
                 throw new BadRequestException(Constants.ErrorCode.DUPLICATED_CART_ITEMS_TO_DELETE);
             }
 
@@ -135,7 +135,7 @@ public class CartItemV2Service {
             .stream()
             .map(CartItemV2DeleteVm::productId)
             .toList();
-        List<CartItemV2> cartItems = cartItemRepository.findWithLock(currentUserId, productIds);
+        List<CartItemV2> cartItems = cartItemRepository.findByCustomerIdAndProductIdIn(currentUserId, productIds);
         return cartItems
             .stream()
             .collect(Collectors.toMap(CartItemV2::getProductId, Function.identity()));

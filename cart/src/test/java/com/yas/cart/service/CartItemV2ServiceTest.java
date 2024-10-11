@@ -92,7 +92,7 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findOneWithLock(anyString(), anyLong())).thenReturn(Optional.of(existingCartItem));
+            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong())).thenReturn(Optional.of(existingCartItem));
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);
@@ -109,7 +109,7 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findOneWithLock(anyString(), anyLong())).thenReturn(java.util.Optional.empty());
+            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong())).thenReturn(java.util.Optional.empty());
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);
@@ -126,7 +126,7 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findOneWithLock(anyString(), anyLong()))
+            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong()))
                 .thenThrow(new PessimisticLockingFailureException("Locking failed"));
 
             assertThrows(InternalServerErrorException.class, () -> cartItemService.addCartItem(cartItemPostVm));
@@ -216,7 +216,7 @@ class CartItemV2ServiceTest {
             List<CartItemV2DeleteVm> cartItemDeleteVms = List.of(cartItemDeleteVm);
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
-            when(cartItemRepository.findWithLock(any(), any())).thenReturn(List.of(existingCartItem));
+            when(cartItemRepository.findByCustomerIdAndProductIdIn(any(), any())).thenReturn(List.of(existingCartItem));
 
             List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
 
@@ -236,7 +236,7 @@ class CartItemV2ServiceTest {
             int expectedQuantity = existingCartItem.getQuantity() - cartItemDeleteVm.quantity();
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
-            when(cartItemRepository.findWithLock(any(), any())).thenReturn(List.of(existingCartItem));
+            when(cartItemRepository.findByCustomerIdAndProductIdIn(any(), any())).thenReturn(List.of(existingCartItem));
             when(cartItemRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
