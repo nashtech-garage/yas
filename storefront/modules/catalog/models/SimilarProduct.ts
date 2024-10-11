@@ -4,7 +4,7 @@ export type SimilarProduct = {
   slug: string;
   price: number;
   thumbnail: {
-      id: number;
-      url: string;
-  }
+    id: number;
+    url: string;
+  };
 };
