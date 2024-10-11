@@ -12,9 +12,11 @@ import static org.mockito.Mockito.when;
 import com.yas.cart.mapper.CartItemV2Mapper;
 import com.yas.cart.model.CartItemV2;
 import com.yas.cart.repository.CartItemV2Repository;
+import com.yas.cart.viewmodel.CartItemV2DeleteVm;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.InternalServerErrorException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.List;
@@ -54,6 +56,7 @@ class CartItemV2ServiceTest {
     }
 
     private static final String CURRENT_USER_ID_SAMPLE = "userId";
+    private static final Long PRODUCT_ID_SAMPLE = 1L;
 
     @Nested
     class AddCartItemTest {
@@ -62,7 +65,7 @@ class CartItemV2ServiceTest {
         @BeforeEach
         void setUp() {
             cartItemPostVmBuilder = CartItemV2PostVm.builder()
-                .productId(1L)
+                .productId(PRODUCT_ID_SAMPLE)
                 .quantity(1);
         }
 
@@ -89,7 +92,7 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findWithLock(anyString(), anyLong())).thenReturn(Optional.of(existingCartItem));
+            when(cartItemRepository.findOneWithLock(anyString(), anyLong())).thenReturn(Optional.of(existingCartItem));
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);
@@ -106,7 +109,7 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findWithLock(anyString(), anyLong())).thenReturn(java.util.Optional.empty());
+            when(cartItemRepository.findOneWithLock(anyString(), anyLong())).thenReturn(java.util.Optional.empty());
             when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             CartItemV2GetVm cartItem = cartItemService.addCartItem(cartItemPostVm);
@@ -123,7 +126,7 @@ class CartItemV2ServiceTest {
 
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            when(cartItemRepository.findWithLock(anyString(), anyLong()))
+            when(cartItemRepository.findOneWithLock(anyString(), anyLong()))
                 .thenThrow(new PessimisticLockingFailureException("Locking failed"));
 
             assertThrows(InternalServerErrorException.class, () -> cartItemService.addCartItem(cartItemPostVm));
@@ -132,7 +135,6 @@ class CartItemV2ServiceTest {
 
     @Nested
     class UpdateCartItemTest {
-        private static final Long PRODUCT_ID_SAMPLE = 1L;
         private CartItemV2PutVm cartItemPutVm;
 
         @BeforeEach
@@ -185,6 +187,63 @@ class CartItemV2ServiceTest {
 
             verify(cartItemRepository).findByCustomerId(CURRENT_USER_ID_SAMPLE);
             assertEquals(existingCartItems.size(), cartItemGetVms.size());
+        }
+    }
+
+    @Nested
+    class DeleteOrAdjustCartItemTest {
+
+        @Test
+        void testDeleteOrAdjustCartItem_whenCartItemDeleteVmsDuplicated_shouldThrowBadRequestException() {
+            CartItemV2DeleteVm cartItemDeleteVm1 = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, 1);
+            CartItemV2DeleteVm cartItemDeleteVm2 = new CartItemV2DeleteVm(cartItemDeleteVm1.productId(), 2);
+
+            List<CartItemV2DeleteVm> cartItemDeleteVms = List.of(cartItemDeleteVm1, cartItemDeleteVm2);
+
+            assertThrows(BadRequestException.class,
+                () -> cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms));
+        }
+
+        @Test
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityGreaterThanCartItemQuantity_shouldDeleteCartItem() {
+            CartItemV2 existingCartItem = CartItemV2.builder()
+                .customerId(CURRENT_USER_ID_SAMPLE)
+                .productId(PRODUCT_ID_SAMPLE)
+                .quantity(1)
+                .build();
+            CartItemV2DeleteVm cartItemDeleteVm =
+                new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() + 1);
+            List<CartItemV2DeleteVm> cartItemDeleteVms = List.of(cartItemDeleteVm);
+
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            when(cartItemRepository.findWithLock(any(), any())).thenReturn(List.of(existingCartItem));
+
+            List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
+
+            verify(cartItemRepository).deleteAll(List.of(existingCartItem));
+            assertEquals(0, cartItemGetVms.size());
+        }
+
+        @Test
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityLessThanCartItemQuantity_shouldUpdateCartItem() {
+            CartItemV2DeleteVm cartItemDeleteVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, 1);
+            CartItemV2 existingCartItem = CartItemV2.builder()
+                .customerId(CURRENT_USER_ID_SAMPLE)
+                .productId(cartItemDeleteVm.productId())
+                .quantity(cartItemDeleteVm.quantity() + 1)
+                .build();
+            List<CartItemV2DeleteVm> cartItemDeleteVms = List.of(cartItemDeleteVm);
+            int expectedQuantity = existingCartItem.getQuantity() - cartItemDeleteVm.quantity();
+
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            when(cartItemRepository.findWithLock(any(), any())).thenReturn(List.of(existingCartItem));
+            when(cartItemRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+            List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
+
+            verify(cartItemRepository).saveAll(List.of(existingCartItem));
+            assertEquals(1, cartItemGetVms.size());
+            assertEquals(expectedQuantity, cartItemGetVms.getFirst().quantity());
         }
     }
 

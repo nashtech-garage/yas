@@ -8,5 +8,6 @@ public final class Constants {
         public static final String NOT_EXISTING_PRODUCT_IN_CART = "NOT_EXISTING_PRODUCT_IN_CART";
         public static final String NON_EXISTING_CART_ITEM = "NON_EXISTING_CART_ITEM";
         public static final String ADD_CART_ITEM_FAILED = "ADD_CART_ITEM_FAILED";
+        public static final String DUPLICATED_CART_ITEMS_TO_DELETE = "DUPLICATED_CART_ITEMS_TO_DELETE";
     }
 }

@@ -7,17 +7,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @ControllerAdvice
 @Slf4j
 public class ApiExceptionHandler {
     private static final String ERROR_LOG_FORMAT = "Error: URI: {}, ErrorCode: {}, Message: {}";
+    private static final String INVALID_REQUEST_INFORMATION_MESSAGE = "Request information is not valid";
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorVm> handleNotFoundException(NotFoundException ex, WebRequest request) {
@@ -28,7 +31,8 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ErrorVm> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    protected ResponseEntity<ErrorVm> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                   WebRequest request) {
 
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
@@ -38,7 +42,22 @@ public class ApiExceptionHandler {
             .map(error -> error.getField() + " " + error.getDefaultMessage())
             .toList();
 
-        return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
+        return buildErrorResponse(status, INVALID_REQUEST_INFORMATION_MESSAGE, errors, ex, request, 0);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    protected ResponseEntity<ErrorVm> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        List<String> errors = ex.getAllErrors().stream()
+            .map(error -> {
+                if (error instanceof FieldError fieldError) {
+                    return fieldError.getField() + " " + fieldError.getDefaultMessage();
+                }
+                return error.getDefaultMessage();
+            }).toList();
+
+        return buildErrorResponse(status, INVALID_REQUEST_INFORMATION_MESSAGE, errors, ex, null, status.value());
     }
 
     @ExceptionHandler(Exception.class)
@@ -65,17 +84,17 @@ public class ApiExceptionHandler {
                 violation.getMessage()))
             .toList();
 
-        return buildErrorResponse(status, "Request information is not valid", errors, ex, null, 0);
+        return buildErrorResponse(status, INVALID_REQUEST_INFORMATION_MESSAGE, errors, ex, null, 0);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorVm> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        return handleBadRequest(ex,  null);
+        return handleBadRequest(ex, null);
     }
 
     @ExceptionHandler(DuplicatedException.class)
     protected ResponseEntity<ErrorVm> handleDuplicated(DuplicatedException ex) {
-        return handleBadRequest(ex,  null);
+        return handleBadRequest(ex, null);
     }
 
     @ExceptionHandler(InternalServerErrorException.class)
