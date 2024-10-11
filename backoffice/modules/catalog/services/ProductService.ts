@@ -17,7 +17,9 @@ export async function getProducts(
 
 export async function getLatestProducts(count: number): Promise<Product[]> {
   const url = `${baseUrl}/products/latest/${count}`;
-  return (await apiClientService.get(url)).json();
+  const response = await apiClientService.get(url);
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(new Error(response.statusText));
 }
 
 export async function exportProducts(productName: string, brandName: string) {

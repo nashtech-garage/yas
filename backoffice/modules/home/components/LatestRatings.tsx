@@ -16,6 +16,9 @@ const LatestRatings = () => {
       try {
         const res = await getLatestRatings(5);
         setRatings(res);
+      } catch (error) {
+        console.log(error);
+        setRatings([]);
       } finally {
         setLoading(false);
       }

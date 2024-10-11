@@ -14,6 +14,9 @@ const LatestProducts = () => {
       try {
         const res = await getLatestProducts(5);
         setProducts(res);
+      } catch (error) {
+        console.log(error);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
