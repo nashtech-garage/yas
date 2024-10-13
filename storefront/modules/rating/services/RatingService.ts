@@ -25,10 +25,7 @@ export async function getRatingsByProductId(
 }
 
 export async function createRating(rating: RatingPost): Promise<Rating | null> {
-  const response = await apiClientService.post(
-    '${baseUrl}/ratings',
-    JSON.stringify(rating)
-  );
+  const response = await apiClientService.post('${baseUrl}/ratings', JSON.stringify(rating));
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
