@@ -1,4 +1,4 @@
-import { HTMLInputTypeAttribute } from 'react';
+import { HTMLInputTypeAttribute, useEffect, useState } from 'react';
 import { FieldValues, Path, RegisterOptions, UseFormRegister } from 'react-hook-form';
 
 type InputProps<T extends FieldValues> = {
@@ -11,6 +11,8 @@ type InputProps<T extends FieldValues> = {
   defaultValue?: number | string | string[];
   disabled?: boolean;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isFormattedNumber?: boolean;
+  unformatNumber?: (value: string) => string;
 };
 
 type CheckProps<T extends FieldValues> = InputProps<T> & {
@@ -59,6 +61,91 @@ export const Input = <T extends FieldValues>({
     <p className="error-field mt-1">{error}</p>
   </div>
 );
+
+export const FormatNumberInput = <T extends FieldValues>({
+  labelText,
+  field,
+  register,
+  registerOptions = {},
+  error,
+  defaultValue,
+  type = 'text',
+  disabled = false,
+  isFormattedNumber = false,
+  unformatNumber,
+  onChange,
+}: InputProps<T>) => {
+  const [inputValue, setInputValue] = useState<string | number | string[]>();
+
+  const formatNumber = (value: string) => {
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  useEffect(() => {
+    if (defaultValue !== undefined) {
+      setInputValue(defaultValue);
+      if (isFormattedNumber) {
+        const unformattedValue = unformatNumber
+          ? unformatNumber(String(defaultValue))
+          : String(defaultValue);
+        const formattedValue = formatNumber(unformattedValue);
+        setInputValue(formattedValue);
+      }
+    }
+  }, [defaultValue, isFormattedNumber, unformatNumber]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    const formattedValue = value.replace(/[^0-9.]/g, '');
+
+    const dotCount = (formattedValue.match(/\./g) || []).length;
+    if (dotCount > 1) {
+      return;
+    }
+
+    if (isFormattedNumber) {
+      const unformattedValue = unformatNumber ? unformatNumber(formattedValue) : formattedValue;
+      const formattedInput = formatNumber(unformattedValue);
+
+      setInputValue(formattedInput);
+      onChange?.({
+        ...event,
+        target: {
+          ...event.target,
+          value: unformattedValue,
+        },
+      });
+    } else {
+      setInputValue(formattedValue);
+      onChange?.(event);
+    }
+  };
+
+  return (
+    <div className="mb-3">
+      <label className="form-label" htmlFor={field}>
+        {labelText} {registerOptions?.required && <span className="text-danger">*</span>}
+      </label>
+      <input
+        type={type}
+        id={field}
+        className={`form-control ${error ? 'border-danger' : ''}`}
+        {...register(field, {
+          ...registerOptions,
+          setValueAs: isFormattedNumber
+            ? (val) => (unformatNumber ? Number(unformatNumber(String(val))) : val)
+            : undefined,
+        })}
+        defaultValue={defaultValue}
+        value={inputValue}
+        onChange={handleInputChange}
+        disabled={disabled}
+      />
+      <p className="error-field mt-1">{error}</p>
+    </div>
+  );
+};
 
 export const TextArea = <T extends FieldValues>({
   labelText,

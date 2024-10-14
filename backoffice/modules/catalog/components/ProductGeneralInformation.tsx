@@ -6,7 +6,7 @@ import slugify from 'slugify';
 
 import { TaxClass } from '@taxModels/TaxClass';
 import { getTaxClasses } from '@taxServices/TaxClassService';
-import { CheckBox, Input, Select, TextArea } from '../../../common/items/Input';
+import { CheckBox, FormatNumberInput, Input, Select, TextArea } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
 import TextEditor from '../../../common/items/TextEditor';
 import { Brand } from '../models/Brand';
@@ -32,6 +32,9 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
   const [taxClasses, setTaxClasses] = useState<TaxClass[]>([]);
+  const unformatNumber = (value: string) => {
+    return value.replace(/,/g, '');
+  };
 
   useEffect(() => {
     getBrands().then((data) => {
@@ -123,16 +126,23 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
           setValue('specification', value);
         }}
       />
-      <Input
+      <FormatNumberInput
         labelText="Price"
         field="price"
         defaultValue={product?.price}
         register={register}
         error={errors.price?.message}
-        type="number"
+        type="text"
+        isFormattedNumber={true}
+        unformatNumber={unformatNumber}
         registerOptions={{
           required: { value: true, message: 'Product price is required' },
-          validate: { positive: (v) => v > 0 || 'Price must be greater than 0' },
+          validate: {
+            positive: (v) => {
+              const numberValue = Number(unformatNumber(String(v)));
+              return numberValue > 0 || 'Price must be greater than 0';
+            },
+          },
         }}
       />
 
@@ -141,7 +151,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="weight"
         defaultValue={product?.weight}
         register={register}
-        error={errors.price?.message}
+        error={errors.weight?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product weight is required' },
@@ -170,7 +180,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="length"
         defaultValue={product?.length}
         register={register}
-        error={errors.price?.message}
+        error={errors.length?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product length is required' },
@@ -183,7 +193,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="width"
         defaultValue={product?.width}
         register={register}
-        error={errors.price?.message}
+        error={errors.width?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product width is required' },
@@ -196,7 +206,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="height"
         defaultValue={product?.height}
         register={register}
-        error={errors.price?.message}
+        error={errors.height?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product height is required' },
