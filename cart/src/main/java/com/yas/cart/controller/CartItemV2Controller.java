@@ -1,6 +1,7 @@
 package com.yas.cart.controller;
 
 import com.yas.cart.service.CartItemV2Service;
+import com.yas.cart.viewmodel.CartItemV2DeleteVm;
 import com.yas.cart.viewmodel.CartItemV2GetVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,5 +39,18 @@ public class CartItemV2Controller {
     public ResponseEntity<List<CartItemV2GetVm>> getCartItems() {
         List<CartItemV2GetVm> cartItemGetVms = cartItemService.getCartItems();
         return ResponseEntity.ok(cartItemGetVms);
+    }
+
+    @PostMapping("/storefront/cart/items/remove")
+    public ResponseEntity<List<CartItemV2GetVm>> removeCartItems(
+        @RequestBody List<@Valid CartItemV2DeleteVm> cartItemDeleteVms) {
+        List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
+        return ResponseEntity.ok(cartItemGetVms);
+    }
+
+    @DeleteMapping("/storefront/cart/items/{productId}")
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Long productId) {
+        cartItemService.deleteCartItem(productId);
+        return ResponseEntity.noContent().build();
     }
 }

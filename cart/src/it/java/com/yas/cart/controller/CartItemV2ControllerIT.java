@@ -5,14 +5,17 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import com.yas.cart.model.CartItemV2;
 import com.yas.cart.repository.CartItemV2Repository;
 import com.yas.cart.service.ProductService;
+import com.yas.cart.viewmodel.CartItemV2DeleteVm;
 import com.yas.cart.viewmodel.CartItemV2PostVm;
 import com.yas.cart.viewmodel.CartItemV2PutVm;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import io.restassured.response.ValidatableResponse;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -62,7 +65,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
 
-            performCreateCartItemAndExpectSuccess(cartItemPostVm)
+            performCreateCartItemThenExpectSuccess(cartItemPostVm)
                 .body("productId", is(cartItemPostVm.productId()))
                 .body("quantity", equalTo(cartItemPostVm.quantity()))
                 .log().ifValidationFails();
@@ -76,7 +79,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
                 .quantity(1)
                 .build();
             when(productService.existsById(anyLong())).thenReturn(true);
-            performCreateCartItemAndExpectSuccess(addCartItemVm);
+            performCreateCartItemThenExpectSuccess(addCartItemVm);
 
             CartItemV2PostVm addDuplicatedCartItemVm = CartItemV2PostVm
                 .builder()
@@ -85,7 +88,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
                 .build();
             int expectedQuantity = addCartItemVm.quantity() + addDuplicatedCartItemVm.quantity();
 
-            performCreateCartItemAndExpectSuccess(addDuplicatedCartItemVm)
+            performCreateCartItemThenExpectSuccess(addDuplicatedCartItemVm)
                 .body("productId", equalTo(addDuplicatedCartItemVm.productId()))
                 .body("quantity", equalTo(expectedQuantity))
                 .log().ifValidationFails();
@@ -121,12 +124,9 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
             CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 1);
 
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
-            performCreateCartItemAndExpectSuccess(cartItemPostVm);
+            performCreateCartItemThenExpectSuccess(cartItemPostVm);
 
-            givenLoggedInAsAdmin()
-                .when()
-                .get("/v1/storefront/cart/items")
-                .then()
+            performGetCartItemsThenExpect()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", equalTo(1))
                 .body("[0].productId", equalTo(cartItemPostVm.productId()))
@@ -136,7 +136,87 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
     }
 
-    private ValidatableResponse performCreateCartItemAndExpectSuccess(CartItemV2PostVm cartItemPostVm) {
+    @Nested
+    class DeleteOrAdjustCartItemTest {
+        private CartItemV2 existingCartItem;
+
+        @BeforeEach
+        void setUp() {
+            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 10);
+            when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
+            performCreateCartItemThenExpectSuccess(cartItemPostVm);
+            existingCartItem = CartItemV2
+                .builder()
+                .productId(cartItemPostVm.productId())
+                .quantity(cartItemPostVm.quantity())
+                .build();
+        }
+
+        @Test
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityIsGreaterThanOrEqualToCartItemQuantity_shouldDeleteCartItem() {
+            CartItemV2DeleteVm cartItemDeleteVm =
+                new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() + 1);
+
+            performRemoveCartItemsThenExpect(List.of(cartItemDeleteVm))
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(0))
+                .log().ifValidationFails();
+        }
+
+        @Test
+        void testDeleteOrAdjustCartItem_whenDeleteQuantityIsLessThanCartItemQuantity_shouldAdjustCartItemQuantity() {
+            CartItemV2DeleteVm cartItemDeleteVm =
+                new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() - 1);
+            int expectedQuantity = existingCartItem.getQuantity() - cartItemDeleteVm.quantity();
+
+            performRemoveCartItemsThenExpect(List.of(cartItemDeleteVm))
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(1))
+                .body("[0].productId", equalTo(existingCartItem.getProductId()))
+                .body("[0].quantity", equalTo(expectedQuantity))
+                .log().ifValidationFails();
+        }
+
+        private ValidatableResponse performRemoveCartItemsThenExpect(List<CartItemV2DeleteVm> cartItemDeleteVms) {
+            return givenLoggedInAsAdmin()
+                .when()
+                .body(cartItemDeleteVms)
+                .post("/v1/storefront/cart/items/remove")
+                .then();
+        }
+    }
+
+    @Nested
+    class DeleteCartItemTest {
+
+        @Test
+        void testDeleteCartItem_whenCartItemExists_shouldDeleteCartItem() {
+            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 10);
+            when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
+            performCreateCartItemThenExpectSuccess(cartItemPostVm);
+
+            givenLoggedInAsAdmin()
+                .when()
+                .delete("/v1/storefront/cart/items/" + cartItemPostVm.productId())
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .log().ifValidationFails();
+
+            performGetCartItemsThenExpect()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(0))
+                .log().ifValidationFails();
+        }
+    }
+
+    private ValidatableResponse performGetCartItemsThenExpect() {
+        return givenLoggedInAsAdmin()
+            .when()
+            .get("/v1/storefront/cart/items")
+            .then();
+    }
+
+    private ValidatableResponse performCreateCartItemThenExpectSuccess(CartItemV2PostVm cartItemPostVm) {
         return givenLoggedInAsAdmin()
             .body(cartItemPostVm)
             .when()
