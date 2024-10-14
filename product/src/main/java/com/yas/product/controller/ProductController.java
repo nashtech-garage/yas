@@ -10,6 +10,7 @@ import com.yas.product.viewmodel.product.ProductDetailVm;
 import com.yas.product.viewmodel.product.ProductEsDetailVm;
 import com.yas.product.viewmodel.product.ProductExportingDetailVm;
 import com.yas.product.viewmodel.product.ProductFeatureGetVm;
+import com.yas.product.viewmodel.product.ProductGetCheckoutListVm;
 import com.yas.product.viewmodel.product.ProductGetDetailVm;
 import com.yas.product.viewmodel.product.ProductInfoVm;
 import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
@@ -278,5 +279,13 @@ public class ProductController {
     @GetMapping("/storefront/products/detail/{productId}")
     public ResponseEntity<ProductDetailInfoVm> getProductDetailById(@PathVariable("productId") long productId) {
         return ResponseEntity.ok(productDetailService.getProductDetailById(productId));
+    }
+
+    @GetMapping("/product/products")
+    public ResponseEntity<ProductGetCheckoutListVm> getProductCheckoutList(
+        @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+        @RequestParam(value = "pageSize", defaultValue = "20", required = false) int pageSize,
+        @RequestParam(value = "ids", required = false) List<Long> productIds) {
+        return ResponseEntity.ok(productService.getProductCheckoutList(pageNo, pageSize, productIds));
     }
 }

@@ -29,11 +29,13 @@ import com.yas.product.repository.ProductRelatedRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.utils.Constants;
 import com.yas.product.viewmodel.ImageVm;
+import com.yas.product.viewmodel.product.ProductCheckoutListVm;
 import com.yas.product.viewmodel.product.ProductDetailGetVm;
 import com.yas.product.viewmodel.product.ProductDetailVm;
 import com.yas.product.viewmodel.product.ProductEsDetailVm;
 import com.yas.product.viewmodel.product.ProductExportingDetailVm;
 import com.yas.product.viewmodel.product.ProductFeatureGetVm;
+import com.yas.product.viewmodel.product.ProductGetCheckoutListVm;
 import com.yas.product.viewmodel.product.ProductGetDetailVm;
 import com.yas.product.viewmodel.product.ProductInfoVm;
 import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
@@ -1152,4 +1154,19 @@ public class ProductService {
         return this.productRepository.findByBrandIdsIn(brandIds).stream().map(ProductListVm::fromModel).toList();
     }
 
+    public ProductGetCheckoutListVm getProductCheckoutList(int pageNo, int pageSize, List<Long> productIds) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Product> productPage = productRepository.findAllPublishedProductsByIds(productIds, pageable);
+
+        List<ProductCheckoutListVm> productCheckoutListVms = productPage.getContent()
+            .stream().map(ProductCheckoutListVm::fromModel).toList();
+        return new ProductGetCheckoutListVm(
+            productCheckoutListVms,
+            productPage.getNumber(),
+            productPage.getSize(),
+            (int) productPage.getTotalElements(),
+            productPage.getTotalPages(),
+            productPage.isLast()
+        );
+    }
 }
