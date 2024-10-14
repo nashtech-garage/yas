@@ -78,7 +78,26 @@ export const FormatNumberInput = <T extends FieldValues>({
   const [inputValue, setInputValue] = useState<string | number | string[]>();
 
   const formatNumber = (value: string) => {
-    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    if (value === '') return '';
+
+    let number = parseFloat(value);
+
+    if (isNaN(number)) {
+      return value;
+    }
+
+    if (value.includes('.')) {
+      let [integerPart, decimalPart] = value.split('.');
+
+      let formattedInteger = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(parseInt(integerPart));
+
+      return `${formattedInteger}.${decimalPart}`;
+    } else {
+      return new Intl.NumberFormat('en-US').format(number);
+    }
   };
 
   useEffect(() => {
