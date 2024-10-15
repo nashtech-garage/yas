@@ -9,6 +9,6 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getCategory(id: number) {
-  const response = await apiClientService.get(baseUrl + id);
+  const response = await apiClientService.get(`${baseUrl}/${id}`);
   return await response.json();
 }
