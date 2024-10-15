@@ -93,8 +93,8 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
      * @param entityId the ID of the entity to be deleted from the vector store
      */
     public void delete(Long entityId) {
-        DefaultIdGenerator defaultIdGenerator = new DefaultIdGenerator(documentMetadata.docIdPrefix(), entityId);
-        var docId = defaultIdGenerator.generateId();
+        IdGenerator idGenerator = getIdGenerator(entityId);
+        var docId = idGenerator.generateId();
         vectorStore.delete(List.of(docId));
     }
 
@@ -133,7 +133,7 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
             .toList();
     }
 
-    protected IdGenerator getIdGenerator(Long entityId) {
+    public IdGenerator getIdGenerator(Long entityId) {
         return new DefaultIdGenerator(documentMetadata.docIdPrefix(), entityId);
     }
 
