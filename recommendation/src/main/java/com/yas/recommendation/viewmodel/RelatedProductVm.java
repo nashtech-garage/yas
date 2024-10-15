@@ -5,13 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RelatedProductVm {
 
     @JsonProperty("id")
-    private Integer productId;
+    private Long productId;
 
     private String name;
 
