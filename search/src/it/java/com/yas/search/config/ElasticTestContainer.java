@@ -4,16 +4,15 @@ import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 public class ElasticTestContainer extends ElasticsearchContainer {
 
-    private static final String DOCKER_ELASTIC = "docker.elastic.co/elasticsearch/elasticsearch:7.17.6";
+    private static final String IMAGE_NAME = "docker.elastic.co/elasticsearch/elasticsearch:%s";
 
     private static final String CLUSTER_NAME = "cluster.name";
 
     private static final String ELASTIC_SEARCH = "elasticsearch";
 
-    public ElasticTestContainer() {
-        super(DOCKER_ELASTIC);
+    public ElasticTestContainer(String version) {
+        super(IMAGE_NAME.formatted(version));
         this.addFixedExposedPort(9200, 9200);
-        this.addFixedExposedPort(9300, 9300);
         this.addEnv(CLUSTER_NAME, ELASTIC_SEARCH);
         this.withEnv("xpack.security.transport.ssl.enabled", "false");
         this.withEnv("xpack.security.http.ssl.enabled", "false");
