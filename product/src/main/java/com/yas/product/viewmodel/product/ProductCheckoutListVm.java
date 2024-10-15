@@ -3,7 +3,9 @@ package com.yas.product.viewmodel.product;
 import com.yas.product.model.Product;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import lombok.Builder;
 
+@Builder(toBuilder = true)
 public record ProductCheckoutListVm(Long id,
                                     String name,
                                     String description,
@@ -13,6 +15,7 @@ public record ProductCheckoutListVm(Long id,
                                     Long brandId,
                                     Double price,
                                     Long taxClassId,
+                                    String thumbnailUrl,
                                     ZonedDateTime createdOn,
                                     String createdBy,
                                     ZonedDateTime lastModifiedOn,
@@ -28,6 +31,7 @@ public record ProductCheckoutListVm(Long id,
             product.getBrand().getId(),
             product.getPrice(),
             product.getTaxClassId(),
+            "",
             product.getCreatedOn(),
             product.getCreatedBy(),
             product.getLastModifiedOn(),

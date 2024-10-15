@@ -1159,7 +1159,14 @@ public class ProductService {
         Page<Product> productPage = productRepository.findAllPublishedProductsByIds(productIds, pageable);
 
         List<ProductCheckoutListVm> productCheckoutListVms = productPage.getContent()
-            .stream().map(ProductCheckoutListVm::fromModel).toList();
+            .stream().map(product -> {
+                String thumbnailUrl = mediaService.getMedia(product.getThumbnailMediaId()).url();
+                ProductCheckoutListVm productCheckoutListVm = ProductCheckoutListVm.fromModel(product);
+                if (StringUtils.isNotEmpty(thumbnailUrl)) {
+                    return productCheckoutListVm.toBuilder().thumbnailUrl(thumbnailUrl).build();
+                }
+                return productCheckoutListVm;
+            }).toList();
         return new ProductGetCheckoutListVm(
             productCheckoutListVms,
             productPage.getNumber(),
