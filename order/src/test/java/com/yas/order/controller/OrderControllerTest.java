@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -220,7 +221,43 @@ class OrderControllerTest {
                 .json(objectWriter.writeValueAsString(list)));
     }
 
-    private OrderVm getOrderVm() {
+
+    @Test
+    void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception {
+        // Given
+        byte[] csvContent = "orderId,productName,quantity\n1,Product A,2\n2,Product B,3".getBytes();
+        ZonedDateTime createdFrom = ZonedDateTime.parse("1970-01-01T00:00:00Z");
+        ZonedDateTime createdTo = ZonedDateTime.now();
+        String warehouse = "Warehouse A";
+        String productName = "Product A";
+        List<OrderStatus> orderStatus = List.of(OrderStatus.COMPLETED);
+        String billingPhoneNumber = "123456789";
+        String email = "test@example.com";
+        String billingCountry = "United States";
+        int pageNo = 0;
+        int pageSize = 10;
+
+        when(orderService.exportCsv(any(), any(), anyString(), anyString(), anyList(),
+                anyString(), anyString(), anyString(), anyInt(), anyInt()))
+                .thenReturn(csvContent);
+
+        // When
+        mockMvc.perform(get("/backoffice/orders/csv")
+                        .param("createdFrom", createdFrom.toString())
+                        .param("createdTo", createdTo.toString())
+                        .param("warehouse", warehouse)
+                        .param("productName", productName)
+                        .param("orderStatus", orderStatus.get(0).toString())
+                        .param("billingPhoneNumber", billingPhoneNumber)
+                        .param("email", email)
+                        .param("billingCountry", billingCountry)
+                        .param("pageNo", String.valueOf(pageNo))
+                        .param("pageSize", String.valueOf(pageSize))
+                        .accept(MediaType.APPLICATION_OCTET_STREAM))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().bytes(csvContent));
+
+    }    private OrderVm getOrderVm() {
 
         OrderAddressVm shippingAddress = new OrderAddressVm(
             1L,
