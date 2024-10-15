@@ -9,16 +9,12 @@ import apiClientService from '@/common/services/ApiClientService';
 const baseUrl = 'api/product/storefront';
 
 export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
-  const response = await apiClientService.get(
-    `${baseUrl}/products/featured?pageNo=${pageNo}`
-  );
+  const response = await apiClientService.get(`${baseUrl}/products/featured?pageNo=${pageNo}`);
   return response.json();
 }
 
 export async function getProductDetail(slug: string): Promise<ProductDetail> {
-  const response = await apiClientService.get(
-    `${baseUrl}/product/${slug}`
-  );
+  const response = await apiClientService.get(`${baseUrl}/product/${slug}`);
   return response.json();
 }
 
@@ -38,9 +34,7 @@ export async function getProductByMultiParams(queryString: string): Promise<Prod
 export async function getProductVariationsByParentId(
   parentId: number
 ): Promise<ProductVariation[]> {
-  const res = await apiClientService.get(
-    `${baseUrl}/product-variations/${parentId}`
-  );
+  const res = await apiClientService.get(`${baseUrl}/product-variations/${parentId}`);
   if (res.status >= 200 && res.status < 300) return res.json();
   throw res;
 }
@@ -52,9 +46,7 @@ export async function getProductSlug(productId: number): Promise<ProductSlug> {
 }
 
 export async function getRelatedProductsByProductId(productId: number): Promise<ProductsGet> {
-  const res = await apiClientService.get(
-    `${baseUrl}/products/related-products/${productId}`
-  );
+  const res = await apiClientService.get(`${baseUrl}/products/related-products/${productId}`);
   if (res.status >= 200 && res.status < 300) return res.json();
   throw new Error(await res.json());
 }
