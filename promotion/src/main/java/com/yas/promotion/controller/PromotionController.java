@@ -106,8 +106,9 @@ public class PromotionController {
         return new ResponseEntity<>(promotionDetailVm, HttpStatus.OK);
     }
 
-    @GetMapping({"/storefront/promotions/verify", "/backoffice/promotions/verify"})
-    public ResponseEntity<PromotionVerifyResultDto> verifyPromotion(PromotionVerifyVm promotionVerifyInfo) {
+    @PostMapping({"/storefront/promotions/verify", "/backoffice/promotions/verify"})
+    public ResponseEntity<PromotionVerifyResultDto> verifyPromotion(
+        @RequestBody PromotionVerifyVm promotionVerifyInfo) {
         return ResponseEntity.ok(promotionService.verifyPromotion(promotionVerifyInfo));
     }
 }

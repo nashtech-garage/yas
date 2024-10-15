@@ -231,6 +231,7 @@ public class PromotionService {
                 .sorted(Comparator.comparing(ProductVm::price)).toList();
 
         return new PromotionVerifyResultDto(true, productsCanApply.getFirst().id(),
+            promotion.getCouponCode(),
             promotion.getDiscountType(),
             DiscountType.FIXED.equals(promotion.getDiscountType())
                 ? promotion.getDiscountAmount() : promotion.getDiscountPercentage());
