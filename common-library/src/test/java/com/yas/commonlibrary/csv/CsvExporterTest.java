@@ -1,7 +1,7 @@
 package com.yas.commonlibrary.csv;
 
-import com.yas.commonlibrary.csv.anotation.CSVColumn;
-import com.yas.commonlibrary.csv.anotation.CSVName;
+import com.yas.commonlibrary.csv.anotation.CsvColumn;
+import com.yas.commonlibrary.csv.anotation.CsvName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,15 +13,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CsvExporterTest {
 
-    @CSVName(fileName = "TestFile")
+    @CsvName(fileName = "TestFile")
     static class TestData {
-        @CSVColumn(columnName = "ID")
+        @CsvColumn(columnName = "ID")
         private int id;
 
-        @CSVColumn(columnName = "Name")
+        @CsvColumn(columnName = "Name")
         private String name;
 
-        @CSVColumn(columnName = "Tags")
+        @CsvColumn(columnName = "Tags")
         private List<String> tags;
 
         public TestData(int id, String name, List<String> tags) {

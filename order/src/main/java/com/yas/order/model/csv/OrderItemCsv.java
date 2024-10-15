@@ -1,8 +1,8 @@
 package com.yas.order.model.csv;
 
 import com.yas.commonlibrary.csv.BaseCsv;
-import com.yas.commonlibrary.csv.anotation.CSVColumn;
-import com.yas.commonlibrary.csv.anotation.CSVName;
+import com.yas.commonlibrary.csv.anotation.CsvColumn;
+import com.yas.commonlibrary.csv.anotation.CsvName;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
@@ -10,31 +10,31 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import lombok.Builder;
 
-@CSVName(fileName = "Orders")
+@CsvName(fileName = "Orders")
 @Builder
 public class OrderItemCsv extends BaseCsv {
 
-    @CSVColumn(columnName = "Order id")
+    @CsvColumn(columnName = "Order id")
     private Long id;
 
-    @CSVColumn(columnName = "Order status")
+    @CsvColumn(columnName = "Order status")
     private OrderStatus orderStatus;
 
-    @CSVColumn(columnName = "Payment status")
+    @CsvColumn(columnName = "Payment status")
     private PaymentStatus paymentStatus;
 
-    @CSVColumn(columnName = "Email")
+    @CsvColumn(columnName = "Email")
     private String email;
 
-    @CSVColumn(columnName = "Phone")
+    @CsvColumn(columnName = "Phone")
     private String phone;
 
-    @CSVColumn(columnName = "Order total")
+    @CsvColumn(columnName = "Order total")
     private BigDecimal totalPrice;
 
-    @CSVColumn(columnName = "Shipping status")
+    @CsvColumn(columnName = "Shipping status")
     private DeliveryStatus deliveryStatus;
 
-    @CSVColumn(columnName = "Created on")
+    @CsvColumn(columnName = "Created on")
     private ZonedDateTime createdOn;
 }

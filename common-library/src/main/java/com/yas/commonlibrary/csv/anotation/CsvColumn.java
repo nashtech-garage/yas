@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface CSVName {
-    String fileName() default "";
+@Target(ElementType.FIELD)
+public @interface CsvColumn {
+    String columnName() default "";
 }

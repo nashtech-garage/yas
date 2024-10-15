@@ -1,16 +1,15 @@
 package com.yas.commonlibrary.csv;
 
-import com.yas.commonlibrary.csv.anotation.CSVColumn;
-import com.yas.commonlibrary.csv.anotation.CSVName;
-
+import com.yas.commonlibrary.csv.anotation.CsvColumn;
+import com.yas.commonlibrary.csv.anotation.CsvName;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 
 
 public class CsvExporter {
@@ -22,7 +21,7 @@ public class CsvExporter {
         // Write CSV header
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            CSVColumn columnAnnotation = field.getAnnotation(CSVColumn.class);
+            CsvColumn columnAnnotation = field.getAnnotation(CsvColumn.class);
             if (columnAnnotation != null) {
                 writer.append(columnAnnotation.columnName()).append(",");
             }
@@ -32,7 +31,7 @@ public class CsvExporter {
         // Write CSV data
         for (T data : dataList) {
             for (Field field : fields) {
-                CSVColumn columnAnnotation = field.getAnnotation(CSVColumn.class);
+                CsvColumn columnAnnotation = field.getAnnotation(CsvColumn.class);
                 if (columnAnnotation != null) {
                     try {
                         field.setAccessible(true);
@@ -60,7 +59,7 @@ public class CsvExporter {
     public static <T> String createFileName(Class<T> clazz) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         var fromDate = LocalDateTime.now().format(dateFormatter);
-        CSVName csvName = clazz.getAnnotation(CSVName.class);
+        CsvName csvName = clazz.getAnnotation(CsvName.class);
         return csvName.fileName() + "_" + fromDate + ".csv";
     }
 }
