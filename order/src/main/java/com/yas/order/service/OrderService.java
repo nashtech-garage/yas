@@ -2,7 +2,6 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.Constants.ErrorCode.ORDER_NOT_FOUND;
 
-import com.opencsv.bean.CsvConverter;
 import com.yas.commonlibrary.csv.CsvExporter;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.OrderMapper;
@@ -26,10 +25,13 @@ import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVm;
-
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -260,9 +262,9 @@ public class OrderService {
                             int pageNo,
                             int pageSize) throws IOException {
         OrderListVm orderListVm = getAllOrder(createdFrom, createdTo,
-                warehouse, productName,
-                orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);
-        if(Objects.isNull(orderListVm.orderList())){
+            warehouse, productName,
+            orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);
+        if (Objects.isNull(orderListVm.orderList())) {
             return CsvExporter.exportToCsv(List.of(), OrderItemCsv.class);
         }
         var orders = orderListVm.orderList().stream().map(orderMapper::toCsv).toList();

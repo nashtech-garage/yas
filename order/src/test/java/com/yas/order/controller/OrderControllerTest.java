@@ -257,7 +257,9 @@ class OrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().bytes(csvContent));
 
-    }    private OrderVm getOrderVm() {
+    }
+
+    private OrderVm getOrderVm() {
 
         OrderAddressVm shippingAddress = new OrderAddressVm(
             1L,
