@@ -12,6 +12,9 @@ import { ProductOptions } from '../models/ProductOptions';
 import { ProductVariation } from '../models/ProductVariation';
 import { toastError, toastSuccess } from '../services/ToastService';
 import DetailHeader from './DetailHeader';
+import { CartItemPostVm } from '@/modules/cart/models/CartItemPostVm';
+import { YasError } from '@/common/services/errors/YasError';
+import { addCartItem } from '@/modules/cart/services/CartServiceV2';
 
 type ProductDetailProps = {
   product: ProductDetail;
@@ -158,22 +161,22 @@ export default function ProductDetails({
   }, [JSON.stringify(currentSelectedOption)]);
 
   const handleAddToCart = async () => {
-    let payload: AddToCartModel[] = [
-      {
-        productId: currentProduct.id,
-        quantity: 1,
-        parentProductId: product.hasOptions ? product.id : null,
-      },
-    ];
-    await addToCart(payload)
-      .then((_response) => {
-        toastSuccess('Add to cart success');
-        fetchNumberCartItems();
-      })
-      .catch((error) => {
-        if (error.status === 403) toastError('You need to log in before add to cart');
-        else toastError('Add to cart failed. Try again');
-      });
+    const payload: CartItemPostVm = {
+      productId: currentProduct.id,
+      quantity: 1,
+    };
+    try {
+      await addCartItem(payload);
+    } catch (error) {
+      if (error instanceof YasError && error.status === 403) {
+        toastError('You need to login first before adding to cart');
+      } else {
+        toastError('Add to cart failed. Try again');
+      }
+      return;
+    }
+    toastSuccess('Add to cart success');
+    fetchNumberCartItems();
   };
 
   const handleSelectOption = (optionId: number, optionValue: string) => {
