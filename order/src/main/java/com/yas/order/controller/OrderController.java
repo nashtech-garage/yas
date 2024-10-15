@@ -12,11 +12,8 @@ import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
 import jakarta.validation.Valid;
-
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -100,26 +97,33 @@ public class OrderController {
     public ResponseEntity<List<OrderBriefVm>> getLatestOrders(@PathVariable int count) {
         return ResponseEntity.ok(orderService.getLatestOrders(count));
     }
- @GetMapping("/backoffice/orders/csv")
+
+    @GetMapping("/backoffice/orders/csv")
     public ResponseEntity<byte[]> exportCsv(
-            @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
-            @RequestParam(value = "createdTo", defaultValue = "#{new java.util.Date()}", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
-            @RequestParam(value = "warehouse", defaultValue = "", required = false) String warehouse,
-            @RequestParam(value = "productName", defaultValue = "", required = false) String productName,
-            @RequestParam(value = "orderStatus", defaultValue = "", required = false) List<OrderStatus> orderStatus,
-            @RequestParam(value = "billingPhoneNumber", defaultValue = "", required = false) String billingPhoneNumber,
-            @RequestParam(value = "email", defaultValue = "", required = false) String email,
-            @RequestParam(value = "billingCountry", defaultValue = "", required = false) String billingCountry,
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) throws IOException {
+        @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
+        @RequestParam(value = "createdTo", defaultValue = "#{new java.util.Date()}", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
+        @RequestParam(value = "warehouse", defaultValue = "", required = false) String warehouse,
+        @RequestParam(value = "productName", defaultValue = "", required = false)
+        String productName,
+        @RequestParam(value = "orderStatus", defaultValue = "", required = false)
+        List<OrderStatus> orderStatus,
+        @RequestParam(value = "billingPhoneNumber", defaultValue = "", required = false)
+        String billingPhoneNumber,
+        @RequestParam(value = "email", defaultValue = "", required = false) String email,
+        @RequestParam(value = "billingCountry", defaultValue = "", required = false)
+        String billingCountry,
+        @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+        @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) throws IOException {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=" + CsvExporter.createFileName(OrderItemCsv.class));
+            "attachment; filename=" + CsvExporter.createFileName(OrderItemCsv.class));
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        var csvBytes = orderService.exportCsv(createdFrom, createdTo, warehouse, productName,
-                orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);
+        var csvBytes =
+            orderService.exportCsv(createdFrom, createdTo, warehouse, productName, orderStatus,
+                billingCountry, billingPhoneNumber, email, pageNo, pageSize);
         return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
-    }}
+    }
+}
