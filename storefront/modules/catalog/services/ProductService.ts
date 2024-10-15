@@ -36,7 +36,7 @@ export async function getProductVariationsByParentId(
 ): Promise<ProductVariation[]> {
   const res = await apiClientService.get(`${baseUrl}/product-variations/${parentId}`);
   if (res.status >= 200 && res.status < 300) return res.json();
-  throw res;
+  throw new Error(await res.json());
 }
 
 export async function getProductSlug(productId: number): Promise<ProductSlug> {
