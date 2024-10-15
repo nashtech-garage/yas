@@ -281,7 +281,7 @@ public class ProductController {
         return ResponseEntity.ok(productDetailService.getProductDetailById(productId));
     }
 
-    @GetMapping("/product/products")
+    @GetMapping("/products")
     public ResponseEntity<ProductGetCheckoutListVm> getProductCheckoutList(
         @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
         @RequestParam(value = "pageSize", defaultValue = "20", required = false) int pageSize,

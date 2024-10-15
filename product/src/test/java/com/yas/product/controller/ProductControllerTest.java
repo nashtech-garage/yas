@@ -300,7 +300,7 @@ class ProductControllerTest {
 
     @Test
     void testGetProductCheckoutList_returnListProduct() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/product/products")
+        mockMvc.perform(MockMvcRequestBuilders.get("/products")
             .param("pageNo", "0")
             .param("pageSize", "10")
             .contentType(MediaType.APPLICATION_JSON))

@@ -523,7 +523,7 @@ class ProductControllerIT extends AbstractControllerIT {
         getGivenSpecificationWithAdmin()
             .param("ids", List.of(productOne.getId(), productTwo.getId()))
             .when()
-            .get("/v1/product/products")
+            .get("/v1/products")
             .then()
             .statusCode(HttpStatus.OK.value())
             .body("productCheckoutListVms", hasSize(2))
