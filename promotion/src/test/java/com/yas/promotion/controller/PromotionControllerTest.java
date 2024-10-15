@@ -345,6 +345,7 @@ class PromotionControllerTest {
         PromotionVerifyResultDto expectedResult = new PromotionVerifyResultDto(
             true,
             1L,
+            "coupon-code-1",
             DiscountType.FIXED,
             10000L
         );

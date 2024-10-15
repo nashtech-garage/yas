@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import ImageWithFallBack from '@/common/components/ImageWithFallback';
 import ConfirmationDialog from '@/common/components/dialog/ConfirmationDialog';
 import { useCartContext } from '@/context/CartContext';
+import { useUserInfoContext } from '@/context/UserInfoContext';
 import { Cart as CartModel } from '@/modules/cart/models/Cart';
 import {
   getCart,
@@ -13,13 +14,14 @@ import {
   removeProductInCart,
   updateCart,
 } from '@/modules/cart/services/CartService';
-import { formatPrice } from 'utils/formatPrice';
+import { toastError } from '@/modules/catalog/services/ToastService';
+import { Checkout } from '@/modules/order/models/Checkout';
 import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
 import { createCheckout } from '@/modules/order/services/OrderService';
-import { Checkout } from '@/modules/order/models/Checkout';
-import { useUserInfoContext } from '@/context/UserInfoContext';
+import { PromotionVerifyResult } from '@/modules/promotion/model/Promotion';
+import { verifyPromotion } from '@/modules/promotion/service/PromotionService';
 import { useRouter } from 'next/router';
-import { toastError } from '@/modules/catalog/services/ToastService';
+import { formatPrice } from 'utils/formatPrice';
 
 const Cart = () => {
   const router = useRouter();
@@ -45,6 +47,10 @@ const Cart = () => {
   const [totalPrice, setTotalPrice] = useState(0);
 
   const { email } = useUserInfoContext();
+
+  const [couponCode, setCouponCode] = useState<string>('');
+
+  const [promotionApply, setPromotionApply] = useState<PromotionVerifyResult>();
 
   const [cart, setCart] = useState<CartModel>({
     id: 0,
@@ -72,7 +78,7 @@ const Cart = () => {
   };
 
   const calculateProductPrice = (item: Item) => {
-    return formatPrice(item.price * item.quantity);
+    return formatPrice(item.price * item.quantity - (promotionApply?.discountValue ?? 0));
   };
 
   const getProductThumbnails = (productIds: number[]) => {
@@ -259,6 +265,20 @@ const Cart = () => {
     });
   };
 
+  const applyCopounCode = () => {
+    verifyPromotion({
+      couponCode: couponCode,
+      orderPrice: totalPrice,
+      productIds: Array.from(selectedProductIds.values()),
+    }).then((result) => {
+      setPromotionApply(result);
+    });
+  };
+
+  const removeCouponCode = () => {
+    setPromotionApply(undefined);
+  };
+
   return (
     <section className="shop-cart spad">
       <div className="container">
@@ -331,7 +351,17 @@ const Cart = () => {
                               </Link>
                             </div>
                           </td>
-                          <td className="cart__price">{formatPrice(item.price)}</td>
+                          <td className="cart__price">
+                            {promotionApply?.productId === item.productId && (
+                              <div style={{ textDecorationLine: 'line-through' }}>
+                                {formatPrice(item.price)}
+                              </div>
+                            )}
+
+                            <div>
+                              {formatPrice(item.price - (promotionApply?.discountValue ?? 0))}
+                            </div>
+                          </td>
                           <td className="cart__quantity">
                             <div className="pro-qty">
                               <div className="quantity buttons_added">
@@ -394,6 +424,20 @@ const Cart = () => {
             </div>
           </div>
         </div>
+        {promotionApply && (
+          <div className="mt-5 mb-5">
+            <div className="row">
+              <div style={{ width: '188px' }}>
+                <i className="bi bi-receipt"></i> Coupon code applied:
+              </div>
+              <div className="col">
+                <span className="coupon-code-apply" aria-hidden="true" onClick={removeCouponCode}>
+                  {promotionApply.couponCode}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="row">
           <div className="col-lg-6 col-md-6 col-sm-6">
             <div>
@@ -410,8 +454,18 @@ const Cart = () => {
             <div className="discount__content">
               <h6>Discount codes</h6>
               <form action="#">
-                <input type="text" placeholder="Enter your coupon code" />
-                <button className="site-btn">Apply</button>
+                <input
+                  type="text"
+                  placeholder="Enter your coupon code"
+                  onChange={(e) => setCouponCode(e.target.value)}
+                />
+                <button
+                  className="site-btn primary-btn btn btn-primary"
+                  disabled={selectedProductIds.size === 0}
+                  onClick={applyCopounCode}
+                >
+                  Apply
+                </button>
               </form>
             </div>
           </div>
