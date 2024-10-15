@@ -517,6 +517,19 @@ class ProductControllerIT extends AbstractControllerIT {
 
     }
 
+    @Test
+    void test_getProductCheckoutList_shouldReturnProductList() {
+        initProductData();
+        getGivenSpecificationWithAdmin()
+            .param("ids", List.of(productOne.getId(), productTwo.getId()))
+            .when()
+            .get("/v1/product/products")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("productCheckoutListVms", hasSize(2))
+            .log().ifValidationFails();
+    }
+
     private RequestSpecification getGivenSpecificationWithAdmin() {
         return given(getRequestSpecification())
             .auth().oauth2(getAccessToken("admin", "admin"));
