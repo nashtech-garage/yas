@@ -82,7 +82,7 @@ export const NumberFormatInput = <T extends FieldValues>({
     <NumericFormat
       id={field}
       className={`form-control ${error ? 'border-danger' : ''}`}
-      defaultValue={defaultValue !== undefined ? Number(defaultValue) : 0}
+      defaultValue={defaultValue ? Number(defaultValue) : 0}
       allowLeadingZeros={false}
       disabled={disabled}
       fixedDecimalScale
