@@ -1,9 +1,12 @@
+import { YasError } from '@/common/services/errors/YasError';
 import { ProductSlug } from '../../cart/models/ProductSlug';
 import { ProductDetail } from '../models/ProductDetail';
 import { ProductAll, ProductFeature } from '../models/ProductFeature';
 import { ProductOptionValueGet } from '../models/ProductOptionValueGet';
+import { ProductThumbnail } from '../models/ProductThumbnail';
 import { ProductVariation } from '../models/ProductVariation';
 import { ProductsGet } from '../models/ProductsGet';
+import apiClientService from '@/common/services/ApiClientService';
 
 export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
   const response = await fetch(`api/product/storefront/products/featured?pageNo=${pageNo}`);
@@ -53,4 +56,15 @@ export async function getRelatedProductsByProductId(productId: number): Promise<
   });
   if (res.status >= 200 && res.status < 300) return res.json();
   return Promise.reject(res);
+}
+
+export async function getProductsByIds(ids: number[]): Promise<ProductThumbnail[]> {
+  const response = await apiClientService.get(
+    `/api/product/storefront/products/list-featured?productId=${ids}`
+  );
+  const jsonResponse = await response.json();
+  if (!response.ok) {
+    throw new YasError(jsonResponse);
+  }
+  return jsonResponse;
 }

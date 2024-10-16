@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { ProductImageGallery } from '@/common/components/ProductImageGallery';
 import { useCartContext } from '@/context/CartContext';
-import { AddToCartModel } from '@/modules/cart/models/AddToCartModel';
-import { addToCart } from '@/modules/cart/services/CartService';
 import { formatPrice } from '@/utils/formatPrice';
 import { ProductDetail } from '../models/ProductDetail';
 import { ProductOptions } from '../models/ProductOptions';
@@ -14,7 +12,7 @@ import { toastError, toastSuccess } from '../services/ToastService';
 import DetailHeader from './DetailHeader';
 import { CartItemPostVm } from '@/modules/cart/models/CartItemPostVm';
 import { YasError } from '@/common/services/errors/YasError';
-import { addCartItem } from '@/modules/cart/services/CartServiceV2';
+import { addCartItem } from '@/modules/cart/services/CartService';
 
 type ProductDetailProps = {
   product: ProductDetail;

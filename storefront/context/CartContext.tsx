@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { getNumberCartItems } from '@/modules/cart/services/CartServiceV2';
+import { getNumberCartItems } from '@/modules/cart/services/CartService';
 
 export const CartContext = createContext({
   numberCartItems: 0,

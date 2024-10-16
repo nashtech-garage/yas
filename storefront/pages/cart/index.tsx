@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 
 import ImageWithFallBack from '@/common/components/ImageWithFallback';
 import ConfirmationDialog from '@/common/components/dialog/ConfirmationDialog';
-import * as CartService from '@/modules/cart/services/CartServiceV2';
+import * as CartService from '@/modules/cart/services/CartService';
 import { formatPrice } from 'utils/formatPrice';
 import { toastError } from '@/modules/catalog/services/ToastService';
 import { CartItemGetDetailsVm } from '@/modules/cart/models/CartItemGetVm';
@@ -16,6 +16,7 @@ import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
 import { useCartContext } from '@/context/CartContext';
 import { PromotionVerifyResult } from '@/modules/promotion/model/Promotion';
 import { verifyPromotion } from '@/modules/promotion/service/PromotionService';
+import { CartItemPutVm } from '@/modules/cart/models/CartItemPutVm';
 
 const Cart2 = () => {
   const router = useRouter();
@@ -136,7 +137,7 @@ const Cart2 = () => {
     }
     const newQuantity = cartItem.quantity - 1;
     if (newQuantity < 1) {
-      await handleDeleteCartItemModalOpen(productId);
+      handleDeleteCartItemModalOpen(productId);
     } else {
       await handleUpdateCartItemQuantity(productId, newQuantity);
     }
@@ -145,7 +146,10 @@ const Cart2 = () => {
   const handleUpdateCartItemQuantity = async (productId: number, quantity: number) => {
     setLoadingItems((prevLoadingItems) => new Set(prevLoadingItems).add(productId));
     try {
-      await CartService.updateCartItem(productId, quantity);
+      const payload: CartItemPutVm = {
+        quantity: quantity,
+      };
+      await CartService.updateCartItem(productId, payload);
       loadCartItems();
     } catch (error) {
       toastErrorWithDetails('Failed to update cart item quantity', error);
