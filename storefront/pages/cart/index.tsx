@@ -18,7 +18,7 @@ import { PromotionVerifyResult } from '@/modules/promotion/model/Promotion';
 import { verifyPromotion } from '@/modules/promotion/service/PromotionService';
 import { CartItemPutVm } from '@/modules/cart/models/CartItemPutVm';
 
-const Cart2 = () => {
+const Cart = () => {
   const router = useRouter();
 
   const [cartItems, setCartItems] = useState<CartItemGetDetailsVm[]>([]);
@@ -460,4 +460,4 @@ const Cart2 = () => {
   );
 };
 
-export default Cart2;
+export default Cart;
