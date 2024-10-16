@@ -95,19 +95,19 @@ public class ProductTopology extends AbstractTopology {
                         createMaterializedStore(PRODUCT_CATEGORY_WITH_NAME_MATERIALIZED_VIEW, Serdes.Long(), getSerde(ProductCategoryDTO.class))
                 );
 
-        KTable<Long, ProductCategoryAggregationDTO> productCategoryAgg = productCategoryDetailTable
+        KTable<Long, AggregationDTO<Long, CategoryDTO>> productCategoryAgg = productCategoryDetailTable
                 .toStream()
                 .selectKey((key, value) -> value.getProductId())
                 .groupByKey()
                 .aggregate(
-                        ProductCategoryAggregationDTO::new,
+                        AggregationDTO::new,
                         (productId, productCategoryDetail, agg) -> {
-                            agg.setProductId(productId);
-                            agg.getCategories().removeIf(category -> productCategoryDetail.getCategoryId().equals(category.getId()));
+                            agg.setJoinId(productId);
+                            agg.getAggregationContents().removeIf(category -> productCategoryDetail.getCategoryId().equals(category.getId()));
                             agg.add(new CategoryDTO(productCategoryDetail.getCategoryId(), productCategoryDetail.getCategoryName()));
                             return agg;
                         },
-                        createMaterializedStore(PRODUCT_CATEGORY_AGGREGATION_MATERIALIZED_VIEW, Serdes.Long(), getSerde(ProductCategoryAggregationDTO.class))
+                        createMaterializedStore(PRODUCT_CATEGORY_AGGREGATION_MATERIALIZED_VIEW, Serdes.Long(), getAggregationDTOSerde(Long.class, CategoryDTO.class))
                 );
 
         KTable<Long, ProductResultDTO> addingCategoryDetailTable = productBrandTable
@@ -116,7 +116,7 @@ public class ProductTopology extends AbstractTopology {
                         ProductResultDTO::getId,
                         (productResult, agg) -> {
                             if (agg != null) {
-                                productResult.setCategories(agg.getCategories());
+                                productResult.setCategories(agg.getAggregationContents());
                             }
                             return productResult;
                         },
@@ -154,19 +154,19 @@ public class ProductTopology extends AbstractTopology {
                 );
 
 
-        KTable<Long, ProductAttributeAggregationDTO> productAttributeAgg = productAttributeValueDetailTable
+        KTable<Long, AggregationDTO<Long, ProductAttributeDTO>> productAttributeAgg = productAttributeValueDetailTable
                 .toStream()
                 .selectKey((key, value) -> value.getProductId())
                 .groupByKey()
                 .aggregate(
-                        ProductAttributeAggregationDTO::new,
+                        AggregationDTO::new,
                         (productId, productAttributeValueDetail, agg) -> {
-                            agg.setProductId(productId);
-                            agg.getProductAttributes().removeIf(attribute -> productAttributeValueDetail.getProductAttributeId().equals(attribute.getId()));
+                            agg.setJoinId(productId);
+                            agg.getAggregationContents().removeIf(attribute -> productAttributeValueDetail.getProductAttributeId().equals(attribute.getId()));
                             agg.add(new ProductAttributeDTO(productAttributeValueDetail.getProductAttributeId(), productAttributeValueDetail.getProductAttributeName(), productAttributeValueDetail.getValue()));
                             return agg;
                         },
-                        createMaterializedStore(PRODUCT_ATTRIBUTE_AGGREGATION_MATERIALIZED_VIEW, Serdes.Long(), getSerde(ProductAttributeAggregationDTO.class))
+                        createMaterializedStore(PRODUCT_ATTRIBUTE_AGGREGATION_MATERIALIZED_VIEW, Serdes.Long(), getAggregationDTOSerde(Long.class, ProductAttributeDTO.class))
                 );
 
         KTable<Long, ProductResultDTO> addingAttributeDetailTable = addingCategoryDetailTable
@@ -175,7 +175,7 @@ public class ProductTopology extends AbstractTopology {
                         ProductResultDTO::getId,
                         (productResult, agg) -> {
                             if (agg != null) {
-                                productResult.setProductAttributes(agg.getProductAttributes());
+                                productResult.setProductAttributes(agg.getAggregationContents());
                             }
                             return productResult;
                         },

@@ -40,12 +40,12 @@ public abstract class AbstractTopology {
         return getSerde(typeReference);
     }
 
-    protected <T, E> Serde<AggregationDTO<T, E>> getAggregationDTOSerde(Class<T> clazzT, Class<E> clazzE) {
-        TypeReference<AggregationDTO<T, E>> typeReference = new TypeReference<>() {
+    protected <ID, T> Serde<AggregationDTO<ID, T>> getAggregationDTOSerde(Class<ID> clazzID, Class<T> clazzT) {
+        TypeReference<AggregationDTO<ID, T>> typeReference = new TypeReference<>() {
             @Override
             public java.lang.reflect.Type getType() {
                 return com.fasterxml.jackson.databind.type.TypeFactory.defaultInstance()
-                        .constructParametricType(AggregationDTO.class, clazzT, clazzE);
+                        .constructParametricType(AggregationDTO.class, clazzID, clazzT);
             }
         };
         return getSerde(typeReference);

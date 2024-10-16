@@ -14,15 +14,15 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
-public class AggregationDTO<T, E> {
-    private T targetId;
-    private Set<E> aggregationContents;
+public class AggregationDTO<ID, T> {
+    private ID joinId;
+    private Set<T> aggregationContents;
 
     public AggregationDTO() {
         aggregationContents = new HashSet<>();
     }
 
-    public void add(E aggregationContent) {
+    public void add(T aggregationContent) {
         aggregationContents.add(aggregationContent);
     }
 
