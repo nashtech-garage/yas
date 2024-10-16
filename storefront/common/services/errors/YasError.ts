@@ -7,20 +7,20 @@ export class YasError extends Error {
   constructor({
     status,
     statusCode,
-    title,
-    detail,
-    fieldErrors,
+    title = 'Unknown error',
+    detail = 'unknown',
+    fieldErrors = [],
   }: {
     status?: number;
     statusCode?: string;
     title?: string;
     detail?: string;
     fieldErrors?: string[];
-  }) {
-    super(fieldErrors ? fieldErrors[0] : detail ?? 'An error occurred');
+  } = {}) {
+    super(fieldErrors.length > 0 ? fieldErrors[0] : detail);
     this.status = status ?? (statusCode ? parseInt(statusCode) : 500);
-    this.title = title ?? 'Unknown error';
-    this.detail = detail ?? 'unknown';
-    this.fieldErrors = fieldErrors ?? [];
+    this.title = title;
+    this.detail = detail;
+    this.fieldErrors = fieldErrors;
   }
 }
