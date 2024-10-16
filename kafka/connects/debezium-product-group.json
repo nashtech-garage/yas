@@ -12,5 +12,6 @@
   "key.converter": "org.apache.kafka.connect.json.JsonConverter",
   "schema.include.list": "public",
   "table.include.list": "public.product_attribute, public.product_attribute_value, public.product_category, public.category, public.brand",
-  "slot.name": "product_relation_slot"
+  "slot.name": "product_relation_slot",
+  "topic.creation.default.cleanup.policy": "compact"
 }

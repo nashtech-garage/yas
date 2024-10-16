@@ -110,10 +110,10 @@ public class ProductTopology extends AbstractTopology {
                         createMaterializedStore(PRODUCT_CATEGORY_AGGREGATION_MATERIALIZED_VIEW, Serdes.Long(), getAggregationDTOSerde(Long.class, CategoryDTO.class))
                 );
 
+
         KTable<Long, ProductResultDTO> addingCategoryDetailTable = productBrandTable
                 .leftJoin(
                         productCategoryAgg,
-                        ProductResultDTO::getId,
                         (productResult, agg) -> {
                             if (agg != null) {
                                 productResult.setCategories(agg.getAggregationContents());
