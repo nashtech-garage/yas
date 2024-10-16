@@ -24,17 +24,18 @@ const SimilarProducts = ({ productId }: SimilarProductProps) => {
 
   return (
     <div className="my-5">
-      <h4 className="mb-2 text-black">Similar Products</h4>
       {products.length > 0 && (
-        <Row md={5}>
-          {products.map((product) => (
-            <Col key={product.id}>
-              <SimilarProductCard product={product} thumbnailUrl={product.thumbnail.url} />
-            </Col>
-          ))}
-        </Row>
+        <>
+          <h4 className="mb-2 text-black">Similar Products</h4>
+          <Row md={5}>
+            {products.map((product) => (
+              <Col key={product.id}>
+                <SimilarProductCard product={product} thumbnailUrl={product.thumbnail.url} />
+              </Col>
+            ))}
+          </Row>
+        </>
       )}
-      {products.length === 0 && <p className="mt-4">No product</p>}
     </div>
   );
 };
