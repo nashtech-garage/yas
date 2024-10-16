@@ -6,7 +6,7 @@ import slugify from 'slugify';
 
 import { TaxClass } from '@taxModels/TaxClass';
 import { getTaxClasses } from '@taxServices/TaxClassService';
-import { CheckBox, Input, Select, TextArea } from '../../../common/items/Input';
+import { CheckBox, Input, NumberFormatInput, Select, TextArea } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
 import TextEditor from '../../../common/items/TextEditor';
 import { Brand } from '../models/Brand';
@@ -123,11 +123,12 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
           setValue('specification', value);
         }}
       />
-      <Input
+      <NumberFormatInput
         labelText="Price"
         field="price"
         defaultValue={product?.price}
         register={register}
+        setValue={setValue}
         error={errors.price?.message}
         type="number"
         registerOptions={{
@@ -141,7 +142,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="weight"
         defaultValue={product?.weight}
         register={register}
-        error={errors.price?.message}
+        error={errors.weight?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product weight is required' },
@@ -170,7 +171,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="length"
         defaultValue={product?.length}
         register={register}
-        error={errors.price?.message}
+        error={errors.length?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product length is required' },
@@ -183,7 +184,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="width"
         defaultValue={product?.width}
         register={register}
-        error={errors.price?.message}
+        error={errors.width?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product width is required' },
@@ -196,7 +197,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         field="height"
         defaultValue={product?.height}
         register={register}
-        error={errors.price?.message}
+        error={errors.height?.message}
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product height is required' },

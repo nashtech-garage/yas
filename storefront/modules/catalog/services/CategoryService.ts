@@ -1,11 +1,14 @@
 import { Category } from '../models/Category';
+import apiClientService from '@/common/services/ApiClientService';
+
+const baseUrl = '/api/product/storefront/categories';
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await fetch('/api/product/storefront/categories');
+  const response = await apiClientService.get(baseUrl);
   return await response.json();
 }
 
 export async function getCategory(id: number) {
-  const response = await fetch('/api/product/storefront/categories/' + id);
+  const response = await apiClientService.get(`${baseUrl}/${id}`);
   return await response.json();
 }
