@@ -62,7 +62,11 @@ export async function getNumberCartItems(): Promise<number> {
     await throwDetailedError(response);
   }
   const cartItems = await response.json();
-  return cartItems.reduce((acc: number, item: CartItemGetVm) => acc + item.quantity, 0);
+  const numberCartItems = cartItems.reduce(
+    (currentTotal: number, item: CartItemGetVm) => currentTotal + item.quantity,
+    0
+  );
+  return numberCartItems;
 }
 
 export async function deleteCartItem(productId: number): Promise<void> {

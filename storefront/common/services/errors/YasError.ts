@@ -1,7 +1,7 @@
 export class YasError extends Error {
   status?: number;
   title?: string;
-  detail?: string;
+  details?: string;
   fieldErrors?: string[];
 
   constructor({
@@ -20,7 +20,7 @@ export class YasError extends Error {
     super(fieldErrors.length > 0 ? fieldErrors[0] : detail);
     this.status = status ?? (statusCode ? parseInt(statusCode) : 500);
     this.title = title;
-    this.detail = detail;
+    this.details = detail;
     this.fieldErrors = fieldErrors;
   }
 }

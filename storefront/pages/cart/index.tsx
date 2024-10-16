@@ -29,7 +29,7 @@ const Cart = () => {
 
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const [isConfirmationModalOpened, setIsConfirmationModalOpened] = useState(false);
+  const [isDeleteConfirmationModalOpened, setIsDeleteConfirmationModalOpened] = useState(false);
 
   const [productIdToRemove, setProductIdToRemove] = useState<number>(0);
 
@@ -109,8 +109,9 @@ const Cart = () => {
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'];
+    const digitKeyPattern = /^\d$/;
 
-    if (!allowedKeys.includes(event.key) && !/^\d$/.test(event.key)) {
+    if (!allowedKeys.includes(event.key) && digitKeyPattern.test(event.key)) {
       event.preventDefault();
       return;
     }
@@ -137,7 +138,7 @@ const Cart = () => {
     }
     const newQuantity = cartItem.quantity - 1;
     if (newQuantity < 1) {
-      handleDeleteCartItemModalOpen(productId);
+      handleOpenDeleteConfirmationModal(productId);
     } else {
       await handleUpdateCartItemQuantity(productId, newQuantity);
     }
@@ -162,9 +163,9 @@ const Cart = () => {
     }
   };
 
-  const handleDeleteCartItemModalOpen = (productId: number) => {
+  const handleOpenDeleteConfirmationModal = (productId: number) => {
     setProductIdToRemove(productId);
-    setIsConfirmationModalOpened(true);
+    setIsDeleteConfirmationModalOpened(true);
   };
 
   const handleDeleteCartItem = async (productId: number) => {
@@ -174,7 +175,7 @@ const Cart = () => {
       toastError('Failed to delete cart item');
     }
     loadCartItems();
-    setIsConfirmationModalOpened(false);
+    setIsDeleteConfirmationModalOpened(false);
     setProductIdToRemove(0);
   };
 
@@ -364,7 +365,7 @@ const Cart = () => {
                             <button
                               className="remove_product"
                               onClick={() => {
-                                handleDeleteCartItemModalOpen(item.productId);
+                                handleOpenDeleteConfirmationModal(item.productId);
                               }}
                             >
                               <i className="bi bi-x-lg fs-5"></i>
@@ -447,10 +448,10 @@ const Cart = () => {
           </div>
         </div>
         <ConfirmationDialog
-          isOpen={isConfirmationModalOpened}
+          isOpen={isDeleteConfirmationModalOpened}
           okText="Remove"
           cancelText="Cancel"
-          cancel={() => setIsConfirmationModalOpened(false)}
+          cancel={() => setIsDeleteConfirmationModalOpened(false)}
           ok={() => handleDeleteCartItem(productIdToRemove)}
         >
           <p>Do you want to remove this Product from the cart ?</p>
