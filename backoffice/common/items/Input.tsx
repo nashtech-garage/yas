@@ -1,5 +1,6 @@
 import { HTMLInputTypeAttribute } from 'react';
 import { FieldValues, Path, RegisterOptions, UseFormRegister } from 'react-hook-form';
+import { NumericFormat } from 'react-number-format';
 
 type InputProps<T extends FieldValues> = {
   labelText: string;
@@ -11,6 +12,10 @@ type InputProps<T extends FieldValues> = {
   defaultValue?: number | string | string[];
   disabled?: boolean;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+type NumberFormatProps<T extends FieldValues> = InputProps<T> & {
+  setValue: (field: Path<T>, value: any) => void;
 };
 
 type CheckProps<T extends FieldValues> = InputProps<T> & {
@@ -55,6 +60,38 @@ export const Input = <T extends FieldValues>({
       {...register(field, registerOptions)}
       defaultValue={defaultValue}
       disabled={disabled}
+    />
+    <p className="error-field mt-1">{error}</p>
+  </div>
+);
+
+export const NumberFormatInput = <T extends FieldValues>({
+  labelText,
+  field,
+  register,
+  registerOptions = {},
+  error,
+  defaultValue,
+  setValue,
+  disabled = false,
+}: NumberFormatProps<T>) => (
+  <div className="mb-3">
+    <label className="form-label" htmlFor={field}>
+      {labelText} {registerOptions?.required && <span className="text-danger">*</span>}
+    </label>
+    <NumericFormat
+      id={field}
+      className={`form-control ${error ? 'border-danger' : ''}`}
+      defaultValue={Number(defaultValue)}
+      allowLeadingZeros={false}
+      disabled={disabled}
+      fixedDecimalScale
+      {...register(field, registerOptions)}
+      thousandSeparator=","
+      onValueChange={(values) => {
+        const { value } = values;
+        setValue(field, value);
+      }}
     />
     <p className="error-field mt-1">{error}</p>
   </div>
