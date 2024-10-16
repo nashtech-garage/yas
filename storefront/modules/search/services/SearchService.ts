@@ -1,17 +1,17 @@
 import { ProductSearchSuggestions } from '../models/ProductSearchSuggestions';
 import { SearchParams } from '../models/SearchParams';
 import { SearchProductResponse } from '../models/SearchProductResponse';
+import apiClientService from '@/common/services/ApiClientService';
 
 export async function getSuggestions(keyword: string): Promise<ProductSearchSuggestions> {
-  const response = await fetch(`/api/search/storefront/search_suggest?keyword=${keyword}`, {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const response = await apiClientService.get(
+    `/api/search/storefront/search_suggest?keyword=${keyword}`
+  );
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
 
-  return Promise.reject(response.status);
+  throw new Error(response.statusText);
 }
 
 export async function searchProducts(params: SearchParams): Promise<SearchProductResponse> {
@@ -40,12 +40,9 @@ export async function searchProducts(params: SearchParams): Promise<SearchProduc
   if (params.pageSize) {
     url += `&pageSize=${params.pageSize}`;
   }
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  });
+  const response = await apiClientService.get(url);
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
   }
-  return Promise.reject(response.status);
+  throw new Error(response.statusText);
 }

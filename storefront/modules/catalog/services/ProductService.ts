@@ -4,53 +4,50 @@ import { ProductAll, ProductFeature } from '../models/ProductFeature';
 import { ProductOptionValueGet } from '../models/ProductOptionValueGet';
 import { ProductVariation } from '../models/ProductVariation';
 import { ProductsGet } from '../models/ProductsGet';
+import apiClientService from '@/common/services/ApiClientService';
+
+const baseUrl = '/api/product/storefront';
+const serverSideRenderUrl = `${process.env.API_BASE_PATH}/product/storefront`;
 
 export async function getFeaturedProducts(pageNo: number): Promise<ProductFeature> {
-  const response = await fetch(`api/product/storefront/products/featured?pageNo=${pageNo}`);
+  const response = await apiClientService.get(`${baseUrl}/products/featured?pageNo=${pageNo}`);
   return response.json();
 }
 
 export async function getProductDetail(slug: string): Promise<ProductDetail> {
-  const response = await fetch(process.env.API_BASE_PATH + '/product/storefront/product/' + slug);
+  const response = await apiClientService.get(`${serverSideRenderUrl}/product/${slug}`);
   return response.json();
 }
 
 export async function getProductOptionValues(productId: number): Promise<ProductOptionValueGet[]> {
-  const res = await fetch(
-    `${process.env.API_BASE_PATH}/product/storefront/product-option-combinations/${productId}/values`
+  const res = await apiClientService.get(
+    `${serverSideRenderUrl}/product-option-combinations/${productId}/values`
   );
   if (res.status >= 200 && res.status < 300) return res.json();
-  return Promise.reject(res);
+  throw new Error(await res.json());
 }
 
 export async function getProductByMultiParams(queryString: string): Promise<ProductAll> {
-  const res = await fetch(`/api/product/storefront/products?${queryString}`);
+  const res = await apiClientService.get(`${baseUrl}/products?${queryString}`);
   return res.json();
 }
 
 export async function getProductVariationsByParentId(
   parentId: number
 ): Promise<ProductVariation[]> {
-  const res = await fetch(
-    `${process.env.API_BASE_PATH}/product/storefront/product-variations/${parentId}`
-  );
+  const res = await apiClientService.get(`${serverSideRenderUrl}/product-variations/${parentId}`);
   if (res.status >= 200 && res.status < 300) return res.json();
-  return Promise.reject(res);
+  throw new Error(await res.json());
 }
 
 export async function getProductSlug(productId: number): Promise<ProductSlug> {
-  const res = await fetch(`/api/product/storefront/productions/${productId}/slug`);
+  const res = await apiClientService.get(`${baseUrl}/productions/${productId}/slug`);
   if (res.status >= 200 && res.status < 300) return res.json();
-  return Promise.reject(res);
+  throw new Error(await res.json());
 }
 
 export async function getRelatedProductsByProductId(productId: number): Promise<ProductsGet> {
-  const res = await fetch(`/api/product/storefront/products/related-products/${productId}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  const res = await apiClientService.get(`${baseUrl}/products/related-products/${productId}`);
   if (res.status >= 200 && res.status < 300) return res.json();
-  return Promise.reject(res);
+  throw new Error(await res.json());
 }
