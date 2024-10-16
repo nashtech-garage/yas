@@ -236,7 +236,7 @@ const Cart = () => {
         <div className="row">
           <div className="col-lg-12">
             <div className="shop__cart__table">
-              {cartItems?.length == 0 ? (
+              {cartItems.length === 0 ? (
                 <h4>There are no items in this cart.</h4>
               ) : (
                 <table>
@@ -312,7 +312,7 @@ const Cart = () => {
                             <div>
                               {formatPrice(item.price - (promotionApply?.discountValue ?? 0))}
                             </div>
-                          </td>{' '}
+                          </td>
                           <td className="cart__quantity">
                             <div className="pro-qty">
                               <div
