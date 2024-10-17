@@ -57,7 +57,7 @@ public class CartItemV2Service {
 
     public List<CartItemV2GetVm> getCartItems() {
         String currentUserId = AuthenticationUtils.extractUserId();
-        List<CartItemV2> cartItems = cartItemRepository.findByCustomerId(currentUserId);
+        List<CartItemV2> cartItems = cartItemRepository.findByCustomerIdOrderByCreatedOnDesc(currentUserId);
         return cartItemMapper.toGetVmList(cartItems);
     }
 

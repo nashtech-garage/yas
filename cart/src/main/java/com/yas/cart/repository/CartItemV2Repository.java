@@ -26,8 +26,7 @@ public interface CartItemV2Repository extends JpaRepository<CartItemV2, CartItem
     @Query("SELECT c FROM CartItemV2 c WHERE c.customerId = :customerId AND c.productId = :productId")
     Optional<CartItemV2> findByCustomerIdAndProductId(String customerId, Long productId);
 
-    @Query("SELECT c FROM CartItemV2 c WHERE c.customerId = :customerId ORDER BY c.createdOn")
-    List<CartItemV2> findByCustomerId(String customerId);
+    List<CartItemV2> findByCustomerIdOrderByCreatedOnDesc(String customerId);
 
     /**
      * Retrieves a list of cart items for a specific customer, locking the records to prevent concurrent modifications.

@@ -181,13 +181,13 @@ class CartItemV2ServiceTest {
                 .build();
             List<CartItemV2> existingCartItems = List.of(existingCartItem);
 
-            when(cartItemRepository.findByCustomerId(CURRENT_USER_ID_SAMPLE))
+            when(cartItemRepository.findByCustomerIdOrderByCreatedOnDesc(CURRENT_USER_ID_SAMPLE))
                 .thenReturn(existingCartItems);
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
 
             List<CartItemV2GetVm> cartItemGetVms = cartItemService.getCartItems();
 
-            verify(cartItemRepository).findByCustomerId(CURRENT_USER_ID_SAMPLE);
+            verify(cartItemRepository).findByCustomerIdOrderByCreatedOnDesc(CURRENT_USER_ID_SAMPLE);
             assertEquals(existingCartItems.size(), cartItemGetVms.size());
         }
     }
