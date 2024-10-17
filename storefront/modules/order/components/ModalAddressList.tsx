@@ -8,20 +8,37 @@ type Props = {
   showModal: boolean;
   handleClose: () => void;
   handleSelectAddress: (address: Address) => any;
+  defaultUserAddress?: Address;
 };
 
-const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props) => {
+const ModalAddressList = ({
+  showModal,
+  handleClose,
+  handleSelectAddress,
+  defaultUserAddress,
+}: Props) => {
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<number>();
 
   useEffect(() => {
     getUserAddress()
       .then((res) => {
         setAddresses(res);
+
+        if (defaultUserAddress?.id) {
+          setSelectedAddressId(defaultUserAddress.id);
+        }
       })
       .catch((err) => {
         console.log('Load address fail: ', err.message);
       });
-  }, []);
+  }, [defaultUserAddress]);
+
+  const handleAddressClick = (address: Address) => {
+    setSelectedAddressId(address.id);
+    handleSelectAddress(address);
+    handleClose();
+  };
 
   return (
     <Modal show={showModal} onHide={handleClose} size="lg" centered>
@@ -38,12 +55,11 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
                 <div
                   className="col-lg-6 mb-2"
                   onClick={() => {
-                    handleSelectAddress(address);
-                    handleClose();
+                    handleAddressClick(address);
                   }}
                   key={address.id}
                 >
-                  <AddressCard address={address} />
+                  <AddressCard address={address} isSelected={selectedAddressId == address.id} />
                 </div>
               ))
             )}

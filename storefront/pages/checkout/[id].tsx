@@ -370,11 +370,13 @@ const Checkout = () => {
                 showModal={showModalShipping}
                 handleClose={handleCloseModalShipping}
                 handleSelectAddress={handleSelectShippingAddress}
+                defaultUserAddress={shippingAddress}
               />
               <ModalAddressList
                 showModal={showModalBilling}
                 handleClose={handleCloseModalBilling}
                 handleSelectAddress={handleSelectBillingAddress}
+                defaultUserAddress={shippingAddress}
               />
             </div>
           </div>

@@ -163,6 +163,24 @@ class UserAddressServiceIT {
     }
 
     @Test
+    void testCreateFirstAddress_whenNormalCase_createAddressSuccessWithActiveStatus() {
+        userAddressRepository.deleteAll();
+
+        Long addressId = 123L;
+        AddressPostVm addressPost = getAddressPostVm();
+
+        SecurityContextUtils.setUpSecurityContext(USER_ID_1);
+        when(locationService.createAddress(addressPost))
+            .thenReturn(AddressVm.builder().id(addressId).build());
+
+        UserAddressVm userAddressVm = userAddressService.createAddress(addressPost);
+
+        assertThat(userAddressVm.userId()).isEqualTo(USER_ID_1);
+        assertThat(userAddressVm.addressGetVm().id()).isEqualTo(addressId);
+        assertThat(userAddressVm.isActive()).isTrue();
+    }
+
+    @Test
     void testDeleteAddress_whenNormalCase_deleteSuccess() {
 
         SecurityContextUtils.setUpSecurityContext(USER_ID_1);

@@ -37,29 +37,16 @@ public class UserAddressService {
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(
-            userAddressList.stream()
-                .map(UserAddress::getAddressId)
-                .collect(Collectors.toList()));
+            userAddressList.stream().map(UserAddress::getAddressId).collect(Collectors.toList()));
 
-        List<ActiveAddressVm> addressActiveVms = userAddressList.stream()
-            .flatMap(userAddress -> addressVmList.stream()
-                .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id()))
-                .map(addressDetailVm -> new ActiveAddressVm(
-                    addressDetailVm.id(),
-                    addressDetailVm.contactName(),
-                    addressDetailVm.phone(),
-                    addressDetailVm.addressLine1(),
-                    addressDetailVm.city(),
-                    addressDetailVm.zipCode(),
-                    addressDetailVm.districtId(),
-                    addressDetailVm.districtName(),
-                    addressDetailVm.stateOrProvinceId(),
-                    addressDetailVm.stateOrProvinceName(),
-                    addressDetailVm.countryId(),
-                    addressDetailVm.countryName(),
-                    userAddress.getIsActive()
-                ))
-            ).collect(Collectors.toList());
+        List<ActiveAddressVm> addressActiveVms = userAddressList.stream().flatMap(userAddress -> addressVmList.stream()
+                .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id())).map(
+                    addressDetailVm -> new ActiveAddressVm(addressDetailVm.id(), addressDetailVm.contactName(),
+                        addressDetailVm.phone(), addressDetailVm.addressLine1(), addressDetailVm.city(),
+                        addressDetailVm.zipCode(), addressDetailVm.districtId(), addressDetailVm.districtName(),
+                        addressDetailVm.stateOrProvinceId(), addressDetailVm.stateOrProvinceName(),
+                        addressDetailVm.countryId(), addressDetailVm.countryName(), userAddress.getIsActive())))
+            .toList();
 
         //sort by isActive
         Comparator<ActiveAddressVm> comparator = Comparator.comparing(ActiveAddressVm::isActive).reversed();
@@ -72,8 +59,8 @@ public class UserAddressService {
             throw new AccessDeniedException(Constants.ErrorCode.UNAUTHENTICATED);
         }
 
-        UserAddress userAddress = userAddressRepository.findByUserIdAndIsActiveTrue(userId).orElseThrow(()
-            -> new NotFoundException(Constants.ErrorCode.USER_ADDRESS_NOT_FOUND));
+        UserAddress userAddress = userAddressRepository.findByUserIdAndIsActiveTrue(userId)
+            .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_ADDRESS_NOT_FOUND));
 
         return locationService.getAddressById(userAddress.getAddressId());
     }
@@ -81,12 +68,13 @@ public class UserAddressService {
     public UserAddressVm createAddress(AddressPostVm addressPostVm) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        // Fetch all existing addresses for the user
+        List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
+        boolean isFirstAddress = userAddressList.isEmpty();
+
         AddressVm addressGetVm = locationService.createAddress(addressPostVm);
-        UserAddress userAddress = UserAddress.builder()
-            .userId(userId)
-            .addressId(addressGetVm.id())
-            .isActive(false)
-            .build();
+        UserAddress userAddress =
+            UserAddress.builder().userId(userId).addressId(addressGetVm.id()).isActive(isFirstAddress).build();
 
         return UserAddressVm.fromModel(userAddressRepository.save(userAddress), addressGetVm);
 
