@@ -43,7 +43,7 @@ const Customers: NextPage = () => {
         </div>
 
         <div className="col-md-4 text-right">
-          <Link href="/customer/create">
+          <Link href="/customers/create">
             <Button>Create Customer</Button>
           </Link>
         </div>
