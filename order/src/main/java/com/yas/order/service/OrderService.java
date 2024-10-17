@@ -13,6 +13,7 @@ import com.yas.order.model.csv.OrderItemCsv;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
+import com.yas.order.model.request.OrderRequest;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.AuthenticationUtils;
@@ -253,16 +254,18 @@ public class OrderService {
         this.orderRepository.save(order);
     }
 
-    public byte[] exportCsv(ZonedDateTime createdFrom,
-                            ZonedDateTime createdTo,
-                            String warehouse,
-                            String productName,
-                            List<OrderStatus> orderStatus,
-                            String billingCountry,
-                            String billingPhoneNumber,
-                            String email,
-                            int pageNo,
-                            int pageSize) throws IOException {
+    public byte[] exportCsv(OrderRequest orderRequest) throws IOException {
+        ZonedDateTime createdFrom = orderRequest.getCreatedFrom();
+        ZonedDateTime createdTo = orderRequest.getCreatedTo();
+        String warehouse = orderRequest.getWarehouse();
+        String productName = orderRequest.getProductName();
+        List<OrderStatus> orderStatus = orderRequest.getOrderStatus();
+        String billingCountry = orderRequest.getBillingCountry();
+        String billingPhoneNumber = orderRequest.getBillingPhoneNumber();
+        String email = orderRequest.getEmail();
+        int pageNo = orderRequest.getPageNo();
+        int pageSize = orderRequest.getPageSize();
+
         OrderListVm orderListVm = getAllOrder(createdFrom, createdTo,
             warehouse, productName,
             orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);

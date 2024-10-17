@@ -101,24 +101,11 @@ public class OrderController {
 
     @PostMapping("/backoffice/orders/csv")
     public ResponseEntity<byte[]> exportCsv(@RequestBody OrderRequest orderRequest) throws IOException {
-        ZonedDateTime createdFrom = orderRequest.getCreatedFrom();
-        ZonedDateTime createdTo = orderRequest.getCreatedTo();
-        String warehouse = orderRequest.getWarehouse();
-        String productName = orderRequest.getProductName();
-        List<OrderStatus> orderStatus = orderRequest.getOrderStatus();
-        String billingCountry = orderRequest.getBillingCountry();
-        String billingPhoneNumber = orderRequest.getBillingPhoneNumber();
-        String email = orderRequest.getEmail();
-        int pageNo = orderRequest.getPageNo();
-        int pageSize = orderRequest.getPageSize();
-
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=" + CsvExporter.createFileName(OrderItemCsv.class));
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        var csvBytes =
-            orderService.exportCsv(createdFrom, createdTo, warehouse, productName, orderStatus,
-                billingCountry, billingPhoneNumber, email, pageNo, pageSize);
+        var csvBytes = orderService.exportCsv(orderRequest);
         return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
     }
 }
