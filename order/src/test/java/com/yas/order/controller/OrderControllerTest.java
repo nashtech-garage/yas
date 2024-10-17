@@ -12,12 +12,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yas.order.OrderApplication;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.model.enumeration.PaymentStatus;
+import com.yas.order.model.request.OrderRequest;
 import com.yas.order.service.OrderService;
 import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
@@ -32,6 +34,7 @@ import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -221,42 +224,24 @@ class OrderControllerTest {
                 .json(objectWriter.writeValueAsString(list)));
     }
 
-
     @Test
-    void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception {
-        // Given
-        byte[] csvContent = "orderId,productName,quantity\n1,Product A,2\n2,Product B,3".getBytes();
-        ZonedDateTime createdFrom = ZonedDateTime.parse("1970-01-01T00:00:00Z");
-        ZonedDateTime createdTo = ZonedDateTime.now();
-        String warehouse = "Warehouse A";
-        String productName = "Product A";
-        List<OrderStatus> orderStatus = List.of(OrderStatus.COMPLETED);
-        String billingPhoneNumber = "123456789";
-        String email = "test@example.com";
-        String billingCountry = "United States";
-        int pageNo = 0;
-        int pageSize = 10;
+    void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        OrderRequest orderRequest = new OrderRequest();
+        byte[] csvBytes = "ID,Name,Tags\n1,Alice,tag1,tag2\n2,Bob,tag3,tag4\n".getBytes();
 
-        when(orderService.exportCsv(any(), any(), anyString(), anyString(), anyList(),
-                anyString(), anyString(), anyString(), anyInt(), anyInt()))
-                .thenReturn(csvContent);
+        when(orderService.exportCsv(any(OrderRequest.class))).thenReturn(csvBytes);
 
-        // When
-        mockMvc.perform(get("/backoffice/orders/csv")
-                        .param("createdFrom", createdFrom.toString())
-                        .param("createdTo", createdTo.toString())
-                        .param("warehouse", warehouse)
-                        .param("productName", productName)
-                        .param("orderStatus", orderStatus.get(0).toString())
-                        .param("billingPhoneNumber", billingPhoneNumber)
-                        .param("email", email)
-                        .param("billingCountry", billingCountry)
-                        .param("pageNo", String.valueOf(pageNo))
-                        .param("pageSize", String.valueOf(pageSize))
-                        .accept(MediaType.APPLICATION_OCTET_STREAM))
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.content().bytes(csvContent));
-
+        mockMvc.perform(post("/backoffice/orders/csv")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(orderRequest)))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=Orders_" +
+                    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss")) + ".csv"))
+            .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
     }
 
     private OrderVm getOrderVm() {
