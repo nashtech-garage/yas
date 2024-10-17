@@ -2,6 +2,7 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.Constants.ErrorCode.ORDER_NOT_FOUND;
 
+import com.yas.commonlibrary.csv.BaseCsv;
 import com.yas.commonlibrary.csv.CsvExporter;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.OrderMapper;
@@ -27,6 +28,7 @@ import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVm;
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -267,7 +269,9 @@ public class OrderService {
         if (Objects.isNull(orderListVm.orderList())) {
             return CsvExporter.exportToCsv(List.of(), OrderItemCsv.class);
         }
-        var orders = orderListVm.orderList().stream().map(orderMapper::toCsv).toList();
+
+        List<BaseCsv> orders = orderListVm.orderList().stream().map(orderMapper::toCsv).collect(
+            Collectors.toUnmodifiableList());
         return CsvExporter.exportToCsv(orders, OrderItemCsv.class);
     }
 }

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CsvExporterTest {
 
     @CsvName(fileName = "TestFile")
-    static class TestData {
+    static class TestData extends BaseCsv {
         @CsvColumn(columnName = "ID")
         private int id;
 
@@ -34,7 +34,7 @@ class CsvExporterTest {
     @Test
     void testExportToCsv_withValidData_shouldReturnCorrectCsvContent() throws IOException {
         // Given
-        List<TestData> dataList = Arrays.asList(
+        List<BaseCsv> dataList = Arrays.asList(
                 new TestData(1, "Alice", Arrays.asList("tag1", "tag2")),
                 new TestData(2, "Bob", Arrays.asList("tag3", "tag4"))
         );
@@ -44,9 +44,9 @@ class CsvExporterTest {
         String csvContent = new String(csvBytes);
 
         // Then
-        String expectedCsv = "ID,Name,Tags,\n" +
-                "1,Alice,tag1,tag2,\n" +
-                "2,Bob,tag3,tag4,\n";
+        String expectedCsv = "ID,Name,Tags\n" +
+                "1,Alice,[tag1|tag2]\n" +
+                "2,Bob,[tag3|tag4]\n";
 
         assertEquals(expectedCsv, csvContent);
     }
@@ -54,14 +54,14 @@ class CsvExporterTest {
     @Test
     void testExportToCsv_withEmptyDataList_shouldReturnOnlyHeader() throws IOException {
         // Given
-        List<TestData> dataList = new ArrayList<>();
+        List<BaseCsv> dataList = new ArrayList<>();
 
         // When
         byte[] csvBytes = CsvExporter.exportToCsv(dataList, TestData.class);
         String csvContent = new String(csvBytes);
 
         // Then
-        String expectedCsv = "ID,Name,Tags,\n";
+        String expectedCsv = "ID,Name,Tags\n";
         assertEquals(expectedCsv, csvContent);
     }
 
