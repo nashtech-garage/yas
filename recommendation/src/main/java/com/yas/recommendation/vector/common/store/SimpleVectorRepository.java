@@ -133,7 +133,7 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
             .toList();
     }
 
-    protected IdGenerator getIdGenerator(Long entityId) {
+    public IdGenerator getIdGenerator(Long entityId) {
         return new DefaultIdGenerator(documentMetadata.docIdPrefix(), entityId);
     }
 
