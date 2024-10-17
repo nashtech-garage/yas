@@ -1,0 +1,68 @@
+@startuml
+
+entity checkout {
+  * id: UUID (PK)
+  --
+  promotion_code: string 
+  status: string
+  progress: string
+  customer_id: UUID,
+  shipment_method_id: UUID,
+  payment_method_id: UUID,
+  shipping_address_id: UUID,
+  last_error: json,  
+  attributes: json,
+  total_amount: numeric(12, 4)
+  total_shipment_fee: numeric(12, 4)
+  total_shipment_tax: numeric(12, 4)
+  total_tax: numeric(12, 4)
+  total_discount_amount: numeric(12, 4)
+  --
+  created_at: timestamp
+  created_by: UUID
+  last_updated_at: timestamp  
+  last_updated_by: UUID
+}
+
+note right of checkout
+  - Primary Key: id
+  - customer_id: reference to Customer Service
+  - promotion_code: reference to Promotion Service
+  - status: checkout status
+  - shipment_method_id: reference to Shipment Service
+  - payment_method_id: reference to Payment Service
+  - shipping_address_id: reference to Customber Service
+  - last_error: represent error as a Json (if any)
+end note
+
+entity items {
+  * checkout_id: UUID
+  * product_id: int8
+  --
+  name: string
+  description: string
+  quantity: int8
+  price: numeric(12, 4)
+  tax: numeric(12, 4)
+  shipment_fee: numeric(12, 4)
+  shipment_tax: numeric(12, 4)
+  discount_amount: numeric(12, 4)
+  status: string
+  processing_state: json
+  --
+  created_at: timestamp
+  created_by: UUID
+  last_updated_at: timestamp  
+  last_updated_by: UUID
+}
+
+note right of items
+  - Primary Key: checkout_id and product_id
+  - status and processing_state are designed to manage some cases as PARTIAL delivery
+  - status: item status, default is NEW
+  - processing_state: default is NULL
+end note
+
+items ||-up-|{ checkout: checkout_id
+
+@enduml

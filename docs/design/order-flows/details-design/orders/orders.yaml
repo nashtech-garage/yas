@@ -1,0 +1,284 @@
+openapi: 3.0.0
+info:
+  title: Orders API
+  description: API for managing Checkout adn Orders
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server
+paths:
+  /checkouts:
+    post: 
+      summary: Create a new checkout
+      operationId: createCheckout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+      responses:
+        '201':
+          description: Checkout created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkout'
+
+  /checkouts/{id}:
+    get: 
+      summary: get Checkout By Id
+      operationId: getCheckoutById
+      parameters:
+        - name: id
+          in: path
+          description: The checkout id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+      responses:
+        '200':
+          description: Checkout Information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkout'
+  /checkouts/{id}/payment:
+    put:
+      summary: Update Payment Method
+      operationId: updatePaymentMethod
+      parameters:
+        - name: id
+          in: path
+          description: The checkout id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paymentMethodId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Checkout Information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkout'
+  /checkouts/{id}/promocode:
+    put:
+      summary: Update Promotion Code
+      operationId: updatePromotionCode
+      parameters:
+        - name: id
+          in: path
+          description: The checkout id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                promocode:
+                  type: string
+      responses:
+        '200':
+          description: Checkout Information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkout'
+  /checkouts/{id}/shipment:
+    put:
+      summary: Update Shipment Provider
+      operationId: updateShipmentProvider
+      parameters:
+        - name: id
+          in: path
+          description: The checkout id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                providerId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Checkout Information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkout'
+  /checkouts/{id}/address:
+    put:
+      summary: Update Shipment Address
+      operationId: updateShipmentAddress
+      parameters:
+        - name: id
+          in: path
+          description: The checkout id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addressId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Checkout Information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkout'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: SESSION
+  schemas:
+    Checkout:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        promotionCode: 
+          type: string
+        shipmentMethodId:
+          type: string
+          format: uuid
+        paymentMethodId:
+          type: string
+          format: uuid
+        shipmentAddressId:
+          type: string
+          format: uuid
+        last_error: 
+          type: object
+        status:
+          type: string
+          enum: [CHECKED_OUT, PAYMENT_PROCESSING, PAYMENT_CONFIRMED, FULFILLED]
+        totalAmount:
+          type: number
+          format: numeric(12, 4)
+        totalTax:
+          type: number
+          format: numeric(12, 4)
+        totalShipmentFee:
+          type: number
+          format: numeric(12, 4)
+        totalShipmentTax:
+          type: number
+          format: numeric(12, 4)
+        totalDiscountAmount:
+          type: number
+          format: numeric(12, 4)
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        createAt: 
+          type: string
+          format: date-time
+        createBy:
+          type: string
+          format: uuid
+        lastUpdateAt:
+          type: string
+          format: date-time
+        lastUpdateBy:
+          type: string
+          format: uuid  
+    Item:
+      type: object
+      required:
+        - checkoutId
+        - productId
+        - quantity
+      properties:
+        checkoutId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        name: 
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        quantity:
+          type: integer
+          format: int64
+        price:
+          type: number
+          format: float
+        tax:
+          type: number
+          format: float
+        shipment_fee:
+          type: number
+          format: numeric(12, 4)
+        shipment_tax:
+          type: number
+          format: numeric(12, 4)
+        discount_amount:
+          type: number
+          format: numeric(12, 4)
+        status:
+          type: string
+        createAt: 
+          type: string
+          format: date-time
+        createBy:
+          type: string
+          format: uuid
+        lastUpdateAt:
+          type: string
+          format: date-time
+        lastUpdateBy:
+          type: string
+          format: uuid 
+security:
+  - cookieAuth: []
