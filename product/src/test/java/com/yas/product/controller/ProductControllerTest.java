@@ -1,6 +1,7 @@
 package com.yas.product.controller;
 
 import com.yas.product.ProductApplication;
+import com.yas.product.model.Product;
 import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.service.ProductDetailService;
 import com.yas.product.service.ProductService;
@@ -9,9 +10,12 @@ import com.yas.product.viewmodel.product.ProductPostVm;
 import com.yas.product.viewmodel.product.ProductPutVm;
 import com.yas.product.viewmodel.product.ProductQuantityPutVm;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -290,5 +296,14 @@ class ProductControllerTest {
     void testGetProductDetailById() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/storefront/products/detail/{productId}", 1))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetProductCheckoutList_returnListProduct() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/products")
+            .param("pageNo", "0")
+            .param("pageSize", "10")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
     }
 }

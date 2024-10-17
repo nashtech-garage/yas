@@ -10,6 +10,7 @@ import com.yas.product.viewmodel.product.ProductDetailVm;
 import com.yas.product.viewmodel.product.ProductEsDetailVm;
 import com.yas.product.viewmodel.product.ProductExportingDetailVm;
 import com.yas.product.viewmodel.product.ProductFeatureGetVm;
+import com.yas.product.viewmodel.product.ProductGetCheckoutListVm;
 import com.yas.product.viewmodel.product.ProductGetDetailVm;
 import com.yas.product.viewmodel.product.ProductInfoVm;
 import com.yas.product.viewmodel.product.ProductListGetFromCategoryVm;
@@ -75,10 +76,10 @@ public class ProductController {
 
     @PostMapping(path = "/backoffice/products", consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created",
-                    content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+        @ApiResponse(responseCode = "201", description = "Created",
+                content = @Content(schema = @Schema(implementation = ProductGetDetailVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
     public ResponseEntity<ProductGetDetailVm> createProduct(@Valid @RequestBody ProductPostVm productPostVm) {
         ProductGetDetailVm productGetDetailVm = productService.createProduct(productPostVm);
@@ -87,11 +88,11 @@ public class ProductController {
 
     @PutMapping(path = "/backoffice/products/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Updated"),
-            @ApiResponse(responseCode = "404", description = "Not found",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+        @ApiResponse(responseCode = "204", description = "Updated"),
+        @ApiResponse(responseCode = "404", description = "Not found",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
     public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @RequestBody ProductPutVm productPutVm) {
         productService.updateProduct(id, productPutVm);
@@ -139,11 +140,11 @@ public class ProductController {
 
     @DeleteMapping("/backoffice/products/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
-            @ApiResponse(responseCode = "404", description = "Not found",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+        @ApiResponse(responseCode = "204", description = "No content", content = @Content()),
+        @ApiResponse(responseCode = "404", description = "Not found",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
@@ -164,13 +165,13 @@ public class ProductController {
     }
 
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get product variations by parent id successfully",
-                    content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "404", description = "Not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
+        @ApiResponse(responseCode = "200", description = "Get product variations by parent id successfully",
+                content = @Content(mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = "404", description = "Not found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
     })
     @GetMapping({"/storefront/product-variations/{id}", "/backoffice/product-variations/{id}"})
     public ResponseEntity<List<ProductVariationGetVm>> getProductVariationsByParentId(@PathVariable Long id) {
@@ -188,11 +189,11 @@ public class ProductController {
     }
 
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get related products by product id successfully",
-                    content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
+        @ApiResponse(responseCode = "200", description = "Get related products by product id successfully",
+                content = @Content(mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
+        @ApiResponse(responseCode = "404", description = "Not found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
     })
     @GetMapping("/backoffice/products/related-products/{id}")
     public ResponseEntity<List<ProductListVm>> getRelatedProductsBackoffice(@PathVariable Long id) {
@@ -200,11 +201,11 @@ public class ProductController {
     }
 
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get related products by product id successfully",
-                    content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
+        @ApiResponse(responseCode = "200", description = "Get related products by product id successfully",
+                content = @Content(mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = ProductVariationGetVm.class)))),
+        @ApiResponse(responseCode = "404", description = "Not found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorVm.class)))
     })
     @GetMapping("/storefront/products/related-products/{id}")
     public ResponseEntity<ProductsGetVm> getRelatedProductsStorefront(
@@ -226,11 +227,11 @@ public class ProductController {
 
     @PutMapping(path = "/backoffice/products/update-quantity")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Updated"),
-            @ApiResponse(responseCode = "404", description = "Not found",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+        @ApiResponse(responseCode = "204", description = "Updated"),
+        @ApiResponse(responseCode = "404", description = "Not found",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> updateProductQuantity(
             @Valid @RequestBody List<ProductQuantityPostVm> productQuantityPostVms
     ) {
@@ -241,11 +242,11 @@ public class ProductController {
 
     @PutMapping(path = "/backoffice/products/subtract-quantity", consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Updated"),
-            @ApiResponse(responseCode = "404", description = "Not found",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+        @ApiResponse(responseCode = "204", description = "Updated"),
+        @ApiResponse(responseCode = "404", description = "Not found",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request",
+                content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> subtractProductQuantity(
             @Valid @RequestBody List<ProductQuantityPutVm> productQuantityPutVm
     ) {
@@ -278,5 +279,13 @@ public class ProductController {
     @GetMapping("/storefront/products/detail/{productId}")
     public ResponseEntity<ProductDetailInfoVm> getProductDetailById(@PathVariable("productId") long productId) {
         return ResponseEntity.ok(productDetailService.getProductDetailById(productId));
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<ProductGetCheckoutListVm> getProductCheckoutList(
+        @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+        @RequestParam(value = "pageSize", defaultValue = "20", required = false) int pageSize,
+        @RequestParam(value = "ids", required = false) List<Long> productIds) {
+        return ResponseEntity.ok(productService.getProductCheckoutList(pageNo, pageSize, productIds));
     }
 }
