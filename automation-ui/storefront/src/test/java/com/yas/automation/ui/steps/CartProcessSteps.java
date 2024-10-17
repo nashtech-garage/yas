@@ -13,6 +13,7 @@ import com.yas.automation.ui.services.AuthenticationService;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import java.time.Duration;
 
 public class CartProcessSteps extends BasePage {
     private final WebDriverFactory webDriverFactory;
@@ -96,11 +97,13 @@ public class CartProcessSteps extends BasePage {
     @When("I click on button Remove")
     public void iClickOnButtonRemove() {
         cartPage.clickRemoveButton();
+        this.wait(Duration.ofSeconds(1));
     }
 
-    @Then("This item is not existed on table")
-    public void thisItemIsNotExistedOnTable() {
-        assertFalse(cartPage.checkProductName(productName));
+    @Then("The basket is empty or this cart item is not existed")
+    public void theBasketIsEmptyOrThisCartItemIsNotExisted() {
+        boolean result = cartPage.isBasketEmpty() || !cartPage.checkProductName(productName);
+        assertTrue(result);
     }
 
 }

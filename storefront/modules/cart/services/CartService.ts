@@ -1,54 +1,104 @@
+import { CartItemGetVm, CartItemGetDetailsVm } from '../models/CartItemGetVm';
 import { ProductThumbnail } from '../../catalog/models/ProductThumbnail';
-import { AddToCartModel } from '../models/AddToCartModel';
-import { Cart } from '../models/Cart';
-import { UpdateCartModel } from '../models/UpdateCartModel';
 import apiClientService from '@/common/services/ApiClientService';
+import { CartItemPostVm } from '../models/CartItemPostVm';
+import { YasError } from '@/common/services/errors/YasError';
+import { getProductsByIds } from '@/modules/catalog/services/ProductService';
+import { CartItemPutVm } from '../models/CartItemPutVm';
+import { CartItemDeleteVm } from '../models/CartItemDeleteVm';
 
-const baseUrl = '/api/cart';
+const CART_BASE_URL = `/api/cart/storefront/cart/items`;
 
-export async function addToCart(addToCart: AddToCartModel[]): Promise<Cart> {
-  const response = await apiClientService.post(
-    `${baseUrl}/storefront/carts`,
-    JSON.stringify(addToCart)
-  );
-  if (response.status >= 200 && response.status < 300) return await response.json();
-  throw response;
-}
-
-export async function getCart(): Promise<Cart> {
-  const response = await apiClientService.get(`${baseUrl}/storefront/carts`);
-  if (response.status >= 200 && response.status < 300) return await response.json();
-  throw response;
-}
-
-export async function getCartProductThumbnail(ids: number[]): Promise<ProductThumbnail[]> {
-  const response = await apiClientService.get(
-    `/api/product/storefront/products/list-featured?productId=${ids}`
-  );
+export async function addCartItem(payload: CartItemPostVm): Promise<CartItemGetVm> {
+  const response = await apiClientService.post(CART_BASE_URL, JSON.stringify(payload));
+  if (!response.ok) {
+    await throwDetailedError(response);
+  }
   return await response.json();
 }
 
-export async function removeProductInCart(productId: number) {
-  const response = await apiClientService.delete(
-    `${baseUrl}/storefront/cart-item?productId=${productId}`
-  );
-  if (response.status === 204) return response;
-  else return await response.json();
+export async function getDetailedCartItems(): Promise<CartItemGetDetailsVm[]> {
+  const cartItems = await getCartItems();
+  const cartItemProductIds = cartItems.map((item) => item.productId);
+  const products = await getProductsByIds(cartItemProductIds);
+  return mapCartItemsToDetailedItems(cartItems, products);
 }
 
-export async function updateCart(updateCartBody: AddToCartModel): Promise<UpdateCartModel> {
-  const response = await apiClientService.put(
-    `${baseUrl}/cart-item`,
-    JSON.stringify(updateCartBody)
-  );
+async function getCartItems(): Promise<CartItemGetVm[]> {
+  const response = await apiClientService.get(CART_BASE_URL);
+  if (!response.ok) {
+    await throwDetailedError(response);
+  }
+  return await response.json();
+}
 
-  if (response.status >= 200 && response.status < 300) return await response.json();
+function mapCartItemsToDetailedItems(
+  cartItemGetVms: CartItemGetVm[],
+  products: ProductThumbnail[]
+): CartItemGetDetailsVm[] {
+  const detailedCartItems: CartItemGetDetailsVm[] = [];
 
-  throw response;
+  const productMap = new Map(products.map((product) => [product.id, product]));
+
+  for (const cartItem of cartItemGetVms) {
+    const product = productMap.get(cartItem.productId);
+    if (!product) {
+      continue;
+    }
+    detailedCartItems.push({
+      ...cartItem,
+      productName: product.name,
+      slug: product.slug,
+      thumbnailUrl: product.thumbnailUrl,
+      price: product.price,
+    });
+  }
+  return detailedCartItems;
 }
 
 export async function getNumberCartItems(): Promise<number> {
-  const response = await apiClientService.get(`${baseUrl}/storefront/count-cart-items`);
-  if (response.status >= 200 && response.status < 300) return await response.json();
-  throw response;
+  const response = await apiClientService.get(CART_BASE_URL);
+  if (!response.ok) {
+    await throwDetailedError(response);
+  }
+  const cartItems = await response.json();
+  const numberCartItems = cartItems.reduce(
+    (currentTotal: number, item: CartItemGetVm) => currentTotal + item.quantity,
+    0
+  );
+  return numberCartItems;
+}
+
+export async function deleteCartItem(productId: number): Promise<void> {
+  const response = await apiClientService.delete(`${CART_BASE_URL}/${productId}`);
+  if (!response.ok) {
+    await throwDetailedError(response);
+  }
+}
+
+export async function bulkDeleteCartItems(payload: CartItemDeleteVm[]): Promise<CartItemGetVm[]> {
+  const response = await apiClientService.post(`${CART_BASE_URL}/remove`, JSON.stringify(payload));
+  if (!response.ok) {
+    await throwDetailedError(response);
+  }
+  return await response.json();
+}
+
+export async function updateCartItem(
+  productId: number,
+  payload: CartItemPutVm
+): Promise<CartItemGetVm> {
+  const response = await apiClientService.put(
+    `${CART_BASE_URL}/${productId}`,
+    JSON.stringify(payload)
+  );
+  if (!response.ok) {
+    await throwDetailedError(response);
+  }
+  return await response.json();
+}
+
+async function throwDetailedError(response: Response) {
+  const errorResponse = await response.json();
+  throw new YasError(errorResponse);
 }

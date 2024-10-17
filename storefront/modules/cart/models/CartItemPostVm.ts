@@ -1,5 +1,4 @@
-export type CartItem = {
-  id: number;
+export type CartItemPostVm = {
   productId: number;
   quantity: number;
 };

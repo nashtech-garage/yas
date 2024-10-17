@@ -1,222 +1,182 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 
-import ImageWithFallBack from '@/common/components/ImageWithFallback';
 import ConfirmationDialog from '@/common/components/dialog/ConfirmationDialog';
-import { useCartContext } from '@/context/CartContext';
-import { useUserInfoContext } from '@/context/UserInfoContext';
-import { Cart as CartModel } from '@/modules/cart/models/Cart';
-import {
-  getCart,
-  getCartProductThumbnail,
-  removeProductInCart,
-  updateCart,
-} from '@/modules/cart/services/CartService';
+import * as CartService from '@/modules/cart/services/CartService';
+import { formatPrice } from 'utils/formatPrice';
 import { toastError } from '@/modules/catalog/services/ToastService';
+import { CartItemGetDetailsVm } from '@/modules/cart/models/CartItemGetVm';
 import { Checkout } from '@/modules/order/models/Checkout';
-import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
+import { useUserInfoContext } from '@/context/UserInfoContext';
 import { createCheckout } from '@/modules/order/services/OrderService';
+import { useRouter } from 'next/router';
+import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
+import { useCartContext } from '@/context/CartContext';
 import { PromotionVerifyResult } from '@/modules/promotion/model/Promotion';
 import { verifyPromotion } from '@/modules/promotion/service/PromotionService';
-import { useRouter } from 'next/router';
-import { formatPrice } from 'utils/formatPrice';
+import { CartItemPutVm } from '@/modules/cart/models/CartItemPutVm';
+import CartItem from '@/modules/cart/components/CartItem';
 
 const Cart = () => {
   const router = useRouter();
-  type Item = {
-    productId: number;
-    quantity: number;
-    productName: string;
-    slug: string;
-    thumbnailUrl: string;
-    price: number;
-  };
 
-  const [items, setItems] = useState<Item[]>([]);
+  const [cartItems, setCartItems] = useState<CartItemGetDetailsVm[]>([]);
 
   const [selectedProductIds, setSelectedProductIds] = useState<Set<number>>(new Set());
 
-  const [loaded, setLoaded] = useState(false);
-
-  const [productIdRemove, setProductIdRemove] = useState<number>(0);
-
-  const [isOpenRemoveDialog, setIsOpenRemoveDialog] = useState(false);
+  const [loadingItems, setLoadingItems] = useState<Set<number>>(new Set());
 
   const [totalPrice, setTotalPrice] = useState(0);
 
+  const [isDeleteConfirmationModalOpened, setIsDeleteConfirmationModalOpened] = useState(false);
+
+  const [productIdToRemove, setProductIdToRemove] = useState<number>(0);
+
   const { email } = useUserInfoContext();
+
+  const { fetchNumberCartItems } = useCartContext();
 
   const [couponCode, setCouponCode] = useState<string>('');
 
   const [promotionApply, setPromotionApply] = useState<PromotionVerifyResult>();
 
-  const [cart, setCart] = useState<CartModel>({
-    id: 0,
-    customerId: '',
-    cartDetails: [
-      {
-        id: 0,
-        productId: 0,
-        quantity: 0,
-      },
-    ],
-  });
-  const { fetchNumberCartItems } = useCartContext();
+  useEffect(() => {
+    loadCartItems();
+  }, []);
 
   useEffect(() => {
-    const selectedItems = getSelectedItems();
+    const selectedItems = getSelectedCartItems();
     const newTotalPrice = selectedItems
       .map((item) => item.price * item.quantity)
       .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
     setTotalPrice(newTotalPrice);
-  }, [items, selectedProductIds]);
+  }, [cartItems, selectedProductIds]);
 
-  const getSelectedItems = () => {
-    return items.filter((item) => selectedProductIds.has(item.productId));
+  const loadCartItems = async () => {
+    try {
+      const newCartItems = await CartService.getDetailedCartItems();
+      setCartItems(newCartItems);
+      fetchNumberCartItems();
+    } catch (error) {
+      return [];
+    }
   };
 
-  const calculateProductPrice = (item: Item) => {
-    return formatPrice(item.price * item.quantity - (promotionApply?.discountValue ?? 0));
+  const getSelectedCartItems = () => {
+    return cartItems.filter((cartItem) => selectedProductIds.has(cartItem.productId));
   };
 
-  const getProductThumbnails = (productIds: number[]) => {
-    return getCartProductThumbnail(productIds);
-  };
-
-  const loadCart = () => {
-    getCart()
-      .then((data) => {
-        setCart(data);
-        fetchNumberCartItems();
-        const cartDetails = data.cartDetails;
-        const productIds = cartDetails.map((item) => item.productId);
-        getProductThumbnails(productIds)
-          .then((results) => {
-            const newItems: Item[] = [];
-            results.forEach((result) => {
-              newItems.push({
-                productId: result.id,
-                quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
-                productName: result.name,
-                slug: result.slug,
-                thumbnailUrl: result.thumbnailUrl,
-                price: result.price,
-              });
-            });
-            setItems(newItems);
-          })
-          .catch((err) => {
-            console.log('Load product thumbnails fail: ' + err.message);
-          });
-      })
-      .catch((err) => {
-        console.log('Load cart failed: ' + err.message);
-      });
-  };
-
-  const removeProduct = (productId: number) => {
-    removeProductInCart(productId)
-      .then(() => {
-        loadCart();
-        setSelectedProductIds((prevSelectedProductIds) => {
-          const newSelectedItems = new Set(prevSelectedProductIds);
-          newSelectedItems.delete(productId);
-          return newSelectedItems;
-        });
-      })
-      .catch((err) => {
-        console.log('remove product in cart fail: ' + err.message);
-      });
-    setIsOpenRemoveDialog(false);
-  };
-
-  const handlePlus = (productId: number, productQuantity: number) => {
-    updateCart({
-      productId: productId,
-      quantity: productQuantity + 1,
-    })
-      .then(() => loadCart())
-      .catch((err) => {
-        console.log('Plus product to cart fail: ' + err.message);
-      });
-  };
-
-  const handleMinus = (productId: number, productQuantity: number) => {
-    if (productQuantity === 1) {
-      removeProductInCart(productId)
-        .then(() => loadCart())
-        .catch((err) => {
-          console.log('remove product in cart fail: ' + err.message);
-        });
+  const handleSelectAllCartItemsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const allProductIds = cartItems.map((cartItem) => cartItem.productId);
+      setSelectedProductIds(new Set(allProductIds));
     } else {
-      updateCart({
-        productId: productId,
-        quantity: productQuantity - 1,
-      })
-        .then(() => loadCart())
-        .catch((err) => {
-          console.log('update product in cart fail: ' + err.message);
-        });
+      setSelectedProductIds(new Set());
     }
   };
 
-  const handleQuantityOnChange = (productId: number, quanity: number) => {
-    items.find((item) => item.productId === productId)!.quantity = quanity;
+  const handleSelectCartItemChange = (productId: number) => {
+    setSelectedProductIds((prevSelectedProductIds) => {
+      const newSelectedProductIds = new Set(prevSelectedProductIds);
+      if (newSelectedProductIds.has(productId)) {
+        newSelectedProductIds.delete(productId);
+      } else {
+        newSelectedProductIds.add(productId);
+      }
+      return newSelectedProductIds;
+    });
   };
 
-  const handleQuantityKeyDown = (productId: number, key: string) => {
-    if (key === 'Enter') {
-      updateCart({
-        productId: productId,
-        quantity: items.find((item) => item.productId === productId)!.quantity,
-      })
-        .then(() => loadCart())
-        .catch((err) =>
-          toast.error(err, {
-            position: 'top-right',
-            autoClose: 2000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            theme: 'colored',
-          })
-        );
+  const handleCartItemQuantityOnBlur = async (
+    productId: number,
+    event: React.FocusEvent<HTMLInputElement>
+  ) => {
+    const newQuantity = parseInt(event.target.value);
+    const product = cartItems.find((item) => item.productId === productId);
+    if (!product || newQuantity === product.quantity) {
+      return;
+    }
+    await handleUpdateCartItemQuantity(productId, newQuantity);
+  };
+
+  const handleCartItemQuantityKeyDown = async (
+    productId: number,
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'];
+    const digitKeyPattern = /^\d$/;
+
+    if (!allowedKeys.includes(event.key) && !digitKeyPattern.test(event.key)) {
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      const newQuantity = parseInt(event.currentTarget.value);
+      await handleUpdateCartItemQuantity(productId, newQuantity);
     }
   };
 
-  const handleCartQuantityInputOnBlur = (productId: number, newQuantity: number) => {
-    updateCart({
-      productId: productId,
-      quantity: newQuantity,
-    })
-      .then(() => loadCart())
-      .catch(() =>
-        toast.error("Couldn't change product quantity in cart!", {
-          position: 'top-right',
-          autoClose: 2000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: 'colored',
-        })
-      );
-  };
-
-  const openRemoveConfirmDialog = (productId: number) => {
-    setProductIdRemove(productId);
-    setIsOpenRemoveDialog(true);
-  };
-
-  useEffect(() => {
-    if (!loaded) {
-      loadCart();
-      setLoaded(true);
+  const handleIncreaseQuantity = async (productId: number) => {
+    const cartItem = cartItems.find((item) => item.productId === productId);
+    if (!cartItem) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded]);
+    const newQuantity = cartItem.quantity + 1;
+    await handleUpdateCartItemQuantity(productId, newQuantity);
+  };
+
+  const handleDecreaseQuantity = async (productId: number) => {
+    const cartItem = cartItems.find((item) => item.productId === productId);
+    if (!cartItem) {
+      return;
+    }
+    const newQuantity = cartItem.quantity - 1;
+    if (newQuantity < 1) {
+      handleOpenDeleteConfirmationModal(productId);
+    } else {
+      await handleUpdateCartItemQuantity(productId, newQuantity);
+    }
+  };
+
+  const handleUpdateCartItemQuantity = async (productId: number, quantity: number) => {
+    setLoadingItems((prevLoadingItems) => new Set(prevLoadingItems).add(productId));
+    try {
+      const payload: CartItemPutVm = {
+        quantity: quantity,
+      };
+      await CartService.updateCartItem(productId, payload);
+      loadCartItems();
+    } catch (error) {
+      toastErrorWithDetails('Failed to update cart item quantity', error);
+    } finally {
+      setLoadingItems((prevLoadingItems) => {
+        const newLoadingItems = new Set(prevLoadingItems);
+        newLoadingItems.delete(productId);
+        return newLoadingItems;
+      });
+    }
+  };
+
+  const handleOpenDeleteConfirmationModal = (productId: number) => {
+    setProductIdToRemove(productId);
+    setIsDeleteConfirmationModalOpened(true);
+  };
+
+  const handleDeleteCartItem = async (productId: number) => {
+    try {
+      await CartService.deleteCartItem(productId);
+    } catch (error) {
+      toastError('Failed to delete cart item');
+    }
+    loadCartItems();
+    setIsDeleteConfirmationModalOpened(false);
+    setProductIdToRemove(0);
+  };
 
   const handleCheckout = () => {
-    const selectedItems = getSelectedItems();
+    const selectedItems = getSelectedCartItems();
     const checkoutItems = selectedItems.map((item) => convertItemToCheckoutItem(item));
 
     let checkout: Checkout = {
@@ -235,34 +195,13 @@ const Cart = () => {
       });
   };
 
-  const convertItemToCheckoutItem = (item: Item): CheckoutItem => {
+  const convertItemToCheckoutItem = (item: CartItemGetDetailsVm): CheckoutItem => {
     return {
       productId: item.productId,
       productName: item.productName,
       quantity: item.quantity,
       productPrice: item.price,
     };
-  };
-
-  const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      const allProductIds = items.map((item) => item.productId);
-      setSelectedProductIds(new Set(allProductIds));
-    } else {
-      setSelectedProductIds(new Set());
-    }
-  };
-
-  const handleSelectItemChange = (productId: number) => {
-    setSelectedProductIds((prevSelectedProductIds) => {
-      const newSelectedProductIds = new Set(prevSelectedProductIds);
-      if (newSelectedProductIds.has(productId)) {
-        newSelectedProductIds.delete(productId);
-      } else {
-        newSelectedProductIds.add(productId);
-      }
-      return newSelectedProductIds;
-    });
   };
 
   const applyCopounCode = () => {
@@ -279,13 +218,22 @@ const Cart = () => {
     setPromotionApply(undefined);
   };
 
+  const toastErrorWithDetails = (message: string, error: any) => {
+    if (error instanceof Error) {
+      const reason = error.message;
+      toastError(`${message}: ${reason}`);
+    } else {
+      toastError(message);
+    }
+  };
+
   return (
     <section className="shop-cart spad">
       <div className="container">
         <div className="row">
           <div className="col-lg-12">
             <div className="shop__cart__table">
-              {!cart.id ? (
+              {cartItems.length === 0 ? (
                 <h4>There are no items in this cart.</h4>
               ) : (
                 <table>
@@ -298,8 +246,8 @@ const Cart = () => {
                             id="select-all-checkbox"
                             type="checkbox"
                             className="form-check-input item-checkbox"
-                            onChange={handleSelectAllChange}
-                            checked={selectedProductIds.size === items.length}
+                            onChange={handleSelectAllCartItemsChange}
+                            checked={selectedProductIds.size === cartItems.length}
                           />
                         </label>
                       </th>
@@ -311,111 +259,21 @@ const Cart = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map((item) => {
+                    {cartItems.map((item) => {
                       return (
-                        <tr key={item.quantity.toString() + item.productId.toString()}>
-                          <td>
-                            <label className="item-checkbox-label" htmlFor="select-item-checkbox">
-                              {''}
-                              <input
-                                className="form-check-input item-checkbox"
-                                type="checkbox"
-                                checked={selectedProductIds.has(item.productId)}
-                                onChange={() => handleSelectItemChange(item.productId)}
-                              />
-                            </label>
-                          </td>
-                          <td className="cart__product__item d-flex align-items-center">
-                            <div className="h-100">
-                              <Link
-                                href={{
-                                  pathname: '/redirect',
-                                  query: { productId: item.productId },
-                                }}
-                              >
-                                <ImageWithFallBack
-                                  src={item.thumbnailUrl}
-                                  alt={item.productName}
-                                  style={{ width: '120px', height: '120px', cursor: 'pointer' }}
-                                />
-                              </Link>
-                            </div>
-                            <div className="cart__product__item__title pt-0">
-                              <Link
-                                href={{
-                                  pathname: '/redirect',
-                                  query: { productId: item.productId },
-                                }}
-                              >
-                                <h6 className="product-link">{item.productName}</h6>
-                              </Link>
-                            </div>
-                          </td>
-                          <td className="cart__price">
-                            {promotionApply?.productId === item.productId && (
-                              <div style={{ textDecorationLine: 'line-through' }}>
-                                {formatPrice(item.price)}
-                              </div>
-                            )}
-
-                            <div>
-                              {formatPrice(item.price - (promotionApply?.discountValue ?? 0))}
-                            </div>
-                          </td>
-                          <td className="cart__quantity">
-                            <div className="pro-qty">
-                              <div className="quantity buttons_added">
-                                <input
-                                  id="minus-button"
-                                  type="button"
-                                  value="-"
-                                  className="minus"
-                                  onClick={() => handleMinus(item.productId, item.quantity)}
-                                />
-                                <input
-                                  id="quanity"
-                                  type="number"
-                                  step="1"
-                                  min="1"
-                                  max=""
-                                  name="quantity"
-                                  defaultValue={item.quantity}
-                                  onBlur={(e) =>
-                                    handleCartQuantityInputOnBlur(
-                                      item.productId,
-                                      parseInt(e.target.value)
-                                    )
-                                  }
-                                  onChange={(e) =>
-                                    handleQuantityOnChange(item.productId, parseInt(e.target.value))
-                                  }
-                                  onKeyDown={(e) => handleQuantityKeyDown(item.productId, e.key)}
-                                  title="Qty"
-                                  className="input-text qty text"
-                                />
-                                <input
-                                  id="plus-button"
-                                  type="button"
-                                  value="+"
-                                  className="plus"
-                                  onClick={() => handlePlus(item.productId, item.quantity)}
-                                />
-                              </div>
-                            </div>
-                          </td>
-                          <td className="cart__total">{calculateProductPrice(item)}</td>
-                          <td className="cart__close">
-                            {' '}
-                            <button
-                              className="remove_product"
-                              onClick={() => {
-                                openRemoveConfirmDialog(item.productId);
-                              }}
-                            >
-                              <i className="bi bi-x-lg fs-5"></i>
-                            </button>{' '}
-                          </td>
-                        </tr>
+                        <CartItem
+                          key={item.productId}
+                          item={item}
+                          isLoading={loadingItems.has(item.productId)}
+                          isSelected={selectedProductIds.has(item.productId)}
+                          promotionApply={promotionApply}
+                          handleSelectCartItemChange={handleSelectCartItemChange}
+                          handleDecreaseQuantity={handleDecreaseQuantity}
+                          handleIncreaseQuantity={handleIncreaseQuantity}
+                          handleCartItemQuantityOnBlur={handleCartItemQuantityOnBlur}
+                          handleCartItemQuantityKeyDown={handleCartItemQuantityKeyDown}
+                          handleOpenDeleteConfirmationModal={handleOpenDeleteConfirmationModal}
+                        />
                       );
                     })}
                   </tbody>
@@ -492,11 +350,11 @@ const Cart = () => {
           </div>
         </div>
         <ConfirmationDialog
-          isOpen={isOpenRemoveDialog}
+          isOpen={isDeleteConfirmationModalOpened}
           okText="Remove"
           cancelText="Cancel"
-          cancel={() => setIsOpenRemoveDialog(false)}
-          ok={() => removeProduct(productIdRemove)}
+          cancel={() => setIsDeleteConfirmationModalOpened(false)}
+          ok={() => handleDeleteCartItem(productIdToRemove)}
         >
           <p>Do you want to remove this Product from the cart ?</p>
         </ConfirmationDialog>

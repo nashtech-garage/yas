@@ -548,6 +548,11 @@
   vertical-align: top;
 }
 
+.quantity.buttons_added.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .quantity.buttons_added input {
   display: inline-block;
   margin: 0;
