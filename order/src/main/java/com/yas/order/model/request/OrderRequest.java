@@ -6,12 +6,14 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class OrderRequest {
 
@@ -29,11 +31,4 @@ public class OrderRequest {
     private String billingCountry;
     private int pageNo;
     private int pageSize;
-
-    public OrderRequest() {
-        this.createdFrom = ZonedDateTime.parse("1970-01-01T00:00:00Z");
-        this.createdTo = ZonedDateTime.now();
-        this.pageNo = 0;
-        this.pageSize = 10;
-    }
 }
