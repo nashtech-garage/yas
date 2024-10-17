@@ -4,23 +4,29 @@ import static com.yas.customer.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.customer.config.KeycloakPropsConfig;
 import com.yas.commonlibrary.exception.AccessDeniedException;
 import com.yas.commonlibrary.exception.WrongEmailFormatException;
 import com.yas.customer.viewmodel.customer.CustomerAdminVm;
 import com.yas.customer.viewmodel.customer.CustomerListVm;
+import com.yas.customer.viewmodel.customer.CustomerPostVm;
 import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
 import com.yas.customer.viewmodel.customer.CustomerVm;
 import com.yas.customer.viewmodel.customer.GuestUserVm;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
@@ -270,5 +276,52 @@ class CustomerServiceTest {
         assertThat(guestUserVm.userId()).isEqualTo("1");
         assertThat(guestUserVm.email()).contains("_guest@yas.com");
         assertThat(guestUserVm.password()).isEqualTo("GUEST");
+    }
+
+    @Test
+    void testCreateUser_isNormalCase_returnCustomerPostVm() {
+        CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
+            "Doe", "123", "ADMIN");
+        Response response = mock(Response.class);
+
+        when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
+        URI uri = mock(URI.class);
+        when(response.getLocation()).thenReturn(uri);
+        when(response.getStatusInfo()).thenReturn(Response.Status.CREATED);
+        when(uri.getPath()).thenReturn("/test/1");
+
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get("1")).thenReturn(userResource);
+
+        when(realmResource.users().search(anyString(), anyBoolean())).thenReturn(Collections.emptyList());
+        when(realmResource.users().search(any(), any(), any(), anyString(), any(), any())).thenReturn(Collections.emptyList());
+
+        RolesResource rolesResource = mock(RolesResource.class);
+        when(realmResource.roles()).thenReturn(rolesResource);
+        RoleResource roleResource = mock(RoleResource.class);
+        when(rolesResource.get("ADMIN")).thenReturn(roleResource);
+        when(roleResource.toRepresentation()).thenReturn(mock(RoleRepresentation.class));
+
+        RoleMappingResource roleMappingResource = mock(RoleMappingResource.class);
+        when(userResource.roles()).thenReturn(roleMappingResource);
+        when(roleMappingResource.realmLevel()).thenReturn(mock(RoleScopeResource.class));
+
+        CustomerVm customerVm = customerService.create(customerPostVm);
+
+        assertThat(customerVm.username()).isEqualTo("user1");
+        assertThat(customerVm.email()).isEqualTo("test@gmail.com");
+        assertThat(customerVm.firstName()).contains("John");
+        assertThat(customerVm.lastName()).isEqualTo("Doe");
+    }
+
+    @Test
+    void testCreateUser_whenUsernameAlreadyExisted_thenThrowDuplicateException() {
+        CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
+            "Doe", "123", "ADMIN");
+
+        when(realmResource.users().search(anyString(), anyBoolean()))
+            .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+
+        assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
     }
 }

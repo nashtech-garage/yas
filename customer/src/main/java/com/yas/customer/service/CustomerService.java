@@ -1,12 +1,14 @@
 package com.yas.customer.service;
 
 import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.exception.WrongEmailFormatException;
 import com.yas.customer.config.KeycloakPropsConfig;
 import com.yas.customer.utils.Constants;
 import com.yas.customer.viewmodel.customer.CustomerAdminVm;
 import com.yas.customer.viewmodel.customer.CustomerListVm;
+import com.yas.customer.viewmodel.customer.CustomerPostVm;
 import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
 import com.yas.customer.viewmodel.customer.CustomerVm;
 import com.yas.customer.viewmodel.customer.GuestUserVm;
@@ -57,7 +59,7 @@ public class CustomerService {
                 .toList();
             int totalUser = keycloak.realm(keycloakPropsConfig.getRealm()).users().count();
 
-            return new CustomerListVm(totalUser, result, totalUser / USER_PER_PAGE);
+            return new CustomerListVm(totalUser, result, (totalUser + USER_PER_PAGE - 1) / USER_PER_PAGE);
         } catch (ForbiddenException exception) {
             throw new AccessDeniedException(
                 String.format(ERROR_FORMAT, exception.getMessage(), keycloakPropsConfig.getResource()));
@@ -143,5 +145,50 @@ public class CustomerService {
         random.nextBytes(bytes);
         Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
         return encoder.encodeToString(bytes);
+    }
+
+    public CustomerVm create(CustomerPostVm customerPostVm) {
+        // Get realm
+        RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
+
+        if (checkUsernameExists(realmResource, customerPostVm.username())) {
+            throw new DuplicatedException(Constants.ErrorCode.USERNAME_ALREADY_EXITED, customerPostVm.username());
+        }
+        if (checkEmailExists(realmResource, customerPostVm.email())) {
+            throw new DuplicatedException(Constants.ErrorCode.USER_WITH_EMAIL_ALREADY_EXITED, customerPostVm.email());
+        }
+
+        // Define user
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(customerPostVm.username());
+        user.setFirstName(customerPostVm.firstName());
+        user.setLastName(customerPostVm.lastName());
+        user.setEmail(customerPostVm.email());
+        CredentialRepresentation credential = createPasswordCredentials(customerPostVm.password());
+        user.setCredentials(Collections.singletonList(credential));
+        user.setEnabled(true);
+        Response response = realmResource.users().create(user);
+
+        // get new user
+        String userId = CreatedResponseUtil.getCreatedId(response);
+        UserResource userResource = realmResource.users().get(userId);
+
+        // Assign realm role to user
+        RoleRepresentation realmRole = realmResource.roles().get(customerPostVm.role()).toRepresentation();
+        userResource.roles().realmLevel().add(Collections.singletonList(realmRole));
+
+        return CustomerVm.fromUserRepresentation(user);
+    }
+
+    private boolean checkUsernameExists(RealmResource realmResource, String username) {
+        // Search for users by username
+        List<UserRepresentation> users = realmResource.users().search(username, true);
+        return !users.isEmpty();
+    }
+
+    private boolean checkEmailExists(RealmResource realmResource, String email) {
+        // Search for users by email
+        List<UserRepresentation> users = realmResource.users().search(null, null, null, email, 0, 1);
+        return !users.isEmpty();
     }
 }

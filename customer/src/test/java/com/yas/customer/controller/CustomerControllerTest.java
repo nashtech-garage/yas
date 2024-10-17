@@ -3,6 +3,7 @@ package com.yas.customer.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import com.yas.customer.service.CustomerService;
 import com.yas.customer.util.SecurityContextUtils;
 import com.yas.customer.viewmodel.customer.CustomerAdminVm;
 import com.yas.customer.viewmodel.customer.CustomerListVm;
+import com.yas.customer.viewmodel.customer.CustomerPostVm;
 import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
 import com.yas.customer.viewmodel.customer.CustomerVm;
 import com.yas.customer.viewmodel.customer.GuestUserVm;
@@ -140,5 +142,18 @@ class CustomerControllerTest {
                 .contentType("application/json")
                 .content(objectWriter.writeValueAsString(customerProfileRequestVm)))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    void testCreateCustomer_whenNormalCase_methodSuccess() throws Exception {
+        CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
+            "Doe", "123", "ADMIN");
+
+        when(customerService.create(any(CustomerPostVm.class))).thenReturn(mock(CustomerVm.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.post(BACK_OFFICE_CUSTOMER_BASE_URL)
+                .contentType("application/json")
+                .content(objectWriter.writeValueAsString(customerPostVm)))
+                .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 }
