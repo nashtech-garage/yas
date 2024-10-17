@@ -3,6 +3,7 @@ package com.yas.order.controller;
 import com.yas.commonlibrary.csv.CsvExporter;
 import com.yas.order.model.csv.OrderItemCsv;
 import com.yas.order.model.enumeration.OrderStatus;
+import com.yas.order.model.request.OrderRequest;
 import com.yas.order.service.OrderService;
 import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
@@ -98,24 +99,18 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getLatestOrders(count));
     }
 
-    @GetMapping("/backoffice/orders/csv")
-    public ResponseEntity<byte[]> exportCsv(
-        @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
-        @RequestParam(value = "createdTo", defaultValue = "#{new java.util.Date()}", required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
-        @RequestParam(value = "warehouse", defaultValue = "", required = false) String warehouse,
-        @RequestParam(value = "productName", defaultValue = "", required = false)
-        String productName,
-        @RequestParam(value = "orderStatus", defaultValue = "", required = false)
-        List<OrderStatus> orderStatus,
-        @RequestParam(value = "billingPhoneNumber", defaultValue = "", required = false)
-        String billingPhoneNumber,
-        @RequestParam(value = "email", defaultValue = "", required = false) String email,
-        @RequestParam(value = "billingCountry", defaultValue = "", required = false)
-        String billingCountry,
-        @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-        @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize) throws IOException {
+    @PostMapping("/backoffice/orders/csv")
+    public ResponseEntity<byte[]> exportCsv(@RequestBody OrderRequest orderRequest) throws IOException {
+        ZonedDateTime createdFrom = orderRequest.getCreatedFrom();
+        ZonedDateTime createdTo = orderRequest.getCreatedTo();
+        String warehouse = orderRequest.getWarehouse();
+        String productName = orderRequest.getProductName();
+        List<OrderStatus> orderStatus = orderRequest.getOrderStatus();
+        String billingCountry = orderRequest.getBillingCountry();
+        String billingPhoneNumber = orderRequest.getBillingPhoneNumber();
+        String email = orderRequest.getEmail();
+        int pageNo = orderRequest.getPageNo();
+        int pageSize = orderRequest.getPageSize();
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION,
