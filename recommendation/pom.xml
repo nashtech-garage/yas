@@ -80,6 +80,7 @@
         </dependency>
     </dependencies>
 
+    <!-- TODO: remove this   -->
     <build>
         <plugins>
             <plugin>
