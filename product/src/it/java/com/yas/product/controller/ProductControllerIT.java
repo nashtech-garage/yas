@@ -519,7 +519,6 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_getProductCheckoutList_shouldReturnProductList() {
-        initProductData();
         getGivenSpecificationWithAdmin()
             .param("ids", List.of(productOne.getId(), productTwo.getId()))
             .when()
