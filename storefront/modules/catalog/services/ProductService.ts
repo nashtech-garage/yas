@@ -54,12 +54,9 @@ export async function getRelatedProductsByProductId(productId: number): Promise<
 }
 
 export async function getSimilarProductsByProductId(productId: number): Promise<SimilarProduct[]> {
-  const res = await fetch(`/api/recommendation/embedding/product/${productId}/similarity`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  const res = await apiClientService.get(
+    `/api/recommendation/embedding/product/${productId}/similarity`
+  );
   if (res.status >= 200 && res.status < 300) return res.json();
-  return Promise.reject(res);
+  throw new Error(await res.json());
 }
