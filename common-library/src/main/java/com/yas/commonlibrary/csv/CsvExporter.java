@@ -84,7 +84,7 @@ public class CsvExporter {
     }
 
     public static <T> String createFileName(Class<T> clazz) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
         String fromDate = LocalDateTime.now().format(dateFormatter);
         CsvName csvName = clazz.getAnnotation(CsvName.class);
         return csvName.fileName() + "_" + fromDate + ".csv";
