@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 
-import ImageWithFallBack from '@/common/components/ImageWithFallback';
 import ConfirmationDialog from '@/common/components/dialog/ConfirmationDialog';
 import * as CartService from '@/modules/cart/services/CartService';
 import { formatPrice } from 'utils/formatPrice';
@@ -17,6 +16,7 @@ import { useCartContext } from '@/context/CartContext';
 import { PromotionVerifyResult } from '@/modules/promotion/model/Promotion';
 import { verifyPromotion } from '@/modules/promotion/service/PromotionService';
 import { CartItemPutVm } from '@/modules/cart/models/CartItemPutVm';
+import CartItem from '@/modules/cart/components/CartItem';
 
 const Cart = () => {
   const router = useRouter();
@@ -88,10 +88,6 @@ const Cart = () => {
     });
   };
 
-  const calculateProductPrice = (item: CartItemGetDetailsVm) => {
-    return formatPrice(item.price * item.quantity - (promotionApply?.discountValue ?? 0));
-  };
-
   const handleCartItemQuantityOnBlur = async (
     productId: number,
     event: React.FocusEvent<HTMLInputElement>
@@ -111,7 +107,7 @@ const Cart = () => {
     const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab', 'Enter'];
     const digitKeyPattern = /^\d$/;
 
-    if (!allowedKeys.includes(event.key) && digitKeyPattern.test(event.key)) {
+    if (!allowedKeys.includes(event.key) && !digitKeyPattern.test(event.key)) {
       event.preventDefault();
       return;
     }
@@ -264,114 +260,20 @@ const Cart = () => {
                   </thead>
                   <tbody>
                     {cartItems.map((item) => {
-                      const isLoading = loadingItems.has(item.productId);
                       return (
-                        <tr key={item.quantity.toString() + item.productId.toString()}>
-                          <td>
-                            <label className="item-checkbox-label" htmlFor="select-item-checkbox">
-                              {''}
-                              <input
-                                className="form-check-input item-checkbox"
-                                type="checkbox"
-                                checked={selectedProductIds.has(item.productId)}
-                                onChange={() => handleSelectCartItemChange(item.productId)}
-                              />
-                            </label>
-                          </td>
-                          <td className="cart__product__item d-flex align-items-center">
-                            <div className="h-100">
-                              <Link
-                                href={{
-                                  pathname: '/redirect',
-                                  query: { productId: item.productId },
-                                }}
-                              >
-                                <ImageWithFallBack
-                                  src={item.thumbnailUrl}
-                                  alt={item.productName}
-                                  style={{ width: '120px', height: '120px', cursor: 'pointer' }}
-                                />
-                              </Link>
-                            </div>
-                            <div className="cart__product__item__title pt-0">
-                              <Link
-                                href={{
-                                  pathname: '/redirect',
-                                  query: { productId: item.productId },
-                                }}
-                              >
-                                <h6 className="product-link">{item.productName}</h6>
-                              </Link>
-                            </div>
-                          </td>
-                          <td className="cart__price">
-                            {promotionApply?.productId === item.productId && (
-                              <div style={{ textDecorationLine: 'line-through' }}>
-                                {formatPrice(item.price)}
-                              </div>
-                            )}
-                            <div>
-                              {formatPrice(item.price - (promotionApply?.discountValue ?? 0))}
-                            </div>
-                          </td>
-                          <td className="cart__quantity">
-                            <div className="pro-qty">
-                              <div
-                                className={`quantity buttons_added ${isLoading ? 'disabled' : ''}`}
-                              >
-                                <button
-                                  id="minus-button"
-                                  type="button"
-                                  className="minus"
-                                  onClick={() => handleDecreaseQuantity(item.productId)}
-                                  disabled={isLoading}
-                                >
-                                  -
-                                </button>
-
-                                <input
-                                  id="quanity"
-                                  type="number"
-                                  step="1"
-                                  min="1"
-                                  max=""
-                                  name="quantity"
-                                  defaultValue={item.quantity}
-                                  onBlur={(e) => handleCartItemQuantityOnBlur(item.productId, e)}
-                                  onKeyDown={(e) =>
-                                    handleCartItemQuantityKeyDown(item.productId, e)
-                                  }
-                                  title="Qty"
-                                  className="input-text qty text"
-                                  disabled={isLoading}
-                                />
-                                <button
-                                  id="plus-button"
-                                  type="button"
-                                  className="plus"
-                                  onClick={() => {
-                                    handleIncreaseQuantity(item.productId);
-                                  }}
-                                  disabled={isLoading}
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="cart__total">{calculateProductPrice(item)}</td>
-                          <td className="cart__close">
-                            {' '}
-                            <button
-                              className="remove_product"
-                              onClick={() => {
-                                handleOpenDeleteConfirmationModal(item.productId);
-                              }}
-                            >
-                              <i className="bi bi-x-lg fs-5"></i>
-                            </button>{' '}
-                          </td>
-                        </tr>
+                        <CartItem
+                          key={item.productId}
+                          item={item}
+                          isLoading={loadingItems.has(item.productId)}
+                          isSelected={selectedProductIds.has(item.productId)}
+                          promotionApply={promotionApply}
+                          handleSelectCartItemChange={handleSelectCartItemChange}
+                          handleDecreaseQuantity={handleDecreaseQuantity}
+                          handleIncreaseQuantity={handleIncreaseQuantity}
+                          handleCartItemQuantityOnBlur={handleCartItemQuantityOnBlur}
+                          handleCartItemQuantityKeyDown={handleCartItemQuantityKeyDown}
+                          handleOpenDeleteConfirmationModal={handleOpenDeleteConfirmationModal}
+                        />
                       );
                     })}
                   </tbody>
