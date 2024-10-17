@@ -33,6 +33,8 @@ public class RelatedProductVm {
 
     private List<ImageVm> productImages;
 
+    private String slug;
+
     public RelatedProductVm() {
     }
 }
