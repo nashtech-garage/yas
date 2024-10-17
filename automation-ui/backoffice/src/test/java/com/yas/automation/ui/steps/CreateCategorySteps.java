@@ -2,7 +2,7 @@ package com.yas.automation.ui.steps;
 
 import static org.junit.Assert.assertTrue;
 
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import com.yas.automation.ui.pages.CategoryPage;
 import com.yas.automation.ui.pages.HomePage;
 import com.yas.automation.ui.pages.NewCategoryPage;

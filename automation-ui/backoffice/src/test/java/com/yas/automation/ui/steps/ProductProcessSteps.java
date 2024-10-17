@@ -4,7 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.yas.automation.ui.form.ProductForm;
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import com.yas.automation.ui.pages.HomePage;
 import com.yas.automation.ui.pages.ProductPage;
 import com.yas.automation.ui.service.AuthenticationService;
@@ -12,7 +12,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class CreateProductSteps {
+public class ProductProcessSteps {
 
     private String productName;
 
@@ -21,7 +21,7 @@ public class CreateProductSteps {
     private final WebDriverFactory webDriverFactory;
     private final AuthenticationService authenticationService;
 
-    public CreateProductSteps(HomePage homePage, ProductPage productPage, WebDriverFactory webDriverFactory, AuthenticationService authenticationService) {
+    public ProductProcessSteps(HomePage homePage, ProductPage productPage, WebDriverFactory webDriverFactory, AuthenticationService authenticationService) {
         this.homePage = homePage;
         this.productPage = productPage;
         this.webDriverFactory = webDriverFactory;
