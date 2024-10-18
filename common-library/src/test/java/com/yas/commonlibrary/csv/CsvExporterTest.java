@@ -2,6 +2,7 @@ package com.yas.commonlibrary.csv;
 
 import com.yas.commonlibrary.csv.anotation.CsvColumn;
 import com.yas.commonlibrary.csv.anotation.CsvName;
+import lombok.experimental.SuperBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,42 +14,42 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CsvExporterTest {
 
+    @SuperBuilder
     @CsvName(fileName = "TestFile")
     static class TestData extends BaseCsv {
-        @CsvColumn(columnName = "ID")
-        private int id;
 
         @CsvColumn(columnName = "Name")
         private String name;
 
         @CsvColumn(columnName = "Tags")
         private List<String> tags;
-
-        public TestData(int id, String name, List<String> tags) {
-            this.id = id;
-            this.name = name;
-            this.tags = tags;
-        }
     }
 
     @Test
     void testExportToCsv_withValidData_shouldReturnCorrectCsvContent() throws IOException {
-        // Given
-        List<BaseCsv> dataList = Arrays.asList(
-                new TestData(1, "Alice", Arrays.asList("tag1", "tag2")),
-                new TestData(2, "Bob", Arrays.asList("tag3", "tag4"))
-        );
+      // Given
+      List<BaseCsv> dataList = Arrays.asList(
+          TestData.builder()
+              .id(1L)
+              .name("Alice")
+              .tags(Arrays.asList("tag1", "tag2"))
+              .build(),
+          TestData.builder()
+              .id(2L)
+              .name("Bob")
+              .tags(Arrays.asList("tag3", "tag4"))
+              .build()
+      );
+      // When
+      byte[] csvBytes = CsvExporter.exportToCsv(dataList, TestData.class);
+      String csvContent = new String(csvBytes);
 
-        // When
-        byte[] csvBytes = CsvExporter.exportToCsv(dataList, TestData.class);
-        String csvContent = new String(csvBytes);
+      // Then
+      String expectedCsv = "Id,Name,Tags\n" +
+          "1,Alice,[tag1|tag2]\n" +
+          "2,Bob,[tag3|tag4]\n";
 
-        // Then
-        String expectedCsv = "ID,Name,Tags\n" +
-                "1,Alice,[tag1|tag2]\n" +
-                "2,Bob,[tag3|tag4]\n";
-
-        assertEquals(expectedCsv, csvContent);
+      assertEquals(expectedCsv, csvContent);
     }
 
     @Test
@@ -61,7 +62,7 @@ class CsvExporterTest {
         String csvContent = new String(csvBytes);
 
         // Then
-        String expectedCsv = "ID,Name,Tags\n";
+        String expectedCsv = "Id,Name,Tags\n";
         assertEquals(expectedCsv, csvContent);
     }
 

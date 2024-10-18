@@ -3,13 +3,13 @@ package com.yas.commonlibrary.csv;
 import com.opencsv.CSVWriter;
 import com.yas.commonlibrary.csv.anotation.CsvColumn;
 import com.yas.commonlibrary.csv.anotation.CsvName;
+import com.yas.commonlibrary.utils.DateTimeUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -42,23 +42,31 @@ public class CsvExporter {
     }
 
     private static <T> void writeCsvHeader(CSVWriter csvWriter, Class<T> clazz) {
+        Field[] baseFields = BaseCsv.class.getDeclaredFields();
         Field[] fields = clazz.getDeclaredFields();
-        String[] header = Stream.of(fields)
+
+        String[] header = Stream.concat(Stream.of(baseFields), Stream.of(fields))
             .filter(field -> field.getAnnotation(CsvColumn.class) != null)
             .map(field -> field.getAnnotation(CsvColumn.class).columnName())
             .toArray(String[]::new);
-        ;
+
         csvWriter.writeNext(header);
     }
 
-    private static <T> void writeCsvData(CSVWriter csvWriter, List<BaseCsv> dataList, Class<T> clazz) {
+    private static <T> void writeCsvData(CSVWriter csvWriter, List<BaseCsv> dataList,
+                                         Class<T> clazz) {
+        Field[] baseFields = BaseCsv.class.getDeclaredFields();
         Field[] fields = clazz.getDeclaredFields();
+
+        Field[] allFields = Stream.concat(Stream.of(baseFields), Stream.of(fields))
+            .filter(field -> field.getAnnotation(CsvColumn.class) != null)
+            .toArray(Field[]::new);
+
         for (BaseCsv data : dataList) {
-            String[] row = getFieldValues(fields, data);
+            String[] row = getFieldValues(allFields, data);
             csvWriter.writeNext(row);
         }
     }
-
 
     private static String[] getFieldValues(Field[] fields, Object data) {
         return Stream.of(fields)
@@ -84,9 +92,8 @@ public class CsvExporter {
     }
 
     public static <T> String createFileName(Class<T> clazz) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
-        String fromDate = LocalDateTime.now().format(dateFormatter);
+        String fromDate = DateTimeUtils.format(LocalDateTime.now());
         CsvName csvName = clazz.getAnnotation(CsvName.class);
-        return csvName.fileName() + "_" + fromDate + ".csv";
+        return String.format("%s_%s.csv", csvName.fileName(), fromDate);
     }
 }

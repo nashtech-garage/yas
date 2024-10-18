@@ -8,14 +8,11 @@ import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 
 @CsvName(fileName = "Orders")
-@Builder
+@SuperBuilder
 public class OrderItemCsv extends BaseCsv {
-
-    @CsvColumn(columnName = "Order id")
-    private Long id;
 
     @CsvColumn(columnName = "Order status")
     private OrderStatus orderStatus;

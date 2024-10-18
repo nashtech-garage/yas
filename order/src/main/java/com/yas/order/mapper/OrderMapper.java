@@ -10,5 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public interface OrderMapper {
     @Mapping(target = "phone", source = "billingAddressVm.phone")
+    @Mapping(target = "id", source = "id")
     OrderItemCsv toCsv(OrderBriefVm orderItem);
 }
