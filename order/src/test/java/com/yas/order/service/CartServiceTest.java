@@ -50,7 +50,7 @@ class CartServiceTest {
     }
 
     @Test
-    void testDeleteCartItem_ifNormalCase_shouldNoException() {
+    void testDeleteCartItems_ifNormalCase_shouldNoException() {
 
         OrderVm orderVm = getOrderVm();
         RestClient.RequestBodyUriSpec requestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
