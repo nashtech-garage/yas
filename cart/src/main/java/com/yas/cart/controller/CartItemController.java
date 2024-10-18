@@ -1,10 +1,10 @@
 package com.yas.cart.controller;
 
-import com.yas.cart.service.CartItemV2Service;
-import com.yas.cart.viewmodel.CartItemV2DeleteVm;
-import com.yas.cart.viewmodel.CartItemV2GetVm;
-import com.yas.cart.viewmodel.CartItemV2PostVm;
-import com.yas.cart.viewmodel.CartItemV2PutVm;
+import com.yas.cart.service.CartItemService;
+import com.yas.cart.viewmodel.CartItemDeleteVm;
+import com.yas.cart.viewmodel.CartItemGetVm;
+import com.yas.cart.viewmodel.CartItemPostVm;
+import com.yas.cart.viewmodel.CartItemPutVm;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,32 +19,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class CartItemV2Controller {
-    private final CartItemV2Service cartItemService;
+public class CartItemController {
+    private final CartItemService cartItemService;
 
     @PostMapping("/storefront/cart/items")
-    public ResponseEntity<CartItemV2GetVm> addCartItem(@Valid @RequestBody CartItemV2PostVm cartItemPostVm) {
-        CartItemV2GetVm cartItemGetVm = cartItemService.addCartItem(cartItemPostVm);
+    public ResponseEntity<CartItemGetVm> addCartItem(@Valid @RequestBody CartItemPostVm cartItemPostVm) {
+        CartItemGetVm cartItemGetVm = cartItemService.addCartItem(cartItemPostVm);
         return ResponseEntity.ok(cartItemGetVm);
     }
 
     @PutMapping("/storefront/cart/items/{productId}")
-    public ResponseEntity<CartItemV2GetVm> updateCartItem(@PathVariable Long productId,
-                                                          @Valid @RequestBody CartItemV2PutVm cartItemPutVm) {
-        CartItemV2GetVm cartItemGetVm = cartItemService.updateCartItem(productId, cartItemPutVm);
+    public ResponseEntity<CartItemGetVm> updateCartItem(@PathVariable Long productId,
+                                                        @Valid @RequestBody CartItemPutVm cartItemPutVm) {
+        CartItemGetVm cartItemGetVm = cartItemService.updateCartItem(productId, cartItemPutVm);
         return ResponseEntity.ok(cartItemGetVm);
     }
 
     @GetMapping("/storefront/cart/items")
-    public ResponseEntity<List<CartItemV2GetVm>> getCartItems() {
-        List<CartItemV2GetVm> cartItemGetVms = cartItemService.getCartItems();
+    public ResponseEntity<List<CartItemGetVm>> getCartItems() {
+        List<CartItemGetVm> cartItemGetVms = cartItemService.getCartItems();
         return ResponseEntity.ok(cartItemGetVms);
     }
 
     @PostMapping("/storefront/cart/items/remove")
-    public ResponseEntity<List<CartItemV2GetVm>> removeCartItems(
-        @RequestBody List<@Valid CartItemV2DeleteVm> cartItemDeleteVms) {
-        List<CartItemV2GetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
+    public ResponseEntity<List<CartItemGetVm>> removeCartItems(
+        @RequestBody List<@Valid CartItemDeleteVm> cartItemDeleteVms) {
+        List<CartItemGetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(cartItemDeleteVms);
         return ResponseEntity.ok(cartItemGetVms);
     }
 

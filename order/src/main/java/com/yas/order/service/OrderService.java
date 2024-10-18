@@ -117,7 +117,7 @@ public class OrderService {
         order.setOrderItems(orderItems);
         OrderVm orderVm = OrderVm.fromModel(order);
         productService.subtractProductStockQuantity(orderVm);
-        cartService.deleteCartItem(orderVm);
+        cartService.deleteCartItems(orderVm);
         acceptOrder(orderVm.id());
         return orderVm;
     }

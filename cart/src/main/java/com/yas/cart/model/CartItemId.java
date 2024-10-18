@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @lombok.Getter
 @lombok.Setter
 @EqualsAndHashCode
-public class CartItemV2Id {
+public class CartItemId {
     private String customerId;
     private Long productId;
 }
