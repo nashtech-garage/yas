@@ -4,6 +4,7 @@ import static com.yas.order.utils.SecurityContextUtils.setUpSecurityContext;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.order.config.ServiceUrlConfig;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -50,22 +52,16 @@ class CartServiceTest {
     @Test
     void testDeleteCartItem_ifNormalCase_shouldNoException() {
 
-        URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.cart())
-            .path("/storefront/cart-item/multi-delete")
-            .queryParam("productIds", List.of(101L, 102L))
-            .buildAndExpand()
-            .toUri();
+        OrderVm orderVm = getOrderVm();
+        RestClient.RequestBodyUriSpec requestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
 
+        when(restClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(any(URI.class))).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.body(any(Object.class))).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
 
-        RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
-        when(restClient.delete()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri(url)).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-
-        OrderVm order = getOrderVm();
-        assertDoesNotThrow(() -> cartService.deleteCartItems(order));
+        assertDoesNotThrow(() -> cartService.deleteCartItems(orderVm));
     }
 
     private static @NotNull OrderVm getOrderVm() {
