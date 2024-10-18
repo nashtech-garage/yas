@@ -61,7 +61,7 @@ class CheckoutServiceTest {
                 ).collect(Collectors.toSet()))
             .build();
         checkoutCreated.getCheckoutItem()
-            .forEach(item-> item.setCheckoutId(checkoutCreated));
+            .forEach(item-> item.setCheckout(checkoutCreated));
     }
 
     @Test
