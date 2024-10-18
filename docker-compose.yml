@@ -572,25 +572,42 @@ services:
       - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
     networks:
       - yas-network
-  akhq:
-    image: tchiotludo/akhq:0.24.0
-    environment:
-      AKHQ_CONFIGURATION: |
-        akhq:
-          connections:
-            docker-kafka-server:
-              properties:
-                bootstrap.servers: 'kafka:9092'
-              connect:
-                - name: "kafka-connect"
-                  url: "http://kafka-connect:8083/"
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
     ports:
-      - 8089:8080
+      - 9999:8080
     depends_on:
       - kafka
       - kafka-connect
     networks:
       - yas-network
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+#      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+#      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry0:8085
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: first
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+#  akhq:
+#    image: tchiotludo/akhq:0.24.0
+#    environment:
+#      AKHQ_CONFIGURATION: |
+#        akhq:
+#          connections:
+#            docker-kafka-server:
+#              properties:
+#                bootstrap.servers: 'kafka:9092'
+#              connect:
+#                - name: "kafka-connect"
+#                  url: "http://kafka-connect:8083/"
+#    ports:
+#      - 8089:8080
+#    depends_on:
+#      - kafka
+#      - kafka-connect
+#    networks:
+#      - yas-network
   redis:
     image: redis:7.4.1-alpine
     restart: always

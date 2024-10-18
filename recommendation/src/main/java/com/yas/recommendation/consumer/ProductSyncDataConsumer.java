@@ -37,7 +37,7 @@ public class ProductSyncDataConsumer {
      *                       The key contains product identifier, and the
      *                       value contains the action type and product data.
      */
-    @KafkaListener(topics = "${product.topic.name}")
+//    @KafkaListener(topics = "${product.topic.name}")
     public void listen(ConsumerRecord<?, ?> consumerRecord) {
 
         if (consumerRecord != null) {
