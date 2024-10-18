@@ -20,7 +20,7 @@ class CheckoutMapperTest {
     CheckoutMapper checkoutMapper;
 
     @Test
-    void testCheckoutItemPostVmToModel_convertToCorrectCheckoutItem(){
+    void testCheckoutItemPostVmToModel_convertToCorrectCheckoutItem() {
 
         var src = Instancio.create(CheckoutItemPostVm.class);
 
@@ -38,7 +38,7 @@ class CheckoutMapperTest {
     }
 
     @Test
-    void testCheckoutPostVmToModel_convertToCorrectCheckout(){
+    void testCheckoutPostVmToModel_convertToCorrectCheckout() {
 
         CheckoutPostVm checkoutPostVm = Instancio.of(CheckoutPostVm.class)
             .create();
@@ -50,12 +50,10 @@ class CheckoutMapperTest {
             .hasFieldOrPropertyWithValue("note", checkoutPostVm.note())
             .hasFieldOrPropertyWithValue("couponCode", checkoutPostVm.couponCode());
 
-        Assertions.assertThat(res.getCheckoutItem())
-            .hasSize(checkoutPostVm.checkoutItemPostVms().size());
     }
 
     @Test
-    void testCheckoutToVm_convertToCheckoutVmCorrectly(){
+    void testCheckoutToVm_convertToCheckoutVmCorrectly() {
 
         Checkout checkout = Instancio.create(Checkout.class);
 
@@ -66,11 +64,11 @@ class CheckoutMapperTest {
             .hasFieldOrPropertyWithValue("note", checkout.getNote())
             .hasFieldOrPropertyWithValue("couponCode", checkout.getCouponCode());
 
-        Assertions.assertThat(res.checkoutItemVms()).hasSize(checkout.getCheckoutItem().size());
+        Assertions.assertThat(res.checkoutItemVms()).isNull();
     }
 
     @Test
-    void testCheckoutItemToVm_convertCheckoutItemCorrectly(){
+    void testCheckoutItemToVm_convertCheckoutItemCorrectly() {
 
         CheckoutItem checkoutItem = Instancio.create(CheckoutItem.class);
 
