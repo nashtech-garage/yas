@@ -65,7 +65,7 @@ class CartServiceTest {
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
 
         OrderVm order = getOrderVm();
-        assertDoesNotThrow(() -> cartService.deleteCartItem(order));
+        assertDoesNotThrow(() -> cartService.deleteCartItems(order));
     }
 
     private static @NotNull OrderVm getOrderVm() {

@@ -1,15 +1,15 @@
 package com.yas.cart.mapper;
 
-import com.yas.cart.model.CartItemV2;
-import com.yas.cart.viewmodel.CartItemV2GetVm;
-import com.yas.cart.viewmodel.CartItemV2PostVm;
+import com.yas.cart.model.CartItem;
+import com.yas.cart.viewmodel.CartItemGetVm;
+import com.yas.cart.viewmodel.CartItemPostVm;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CartItemV2Mapper {
-    public CartItemV2GetVm toGetVm(CartItemV2 cartItem) {
-        return CartItemV2GetVm
+public class CartItemMapper {
+    public CartItemGetVm toGetVm(CartItem cartItem) {
+        return CartItemGetVm
             .builder()
             .customerId(cartItem.getCustomerId())
             .productId(cartItem.getProductId())
@@ -17,8 +17,8 @@ public class CartItemV2Mapper {
             .build();
     }
 
-    public CartItemV2 toCartItem(CartItemV2PostVm cartItemPostVm, String currentUserId) {
-        return CartItemV2
+    public CartItem toCartItem(CartItemPostVm cartItemPostVm, String currentUserId) {
+        return CartItem
             .builder()
             .customerId(currentUserId)
             .productId(cartItemPostVm.productId())
@@ -26,8 +26,8 @@ public class CartItemV2Mapper {
             .build();
     }
 
-    public CartItemV2 toCartItem(String currentUserId, Long productId, int quantity) {
-        return CartItemV2
+    public CartItem toCartItem(String currentUserId, Long productId, int quantity) {
+        return CartItem
             .builder()
             .customerId(currentUserId)
             .productId(productId)
@@ -35,7 +35,7 @@ public class CartItemV2Mapper {
             .build();
     }
 
-    public List<CartItemV2GetVm> toGetVmList(List<CartItemV2> cartItems) {
+    public List<CartItemGetVm> toGetVms(List<CartItem> cartItems) {
         return cartItems
             .stream()
             .map(this::toGetVm)
