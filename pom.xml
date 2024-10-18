@@ -63,6 +63,7 @@
         <testcontainers-keycloak.version>3.3.0</testcontainers-keycloak.version>
         <rest-assured.version>5.4.0</rest-assured.version>
         <instancio-junit.version>4.8.1</instancio-junit.version>
+        <opencsv.version>5.7.1</opencsv.version>
     </properties>
     <dependencyManagement>
         <dependencies>
