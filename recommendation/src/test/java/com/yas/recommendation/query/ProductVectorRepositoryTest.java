@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.azure.ai.openai.OpenAIClient;
+import com.yas.recommendation.KafkaIntegrationTestConfiguration;
 import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
 import com.yas.recommendation.service.ProductService;
 import com.yas.recommendation.vector.product.document.ProductDocument;
@@ -31,9 +32,13 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 @SpringBootTest
+@Import(KafkaIntegrationTestConfiguration.class)
 @TestPropertySource("classpath:application-test.properties")
 public class ProductVectorRepositoryTest extends BaseVectorRepositoryTest<ProductDocument, ProductDetailVm> {
 
