@@ -33,6 +33,7 @@ public final class ContainerFactory {
             DockerImageName.parse("confluentinc/cp-kafka:%s".formatted(version))
         );
         registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
+        registry.add("bootstrap.servers", kafkaContainer::getBootstrapServers);
 
         // Consumer properties
         registry.add("auto.offset.reset", () -> "earliest");
