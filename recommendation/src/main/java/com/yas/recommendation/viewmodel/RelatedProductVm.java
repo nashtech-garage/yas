@@ -36,6 +36,7 @@ public class RelatedProductVm {
     private String slug;
 
     public RelatedProductVm() {
+        // This default constructor.
     }
 }
 
