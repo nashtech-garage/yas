@@ -20,7 +20,7 @@ class CheckoutMapperTest {
     CheckoutMapper checkoutMapper;
 
     @Test
-    void testCheckoutItemPostVmToModel_convertToCorrectCheckoutItem(){
+    void testCheckoutItemPostVmToModel_convertToCorrectCheckoutItem() {
 
         var src = Instancio.create(CheckoutItemPostVm.class);
 
@@ -38,7 +38,7 @@ class CheckoutMapperTest {
     }
 
     @Test
-    void testCheckoutPostVmToModel_convertToCorrectCheckout(){
+    void testCheckoutPostVmToModel_convertToCorrectCheckout() {
 
         CheckoutPostVm checkoutPostVm = Instancio.of(CheckoutPostVm.class)
             .create();
@@ -55,7 +55,7 @@ class CheckoutMapperTest {
     }
 
     @Test
-    void testCheckoutToVm_convertToCheckoutVmCorrectly(){
+    void testCheckoutToVm_convertToCheckoutVmCorrectly() {
 
         Checkout checkout = Instancio.create(Checkout.class);
 
@@ -70,7 +70,7 @@ class CheckoutMapperTest {
     }
 
     @Test
-    void testCheckoutItemToVm_convertCheckoutItemCorrectly(){
+    void testCheckoutItemToVm_convertCheckoutItemCorrectly() {
 
         CheckoutItem checkoutItem = Instancio.create(CheckoutItem.class);
 

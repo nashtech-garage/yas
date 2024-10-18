@@ -33,7 +33,7 @@ public class CheckoutService {
         Checkout checkout = checkoutMapper.toModel(checkoutPostVm);
         checkout.setCheckoutState(CheckoutState.PENDING);
         checkout.setId(UUID.randomUUID().toString());
-        checkout.getCheckoutItem().forEach(item -> item.setCheckoutId(checkout));
+        checkout.getCheckoutItem().forEach(item -> item.setCheckout(checkout));
         return checkoutMapper.toVm(checkoutRepository.save(checkout));
     }
 
