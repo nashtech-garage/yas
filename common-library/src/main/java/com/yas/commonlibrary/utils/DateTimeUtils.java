@@ -5,6 +5,9 @@ import java.time.format.DateTimeFormatter;
 
 public class DateTimeUtils {
 
+    private DateTimeUtils() {
+    }
+
     private static final String DEFAULT_PATTERN = "dd-MM-yyyy_HH-mm-ss";
 
     public static String format(LocalDateTime dateTime) {

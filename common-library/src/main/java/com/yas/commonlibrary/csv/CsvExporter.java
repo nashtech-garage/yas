@@ -1,6 +1,7 @@
 package com.yas.commonlibrary.csv;
 
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 import com.yas.commonlibrary.csv.anotation.CsvColumn;
 import com.yas.commonlibrary.csv.anotation.CsvName;
 import com.yas.commonlibrary.utils.DateTimeUtils;
@@ -8,6 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,15 +23,18 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class CsvExporter {
 
-    public static final String COMMA = ",";
+    private CsvExporter() {
+    }
+
+    private static final String GET_PREFIX = "get";
 
     public static <T> byte[] exportToCsv(List<BaseCsv> dataList, Class<T> clazz) throws IOException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              OutputStreamWriter outputStreamWriter = new OutputStreamWriter(byteArrayOutputStream,
                  StandardCharsets.UTF_8);
-             CSVWriter csvWriter = new CSVWriter(outputStreamWriter, CSVWriter.DEFAULT_SEPARATOR,
-                 CSVWriter.NO_QUOTE_CHARACTER,
-                 CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END)) {
+             CSVWriter csvWriter = new CSVWriter(outputStreamWriter, ICSVWriter.DEFAULT_SEPARATOR,
+                 ICSVWriter.NO_QUOTE_CHARACTER,
+                 ICSVWriter.DEFAULT_ESCAPE_CHARACTER, ICSVWriter.DEFAULT_LINE_END)) {
 
             // Write CSV header
             writeCsvHeader(csvWriter, clazz);
@@ -77,16 +83,20 @@ public class CsvExporter {
 
     private static String getFieldValueAsString(Field field, Object data) {
         try {
-            field.setAccessible(true);
-            Object value = field.get(data);
+            String getterName = GET_PREFIX + StringUtils.capitalize(field.getName());
+            Method getter = data.getClass().getMethod(getterName);
+            Object value = getter.invoke(data);
+
             if (!Objects.isNull(value) && value instanceof List) {
                 return ("[" + String.join("|", (List<String>) value) + "]");
             }
 
             return value != null ? value.toString() : StringUtils.EMPTY;
         } catch (IllegalAccessException e) {
-            log.warn("Get value field err ");
-            e.printStackTrace();
+            log.warn("Get value field err {}", e.getMessage());
+            return StringUtils.EMPTY;
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            log.warn("Get value err {}", e.getMessage());
             return StringUtils.EMPTY;
         }
     }
