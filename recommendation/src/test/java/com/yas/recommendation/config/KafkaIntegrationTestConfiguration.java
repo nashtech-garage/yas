@@ -1,4 +1,4 @@
-package com.yas.recommendation;
+package com.yas.recommendation.config;
 
 import common.container.ContainerFactory;
 import org.springframework.beans.factory.annotation.Value;

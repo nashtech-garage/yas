@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.azure.ai.openai.OpenAIClient;
-import com.yas.recommendation.KafkaIntegrationTestConfiguration;
+import com.yas.recommendation.config.KafkaIntegrationTestConfiguration;
 import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
 import com.yas.recommendation.service.ProductService;
 import com.yas.recommendation.vector.product.document.ProductDocument;
