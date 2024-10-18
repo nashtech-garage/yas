@@ -74,5 +74,9 @@ public class CartPage extends BasePage {
         WebElement product = rows.get(0).findElement(By.className("product-link"));
         return product.getText();
     }
+
+    public boolean isBasketEmpty() {
+        return !WebElementUtil.isElementPresent(webDriverFactory.getChromeDriver(), How.XPATH, "//div[@class='shop__cart__table']//tbody");
+    }
 }
 
