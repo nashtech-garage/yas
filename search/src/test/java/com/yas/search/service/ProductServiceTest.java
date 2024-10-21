@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,10 +42,31 @@ class ProductServiceTest {
 
     private ProductService productService;
 
+    private ProductCriteriaDto productCriteriaDto;
+
     @BeforeEach
     void setUp() {
         elasticsearchOperations = mock(ElasticsearchOperations.class);
         productService = new ProductService(elasticsearchOperations);
+
+        productCriteriaDto = ProductCriteriaDto.builder()
+            .keyword("test")
+            .page(0)
+            .size(10)
+            .brand("testBrand")
+            .category("testCategory")
+            .attribute("testAttribute")
+            .minPrice(10.0)
+            .maxPrice(100.0)
+            .minRating(1.0)
+            .maxRating(2.0)
+            .sortType(SortType.DEFAULT)
+            .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        productCriteriaDto = null;
     }
 
     @Test
@@ -67,10 +89,10 @@ class ProductServiceTest {
 
         when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
 
-        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
-            "test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, 1.0, 2.0, SortType.PRICE_ASC);
-        ProductListGetVm result = productService.findProductAdvance(criteriaDto);
+        productCriteriaDto = productCriteriaDto.toBuilder()
+            .sortType(SortType.PRICE_ASC)
+            .build();
+        ProductListGetVm result = productService.findProductAdvance(productCriteriaDto);
 
         verify(elasticsearchOperations, times(1))
             .search(captor.capture(), eq(Product.class));
@@ -104,9 +126,10 @@ class ProductServiceTest {
 
         when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
 
-        ProductCriteriaDto criteriaDto = new ProductCriteriaDto("test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, 1.0, 2.0, SortType.PRICE_DESC);
-        productService.findProductAdvance(criteriaDto);
+        productCriteriaDto = productCriteriaDto.toBuilder()
+            .sortType(SortType.PRICE_DESC)
+            .build();
+        productService.findProductAdvance(productCriteriaDto);
 
         verify(elasticsearchOperations, times(1))
             .search(captor.capture(), eq(Product.class));
@@ -131,10 +154,7 @@ class ProductServiceTest {
 
         when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
 
-        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
-            "test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, 1.0, 2.0, SortType.DEFAULT);
-        productService.findProductAdvance(criteriaDto);
+        productService.findProductAdvance(productCriteriaDto);
 
         verify(elasticsearchOperations, times(1))
             .search(captor.capture(), eq(Product.class));

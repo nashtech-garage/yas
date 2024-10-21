@@ -44,18 +44,18 @@ class ProductControllerTest {
     @Test
     void testFindProductAdvance_whenProductListIsExists_thenReturnProductListGetVm() throws Exception {
 
-        ProductGetVm productGetVm = new ProductGetVm(
-            1L,
-            "Sample Product",
-            "sample-product",
-            123L,
-            29.99,
-            true,
-            true,
-            false,
-            true,
-            ZonedDateTime.now()
-        );
+        ProductGetVm productGetVm = ProductGetVm.builder()
+            .id(1L)
+            .name("Sample Product")
+            .slug("sample-product")
+            .thumbnailId(123L)
+            .price(29.99)
+            .isAllowedToOrder(true)
+            .isPublished(true)
+            .isFeatured(false)
+            .isVisibleIndividually(true)
+            .createdOn(ZonedDateTime.now())
+            .build();
 
         ProductListGetVm mockResponse = new ProductListGetVm(
             List.of(productGetVm), 0, 1, 1, 1, true, Map.of()
