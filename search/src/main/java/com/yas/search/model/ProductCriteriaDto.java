@@ -10,5 +10,7 @@ public record ProductCriteriaDto(String keyword,
                                  String attribute,
                                  Double minPrice,
                                  Double maxPrice,
+                                 Double minRating,
+                                 Double maxRating,
                                  SortType sortType) {
 }

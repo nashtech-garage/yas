@@ -27,10 +27,14 @@ public class ProductController {
                                                                @RequestParam(required = false) String attribute,
                                                                @RequestParam(required = false) Double minPrice,
                                                                @RequestParam(required = false) Double maxPrice,
+                                                               @RequestParam(required = false) Double minRating,
+                                                               @RequestParam(required = false) Double maxRating,
                                                                @RequestParam(defaultValue = "DEFAULT")
                                                                SortType sortType) {
         return ResponseEntity.ok(productService.findProductAdvance(
-            new ProductCriteriaDto(keyword, page, size, brand, category, attribute, minPrice, maxPrice, sortType)
+            new ProductCriteriaDto(
+                keyword, page, size, brand, category, attribute, minPrice, maxPrice, minRating, maxRating, sortType
+            )
         ));
     }
 

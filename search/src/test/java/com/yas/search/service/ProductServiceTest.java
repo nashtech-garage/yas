@@ -69,7 +69,7 @@ class ProductServiceTest {
 
         ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
             "test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, SortType.PRICE_ASC);
+            "testAttribute", 10.0, 100.0, 1.0, 2.0, SortType.PRICE_ASC);
         ProductListGetVm result = productService.findProductAdvance(criteriaDto);
 
         verify(elasticsearchOperations, times(1))
@@ -105,7 +105,7 @@ class ProductServiceTest {
         when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
 
         ProductCriteriaDto criteriaDto = new ProductCriteriaDto("test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, SortType.PRICE_DESC);
+            "testAttribute", 10.0, 100.0, 1.0, 2.0, SortType.PRICE_DESC);
         productService.findProductAdvance(criteriaDto);
 
         verify(elasticsearchOperations, times(1))
@@ -133,7 +133,7 @@ class ProductServiceTest {
 
         ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
             "test", 0, 10, "testBrand", "testCategory",
-            "testAttribute", 10.0, 100.0, SortType.DEFAULT);
+            "testAttribute", 10.0, 100.0, 1.0, 2.0, SortType.DEFAULT);
         productService.findProductAdvance(criteriaDto);
 
         verify(elasticsearchOperations, times(1))

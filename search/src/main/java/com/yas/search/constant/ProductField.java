@@ -7,6 +7,7 @@ public class ProductField {
     public static final String CATEGORIES = "categories";
     public static final String ATTRIBUTES = "attributes";
     public static final String CREATE_ON = "createdOn";
+    public static final String RATING = "rating";
 
     private ProductField() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
