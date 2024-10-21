@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record CartItemV2PostVm(
+public record CartItemPostVm(
     @NotNull Long productId,
     @NotNull @Min(1) Integer quantity) {}

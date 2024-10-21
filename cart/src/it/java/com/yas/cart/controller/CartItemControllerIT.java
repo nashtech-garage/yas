@@ -5,12 +5,12 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-import com.yas.cart.model.CartItemV2;
-import com.yas.cart.repository.CartItemV2Repository;
+import com.yas.cart.model.CartItem;
+import com.yas.cart.repository.CartItemRepository;
 import com.yas.cart.service.ProductService;
-import com.yas.cart.viewmodel.CartItemV2DeleteVm;
-import com.yas.cart.viewmodel.CartItemV2PostVm;
-import com.yas.cart.viewmodel.CartItemV2PutVm;
+import com.yas.cart.viewmodel.CartItemDeleteVm;
+import com.yas.cart.viewmodel.CartItemPostVm;
+import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
@@ -30,10 +30,10 @@ import org.springframework.http.HttpStatus;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(IntegrationTestConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class CartItemV2ControllerIT extends AbstractControllerIT {
+class CartItemControllerIT extends AbstractControllerIT {
 
     @Autowired
-    private CartItemV2Repository cartItemRepository;
+    private CartItemRepository cartItemRepository;
 
     @MockBean
     private ProductService productService;
@@ -61,7 +61,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
         @Test
         void testAddCartItem_whenRequestIsValid_shouldReturnCartItemGetVm() {
-            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 1);
+            CartItemPostVm cartItemPostVm = new CartItemPostVm(existingProduct.id(), 1);
 
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
 
@@ -73,7 +73,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
         @Test
         void testAddCartItem_whenCartItemExists_shouldUpdateCartItemQuantity() {
-            CartItemV2PostVm addCartItemVm = CartItemV2PostVm
+            CartItemPostVm addCartItemVm = CartItemPostVm
                 .builder()
                 .productId(existingProduct.id())
                 .quantity(1)
@@ -81,7 +81,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
             when(productService.existsById(anyLong())).thenReturn(true);
             performCreateCartItemThenExpectSuccess(addCartItemVm);
 
-            CartItemV2PostVm addDuplicatedCartItemVm = CartItemV2PostVm
+            CartItemPostVm addDuplicatedCartItemVm = CartItemPostVm
                 .builder()
                 .productId(addCartItemVm.productId())
                 .quantity(1)
@@ -100,7 +100,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
         @Test
         void testUpdateCartItem_whenRequestIsValid_shouldReturnCartItemGetVm() {
-            CartItemV2PutVm cartItemPutVm = new CartItemV2PutVm(1);
+            CartItemPutVm cartItemPutVm = new CartItemPutVm(1);
 
             when(productService.existsById(existingProduct.id())).thenReturn(true);
 
@@ -121,7 +121,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
         @Test
         void testGetCartItems_whenCartItemsExist_shouldReturnCartItems() {
-            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 1);
+            CartItemPostVm cartItemPostVm = new CartItemPostVm(existingProduct.id(), 1);
 
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
             performCreateCartItemThenExpectSuccess(cartItemPostVm);
@@ -138,14 +138,14 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
     @Nested
     class DeleteOrAdjustCartItemTest {
-        private CartItemV2 existingCartItem;
+        private CartItem existingCartItem;
 
         @BeforeEach
         void setUp() {
-            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 10);
+            CartItemPostVm cartItemPostVm = new CartItemPostVm(existingProduct.id(), 10);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
             performCreateCartItemThenExpectSuccess(cartItemPostVm);
-            existingCartItem = CartItemV2
+            existingCartItem = CartItem
                 .builder()
                 .productId(cartItemPostVm.productId())
                 .quantity(cartItemPostVm.quantity())
@@ -154,8 +154,8 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
         @Test
         void testDeleteOrAdjustCartItem_whenDeleteQuantityIsGreaterThanOrEqualToCartItemQuantity_shouldDeleteCartItem() {
-            CartItemV2DeleteVm cartItemDeleteVm =
-                new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() + 1);
+            CartItemDeleteVm cartItemDeleteVm =
+                new CartItemDeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() + 1);
 
             performRemoveCartItemsThenExpect(List.of(cartItemDeleteVm))
                 .statusCode(HttpStatus.OK.value())
@@ -165,8 +165,8 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
         @Test
         void testDeleteOrAdjustCartItem_whenDeleteQuantityIsLessThanCartItemQuantity_shouldAdjustCartItemQuantity() {
-            CartItemV2DeleteVm cartItemDeleteVm =
-                new CartItemV2DeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() - 1);
+            CartItemDeleteVm cartItemDeleteVm =
+                new CartItemDeleteVm(existingCartItem.getProductId(), existingCartItem.getQuantity() - 1);
             int expectedQuantity = existingCartItem.getQuantity() - cartItemDeleteVm.quantity();
 
             performRemoveCartItemsThenExpect(List.of(cartItemDeleteVm))
@@ -177,7 +177,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
                 .log().ifValidationFails();
         }
 
-        private ValidatableResponse performRemoveCartItemsThenExpect(List<CartItemV2DeleteVm> cartItemDeleteVms) {
+        private ValidatableResponse performRemoveCartItemsThenExpect(List<CartItemDeleteVm> cartItemDeleteVms) {
             return givenLoggedInAsAdmin()
                 .when()
                 .body(cartItemDeleteVms)
@@ -191,7 +191,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
 
         @Test
         void testDeleteCartItem_whenCartItemExists_shouldDeleteCartItem() {
-            CartItemV2PostVm cartItemPostVm = new CartItemV2PostVm(existingProduct.id(), 10);
+            CartItemPostVm cartItemPostVm = new CartItemPostVm(existingProduct.id(), 10);
             when(productService.existsById(cartItemPostVm.productId())).thenReturn(true);
             performCreateCartItemThenExpectSuccess(cartItemPostVm);
 
@@ -216,7 +216,7 @@ class CartItemV2ControllerIT extends AbstractControllerIT {
             .then();
     }
 
-    private ValidatableResponse performCreateCartItemThenExpectSuccess(CartItemV2PostVm cartItemPostVm) {
+    private ValidatableResponse performCreateCartItemThenExpectSuccess(CartItemPostVm cartItemPostVm) {
         return givenLoggedInAsAdmin()
             .body(cartItemPostVm)
             .when()
