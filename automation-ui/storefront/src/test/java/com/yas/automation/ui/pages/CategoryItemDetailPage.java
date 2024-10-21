@@ -1,15 +1,14 @@
 package com.yas.automation.ui.pages;
 
-import static com.yas.automation.ui.util.WebElementUtil.getWebElementBy;
-
-import com.yas.automation.ui.hook.WebDriverFactory;
-import com.yas.automation.ui.page.BasePage;
-import com.yas.automation.ui.util.WebElementUtil;
+import com.yas.automation.base.hook.WebDriverFactory;
+import com.yas.automation.base.page.BasePage;
+import com.yas.automation.base.util.WebElementUtil;
+import static com.yas.automation.base.util.WebElementUtil.getWebElementBy;
+import static com.yas.automation.base.util.WebElementUtil.waitElement;
+import java.time.Duration;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.How;
 import org.springframework.stereotype.Component;
-
-import java.time.Duration;
 
 @Component
 public class CategoryItemDetailPage extends BasePage {
@@ -21,7 +20,7 @@ public class CategoryItemDetailPage extends BasePage {
     }
 
     public boolean existedButtonAddToCart() {
-        this.wait(Duration.ofSeconds(1));
+        waitElement(webDriverFactory.getChromeDriver(), How.XPATH, "//button[span[text()='Add to cart']]", 1);
         return WebElementUtil.isElementPresent(webDriverFactory.getChromeDriver(), How.XPATH, "//button[span[text()='Add to cart']]");
     }
 
@@ -31,7 +30,7 @@ public class CategoryItemDetailPage extends BasePage {
     }
 
     public void clickObBasket() {
-        this.wait(Duration.ofSeconds(5));
+        this.wait(Duration.ofSeconds(2)); // hidden layer add successfully
         WebElement btnBasket = getWebElementBy(webDriverFactory.getChromeDriver(), How.CLASS_NAME, "header-cart");
         btnBasket.click();
     }

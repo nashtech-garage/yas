@@ -1,14 +1,13 @@
-package com.yas.automation.ui.page;
+package com.yas.automation.base.page;
 
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
+import java.time.Duration;
+import java.util.function.Supplier;
 import lombok.Getter;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
-import java.util.function.Supplier;
 
 /**
  * BasePage provides common setup for web pages in the automation framework.
@@ -24,7 +23,7 @@ import java.util.function.Supplier;
  */
 @Getter
 public class BasePage {
-
+    public static final int MAX_RETRIES = 5;
     private final WebDriverFactory webDriverFactory;
 
     public BasePage(WebDriverFactory webDriverFactory) {

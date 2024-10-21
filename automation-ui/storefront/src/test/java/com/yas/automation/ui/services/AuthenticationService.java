@@ -1,7 +1,7 @@
 package com.yas.automation.ui.services;
 
 import com.yas.automation.ui.configuration.StorefrontConfiguration;
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import com.yas.automation.ui.pages.HomePage;
 import com.yas.automation.ui.pages.LoginPage;
 import org.junit.Assert;

@@ -9,7 +9,7 @@ import org.testng.annotations.DataProvider;
 @RunWith(Cucumber.class)
 @CucumberOptions(
         features = "src/test/resources/features",
-        glue = "com.yas.automation.ui"
+        glue = "com.yas.automation"
 )
 public class JUnitCucumberRunner extends AbstractTestNGCucumberTests {
 

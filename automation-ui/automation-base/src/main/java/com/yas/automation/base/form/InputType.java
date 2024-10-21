@@ -1,4 +1,4 @@
-package com.yas.automation.ui.form;
+package com.yas.automation.base.form;
 
 import lombok.Getter;
 

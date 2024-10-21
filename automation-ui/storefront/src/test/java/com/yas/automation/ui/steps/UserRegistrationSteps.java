@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.yas.automation.ui.configuration.StorefrontConfiguration;
 import com.yas.automation.ui.form.UserRegisterForm;
-import com.yas.automation.ui.hook.WebDriverFactory;
+import com.yas.automation.base.hook.WebDriverFactory;
 import com.yas.automation.ui.pages.HomePage;
 import com.yas.automation.ui.pages.UserRegistrationPage;
 import io.cucumber.java.en.Given;
