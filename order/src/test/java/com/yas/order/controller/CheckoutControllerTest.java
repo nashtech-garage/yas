@@ -112,6 +112,8 @@ class CheckoutControllerTest {
             "First item note",
             new BigDecimal("5.00"),
             new BigDecimal("2.50"),
+            new BigDecimal("8.5"),
+            new BigDecimal("8.5"),
             new BigDecimal("8.5")
         );
 
@@ -123,7 +125,9 @@ class CheckoutControllerTest {
             "Second item note",
             new BigDecimal("10.00"),
             new BigDecimal("5.00"),
-            new BigDecimal("10.0")
+            new BigDecimal("10.0"),
+            new BigDecimal("8.5"),
+            new BigDecimal("8.5")
         );
 
         return List.of(item1, item2);

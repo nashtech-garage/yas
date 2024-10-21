@@ -1,20 +1,20 @@
 package com.yas.order.model;
 
 import com.yas.order.model.enumeration.CheckoutState;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.Set;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "checkout")
@@ -24,15 +24,59 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class Checkout extends AbstractAuditEntity {
+
     @Id
     private String id;
+
     private String email;
+
     private String note;
+
+    @Column(name = "promotion_code")
     private String couponCode;
+
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private CheckoutState checkoutState;
 
-    @OneToMany(mappedBy = "checkoutId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<CheckoutItem> checkoutItem;
+    @SuppressWarnings("unused")
+    private String progress;
+
+    @SuppressWarnings("unused")
+    private Long customerId;
+
+    @SuppressWarnings("unused")
+    private String shipmentMethodId;
+
+    @SuppressWarnings("unused")
+    private String paymentMethodId;
+
+    @SuppressWarnings("unused")
+    private Long shippingAddressId;
+
+    @SuppressWarnings("unused")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "last_error", columnDefinition = "jsonb")
+    private String lastError;
+
+    @SuppressWarnings("unused")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "attributes", columnDefinition = "jsonb")
+    private String attributes;
+
+    @SuppressWarnings("unused")
+    private BigDecimal totalAmount;
+
+    @SuppressWarnings("unused")
+    private BigDecimal totalShipmentFee;
+
+    @SuppressWarnings("unused")
+    private BigDecimal totalShipmentTax;
+
+    @SuppressWarnings("unused")
+    private BigDecimal totalTax;
+
+    @SuppressWarnings("unused")
+    private BigDecimal totalDiscountAmount;
 
 }

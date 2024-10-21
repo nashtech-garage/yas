@@ -10,6 +10,8 @@ public record CheckoutItemPostVm(
         String note,
         BigDecimal discountAmount,
         BigDecimal taxAmount,
-        BigDecimal taxPercent
+        BigDecimal taxPercent,
+        BigDecimal shipmentFee,
+        BigDecimal shipmentTax
 ) {
 }

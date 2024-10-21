@@ -1,5 +1,6 @@
 package com.yas.order.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,19 +23,43 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CheckoutItem {
+public class CheckoutItem extends AbstractAuditEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Long productId;
+
+    @Column(name = "checkout_id")
+    private String checkoutId;
+
+    @Column(name = "name")
     private String productName;
+
     private int quantity;
+
+    @Column(name = "price")
     private BigDecimal productPrice;
+
+    @Column(name = "description")
     private String note;
-    private BigDecimal discountAmount;
-    private BigDecimal taxAmount;
-    private BigDecimal taxPercent;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "checkoutId", referencedColumnName = "id")
-    private Checkout checkoutId;
+    @JoinColumn(name = "checkout_id", insertable = false, updatable = false)
+    private Checkout checkout;
+
+    private BigDecimal discountAmount;
+
+    @Column(name = "tax")
+    private BigDecimal taxAmount;
+
+    private BigDecimal taxPercent;
+
+    @SuppressWarnings("unused")
+    private BigDecimal shipmentTax;
+
+    @SuppressWarnings("unused")
+    private BigDecimal shipmentFee;
+
 }
