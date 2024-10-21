@@ -12,12 +12,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yas.order.OrderApplication;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.model.enumeration.PaymentStatus;
+import com.yas.order.model.request.OrderRequest;
 import com.yas.order.service.OrderService;
 import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
@@ -32,6 +34,7 @@ import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -218,6 +222,26 @@ class OrderControllerTest {
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content()
                 .json(objectWriter.writeValueAsString(list)));
+    }
+
+    @Test
+    void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        OrderRequest orderRequest = new OrderRequest();
+        byte[] csvBytes = "ID,Name,Tags\n1,Alice,tag1,tag2\n2,Bob,tag3,tag4\n".getBytes();
+
+        when(orderService.exportCsv(any(OrderRequest.class))).thenReturn(csvBytes);
+
+        mockMvc.perform(post("/backoffice/orders/csv")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(orderRequest)))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=Orders_" +
+                    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss")) + ".csv"))
+            .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
     }
 
     private OrderVm getOrderVm() {

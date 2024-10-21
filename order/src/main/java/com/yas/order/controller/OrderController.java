@@ -1,6 +1,9 @@
 package com.yas.order.controller;
 
+import com.yas.commonlibrary.csv.CsvExporter;
+import com.yas.order.model.csv.OrderItemCsv;
 import com.yas.order.model.enumeration.OrderStatus;
+import com.yas.order.model.request.OrderRequest;
 import com.yas.order.service.OrderService;
 import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
@@ -10,10 +13,14 @@ import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,5 +97,15 @@ public class OrderController {
     @GetMapping("/backoffice/orders/latest/{count}")
     public ResponseEntity<List<OrderBriefVm>> getLatestOrders(@PathVariable int count) {
         return ResponseEntity.ok(orderService.getLatestOrders(count));
+    }
+
+    @PostMapping("/backoffice/orders/csv")
+    public ResponseEntity<byte[]> exportCsv(@RequestBody OrderRequest orderRequest) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=" + CsvExporter.createFileName(OrderItemCsv.class));
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        var csvBytes = orderService.exportCsv(orderRequest);
+        return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
     }
 }

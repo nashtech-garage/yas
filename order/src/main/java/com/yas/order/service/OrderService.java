@@ -2,13 +2,18 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.Constants.ErrorCode.ORDER_NOT_FOUND;
 
+import com.yas.commonlibrary.csv.BaseCsv;
+import com.yas.commonlibrary.csv.CsvExporter;
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.order.mapper.OrderMapper;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
 import com.yas.order.model.OrderItem;
+import com.yas.order.model.csv.OrderItemCsv;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
+import com.yas.order.model.request.OrderRequest;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.utils.AuthenticationUtils;
@@ -22,10 +27,13 @@ import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVm;
+import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +54,7 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductService productService;
     private final CartService cartService;
+    private final OrderMapper orderMapper;
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
 
@@ -243,5 +252,29 @@ public class OrderService {
                 .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, orderId));
         order.setOrderStatus(OrderStatus.ACCEPTED);
         this.orderRepository.save(order);
+    }
+
+    public byte[] exportCsv(OrderRequest orderRequest) throws IOException {
+        ZonedDateTime createdFrom = orderRequest.getCreatedFrom();
+        ZonedDateTime createdTo = orderRequest.getCreatedTo();
+        String warehouse = orderRequest.getWarehouse();
+        String productName = orderRequest.getProductName();
+        List<OrderStatus> orderStatus = orderRequest.getOrderStatus();
+        String billingCountry = orderRequest.getBillingCountry();
+        String billingPhoneNumber = orderRequest.getBillingPhoneNumber();
+        String email = orderRequest.getEmail();
+        int pageNo = orderRequest.getPageNo();
+        int pageSize = orderRequest.getPageSize();
+
+        OrderListVm orderListVm = getAllOrder(createdFrom, createdTo,
+            warehouse, productName,
+            orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);
+        if (Objects.isNull(orderListVm.orderList())) {
+            return CsvExporter.exportToCsv(List.of(), OrderItemCsv.class);
+        }
+
+        List<BaseCsv> orders = orderListVm.orderList().stream().map(orderMapper::toCsv).collect(
+            Collectors.toUnmodifiableList());
+        return CsvExporter.exportToCsv(orders, OrderItemCsv.class);
     }
 }
