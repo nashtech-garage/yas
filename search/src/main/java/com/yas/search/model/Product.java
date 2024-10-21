@@ -28,6 +28,8 @@ public class Product {
     private String slug;
     @Field(type = FieldType.Double)
     private Double price;
+    @Field(type = FieldType.Double)
+    private Double rating;
     private Boolean isPublished;
     private Boolean isVisibleIndividually;
     private Boolean isAllowedToOrder;

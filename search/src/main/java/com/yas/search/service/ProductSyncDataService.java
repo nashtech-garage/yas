@@ -36,6 +36,7 @@ public class ProductSyncDataService {
         product.setName(productEsDetailVm.name());
         product.setSlug(productEsDetailVm.slug());
         product.setPrice(productEsDetailVm.price());
+        product.setRating(productEsDetailVm.rating());
         product.setIsPublished(productEsDetailVm.isPublished());
         product.setIsVisibleIndividually(productEsDetailVm.isVisibleIndividually());
         product.setIsAllowedToOrder(productEsDetailVm.isAllowedToOrder());
@@ -55,6 +56,7 @@ public class ProductSyncDataService {
                 .name(productEsDetailVm.name())
                 .slug(productEsDetailVm.slug())
                 .price(productEsDetailVm.price())
+                .rating(productEsDetailVm.rating())
                 .isPublished(productEsDetailVm.isPublished())
                 .isVisibleIndividually(productEsDetailVm.isVisibleIndividually())
                 .isAllowedToOrder(productEsDetailVm.isAllowedToOrder())

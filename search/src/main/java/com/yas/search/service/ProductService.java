@@ -67,7 +67,8 @@ public class ProductService {
                     extractedTermsFilter(productCriteria.brand(), ProductField.BRAND, b);
                     extractedTermsFilter(productCriteria.category(), ProductField.CATEGORIES, b);
                     extractedTermsFilter(productCriteria.attribute(), ProductField.ATTRIBUTES, b);
-                    extractedRange(productCriteria.minPrice(), productCriteria.maxPrice(), b);
+                    extractedRange(productCriteria.minPrice(), productCriteria.maxPrice(), ProductField.PRICE, b);
+                    extractedRange(productCriteria.minRating(), productCriteria.maxRating(), ProductField.RATING, b);
                     return b;
                 })
         );
@@ -116,11 +117,11 @@ public class ProductService {
         });
     }
 
-    private void extractedRange(Number min, Number max, BoolQuery.Builder bool) {
+    private void extractedRange(Number min, Number max, String field, BoolQuery.Builder bool) {
         if (min != null || max != null) {
             bool.must(m -> m
                     .range(r -> r
-                            .field(ProductField.PRICE)
+                            .field(field)
                             .from(min != null ? min.toString() : null)
                             .to(max != null ? max.toString() : null)
                     )

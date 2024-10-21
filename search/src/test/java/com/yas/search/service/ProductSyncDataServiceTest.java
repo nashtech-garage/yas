@@ -64,20 +64,21 @@ class ProductSyncDataServiceTest {
     }
 
     private ProductEsDetailVm getProductThumbnailVms() {
-        return new ProductEsDetailVm(
-            ID,
-            "Smartphone XYZ",
-            "smartphone-xyz",
-            299.99,
-            true,
-            true,
-            true,
-            false,
-            456L,
-            "BrandName",
-            List.of("Electronics", "Mobile Phones"),
-            List.of("Color: Black", "Storage: 128GB", "RAM: 6GB")
-        );
+        return ProductEsDetailVm.builder()
+            .id(ID)
+            .name("Smartphone XYZ")
+            .slug("smartphone-xyz")
+            .price(299.99)
+            .rating(1.5)
+            .isPublished(true)
+            .isVisibleIndividually(true)
+            .isAllowedToOrder(true)
+            .isFeatured(false)
+            .thumbnailMediaId(456L)
+            .brand("BrandName")
+            .categories(List.of("Electronics", "Mobile Phones"))
+            .attributes(List.of("Color: Black", "Storage: 128GB", "RAM: 6GB"))
+            .build();
     }
 
     @Test
