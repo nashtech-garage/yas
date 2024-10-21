@@ -40,7 +40,6 @@ jobs:
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-        continue-on-error: true  # TODO: remove once defining UT
         with:
           name: Recommendation-Service-Unit-Test-Results
           path: "recommendation/**/*-reports/TEST*.xml"
