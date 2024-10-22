@@ -1,6 +1,6 @@
-package com.yas.automation.ui.service;
+package com.yas.automation.base.service;
 
-import com.yas.automation.ui.form.InputType;
+import com.yas.automation.base.form.InputType;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Component;
 

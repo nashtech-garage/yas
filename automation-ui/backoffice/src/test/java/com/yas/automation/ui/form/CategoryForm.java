@@ -1,5 +1,6 @@
 package com.yas.automation.ui.form;
 
+import com.yas.automation.base.form.BaseForm;
 import lombok.Getter;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

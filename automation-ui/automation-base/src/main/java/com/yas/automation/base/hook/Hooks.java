@@ -1,4 +1,4 @@
-package com.yas.automation.ui.hook;
+package com.yas.automation.base.hook;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
