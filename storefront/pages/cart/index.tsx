@@ -57,14 +57,19 @@ const Cart = () => {
 
     setSubTotalPrice(newTotalPrice);
     // Calculate total discount
-    const newDiscountMoney = selectedItems.reduce((total, item) => {
-      const discount =
-        promotionApply?.discountType === 'PERCENTAGE'
-          ? item.price * (promotionApply.discountValue / 100)
-          : promotionApply?.discountValue ?? 0;
+    const discount = (() => {
+      if (!promotionApply) return 0;
 
-      return total + discount;
-    }, 0);
+      if (promotionApply.discountType === 'PERCENTAGE') {
+        return item.price * (promotionApply.discountValue / 100);
+      } else if (promotionApply.discountValue != null) {
+        return promotionApply.discountValue;
+      }
+
+      return 0;
+    })();
+
+    return total + discount;
     setDiscountMoney(newDiscountMoney);
     console.log('discountMoney: ' + newDiscountMoney);
 
