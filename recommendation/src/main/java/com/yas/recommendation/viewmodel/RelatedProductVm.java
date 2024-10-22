@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.List;
-import lombok.Getter;
 
-@Getter
+@lombok.Setter
+@lombok.Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RelatedProductVm {
 
     @JsonProperty("id")
-    private Integer productId;
+    private Long productId;
 
     private String name;
 
