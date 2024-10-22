@@ -403,12 +403,7 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "{http_request_method=\"GET\", http_route=\"api\"}"
-          }
-        ]
+        "sortBy": []
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -455,8 +450,8 @@
             "indexByName": {},
             "renameByName": {
               "Value": "Total Success Requests",
-              "Value #A": "Success Requests",
-              "Value #B": "Failure Requets",
+              "Value #A": "Successful Request",
+              "Value #B": "Failed Requests",
               "http_request_method": "Method",
               "http_route": "Route"
             }
@@ -1463,8 +1458,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1618,8 +1612,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1709,8 +1702,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1801,8 +1793,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1893,8 +1884,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1999,8 +1989,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2091,8 +2080,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2153,8 +2141,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2248,8 +2235,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2342,8 +2328,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2444,8 +2429,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2540,7 +2524,7 @@
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "storefront-bff-service",
           "value": "storefront-bff-service"
         },
@@ -2567,6 +2551,7 @@
       },
       {
         "current": {
+          "isNone": true,
           "selected": false,
           "text": "None",
           "value": ""
@@ -2594,7 +2579,8 @@
       },
       {
         "current": {
-          "selected": false,
+          "isNone": true,
+          "selected": true,
           "text": "None",
           "value": ""
         },
@@ -2621,6 +2607,7 @@
       },
       {
         "current": {
+          "isNone": true,
           "selected": false,
           "text": "None",
           "value": ""
