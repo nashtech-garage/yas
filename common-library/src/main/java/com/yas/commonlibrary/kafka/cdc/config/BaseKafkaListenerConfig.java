@@ -24,6 +24,13 @@ public abstract class BaseKafkaListenerConfig<T> {
         this.kafkaProperties = kafkaProperties;
     }
 
+    /**
+     * Abstract method to provide a custom instance of {@link ConcurrentKafkaListenerContainerFactory}.
+     * (override method must be recognized as bean)
+     * In case, using default want, let's get the default from {@link #kafkaListenerContainerFactory()}
+     *
+     * @return a configured instance of {@link ConcurrentKafkaListenerContainerFactory}.
+     */
     public abstract ConcurrentKafkaListenerContainerFactory<String, T> listenerContainerFactory();
 
     /**

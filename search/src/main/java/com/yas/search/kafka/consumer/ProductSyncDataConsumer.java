@@ -1,10 +1,13 @@
 package com.yas.search.kafka.consumer;
 
+import static com.yas.search.kafka.config.consumer.ProductCdcKafkaListenerConfig.PRODUCT_CDC_LISTENER_CONTAINER_FACTORY;
+
 import com.yas.commonlibrary.kafka.cdc.BaseCdcConsumer;
 import com.yas.commonlibrary.kafka.cdc.RetrySupportDql;
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
 import com.yas.search.service.ProductSyncDataService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 /**
  * Product synchronize data consumer for elasticsearch.
  */
+@Slf4j
 @Service
 public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductCdcMessage> {
 
@@ -27,9 +31,9 @@ public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductCdcMessage> 
         id = "product-sync-es",
         groupId = "product-sync-search",
         topics = "${product.topic.name}",
-        containerFactory = "productCdcListenerContainerFactory"
+        containerFactory = PRODUCT_CDC_LISTENER_CONTAINER_FACTORY
     )
-    @RetrySupportDql(listenerContainerFactory = "productCdcListenerContainerFactory")
+    @RetrySupportDql(listenerContainerFactory = PRODUCT_CDC_LISTENER_CONTAINER_FACTORY)
     public void processMessage(
         @Payload(required = false) @Valid ProductCdcMessage productCdcMessage,
         @Headers MessageHeaders headers
@@ -52,6 +56,7 @@ public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductCdcMessage> 
                     productSyncDataService.deleteProduct(productId);
                     break;
                 default:
+                    log.info("Unsupported operation '{}' for product: '{}'", operation, productId);
                     break;
             }
         }
