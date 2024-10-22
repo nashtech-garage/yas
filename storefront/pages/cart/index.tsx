@@ -61,7 +61,7 @@ const Cart = () => {
       const discount =
         promotionApply?.discountType === 'PERCENTAGE'
           ? item.price * (promotionApply.discountValue / 100)
-          : (promotionApply?.discountValue ?? 0);
+          : promotionApply?.discountValue ?? 0;
 
       return total + discount;
     }, 0);
