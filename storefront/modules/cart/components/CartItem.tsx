@@ -97,11 +97,10 @@ const CartItem: FC<CartItemProps> = ({
         )}
 
         <div>
-          {promotionApply?.discountType === 'PERCENTAGE'
-            ? formatPrice(item.price - item.price * (promotionApply.discountValue / 100)) // Calculate percentage discount
-            : formatPrice(
-                item.price - (promotionApply?.discountValue ?? 0)
-              ) // Fixed discount
+          {
+            promotionApply?.discountType === 'PERCENTAGE'
+              ? formatPrice(item.price - item.price * (promotionApply.discountValue / 100)) // Calculate percentage discount
+              : formatPrice(item.price - (promotionApply?.discountValue ?? 0)) // Fixed discount
           }
         </div>
       </td>
