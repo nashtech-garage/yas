@@ -1,5 +1,6 @@
 package com.yas.recommendation.vector.product.service;
 
+import com.yas.commonlibrary.kafka.cdc.message.Product;
 import com.yas.recommendation.vector.product.store.ProductVectorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,29 +18,25 @@ public class ProductVectorSyncService {
     /**
      * Creates a product vector if the product is published.
      *
-     * @param productId The unique identifier of the product to be synchronized.
-     * @param isPublished Indicates if the product is published.
-     *                    The product vector is created only if this value is true.
+     * @param product {@link Product} the product to be synchronized.
      */
-    public void createProductVector(Long productId, boolean isPublished) {
-        if (isPublished) {
-            productVectorRepository.add(productId);
+    public void createProductVector(Product product) {
+        if (product.isPublished()) {
+            productVectorRepository.add(product.getId());
         }
     }
 
     /**
      * Updates a product vector if the product is published; deletes it otherwise.
      *
-     * @param productId The unique identifier of the product to be updated.
-     * @param isPublished Indicates if the product is published.
-     *                    The product vector is updated if true, or deleted if false.
+     * @param product {@link Product} the product to be synchronized.
      */
-    public void updateProductVector(Long productId, boolean isPublished) {
-        if (!isPublished) {
-            productVectorRepository.delete(productId);
-            return;
+    public void updateProductVector(Product product) {
+        if (product.isPublished()) {
+            productVectorRepository.update(product.getId());
+        } else {
+            productVectorRepository.delete(product.getId());
         }
-        productVectorRepository.update(productId);
     }
 
     /**

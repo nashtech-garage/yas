@@ -9,6 +9,9 @@
         </encoder>
     </appender>
 
+    <logger name="com.yas.search" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
