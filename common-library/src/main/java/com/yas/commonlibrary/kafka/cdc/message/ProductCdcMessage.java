@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductCdcMessage {
 
+    @NotNull
     private Product after;
 
     private Product before;

@@ -3,10 +3,8 @@ package com.yas.commonlibrary.kafka.cdc;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 
 /**
  * Base class for CDC (Change Data Capture) Kafka consumers.
@@ -23,14 +21,9 @@ public abstract class BaseCdcConsumer<T> {
         if (record == null) {
             LOGGER.warn("## Null payload received");
         } else {
-            LOGGER.info("## Processing record - Key: {} | Value: {}", headers.get(KafkaHeaders.RECEIVED_KEY), record);
+            LOGGER.debug("## Processing record - Key: {} | Value: {}", headers.get(KafkaHeaders.RECEIVED_KEY), record);
             consumer.accept(record);
-            LOGGER.info("## Record processed successfully - Key: {} \n", headers.get(KafkaHeaders.RECEIVED_KEY));
+            LOGGER.debug("## Record processed successfully - Key: {} \n", headers.get(KafkaHeaders.RECEIVED_KEY));
         }
-    }
-
-    @DltHandler
-    public void dlt(T data, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        LOGGER.error("### Event from topic {} is dead lettered - event: {}", topic, data);
     }
 }
