@@ -50,26 +50,29 @@ const Cart = () => {
 
   useEffect(() => {
     const selectedItems = getSelectedCartItems();
+
     // Calculate sub total price
     const newTotalPrice = selectedItems.reduce((accumulator, item) => {
       return accumulator + item.price * item.quantity;
     }, 0);
 
     setSubTotalPrice(newTotalPrice);
+
     // Calculate total discount
-    const discount = (() => {
+    const calculateDiscount = (item) => {
       if (!promotionApply) return 0;
 
       if (promotionApply.discountType === 'PERCENTAGE') {
-        return item.price * (promotionApply.discountValue / 100);
-      } else if (promotionApply.discountValue != null) {
-        return promotionApply.discountValue;
+        return item.price * (promotionApply.discountValue / 100) * item.quantity;
       }
 
-      return 0;
-    })();
+      return promotionApply.discountValue ?? 0;
+    };
 
-    return total + discount;
+    const newDiscountMoney = selectedItems.reduce((total, item) => {
+      return total + calculateDiscount(item);
+    }, 0);
+
     setDiscountMoney(newDiscountMoney);
     console.log('discountMoney: ' + newDiscountMoney);
 
