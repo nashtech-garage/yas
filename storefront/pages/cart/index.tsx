@@ -41,17 +41,37 @@ const Cart = () => {
 
   const [promotionApply, setPromotionApply] = useState<PromotionVerifyResult>();
 
+  const [discountMoney, setDiscountMoney] = useState<number>(0);
+  const [subTotalPrice, setSubTotalPrice] = useState<number>(0);
+
   useEffect(() => {
     loadCartItems();
   }, []);
 
   useEffect(() => {
     const selectedItems = getSelectedCartItems();
-    const newTotalPrice = selectedItems
-      .map((item) => item.price * item.quantity)
-      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    setTotalPrice(newTotalPrice);
-  }, [cartItems, selectedProductIds]);
+    // Calculate sub total price
+    const newTotalPrice = selectedItems.reduce((accumulator, item) => {
+      return accumulator + item.price * item.quantity;
+    }, 0);
+
+    setSubTotalPrice(newTotalPrice);
+    // Calculate total discount
+    const newDiscountMoney = selectedItems.reduce((total, item) => {
+      const discount =
+        promotionApply?.discountType === 'PERCENTAGE'
+          ? item.price * (promotionApply.discountValue / 100)
+          : promotionApply?.discountValue ?? 0;
+
+      return total + discount;
+    }, 0);
+    setDiscountMoney(newDiscountMoney);
+    console.log('discountMoney: ' + newDiscountMoney);
+
+    // Calculate total price
+    const totalPriceLast = newTotalPrice - newDiscountMoney;
+    setTotalPrice(totalPriceLast);
+  }, [cartItems, selectedProductIds, promotionApply]);
 
   const loadCartItems = async () => {
     try {
@@ -205,11 +225,14 @@ const Cart = () => {
   };
 
   const applyCopounCode = () => {
+    console.log('Total Price:', totalPrice); // Log the totalPrice
+
     verifyPromotion({
       couponCode: couponCode,
       orderPrice: totalPrice,
       productIds: Array.from(selectedProductIds.values()),
     }).then((result) => {
+      console.log('Promotion Result:', result); // Log the result
       setPromotionApply(result);
     });
   };
@@ -285,13 +308,26 @@ const Cart = () => {
         {promotionApply && (
           <div className="mt-5 mb-5">
             <div className="row">
-              <div style={{ width: '188px' }}>
-                <i className="bi bi-receipt"></i> Coupon code applied:
-              </div>
               <div className="col">
-                <span className="coupon-code-apply" aria-hidden="true" onClick={removeCouponCode}>
-                  {promotionApply.couponCode}
-                </span>
+                {promotionApply.couponCode ? (
+                  <span className="coupon-code-apply" aria-hidden="true" onClick={removeCouponCode}>
+                    <i className="bi bi-receipt"></i>
+                    {promotionApply?.discountType === 'PERCENTAGE' ? (
+                      <> You got a {promotionApply.discountValue}% discount on one product!</>
+                    ) : (
+                      <> You got a {promotionApply.discountValue}$ discount on one product!</>
+                    )}
+                  </span>
+                ) : (
+                  <span
+                    className="invalid-coupon-code"
+                    style={{ color: 'red', fontWeight: 'bold' }}
+                    aria-hidden="true"
+                    onClick={removeCouponCode}
+                  >
+                    <i className="bi bi-receipt"></i> Coupon code not valid!
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -332,7 +368,10 @@ const Cart = () => {
               <h6>Cart total</h6>
               <ul>
                 <li>
-                  Subtotal <span>{formatPrice(totalPrice)}</span>
+                  Subtotal <span>{formatPrice(subTotalPrice)}</span>
+                </li>
+                <li>
+                  Discount <span>{formatPrice(discountMoney)}</span>
                 </li>
                 <li>
                   Total <span>{formatPrice(totalPrice)}</span>

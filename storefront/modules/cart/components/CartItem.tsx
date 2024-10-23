@@ -28,7 +28,16 @@ const calculateProductPrice = (
   item: CartItemGetDetailsVm,
   promotionApply?: PromotionVerifyResult
 ) => {
-  return formatPrice(item.price * item.quantity - (promotionApply?.discountValue ?? 0));
+  let discount = 0;
+
+  // Check if discountType is 'PERCENTAGE' and calculate accordingly
+  if (promotionApply?.discountType === 'PERCENTAGE') {
+    discount = (item.price * item.quantity * (promotionApply.discountValue ?? 0)) / 100;
+  } else {
+    discount = promotionApply?.discountValue ?? 0;
+  }
+
+  return formatPrice(item.price * item.quantity - discount);
 };
 
 const CartItem: FC<CartItemProps> = ({
@@ -86,7 +95,14 @@ const CartItem: FC<CartItemProps> = ({
         {promotionApply?.productId === item.productId && (
           <div style={{ textDecorationLine: 'line-through' }}>{formatPrice(item.price)}</div>
         )}
-        <div>{formatPrice(item.price - (promotionApply?.discountValue ?? 0))}</div>
+
+        <div>
+          {
+            promotionApply?.discountType === 'PERCENTAGE'
+              ? formatPrice(item.price - item.price * (promotionApply.discountValue / 100)) // Calculate percentage discount
+              : formatPrice(item.price - (promotionApply?.discountValue ?? 0)) // Fixed discount
+          }
+        </div>
       </td>
       <td className="cart__quantity">
         <div className="pro-qty">
