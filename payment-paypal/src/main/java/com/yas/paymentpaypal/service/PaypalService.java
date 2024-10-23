@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 public class PaypalService {
     private final PayPalHttpClient payPalHttpClient;
     private final PaymentService paymentService;
+    private final OrderService orderService;
     private final BigDecimal maxPay = BigDecimal.valueOf(1000);
     @Value("${yas.public.url}/capture")
     private String returnUrl;
@@ -51,12 +52,12 @@ public class PaypalService {
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl(returnUrl)
-                .cancelUrl(cancelUrl)
-                .brandName(Constants.Yas.BRAND_NAME)
-                .landingPage("BILLING")
-                .userAction("PAY_NOW")
-                .shippingPreference("NO_SHIPPING");
+            .returnUrl(returnUrl)
+            .cancelUrl(cancelUrl)
+            .brandName(Constants.Yas.BRAND_NAME)
+            .landingPage("BILLING")
+            .userAction("PAY_NOW")
+            .shippingPreference("NO_SHIPPING");
 
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
@@ -65,10 +66,10 @@ public class PaypalService {
             HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
             Order order = orderHttpResponse.result();
             String redirectUrl = order.links().stream()
-                    .filter(link -> "approve".equals(link.rel()))
-                    .findFirst()
-                    .orElseThrow(NoSuchElementException::new)
-                    .href();
+                .filter(link -> "approve".equals(link.rel()))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new)
+                .href();
 
             CheckoutIdHelper.setCheckoutId(requestPayment.checkoutId());
             return new PaypalRequestPayment("success", order.id(), redirectUrl);
@@ -91,15 +92,17 @@ public class PaypalService {
                 BigDecimal paymentFee = new BigDecimal(paypalFee);
                 BigDecimal amount = new BigDecimal(capture.amount().value());
 
+                var orderVm = orderService.getOrderByCheckoutId(CheckoutIdHelper.getCheckoutId());
 
                 CapturedPaymentVm capturedPayment = CapturedPaymentVm.builder()
-                        .paymentFee(paymentFee)
-                        .gatewayTransactionId(order.id())
-                        .amount(amount)
-                        .paymentStatus(order.status())
-                        .paymentMethod("PAYPAL")
-                        .checkoutId(CheckoutIdHelper.getCheckoutId())
-                        .build();
+                    .orderId(orderVm.id())
+                    .paymentFee(paymentFee)
+                    .gatewayTransactionId(order.id())
+                    .amount(amount)
+                    .paymentStatus(order.status())
+                    .paymentMethod("PAYPAL")
+                    .checkoutId(CheckoutIdHelper.getCheckoutId())
+                    .build();
 
                 paymentService.capturePayment(capturedPayment);
                 return capturedPayment;

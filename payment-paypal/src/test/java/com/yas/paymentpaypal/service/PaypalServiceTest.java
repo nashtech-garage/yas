@@ -23,6 +23,7 @@ import com.paypal.orders.PaymentCollection;
 import com.paypal.orders.PurchaseUnit;
 import com.yas.paymentpaypal.model.CheckoutIdHelper;
 import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
+import com.yas.paymentpaypal.viewmodel.OrderVm;
 import com.yas.paymentpaypal.viewmodel.PaypalRequestPayment;
 import com.yas.paymentpaypal.viewmodel.RequestPayment;
 import java.io.IOException;
@@ -41,11 +42,14 @@ class PaypalServiceTest {
 
     private PaypalService paypalService;
 
+    private OrderService orderService;
+
     @BeforeEach
     void setUp() {
         payPalHttpClient = mock(PayPalHttpClient.class);
         paymentService = mock(PaymentService.class);
-        paypalService = new PaypalService(payPalHttpClient, paymentService);
+        orderService = mock(OrderService.class);
+        paypalService = new PaypalService(payPalHttpClient, paymentService, orderService);
         CheckoutIdHelper.setCheckoutId("test-checkout-id");
     }
 
@@ -136,8 +140,11 @@ class PaypalServiceTest {
             .status("COMPLETED")
             .purchaseUnits(purchaseUnitList);
 
+        OrderVm orderVmRes = new OrderVm(12L);
+
         HttpResponse mockResponse = mock(HttpResponse.class);
         when(payPalHttpClient.execute(any(OrdersCaptureRequest.class))).thenReturn(mockResponse);
+        when(orderService.getOrderByCheckoutId(any(String.class))).thenReturn(orderVmRes);
         when(mockResponse.result()).thenReturn(mockOrder);
 
         String token = "test-token-1";
