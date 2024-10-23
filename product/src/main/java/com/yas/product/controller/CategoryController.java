@@ -1,6 +1,7 @@
 package com.yas.product.controller;
 
 import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.product.constants.PageableConstant;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.service.CategoryService;
@@ -41,6 +42,13 @@ public class CategoryController {
     public ResponseEntity<List<CategoryGetVm>> listCategories(
         @RequestParam(required = false, defaultValue = "") String categoryName) {
         return ResponseEntity.ok(categoryService.getCategories(categoryName));
+    }
+
+    @GetMapping("/storefront/categories/suggestions")
+    public ResponseEntity<List<String>> listTopNthCategories(
+        @RequestParam(value = "limit", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false)
+        final int limit) {
+        return ResponseEntity.ok(categoryService.getTopNthCategories(limit));
     }
 
     @GetMapping("/backoffice/categories/{id}")

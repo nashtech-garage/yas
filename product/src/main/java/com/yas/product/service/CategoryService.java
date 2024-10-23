@@ -170,4 +170,10 @@ public class CategoryService {
     public List<CategoryGetVm> getCategoryByIds(List<Long> ids) {
         return categoryRepository.findAllById(ids).stream().map(CategoryGetVm::fromModel).toList();
     }
+
+    public List<String> getTopNthCategories(int limit) {
+        // Use PageRequest.of(0, n) to limit the number of categories fetched to 'n'
+        Pageable pageable = PageRequest.of(0, limit);
+        return categoryRepository.findCategoriesOrderedByProductCount(pageable);
+    }
 }
