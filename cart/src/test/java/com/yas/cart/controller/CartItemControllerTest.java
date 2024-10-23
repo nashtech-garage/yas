@@ -14,11 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yas.cart.service.CartItemV2Service;
-import com.yas.cart.viewmodel.CartItemV2DeleteVm;
-import com.yas.cart.viewmodel.CartItemV2GetVm;
-import com.yas.cart.viewmodel.CartItemV2PostVm;
-import com.yas.cart.viewmodel.CartItemV2PutVm;
+import com.yas.cart.service.CartItemService;
+import com.yas.cart.viewmodel.CartItemDeleteVm;
+import com.yas.cart.viewmodel.CartItemGetVm;
+import com.yas.cart.viewmodel.CartItemPostVm;
+import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.commonlibrary.exception.ApiExceptionHandler;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
@@ -37,9 +37,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest
-@ContextConfiguration(classes = {CartItemV2Controller.class, ApiExceptionHandler.class})
+@ContextConfiguration(classes = {CartItemController.class, ApiExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
-class CartItemV2ControllerTest {
+class CartItemControllerTest {
 
     private static final Long PRODUCT_ID_SAMPLE = 1L;
     private static final String CUSTOMER_ID_SAMPLE = "customerId";
@@ -51,42 +51,42 @@ class CartItemV2ControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private CartItemV2Service cartItemService;
+    private CartItemService cartItemService;
 
     @Nested
     class AddToCartTest {
 
-        private CartItemV2PostVm.CartItemV2PostVmBuilder cartItemPostVmBuilder;
+        private CartItemPostVm.CartItemPostVmBuilder cartItemPostVmBuilder;
 
         @BeforeEach
         void setUp() {
-            cartItemPostVmBuilder = CartItemV2PostVm.builder()
+            cartItemPostVmBuilder = CartItemPostVm.builder()
                 .productId(PRODUCT_ID_SAMPLE)
                 .quantity(1);
         }
 
         @Test
         void testAddToCart_whenProductIdIsNull_shouldReturnBadRequest() throws Exception {
-            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.productId(null).build();
+            CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.productId(null).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
         void testAddToCart_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
-            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.quantity(null).build();
+            CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.quantity(null).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
         void testAddToCart_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
-            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.quantity(0).build();
+            CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.quantity(0).build();
             performAddCartItemAndExpectBadRequest(cartItemPostVm);
         }
 
         @Test
         void testAddToCart_whenRequestIsValid_shouldReturnCartItem() throws Exception {
-            CartItemV2PostVm cartItemPostVm = cartItemPostVmBuilder.build();
-            CartItemV2GetVm expectedCartItem = CartItemV2GetVm.builder()
+            CartItemPostVm cartItemPostVm = cartItemPostVmBuilder.build();
+            CartItemGetVm expectedCartItem = CartItemGetVm.builder()
                 .productId(cartItemPostVm.productId())
                 .quantity(cartItemPostVm.quantity())
                 .build();
@@ -101,13 +101,13 @@ class CartItemV2ControllerTest {
             verify(cartItemService).addCartItem(cartItemPostVm);
         }
 
-        private void performAddCartItemAndExpectBadRequest(CartItemV2PostVm cartItemPostVm)
+        private void performAddCartItemAndExpectBadRequest(CartItemPostVm cartItemPostVm)
             throws Exception {
             mockMvc.perform(buildAddCartItemRequest(cartItemPostVm))
                 .andExpect(status().isBadRequest());
         }
 
-        private MockHttpServletRequestBuilder buildAddCartItemRequest(CartItemV2PostVm cartItemPostVm)
+        private MockHttpServletRequestBuilder buildAddCartItemRequest(CartItemPostVm cartItemPostVm)
             throws Exception {
             return post("/storefront/cart/items")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -118,24 +118,24 @@ class CartItemV2ControllerTest {
     @Nested
     class UpdateCartItemTest {
 
-        private CartItemV2PutVm cartItemPutVm;
+        private CartItemPutVm cartItemPutVm;
 
         @Test
         void testUpdateCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
-            cartItemPutVm = new CartItemV2PutVm(null);
+            cartItemPutVm = new CartItemPutVm(null);
             performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
         void testUpdateCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
-            cartItemPutVm = new CartItemV2PutVm(0);
+            cartItemPutVm = new CartItemPutVm(0);
             performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
         void testUpdateCartItem_whenRequestIsValid_shouldReturnUpdatedCartItemGetVm() throws Exception {
-            cartItemPutVm = new CartItemV2PutVm(1);
-            CartItemV2GetVm expectedCartItemGetVm = CartItemV2GetVm
+            cartItemPutVm = new CartItemPutVm(1);
+            CartItemGetVm expectedCartItemGetVm = CartItemGetVm
                 .builder()
                 .productId(PRODUCT_ID_SAMPLE)
                 .quantity(1)
@@ -153,13 +153,13 @@ class CartItemV2ControllerTest {
             verify(cartItemService).updateCartItem(anyLong(), any());
         }
 
-        private void performUpdateCartItemAndExpectBadRequest(CartItemV2PutVm cartItemPutVm)
+        private void performUpdateCartItemAndExpectBadRequest(CartItemPutVm cartItemPutVm)
             throws Exception {
             mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
                 .andExpect(status().isBadRequest());
         }
 
-        private MockHttpServletRequestBuilder buildUpdateCartItemRequest(Long productId, CartItemV2PutVm cartItemPutVm)
+        private MockHttpServletRequestBuilder buildUpdateCartItemRequest(Long productId, CartItemPutVm cartItemPutVm)
             throws Exception {
             return put("/storefront/cart/items/" + productId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -172,7 +172,7 @@ class CartItemV2ControllerTest {
 
         @Test
         void testGetCartItems_whenRequestIsValid_shouldReturnCartItems() throws Exception {
-            CartItemV2GetVm expectedCartItem = CartItemV2GetVm.builder()
+            CartItemGetVm expectedCartItem = CartItemGetVm.builder()
                 .productId(1L)
                 .quantity(1)
                 .build();
@@ -191,24 +191,24 @@ class CartItemV2ControllerTest {
     @Nested
     class DeleteOrAdjustCartItemTest {
 
-        private CartItemV2DeleteVm cartItemPutVm;
+        private CartItemDeleteVm cartItemPutVm;
 
         @Test
         void testDeleteOrAdjustCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
-            cartItemPutVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, null);
+            cartItemPutVm = new CartItemDeleteVm(PRODUCT_ID_SAMPLE, null);
             performDeleteOrAdjustCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
         void testDeleteOrAdjustCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
-            cartItemPutVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, -1);
+            cartItemPutVm = new CartItemDeleteVm(PRODUCT_ID_SAMPLE, -1);
             performDeleteOrAdjustCartItemAndExpectBadRequest(cartItemPutVm);
         }
 
         @Test
         void testDeleteOrAdjustCartItem_whenRequestIsValid_shouldReturnUpdatedCartItems() throws Exception {
-            CartItemV2DeleteVm cartItemDeleteVm = new CartItemV2DeleteVm(PRODUCT_ID_SAMPLE, 1);
-            CartItemV2GetVm expectedCartItemGetVm = CartItemV2GetVm
+            CartItemDeleteVm cartItemDeleteVm = new CartItemDeleteVm(PRODUCT_ID_SAMPLE, 1);
+            CartItemGetVm expectedCartItemGetVm = CartItemGetVm
                 .builder()
                 .productId(PRODUCT_ID_SAMPLE)
                 .quantity(1)
@@ -226,13 +226,13 @@ class CartItemV2ControllerTest {
             verify(cartItemService).deleteOrAdjustCartItem(anyList());
         }
 
-        private void performDeleteOrAdjustCartItemAndExpectBadRequest(CartItemV2DeleteVm cartItemDeleteVm)
+        private void performDeleteOrAdjustCartItemAndExpectBadRequest(CartItemDeleteVm cartItemDeleteVm)
             throws Exception {
             mockMvc.perform(buildDeleteOrAdjustCartItemRequest(cartItemDeleteVm))
                 .andExpect(status().isBadRequest());
         }
 
-        private MockHttpServletRequestBuilder buildDeleteOrAdjustCartItemRequest(CartItemV2DeleteVm cartItemDeleteVm)
+        private MockHttpServletRequestBuilder buildDeleteOrAdjustCartItemRequest(CartItemDeleteVm cartItemDeleteVm)
             throws Exception {
             return post("/storefront/cart/items/remove")
                 .contentType(MediaType.APPLICATION_JSON)

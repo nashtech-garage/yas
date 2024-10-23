@@ -3,7 +3,7 @@ package com.yas.cart.viewmodel;
 import lombok.Builder;
 
 @Builder
-public record CartItemV2GetVm(
+public record CartItemGetVm(
     String customerId,
     Long productId,
     Integer quantity
