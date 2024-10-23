@@ -17,12 +17,18 @@ import com.yas.order.viewmodel.checkout.CheckoutItemVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
+import com.yas.order.viewmodel.product.ProductCheckoutListVm;
+import com.yas.order.viewmodel.product.ProductGetCheckoutListVm;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -32,39 +38,59 @@ import org.springframework.util.CollectionUtils;
 @Transactional
 @RequiredArgsConstructor
 public class CheckoutService {
+
     private final CheckoutRepository checkoutRepository;
     private final CheckoutItemRepository checkoutItemRepository;
     private final OrderService orderService;
+    private final ProductService productService;
     private final CheckoutMapper checkoutMapper;
 
     public CheckoutVm createCheckout(CheckoutPostVm checkoutPostVm) {
 
         Checkout checkout = checkoutMapper.toModel(checkoutPostVm);
-        checkout.setCheckoutState(CheckoutState.PENDING);
-        checkout.setId(UUID.randomUUID().toString());
-
+        checkout.setCheckoutState(CheckoutState.CHECKED_OUT);
+        String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSubject();
+        checkout.setCustomerId(jwt);
         Checkout savedCheckout = checkoutRepository.save(checkout);
 
-        CheckoutVm checkoutVm = checkoutMapper.toVm(savedCheckout);
         if (CollectionUtils.isEmpty(checkoutPostVm.checkoutItemPostVms())) {
-            return checkoutVm;
+            return checkoutMapper.toVm(savedCheckout);
         }
-
+        List<Long> ids = new ArrayList<>();
         List<CheckoutItem> checkoutItemList = checkoutPostVm.checkoutItemPostVms()
-            .stream()
-            .map(checkoutItemPostVm -> {
-                CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);
-                item.setCheckoutId(savedCheckout.getId());
-                return item;
-            })
-            .toList();
+                .stream()
+                .map(checkoutItemPostVm -> {
+                    CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);
+                    item.setCheckoutId(savedCheckout.getId());
+                    savedCheckout.addAmount(item.getQuantity());
+                    ids.add(item.getProductId());
+                    return item;
+                })
+                .toList();
 
+        ProductGetCheckoutListVm response = productService.getProductInfomation(ids, 0, checkoutPostVm.checkoutItemPostVms().size());
+        if (response != null) {
+            Map<Long, ProductCheckoutListVm> products
+                    = response.productCheckoutListVms()
+                            .stream()
+                            .collect(Collectors.toMap(ProductCheckoutListVm::getId, (t) -> t));
+            checkoutItemList.forEach((t) -> {
+                ProductCheckoutListVm product = products.get(t.getProductId());
+                if (product != null) {
+                    t.setProductName(product.getName());
+                    t.setProductPrice(BigDecimal.valueOf(product.getPrice()));
+                    t.setTax(product.getTaxClassId());
+                }
+            });
+        }
         List<CheckoutItem> savedCheckoutItems = checkoutItemRepository.saveAll(checkoutItemList);
+        checkoutRepository.save(savedCheckout);
 
+        CheckoutVm checkoutVm = checkoutMapper.toVm(savedCheckout);
         Set<CheckoutItemVm> checkoutItemVms = savedCheckoutItems
-            .stream()
-            .map(checkoutMapper::toVm)
-            .collect(Collectors.toSet());
+                .stream()
+                .map(checkoutMapper::toVm)
+                .collect(Collectors.toSet());
 
         return checkoutVm.toBuilder().checkoutItemVms(checkoutItemVms).build();
     }
@@ -86,9 +112,9 @@ public class CheckoutService {
         }
 
         Set<CheckoutItemVm> checkoutItemVms = checkoutItems
-            .stream()
-            .map(checkoutMapper::toVm)
-            .collect(Collectors.toSet());
+                .stream()
+                .map(checkoutMapper::toVm)
+                .collect(Collectors.toSet());
 
         return checkoutVm.toBuilder().checkoutItemVms(checkoutItemVms).build();
     }
