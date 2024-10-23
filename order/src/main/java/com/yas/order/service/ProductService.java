@@ -63,6 +63,32 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .retrieve();
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductInfomationFallback")
+    public ProductGetCheckoutListVm getProductInfomation(List<Long> ids, int pageNo, int pageSize) {
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getTokenValue();
+
+        final URI url = UriComponentsBuilder
+                .fromHttpUrl(serviceUrlConfig.product())
+                .path("/products")
+                .queryParam("ids", ids)
+                .queryParam("pageNo", pageNo)
+                .queryParam("pageSize", pageSize)
+                .buildAndExpand()
+                .toUri();
+
+        ProductGetCheckoutListVm product = restClient.get()
+                .uri(url)
+                .headers(h -> h.setBearerAuth(jwt))
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<ProductGetCheckoutListVm>() {
+                })
+                .getBody();
+        System.out.println(product);
+        return product;
+    }
+
     private List<ProductQuantityItem> buildProductQuantityItems(Set<OrderItemVm> orderItems) {
         return orderItems.stream()
             .map(orderItem ->
@@ -75,6 +101,10 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     }
 
     protected List<ProductVariationVm> handleProductVariationListFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
+    }
+
+    protected ProductGetCheckoutListVm handleProductInfomationFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }
