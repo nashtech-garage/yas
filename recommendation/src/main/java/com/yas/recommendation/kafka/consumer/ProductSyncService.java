@@ -34,9 +34,6 @@ public class ProductSyncService {
                 case UPDATE:
                     productVectorSyncService.updateProductVector(product);
                     break;
-                case DELETE:
-                    productVectorSyncService.deleteProductVector(product.getId());
-                    break;
                 default:
                     log.info("Unsupported operation '{}' for product: '{}'", operation, product.getId());
                     break;
