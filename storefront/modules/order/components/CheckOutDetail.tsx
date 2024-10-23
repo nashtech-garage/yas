@@ -1,8 +1,8 @@
-import { formatPrice } from '@/utils/formatPrice';
 import { PaymentProvider } from '@/modules/payment/models/PaymentProvider';
+import { formatPrice } from '@/utils/formatPrice';
+import { useEffect, useState } from 'react';
 import { getEnabledPaymentProviders } from '../../payment/services/PaymentProviderService';
 import { OrderItem } from '../models/OrderItem';
-import { useEffect, useState } from 'react';
 
 type Props = {
   orderItems: OrderItem[];
@@ -32,6 +32,7 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
   useEffect(() => {
     if (paymentProviders.length > 0 && selectedPayment === null) {
       setSelectedPayment(paymentProviders[0].id);
+      setPaymentMethod(paymentProviders[0].id);
     }
   }, [paymentProviders]);
 
