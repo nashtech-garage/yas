@@ -71,6 +71,15 @@ const EditProduct: NextPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (Object.keys(errors).length) {
+      setTabKey('general');
+      setTimeout(() => {
+        document.getElementById(Object.keys(errors)[0])?.scrollIntoView();
+      }, 0);
+    }
+  }, [errors]);
+
   if (isLoading) return <p>Loading...</p>;
   if (!product) {
     return <p>No product</p>;
