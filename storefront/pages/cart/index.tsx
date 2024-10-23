@@ -58,13 +58,10 @@ const Cart = () => {
     setSubTotalPrice(newTotalPrice);
     // Calculate total discount
     const newDiscountMoney = selectedItems.reduce((total, item) => {
-      let discount = 0;
-
-      if (promotionApply?.discountType === 'PERCENTAGE') {
-        discount = item.price * (promotionApply.discountValue / 100);
-      } else {
-        discount = promotionApply?.discountValue ?? 0;
-      }
+      const discount =
+        promotionApply?.discountType === 'PERCENTAGE'
+          ? item.price * (promotionApply.discountValue / 100)
+          : promotionApply?.discountValue ?? 0;
 
       return total + discount;
     }, 0);
