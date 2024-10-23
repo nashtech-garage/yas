@@ -75,7 +75,7 @@ public class CheckoutService {
                     = response.productCheckoutListVms()
                             .stream()
                             .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
-            checkoutItemList.forEach((t) -> {
+            checkoutItemList.forEach(t -> {
                 ProductCheckoutListVm product = products.get(t.getProductId());
                 if (product != null) {
                     t.setProductName(product.getName());

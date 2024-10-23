@@ -80,14 +80,13 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
                 .buildAndExpand()
                 .toUri();
 
-        ProductGetCheckoutListVm product = restClient.get()
+        return restClient.get()
                 .uri(url)
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<ProductGetCheckoutListVm>() {
                 })
                 .getBody();
-        return product;
     }
 
     private List<ProductQuantityItem> buildProductQuantityItems(Set<OrderItemVm> orderItems) {
