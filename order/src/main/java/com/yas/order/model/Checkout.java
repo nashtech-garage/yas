@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -26,6 +28,7 @@ import org.hibernate.type.SqlTypes;
 public class Checkout extends AbstractAuditEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private String email;
@@ -33,7 +36,7 @@ public class Checkout extends AbstractAuditEntity {
     private String note;
 
     @Column(name = "promotion_code")
-    private String couponCode;
+    private String promotionCode;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -43,7 +46,7 @@ public class Checkout extends AbstractAuditEntity {
     private String progress;
 
     @SuppressWarnings("unused")
-    private Long customerId;
+    private String customerId;
 
     @SuppressWarnings("unused")
     private String shipmentMethodId;
@@ -65,7 +68,8 @@ public class Checkout extends AbstractAuditEntity {
     private String attributes;
 
     @SuppressWarnings("unused")
-    private BigDecimal totalAmount;
+    @Builder.Default
+    private long totalAmount = 0;
 
     @SuppressWarnings("unused")
     private BigDecimal totalShipmentFee;
@@ -77,6 +81,17 @@ public class Checkout extends AbstractAuditEntity {
     private BigDecimal totalTax;
 
     @SuppressWarnings("unused")
-    private BigDecimal totalDiscountAmount;
+    @Builder.Default
+    private BigDecimal totalDiscountAmount = BigDecimal.ZERO;
 
+    public void addAmount(long a) {
+        this.totalAmount += a;
+    }
+
+    public void subtractAmount(long a) {
+        this.totalAmount -= a;
+        if (this.totalAmount < 0) {
+            this.totalAmount = 0;
+        }
+    }
 }

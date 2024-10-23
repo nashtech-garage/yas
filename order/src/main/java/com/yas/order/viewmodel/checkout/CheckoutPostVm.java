@@ -6,7 +6,10 @@ import java.util.List;
 public record CheckoutPostVm(
         String email,
         String note,
-        String couponCode,
+        String promotionCode,
+        String shipmentMethodId,
+        String paymentMethodId,
+        String shippingAddressId,
         @NotNull
         List<CheckoutItemPostVm> checkoutItemPostVms
 ) {

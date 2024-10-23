@@ -37,29 +37,24 @@ public class CheckoutItem extends AbstractAuditEntity {
     @Column(name = "name")
     private String productName;
 
+    private String description;
+
     private int quantity;
 
     @Column(name = "price")
     private BigDecimal productPrice;
 
-    @Column(name = "description")
-    private String note;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "checkout_id", insertable = false, updatable = false)
-    private Checkout checkout;
-
-    private BigDecimal discountAmount;
-
-    @Column(name = "tax")
-    private BigDecimal taxAmount;
-
-    private BigDecimal taxPercent;
-
-    @SuppressWarnings("unused")
-    private BigDecimal shipmentTax;
+    private Long tax;
 
     @SuppressWarnings("unused")
     private BigDecimal shipmentFee;
 
+    @SuppressWarnings("unused")
+    private BigDecimal shipmentTax;
+
+    private BigDecimal discountAmount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "checkout_id", insertable = false, updatable = false)
+    private Checkout checkout;
 }
