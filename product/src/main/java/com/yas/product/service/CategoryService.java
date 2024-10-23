@@ -171,9 +171,9 @@ public class CategoryService {
         return categoryRepository.findAllById(ids).stream().map(CategoryGetVm::fromModel).toList();
     }
 
-    public List<String> getTopNthCategories(int pageSize) {
+    public List<String> getTopNthCategories(int limit) {
         // Use PageRequest.of(0, n) to limit the number of categories fetched to 'n'
-        Pageable pageable = PageRequest.of(0, pageSize);
+        Pageable pageable = PageRequest.of(0, limit);
         return categoryRepository.findCategoriesOrderedByProductCount(pageable);
     }
 }

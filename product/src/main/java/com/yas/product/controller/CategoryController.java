@@ -46,9 +46,9 @@ public class CategoryController {
 
     @GetMapping("/storefront/categories/suggestions")
     public ResponseEntity<List<String>> listTopNthCategories(
-        @RequestParam(value = "pageSize", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE)
-        final int pageSize) {
-        return ResponseEntity.ok(categoryService.getTopNthCategories(pageSize));
+        @RequestParam(value = "limit", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false)
+        final int limit) {
+        return ResponseEntity.ok(categoryService.getTopNthCategories(limit));
     }
 
     @GetMapping("/backoffice/categories/{id}")
