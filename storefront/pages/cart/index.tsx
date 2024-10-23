@@ -322,6 +322,7 @@ const Cart = () => {
                   <span
                     className="invalid-coupon-code"
                     style={{ color: 'red', fontWeight: 'bold' }}
+                    aria-hidden="true"
                     onClick={removeCouponCode}
                   >
                     <i className="bi bi-receipt"></i> Coupon code not valid!
