@@ -21,6 +21,7 @@ import { mapFormProductToProductPayload } from '../../../modules/catalog/models/
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 import { useRouter } from 'next/router';
+import {useEffect, useState} from "react";
 
 const ProductCreate: NextPage = () => {
   const router = useRouter();
@@ -37,6 +38,7 @@ const ProductCreate: NextPage = () => {
       isAllowedToOrder: true,
     },
   });
+  const [tabKey, setTabKey] = useState('general');
 
   const onSubmitForm: SubmitHandler<FormProduct> = async (data) => {
     try {
@@ -64,12 +66,21 @@ const ProductCreate: NextPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (Object.keys(errors).length) {
+      setTabKey('general');
+      setTimeout(() => {
+        document.getElementById(Object.keys(errors)[0])?.scrollIntoView();
+      }, 0)
+    }
+  }, [errors]);
+
   return (
     <div className="create-product">
       <h2>Create Product</h2>
 
       <form onSubmit={handleSubmit(onSubmitForm)}>
-        <Tabs defaultActiveKey={'general'} className="mb-3">
+        <Tabs className="mb-3" activeKey={tabKey} onSelect={(e: any) => setTabKey(e)}>
           <Tab eventKey={'general'} title="General Information">
             <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
           </Tab>
