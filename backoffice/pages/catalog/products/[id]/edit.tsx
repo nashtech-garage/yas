@@ -76,7 +76,7 @@ const EditProduct: NextPage = () => {
       setTabKey('general');
       setTimeout(() => {
         document.getElementById(Object.keys(errors)[0])?.scrollIntoView();
-      }, 0)
+      }, 0);
     }
   }, [errors]);
 

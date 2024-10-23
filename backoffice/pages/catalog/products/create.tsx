@@ -21,7 +21,7 @@ import { mapFormProductToProductPayload } from '../../../modules/catalog/models/
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
 import { useRouter } from 'next/router';
-import {useEffect, useState} from "react";
+import { useEffect, useState } from 'react';
 
 const ProductCreate: NextPage = () => {
   const router = useRouter();
@@ -71,7 +71,7 @@ const ProductCreate: NextPage = () => {
       setTabKey('general');
       setTimeout(() => {
         document.getElementById(Object.keys(errors)[0])?.scrollIntoView();
-      }, 0)
+      }, 0);
     }
   }, [errors]);
 
