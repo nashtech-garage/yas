@@ -17,7 +17,7 @@ public abstract class BaseCdcConsumer<T> {
     public static final Logger LOGGER = LoggerFactory.getLogger(BaseCdcConsumer.class);
 
     protected void processMessage(T record, MessageHeaders headers, Consumer<T> consumer) {
-        LOGGER.info("## Received message - headers: {}", headers);
+        LOGGER.debug("## Received message - headers: {}", headers);
         if (record == null) {
             LOGGER.warn("## Null payload received");
         } else {

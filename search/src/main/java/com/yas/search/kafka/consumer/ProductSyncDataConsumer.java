@@ -52,11 +52,8 @@ public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductCdcMessage> 
                 case UPDATE:
                     productSyncDataService.updateProduct(productId);
                     break;
-                case DELETE:
-                    productSyncDataService.deleteProduct(productId);
-                    break;
                 default:
-                    log.info("Unsupported operation '{}' for product: '{}'", operation, productId);
+                    log.warn("Unsupported operation '{}' for product: '{}'", operation, productId);
                     break;
             }
         }
