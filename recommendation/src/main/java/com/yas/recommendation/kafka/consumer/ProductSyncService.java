@@ -35,7 +35,7 @@ public class ProductSyncService {
                     productVectorSyncService.updateProductVector(product);
                     break;
                 default:
-                    log.info("Unsupported operation '{}' for product: '{}'", operation, product.getId());
+                    log.warn("Unsupported operation '{}' for product: '{}'", operation, product.getId());
                     break;
             }
         }

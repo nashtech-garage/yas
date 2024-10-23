@@ -53,7 +53,7 @@ public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductCdcMessage> 
                     productSyncDataService.updateProduct(productId);
                     break;
                 default:
-                    log.info("Unsupported operation '{}' for product: '{}'", operation, productId);
+                    log.warn("Unsupported operation '{}' for product: '{}'", operation, productId);
                     break;
             }
         }
