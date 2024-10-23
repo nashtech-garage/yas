@@ -68,8 +68,8 @@ public class CheckoutService {
                     return item;
                 })
                 .toList();
-
-        ProductGetCheckoutListVm response = productService.getProductInfomation(ids, 0, checkoutPostVm.checkoutItemPostVms().size());
+        int postItemsSize = checkoutPostVm.checkoutItemPostVms().size();
+        ProductGetCheckoutListVm response = productService.getProductInfomation(ids, 0, postItemsSize);
         if (response != null) {
             Map<Long, ProductCheckoutListVm> products
                     = response.productCheckoutListVms()
@@ -98,8 +98,8 @@ public class CheckoutService {
 
     public CheckoutVm getCheckoutPendingStateWithItemsById(String id) {
 
-        Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING).orElseThrow(()
-                -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
+        Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING)
+                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
 
         if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId())) {
             throw new Forbidden(Constants.ErrorCode.FORBIDDEN);
