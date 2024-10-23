@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +74,7 @@ public class CheckoutService {
             Map<Long, ProductCheckoutListVm> products
                     = response.productCheckoutListVms()
                             .stream()
-                            .collect(Collectors.toMap(ProductCheckoutListVm::getId, (t) -> t));
+                            .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
             checkoutItemList.forEach((t) -> {
                 ProductCheckoutListVm product = products.get(t.getProductId());
                 if (product != null) {

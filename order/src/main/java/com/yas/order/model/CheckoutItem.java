@@ -37,6 +37,7 @@ public class CheckoutItem extends AbstractAuditEntity {
     @Column(name = "name")
     private String productName;
 
+    @SuppressWarnings("unused")
     private String description;
 
     private int quantity;
@@ -44,6 +45,7 @@ public class CheckoutItem extends AbstractAuditEntity {
     @Column(name = "price")
     private BigDecimal productPrice;
 
+    @SuppressWarnings("unused")
     private Long tax;
 
     @SuppressWarnings("unused")

@@ -87,7 +87,6 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
                 .toEntity(new ParameterizedTypeReference<ProductGetCheckoutListVm>() {
                 })
                 .getBody();
-        System.out.println(product);
         return product;
     }
 
