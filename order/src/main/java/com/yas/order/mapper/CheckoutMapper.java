@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = "spring")
 @Component
 public interface CheckoutMapper {
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkout", ignore = true)
     CheckoutItem toModel(CheckoutItemPostVm checkoutItemPostVm);
