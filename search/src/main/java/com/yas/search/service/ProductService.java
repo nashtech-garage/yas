@@ -52,7 +52,7 @@ public class ProductService {
                         .bool(b -> b
                                 .should(s -> s
                                         .multiMatch(m -> m
-                                                .fields(ProductField.NAME, ProductField.BRAND)
+                                                .fields(ProductField.NAME, ProductField.BRAND, ProductField.CATEGORIES)
                                                 .query(productCriteria.keyword())
                                                 .fuzziness(Fuzziness.ONE.asString())
                                         )
