@@ -21,7 +21,7 @@ public abstract class AbstractTopology {
         this.sinkTopic = sinkTopic;
     }
 
-    protected abstract void proccess(StreamsBuilder streamsBuilder);
+    protected abstract void process(StreamsBuilder streamsBuilder);
 
     protected <S> Serde<S> getSerde(Class<S> clazz) {
         return new JsonSerde<>(clazz);
