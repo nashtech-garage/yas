@@ -48,7 +48,7 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
     @SneakyThrows
     public SimpleVectorRepository(Class<D> docType, VectorStore vectorStore) {
         Assert.isTrue(docType.isAnnotationPresent(DocumentMetadata.class),
-            "Document must be annotated by '@DocumentFormat'");
+                "Document must be annotated by '@DocumentFormat'");
         this.docType = docType;
         this.vectorStore = vectorStore;
         this.documentMetadata = docType.getAnnotation(DocumentMetadata.class);
@@ -122,24 +122,24 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
         final var entityContentMap = objectMapper.convertValue(entity, Map.class);
         final var content = documentFormatter.format(entityContentMap, documentMetadata.contentFormat(), objectMapper);
         return vectorStore.similaritySearch(
-                SearchRequest
-                    .query(content)
-                    .withTopK(embeddingSearchConfiguration.topK())
-                    .withFilterExpression(this.excludeSameEntityExpression(id))
-                    .withSimilarityThreshold(embeddingSearchConfiguration.similarityThreshold())
-            )
-            .stream()
-            .map(this::toBaseDocument)
-            .toList();
+                        SearchRequest
+                                .query(content)
+                                .withTopK(embeddingSearchConfiguration.topK())
+                                .withFilterExpression(this.excludeSameEntityExpression(id))
+                                .withSimilarityThreshold(embeddingSearchConfiguration.similarityThreshold())
+                )
+                .stream()
+                .map(this::toBaseDocument)
+                .toList();
     }
 
-    protected IdGenerator getIdGenerator(Long entityId) {
+    public IdGenerator getIdGenerator(Long entityId) {
         return new DefaultIdGenerator(documentMetadata.docIdPrefix(), entityId);
     }
 
     private Filter.Expression excludeSameEntityExpression(Long id) {
         FilterExpressionBuilder b = new FilterExpressionBuilder();
-        return b.ne(FIELD_ID, this.getIdGenerator(id).generateId()).build();
+        return b.ne(FIELD_ID, id).build();
     }
 
     @SneakyThrows
