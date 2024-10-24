@@ -1,15 +1,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
-import { Image } from 'react-bootstrap';
 
-import { DATA_SEARCH_SUGGESTION, data_menu_top_no_login } from '@/asset/data/data_header_client';
+import { data_menu_top_no_login } from '@/asset/data/data_header_client';
 import { SEARCH_URL } from '@/common/constants/Common';
 import { useCartContext } from '@/context/CartContext';
 import { SearchSuggestion } from '@/modules/search/models/SearchSuggestion';
 import { getSuggestions } from '@/modules/search/services/SearchService';
+import { getCategoriesSuggestions } from '@/modules/catalog/services/CategoryService';
 import { useDebounce } from '@/utils/useDebounce';
-import promoteImage from '../../images/search-promote-image.png';
 
 type Props = {
   children: React.ReactNode;
@@ -28,6 +27,7 @@ const Header = ({ children }: Props) => {
   const { numberCartItems } = useCartContext();
 
   const [searchSuggestions, setSearchSuggestions] = useState<SearchSuggestion[]>([]);
+  const [categorySuggestions, setCategorySuggestions] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState<string>('');
 
   const keyword = useDebounce(searchInput, 300);
@@ -59,6 +59,19 @@ const Header = ({ children }: Props) => {
       setSearchSuggestions([]);
     }
   }, [keyword]);
+
+  useEffect(() => {
+    const fetchTopCategories = async () => {
+      try {
+        const categories = await getCategoriesSuggestions();
+        setCategorySuggestions(categories);
+      } catch (error) {
+        console.error('Failed to fetch category suggestions', error);
+      }
+    };
+
+    fetchTopCategories();
+  }, []);
 
   const fetchSearchSuggestions = (keyword: string) => {
     getSuggestions(keyword)
@@ -177,7 +190,7 @@ const Header = ({ children }: Props) => {
             </div>
 
             <div className="search-suggestion">
-              {DATA_SEARCH_SUGGESTION.map((item) => (
+              {categorySuggestions.map((item) => (
                 <Link href={`${SEARCH_URL}/?keyword=${item.toLocaleLowerCase()}`} key={item}>
                   <span>{item}</span>
                 </Link>
