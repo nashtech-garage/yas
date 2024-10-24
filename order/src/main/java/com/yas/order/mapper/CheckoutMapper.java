@@ -16,11 +16,22 @@ import org.springframework.stereotype.Component;
 public interface CheckoutMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkout", ignore = true)
+    @Mapping(target = "checkoutId", ignore = true)
     CheckoutItem toModel(CheckoutItemPostVm checkoutItemPostVm);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkoutState", ignore = true)
-    @Mapping(target = "totalAmount", source = "totalAmount") // Ánh xạ tường minh cho totalAmount
+    @Mapping(target = "progress", ignore = true)
+    @Mapping(target = "customerId", ignore = true)
+    @Mapping(target = "shipmentMethodId", ignore = true)
+    @Mapping(target = "paymentMethodId", ignore = true)
+    @Mapping(target = "shippingAddressId", ignore = true)
+    @Mapping(target = "lastError", ignore = true)
+    @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "totalShipmentFee", ignore = true)
+    @Mapping(target = "totalShipmentTax", ignore = true)
+    @Mapping(target = "totalTax", ignore = true)
+    @Mapping(target = "totalAmount", source = "totalAmount")
     @Mapping(target = "totalDiscountAmount", source = "totalDiscountAmount")
     Checkout toModel(CheckoutPostVm checkoutPostVm);
 

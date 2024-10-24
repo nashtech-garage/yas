@@ -3,13 +3,19 @@ package com.yas.payment.service;
 import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.InitiatedPayment;
 import com.yas.payment.model.Payment;
+import com.yas.payment.model.enumeration.PaymentMethod;
+import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.provider.handler.PaymentHandler;
 import com.yas.payment.viewmodel.*;
 import jakarta.annotation.PostConstruct;
+import com.yas.payment.viewmodel.CheckoutPaymentVm;
+import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,7 +26,12 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
+
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentService.class);
+
     private final PaymentRepository paymentRepository;
+
     private final OrderService orderService;
     private final Map<String, PaymentHandler> providers = new HashMap<>();
 
@@ -89,5 +100,24 @@ public class PaymentService {
                 .gatewayTransactionId(capturedPayment.getGatewayTransactionId())
                 .build();
         return paymentRepository.save(payment);
+    }
+
+    public Long createPaymentFromEvent(CheckoutPaymentVm checkoutPaymentVm) {
+
+        Payment payment = Payment.builder()
+            .checkoutId(checkoutPaymentVm.checkoutId())
+            .paymentStatus(
+                PaymentMethod.COD.equals(checkoutPaymentVm.paymentMethod())
+                    ? PaymentStatus.NEW : PaymentStatus.PROCESSING
+            )
+            .paymentMethod(checkoutPaymentVm.paymentMethod())
+            .amount(checkoutPaymentVm.totalAmount())
+            .build();
+
+        Payment createdPayment = paymentRepository.save(payment);
+
+        LOGGER.info("Payment is created successfully with ID: {}", createdPayment.getId());
+
+        return createdPayment.getId();
     }
 }

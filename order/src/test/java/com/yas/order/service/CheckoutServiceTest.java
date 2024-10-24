@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -181,7 +181,7 @@ class CheckoutServiceTest {
         Checkout checkout = new Checkout();
         checkout.setId(id);
 
-        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("new-payment-method-id");
+        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("BANKING");
 
         when(checkoutRepository.findById(id)).thenReturn(Optional.of(checkout));
 
@@ -190,7 +190,7 @@ class CheckoutServiceTest {
 
         // Assert
         verify(checkoutRepository).save(checkout);
-        assertThat(checkout.getPaymentMethodId()).isEqualTo(request.paymentMethodId());
+        assertThat(checkout.getPaymentMethodId().name()).isEqualTo(request.paymentMethodId());
     }
 
     @Test
@@ -220,7 +220,7 @@ class CheckoutServiceTest {
         checkoutService.updateCheckoutPaymentMethod(id, request);
 
         // Assert
-        verify(checkoutRepository).save(checkout);
+        verify(checkoutRepository, never()).save(checkout);
         assertThat(checkout.getPaymentMethodId()).isNull();
     }
 }
