@@ -1,0 +1,164 @@
+@startuml Checkout Flow
+
+title Checkout Flow
+
+actor Customer as customer #fad7a0
+
+box YAS
+    participant "Storefront" as storefront #fdf2e9        
+    participant "Order Service" as order_service #3498db    
+    entity "Checkout" as checkout #3498db
+    participant "Payment Service" as payment_service #73c6b6
+    participant "Shipment Service" as shipment_service #c39bd3
+    participant "Promotion Service" as promotion_service #8af1f0
+    participant "Product Service" as product_service #28b463 
+    participant "Customer Service" as customer_service #fad7a0
+    participant "Shopping Cart" as shopping_cart #a9cce3
+end box 
+
+participant "Shipment Provider" as shipment_provider #c39bd3
+
+customer -> storefront: Browse cart page
+activate storefront #fdf2e9
+  storefront -> shopping_cart: GET cart/items
+  activate shopping_cart #a9cce3
+    shopping_cart --> storefront: [cart_items]
+  deactivate shopping_cart
+  customer <-- storefront: [cart_items]
+deactivate storefront
+
+customer -> storefront: Update cart quantity
+activate storefront #fdf2e9
+  storefront -> shopping_cart: PUT cart/items/{product_id} \n { quantity }
+deactivate storefront
+
+customer -> storefront: Proceed to checkout
+activate storefront #fdf2e9
+  storefront -> order_service: POST /order/checkouts
+  activate order_service #3498db
+    order_service -> product_service: GET /products?ids={product_ids}
+    activate product_service #28b463 
+      product_service --> order_service: [products]
+    deactivate product_service
+    order_service -> checkout **: Create Checkout
+    order_service <-- checkout
+    storefront <-- order_service: checkout
+  deactivate order_service
+  storefront -> payment_service: GET /payment/methods
+
+  'Get payment methods
+  activate payment_service #73c6b6
+    storefront <-- payment_service: payment_methods
+  deactivate payment_service
+
+  'Get shipment providers
+  storefront -> shipment_service: GET /shipment/providers
+  activate shipment_service #c39bd3
+    storefront <-- shipment_service: shipment_providers
+  deactivate shipment_service
+
+  'Get customer addresses
+  storefront -> customer_service: GET /customer/myinfo/addresses
+  activate customer_service #fad7a0
+    storefront <-- customer_service: addresses
+  deactivate customer_service
+
+  storefront --> customer: Display checkout page
+  note left of storefront 
+    Request customer for:
+    - Payment method
+    - Shipment method
+    - Shipping address
+  end note
+deactivate storefront
+activate customer
+
+  'Pick a payment method
+  customer -> storefront: Pick a payment method
+  activate storefront #fdf2e9    
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { payment_method }
+    activate order_service #3498db
+      order_service -> checkout: Update payment method
+    deactivate order_service    
+  deactivate storefront
+
+  'Pick a shipment provider
+  customer -> storefront: Pick a shipment provider
+  activate storefront #fdf2e9
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { shipment_provider }
+    activate order_service #3498db
+      order_service -> checkout: Update shipment provider
+    deactivate order_service
+    activate checkout #3498db
+      checkout --> order_service: CDC Event: calculate-payment-amount
+    deactivate checkout 
+  deactivate storefront
+
+  'Pick a shipping address
+  customer -> storefront: Pick a shipping address
+  activate storefront #fdf2e9
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { address }
+    activate order_service #3498db
+      order_service -> checkout: Update shipping address
+    deactivate order_service
+    activate checkout #3498db
+      checkout --> order_service: CDC Event: calculate-payment-amount
+    deactivate checkout 
+  deactivate storefront
+  
+  'Add coupon code
+  customer -> storefront: Add coupon code
+  activate storefront #fdf2e9
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { coupon_code }
+    activate order_service #3498db
+      order_service -> promotion_service: GET /promotion/promotions/{PROMOCODE}/check /n {checkoutDetail}
+      activate promotion_service #8af1f0
+        promotion_service --> order_service: 200 OK {status: Valid/Invalid}
+      deactivate promotion_service
+      order_service -> checkout: Add Promocode and update payment amount
+    deactivate order_service
+    activate checkout #3498db
+      checkout --> order_service: CDC Event: calculate-payment-amount
+    deactivate checkout 
+  deactivate storefront 
+deactivate customer
+
+alt "checkout has full required infomation"
+    activate order_service #3498db  
+    order_service -> shipment_service: POST /shipment/calculate {shipment_provider, address, items}
+    activate shipment_service #c39bd3
+      shipment_service -> shipment_provider: POST /shipment/calculate {shipment_provider, address, items}
+      activate shipment_provider #c39bd3
+        shipment_service <-- shipment_provider: [shipment_cost and VAT for each item]
+      deactivate shipment_provider
+      order_service <-- shipment_service: [shipment_cost, shipment_tax]
+    deactivate shipment_service
+    order_service -> checkout: Update [shipment_cost, shipment_tax]
+  deactivate order_service
+end 
+
+storefront --> storefront: reload checkout for fulfill information
+activate storefront #fdf2e9
+  loop  "reload to get payment amount"
+    storefront -> order_service: GET /order/checkouts/{checkout_id}
+    activate order_service #3498db
+      order_service -> checkout: load Checkout information
+      storefront <-- order_service
+    deactivate order_service
+  end
+  storefront --> customer: Display checkout info with all tax and fees
+deactivate storefront
+activate customer
+  customer -> storefront: Proceed to payment
+deactivate customer
+activate storefront #fdf2e9
+  break
+    note right of storefront
+      Continue to process on payment flow
+    end note
+  end 
+deactivate storefront
+
+@enduml
+
+
