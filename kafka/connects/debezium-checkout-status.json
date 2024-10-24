@@ -1,0 +1,16 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "topic.prefix": "dbcheckout-status",
+  "database.user": "admin",
+  "database.dbname": "order",
+  "database.hostname": "postgres",
+  "database.password": "admin",
+  "database.port": "5432",
+  "key.converter.schemas.enable": "false",
+  "value.converter.schemas.enable": "false",
+  "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "schema.include.list": "public",
+  "table.include.list": "public.checkout",
+  "slot.name": "checkout_status_slot"
+}
