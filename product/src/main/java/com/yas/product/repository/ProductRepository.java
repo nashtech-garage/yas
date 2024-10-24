@@ -44,6 +44,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             + "AND p.isPublished = TRUE ORDER BY p.id ASC ")
     Page<Product> getFeaturedProduct(Pageable pageable);
 
+    @Query(value = "FROM Product p WHERE p.isFeatured = TRUE "
+        + "AND p.isVisibleIndividually = TRUE "
+        + "AND p.isPublished = TRUE "
+        + "AND p.id IN (:productIds) "
+        + "ORDER BY p.id ASC ")
+    Page<Product> getFeaturedProductByProductIds(@Param("productIds") List<Long> productIds, Pageable pageable);
+
     @Query(value = "SELECT p FROM Product p LEFT JOIN p.productCategories pc LEFT JOIN pc.category c "
             + "WHERE LOWER(p.name) LIKE %:productName% "
             + "AND (c.slug = :categorySlug OR (:categorySlug IS NULL OR :categorySlug = '')) "
@@ -80,4 +87,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds AND p.isPublished = TRUE")
     Page<Product> findAllPublishedProductsByIds(@Param("productIds") List<Long> productIds, Pageable pageable);
+
 }

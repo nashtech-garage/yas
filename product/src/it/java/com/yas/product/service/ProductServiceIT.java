@@ -70,6 +70,8 @@ class ProductServiceIT {
     private MediaService mediaService;
     @Autowired
     private ProductService productService;
+    @MockBean
+    private InventoryService inventoryService;
     private List<Product> products;
     private List<Category> categoryList;
     private List<ProductCategory> productCategoryList;
@@ -87,6 +89,7 @@ class ProductServiceIT {
     void setUp() {
         noFileMediaVm = new NoFileMediaVm(1L, "caption", "fileName", "mediaType", "url");
         when(mediaService.getMedia(1L)).thenReturn(noFileMediaVm);
+        when(inventoryService.getProductIdsAddedWarehouse()).thenReturn(new ArrayList<>());
         generateTestData();
     }
 

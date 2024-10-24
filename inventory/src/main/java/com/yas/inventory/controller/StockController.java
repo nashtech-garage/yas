@@ -46,4 +46,10 @@ public class StockController {
 
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/products-in-warehouse")
+    public List<Long> getProductsInWarehouse() {
+        return stockService.findProductIdsAddedWarehouse();
+    }
+
 }

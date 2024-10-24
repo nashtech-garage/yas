@@ -68,6 +68,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -80,6 +81,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class ProductService {
     private static final String NONE_GROUP = "None group";
     private final ProductRepository productRepository;
@@ -92,28 +94,7 @@ public class ProductService {
     private final ProductOptionValueRepository productOptionValueRepository;
     private final ProductOptionCombinationRepository productOptionCombinationRepository;
     private final ProductRelatedRepository productRelatedRepository;
-
-    public ProductService(ProductRepository productRepository,
-                          MediaService mediaService,
-                          BrandRepository brandRepository,
-                          ProductCategoryRepository productCategoryRepository,
-                          CategoryRepository categoryRepository,
-                          ProductImageRepository productImageRepository,
-                          ProductOptionRepository productOptionRepository,
-                          ProductOptionValueRepository productOptionValueRepository,
-                          ProductOptionCombinationRepository productOptionCombinationRepository,
-                          ProductRelatedRepository productRelatedRepository) {
-        this.productRepository = productRepository;
-        this.mediaService = mediaService;
-        this.brandRepository = brandRepository;
-        this.categoryRepository = categoryRepository;
-        this.productCategoryRepository = productCategoryRepository;
-        this.productImageRepository = productImageRepository;
-        this.productOptionRepository = productOptionRepository;
-        this.productOptionValueRepository = productOptionValueRepository;
-        this.productOptionCombinationRepository = productOptionCombinationRepository;
-        this.productRelatedRepository = productRelatedRepository;
-    }
+    private final InventoryService inventoryService;
 
     public ProductGetDetailVm createProduct(ProductPostVm productPostVm) {
         validateProductVm(productPostVm);
@@ -769,9 +750,15 @@ public class ProductService {
     }
 
     public ProductFeatureGetVm getListFeaturedProducts(int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
         List<ProductThumbnailGetVm> productThumbnailVms = new ArrayList<>();
-        Page<Product> productPage = productRepository.getFeaturedProduct(pageable);
+        List<Long> productIds = inventoryService.getProductIdsAddedWarehouse();
+        if (productIds.isEmpty()) {
+            return new ProductFeatureGetVm(productThumbnailVms, 0);
+        }
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Product> productPage = productRepository.getFeaturedProductByProductIds(productIds, pageable);
         List<Product> products = productPage.getContent();
         for (Product product : products) {
             productThumbnailVms.add(new ProductThumbnailGetVm(
