@@ -1,5 +1,6 @@
 package com.yas.recommendation.topology;
 
+import com.yas.recommendation.configuration.KafkaTopicConfig;
 import com.yas.recommendation.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
@@ -8,7 +9,6 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,13 +31,11 @@ public class ProductTopology extends AbstractTopology {
     private static final String PRODUCT_ATTRIBUTE_AGGREGATION_MATERIALIZED_VIEW = "product-attribute-agg-mv";
     private static final String PRODUCT_BRAND_CATEGORY_ATTRIBUTE_DETAIL_MATERIALIZED_VIEW = "product-brand-category-attribute-detail-mv";
 
-    public ProductTopology(
-            @Value("${product.topic.name}") String sourceTopic,
-            @Value("${product.sink.topic.name}") String sinkTopic) {
-        super(sourceTopic, sinkTopic);
+    @Autowired
+    public ProductTopology(KafkaTopicConfig kafkaTopicConfig) {
+        super(kafkaTopicConfig);
     }
 
-    @Autowired
     @Override
     protected void process(StreamsBuilder streamsBuilder) {
         KTable<Long, ProductDTO> productTable = createProductTable(streamsBuilder);
@@ -67,7 +65,7 @@ public class ProductTopology extends AbstractTopology {
 
     private KTable<Long, ProductDTO> createProductTable(StreamsBuilder streamsBuilder) {
         return streamsBuilder.stream(
-                        sourceTopic,
+                        kafkaTopicConfig.product(),
                         Consumed.with(getSerde(KeyDTO.class), getMessageDTOSerde(ProductDTO.class)))
                 .selectKey((key, value) -> key.getId())
                 .mapValues(this::extractModelFromMessage)
@@ -256,7 +254,7 @@ public class ProductTopology extends AbstractTopology {
     private void writeToSink(KTable<Long, ProductResultDTO> resultTable) {
         resultTable
                 .toStream()
-                .to("sinkTopic", Produced.with(Serdes.Long(), getSerde(ProductResultDTO.class)));
+                .to(kafkaTopicConfig.productSink(), Produced.with(Serdes.Long(), getSerde(ProductResultDTO.class)));
     }
 
     private ProductResultDTO enrichWithProductAndBrandData(ProductDTO productRecord, BrandDTO brandRecord) {

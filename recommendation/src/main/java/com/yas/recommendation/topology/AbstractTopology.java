@@ -1,6 +1,8 @@
 package com.yas.recommendation.topology;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.yas.recommendation.configuration.KafkaTopicConfig;
 import com.yas.recommendation.dto.AggregationDTO;
 import com.yas.recommendation.dto.BaseMetaDataEntity;
 import com.yas.recommendation.dto.MessageDTO;
@@ -12,13 +14,14 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
-public abstract class AbstractTopology {
-    protected String sourceTopic;
-    protected String sinkTopic;
+import java.lang.reflect.Type;
 
-    public AbstractTopology(String sourceTopic, String sinkTopic) {
-        this.sourceTopic = sourceTopic;
-        this.sinkTopic = sinkTopic;
+public abstract class AbstractTopology {
+
+    protected final KafkaTopicConfig kafkaTopicConfig;
+
+    public AbstractTopology(KafkaTopicConfig kafkaTopicConfig) {
+        this.kafkaTopicConfig = kafkaTopicConfig;
     }
 
     protected abstract void process(StreamsBuilder streamsBuilder);
@@ -34,8 +37,8 @@ public abstract class AbstractTopology {
     protected <T> Serde<MessageDTO<T>> getMessageDTOSerde(Class<T> clazz) {
         TypeReference<MessageDTO<T>> typeReference = new TypeReference<>() {
             @Override
-            public java.lang.reflect.Type getType() {
-                return com.fasterxml.jackson.databind.type.TypeFactory.defaultInstance()
+            public Type getType() {
+                return TypeFactory.defaultInstance()
                         .constructParametricType(MessageDTO.class, clazz);
             }
         };
@@ -45,8 +48,9 @@ public abstract class AbstractTopology {
     protected <ID, T> Serde<AggregationDTO<ID, T>> getAggregationDTOSerde(Class<ID> clazzID, Class<T> clazzT) {
         TypeReference<AggregationDTO<ID, T>> typeReference = new TypeReference<>() {
             @Override
-            public java.lang.reflect.Type getType() {
-                return com.fasterxml.jackson.databind.type.TypeFactory.defaultInstance()
+            public Type getType() {
+                return TypeFactory
+                        .defaultInstance()
                         .constructParametricType(AggregationDTO.class, clazzID, clazzT);
             }
         };
@@ -54,7 +58,7 @@ public abstract class AbstractTopology {
     }
 
 
-    protected  <K, V> Materialized<K, V, KeyValueStore<Bytes, byte[]>> createMaterializedStore(
+    protected <K, V> Materialized<K, V, KeyValueStore<Bytes, byte[]>> createMaterializedStore(
             String storeName, Serde<K> keySerde, Serde<V> valueSerde) {
 
         return Materialized.<K, V, KeyValueStore<Bytes, byte[]>>as(storeName)
@@ -63,23 +67,12 @@ public abstract class AbstractTopology {
                 .withCachingDisabled();
     }
 
-    protected <T> boolean isAfterObjectNonNull(MessageDTO<T> message) {
-        return message != null && message.getAfter() != null;
-    }
-
     protected <T extends BaseMetaDataEntity> T extractModelFromMessage(MessageDTO<T> message) {
         if (message == null || message.getAfter() == null) {
-            // If the message or its "after" content is null, return null (tombstone).
-            //System.out.println("TombStone Message..............");
             return null;
         }
-
-        // Extract the model from the message
         T model = message.getAfter();
-
-        // Set the metadata (operation and timestamp) from the message
         model.setMetaData(new MetaData(message.getOp(), message.getComingTs()));
-
         return model;
     }
 }
