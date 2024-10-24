@@ -50,7 +50,6 @@ public class ProductTopology extends AbstractTopology {
         KTable<Long, ProductCategoryDTO> productCategoryDetailTable = enrichProductCategoryWithDetails(productCategoryTable, categoryTable);
 
         KTable<Long, AggregationDTO<Long, CategoryDTO>> productCategoryAgg = aggregateProductCategoryDetails(productCategoryDetailTable, nonNullProductCategoryTable);
-        displayProductCategoryAggregation(productCategoryAgg);
 
         KTable<Long, ProductResultDTO> addingCategoryDetailTable = joinProductWithCategoryDetails(productBrandTable, productCategoryAgg);
 
@@ -160,16 +159,6 @@ public class ProductTopology extends AbstractTopology {
                 );
     }
 
-    private void displayProductCategoryAggregation(KTable<Long, AggregationDTO<Long, CategoryDTO>> productCategoryAgg) {
-        productCategoryAgg.toStream().peek((key, value) -> {
-            System.out.println("productCategoryAgg---------------");
-            System.out.println("key: " + key);
-            if (value != null) {
-                System.out.println("value : " + value.toString());
-            }
-        });
-    }
-
     private KTable<Long, ProductResultDTO> joinProductWithCategoryDetails(KTable<Long, ProductResultDTO> productBrandTable, KTable<Long, AggregationDTO<Long, CategoryDTO>> productCategoryAgg) {
         return productBrandTable.leftJoin(
                 productCategoryAgg,
@@ -265,15 +254,8 @@ public class ProductTopology extends AbstractTopology {
     }
 
     private void writeToSink(KTable<Long, ProductResultDTO> resultTable) {
-        resultTable.toStream()
-                .peek((key, value) -> {
-                    System.out.println("write to sink topic: ");
-                    System.out.println("Key : " + key);
-                    if (value != null) {
-                        System.out.println("Value: " + value.toString());
-                        System.out.println("spec: " + value.getSpecification());
-                    }
-                })
+        resultTable
+                .toStream()
                 .to("sinkTopic", Produced.with(Serdes.Long(), getSerde(ProductResultDTO.class)));
     }
 
