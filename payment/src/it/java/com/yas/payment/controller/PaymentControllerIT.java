@@ -3,6 +3,7 @@ package com.yas.payment.controller;
 import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.payment.model.Payment;
+import com.yas.payment.viewmodel.CheckoutPaymentVm;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.OrderService;
 import com.yas.payment.viewmodel.CapturedPayment;
@@ -26,6 +27,7 @@ import org.springframework.http.HttpStatus;
 class PaymentControllerIT extends AbstractControllerIT {
 
     private static final String PAYMENT_CAPTURE_URL = "/v1/storefront/payments/capture";
+    private static final String EVENT_CREATE_PAYMENT_URL = "/v1/events/payments";
 
     @Autowired
     PaymentRepository paymentRepository;
@@ -35,11 +37,13 @@ class PaymentControllerIT extends AbstractControllerIT {
 
     Payment payment;
     CapturedPayment capturedPayment;
+    CheckoutPaymentVm checkoutPaymentRequest;
 
     @BeforeEach
     void setUp() {
         payment = paymentRepository.save(Instancio.of(Payment.class).create());
         capturedPayment = Instancio.of(CapturedPayment.class).create();
+        checkoutPaymentRequest = Instancio.of(CheckoutPaymentVm.class).create();
 
         Mockito.when(orderService.updateCheckoutStatus(Mockito.any(CapturedPayment.class)))
             .thenAnswer(invocation -> Mockito.anyLong());
@@ -60,6 +64,16 @@ class PaymentControllerIT extends AbstractControllerIT {
             .post(PAYMENT_CAPTURE_URL)
             .then()
             .statusCode(HttpStatus.OK.value())
+            .log().ifValidationFails();
+    }
+
+    @Test
+    void testCreatePaymentFromEvent_whenNormalCase_shouldReturnLong() {
+        RestAssured.given(getRequestSpecification())
+            .body(checkoutPaymentRequest)
+            .post(EVENT_CREATE_PAYMENT_URL)
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
             .log().ifValidationFails();
     }
 }

@@ -11,6 +11,7 @@ import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.viewmodel.CapturedPayment;
+import com.yas.payment.viewmodel.CheckoutPaymentVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,6 +78,29 @@ class PaymentServiceTest {
         assertThat(result.getPaymentStatus()).isEqualTo(capturedPayment.paymentStatus());
         assertThat(result.getPaymentFee()).isEqualTo(capturedPayment.paymentFee());
         assertThat(result.getAmount()).isEqualTo(capturedPayment.amount());
+    }
+
+    @Test
+    void testCreatePaymentFromEvent() {
+
+        CheckoutPaymentVm checkoutPaymentRequestDto = new CheckoutPaymentVm(
+            "123",
+            PaymentMethod.PAYPAL,
+            new BigDecimal(12)
+        );
+
+        Payment actualPayment = Payment.builder().id(1L).paymentMethod(PaymentMethod.PAYPAL).build();
+        ArgumentCaptor<Payment> argumentCaptor = ArgumentCaptor.forClass(Payment.class);
+        when(paymentRepository.save(argumentCaptor.capture())).thenReturn(actualPayment);
+
+        Long result = paymentService.createPaymentFromEvent(checkoutPaymentRequestDto);
+
+        assertThat(result).isEqualTo(1);
+        Payment captorValue = argumentCaptor.getValue();
+        assertThat(captorValue.getPaymentMethod()).isEqualTo(PaymentMethod.PAYPAL);
+        assertThat(captorValue.getPaymentStatus()).isEqualTo(PaymentStatus.PROCESSING);
+        assertThat(captorValue.getAmount()).isEqualTo(new BigDecimal(12));
+
     }
 
     private CapturedPayment prepareCapturedPayment() {
