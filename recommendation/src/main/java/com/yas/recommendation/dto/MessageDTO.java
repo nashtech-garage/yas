@@ -13,8 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageDTO<T> {
+public class MessageDTO<T> extends BaseMessageDTO {
     private T before;
     private T after;
-    private String op;
 }

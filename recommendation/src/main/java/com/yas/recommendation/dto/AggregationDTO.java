@@ -2,9 +2,7 @@ package com.yas.recommendation.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +12,8 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class AggregationDTO<ID, T> {
     private ID joinId;
     private Set<T> aggregationContents;

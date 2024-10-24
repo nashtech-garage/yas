@@ -2,10 +2,7 @@ package com.yas.recommendation.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,8 +13,9 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ProductResultDTO extends ProductDTO {
-    private String brandName;
+    private BrandDTO brand;
     private Set<CategoryDTO> categories = new HashSet<>();
     private Set<ProductAttributeDTO> productAttributes = new HashSet<>();
 

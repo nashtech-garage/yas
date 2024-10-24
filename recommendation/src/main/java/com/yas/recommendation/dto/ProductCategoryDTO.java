@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductCategoryDTO {
+public class ProductCategoryDTO extends BaseMetaDataEntity {
     private Long id;
 
     @JsonProperty("category_id")
@@ -24,4 +24,10 @@ public class ProductCategoryDTO {
     private Long productId;
 
     private String categoryName;
+
+    private boolean isDeleted;
+
+    public ProductCategoryDTO(Long id) {
+        this.id = id;
+    }
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BrandDTO {
+public class BrandDTO extends BaseMetaDataEntity {
     private Long id;
     private String name;
 }

@@ -2,7 +2,9 @@ package com.yas.recommendation.topology;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.yas.recommendation.dto.AggregationDTO;
+import com.yas.recommendation.dto.BaseMetaDataEntity;
 import com.yas.recommendation.dto.MessageDTO;
+import com.yas.recommendation.dto.MetaData;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -57,10 +59,27 @@ public abstract class AbstractTopology {
 
         return Materialized.<K, V, KeyValueStore<Bytes, byte[]>>as(storeName)
                 .withKeySerde(keySerde)
-                .withValueSerde(valueSerde);
+                .withValueSerde(valueSerde)
+                .withCachingDisabled();
     }
 
     protected <T> boolean isAfterObjectNonNull(MessageDTO<T> message) {
         return message != null && message.getAfter() != null;
+    }
+
+    protected <T extends BaseMetaDataEntity> T extractModelFromMessage(MessageDTO<T> message) {
+        if (message == null || message.getAfter() == null) {
+            // If the message or its "after" content is null, return null (tombstone).
+            //System.out.println("TombStone Message..............");
+            return null;
+        }
+
+        // Extract the model from the message
+        T model = message.getAfter();
+
+        // Set the metadata (operation and timestamp) from the message
+        model.setMetaData(new MetaData(message.getOp(), message.getComingTs()));
+
+        return model;
     }
 }
