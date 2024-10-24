@@ -19,6 +19,7 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,7 +84,8 @@ class CartServiceTest {
             DeliveryMethod.GRAB_EXPRESS,
             DeliveryStatus.CANCELLED,
             PaymentStatus.PENDING,
-            items
+            items,
+            UUID.randomUUID().toString()
         );
     }
 
