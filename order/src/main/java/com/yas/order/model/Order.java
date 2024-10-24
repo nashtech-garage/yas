@@ -101,7 +101,7 @@ public class Order extends AbstractAuditEntity {
     private String progress;
 
     @SuppressWarnings("unused")
-    private Long customerId;
+    private String customerId;
 
     @SuppressWarnings("unused")
     @JdbcTypeCode(SqlTypes.JSON)

@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.order.OrderApplication;
+import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.service.CheckoutService;
 import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutItemVm;
@@ -60,18 +61,19 @@ class CheckoutControllerTest {
         when(checkoutService.createCheckout(any(CheckoutPostVm.class))).thenReturn(response);
 
         List<CheckoutItemPostVm> items = getCheckoutItemPostVms();
-        CheckoutPostVm request  = new CheckoutPostVm(
-            "customer@example.com",
-            "Please deliver before noon.",
-            "SUMMER2024",
-            items
+        CheckoutPostVm request = new CheckoutPostVm(
+                "customer@example.com",
+                "Please deliver before noon.",
+                "SUMMER2024",
+                null, null, null,
+                items
         );
 
         mockMvc.perform(post("/storefront/checkouts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
 
     }
 
@@ -85,8 +87,8 @@ class CheckoutControllerTest {
         mockMvc.perform(put("/storefront/checkouts/status")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
     }
 
     @Test
@@ -98,36 +100,22 @@ class CheckoutControllerTest {
 
         mockMvc.perform(get("/storefront/checkouts/{id}", id)
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
     }
 
-
-    private static @NotNull List<CheckoutItemPostVm> getCheckoutItemPostVms() {
+    private static @NotNull
+    List<CheckoutItemPostVm> getCheckoutItemPostVms() {
         CheckoutItemPostVm item1 = new CheckoutItemPostVm(
-            101L,
-            "Product One",
-            3,
-            new BigDecimal("29.99"),
-            "First item note",
-            new BigDecimal("5.00"),
-            new BigDecimal("2.50"),
-            new BigDecimal("8.5"),
-            new BigDecimal("8.5"),
-            new BigDecimal("8.5")
+                101L,
+                "First item note",
+                3
         );
 
         CheckoutItemPostVm item2 = new CheckoutItemPostVm(
-            102L,
-            "Product Two",
-            1,
-            new BigDecimal("49.99"),
-            "Second item note",
-            new BigDecimal("10.00"),
-            new BigDecimal("5.00"),
-            new BigDecimal("10.0"),
-            new BigDecimal("8.5"),
-            new BigDecimal("8.5")
+                102L,
+                "Second item note",
+                1
         );
 
         return List.of(item1, item2);
@@ -135,41 +123,47 @@ class CheckoutControllerTest {
 
     private CheckoutVm getCheckoutVm() {
         CheckoutItemVm item1 = CheckoutItemVm.builder()
-            .id(1L)
-            .productId(101L)
-            .productName("Product 1")
-            .quantity(2)
-            .productPrice(new BigDecimal("19.99"))
-            .note("First item note")
-            .discountAmount(new BigDecimal("2.00"))
-            .taxAmount(new BigDecimal("1.50"))
-            .taxPercent(new BigDecimal("5.0"))
-            .checkoutId("checkout123")
-            .build();
+                .id(1L)
+                .productId(101L)
+                .productName("Product 1")
+                .quantity(2)
+                .productPrice(new BigDecimal("19.99"))
+                .description("First item description")
+                .discountAmount(new BigDecimal("2.00"))
+                .tax(1L)
+                .checkoutId("checkout123")
+                .build();
 
         CheckoutItemVm item2 = CheckoutItemVm.builder()
-            .id(2L)
-            .productId(102L)
-            .productName("Product 2")
-            .quantity(1)
-            .productPrice(new BigDecimal("9.99"))
-            .note("Second item note")
-            .discountAmount(new BigDecimal("1.00"))
-            .taxAmount(new BigDecimal("0.75"))
-            .taxPercent(new BigDecimal("5.0"))
-            .checkoutId("checkout123")
-            .build();
+                .id(2L)
+                .productId(102L)
+                .productName("Product 2")
+                .quantity(1)
+                .productPrice(new BigDecimal("9.99"))
+                .description("Second item description")
+                .discountAmount(new BigDecimal("1.00"))
+                .tax(1L)
+                .checkoutId("checkout123")
+                .build();
 
         Set<CheckoutItemVm> checkoutItemVms = new HashSet<>();
         checkoutItemVms.add(item1);
         checkoutItemVms.add(item2);
 
         return new CheckoutVm(
-            "checkout123",
-            "user@example.com",
-            "Please deliver after 5 PM",
-            "DISCOUNT20",
-            checkoutItemVms
+                "014476b3-243a-4111-9f2a-a25661aea89c",
+                "user@example.com",
+                "Please deliver after 5 PM",
+                "DISCOUNT20",
+                CheckoutState.CHECKED_OUT,
+                "Inprogress",
+                10,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                null, null, null,
+                checkoutItemVms
         );
     }
 }
