@@ -6,3 +6,11 @@ curl -i -X PUT -H  "Content-Type:application/json" \
 curl -i -X PUT -H  "Content-Type:application/json" \
     http://localhost:8083/connectors/order-connector/config \
     -d @kafka/connects/debezium-order.json
+
+curl -i -X PUT -H  "Content-Type:application/json" \
+    http://localhost:8083/connectors/checkout-connector/config \
+    -d @kafka/connects/debezium-checkout-status.json
+
+curl -i -X PUT -H  "Content-Type:application/json" \
+    http://localhost:8083/connectors/payment-connector/config \
+    -d @kafka/connects/debezium-payment.json

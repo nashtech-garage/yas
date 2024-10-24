@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.yas.payment.model.Payment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
+import com.yas.payment.model.request.CheckoutPaymentRequest;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.viewmodel.CapturedPayment;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
@@ -77,6 +78,29 @@ class PaymentServiceTest {
         assertThat(result.getPaymentStatus()).isEqualTo(capturedPayment.paymentStatus());
         assertThat(result.getPaymentFee()).isEqualTo(capturedPayment.paymentFee());
         assertThat(result.getAmount()).isEqualTo(capturedPayment.amount());
+    }
+
+    @Test
+    void testCreatePaymentFromEvent() {
+
+        CheckoutPaymentRequest checkoutPaymentRequestDto = CheckoutPaymentRequest.builder()
+            .paymentMethod(PaymentMethod.PAYPAL)
+            .checkoutId("123")
+            .totalAmount(new BigDecimal(12))
+            .build();
+
+        Payment actualPayment = Payment.builder().id(1L).paymentMethod(PaymentMethod.PAYPAL).build();
+        ArgumentCaptor<Payment> argumentCaptor = ArgumentCaptor.forClass(Payment.class);
+        when(paymentRepository.save(argumentCaptor.capture())).thenReturn(actualPayment);
+
+        Long result = paymentService.createPaymentFromEvent(checkoutPaymentRequestDto);
+
+        assertThat(result).isEqualTo(1);
+        Payment captorValue = argumentCaptor.getValue();
+        assertThat(captorValue.getPaymentMethod()).isEqualTo(PaymentMethod.PAYPAL);
+        assertThat(captorValue.getPaymentStatus()).isEqualTo(PaymentStatus.PROCESSING);
+        assertThat(captorValue.getAmount()).isEqualTo(new BigDecimal(12));
+
     }
 
     private CapturedPayment prepareCapturedPayment() {

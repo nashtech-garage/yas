@@ -1,5 +1,6 @@
 package com.yas.order.model;
 
+import com.yas.order.model.enumeration.CheckoutProgress;
 import com.yas.order.model.enumeration.CheckoutState;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,8 +40,8 @@ public class Checkout extends AbstractAuditEntity {
     @Enumerated(EnumType.STRING)
     private CheckoutState checkoutState;
 
-    @SuppressWarnings("unused")
-    private String progress;
+    @Enumerated(EnumType.STRING)
+    private CheckoutProgress progress;
 
     @SuppressWarnings("unused")
     private Long customerId;
@@ -54,7 +55,6 @@ public class Checkout extends AbstractAuditEntity {
     @SuppressWarnings("unused")
     private Long shippingAddressId;
 
-    @SuppressWarnings("unused")
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "last_error", columnDefinition = "jsonb")
     private String lastError;
