@@ -94,16 +94,6 @@ public class Checkout extends AbstractAuditEntity {
     @Builder.Default
     private List<CheckoutItem> checkoutItems = new ArrayList<>();
 
-    public void addCheckoutItem(CheckoutItem checkoutItem) {
-        checkoutItems.add(checkoutItem);
-        checkoutItem.setCheckout(this);
-    }
-
-    public void removeCheckoutItem(CheckoutItem checkoutItem) {
-        checkoutItems.remove(checkoutItem);
-        checkoutItem.setCheckout(null);
-    }
-
     public void addAmount(long a) {
         this.totalAmount += a;
     }

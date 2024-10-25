@@ -39,7 +39,6 @@ import org.springframework.util.CollectionUtils;
 public class CheckoutService {
 
     private final CheckoutRepository checkoutRepository;
-    private final CheckoutItemRepository checkoutItemRepository;
     private final OrderService orderService;
     private final ProductService productService;
     private final CheckoutMapper checkoutMapper;
@@ -60,7 +59,6 @@ public class CheckoutService {
                 .stream()
                 .map(checkoutItemPostVm -> {
                     CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);
-                    checkout.addCheckoutItem(item);
                     checkout.addAmount(item.getQuantity());
                     productIds.add(item.getProductId());
                     return item;
@@ -83,7 +81,7 @@ public class CheckoutService {
                 }
             });
         }
-
+        checkout.setCheckoutItems(checkoutItemList);
         Checkout savedCheckout = checkoutRepository.save(checkout);
 
         CheckoutVm checkoutVm = checkoutMapper.toVm(savedCheckout);
