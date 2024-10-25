@@ -37,6 +37,7 @@ public class ProductTopology extends AbstractTopology {
     }
 
     @Override
+    @Autowired
     protected void process(StreamsBuilder streamsBuilder) {
         KTable<Long, ProductDTO> productTable = createProductTable(streamsBuilder);
         KTable<Long, BrandDTO> brandTable = createBrandTable(streamsBuilder);
@@ -74,7 +75,7 @@ public class ProductTopology extends AbstractTopology {
 
     private KTable<Long, BrandDTO> createBrandTable(StreamsBuilder streamsBuilder) {
         return streamsBuilder.stream(
-                        "dbproduct.public.brand",
+                        kafkaTopicConfig.brand(),
                         Consumed.with(getSerde(KeyDTO.class), getMessageDTOSerde(BrandDTO.class)))
                 .selectKey((key, value) -> key.getId())
                 .mapValues(this::extractModelFromMessage)
@@ -92,7 +93,7 @@ public class ProductTopology extends AbstractTopology {
 
     private KTable<Long, CategoryDTO> createCategoryTable(StreamsBuilder streamsBuilder) {
         return streamsBuilder.stream(
-                        "dbproduct.public.category",
+                        kafkaTopicConfig.category(),
                         Consumed.with(getSerde(KeyDTO.class), getMessageDTOSerde(CategoryDTO.class)))
                 .selectKey((key, value) -> key.getId())
                 .mapValues(this::extractModelFromMessage)
@@ -101,7 +102,7 @@ public class ProductTopology extends AbstractTopology {
 
     private KTable<Long, ProductCategoryDTO> createProductCategoryTable(StreamsBuilder streamsBuilder) {
         return streamsBuilder.stream(
-                        "dbproduct.public.product_category",
+                        kafkaTopicConfig.productCategory(),
                         Consumed.with(getSerde(KeyDTO.class), getMessageDTOSerde(ProductCategoryDTO.class)))
                 .selectKey((key, value) -> key.getId())
                 .mapValues(this::extractModelFromMessage)
@@ -172,7 +173,7 @@ public class ProductTopology extends AbstractTopology {
 
     private KTable<Long, ProductAttributeDTO> createProductAttributeTable(StreamsBuilder streamsBuilder) {
         return streamsBuilder.stream(
-                        "dbproduct.public.product_attribute",
+                        kafkaTopicConfig.productAttribute(),
                         Consumed.with(getSerde(KeyDTO.class), getMessageDTOSerde(ProductAttributeDTO.class)))
                 .selectKey((key, value) -> key.getId())
                 .mapValues(this::extractModelFromMessage)
@@ -181,7 +182,7 @@ public class ProductTopology extends AbstractTopology {
 
     private KTable<Long, ProductAttributeValueDTO> createProductAttributeValueTable(StreamsBuilder streamsBuilder) {
         return streamsBuilder.stream(
-                        "dbproduct.public.product_attribute_value",
+                        kafkaTopicConfig.productAttributeValue(),
                         Consumed.with(getSerde(KeyDTO.class), getMessageDTOSerde(ProductAttributeValueDTO.class)))
                 .selectKey((key, value) -> key.getId())
                 .mapValues(this::extractModelFromMessage)

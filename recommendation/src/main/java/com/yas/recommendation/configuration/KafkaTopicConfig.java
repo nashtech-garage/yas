@@ -1,9 +1,7 @@
 package com.yas.recommendation.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
 @ConfigurationProperties(prefix = "yas.kafka.topic")
 public record KafkaTopicConfig(
         String product,
@@ -12,6 +10,8 @@ public record KafkaTopicConfig(
         String productCategory,
         String productAttribute,
         String productAttributeValue,
-        String productSink
+        String productSink,
+        int defaultPartitions,
+        int defaultReplicas
 ) {
 }
