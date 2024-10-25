@@ -209,7 +209,7 @@ services:
     networks:
       - yas-network
   rating:
-    build: ./rating  
+    build: ./rating
     image: ghcr.io/nashtech-garage/yas-rating:latest
     environment:
     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rating
@@ -246,7 +246,7 @@ services:
     - SERVER_SERVLET_CONTEXT_PATH=/order
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS        
+    - JAVA_TOOL_OPTIONS
     - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/order
     - YAS_SERVICES_CART
     - YAS_SERVICES_CUSTOMER
@@ -302,7 +302,7 @@ services:
     networks:
       - yas-network
   payment-paypal:
-    build: ./payment-paypal  
+    build: ./payment-paypal
     image: ghcr.io/nashtech-garage/yas-payment-paypal:latest
     environment:
     - SERVER_SERVLET_CONTEXT_PATH=/payment-paypal
@@ -387,7 +387,7 @@ services:
     networks:
       - yas-network
   promotion:
-    build: ./promotion  
+    build: ./promotion
     image: ghcr.io/nashtech-garage/yas-promotion:latest
     environment:
     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/promotion
@@ -411,11 +411,11 @@ services:
     - OTEL_JAVAAGENT_DEBUG
     volumes:
     - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config      
+    - ./deployment/app-config:/app-config
     networks:
       - yas-network
   tax:
-    build: ./tax    
+    build: ./tax
     image: ghcr.io/nashtech-garage/yas-tax:latest
     environment:
     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tax
@@ -526,6 +526,33 @@ services:
       - SPRING_AI_AZURE_OPENAI_API_KEY
       - SPRING_AI_AZURE_OPENAI_ENDPOINT
       - SPRING_AI_AZURE_OPENAI_EMBEDDING_OPTIONS_MODEL
+    volumes:
+      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+      - ./deployment/app-config:/app-config
+    networks:
+      - yas-network
+  delivery:
+    build: ./delivery
+    image: ghcr.io/nashtech-garage/yas-delivery:latest
+    environment:
+      - SERVER_SERVLET_CONTEXT_PATH=/delivery
+      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/delivery
+      - YAS_SERVICES_DELIVERY
+      - SERVER_PORT
+      - LOGGING_CONFIG
+      - JAVA_TOOL_OPTIONS
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_PROTOCOL
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=delivery-service
+      - OTEL_LOGS_EXPORTER
+      - OTEL_TRACES_EXPORTER
+      - OTEL_METRICS_EXPORTER
+      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+      - OTEL_JAVAAGENT_LOGGING
+      - OTEL_JAVAAGENT_ENABLED
+      - OTEL_JAVAAGENT_DEBUG
     volumes:
       - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
       - ./deployment/app-config:/app-config
