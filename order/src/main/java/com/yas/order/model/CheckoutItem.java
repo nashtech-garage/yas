@@ -1,5 +1,6 @@
 package com.yas.order.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,9 +32,6 @@ public class CheckoutItem extends AbstractAuditEntity {
 
     private Long productId;
 
-    @Column(name = "checkout_id")
-    private String checkoutId;
-
     @Column(name = "name")
     private String productName;
 
@@ -57,6 +55,23 @@ public class CheckoutItem extends AbstractAuditEntity {
     private BigDecimal discountAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "checkout_id", insertable = false, updatable = false)
+    @JoinColumn(name = "checkout_id", updatable = false, nullable = false)
+    @JsonBackReference
     private Checkout checkout;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CheckoutItem)) {
+            return false;
+        }
+        return id != null && id.equals(((CheckoutItem) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

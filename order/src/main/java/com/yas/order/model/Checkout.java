@@ -1,6 +1,8 @@
 package com.yas.order.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.yas.order.model.enumeration.CheckoutState;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,8 +10,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -83,6 +88,21 @@ public class Checkout extends AbstractAuditEntity {
     @SuppressWarnings("unused")
     @Builder.Default
     private BigDecimal totalDiscountAmount = BigDecimal.ZERO;
+
+    @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @Builder.Default
+    private List<CheckoutItem> checkoutItems = new ArrayList<>();
+
+    public void addCheckoutItem(CheckoutItem checkoutItem) {
+        checkoutItems.add(checkoutItem);
+        checkoutItem.setCheckout(this);
+    }
+
+    public void removeCheckoutItem(CheckoutItem checkoutItem) {
+        checkoutItems.remove(checkoutItem);
+        checkoutItem.setCheckout(null);
+    }
 
     public void addAmount(long a) {
         this.totalAmount += a;

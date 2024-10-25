@@ -67,7 +67,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
 
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductInfomationFallback")
-    public ProductGetCheckoutListVm getProductInfomation(List<Long> ids, int pageNo, int pageSize) {
+    public ProductGetCheckoutListVm getProductInfomation(Set<Long> ids, int pageNo, int pageSize) {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .getTokenValue();
 

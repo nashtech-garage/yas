@@ -22,6 +22,7 @@ public interface CheckoutMapper {
     @Mapping(target = "checkoutState", ignore = true)
     Checkout toModel(CheckoutPostVm checkoutPostVm);
 
+    @Mapping(target = "checkoutId", source = "checkout.id")
     CheckoutItemVm toVm(CheckoutItem checkoutItem);
 
     @Mapping(target = "checkoutItemVms", ignore = true)

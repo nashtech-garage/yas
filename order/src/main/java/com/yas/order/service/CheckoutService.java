@@ -2,7 +2,7 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
 
-import com.yas.commonlibrary.exception.Forbidden;
+import com.yas.commonlibrary.exception.ForbiddenException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.CheckoutMapper;
 import com.yas.order.model.Checkout;
@@ -20,7 +20,7 @@ import com.yas.order.viewmodel.checkout.CheckoutVm;
 import com.yas.order.viewmodel.product.ProductCheckoutListVm;
 import com.yas.order.viewmodel.product.ProductGetCheckoutListVm;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +28,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -49,27 +47,28 @@ public class CheckoutService {
     public CheckoutVm createCheckout(CheckoutPostVm checkoutPostVm) {
 
         Checkout checkout = checkoutMapper.toModel(checkoutPostVm);
-        checkout.setCheckoutState(CheckoutState.CHECKED_OUT);
-        String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSubject();
-        checkout.setCustomerId(jwt);
-        Checkout savedCheckout = checkoutRepository.save(checkout);
+        checkout.setCheckoutState(CheckoutState.PENDING);
+        checkout.setCustomerId(AuthenticationUtils.getCurrentUserId());
 
         if (CollectionUtils.isEmpty(checkoutPostVm.checkoutItemPostVms())) {
+            Checkout savedCheckout = checkoutRepository.save(checkout);
             return checkoutMapper.toVm(savedCheckout);
         }
-        List<Long> ids = new ArrayList<>();
+
+        Set<Long> productIds = new HashSet<>();
         List<CheckoutItem> checkoutItemList = checkoutPostVm.checkoutItemPostVms()
                 .stream()
                 .map(checkoutItemPostVm -> {
                     CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);
-                    item.setCheckoutId(savedCheckout.getId());
-                    savedCheckout.addAmount(item.getQuantity());
-                    ids.add(item.getProductId());
+                    checkout.addCheckoutItem(item);
+                    checkout.addAmount(item.getQuantity());
+                    productIds.add(item.getProductId());
                     return item;
                 })
                 .toList();
-        int postItemsSize = checkoutPostVm.checkoutItemPostVms().size();
-        ProductGetCheckoutListVm response = productService.getProductInfomation(ids, 0, postItemsSize);
+
+        ProductGetCheckoutListVm response = productService.getProductInfomation(productIds, 0, productIds.size());
+
         if (response != null) {
             Map<Long, ProductCheckoutListVm> products
                     = response.productCheckoutListVms()
@@ -84,11 +83,11 @@ public class CheckoutService {
                 }
             });
         }
-        List<CheckoutItem> savedCheckoutItems = checkoutItemRepository.saveAll(checkoutItemList);
-        checkoutRepository.save(savedCheckout);
+
+        Checkout savedCheckout = checkoutRepository.save(checkout);
 
         CheckoutVm checkoutVm = checkoutMapper.toVm(savedCheckout);
-        Set<CheckoutItemVm> checkoutItemVms = savedCheckoutItems
+        Set<CheckoutItemVm> checkoutItemVms = savedCheckout.getCheckoutItems()
                 .stream()
                 .map(checkoutMapper::toVm)
                 .collect(Collectors.toSet());
@@ -97,17 +96,16 @@ public class CheckoutService {
     }
 
     public CheckoutVm getCheckoutPendingStateWithItemsById(String id) {
-
         Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING)
                 .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
 
         if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId())) {
-            throw new Forbidden(Constants.ErrorCode.FORBIDDEN);
+            throw new ForbiddenException(Constants.ErrorCode.FORBIDDEN);
         }
 
         CheckoutVm checkoutVm = checkoutMapper.toVm(checkout);
 
-        List<CheckoutItem> checkoutItems = checkoutItemRepository.findAllByCheckoutId(checkout.getId());
+        List<CheckoutItem> checkoutItems = checkout.getCheckoutItems();
         if (CollectionUtils.isEmpty(checkoutItems)) {
             return checkoutVm;
         }

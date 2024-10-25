@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.yas.commonlibrary.exception.Forbidden;
+import com.yas.commonlibrary.exception.ForbiddenException;
 import com.yas.order.mapper.CheckoutMapperImpl;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
@@ -80,14 +80,14 @@ class CheckoutServiceTest {
                 .productId(itemVm.productId())
                 .quantity(itemVm.quantity())
                 .description(itemVm.description())
-                .checkoutId(checkoutId)
+                .checkout(checkoutCreated)
                 .build()
                 ).toList();
-
     }
 
     @Test
     void testCreateCheckout_whenNormalCase_returnCheckout() {
+        checkoutCreated.setCheckoutItems(checkoutItems);
         when(checkoutRepository.save(any())).thenReturn(checkoutCreated);
         when(checkoutItemRepository.saveAll(anyCollection())).thenReturn(checkoutItems);
         var res = checkoutService.createCheckout(checkoutPostVm);
@@ -121,6 +121,7 @@ class CheckoutServiceTest {
 
     @Test
     void testGetCheckoutPendingStateWithItemsById_whenNormalCase_returnCheckoutVm() {
+        checkoutCreated.setCheckoutItems(checkoutItems);
         when(checkoutRepository.findByIdAndCheckoutState(anyString(), eq(CheckoutState.PENDING)))
                 .thenReturn(Optional.ofNullable(checkoutCreated));
         when(checkoutItemRepository.findAllByCheckoutId(anyString())).thenReturn(checkoutItems);
@@ -145,7 +146,7 @@ class CheckoutServiceTest {
                 .thenReturn(Optional.ofNullable(checkoutCreated));
         setSubjectUpSecurityContext("test--by");
 
-        Assertions.assertThrows(Forbidden.class,
+        Assertions.assertThrows(ForbiddenException.class,
                 () -> checkoutService.getCheckoutPendingStateWithItemsById("1"),
                 "You don't have permission to access this page");
 
