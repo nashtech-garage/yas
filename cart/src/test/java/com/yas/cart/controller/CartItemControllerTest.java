@@ -21,7 +21,8 @@ import com.yas.cart.viewmodel.CartItemPostVm;
 import com.yas.cart.viewmodel.CartItemPutVm;
 import com.yas.commonlibrary.exception.ApiExceptionHandler;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
+
+import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

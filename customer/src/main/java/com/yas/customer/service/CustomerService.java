@@ -6,18 +6,9 @@ import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.exception.WrongEmailFormatException;
 import com.yas.customer.config.KeycloakPropsConfig;
 import com.yas.customer.utils.Constants;
-import com.yas.customer.viewmodel.customer.CustomerAdminVm;
-import com.yas.customer.viewmodel.customer.CustomerListVm;
-import com.yas.customer.viewmodel.customer.CustomerPostVm;
-import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
-import com.yas.customer.viewmodel.customer.CustomerVm;
-import com.yas.customer.viewmodel.customer.GuestUserVm;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.Response;
+import com.yas.customer.viewmodel.customer.*;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -28,6 +19,11 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class CustomerService {
@@ -90,7 +86,7 @@ public class CustomerService {
                 if (searchResult.isEmpty()) {
                     throw new NotFoundException(Constants.ErrorCode.USER_WITH_EMAIL_NOT_FOUND, email);
                 }
-                return CustomerAdminVm.fromUserRepresentation(searchResult.get(0));
+                return CustomerAdminVm.fromUserRepresentation(searchResult.getFirst());
             } else {
                 throw new WrongEmailFormatException(Constants.ErrorCode.WRONG_EMAIL_FORMAT, email);
             }
