@@ -57,12 +57,24 @@ public class DeliveryService {
         shipmentProviders = Arrays.asList(fedexProvider, ghnProvider);
     }
 
+    /**
+     * Retrieves a list of available shipment providers.
+     *
+     * @return a list of {@link ShipmentProviderVm} representing the available shipment providers.
+     */
     public List<ShipmentProviderVm> getShipmentProviders() {
         return shipmentProviders.stream().map(shipmentProvider ->
             new ShipmentProviderVm(shipmentProvider.getId(), shipmentProvider.getName())
         ).toList();
     }
 
+    /**
+     * Retrieves the available shipment service types for a given shipment provider and recipient address.
+     *
+     * @param shipmentProviderId the ID of the shipment provider.
+     * @param recipientAddressId the ID of the recipient's address.
+     * @return a list of {@link ShipmentServiceTypeVm} representing the available shipment service types.
+     */
     public List<ShipmentServiceTypeVm> getShipmentServiceTypes(String shipmentProviderId,
                                                                String recipientAddressId) {
         ShipmentProvider shipmentProvider =
@@ -76,6 +88,12 @@ public class DeliveryService {
             .toList();
     }
 
+    /**
+     * Calculates the shipment fees for the given shipment provider and service type based on checkout items.
+     *
+     * @param calculateFeePostVm the view model containing the necessary data for fee calculation.
+     * @return a list of {@link ShipmentFeeVm} representing the calculated shipment fees for each checkout item.
+     */
     public List<ShipmentFeeVm> calculateShipmentFees(CalculateFeesPostVm calculateFeePostVm) {
         ShipmentProvider shipmentProvider =
             findShipmentProviderById(calculateFeePostVm.shipmentProviderId())
