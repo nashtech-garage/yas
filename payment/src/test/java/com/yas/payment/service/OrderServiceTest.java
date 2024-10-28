@@ -17,6 +17,9 @@ import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -66,6 +69,7 @@ class OrderServiceTest {
         when(restClient.put()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(url)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(any(CheckoutStatusVm.class))).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(Long.class)).thenReturn(1L);
 
@@ -77,6 +81,7 @@ class OrderServiceTest {
 
     @Test
     void testUpdateOrderStatus_whenNormalCase_returnPaymentOrderStatusVm() {
+
 
         PaymentOrderStatusVm statusVm = PaymentOrderStatusVm.builder()
             .orderId(123456L)
@@ -95,6 +100,7 @@ class OrderServiceTest {
         when(restClient.put()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(url)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(statusVm)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(PaymentOrderStatusVm.class)).thenReturn(statusVm);
 

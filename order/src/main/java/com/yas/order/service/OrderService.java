@@ -214,6 +214,11 @@ public class OrderService {
         return orders.stream().map(OrderGetVm::fromModel).toList();
     }
 
+    public OrderGetVm findOrderVmByCheckoutId(String checkoutId) {
+        Order order = this.findOrderByCheckoutId(checkoutId);
+        return OrderGetVm.fromModel(order);
+    }
+
     public Order findOrderByCheckoutId(String checkoutId) {
         return this.orderRepository.findByCheckoutId(checkoutId)
                 .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, "of checkoutId " + checkoutId));

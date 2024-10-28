@@ -66,6 +66,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderWithItemsById(id));
     }
 
+    @GetMapping("/storefront/orders/checkout/{id}")
+    public ResponseEntity<OrderGetVm> getOrderWithCheckoutId(@PathVariable String id) {
+        return ResponseEntity.ok(orderService.findOrderVmByCheckoutId(id));
+    }
+
     @GetMapping("/backoffice/orders")
     public ResponseEntity<OrderListVm> getOrders(
             @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)

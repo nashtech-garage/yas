@@ -60,10 +60,10 @@ public class PaypalService {
             HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
             Order order = orderHttpResponse.result();
             String redirectUrl = order.links().stream()
-                    .filter(link -> "approve".equals(link.rel()))
-                    .findFirst()
-                    .orElseThrow(NoSuchElementException::new)
-                    .href();
+                .filter(link -> "approve".equals(link.rel()))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new)
+                .href();
 
             CheckoutIdHelper.setCheckoutId(createPaymentRequest.checkoutId());
             return new PaypalCreatePaymentResponse("success", order.id(), redirectUrl);
@@ -86,7 +86,6 @@ public class PaypalService {
                 String paypalFee = capture.sellerReceivableBreakdown().paypalFee().value();
                 BigDecimal paymentFee = new BigDecimal(paypalFee);
                 BigDecimal amount = new BigDecimal(capture.amount().value());
-
 
                 PaypalCapturePaymentResponse capturedPayment = PaypalCapturePaymentResponse.builder()
                         .paymentFee(paymentFee)

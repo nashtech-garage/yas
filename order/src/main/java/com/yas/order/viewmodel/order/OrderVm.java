@@ -28,12 +28,13 @@ public record OrderVm(
         DeliveryMethod deliveryMethod,
         DeliveryStatus deliveryStatus,
         PaymentStatus paymentStatus,
-        Set<OrderItemVm> orderItemVms
+        Set<OrderItemVm> orderItemVms,
+        String checkoutId
 
 ) {
     public static OrderVm fromModel(Order order) {
         Set<OrderItemVm> orderItemVms = order.getOrderItems().stream().map(
-                        item -> OrderItemVm.fromModel(item))
+                OrderItemVm::fromModel)
                 .collect(Collectors.toSet());
 
         return OrderVm.builder()
@@ -53,6 +54,7 @@ public record OrderVm(
                 .deliveryStatus(order.getDeliveryStatus())
                 .paymentStatus(order.getPaymentStatus())
                 .orderItemVms(orderItemVms)
+                .checkoutId(order.getCheckoutId())
                 .build();
     }
 }

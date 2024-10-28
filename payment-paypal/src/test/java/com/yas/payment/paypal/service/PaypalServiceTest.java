@@ -4,13 +4,9 @@ import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
 import com.yas.payment.paypal.model.CheckoutIdHelper;
-import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentRequest;
-import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentResponse;
-import com.yas.payment.paypal.viewmodel.PaypalCreatePaymentRequest;
-import com.yas.payment.paypal.viewmodel.PaypalCreatePaymentResponse;
+import com.yas.payment.paypal.viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,6 +25,8 @@ class PaypalServiceTest {
     private PayPalHttpClient payPalHttpClient;
     private PayPalHttpClientInitializer payPalHttpClientInitializer;
     private String paymentSettings = "{\"clientId\": \"abc\", \"clientSecret\": \"123\", \"mode\": \"sandbox\"}";
+
+    private OrderService orderService;
 
     @BeforeEach
     void setUp() {
@@ -129,8 +127,11 @@ class PaypalServiceTest {
             .status("COMPLETED")
             .purchaseUnits(purchaseUnitList);
 
+        OrderVm orderVmRes = new OrderVm(12L);
+
         HttpResponse mockResponse = mock(HttpResponse.class);
         when(payPalHttpClient.execute(any(OrdersCaptureRequest.class))).thenReturn(mockResponse);
+        when(orderService.getOrderByCheckoutId(any(String.class))).thenReturn(orderVmRes);
         when(mockResponse.result()).thenReturn(mockOrder);
 
         String token = "test-token-1";

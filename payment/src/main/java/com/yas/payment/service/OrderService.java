@@ -47,20 +47,20 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handlePaymentOrderStatusFallback")
     public PaymentOrderStatusVm updateOrderStatus(PaymentOrderStatusVm orderPaymentStatusVm) {
-        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-                .getTokenValue();
+        final String jwt =
+            ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(serviceUrlConfig.order())
-                .path("/storefront/orders/status")
-                .buildAndExpand()
-                .toUri();
+            .fromHttpUrl(serviceUrlConfig.order())
+            .path("/storefront/orders/status")
+            .buildAndExpand()
+            .toUri();
 
         return restClient.put()
-                .uri(url)
-                .headers(h -> h.setBearerAuth(jwt))
-                .body(orderPaymentStatusVm)
-                .retrieve()
-                .body(PaymentOrderStatusVm.class);
+            .uri(url)
+            .headers(h -> h.setBearerAuth(jwt))
+            .body(orderPaymentStatusVm)
+            .retrieve()
+            .body(PaymentOrderStatusVm.class);
     }
 
     protected Long handleLongFallback(Throwable throwable) throws Throwable {
