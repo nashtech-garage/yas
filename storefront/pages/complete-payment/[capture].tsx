@@ -8,6 +8,7 @@ import SpinnerComponent from '@/common/components/SpinnerComponent';
 import Link from 'next/link';
 import { CapturePaymentPaypalResponse } from '@/modules/paymentPaypal/models/CapturePaymentPaypalResponse';
 import { PaymentPaypalFailureMessage } from '@/modules/paymentPaypal/models/PaymentPaypalFailureMesasge';
+import { CapturePaymentRequest } from '@/modules/paymentPaypal/models/CapturePaymentRequest';
 
 const crumb: BreadcrumbModel[] = [
   {
@@ -22,7 +23,7 @@ const crumb: BreadcrumbModel[] = [
 
 const CompletePayment = () => {
   const router = useRouter();
-  const { token } = router.query;
+  const { token , paymentMethod } = router.query;
   const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
   const [isAlreadyPaid, setIsAlreadyPaid] = useState(false);
   const [isCancelPayment, setIsCancelPayment] = useState(false);
@@ -30,13 +31,17 @@ const CompletePayment = () => {
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   useEffect(() => {
     if (token) {
-      fetchCapturePaymentPaypal(token as string).then();
+      const capturePaymentRequest : CapturePaymentRequest = {
+        token: token as string,
+        paymentMethod: paymentMethod as string,
+      };
+      fetchCapturePaymentPaypal(capturePaymentRequest).then();
     }
   }, [router.query]);
 
-  const fetchCapturePaymentPaypal = async (token: string) => {
+  const fetchCapturePaymentPaypal = async (capturePaymentRequest: CapturePaymentRequest) => {
     setIsShowSpinner(true);
-    const res = await capturePaymentPaypal(token);
+    const res = await capturePaymentPaypal(capturePaymentRequest);
     if (res.paymentStatus == 'COMPLETED') {
       setIsPaymentSuccess(true);
     } else {

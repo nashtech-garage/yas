@@ -2,11 +2,17 @@ package com.yas.payment.service;
 
 import com.yas.payment.model.Payment;
 import com.yas.payment.repository.PaymentRepository;
-import com.yas.payment.viewmodel.CapturedPayment;
-import com.yas.payment.viewmodel.PaymentOrderStatusVm;
+import com.yas.payment.service.provider.handler.PaymentHandler;
+import com.yas.payment.viewmodel.*;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -14,21 +20,47 @@ import org.springframework.stereotype.Service;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderService orderService;
+    private final Map<String, PaymentHandler> providers = new HashMap<>();
 
+    @Autowired
+    private List<PaymentHandler> paymentHandlers;
 
-    public PaymentOrderStatusVm capturePayment(CapturedPayment capturedPayment) {
-        Payment payment = createPayment(capturedPayment);
-        Long orderId = orderService.updateCheckoutStatus(capturedPayment);
+    @PostConstruct
+    public void initializeProviders() {
+        for (PaymentHandler handler : paymentHandlers) {
+            providers.put(handler.getProviderId().toLowerCase(), handler);
+        }
+    }
+
+    private PaymentHandler getPaymentHandler(String providerName) {
+        PaymentHandler handler = providers.get(providerName.toLowerCase());
+        if (handler == null) {
+            throw new IllegalArgumentException("No payment handler found for provider: " + providerName);
+        }
+        return handler;
+    }
+
+    public CreatePaymentResponse createPayment(CreatePaymentRequest createPaymentRequest) {
+        PaymentHandler paymentHandler = getPaymentHandler(createPaymentRequest.paymentMethod());
+        return paymentHandler.createPayment(createPaymentRequest);
+    }
+
+    public CapturePaymentResponse capturePayment(CapturePaymentRequest capturePaymentRequest) {
+        PaymentHandler paymentHandler = getPaymentHandler(capturePaymentRequest.paymentMethod());
+        CapturePaymentResponse capturePaymentResponse = paymentHandler.capturePayment(capturePaymentRequest);
+        Payment payment = createPayment(capturePaymentResponse);
+        Long orderId = orderService.updateCheckoutStatus(capturePaymentResponse);
         PaymentOrderStatusVm orderPaymentStatusVm =
                 PaymentOrderStatusVm.builder()
                         .paymentId(payment.getId())
                         .orderId(orderId)
                         .paymentStatus(payment.getPaymentStatus().name())
                         .build();
-        return orderService.updateOrderStatus(orderPaymentStatusVm);
+        orderService.updateOrderStatus(orderPaymentStatusVm);
+        return capturePaymentResponse;
     }
 
-    public Payment createPayment(CapturedPayment completedPayment) {
+    private Payment createPayment(CapturePaymentResponse completedPayment) {
         Payment payment = Payment.builder()
                 .checkoutId(completedPayment.checkoutId())
                 .orderId(completedPayment.orderId())

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.yas.payment.config.ServiceUrlConfig;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
-import com.yas.payment.viewmodel.CapturedPayment;
+import com.yas.payment.viewmodel.CapturePaymentResponse;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import java.math.BigDecimal;
@@ -45,7 +45,7 @@ class OrderServiceTest {
     @Test
     void testUpdateCheckoutStatus_whenNormalCase_returnLong() {
 
-        CapturedPayment payment = CapturedPayment.builder()
+        CapturePaymentResponse payment = CapturePaymentResponse.builder()
             .orderId(12345L)
             .checkoutId("checkout-1234")
             .amount(new BigDecimal("99.99"))
