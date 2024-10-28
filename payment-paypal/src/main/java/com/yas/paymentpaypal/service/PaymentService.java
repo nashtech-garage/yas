@@ -7,6 +7,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,15 +24,18 @@ public class PaymentService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void capturePayment(CapturedPaymentVm completedPayment) {
+        final String jwt =
+            ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(serviceUrlConfig.payment())
-                .path("/storefront/payments/capture")
-                .buildAndExpand()
-                .toUri();
+            .fromHttpUrl(serviceUrlConfig.payment())
+            .path("/storefront/payments/capture")
+            .buildAndExpand()
+            .toUri();
 
         restClient.post()
-                .uri(url)
-                .body(completedPayment)
-                .retrieve();
+            .uri(url)
+            .headers(h -> h.setBearerAuth(jwt))
+            .body(completedPayment)
+            .retrieve();
     }
 }
