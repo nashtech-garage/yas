@@ -43,7 +43,7 @@ public class OrderServiceTest {
 
         final URI url = UriComponentsBuilder
             .fromHttpUrl(serviceUrlConfig.order())
-            .path("/backoffice/orders/checkout/" + checkoutId)
+            .path("/storefront/orders/checkout/" + checkoutId)
             .buildAndExpand()
             .toUri();
 

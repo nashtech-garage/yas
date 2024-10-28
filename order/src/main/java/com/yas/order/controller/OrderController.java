@@ -66,7 +66,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderWithItemsById(id));
     }
 
-    @GetMapping("/backoffice/orders/checkout/{id}")
+    @GetMapping("/storefront/orders/checkout/{id}")
     public ResponseEntity<OrderGetVm> getOrderWithCheckoutId(@PathVariable String id) {
         return ResponseEntity.ok(orderService.findOrderVmByCheckoutId(id));
     }
