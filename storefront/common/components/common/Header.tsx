@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
-
 import { data_menu_top_no_login } from '@/asset/data/data_header_client';
 import { SEARCH_URL } from '@/common/constants/Common';
 import { useCartContext } from '@/context/CartContext';
