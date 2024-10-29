@@ -106,7 +106,7 @@ class CheckoutControllerTest {
 
         doNothing().when(checkoutService).updateCheckoutPaymentMethod(id, request);
 
-        mockMvc.perform(put("/storefront/checkouts/{id}/payment", id)
+        mockMvc.perform(put("/storefront/checkouts/{id}/payment-method", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk());
