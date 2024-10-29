@@ -90,13 +90,13 @@ class CheckoutControllerTest {
     }
 
     @Test
-    void testGetOrderWithItemsById_whenRequestIsValid_thenReturnCheckoutVm() throws Exception {
+    void testGetPendingCheckoutDetailsById_whenRequestIsValid_thenReturnCheckoutVm() throws Exception {
 
         String id = "123";
         CheckoutVm response = getCheckoutVm();
         when(checkoutService.getCheckoutPendingStateWithItemsById(id)).thenReturn(response);
 
-        mockMvc.perform(get("/storefront/checkouts/{id}", id)
+        mockMvc.perform(get("/storefront/checkouts/pending/{id}", id)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));

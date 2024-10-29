@@ -1,12 +1,16 @@
 package com.yas.payment.service;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.payment.model.Payment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.repository.PaymentRepository;
+import com.yas.payment.utils.Constants;
 import com.yas.payment.viewmodel.CapturedPayment;
 import com.yas.payment.viewmodel.CheckoutPaymentVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -70,4 +74,21 @@ public class PaymentService {
 
         return createdPayment.getId();
     }
+
+    public Payment findPaymentById(Long id) {
+
+        return paymentRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new NotFoundException(Constants.ErrorCode.PAYMENT_NOT_FOUND, id));
+    }
+
+    public void updatePayment(Payment payment) {
+
+        if (Objects.isNull(payment.getId())) {
+            throw new BadRequestException(Constants.Message.PAYMENT_ID_REQUIRED);
+        }
+        paymentRepository.save(payment);
+    }
+
 }

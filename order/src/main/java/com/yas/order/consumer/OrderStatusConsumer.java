@@ -18,7 +18,6 @@ import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.service.PaymentService;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.payment.CheckoutPaymentVm;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +65,7 @@ public class OrderStatusConsumer {
 
     private void handleAfterJson(JsonObject after) {
 
-        String id = getJsonValueOrThrow(after, Constants.Column.CHECKOUT_ID_COLUMN,
+        String id = getJsonValueOrThrow(after, Constants.Column.ID_COLUMN,
             Constants.ErrorCode.ID_NOT_EXISTED);
         String status = getJsonValueOrThrow(after, Constants.Column.CHECKOUT_STATUS_COLUMN,
             Constants.ErrorCode.STATUS_NOT_EXISTED, id);
@@ -134,7 +133,7 @@ public class OrderStatusConsumer {
         return paymentId;
     }
 
-    private ObjectNode updateAttributesWithPayment(String attributes, Long paymentId) throws IOException {
+    private ObjectNode updateAttributesWithPayment(String attributes, Long paymentId) {
 
         ObjectNode attributesNode = getAttributesNode(objectMapper, attributes);
         attributesNode.put(Constants.Column.CHECKOUT_ATTRIBUTES_PAYMENT_ID_FIELD, paymentId);

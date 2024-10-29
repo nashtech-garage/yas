@@ -47,7 +47,6 @@ public class Payment extends AbstractAuditEntity {
 
     private String failureMessage;
 
-    @SuppressWarnings("unused")
     private String paymentProviderCheckoutId;
 
 }

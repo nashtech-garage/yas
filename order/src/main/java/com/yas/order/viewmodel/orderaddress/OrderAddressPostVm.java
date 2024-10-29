@@ -6,6 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record OrderAddressPostVm(
+        Long id,
         @NotBlank String contactName,
         @NotBlank String phone,
         @NotBlank String addressLine1,

@@ -13,6 +13,8 @@ import com.paypal.orders.PurchaseUnitRequest;
 import com.yas.paymentpaypal.model.CheckoutIdHelper;
 import com.yas.paymentpaypal.utils.Constants;
 import com.yas.paymentpaypal.viewmodel.CapturedPaymentVm;
+import com.yas.paymentpaypal.viewmodel.PaymentPaypalRequest;
+import com.yas.paymentpaypal.viewmodel.PaymentPaypalResponse;
 import com.yas.paymentpaypal.viewmodel.PaypalRequestPayment;
 import com.yas.paymentpaypal.viewmodel.RequestPayment;
 import java.io.IOException;
@@ -38,49 +40,37 @@ public class PaypalService {
     private String cancelUrl;
 
     public PaypalRequestPayment createPayment(RequestPayment requestPayment) {
+
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
 
         // Workaround to not exceed limit amount of a transaction
-        BigDecimal totalPrice = requestPayment.totalPrice();
-        if (totalPrice.compareTo(maxPay) > 0) {
-            totalPrice = maxPay;
-        }
+        BigDecimal totalPrice = adjustTotalPrice(requestPayment.totalPrice());
 
         AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown().currencyCode("USD")
             .value(totalPrice.toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
-        ApplicationContext applicationContext = new ApplicationContext()
-            .returnUrl(returnUrl)
-            .cancelUrl(cancelUrl)
-            .brandName(Constants.Yas.BRAND_NAME)
-            .landingPage("BILLING")
-            .userAction("PAY_NOW")
-            .shippingPreference("NO_SHIPPING");
+
+        ApplicationContext applicationContext = buildApplicationContext();
 
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 
         try {
             HttpResponse<Order> orderHttpResponse = payPalHttpClient.execute(ordersCreateRequest);
-            Order order = orderHttpResponse.result();
-            String redirectUrl = order.links().stream()
-                .filter(link -> "approve".equals(link.rel()))
-                .findFirst()
-                .orElseThrow(NoSuchElementException::new)
-                .href();
+            String redirectUrl = getRedirectUrl(orderHttpResponse);
 
             CheckoutIdHelper.setCheckoutId(requestPayment.checkoutId());
-            return new PaypalRequestPayment("success", order.id(), redirectUrl);
+            return new PaypalRequestPayment("success", orderHttpResponse.result().id(), redirectUrl);
         } catch (IOException e) {
             log.error(e.getMessage());
             return new PaypalRequestPayment("Error" + e.getMessage(), null, null);
         }
     }
 
-
     public CapturedPaymentVm capturePayment(String token) {
+
         OrdersCaptureRequest ordersCaptureRequest = new OrdersCaptureRequest(token);
         try {
             HttpResponse<Order> httpResponse = payPalHttpClient.execute(ordersCaptureRequest);
@@ -112,5 +102,69 @@ public class PaypalService {
             return CapturedPaymentVm.builder().failureMessage(e.getMessage()).build();
         }
         return CapturedPaymentVm.builder().failureMessage("Something Wrong!").build();
+    }
+
+    public PaymentPaypalResponse createOrderOnPaypal(PaymentPaypalRequest paymentPaypalRequest) {
+
+        try {
+            OrderRequest orderRequest = buildOrderRequest(paymentPaypalRequest);
+            OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
+
+            HttpResponse<Order> orderResponse = executeOrderRequest(ordersCreateRequest);
+            String redirectUrl = getRedirectUrl(orderResponse);
+
+            CheckoutIdHelper.setCheckoutId(paymentPaypalRequest.checkoutId());
+            return new PaymentPaypalResponse("success", orderResponse.result().id(), redirectUrl);
+
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            return new PaymentPaypalResponse("Error: " + e.getMessage(), null, null);
+        }
+    }
+
+    private OrderRequest buildOrderRequest(PaymentPaypalRequest paymentPaypalRequest) {
+
+        BigDecimal totalPrice = adjustTotalPrice(paymentPaypalRequest.totalPrice());
+        AmountWithBreakdown amountWithBreakdown = new AmountWithBreakdown()
+                .currencyCode("USD")
+                .value(totalPrice.toString());
+
+        PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest()
+                .amountWithBreakdown(amountWithBreakdown);
+
+        ApplicationContext applicationContext = buildApplicationContext();
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.checkoutPaymentIntent("CAPTURE");
+        orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
+        orderRequest.applicationContext(applicationContext);
+
+        return orderRequest;
+    }
+
+    private BigDecimal adjustTotalPrice(BigDecimal totalPrice) {
+        return (totalPrice.compareTo(maxPay) > 0) ? maxPay : totalPrice;
+    }
+
+    private ApplicationContext buildApplicationContext() {
+        return new ApplicationContext()
+                .cancelUrl(cancelUrl)
+                .returnUrl(returnUrl)
+                .brandName(Constants.Yas.BRAND_NAME)
+                .userAction("PAY_NOW")
+                .landingPage("BILLING")
+                .shippingPreference("NO_SHIPPING");
+    }
+
+    private HttpResponse<Order> executeOrderRequest(OrdersCreateRequest ordersCreateRequest) throws IOException {
+        return payPalHttpClient.execute(ordersCreateRequest);
+    }
+
+    private String getRedirectUrl(HttpResponse<Order> orderResponse) {
+        return orderResponse.result().links().stream()
+                .filter(link -> "approve".equals(link.rel()))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new)
+                .href();
     }
 }

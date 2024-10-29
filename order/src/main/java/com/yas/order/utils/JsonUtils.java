@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.yas.commonlibrary.exception.BadRequestException;
-import java.io.IOException;
 import java.util.Optional;
 
 public class JsonUtils {
@@ -23,11 +22,15 @@ public class JsonUtils {
         }
     }
 
-    public static ObjectNode getAttributesNode(ObjectMapper objectMapper, String attributes) throws IOException {
-        if (attributes == null || attributes.isBlank()) {
-            return objectMapper.createObjectNode();
-        } else {
-            return (ObjectNode) objectMapper.readTree(attributes);
+    public static ObjectNode getAttributesNode(ObjectMapper objectMapper, String attributes) {
+        try {
+            if (attributes == null || attributes.isBlank()) {
+                return objectMapper.createObjectNode();
+            } else {
+                return (ObjectNode) objectMapper.readTree(attributes);
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -48,5 +51,16 @@ public class JsonUtils {
             .filter(jsonElement -> !jsonElement.isJsonNull())
             .map(JsonElement::getAsString)
             .orElseThrow(() -> new BadRequestException(errorCode, errorParams));
+    }
+
+    public static String getJsonValueOrNull(
+        JsonObject jsonObject,
+        String columnName
+    ) {
+        JsonElement jsonElement = jsonObject.get(columnName);
+        if (jsonElement != null && !jsonElement.isJsonNull()) {
+            return jsonElement.getAsString();
+        }
+        return null;
     }
 }

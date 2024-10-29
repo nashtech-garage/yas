@@ -1,7 +1,7 @@
 package com.yas.order.utils;
 
 public final class Constants {
-    public final class ErrorCode {
+    public static final class ErrorCode {
 
         private ErrorCode() {
             throw new UnsupportedOperationException();
@@ -16,18 +16,23 @@ public final class Constants {
         public static final String ID_NOT_EXISTED = "ID_NOT_EXISTED";
         public static final String STATUS_NOT_EXISTED = "STATUS_NOT_EXISTED";
         public static final String PROGRESS_NOT_EXISTED = "PROGRESS_NOT_EXISTED";
+        public static final String CHECKOUT_ID_NOT_EXISTED = "CHECKOUT_ID_NOT_EXISTED";
     }
 
-    public final class Column {
+    public static final class Column {
 
         private Column() {
             throw new UnsupportedOperationException();
         }
 
         // Column name of Checkout table
-        public static final String CHECKOUT_ID_COLUMN = "id";
+        public static final String ID_COLUMN = "id";
+        public static final String CHECKOUT_ID_COLUMN = "checkout_id";
         public static final String CHECKOUT_STATUS_COLUMN = "status";
         public static final String CHECKOUT_PROGRESS_COLUMN = "progress";
         public static final String CHECKOUT_ATTRIBUTES_PAYMENT_ID_FIELD = "payment_id";
+        public static final String CHECKOUT_ATTRIBUTES_PAYMENT_PROVIDER_CHECKOUT_ID_FIELD
+            = "payment_provider_checkout_id";
+
     }
 }
