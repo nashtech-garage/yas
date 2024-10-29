@@ -14,4 +14,5 @@ public class ShipmentServiceType {
     private String name;
     private double cost;
     private double tax;
+    private String expectedDeliveryTime;
 }

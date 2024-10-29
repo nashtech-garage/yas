@@ -4,9 +4,12 @@ import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.delivery.model.ShipmentProvider;
 import com.yas.delivery.model.ShipmentServiceType;
 import com.yas.delivery.viewmodel.CalculateFeesPostVm;
+import com.yas.delivery.viewmodel.CheckoutItemVm;
 import com.yas.delivery.viewmodel.ShipmentFeeVm;
 import com.yas.delivery.viewmodel.ShipmentProviderVm;
-import com.yas.delivery.viewmodel.ShipmentServiceTypeVm;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +20,16 @@ public class DeliveryService {
     private static final List<ShipmentProvider> shipmentProviders;
 
     static {
+        // Initialize shipment providers and service types
+        ShipmentProvider fedexProvider = buildFedexProvider();
+        ShipmentProvider upsProvider = buildUPSProvider();
+
+        shipmentProviders = Arrays.asList(fedexProvider, upsProvider);
+    }
+
+    private static ShipmentProvider buildFedexProvider() {
+        ZonedDateTime now = ZonedDateTime.now();
+
         ShipmentProvider fedexProvider = new ShipmentProvider();
         fedexProvider.setId("FEDEX");
         fedexProvider.setName("Fedex");
@@ -26,35 +39,44 @@ public class DeliveryService {
                 .name("FedEx International Priority")
                 .cost(20.0)
                 .tax(2.0)
+                .expectedDeliveryTime(now.plusDays(1).format(DateTimeFormatter.ISO_INSTANT))
                 .build(),
             ShipmentServiceType.builder()
                 .id("INTERNATIONAL_ECONOMY")
                 .name("FedEx International Economy")
                 .cost(30.0)
                 .tax(3.0)
+                .expectedDeliveryTime(now.plusDays(3).format(DateTimeFormatter.ISO_INSTANT))
                 .build()
         );
         fedexProvider.setServiceTypes(fedexServiceTypes);
+        return fedexProvider;
+    }
 
-        ShipmentProvider ghnProvider = new ShipmentProvider();
-        ghnProvider.setId("GHN");
-        ghnProvider.setName("Giao Hang Nhanh");
-        List<ShipmentServiceType> ghnServiceTypes = Arrays.asList(
+    private static ShipmentProvider buildUPSProvider() {
+        ZonedDateTime now = ZonedDateTime.now();
+
+        ShipmentProvider upsProvider = new ShipmentProvider();
+        upsProvider.setId("UPS");
+        upsProvider.setName("UPS");
+        List<ShipmentServiceType> upsServiceTypes = Arrays.asList(
             ShipmentServiceType.builder()
-                .id("53322")
-                .name("Hang nhe")
+                .id("07")
+                .name("UPS Worldwide Express")
                 .cost(10.0)
                 .tax(1.0)
+                .expectedDeliveryTime(now.plusDays(5).format(DateTimeFormatter.ISO_INSTANT))
                 .build(),
             ShipmentServiceType.builder()
-                .id("100039")
-                .name("Hang nang")
+                .id("11")
+                .name("UPS Standard")
                 .cost(15.0)
-                .tax(1.5).build()
+                .expectedDeliveryTime(now.plusDays(7).format(DateTimeFormatter.ISO_INSTANT))
+                .tax(1.5)
+                .build()
         );
-        ghnProvider.setServiceTypes(ghnServiceTypes);
-
-        shipmentProviders = Arrays.asList(fedexProvider, ghnProvider);
+        upsProvider.setServiceTypes(upsServiceTypes);
+        return upsProvider;
     }
 
     /**
@@ -69,27 +91,7 @@ public class DeliveryService {
     }
 
     /**
-     * Retrieves the available shipment service types for a given shipment provider and recipient address.
-     *
-     * @param shipmentProviderId the ID of the shipment provider.
-     * @param recipientAddressId the ID of the recipient's address.
-     * @return a list of {@link ShipmentServiceTypeVm} representing the available shipment service types.
-     */
-    public List<ShipmentServiceTypeVm> getShipmentServiceTypes(String shipmentProviderId,
-                                                               String recipientAddressId) {
-        ShipmentProvider shipmentProvider =
-            findShipmentProviderById(shipmentProviderId)
-                .orElseThrow(() -> new NotFoundException("Invalid shipment provider"));
-
-        return shipmentProvider.getServiceTypes()
-            .stream()
-            .map(serviceType ->
-                new ShipmentServiceTypeVm(serviceType.getId(), serviceType.getName()))
-            .toList();
-    }
-
-    /**
-     * Calculates the shipment fees for the given shipment provider and service type based on checkout items.
+     * Calculates the shipment fees for the given shipment provider based on checkout items.
      *
      * @param calculateFeePostVm the view model containing the necessary data for fee calculation.
      * @return a list of {@link ShipmentFeeVm} representing the calculated shipment fees for each checkout item.
@@ -99,18 +101,33 @@ public class DeliveryService {
             findShipmentProviderById(calculateFeePostVm.shipmentProviderId())
                 .orElseThrow(() -> new NotFoundException("Invalid shipment provider"));
 
-        ShipmentServiceType shipmentServiceType = shipmentProvider.getServiceTypes()
-            .stream()
-            .filter(serviceType -> serviceType.getId().equals(calculateFeePostVm.shipmentServiceTypeId()))
-            .findFirst()
-            .orElseThrow(() -> new NotFoundException("Invalid shipment service type"));
+        List<ShipmentFeeVm> shipmentFees = new ArrayList<>();
 
-        return calculateFeePostVm
-            .checkoutItems()
-            .stream()
-            .map(checkoutItemVm ->
-                new ShipmentFeeVm(checkoutItemVm.id(), shipmentServiceType.getCost(), shipmentServiceType.getTax()))
-            .toList();
+        for (CheckoutItemVm checkoutItem : calculateFeePostVm.checkoutItems()) {
+            shipmentFees.addAll(calculateShipmentFeesForCheckoutItem(shipmentProvider, checkoutItem));
+        }
+        return shipmentFees;
+    }
+
+    private List<ShipmentFeeVm> calculateShipmentFeesForCheckoutItem(ShipmentProvider shipmentProvider,
+                                                                     CheckoutItemVm checkoutItem) {
+
+        // To make the response more dynamic, we calculate the shipment fees by multiplying the cost and tax with
+        // the quantity of the checkout item.
+        // The actual calculation should be based on the actual business logic.
+        return shipmentProvider.getServiceTypes().stream()
+            .map(serviceType ->
+                ShipmentFeeVm.builder()
+                    .checkoutItemId(checkoutItem.id())
+                    .shipmentProviderId(shipmentProvider.getId())
+                    .shipmentProviderName(shipmentProvider.getName())
+                    .shipmentServiceTypeId(serviceType.getId())
+                    .shipmentServiceTypeName(serviceType.getName())
+                    .shipmentCost(serviceType.getCost() * checkoutItem.quantity())
+                    .shipmentTax(serviceType.getTax() * checkoutItem.quantity())
+                    .expectedDeliveryTime(serviceType.getExpectedDeliveryTime())
+                    .build()
+            ).toList();
     }
 
     private Optional<ShipmentProvider> findShipmentProviderById(String shipmentProviderId) {
