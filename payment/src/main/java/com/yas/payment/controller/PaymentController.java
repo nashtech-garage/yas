@@ -1,10 +1,10 @@
 package com.yas.payment.controller;
 
 import com.yas.payment.service.PaymentService;
-import com.yas.payment.viewmodel.CapturePaymentRequest;
-import com.yas.payment.viewmodel.CapturePaymentResponse;
-import com.yas.payment.viewmodel.InitPaymentRequest;
-import com.yas.payment.viewmodel.InitPaymentResponse;
+import com.yas.payment.viewmodel.CapturePaymentRequestVm;
+import com.yas.payment.viewmodel.CapturePaymentResponseVm;
+import com.yas.payment.viewmodel.InitPaymentRequestVm;
+import com.yas.payment.viewmodel.InitPaymentResponseVm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +20,13 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping(value = "/init")
-    public InitPaymentResponse initPayment(@Valid @RequestBody InitPaymentRequest initPaymentRequest) {
-        return paymentService.initPayment(initPaymentRequest);
+    public InitPaymentResponseVm initPayment(@Valid @RequestBody InitPaymentRequestVm initPaymentRequestVm) {
+        return paymentService.initPayment(initPaymentRequestVm);
     }
 
     @PostMapping(value = "/capture")
-    public CapturePaymentResponse capturePayment(@Valid @RequestBody CapturePaymentRequest capturePaymentRequest) {
-        return paymentService.capturePayment(capturePaymentRequest);
+    public CapturePaymentResponseVm capturePayment(@Valid @RequestBody CapturePaymentRequestVm capturePaymentRequestVM) {
+        return paymentService.capturePayment(capturePaymentRequestVM);
     }
 
     @GetMapping(value = "/cancel")

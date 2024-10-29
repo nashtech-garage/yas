@@ -6,9 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
+import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
-import com.yas.payment.viewmodel.CapturePaymentResponse;
+import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -35,7 +36,7 @@ class OrderServiceIT {
 
     @Test
     void test_updateCheckoutStatus_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
-        CapturePaymentResponse capturePaymentResponse = CapturePaymentResponse.builder()
+        CapturedPayment capturedPayment = CapturedPayment.builder()
             .orderId(2L)
             .checkoutId("checkoutId")
             .amount(BigDecimal.valueOf(100.0))
@@ -46,7 +47,7 @@ class OrderServiceIT {
             .failureMessage(null)
             .build();
         circuitBreakerRegistry.circuitBreaker(CIRCUIT_BREAKER_NAME).transitionToOpenState();
-        assertThrows(CallNotPermittedException.class, () -> orderService.updateCheckoutStatus(capturePaymentResponse));
+        assertThrows(CallNotPermittedException.class, () -> orderService.updateCheckoutStatus(capturedPayment));
         verify(orderService, atLeastOnce()).handleLongFallback(any());
     }
 

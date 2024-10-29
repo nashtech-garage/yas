@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import lombok.Builder;
 
 @Builder
-public record CapturePaymentResponse(
+public record CapturePaymentResponseVm(
         Long orderId,
         String checkoutId,
         BigDecimal amount,

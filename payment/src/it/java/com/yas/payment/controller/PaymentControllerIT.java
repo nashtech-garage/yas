@@ -2,10 +2,11 @@ package com.yas.payment.controller;
 
 import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
+import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.Payment;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.OrderService;
-import com.yas.payment.viewmodel.CapturePaymentResponse;
+import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import io.restassured.RestAssured;
 import org.instancio.Instancio;
@@ -34,14 +35,14 @@ class PaymentControllerIT extends AbstractControllerIT {
     OrderService orderService;
 
     Payment payment;
-    CapturePaymentResponse capturePaymentResponse;
+    CapturedPayment capturedPayment;
 
     @BeforeEach
     void setUp() {
         payment = paymentRepository.save(Instancio.of(Payment.class).create());
-        capturePaymentResponse = Instancio.of(CapturePaymentResponse.class).create();
+        capturedPayment = Instancio.of(CapturedPayment.class).create();
 
-        Mockito.when(orderService.updateCheckoutStatus(Mockito.any(CapturePaymentResponse.class)))
+        Mockito.when(orderService.updateCheckoutStatus(Mockito.any(CapturedPayment.class)))
             .thenAnswer(invocation -> Mockito.anyLong());
 
         Mockito.when(orderService.updateOrderStatus(Mockito.any(PaymentOrderStatusVm.class)))
@@ -56,7 +57,7 @@ class PaymentControllerIT extends AbstractControllerIT {
     @Test
     void test_capturePayment_shouldReturnOrder() {
         RestAssured.given(getRequestSpecification())
-            .body(capturePaymentResponse)
+            .body(capturedPayment)
             .post(PAYMENT_CAPTURE_URL)
             .then()
             .statusCode(HttpStatus.OK.value())

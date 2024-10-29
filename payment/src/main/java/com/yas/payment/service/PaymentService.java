@@ -1,5 +1,7 @@
 package com.yas.payment.service;
 
+import com.yas.payment.model.CapturedPayment;
+import com.yas.payment.model.InitiatedPayment;
 import com.yas.payment.model.Payment;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.provider.handler.PaymentHandler;
@@ -23,7 +25,7 @@ public class PaymentService {
     private final Map<String, PaymentHandler> providers = new HashMap<>();
 
     @Autowired
-    private List<PaymentHandler> paymentHandlers;
+    private final List<PaymentHandler> paymentHandlers;
 
     @PostConstruct
     public void initializeProviders() {
@@ -40,36 +42,51 @@ public class PaymentService {
         return handler;
     }
 
-    public InitPaymentResponse initPayment(InitPaymentRequest initPaymentRequest) {
-        PaymentHandler paymentHandler = getPaymentHandler(initPaymentRequest.paymentMethod());
-        return paymentHandler.initPayment(initPaymentRequest);
+    public InitPaymentResponseVm initPayment(InitPaymentRequestVm initPaymentRequestVm) {
+        PaymentHandler paymentHandler = getPaymentHandler(initPaymentRequestVm.paymentMethod());
+        InitiatedPayment initiatedPayment = paymentHandler.initPayment(initPaymentRequestVm);
+        return InitPaymentResponseVm.builder()
+                .status(initiatedPayment.getStatus())
+                .paymentId(initiatedPayment.getPaymentId())
+                .redirectUrl(initiatedPayment.getRedirectUrl())
+                .build();
     }
 
-    public CapturePaymentResponse capturePayment(CapturePaymentRequest capturePaymentRequest) {
-        PaymentHandler paymentHandler = getPaymentHandler(capturePaymentRequest.paymentMethod());
-        CapturePaymentResponse capturePaymentResponse = paymentHandler.capturePayment(capturePaymentRequest);
-        Long orderId = orderService.updateCheckoutStatus(capturePaymentResponse);
-        Payment payment = createPayment(capturePaymentResponse, orderId);
+    public CapturePaymentResponseVm capturePayment(CapturePaymentRequestVm capturePaymentRequestVM) {
+        PaymentHandler paymentHandler = getPaymentHandler(capturePaymentRequestVM.paymentMethod());
+        CapturedPayment capturedPayment = paymentHandler.capturePayment(capturePaymentRequestVM);
+        Long orderId = orderService.updateCheckoutStatus(capturedPayment);
+        capturedPayment.setOrderId(orderId);
+        Payment payment = createPayment(capturedPayment);
         PaymentOrderStatusVm orderPaymentStatusVm =
                 PaymentOrderStatusVm.builder()
                         .paymentId(payment.getId())
-                        .orderId(orderId)
+                        .orderId(payment.getOrderId())
                         .paymentStatus(payment.getPaymentStatus().name())
                         .build();
         orderService.updateOrderStatus(orderPaymentStatusVm);
-        return capturePaymentResponse;
+        return CapturePaymentResponseVm.builder()
+                .orderId(capturedPayment.getOrderId())
+                .checkoutId(capturedPayment.getCheckoutId())
+                .amount(capturedPayment.getAmount())
+                .paymentFee(capturedPayment.getPaymentFee())
+                .gatewayTransactionId(capturedPayment.getGatewayTransactionId())
+                .paymentMethod(capturedPayment.getPaymentMethod())
+                .paymentStatus(capturedPayment.getPaymentStatus())
+                .failureMessage(capturedPayment.getFailureMessage())
+                .build();
     }
 
-    private Payment createPayment(CapturePaymentResponse completedPayment, Long orderId) {
+    private Payment createPayment(CapturedPayment capturedPayment) {
         Payment payment = Payment.builder()
-                .checkoutId(completedPayment.checkoutId())
-                .orderId(orderId)
-                .paymentStatus(completedPayment.paymentStatus())
-                .paymentFee(completedPayment.paymentFee())
-                .paymentMethod(completedPayment.paymentMethod())
-                .amount(completedPayment.amount())
-                .failureMessage(completedPayment.failureMessage())
-                .gatewayTransactionId(completedPayment.gatewayTransactionId())
+                .checkoutId(capturedPayment.getCheckoutId())
+                .orderId(capturedPayment.getOrderId())
+                .paymentStatus(capturedPayment.getPaymentStatus())
+                .paymentFee(capturedPayment.getPaymentFee())
+                .paymentMethod(capturedPayment.getPaymentMethod())
+                .amount(capturedPayment.getAmount())
+                .failureMessage(capturedPayment.getFailureMessage())
+                .gatewayTransactionId(capturedPayment.getGatewayTransactionId())
                 .build();
         return paymentRepository.save(payment);
     }

@@ -31,17 +31,17 @@ const CompletePayment = () => {
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   useEffect(() => {
     if (token) {
-      const capturePaymentRequest : CapturePaymentRequest = {
+      const capturePaymentRequestVM : CapturePaymentRequest = {
         token: token as string,
         paymentMethod: paymentMethod as string,
       };
-      fetchCapturePaymentPaypal(capturePaymentRequest).then();
+      fetchCapturePaymentPaypal(capturePaymentRequestVM).then();
     }
   }, [router.query]);
 
-  const fetchCapturePaymentPaypal = async (capturePaymentRequest: CapturePaymentRequest) => {
+  const fetchCapturePaymentPaypal = async (capturePaymentRequestVM: CapturePaymentRequest) => {
     setIsShowSpinner(true);
-    const res = await capturePaymentPaypal(capturePaymentRequest);
+    const res = await capturePaymentPaypal(capturePaymentRequestVM);
     if (res.paymentStatus == 'COMPLETED') {
       setIsPaymentSuccess(true);
     } else {

@@ -45,8 +45,9 @@ public class PaypalService {
             .value(totalPrice.toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
+        String paymentMethodReturnUrl = String.format("%s?paymentMethod=%s", returnUrl, createPaymentRequest.paymentMethod());
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl(returnUrl + "?paymentMethod=" + createPaymentRequest.paymentMethod())
+                .returnUrl(paymentMethodReturnUrl)
                 .cancelUrl(cancelUrl)
                 .brandName(Constants.Yas.BRAND_NAME)
                 .landingPage("BILLING")
@@ -72,7 +73,6 @@ public class PaypalService {
             return new PaypalCreatePaymentResponse("Error" + e.getMessage(),null, null);
         }
     }
-
 
     public PaypalCapturePaymentResponse capturePayment(PaypalCapturePaymentRequest capturePaymentRequest) {
         PayPalHttpClient payPalHttpClient = payPalHttpClientInitializer.createPaypalClient(capturePaymentRequest.paymentSettings());

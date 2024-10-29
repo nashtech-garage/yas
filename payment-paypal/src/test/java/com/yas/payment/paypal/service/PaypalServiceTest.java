@@ -3,8 +3,11 @@ package com.yas.payment.paypal.service;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
-import com.yas.payment.paypal.model.CheckoutIdHelper;
-import com.yas.payment.paypal.viewmodel.*;
+import com.yas.payment.paypal.model.*;
+import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentRequest;
+import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentResponse;
+import com.yas.payment.paypal.viewmodel.PaypalCreatePaymentRequest;
+import com.yas.payment.paypal.viewmodel.PaypalCreatePaymentResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.IOException;
@@ -22,7 +25,6 @@ import static org.mockito.Mockito.when;
 class PaypalServiceTest {
 
     private PaypalService paypalService;
-    private OrderService orderService;
     private PayPalHttpClient payPalHttpClient;
     private PayPalHttpClientInitializer payPalHttpClientInitializer;
     private String paymentSettings = "{\"clientId\": \"abc\", \"clientSecret\": \"123\", \"mode\": \"sandbox\"}";
@@ -32,8 +34,7 @@ class PaypalServiceTest {
         payPalHttpClient = mock(PayPalHttpClient.class);
         payPalHttpClientInitializer = mock(PayPalHttpClientInitializer.class);
         when(payPalHttpClientInitializer.createPaypalClient(anyString())).thenReturn(payPalHttpClient);
-        orderService = mock(OrderService.class);
-        paypalService = new PaypalService(payPalHttpClientInitializer, orderService);
+        paypalService = new PaypalService(payPalHttpClientInitializer);
         CheckoutIdHelper.setCheckoutId("test-checkout-id");
     }
 
@@ -127,11 +128,8 @@ class PaypalServiceTest {
             .status("COMPLETED")
             .purchaseUnits(purchaseUnitList);
 
-        OrderVm orderVmRes = new OrderVm(12L);
-
         HttpResponse mockResponse = mock(HttpResponse.class);
         when(payPalHttpClient.execute(any(OrdersCaptureRequest.class))).thenReturn(mockResponse);
-        when(orderService.getOrderByCheckoutId(any(String.class))).thenReturn(orderVmRes);
         when(mockResponse.result()).thenReturn(mockOrder);
 
         String token = "test-token-1";

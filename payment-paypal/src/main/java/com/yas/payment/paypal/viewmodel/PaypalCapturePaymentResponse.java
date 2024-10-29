@@ -5,7 +5,6 @@ import lombok.Builder;
 
 @Builder
 public record PaypalCapturePaymentResponse(
-        Long orderId,
         String checkoutId,
         BigDecimal amount,
         BigDecimal paymentFee,
@@ -13,5 +12,4 @@ public record PaypalCapturePaymentResponse(
         String paymentMethod,
         String paymentStatus,
         String failureMessage) {
-
 }
