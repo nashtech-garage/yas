@@ -12,7 +12,7 @@ public record ProductVariationPostVm(
         Double price,
         Long thumbnailMediaId,
         List<Long> productImageIds,
-        Map<Long, String> optionValuesByOptionId
+        Map<Long, List<String>> optionValuesByOptionId
 ) implements ProductVariationSaveVm {
 
     @Override
