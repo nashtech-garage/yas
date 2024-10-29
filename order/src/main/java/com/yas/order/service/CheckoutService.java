@@ -13,10 +13,8 @@ import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
-import com.yas.order.viewmodel.checkout.CheckoutItemVm;
-import com.yas.order.viewmodel.checkout.CheckoutPostVm;
-import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
-import com.yas.order.viewmodel.checkout.CheckoutVm;
+import com.yas.order.viewmodel.checkout.*;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -100,5 +98,12 @@ public class CheckoutService {
         checkoutRepository.save(checkout);
         Order order = orderService.findOrderByCheckoutId(checkoutStatusPutVm.checkoutId());
         return order.getId();
+    }
+
+    public void updateCheckoutPaymentMethod(String id, CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm){
+        Checkout checkout = checkoutRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
+        checkout.setPaymentMethodId(checkoutPaymentMethodPutVm.paymentMethodId());
+        checkoutRepository.save(checkout);
     }
 }
