@@ -37,6 +37,7 @@ const EditProduct: NextPage = () => {
     setValue,
     handleSubmit,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<FormProduct>();
 
@@ -91,7 +92,12 @@ const EditProduct: NextPage = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Tabs className="mb-3" activeKey={tabKey} onSelect={(e: any) => setTabKey(e)}>
             <Tab eventKey={'general'} title="General Information">
-              <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
+              <ProductGeneralInformation
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                watch={watch}
+              />
             </Tab>
             <Tab eventKey={'image'} title="Product Images">
               <ProductImage product={product} setValue={setValue} />

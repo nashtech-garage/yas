@@ -8,6 +8,10 @@ public interface ProductSaveVm<T extends ProductVariationSaveVm> extends Product
 
     Boolean isPublished();
 
+    Double length();
+
+    Double width();
+
     @Override
     default Long id() {
         return null;
