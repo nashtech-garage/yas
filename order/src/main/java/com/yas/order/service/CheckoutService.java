@@ -13,8 +13,11 @@ import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
-import com.yas.order.viewmodel.checkout.*;
-
+import com.yas.order.viewmodel.checkout.CheckoutItemVm;
+import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
+import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
+import com.yas.order.viewmodel.checkout.CheckoutVm;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -70,7 +73,7 @@ public class CheckoutService {
     public CheckoutVm getCheckoutPendingStateWithItemsById(String id) {
 
         Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING).orElseThrow(()
-                -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
+            -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
 
         if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId())) {
             throw new Forbidden(Constants.ErrorCode.FORBIDDEN);
@@ -93,16 +96,16 @@ public class CheckoutService {
 
     public Long updateCheckoutStatus(CheckoutStatusPutVm checkoutStatusPutVm) {
         Checkout checkout = checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
-                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
+            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
         checkout.setCheckoutState(CheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
         checkoutRepository.save(checkout);
         Order order = orderService.findOrderByCheckoutId(checkoutStatusPutVm.checkoutId());
         return order.getId();
     }
 
-    public void updateCheckoutPaymentMethod(String id, CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm){
+    public void updateCheckoutPaymentMethod(String id, CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm) {
         Checkout checkout = checkoutRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
+            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
         checkout.setPaymentMethodId(checkoutPaymentMethodPutVm.paymentMethodId());
         checkoutRepository.save(checkout);
     }

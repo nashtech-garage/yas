@@ -14,7 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
@@ -39,15 +44,16 @@ public class CheckoutController {
 
     @PutMapping("/storefront/checkouts/{id}/payment")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = ApiConstant.CODE_200, description = ApiConstant.OK,
-                    content = @Content()),
-            @ApiResponse(responseCode = ApiConstant.CODE_404, description = ApiConstant.NOT_FOUND,
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class))),
-            @ApiResponse(responseCode = ApiConstant.CODE_400, description = ApiConstant.BAD_REQUEST,
-                    content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+        @ApiResponse(responseCode = ApiConstant.CODE_200, description = ApiConstant.OK,
+            content = @Content()),
+        @ApiResponse(responseCode = ApiConstant.CODE_404, description = ApiConstant.NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = ApiConstant.CODE_400, description = ApiConstant.BAD_REQUEST,
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<Void> updatePaymentMethod(@PathVariable final String id,
-                                                    @Valid @RequestBody final CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm){
-        checkoutService.updateCheckoutPaymentMethod(id,checkoutPaymentMethodPutVm);
+                                                    @Valid @RequestBody
+                                                    final CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm) {
+        checkoutService.updateCheckoutPaymentMethod(id, checkoutPaymentMethodPutVm);
         return ResponseEntity.ok().build();
     }
 }
