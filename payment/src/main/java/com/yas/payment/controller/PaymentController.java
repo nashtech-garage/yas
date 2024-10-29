@@ -19,17 +19,17 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping(value = "/storefront/payments/init")
+    @PostMapping(value = "/init")
     public InitPaymentResponse initPayment(@Valid @RequestBody InitPaymentRequest initPaymentRequest) {
         return paymentService.initPayment(initPaymentRequest);
     }
 
-    @PostMapping(value = "/storefront/payments/capture")
+    @PostMapping(value = "/capture")
     public CapturePaymentResponse capturePayment(@Valid @RequestBody CapturePaymentRequest capturePaymentRequest) {
         return paymentService.capturePayment(capturePaymentRequest);
     }
 
-    @GetMapping(value = "/storefront/payments/cancel")
+    @GetMapping(value = "/cancel")
     public ResponseEntity<String> cancelPayment() {
         return ResponseEntity.ok("Payment cancelled");
     }

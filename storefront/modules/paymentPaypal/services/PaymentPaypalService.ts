@@ -4,12 +4,12 @@ import { CapturePaymentRequest } from '@/modules/paymentPaypal/models/CapturePay
 import { CapturePaymentPaypalResponse } from '@/modules/paymentPaypal/models/CapturePaymentPaypalResponse';
 import apiClientService from '@/common/services/ApiClientService';
 
-const baseUrl = '/api/payment/storefront';
+const baseUrl = '/api/payment';
 
 export async function initPaymentPaypal(
   paymentPaypalRequest: InitPaymentPaypalRequest
 ): Promise<InitPaymentPaypalResponse> {
-  const res = await apiClientService.post(`${baseUrl}/payments/init`, JSON.stringify(paymentPaypalRequest));
+  const res = await apiClientService.post(`${baseUrl}/init`, JSON.stringify(paymentPaypalRequest));
   if (res.ok) {
     return res.json();
   }
@@ -17,7 +17,7 @@ export async function initPaymentPaypal(
 }
 
 export async function capturePaymentPaypal(capturePaymentRequest: CapturePaymentRequest): Promise<CapturePaymentPaypalResponse> {
-  const res = await apiClientService.post(`${baseUrl}/payments/capture`, JSON.stringify(capturePaymentRequest));
+  const res = await apiClientService.post(`${baseUrl}/capture`, JSON.stringify(capturePaymentRequest));
   if (res.ok) {
     return res.json();
   }

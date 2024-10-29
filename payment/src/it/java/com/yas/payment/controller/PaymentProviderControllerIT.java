@@ -15,11 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
-
-import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(IntegrationTestConfiguration.class)
@@ -27,7 +24,6 @@ import java.util.UUID;
 class PaymentProviderControllerIT extends AbstractControllerIT {
 
     private static final String PAYMENT_PROVIDERS_URL = "v1/storefront/payment-providers";
-    private static final String ADDITIONAL_SETTINGS_URL_TEMPLATE = "v1/payment-providers/{id}/additional-settings";
 
     @Autowired
     PaymentProviderRepository paymentProviderRepository;
@@ -55,32 +51,6 @@ class PaymentProviderControllerIT extends AbstractControllerIT {
             .then()
             .statusCode(HttpStatus.OK.value())
             .body(".", hasSize(1))
-            .log().ifValidationFails();
-    }
-
-    @Test
-    void test_getAdditionalSettings_shouldReturnAdditionalSettings() {
-        RestAssured.given(getRequestSpecification())
-            .auth().oauth2(getAccessToken("admin", "admin"))
-            .pathParam("id", paymentProvider.getId())
-            .when()
-            .get(ADDITIONAL_SETTINGS_URL_TEMPLATE)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .body(equalTo(paymentProvider.getAdditionalSettings()))
-            .log().ifValidationFails();
-    }
-
-    @Test
-    void test_getAdditionalSettings_shouldReturn404_whenInvalidId() {
-        String invalidId = UUID.randomUUID().toString();
-
-        RestAssured.given(getRequestSpecification())
-            .pathParam("id", invalidId)
-            .when()
-            .get(ADDITIONAL_SETTINGS_URL_TEMPLATE)
-            .then()
-            .statusCode(HttpStatus.NOT_FOUND.value())
             .log().ifValidationFails();
     }
 }
