@@ -68,6 +68,7 @@ public class ProductService {
                     extractedTermsFilter(productCriteria.category(), ProductField.CATEGORIES, b);
                     extractedTermsFilter(productCriteria.attribute(), ProductField.ATTRIBUTES, b);
                     extractedRange(productCriteria.minPrice(), productCriteria.maxPrice(), b);
+                    b.must(m -> m.term(t -> t.field(ProductField.IS_PUBLISHED).value(true)));
                     return b;
                 })
         );

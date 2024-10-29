@@ -33,10 +33,15 @@ public class ProductSyncDataService {
         Product product = productRepository.findById(id).orElseThrow(()
                 -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
 
+        if (!productEsDetailVm.isPublished()) {
+            productRepository.deleteById(id);
+            return;
+        }
+
         product.setName(productEsDetailVm.name());
         product.setSlug(productEsDetailVm.slug());
         product.setPrice(productEsDetailVm.price());
-        product.setIsPublished(productEsDetailVm.isPublished());
+        product.setIsPublished(true);
         product.setIsVisibleIndividually(productEsDetailVm.isVisibleIndividually());
         product.setIsAllowedToOrder(productEsDetailVm.isAllowedToOrder());
         product.setIsFeatured(productEsDetailVm.isFeatured());
