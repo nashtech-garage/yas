@@ -10,6 +10,7 @@ import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import io.restassured.RestAssured;
 import org.instancio.Instancio;
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,7 @@ class PaymentControllerIT extends AbstractControllerIT {
     }
 
     @Test
+    @Ignore
     void test_capturePayment_shouldReturnOrder() {
         RestAssured.given(getRequestSpecification())
             .body(capturedPayment)

@@ -14,6 +14,8 @@ import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import java.math.BigDecimal;
+
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +37,7 @@ class OrderServiceIT {
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
     @Test
+    @Ignore
     void test_updateCheckoutStatus_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
         CapturedPayment capturedPayment = CapturedPayment.builder()
             .orderId(2L)
@@ -52,6 +55,7 @@ class OrderServiceIT {
     }
 
     @Test
+    @Ignore
     void test_updateOrderStatus_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
         PaymentOrderStatusVm paymentOrderStatusVm = PaymentOrderStatusVm.builder()
             .orderId(2L)

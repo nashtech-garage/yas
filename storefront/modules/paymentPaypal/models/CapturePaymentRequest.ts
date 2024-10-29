@@ -1,4 +1,4 @@
 export type CapturePaymentRequest = {
-    token?: string
-    paymentMethod?: string;
-  };
+  token?: string;
+  paymentMethod?: string;
+};

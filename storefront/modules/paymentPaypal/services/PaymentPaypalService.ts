@@ -16,8 +16,13 @@ export async function initPaymentPaypal(
   throw new Error(res.statusText);
 }
 
-export async function capturePaymentPaypal(capturePaymentRequestVM: CapturePaymentRequest): Promise<CapturePaymentPaypalResponse> {
-  const res = await apiClientService.post(`${baseUrl}/capture`, JSON.stringify(capturePaymentRequestVM));
+export async function capturePaymentPaypal(
+  capturePaymentRequestVM: CapturePaymentRequest
+): Promise<CapturePaymentPaypalResponse> {
+  const res = await apiClientService.post(
+    `${baseUrl}/capture`,
+    JSON.stringify(capturePaymentRequestVM)
+  );
   if (res.ok) {
     return res.json();
   }

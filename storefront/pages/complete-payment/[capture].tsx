@@ -23,7 +23,7 @@ const crumb: BreadcrumbModel[] = [
 
 const CompletePayment = () => {
   const router = useRouter();
-  const { token , paymentMethod } = router.query;
+  const { token, paymentMethod } = router.query;
   const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
   const [isAlreadyPaid, setIsAlreadyPaid] = useState(false);
   const [isCancelPayment, setIsCancelPayment] = useState(false);
@@ -31,7 +31,7 @@ const CompletePayment = () => {
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   useEffect(() => {
     if (token) {
-      const capturePaymentRequestVM : CapturePaymentRequest = {
+      const capturePaymentRequestVM: CapturePaymentRequest = {
         token: token as string,
         paymentMethod: paymentMethod as string,
       };

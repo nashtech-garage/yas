@@ -35,7 +35,7 @@ public class PaypalHandler extends AbstractPaymentHandler implements PaymentHand
                 .totalPrice(initPaymentRequestVm.totalPrice())
                 .checkoutId(initPaymentRequestVm.checkoutId())
                 .paymentMethod(initPaymentRequestVm.paymentMethod())
-                .paymentSettings(initPaymentRequestVm.paymentMethod())
+                .paymentSettings(getPaymentSettings(getProviderId()))
                 .build();
         PaypalCreatePaymentResponse paypalCreatePaymentResponse = paypalService.createPayment(requestPayment);
         return InitiatedPayment.builder()
@@ -49,7 +49,7 @@ public class PaypalHandler extends AbstractPaymentHandler implements PaymentHand
     public CapturedPayment capturePayment(CapturePaymentRequestVm capturePaymentRequestVM) {
         PaypalCapturePaymentRequest paypalCapturePaymentRequest = PaypalCapturePaymentRequest.builder()
                 .token(capturePaymentRequestVM.token())
-                .paymentSettings(capturePaymentRequestVM.paymentMethod())
+                .paymentSettings(getPaymentSettings(getProviderId()))
                 .build();
         PaypalCapturePaymentResponse paypalCapturePaymentResponse = paypalService.capturePayment(paypalCapturePaymentRequest);
         return CapturedPayment.builder()
