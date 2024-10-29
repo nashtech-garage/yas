@@ -5,8 +5,8 @@ import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.service.PaymentProviderService;
 import com.yas.payment.viewmodel.CapturePaymentRequest;
 import com.yas.payment.viewmodel.CapturePaymentResponse;
-import com.yas.payment.viewmodel.CreatePaymentRequest;
-import com.yas.payment.viewmodel.CreatePaymentResponse;
+import com.yas.payment.viewmodel.InitPaymentRequest;
+import com.yas.payment.viewmodel.InitPaymentResponse;
 import com.yas.payment.paypal.service.PaypalService;
 import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentRequest;
 import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentResponse;
@@ -30,14 +30,14 @@ public class PaypalHandler extends AbstractPaymentHandler implements PaymentHand
     }
 
     @Override
-    public CreatePaymentResponse createPayment(CreatePaymentRequest createPaymentRequest) {
+    public InitPaymentResponse initPayment(InitPaymentRequest initPaymentRequest) {
         PaypalCreatePaymentRequest requestPayment = new PaypalCreatePaymentRequest(
-                createPaymentRequest.totalPrice(),
-                createPaymentRequest.checkoutId(),
-                createPaymentRequest.paymentMethod(),
-                getPaymentSettings(createPaymentRequest.paymentMethod()));
+                initPaymentRequest.totalPrice(),
+                initPaymentRequest.checkoutId(),
+                initPaymentRequest.paymentMethod(),
+                getPaymentSettings(initPaymentRequest.paymentMethod()));
         PaypalCreatePaymentResponse paypalCreatePaymentResponse = paypalService.createPayment(requestPayment);
-        return new CreatePaymentResponse(paypalCreatePaymentResponse.status(), paypalCreatePaymentResponse.paymentId(), paypalCreatePaymentResponse.redirectUrl());
+        return new InitPaymentResponse(paypalCreatePaymentResponse.status(), paypalCreatePaymentResponse.paymentId(), paypalCreatePaymentResponse.redirectUrl());
     }
 
     @Override

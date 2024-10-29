@@ -22,18 +22,18 @@ import static org.mockito.Mockito.when;
 class PaypalServiceTest {
 
     private PaypalService paypalService;
+    private OrderService orderService;
     private PayPalHttpClient payPalHttpClient;
     private PayPalHttpClientInitializer payPalHttpClientInitializer;
     private String paymentSettings = "{\"clientId\": \"abc\", \"clientSecret\": \"123\", \"mode\": \"sandbox\"}";
-
-    private OrderService orderService;
 
     @BeforeEach
     void setUp() {
         payPalHttpClient = mock(PayPalHttpClient.class);
         payPalHttpClientInitializer = mock(PayPalHttpClientInitializer.class);
         when(payPalHttpClientInitializer.createPaypalClient(anyString())).thenReturn(payPalHttpClient);
-        paypalService = new PaypalService(payPalHttpClientInitializer);
+        orderService = mock(OrderService.class);
+        paypalService = new PaypalService(payPalHttpClientInitializer, orderService);
         CheckoutIdHelper.setCheckoutId("test-checkout-id");
     }
 

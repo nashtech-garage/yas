@@ -40,16 +40,16 @@ public class PaymentService {
         return handler;
     }
 
-    public CreatePaymentResponse createPayment(CreatePaymentRequest createPaymentRequest) {
-        PaymentHandler paymentHandler = getPaymentHandler(createPaymentRequest.paymentMethod());
-        return paymentHandler.createPayment(createPaymentRequest);
+    public InitPaymentResponse initPayment(InitPaymentRequest initPaymentRequest) {
+        PaymentHandler paymentHandler = getPaymentHandler(initPaymentRequest.paymentMethod());
+        return paymentHandler.initPayment(initPaymentRequest);
     }
 
     public CapturePaymentResponse capturePayment(CapturePaymentRequest capturePaymentRequest) {
         PaymentHandler paymentHandler = getPaymentHandler(capturePaymentRequest.paymentMethod());
         CapturePaymentResponse capturePaymentResponse = paymentHandler.capturePayment(capturePaymentRequest);
-        Payment payment = createPayment(capturePaymentResponse);
         Long orderId = orderService.updateCheckoutStatus(capturePaymentResponse);
+        Payment payment = createPayment(capturePaymentResponse, orderId);
         PaymentOrderStatusVm orderPaymentStatusVm =
                 PaymentOrderStatusVm.builder()
                         .paymentId(payment.getId())
@@ -60,10 +60,10 @@ public class PaymentService {
         return capturePaymentResponse;
     }
 
-    private Payment createPayment(CapturePaymentResponse completedPayment) {
+    private Payment createPayment(CapturePaymentResponse completedPayment, Long orderId) {
         Payment payment = Payment.builder()
                 .checkoutId(completedPayment.checkoutId())
-                .orderId(completedPayment.orderId())
+                .orderId(orderId)
                 .paymentStatus(completedPayment.paymentStatus())
                 .paymentFee(completedPayment.paymentFee())
                 .paymentMethod(completedPayment.paymentMethod())

@@ -3,8 +3,8 @@ package com.yas.payment.controller;
 import com.yas.payment.service.PaymentService;
 import com.yas.payment.viewmodel.CapturePaymentRequest;
 import com.yas.payment.viewmodel.CapturePaymentResponse;
-import com.yas.payment.viewmodel.CreatePaymentRequest;
-import com.yas.payment.viewmodel.CreatePaymentResponse;
+import com.yas.payment.viewmodel.InitPaymentRequest;
+import com.yas.payment.viewmodel.InitPaymentResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +19,9 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping(value = "/storefront/payments/create")
-    public CreatePaymentResponse createPayment(@Valid @RequestBody CreatePaymentRequest createPaymentRequest) {
-        return paymentService.createPayment(createPaymentRequest);
+    @PostMapping(value = "/storefront/payments/init")
+    public InitPaymentResponse initPayment(@Valid @RequestBody InitPaymentRequest initPaymentRequest) {
+        return paymentService.initPayment(initPaymentRequest);
     }
 
     @PostMapping(value = "/storefront/payments/capture")

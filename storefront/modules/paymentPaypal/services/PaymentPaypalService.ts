@@ -9,7 +9,7 @@ const baseUrl = '/api/payment/storefront';
 export async function initPaymentPaypal(
   paymentPaypalRequest: InitPaymentPaypalRequest
 ): Promise<InitPaymentPaypalResponse> {
-  const res = await apiClientService.post(`${baseUrl}/payments/create`, JSON.stringify(paymentPaypalRequest));
+  const res = await apiClientService.post(`${baseUrl}/payments/init`, JSON.stringify(paymentPaypalRequest));
   if (res.ok) {
     return res.json();
   }
