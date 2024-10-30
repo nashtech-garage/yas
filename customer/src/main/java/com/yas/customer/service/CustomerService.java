@@ -12,12 +12,12 @@ import com.yas.customer.viewmodel.customer.CustomerPostVm;
 import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
 import com.yas.customer.viewmodel.customer.CustomerVm;
 import com.yas.customer.viewmodel.customer.GuestUserVm;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.core.Response;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.Response;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -90,7 +90,7 @@ public class CustomerService {
                 if (searchResult.isEmpty()) {
                     throw new NotFoundException(Constants.ErrorCode.USER_WITH_EMAIL_NOT_FOUND, email);
                 }
-                return CustomerAdminVm.fromUserRepresentation(searchResult.get(0));
+                return CustomerAdminVm.fromUserRepresentation(searchResult.getFirst());
             } else {
                 throw new WrongEmailFormatException(Constants.ErrorCode.WRONG_EMAIL_FORMAT, email);
             }
