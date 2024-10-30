@@ -14,12 +14,12 @@ import java.math.BigDecimal;
 @Setter
 @Getter
 public class CapturedPayment {
-    private Long orderId;
-    private String checkoutId;
-    private BigDecimal amount;
-    private BigDecimal paymentFee;
-    private String gatewayTransactionId;
-    private PaymentMethod paymentMethod;
-    private PaymentStatus paymentStatus;
-    private String failureMessage;
+    Long orderId;
+    String checkoutId;
+    BigDecimal amount;
+    BigDecimal paymentFee;
+    String gatewayTransactionId;
+    PaymentMethod paymentMethod;
+    PaymentStatus paymentStatus;
+    String failureMessage;
 }

@@ -28,7 +28,6 @@ class PaymentServiceTest {
     private PaymentRepository paymentRepository;
     private OrderService orderService;
     private PaymentHandler paymentHandler;
-    private final Map<String, PaymentHandler> providers = new HashMap<>();
     private List<PaymentHandler> paymentHandlers = new ArrayList<>();
     private PaymentService paymentService;
 
@@ -77,7 +76,6 @@ class PaymentServiceTest {
         Long orderId = 999L;
         when(paymentHandler.capturePayment(capturePaymentRequestVM)).thenReturn(capturedPayment);
         when(orderService.updateCheckoutStatus(capturedPayment)).thenReturn(orderId);
-        Payment payment = Payment.builder().id(1L).paymentStatus(PaymentStatus.COMPLETED).build();
         when(paymentRepository.save(any())).thenReturn(payment);
         CapturePaymentResponseVm capturePaymentResponseVm = paymentService.capturePayment(capturePaymentRequestVM);
         verifyPaymentCreation(capturePaymentResponseVm);

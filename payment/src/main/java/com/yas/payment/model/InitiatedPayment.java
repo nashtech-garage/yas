@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class InitiatedPayment {
-    private String status;
-    private String paymentId;
-    private String redirectUrl;
+    String status;
+    String paymentId;
+    String redirectUrl;
 }
