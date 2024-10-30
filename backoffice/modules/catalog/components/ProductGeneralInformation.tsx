@@ -52,7 +52,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
           setValue('taxClassId', data.taxClassId ?? '');
           setValue('description', data.description ?? '');
           setValue('specification', data.specification ?? '');
-          setValue('price', data.price ?? 0);
+          setValue('price', data.price ?? 0, { shouldValidate: true, shouldDirty: true });
           setLoading(false);
         })
         .catch((error) => {
