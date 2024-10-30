@@ -293,3 +293,25 @@ a[data-toggle='collapse'] {
   margin-left: 5px;
   cursor: pointer;
 }
+
+.option-value-box {
+  position: relative;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+}
+
+.close:hover {
+  color: #ff0000;
+}

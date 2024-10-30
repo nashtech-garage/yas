@@ -328,20 +328,25 @@ public class ProductService {
 
             variationVm.optionValuesByOptionId().forEach((optionId, optionValue) -> {
                 ProductOption productOption = optionsById.get(optionId);
-                ProductOptionValue foundOptionValue = optionValues.stream()
+                List<ProductOptionValue> foundOptionValues = optionValues.stream()
                     .filter(
-                        pov -> pov.getProductOption().getId().equals(optionId) && pov.getValue().equals(optionValue))
-                    .findFirst()
-                    .orElseThrow(()
-                        -> new BadRequestException(Constants.ErrorCode.PRODUCT_OPTION_VALUE_IS_NOT_FOUND, optionValue));
+                        pov -> pov.getProductOption().getId().equals(optionId) && optionValue.contains(pov.getValue()))
+                    .toList();
 
-                ProductOptionCombination optionCombination = ProductOptionCombination.builder()
-                    .product(savedVariation)
-                    .productOption(productOption)
-                    .value(foundOptionValue.getValue())
-                    .displayOrder(foundOptionValue.getDisplayOrder())
-                    .build();
-                optionCombinations.add(optionCombination);
+                if (CollectionUtils.isEmpty(foundOptionValues)) {
+                    throw new BadRequestException(Constants.ErrorCode.PRODUCT_OPTION_VALUE_IS_NOT_FOUND, optionValue);
+                }
+
+                List<ProductOptionCombination> optionCombinationEntities = foundOptionValues.stream()
+                    .map(foundOptionValue ->
+                        ProductOptionCombination.builder()
+                        .product(savedVariation)
+                        .productOption(productOption)
+                        .value(foundOptionValue.getValue())
+                        .displayOrder(foundOptionValue.getDisplayOrder())
+                        .build()
+                    ).toList();
+                optionCombinations.addAll(optionCombinationEntities);
             });
         }
         productOptionCombinationRepository.saveAll(optionCombinations);

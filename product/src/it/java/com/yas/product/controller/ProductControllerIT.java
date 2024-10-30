@@ -163,10 +163,12 @@ class ProductControllerIT extends AbstractControllerIT {
 
         ProductVariationPutVm productVariationPutVm1 = new ProductVariationPutVm(
                 1L, "Sample Product Variation 2", "sample-product-variation-1", "SKU1",
-                "GTIN1", 19.99, 101L, new ArrayList<>(), new HashMap<>(Map.of(productOption.getId(), "product-option-value-1")));
+                "GTIN1", 19.99, 101L, new ArrayList<>(),
+                new HashMap<>(Map.of(productOption.getId(), List.of("product-option-value-1"))));
         ProductVariationPutVm productVariationPutVm2 = new ProductVariationPutVm(
                 null, "Sample Product Variation 2", "sample-product-variation-2", "SKU2",
-                "GTIN2", 29.99, 102L, new ArrayList<>(), new HashMap<>(Map.of(productOption.getId(), "product-option-value-2")));
+                "GTIN2", 29.99, 102L, new ArrayList<>(),
+                new HashMap<>(Map.of(productOption.getId(), List.of("product-option-value-2"))));
         ProductOptionValuePutVm productOptionValuePutVm = new ProductOptionValuePutVm(
                 productOption.getId(),
                 "Visible",
