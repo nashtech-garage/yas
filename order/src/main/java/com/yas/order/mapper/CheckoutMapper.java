@@ -10,6 +10,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Mapper(componentModel = "spring")
 @Component
 public interface CheckoutMapper {
@@ -19,10 +21,16 @@ public interface CheckoutMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkoutState", ignore = true)
+    @Mapping(target = "totalAmount", source = "totalAmount") // Ánh xạ tường minh cho totalAmount
+    @Mapping(target = "totalDiscountAmount", source = "totalDiscountAmount") // Ánh xạ tường minh cho totalDiscountAmount
     Checkout toModel(CheckoutPostVm checkoutPostVm);
 
     CheckoutItemVm toVm(CheckoutItem checkoutItem);
 
     @Mapping(target = "checkoutItemVms", ignore = true)
     CheckoutVm toVm(Checkout checkout);
+
+    default BigDecimal map(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
+    }
 }

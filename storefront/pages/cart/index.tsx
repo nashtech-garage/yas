@@ -202,10 +202,11 @@ const Cart = () => {
     let checkout: Checkout = {
       email: email,
       note: '',
-      couponCode: '',
+      couponCode: couponCode,
+      totalAmount: totalPrice,
+      totalDiscountAmount: discountMoney,
       checkoutItemPostVms: checkoutItems,
     };
-
     createCheckout(checkout)
       .then((res) => {
         router.push(`/checkout/${res?.id}`); //NOSONAR
@@ -221,6 +222,7 @@ const Cart = () => {
       productName: item.productName,
       quantity: item.quantity,
       productPrice: item.price,
+      discountAmount: discountMoney,
     };
   };
 

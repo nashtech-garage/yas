@@ -27,6 +27,7 @@ import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVm;
+
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.yas.order.viewmodel.promotion.PromotionUsageVm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -55,6 +58,7 @@ public class OrderService {
     private final ProductService productService;
     private final CartService cartService;
     private final OrderMapper orderMapper;
+    private final PromotionService promotionService;
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
 
@@ -128,6 +132,18 @@ public class OrderService {
         productService.subtractProductStockQuantity(orderVm);
         cartService.deleteCartItems(orderVm);
         acceptOrder(orderVm.id());
+
+        // update promotion
+        List<PromotionUsageVm> promotionUsageVms = new ArrayList<>();
+        orderItems.forEach(item -> {
+            PromotionUsageVm promotionUsageVm = PromotionUsageVm.builder()
+                    .productId(item.getProductId())
+                    .orderId(order.getId())
+                    .promotionCode(order.getCouponCode())
+                    .build();
+            promotionUsageVms.add(promotionUsageVm);
+        });
+        promotionService.updateUsagePromotion(promotionUsageVms);
         return orderVm;
     }
 
@@ -179,7 +195,7 @@ public class OrderService {
         }
 
         Pageable pageable = PageRequest.of(0, count);
-        List<Order> orders =  orderRepository.getLatestOrders(pageable);
+        List<Order> orders = orderRepository.getLatestOrders(pageable);
 
         if (CollectionUtils.isEmpty(orders)) {
             return List.of();
@@ -272,14 +288,14 @@ public class OrderService {
         int pageSize = orderRequest.getPageSize();
 
         OrderListVm orderListVm = getAllOrder(createdFrom, createdTo,
-            warehouse, productName,
-            orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);
+                warehouse, productName,
+                orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);
         if (Objects.isNull(orderListVm.orderList())) {
             return CsvExporter.exportToCsv(List.of(), OrderItemCsv.class);
         }
 
         List<BaseCsv> orders = orderListVm.orderList().stream().map(orderMapper::toCsv).collect(
-            Collectors.toUnmodifiableList());
+                Collectors.toUnmodifiableList());
         return CsvExporter.exportToCsv(orders, OrderItemCsv.class);
     }
 }
