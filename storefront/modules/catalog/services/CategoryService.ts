@@ -12,3 +12,8 @@ export async function getCategory(id: number) {
   const response = await apiClientService.get(`${baseUrl}/${id}`);
   return await response.json();
 }
+
+export async function getCategoriesSuggestions(): Promise<string[]> {
+  const response = await apiClientService.get(`${baseUrl}/suggestions`);
+  return await response.json();
+}

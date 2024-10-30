@@ -37,6 +37,7 @@ public class ProductControllerIT extends AbstractControllerIT {
         product.setBrand("Apple");
         product.setCategories(List.of("Laptop", "Macbook"));
         product.setAttributes(List.of("CPU", "RAM", "SSD"));
+        product.setIsPublished(true);
 
         productRepository.save(product, RefreshPolicy.IMMEDIATE);
     }

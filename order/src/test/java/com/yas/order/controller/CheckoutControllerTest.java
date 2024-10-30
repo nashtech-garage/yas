@@ -1,7 +1,7 @@
 package com.yas.order.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -16,6 +16,8 @@ import com.yas.order.viewmodel.checkout.CheckoutItemVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
+
+import com.yas.order.viewmodel.checkout.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -106,6 +108,20 @@ class CheckoutControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
     }
 
+    @Test
+    void testUpdatePaymentMethod_whenRequestIsValid_thenReturnNoContent() throws Exception {
+        String id = "123";
+        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("12hgds1");
+
+        doNothing().when(checkoutService).updateCheckoutPaymentMethod(id, request);
+
+        mockMvc.perform(put("/storefront/checkouts/{id}/payment-method", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectWriter.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(checkoutService).updateCheckoutPaymentMethod(id, request);
+    }
 
     private static @NotNull List<CheckoutItemPostVm> getCheckoutItemPostVms() {
         CheckoutItemPostVm item1 = new CheckoutItemPostVm(

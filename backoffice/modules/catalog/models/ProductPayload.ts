@@ -106,7 +106,7 @@ const createProductOptionValues = (productVariations: ProductVariation[]) => {
         productOptionValues.push({
           productOptionId: id,
           displayOrder: 1,
-          value: [value],
+          value: Array.isArray(value) ? value : [value],
         });
       }
     });
