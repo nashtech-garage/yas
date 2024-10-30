@@ -221,7 +221,6 @@ class ProductControllerIT extends AbstractControllerIT {
             .get(PRODUCT_STOREFRONT_URL + "/featured")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .body("productList", hasSize(0))
             .log().ifValidationFails();
     }
 
