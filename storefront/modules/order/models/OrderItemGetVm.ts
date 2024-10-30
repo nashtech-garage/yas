@@ -5,6 +5,5 @@ export type OrderItemGetVm = {
   quantity: number;
   productPrice: number;
   mediaUrl: string;
-  discountAmount: number
-
+  discountAmount: number;
 };
