@@ -24,6 +24,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [optionCombines, setOptionCombines] = useState<string[]>([]);
+  const [optionValueArray, setOptionValueArray] = useState<any>({});
 
   useEffect(() => {
     if (id) {
@@ -80,6 +81,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       const index = selectedOptions.indexOf(currentOption.name);
       if (index === -1) {
         setSelectedOptions([...selectedOptions, currentOption.name]);
+        if (!optionValueArray[currentOption.name]) {
+          setOptionValueArray({ ...optionValueArray, ...{ [currentOption.name]: 1 } });
+        }
       } else {
         toast.info(`${currentOption.name} is selected. Select Other`);
       }
@@ -115,22 +119,35 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       return toast.warning('Combined Option Values are Duplicated');
     }
 
+    let optionValuesByOptionIds = {};
+
+    optionValuesByOptionId.forEach((value, key, fooMap) => {
+      optionValuesByOptionIds = Object.assign(optionValuesByOptionIds, { [key]: value });
+    });
+
     const newVariation: ProductVariation = {
       optionName: variationName,
       optionGTin: getValue('gtin') ?? '',
       optionSku: getValue('sku') ?? '',
       optionPrice: getValue('price') ?? 0,
-      optionValuesByOptionId: Object.fromEntries(optionValuesByOptionId),
+      optionValuesByOptionId: optionValuesByOptionIds,
     };
     setOptionCombines([variationName]);
     setValue('productVariations', [...formProductVariations, newVariation]);
   };
 
-  const generateProductOptionCombinations = (): Map<number, string> => {
-    const optionValuesByOptionId = new Map<number, string>();
+  const generateProductOptionCombinations = (): Map<number, string[]> => {
+    const optionValuesByOptionId = new Map<number, string[]>();
     let isEmptyOptions = false;
+    const optionValues = [] as string[];
     selectedOptions.forEach((option) => {
       if (isEmptyOptions) return;
+      document.getElementsByName(option).forEach((element) => {
+        const value = (element as HTMLInputElement).value;
+        if (value !== '') {
+          optionValues.push(value);
+        }
+      });
       const optionValue = (document.getElementById(option) as HTMLInputElement).value;
       if (optionValue === '') {
         isEmptyOptions = true;
@@ -138,9 +155,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       }
       const productOption = productOptions.find((productOption) => productOption.name === option);
       const productOptionId = productOption?.id ?? -1;
-      optionValuesByOptionId.set(productOptionId, optionValue);
+      optionValuesByOptionId.set(productOptionId, optionValues);
     });
-    return isEmptyOptions ? new Map<number, string>() : optionValuesByOptionId;
+    return isEmptyOptions ? new Map<number, string[]>() : optionValuesByOptionId;
   };
 
   const onDeleteVariation = (variant: ProductVariation) => {
@@ -150,6 +167,17 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     let productVar = getValue('productVariations') || [];
     productVar = productVar.filter((item) => item.optionName !== variant.optionName);
     setValue('productVariations', productVar);
+  };
+
+  const addOptionValue = (option: string) => {
+    setOptionValueArray({ ...optionValueArray, ...{ [option]: optionValueArray[option] + 1 } });
+  };
+
+  const removeOptionValue = (option: string) => {
+    setOptionValueArray({ ...optionValueArray, ...{ [option]: optionValueArray[option] - 1 } });
+    if (optionValueArray[option] === 0) {
+      removeOptionValue(option);
+    }
   };
 
   return (
@@ -184,17 +212,45 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           <h5 className="mb-3">Value Options</h5>
           <div className="mb-3">
             {(selectedOptions || []).map((option) => (
-              <div className="mb-3 d-flex gap-4" key={option}>
+              <div className="mb-3 d-flex gap-4 option-value-box" key={option}>
                 <label className="form-label flex-grow-1" htmlFor={option}>
                   {option}
                 </label>
-                <input type="text" id={option} className="form-control w-75" />
-                <button
-                  className="btn btn-danger"
+                <div className="w-75">
+                  {[...Array(optionValueArray[option])].map((e, i, arr) => {
+                    return (
+                      <div
+                        key={optionValueArray[option] + i + e}
+                        className="d-flex gap-2 w-100 mb-3"
+                      >
+                        <div className="w-75">
+                          <input type="text" id={option} name={option} className="form-control" />
+                        </div>
+                        {i == arr.length - 1 && (
+                          <i
+                            className="fa fa-plus fa-lg"
+                            style={{ paddingTop: '12px' }}
+                            aria-hidden="true"
+                            onClick={() => addOptionValue(option)}
+                          ></i>
+                        )}
+                        <i
+                          className="fa fa-minus fa-lg"
+                          style={{ paddingTop: '12px' }}
+                          aria-hidden="true"
+                          onClick={() => removeOptionValue(option)}
+                        ></i>
+                      </div>
+                    );
+                  })}
+                </div>
+                <span
+                  aria-hidden="true"
+                  className="close"
                   onClick={(event) => onDeleteOption(event, option)}
                 >
                   <i className="bi bi-x"></i>
-                </button>
+                </span>
               </div>
             ))}
           </div>

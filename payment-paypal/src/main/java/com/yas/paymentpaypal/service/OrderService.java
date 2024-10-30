@@ -28,7 +28,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
             .fromHttpUrl(serviceUrlConfig.order())
-            .path("/backoffice/orders/checkout/" + checkoutId)
+            .path("/storefront/orders/checkout/" + checkoutId)
             .buildAndExpand()
             .toUri();
 

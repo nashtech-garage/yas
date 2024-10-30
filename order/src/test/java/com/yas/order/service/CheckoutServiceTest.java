@@ -2,19 +2,23 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.SecurityContextUtils.setSubjectUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.ForbiddenException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.CheckoutMapperImpl;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
+import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import java.util.List;
 import java.util.Optional;
@@ -167,5 +171,55 @@ class CheckoutServiceTest {
                 .hasFieldOrPropertyWithValue("email", checkoutPostVm.email());
 
         assertThat(res.checkoutItemVms()).isNull();
+    }
+
+    @Test
+    void testUpdateCheckoutPaymentMethod_whenCheckoutExists_thenUpdatePaymentMethod() {
+        // Arrange
+        String id = "123";
+        Checkout checkout = new Checkout();
+        checkout.setId(id);
+
+        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("new-payment-method-id");
+
+        when(checkoutRepository.findById(id)).thenReturn(Optional.of(checkout));
+
+        // Act
+        checkoutService.updateCheckoutPaymentMethod(id, request);
+
+        // Assert
+        verify(checkoutRepository).save(checkout);
+        assertThat(checkout.getPaymentMethodId()).isEqualTo(request.paymentMethodId());
+    }
+
+    @Test
+    void testUpdateCheckoutPaymentMethod_whenCheckoutNotFound_thenThrowNotFoundException() {
+        // Arrange
+        String id = "invalid-id";
+        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("new-payment-method-id");
+
+        when(checkoutRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> checkoutService.updateCheckoutPaymentMethod(id, request));
+    }
+
+    @Test
+    void testUpdateCheckoutPaymentMethod_whenPaymentMethodIdIsNull_thenDoNotUpdate() {
+        // Arrange
+        String id = "123";
+        Checkout checkout = new Checkout();
+        checkout.setId(id);
+
+        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm(null);
+
+        when(checkoutRepository.findById(id)).thenReturn(Optional.of(checkout));
+
+        // Act
+        checkoutService.updateCheckoutPaymentMethod(id, request);
+
+        // Assert
+        verify(checkoutRepository).save(checkout);
+        assertThat(checkout.getPaymentMethodId()).isNull();
     }
 }

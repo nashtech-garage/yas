@@ -1,5 +1,7 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
@@ -20,8 +22,6 @@ import { ProductAttributeValuePost } from '../../../modules/catalog/models/Produ
 import { mapFormProductToProductPayload } from '../../../modules/catalog/models/ProductPayload';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 
 const ProductCreate: NextPage = () => {
   const router = useRouter();
