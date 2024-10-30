@@ -87,10 +87,10 @@ class ProductServiceIT {
 
     @BeforeEach
     void setUp() {
+        generateTestData();
         noFileMediaVm = new NoFileMediaVm(1L, "caption", "fileName", "mediaType", "url");
         when(mediaService.getMedia(1L)).thenReturn(noFileMediaVm);
-        when(inventoryService.getProductIdsAddedWarehouse()).thenReturn(new ArrayList<>());
-        generateTestData();
+        when(inventoryService.getProductIdsAddedWarehouse()).thenReturn(products.stream().map(p->p.getId()).toList());
     }
 
     private void generateTestData() {

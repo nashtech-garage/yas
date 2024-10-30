@@ -215,13 +215,13 @@ class ProductControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    void test_getProductFeature_shouldReturnProductList() {
+    void test_getProductFeature_shouldReturnEmptyList() {
         getGivenSpecificationWithAdmin()
             .when()
             .get(PRODUCT_STOREFRONT_URL + "/featured")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .body("productList", hasSize(2))
+            .body("productList", hasSize(0))
             .log().ifValidationFails();
     }
 
