@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 class PaymentServiceTest {
     private PaymentRepository paymentRepository;
     private OrderService orderService;
-    private PaypalHandler paypalHandler;
+    private PaymentHandler paymentHandler;
     private final Map<String, PaymentHandler> providers = new HashMap<>();
     private List<PaymentHandler> paymentHandlers = new ArrayList<>();
     private PaymentService paymentService;
@@ -38,11 +38,11 @@ class PaymentServiceTest {
     void setUp() {
         paymentRepository = mock(PaymentRepository.class);
         orderService = mock(OrderService.class);
-        paypalHandler = mock(PaypalHandler.class);
-        paymentHandlers.add(paypalHandler);
+        paymentHandler = mock(PaymentHandler.class);
+        paymentHandlers.add(paymentHandler);
         paymentService = new PaymentService(paymentRepository, orderService, paymentHandlers);
 
-        when(paypalHandler.getProviderId()).thenReturn(PaymentMethod.PAYPAL.name());
+        when(paymentHandler.getProviderId()).thenReturn(PaymentMethod.PAYPAL.name());
         paymentService.initializeProviders();
 
         payment = new Payment();
@@ -62,7 +62,7 @@ class PaymentServiceTest {
         InitPaymentRequestVm initPaymentRequestVm = InitPaymentRequestVm.builder()
                 .paymentMethod(PaymentMethod.PAYPAL.name()).totalPrice(BigDecimal.TEN).checkoutId("123").build();
         InitiatedPayment initiatedPayment = InitiatedPayment.builder().paymentId("123").status("success").redirectUrl("http://abc.com").build();
-        when(paypalHandler.initPayment(initPaymentRequestVm)).thenReturn(initiatedPayment);
+        when(paymentHandler.initPayment(initPaymentRequestVm)).thenReturn(initiatedPayment);
         InitPaymentResponseVm result = paymentService.initPayment(initPaymentRequestVm);
         assertEquals(initiatedPayment.getPaymentId(), result.paymentId());
         assertEquals(initiatedPayment.getStatus(), result.status());
@@ -75,7 +75,7 @@ class PaymentServiceTest {
                 .paymentMethod(PaymentMethod.PAYPAL.name()).token("123").build();
         CapturedPayment capturedPayment = prepareCapturedPayment();
         Long orderId = 999L;
-        when(paypalHandler.capturePayment(capturePaymentRequestVM)).thenReturn(capturedPayment);
+        when(paymentHandler.capturePayment(capturePaymentRequestVM)).thenReturn(capturedPayment);
         when(orderService.updateCheckoutStatus(capturedPayment)).thenReturn(orderId);
         Payment payment = Payment.builder().id(1L).paymentStatus(PaymentStatus.COMPLETED).build();
         when(paymentRepository.save(any())).thenReturn(payment);

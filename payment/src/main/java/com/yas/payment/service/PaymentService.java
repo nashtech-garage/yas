@@ -30,12 +30,12 @@ public class PaymentService {
     @PostConstruct
     public void initializeProviders() {
         for (PaymentHandler handler : paymentHandlers) {
-            providers.put(handler.getProviderId().toLowerCase(), handler);
+            providers.put(handler.getProviderId(), handler);
         }
     }
 
     private PaymentHandler getPaymentHandler(String providerName) {
-        PaymentHandler handler = providers.get(providerName.toLowerCase());
+        PaymentHandler handler = providers.get(providerName);
         if (handler == null) {
             throw new IllegalArgumentException("No payment handler found for provider: " + providerName);
         }
