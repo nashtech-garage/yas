@@ -57,7 +57,7 @@ export const getServerSideProps: GetServerSideProps = async (
 
   // fetch product by slug
   const product = await getProductDetail(slug as string);
-  if (!product.id) return { notFound: true };
+  if (!product?.id) return { notFound: true };
 
   const productOptions: ProductOptions[] = [];
   let productVariations: ProductVariation[] = [];

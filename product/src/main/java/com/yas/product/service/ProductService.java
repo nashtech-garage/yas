@@ -862,11 +862,14 @@ public class ProductService {
         Double endPrice
     ) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<Long> productIds = inventoryService.getProductIdsAddedWarehouse();
+        if (productIds.isEmpty())
+            return new ProductsGetVm(new ArrayList<>(), 0, 0, 0, 0, true);
 
         Page<Product> productPage;
         productPage = productRepository.findByProductNameAndCategorySlugAndPriceBetween(
             productName.trim().toLowerCase(),
-            categorySlug.trim(), startPrice, endPrice, pageable);
+            categorySlug.trim(), startPrice, endPrice, productIds, pageable);
 
         List<ProductThumbnailGetVm> productThumbnailVms = new ArrayList<>();
         List<Product> products = productPage.getContent();

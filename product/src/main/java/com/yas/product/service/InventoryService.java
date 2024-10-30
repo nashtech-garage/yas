@@ -21,7 +21,7 @@ public class InventoryService extends AbstractCircuitBreakFallbackHandler {
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleInventoryFallback")
     public List<Long> getProductIdsAddedWarehouse() {
         final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.inventory())
-            .path("/backoffice/stocks/products-in-warehouse").buildAndExpand().toUri();
+            .path("/storefront/stocks/products-in-warehouse").buildAndExpand().toUri();
         return restClient.get()
             .uri(url)
             .retrieve()

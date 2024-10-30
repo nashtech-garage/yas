@@ -26,8 +26,8 @@ const FeaturedProduct = () => {
     <Container className="featured-product-container">
       <div className="title">Featured products</div>
       <Row xs={5} xxl={6}>
-        {products.length > 0 &&
-          products.map((product) => (
+        {products?.length > 0 &&
+          products?.map((product) => (
             <Col key={product.id}>
               <ProductCard product={product} />
             </Col>
