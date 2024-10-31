@@ -1,8 +1,9 @@
 package com.yas.order.viewmodel.checkout;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 
-import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
