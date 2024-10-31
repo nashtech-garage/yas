@@ -6,7 +6,11 @@ credentials:
     username: yas
     password: LarUmB3A49NTg9YmgW4=
   keycloak:
+    backofficeBffClientSecret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
+    storefrontBffClientSecret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
     customerManagementClientSecret: NKAr3rnjwm9jlakgKpelukZGFaHYqIWE
+  redis:
+    password: redis
 
 #Genneral application.yaml for all microservice
 applicationConfig:
@@ -89,12 +93,6 @@ applicationConfig:
 # Gateway config for bff microservices
 gatewayRoutesConfig:
   spring:
-    security:
-      oauth2:
-        client:
-          provider:
-            keycloak:
-              issuer-uri: http://identity.yas.local.com/realms/Yas
     cloud:
       gateway:
         routes:
@@ -179,6 +177,46 @@ gatewayRoutesConfig:
             uri: ${UI_HOST}
             predicates:
               - Path=/**
+
+backofficeBffExtraConfig:
+  spring:
+    data:
+      redis:
+        host: redis-master.redis
+        password: ${REDIS_PASSWORD}
+        port: 6379
+    security:
+      oauth2:
+        client:
+          provider:
+            keycloak:
+              issuer-uri: http://identity.yas.local.com/realms/Yas
+          registration:
+            api-client:
+              provider: keycloak
+              client-id: backoffice-bff
+              client-secret: ${KEYCLOAK_BACKOFFICE_BFF_CLIENT_SECRET}
+              scope: openid, profile, email, roles
+
+storefrontBffExtraConfig:
+  spring:
+    data:
+      redis:
+        host: redis-master.redis
+        password: ${REDIS_PASSWORD}
+        port: 6379
+    security:
+      oauth2:
+        client:
+          provider:
+            keycloak:
+              issuer-uri: http://identity.yas.local.com/realms/Yas
+          registration:
+            api-client:
+              provider: keycloak
+              client-id: storefront-bff
+              client-secret: ${KEYCLOAK_STOREFRONT_BFF_CLIENT_SECRET}
+              scope: openid, profile, email, roles
 
 # Media application config custom
 mediaApplicationConfig:

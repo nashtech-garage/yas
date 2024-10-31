@@ -8,7 +8,7 @@ backend:
 
   deployment:
     annotations:
-      configmap.reloader.stakater.com/reload: "yas-gateway-routes-config-configmap"
+      configmap.reloader.stakater.com/reload: "yas-gateway-routes-config-configmap,storefront-bff-extra-configmap"
 
   ingress:
     enabled: true
@@ -20,12 +20,23 @@ backend:
       value: prod
     - name: UI_HOST
       value: http://storefront-ui:3000
+  extraEnvFroms:
+    - secretRef:
+        name: yas-keycloak-credentials-secret
+    - secretRef:
+        name: yas-redis-credentials-secret
   extraVolumes:
     - name: yas-gateway-routes-config
       configMap:
         name: yas-gateway-routes-config-configmap
+    - name: storefront-bff-extra-config
+      configMap:
+        name: storefront-bff-extra-configmap
   extraVolumeMounts:
     - name: yas-gateway-routes-config
-      mountPath: /opt/yas/storefront-bff
+      mountPath: /opt/yas/gateway-routes-config
+    - name: storefront-bff-extra-config
+      mountPath: /opt/yas/extra-config
   extraApplicationConfigPaths:
-    - /opt/yas/storefront-bff/gateway-routes-config.yaml
+    - /opt/yas/gateway-routes-config/gateway-routes-config.yaml
+    - /opt/yas/extra-config/storefront-bff-extra-config.yaml
