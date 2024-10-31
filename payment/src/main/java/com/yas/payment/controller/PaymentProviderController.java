@@ -19,11 +19,4 @@ public class PaymentProviderController {
         return ResponseEntity.ok(paymentProviderService.getEnabledPaymentProviders());
     }
 
-    @GetMapping("/payment-providers/{id}/additional-settings")
-    public ResponseEntity<String> getAdditionalSettings(@PathVariable("id") String id) {
-        return ResponseEntity.ok(paymentProviderService
-            .getAdditionalSettingsByPaymentProviderId(id));
-    }
-
-
 }

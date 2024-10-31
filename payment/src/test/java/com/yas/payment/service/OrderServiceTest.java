@@ -7,9 +7,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.yas.payment.config.ServiceUrlConfig;
+import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
-import com.yas.payment.viewmodel.CapturedPayment;
+import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import java.math.BigDecimal;
@@ -17,9 +18,6 @@ import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -48,7 +46,7 @@ class OrderServiceTest {
     @Test
     void testUpdateCheckoutStatus_whenNormalCase_returnLong() {
 
-        CapturedPayment payment = CapturedPayment.builder()
+        CapturedPayment capturedPayment = CapturedPayment.builder()
             .orderId(12345L)
             .checkoutId("checkout-1234")
             .amount(new BigDecimal("99.99"))
@@ -73,7 +71,7 @@ class OrderServiceTest {
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(Long.class)).thenReturn(1L);
 
-        Long result = orderService.updateCheckoutStatus(payment);
+        Long result = orderService.updateCheckoutStatus(capturedPayment);
 
         assertThat(result).isEqualTo(1L);
 
