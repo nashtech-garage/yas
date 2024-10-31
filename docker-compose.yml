@@ -277,7 +277,7 @@ services:
     environment:
     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/payment
     - SERVER_SERVLET_CONTEXT_PATH=/payment
-    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/payment
+    - YAS_PUBLIC_URL=http://storefront/complete-payment
     - YAS_SERVICES_ORDER
     - SERVER_PORT
     - LOGGING_CONFIG
