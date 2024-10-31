@@ -268,10 +268,12 @@ public class PromotionService {
 
     public void updateUsagePromotion(List<PromotionUsageVm> promotionUsageVms) {
         for (PromotionUsageVm promotionUsageVm : promotionUsageVms) {
-            Optional<Promotion> promotion = promotionRepository.findByCouponCodeAndIsActiveTrue(promotionUsageVm.promotionCode());
+            Optional<Promotion> promotion =
+                    promotionRepository.findByCouponCodeAndIsActiveTrue(promotionUsageVm.promotionCode());
 
             if (!promotion.isPresent()) {
-                throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE, promotionUsageVm.promotionCode());
+                throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE,
+                        promotionUsageVm.promotionCode());
             }
 
             PromotionUsage promotionUsage = PromotionUsage.builder()
