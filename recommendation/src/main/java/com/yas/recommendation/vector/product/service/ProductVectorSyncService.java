@@ -48,5 +48,4 @@ public class ProductVectorSyncService {
         productVectorRepository.delete(productId);
     }
 
-
 }

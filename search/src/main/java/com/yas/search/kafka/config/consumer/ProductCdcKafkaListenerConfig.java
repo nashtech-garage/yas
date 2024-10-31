@@ -1,6 +1,7 @@
 package com.yas.search.kafka.config.consumer;
 
 import com.yas.commonlibrary.kafka.cdc.config.BaseKafkaListenerConfig;
+import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -13,17 +14,17 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
  */
 @EnableKafka
 @Configuration
-public class ProductCdcKafkaListenerConfig extends BaseKafkaListenerConfig<ProductCdcMessage> {
+public class ProductCdcKafkaListenerConfig extends BaseKafkaListenerConfig<ProductMsgKey, ProductCdcMessage> {
 
     public static final String PRODUCT_CDC_LISTENER_CONTAINER_FACTORY = "productCdcListenerContainerFactory";
 
     public ProductCdcKafkaListenerConfig(KafkaProperties kafkaProperties) {
-        super(ProductCdcMessage.class, kafkaProperties);
+        super(ProductMsgKey.class, ProductCdcMessage.class, kafkaProperties);
     }
 
     @Bean(name = PRODUCT_CDC_LISTENER_CONTAINER_FACTORY)
     @Override
-    public ConcurrentKafkaListenerContainerFactory<String, ProductCdcMessage> listenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<ProductMsgKey, ProductCdcMessage> listenerContainerFactory() {
         return super.kafkaListenerContainerFactory();
     }
 

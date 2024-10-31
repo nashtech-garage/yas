@@ -9,13 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCdcMessage {
-
-    private Product after;
-
-    private Product before;
-
-    private Operation op;
-
+public class ProductMsgKey {
+    private Long id;
 }
-
