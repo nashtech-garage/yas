@@ -1,7 +1,6 @@
 package com.yas.order.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -192,15 +191,11 @@ class OrderControllerTest {
         );
         when(orderService.getAllOrder(
             any(),
-            any(),
-            anyString(),
             anyString(),
             anyList(),
+            any(),
             anyString(),
-            anyString(),
-            anyString(),
-            anyInt(),
-            anyInt()
+            any()
         )).thenReturn(orderListVm);
 
         mockMvc.perform(get("/backoffice/orders")
