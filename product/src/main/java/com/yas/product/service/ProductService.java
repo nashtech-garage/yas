@@ -157,6 +157,8 @@ public class ProductService {
 
     private <T extends ProductVariationSaveVm> void validateProductVm(ProductSaveVm<T> productSaveVm,
                                                                       Product existingProduct) {
+        validateLengthMustGreaterThanWidth(productSaveVm);
+
         validateExistingProductProperties(productSaveVm, existingProduct);
 
         validateProductVariationDuplicates(productSaveVm);
@@ -172,6 +174,12 @@ public class ProductService {
         for (ProductProperties variation : productSaveVm.variations()) {
             Product existingVariation = existingVariationsById.get(variation.id());
             validateExistingProductProperties(variation, existingVariation);
+        }
+    }
+
+    private <T extends ProductVariationSaveVm> void validateLengthMustGreaterThanWidth(ProductSaveVm<T> productPostVm) {
+        if (productPostVm.length() < productPostVm.width()) {
+            throw new BadRequestException(Constants.ErrorCode.MAKE_SURE_LENGTH_GREATER_THAN_WIDTH);
         }
     }
 
