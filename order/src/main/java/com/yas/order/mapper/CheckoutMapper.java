@@ -8,11 +8,9 @@ import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-
-
-import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 @Component
