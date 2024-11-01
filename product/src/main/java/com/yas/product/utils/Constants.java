@@ -34,5 +34,6 @@ public final class Constants {
         public static final String PRODUCT_OPTION_VALUE_IS_NOT_FOUND = "PRODUCT_OPTION_VALUE_IS_NOT_FOUND";
         public static final String PRODUCT_COMBINATION_PROCESSING_FAILED = "PRODUCT_COMBINATION_PROCESSING_FAILED";
         public static final String NO_MATCHING_PRODUCT_OPTIONS = "NO_MATCHING_PRODUCT_OPTIONS";
+        public static final String MAKE_SURE_LENGTH_GREATER_THAN_WIDTH = "MAKE_SURE_LENGTH_GREATER_THAN_WIDTH";
     }
 }

@@ -238,6 +238,7 @@ const Checkout = () => {
 
   const redirectToPaypal = async (order: Order) => {
     const initPaymentPaypalRequest: InitPaymentPaypalRequest = {
+      paymentMethod: order.paymentMethod,
       checkoutId: order.checkoutId,
       totalPrice: order.totalPrice,
     };
