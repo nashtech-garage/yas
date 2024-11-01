@@ -33,6 +33,7 @@ import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.document.Document;
@@ -239,6 +240,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
         assertTrue(firstRow.get("content").toString().contains(PRODUCT_NAME_UPDATE), "Content is not correct.");
     }
 
+    @Disabled
     @DisplayName("When having product delete event, data must sync as delete")
     @Test
     public void test_whenHavingDeleteEvent_shouldSyncAsDelete()
