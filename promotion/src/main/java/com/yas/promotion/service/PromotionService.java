@@ -5,10 +5,12 @@ import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.PromotionApply;
+import com.yas.promotion.model.PromotionUsage;
 import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;
 import com.yas.promotion.repository.PromotionRepository;
 import com.yas.promotion.repository.PromotionUsageRepository;
+import com.yas.promotion.utils.AuthenticationUtils;
 import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.BrandVm;
 import com.yas.promotion.viewmodel.CategoryGetVm;
@@ -17,14 +19,9 @@ import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
+import com.yas.promotion.viewmodel.PromotionUsageVm;
 import com.yas.promotion.viewmodel.PromotionVerifyResultDto;
 import com.yas.promotion.viewmodel.PromotionVerifyVm;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
@@ -32,6 +29,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -72,8 +76,8 @@ public class PromotionService {
         validateIfPromotionExistedSlug(promotionPostVm.getSlug());
         validateIfCouponCodeIsExisted(promotionPostVm.getCouponCode());
         validateIfPromotionEndDateIsBeforeStartDate(
-            promotionPostVm.getStartDate().toInstant(),
-            promotionPostVm.getEndDate().toInstant());
+                promotionPostVm.getStartDate().toInstant(),
+                promotionPostVm.getEndDate().toInstant());
     }
 
     public PromotionDetailVm updatePromotion(PromotionPutVm promotionPutVm) {
@@ -107,23 +111,23 @@ public class PromotionService {
     }
 
     public PromotionListVm getPromotions(
-        int pageNo,
-        int pageSize,
-        String promotionName,
-        String couponCode,
-        Instant startDate,
-        Instant endDate
+            int pageNo,
+            int pageSize,
+            String promotionName,
+            String couponCode,
+            Instant startDate,
+            Instant endDate
     ) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
         Page<Promotion> promotionPage;
 
         promotionPage = promotionRepository.findPromotions(
-            promotionName.trim(),
-            couponCode.trim(),
-            startDate,
-            endDate,
-            pageable
+                promotionName.trim(),
+                couponCode.trim(),
+                startDate,
+                endDate,
+                pageable
         );
 
         List<PromotionDetailVm> promotionDetailVmList = promotionPage
@@ -147,14 +151,11 @@ public class PromotionService {
         List<ProductVm> productVms = null;
         List<PromotionApply> promotionApplies = promotion.getPromotionApplies();
         switch (promotion.getApplyTo()) {
-            case CATEGORY ->
-                categoryGetVms = productService.getCategoryByIds(promotionApplies.stream()
+            case CATEGORY -> categoryGetVms = productService.getCategoryByIds(promotionApplies.stream()
                     .map(PromotionApply::getCategoryId).toList());
-            case BRAND ->
-                brandVms = productService.getBrandByIds(promotionApplies.stream()
+            case BRAND -> brandVms = productService.getBrandByIds(promotionApplies.stream()
                     .map(PromotionApply::getBrandId).toList());
-            case PRODUCT ->
-                productVms = productService.getProductByIds(promotionApplies.stream()
+            case PRODUCT -> productVms = productService.getProductByIds(promotionApplies.stream()
                     .map(PromotionApply::getProductId).toList());
             default -> {
                 break;
@@ -198,10 +199,10 @@ public class PromotionService {
 
     public PromotionVerifyResultDto verifyPromotion(PromotionVerifyVm promotionVerifyData) {
         Optional<Promotion> promotionOp =
-            promotionRepository.findByCouponCodeAndIsActiveTrue(promotionVerifyData.couponCode());
+                promotionRepository.findByCouponCodeAndIsActiveTrue(promotionVerifyData.couponCode());
         if (promotionOp.isEmpty()) {
             throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE,
-                promotionVerifyData.couponCode());
+                    promotionVerifyData.couponCode());
         }
 
         Promotion promotion = promotionOp.get();
@@ -227,44 +228,44 @@ public class PromotionService {
         }
 
         List<ProductVm> productsCanApply = products.stream()
-            .filter(product -> commonProductIds.contains(product.id()))
+                .filter(product -> commonProductIds.contains(product.id()))
                 .sorted(Comparator.comparing(ProductVm::price)).toList();
 
         return new PromotionVerifyResultDto(true, productsCanApply.getFirst().id(),
-            promotion.getCouponCode(),
-            promotion.getDiscountType(),
-            DiscountType.FIXED.equals(promotion.getDiscountType())
-                ? promotion.getDiscountAmount() : promotion.getDiscountPercentage());
+                promotion.getCouponCode(),
+                promotion.getDiscountType(),
+                DiscountType.FIXED.equals(promotion.getDiscountType())
+                        ? promotion.getDiscountAmount() : promotion.getDiscountPercentage());
     }
 
     private boolean isInvalidOrderPrice(PromotionVerifyVm promotionVerifyData, Promotion promotion) {
         return promotionVerifyData.orderPrice() <= 0
-            || promotionVerifyData.orderPrice() < promotion.getMinimumOrderPurchaseAmount();
+                || promotionVerifyData.orderPrice() < promotion.getMinimumOrderPurchaseAmount();
     }
 
     private boolean isExhaustedUsageQuantity(Promotion promotion) {
         return UsageType.LIMITED.equals(promotion.getUsageType())
-            && promotion.getUsageLimit() <= promotion.getUsageCount();
+                && promotion.getUsageLimit() <= promotion.getUsageCount();
     }
 
     private List<ProductVm> getProductsCanApplyPromotion(Promotion promotion) {
         switch (promotion.getApplyTo()) {
             case CATEGORY -> {
                 List<Long> categoryIds = promotion.getPromotionApplies().stream()
-                    .map(PromotionApply::getCategoryId)
-                    .toList();
+                        .map(PromotionApply::getCategoryId)
+                        .toList();
                 return productService.getProductByCategoryIds(categoryIds);
             }
             case BRAND -> {
                 List<Long> brandIds = promotion.getPromotionApplies().stream()
-                    .map(PromotionApply::getBrandId)
-                    .toList();
+                        .map(PromotionApply::getBrandId)
+                        .toList();
                 return productService.getProductByBrandIds(brandIds);
             }
             case PRODUCT -> {
                 List<Long> productIds = promotion.getPromotionApplies().stream()
-                    .map(PromotionApply::getProductId)
-                    .toList();
+                        .map(PromotionApply::getProductId)
+                        .toList();
                 return productService.getProductByIds(productIds);
             }
             default -> {
@@ -272,4 +273,30 @@ public class PromotionService {
             }
         }
     }
+
+    public void updateUsagePromotion(List<PromotionUsageVm> promotionUsageVms) {
+        for (PromotionUsageVm promotionUsageVm : promotionUsageVms) {
+            Optional<Promotion> promotion =
+                    promotionRepository.findByCouponCodeAndIsActiveTrue(promotionUsageVm.promotionCode());
+
+            if (!promotion.isPresent()) {
+                throw new NotFoundException(Constants.ErrorCode.PROMOTION_NOT_FOUND_ERROR_MESSAGE,
+                        promotionUsageVm.promotionCode());
+            }
+
+            PromotionUsage promotionUsage = PromotionUsage.builder()
+                    .promotion(promotion.get())
+                    .userId(AuthenticationUtils.extractUserId())
+                    .productId(promotionUsageVm.productId())
+                    .orderId(promotionUsageVm.orderId())
+                    .build();
+
+            promotionUsageRepository.save(promotionUsage);
+
+            Promotion existingPromotion = promotion.get();
+            existingPromotion.setUsageCount(existingPromotion.getUsageCount() + 1);
+            promotionRepository.save(existingPromotion);
+        }
+    }
+
 }

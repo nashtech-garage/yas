@@ -1,12 +1,7 @@
 package com.yas.promotion.controller;
 
 import com.yas.promotion.service.PromotionService;
-import com.yas.promotion.viewmodel.PromotionDetailVm;
-import com.yas.promotion.viewmodel.PromotionListVm;
-import com.yas.promotion.viewmodel.PromotionPostVm;
-import com.yas.promotion.viewmodel.PromotionPutVm;
-import com.yas.promotion.viewmodel.PromotionVerifyResultDto;
-import com.yas.promotion.viewmodel.PromotionVerifyVm;
+import com.yas.promotion.viewmodel.*;
 import com.yas.promotion.viewmodel.error.ErrorVm;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.time.Instant;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -110,5 +107,12 @@ public class PromotionController {
     public ResponseEntity<PromotionVerifyResultDto> verifyPromotion(
         @RequestBody PromotionVerifyVm promotionVerifyInfo) {
         return ResponseEntity.ok(promotionService.verifyPromotion(promotionVerifyInfo));
+    }
+
+    @PostMapping({"/storefront/promotions/updateUsage", "/backoffice/promotions/updateUsage"})
+    public ResponseEntity<Void> updateUsagePromotion(
+            @RequestBody List<PromotionUsageVm> promotionUsageVms) {
+        promotionService.updateUsagePromotion(promotionUsageVms);
+        return ResponseEntity.ok().build();
     }
 }

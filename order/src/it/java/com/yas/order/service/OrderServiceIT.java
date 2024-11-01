@@ -44,6 +44,9 @@ class OrderServiceIT {
     private ProductService productService;
 
     @MockBean
+    private PromotionService promotionService;
+
+    @MockBean
     private CartService cartService;
 
     @Autowired

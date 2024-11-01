@@ -1,5 +1,6 @@
 package com.yas.order.viewmodel.checkout;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import lombok.Builder;
 
@@ -9,6 +10,8 @@ public record CheckoutVm(
         String email,
         String note,
         String couponCode,
+        BigDecimal totalAmount,
+        BigDecimal totalDiscountAmount,
         Set<CheckoutItemVm> checkoutItemVms
 ) {
 }
