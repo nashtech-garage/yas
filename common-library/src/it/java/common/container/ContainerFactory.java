@@ -1,8 +1,11 @@
 package common.container;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
@@ -33,6 +36,7 @@ public final class ContainerFactory {
             DockerImageName.parse("confluentinc/cp-kafka:%s".formatted(version))
         );
         registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
+        registry.add("bootstrap.servers", kafkaContainer::getBootstrapServers);
 
         // Consumer properties
         registry.add("auto.offset.reset", () -> "earliest");
@@ -41,6 +45,18 @@ public final class ContainerFactory {
         // Producer properties
         registry.add("spring.kafka.consumer.bootstrap-servers", kafkaContainer::getBootstrapServers);
         return kafkaContainer;
+    }
+
+    public static PostgreSQLContainer pgvector(DynamicPropertyRegistry registry, String version) {
+        var image = DockerImageName.parse("pgvector/pgvector:%s".formatted(version))
+            .asCompatibleSubstituteFor("postgres");
+        var postgres = new PostgreSQLContainer<>(image);
+        postgres.start();
+
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        return postgres;
     }
 
 }
