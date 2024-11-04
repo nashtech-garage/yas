@@ -3,7 +3,6 @@ import { formatPrice } from '@/utils/formatPrice';
 import { useEffect, useState } from 'react';
 import { getEnabledPaymentProviders } from '../../payment/services/PaymentProviderService';
 import { OrderItem } from '../models/OrderItem';
-
 type Props = {
   orderItems: OrderItem[];
   disablePaymentProcess: boolean;
@@ -12,6 +11,8 @@ type Props = {
 
 const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }: Props) => {
   const [totalPrice, setTotalPrice] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [taxAmount, setTaxAmount] = useState(0);
   const [disableCheckout, setDisableCheckout] = useState<boolean>(true);
   const [paymentProviders, setPaymentProviders] = useState<PaymentProvider[]>([]);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
@@ -46,10 +47,21 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
       .map((item) => calculateProductPrice(item))
       .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
     setTotalPrice(totalPrice);
+    const totalDiscountAmount = orderItems
+      .map((item) => item.discountAmount ?? 0)
+      .reduce((accumulator, discount) => accumulator + discount, 0);
+    setDiscountAmount(totalDiscountAmount);
+
+    const totalTaxAmount = orderItems
+      .map((item) => item.taxAmount ?? 0)
+      .reduce((accumulator, discount) => accumulator + discount, 0);
+    setTaxAmount(totalTaxAmount);
   }, [orderItems]);
 
   const calculateProductPrice = (item: OrderItem) => {
-    return item.productPrice * item.quantity;
+    console.log('item');
+    console.log(item);
+    return item.productPrice * item.quantity - (item.discountAmount ?? 0);
   };
 
   const handleAgreeTerms = (e: any) => {
@@ -79,10 +91,10 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
         ))}
 
         <div className="checkout__order__subtotal">
-          Delivery Fee <span>$750.99</span>
+          Discount <span>{formatPrice(discountAmount)}</span>
         </div>
         <div className="checkout__order__subtotal">
-          Tax <span>$750.99</span>
+          Tax <span>{formatPrice(taxAmount)}</span>
         </div>
         <div className="checkout__order__total">
           Total <span>{formatPrice(totalPrice)}</span>

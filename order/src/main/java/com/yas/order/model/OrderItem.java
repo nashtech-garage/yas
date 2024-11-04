@@ -33,6 +33,9 @@ public class OrderItem extends AbstractAuditEntity {
 
     private Long productId;
 
+    @Column(name = "order_id")
+    private Long orderId;
+
     @Column(name = "name")
     private String productName;
 
@@ -65,6 +68,6 @@ public class OrderItem extends AbstractAuditEntity {
     private String processingState;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "orderId", referencedColumnName = "id")
-    private Order orderId;
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private Order order;
 }

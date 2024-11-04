@@ -99,8 +99,6 @@ const Checkout = () => {
       const fetchCheckout = async () => {
         await getCheckoutById(id as string)
           .then((res) => {
-            console.log(res);
-
             setCheckout(res);
             const newItems: OrderItem[] = [];
             res.checkoutItemVms.forEach((result: CheckoutItem) => {
@@ -109,6 +107,8 @@ const Checkout = () => {
                 quantity: result.quantity,
                 productName: result.productName,
                 productPrice: result.productPrice!,
+                discountAmount: result.discountAmount,
+                taxAmount: result.taxAmount,
               });
             });
             setOrderItems(newItems);
@@ -189,14 +189,14 @@ const Checkout = () => {
       order.email = checkout?.email!;
       order.note = data.note;
       order.tax = 0;
-      order.discount = 0;
+      order.discount = checkout?.totalDiscountAmount;
       order.numberItem = orderItems.reduce((result, item) => result + item.quantity, 0);
       order.totalPrice = orderItems.reduce(
-        (result, item) => result + item.quantity * item.productPrice,
+        (result, item) => result + item.quantity * item.productPrice - (item.discountAmount ?? 0),
         0
       );
       order.deliveryFee = 0;
-      order.couponCode = '';
+      order.couponCode = checkout?.couponCode;
       order.deliveryMethod = 'YAS_EXPRESS';
       order.paymentStatus = 'PENDING';
       order.orderItemPostVms = orderItems;
@@ -238,6 +238,7 @@ const Checkout = () => {
 
   const redirectToPaypal = async (order: Order) => {
     const initPaymentPaypalRequest: InitPaymentPaypalRequest = {
+      paymentMethod: order.paymentMethod,
       checkoutId: order.checkoutId,
       totalPrice: order.totalPrice,
     };

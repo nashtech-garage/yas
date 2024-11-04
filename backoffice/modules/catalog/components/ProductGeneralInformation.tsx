@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { FieldErrorsImpl, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import slugify from 'slugify';
 
@@ -19,9 +19,10 @@ type Props = {
   register: UseFormRegister<FormProduct>;
   errors: FieldErrorsImpl<FormProduct>;
   setValue: UseFormSetValue<FormProduct>;
+  watch: UseFormWatch<FormProduct>;
 };
 
-const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
+const ProductGeneralInformation = ({ register, errors, setValue, watch }: Props) => {
   //Get ID
   const router = useRouter();
   const { id } = router.query;
@@ -32,6 +33,8 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
   const [product, setProduct] = useState<Product>();
   const [isLoading, setLoading] = useState(false);
   const [taxClasses, setTaxClasses] = useState<TaxClass[]>([]);
+
+  const width = watch('width', 0);
 
   useEffect(() => {
     getBrands().then((data) => {
@@ -52,7 +55,7 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
           setValue('taxClassId', data.taxClassId ?? '');
           setValue('description', data.description ?? '');
           setValue('specification', data.specification ?? '');
-          setValue('price', data.price ?? 0);
+          setValue('price', data.price ?? 0, { shouldValidate: true, shouldDirty: true });
           setLoading(false);
         })
         .catch((error) => {
@@ -176,7 +179,10 @@ const ProductGeneralInformation = ({ register, errors, setValue }: Props) => {
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product length is required' },
-          validate: { positive: (v) => v > 0 || 'Length must be greater than 0' },
+          validate: {
+            positive: (v) => v > 0 || 'Length must be greater than 0',
+            greaterThanWidth: (v) => (width && v > width) || 'Length must be greater than width',
+          },
         }}
       />
 

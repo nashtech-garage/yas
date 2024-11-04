@@ -6,6 +6,7 @@ import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutItemVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
+import java.math.BigDecimal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ public interface CheckoutMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkoutState", ignore = true)
+    @Mapping(target = "totalAmount", source = "totalAmount") // Ánh xạ tường minh cho totalAmount
+    @Mapping(target = "totalDiscountAmount", source = "totalDiscountAmount")
     Checkout toModel(CheckoutPostVm checkoutPostVm);
 
     @Mapping(target = "checkoutId", source = "checkout.id")
@@ -27,4 +30,8 @@ public interface CheckoutMapper {
 
     @Mapping(target = "checkoutItemVms", ignore = true)
     CheckoutVm toVm(Checkout checkout);
+
+    default BigDecimal map(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
+    }
 }

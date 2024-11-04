@@ -1,12 +1,14 @@
 package com.yas.order.viewmodel.order;
 
 import com.yas.order.model.Order;
+import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -32,10 +34,13 @@ public record OrderVm(
         String checkoutId
 
 ) {
-    public static OrderVm fromModel(Order order) {
-        Set<OrderItemVm> orderItemVms = order.getOrderItems().stream().map(
-                OrderItemVm::fromModel)
-                .collect(Collectors.toSet());
+    public static OrderVm fromModel(Order order, Set<OrderItem> orderItems) {
+
+        Set<OrderItemVm> orderItemVms = Optional.ofNullable(orderItems)
+            .map(items -> items.stream()
+                .map(OrderItemVm::fromModel)
+                .collect(Collectors.toSet()))
+            .orElse(null);
 
         return OrderVm.builder()
                 .id(order.getId())

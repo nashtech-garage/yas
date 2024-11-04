@@ -34,6 +34,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.util.Pair;
 
 @SpringBootTest(classes = OrderApplication.class)
 @Import(IntegrationTestConfiguration.class)
@@ -42,6 +43,9 @@ class OrderServiceIT {
 
     @MockBean
     private ProductService productService;
+
+    @MockBean
+    private PromotionService promotionService;
 
     @MockBean
     private CartService cartService;
@@ -100,8 +104,6 @@ class OrderServiceIT {
         assertTrue(orderOptional.isPresent());
         Order orderDb = orderOptional.get();
         assertEquals("abc@gmail.com", orderDb.getEmail());
-        assertEquals(1, orderDb.getOrderItems().size());
-        assertEquals("abc", orderDb.getOrderItems().stream().findFirst().get().getProductName());
     }
 
     @Test
@@ -127,7 +129,6 @@ class OrderServiceIT {
 
         ZonedDateTime createdFrom = ZonedDateTime.now().minusDays(7);
         ZonedDateTime createdTo = ZonedDateTime.now().plusDays(1);
-        String warehouse = "";
         String productName = "abc";
         List<OrderStatus> orderStatus = List.of(OrderStatus.ACCEPTED);
         String billingCountry = "";
@@ -137,16 +138,12 @@ class OrderServiceIT {
         int pageSize = 10;
 
         OrderListVm orderListVm = orderService.getAllOrder(
-            createdFrom,
-            createdTo,
-            warehouse,
+            Pair.of(createdFrom, createdTo),
             productName,
             orderStatus,
-            billingCountry,
-            billingPhoneNumber,
+            Pair.of(billingCountry, billingPhoneNumber),
             email,
-            pageNo,
-            pageSize
+            Pair.of(pageNo, pageSize)
         );
         assertNotNull(orderListVm.orderList());
 
@@ -157,7 +154,6 @@ class OrderServiceIT {
 
         ZonedDateTime createdFrom = ZonedDateTime.now().minusDays(7);
         ZonedDateTime createdTo = ZonedDateTime.now().plusDays(1);
-        String warehouse = "e3";
         String productName = "abc2";
         List<OrderStatus> orderStatus = List.of(OrderStatus.ACCEPTED);
         String billingCountry = "e3";
@@ -167,16 +163,12 @@ class OrderServiceIT {
         int pageSize = 10;
 
         OrderListVm orderListVm = orderService.getAllOrder(
-            createdFrom,
-            createdTo,
-            warehouse,
+            Pair.of(createdFrom, createdTo),
             productName,
             orderStatus,
-            billingCountry,
-            billingPhoneNumber,
+            Pair.of(billingCountry, billingPhoneNumber),
             email,
-            pageNo,
-            pageSize
+            Pair.of(pageNo, pageSize)
         );
 
         assertNull(orderListVm.orderList());

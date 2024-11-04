@@ -12,12 +12,19 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.order.OrderApplication;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.service.CheckoutService;
+import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutItemVm;
+import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
+import com.yas.order.viewmodel.checkout.CheckoutVm;
+
 import com.yas.order.viewmodel.checkout.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
