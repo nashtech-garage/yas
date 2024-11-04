@@ -7,7 +7,7 @@ backend:
   fullnameOverride: backoffice-bff
   deployment:
     annotations:
-      configmap.reloader.stakater.com/reload: "yas-gateway-routes-config-configmap"
+      configmap.reloader.stakater.com/reload: "yas-gateway-routes-config-configmap,backoffice-bff-extra-configmap"
   ingress:
     enabled: true
     host: backoffice.yas.local.com
@@ -17,12 +17,23 @@ backend:
       value: prod
     - name: UI_HOST
       value: http://backoffice-ui:3000
+  extraEnvFroms:
+    - secretRef:
+        name: yas-keycloak-credentials-secret
+    - secretRef:
+        name: yas-redis-credentials-secret
   extraVolumes:
     - name: yas-gateway-routes-config
       configMap:
         name: yas-gateway-routes-config-configmap
+    - name: backoffice-bff-extra-config
+      configMap:
+        name: backoffice-bff-extra-configmap
   extraVolumeMounts:
     - name: yas-gateway-routes-config
-      mountPath: /opt/yas/backoffice-bff
+      mountPath: /opt/yas/gateway-routes-config
+    - name: backoffice-bff-extra-config
+      mountPath: /opt/yas/extra-config
   extraApplicationConfigPaths:
-    - /opt/yas/backoffice-bff/gateway-routes-config.yaml
+    - /opt/yas/gateway-routes-config/gateway-routes-config.yaml
+    - /opt/yas/extra-config/backoffice-bff-extra-config.yaml

@@ -65,21 +65,6 @@ helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-clust
 --set elasticsearch.replicas="$ELASTICSEARCH_REPLICAES" \
 --set kibana.ingress.hostname="kibana.$DOMAIN"
 
-#Install CRD keycloak
-kubectl create namespace keycloak
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/21.1.2/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/21.1.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/21.1.2/kubernetes/kubernetes.yml -n keycloak
-
-# Install keycloak
-helm upgrade --install keycloak ./keycloak/keycloak \
---namespace keycloak \
---set postgresql.username="$POSTGRESQL_USERNAME" \
---set postgresql.password="$POSTGRESQL_PASSWORD" \
---set hostname="identity.$DOMAIN" \
---set backofficeRedirectUrl="$KEYCLOAK_BACKOFFICE_REDIRECT_URL" \
---set storefrontRedirectUrl="$KEYCLOAK_STOREFRONT_REDIRECT_URL"
-
 #Install loki
 helm upgrade --install loki grafana/loki \
  --create-namespace --namespace observability \

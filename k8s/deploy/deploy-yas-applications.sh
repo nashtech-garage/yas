@@ -8,12 +8,6 @@ helm repo update
 read -rd '' DOMAIN \
 < <(yq -r '.domain' ./cluster-config.yaml)
 
-helm dependency build ../charts/yas-configuration
-helm upgrade --install yas-configuration ../charts/yas-configuration \
---namespace yas --create-namespace
-
-sleep 20
-
 helm dependency build ../charts/backoffice-bff
 helm upgrade --install backoffice-bff ../charts/backoffice-bff \
 --namespace yas --create-namespace \
