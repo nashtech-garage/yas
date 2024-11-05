@@ -115,10 +115,13 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
   const [averageStar, setAverageStar] = useState<number>(0);
 
   useEffect(() => {
-    getAverageStarByProductId(product.id).then((res) => {
-      setAverageStar(res);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getAverageStarByProductId(product.id)
+      .then((res) => {
+        setAverageStar(res);
+      })
+      .catch((error) => {
+        console.error('Error fetching average star:', error);
+      });
   }, []);
 
   useEffect(() => {
