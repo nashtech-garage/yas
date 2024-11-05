@@ -21,8 +21,8 @@ public interface CheckoutMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkoutState", ignore = true)
-    @Mapping(target = "totalAmount", source = "totalAmount") // Ánh xạ tường minh cho totalAmount
-    @Mapping(target = "totalDiscountAmount", source = "totalDiscountAmount")
+//    @Mapping(target = "totalAmount", source = "totalAmount") // Ánh xạ tường minh cho totalAmount
+//    @Mapping(target = "totalDiscountAmount", source = "totalDiscountAmount")
     Checkout toModel(CheckoutPostVm checkoutPostVm);
 
     @Mapping(target = "checkoutId", source = "checkout.id")

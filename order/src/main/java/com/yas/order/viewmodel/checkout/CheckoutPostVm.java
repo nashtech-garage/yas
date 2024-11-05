@@ -12,6 +12,6 @@ public record CheckoutPostVm(
         String paymentMethodId,
         String shippingAddressId,
         @NotNull
-        List<CheckoutItemPostVm> checkoutItemPostVms
-) {
+        List<CheckoutItemPostVm> checkoutItemPostVms) {
+
 }
