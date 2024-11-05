@@ -332,6 +332,7 @@ class OrderControllerTest {
     private OrderPostVm getOrderPostVm() {
 
         OrderAddressPostVm shippingAddress = new OrderAddressPostVm(
+            1L,
             "John Doe",
             "+123456789",
             "123 Main St",
@@ -347,6 +348,7 @@ class OrderControllerTest {
         );
 
         OrderAddressPostVm billingAddress = new OrderAddressPostVm(
+            1L,
             "Jane Smith",
             "+1987654321",
             "789 Elm Street",

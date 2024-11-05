@@ -2,6 +2,7 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
 
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.Forbidden;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.CheckoutMapper;
@@ -9,6 +10,7 @@ import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.CheckoutState;
+import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.AuthenticationUtils;
@@ -18,7 +20,10 @@ import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -104,9 +109,43 @@ public class CheckoutService {
     }
 
     public void updateCheckoutPaymentMethod(String id, CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm) {
+
+        if (Objects.isNull(checkoutPaymentMethodPutVm.paymentMethodId())) {
+            return;
+        }
+
         Checkout checkout = checkoutRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
-        checkout.setPaymentMethodId(checkoutPaymentMethodPutVm.paymentMethodId());
+        checkout.setPaymentMethodId(PaymentMethod.fromValue(checkoutPaymentMethodPutVm.paymentMethodId()));
+        checkoutRepository.save(checkout);
+    }
+
+    public Checkout findCheckoutById(String id) {
+
+        return this.checkoutRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
+    }
+
+    public CheckoutVm findCheckoutWithItemsById(String id) {
+
+        Checkout checkout =  findCheckoutById(id);
+
+        List<CheckoutItem> checkoutItems = checkoutItemRepository.findAllByCheckoutId(checkout.getId());
+
+        Set<CheckoutItemVm> checkoutItemVms = Optional.ofNullable(checkoutItems)
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(checkoutMapper::toVm)
+            .collect(Collectors.toSet());
+
+        return CheckoutVm.fromModel(checkout, checkoutItemVms);
+    }
+
+    public void updateCheckout(Checkout checkout) {
+
+        if (Objects.isNull(checkout.getId())) {
+            throw new BadRequestException(Constants.ErrorCode.ID_NOT_EXISTED);
+        }
         checkoutRepository.save(checkout);
     }
 }
