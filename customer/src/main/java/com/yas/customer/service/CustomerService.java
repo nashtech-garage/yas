@@ -26,7 +26,6 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,8 +65,7 @@ public class CustomerService {
         }
     }
 
-    public void updateCustomers(CustomerProfileRequestVm requestVm) {
-        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+    public void updateCustomer(String id, CustomerProfileRequestVm requestVm) {
         UserRepresentation userRepresentation =
             keycloak.realm(keycloakPropsConfig.getRealm()).users().get(id).toRepresentation();
         if (userRepresentation != null) {
@@ -77,6 +75,18 @@ public class CustomerService {
             RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
             UserResource userResource = realmResource.users().get(id);
             userResource.update(userRepresentation);
+        } else {
+            throw new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND);
+        }
+    }
+
+    public void deleteCustomer(String id) {
+        UserRepresentation userRepresentation =
+            keycloak.realm(keycloakPropsConfig.getRealm()).users().get(id).toRepresentation();
+        if (userRepresentation != null) {
+            RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
+            UserResource userResource = realmResource.users().get(id);
+            userResource.remove();
         } else {
             throw new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND);
         }

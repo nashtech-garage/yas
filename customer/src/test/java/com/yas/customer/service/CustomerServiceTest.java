@@ -135,17 +135,14 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testUpdateCustomers_isNormalCase_methodSuccess() {
-
-        setUpSecurityContext(USER_NAME);
-
+    void testUpdateCustomer_isNormalCase_methodSuccess() {
         UserRepresentation userRepresentation = getUserRepresentation();
         UserResource userResource = mock(UserResource.class);
         when(usersResource.get(USER_NAME)).thenReturn(userResource);
         when(userResource.toRepresentation()).thenReturn(userRepresentation);
 
         ArgumentCaptor<UserRepresentation> argumentCaptor = ArgumentCaptor.forClass(UserRepresentation.class);
-        customerService.updateCustomers(getCustomerProfileRequestVm());
+        customerService.updateCustomer(USER_NAME, getCustomerProfileRequestVm());
 
         verify(userResource).update(argumentCaptor.capture());
         UserRepresentation actual = argumentCaptor.getValue();
@@ -155,18 +152,27 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testUpdateCustomers_isUserNotFound_ThrowNotFoundException() {
-
-        setUpSecurityContext(USER_NAME);
-
+    void testUpdateCustomer_isUserNotFound_ThrowNotFoundException() {
         UserResource userResource = mock(UserResource.class);
         when(usersResource.get(USER_NAME)).thenReturn(userResource);
         when(userResource.toRepresentation()).thenReturn(null);
 
         CustomerProfileRequestVm customerProfileRequestVm = getCustomerProfileRequestVm();
         NotFoundException thrown = assertThrows(NotFoundException.class,
-            () -> customerService.updateCustomers(customerProfileRequestVm));
+            () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
         assertTrue(thrown.getMessage().contains("User not found"));
+    }
+
+    @Test
+    void testDeleteCustomer_isNormalCase_methodSuccess() {
+        UserRepresentation userRepresentation = getUserRepresentation();
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_NAME)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(userRepresentation);
+
+        customerService.deleteCustomer(USER_NAME);
+
+        verify(userResource).remove();
     }
 
     @Test
