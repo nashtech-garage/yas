@@ -115,7 +115,9 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
   const [isPost, setIsPost] = useState<boolean>(false);
 
   const [averageStar, setAverageStar] = useState<number>(0);
-  const [productOptionValueGet, setProductOptionValueGet] = useState<ProductOptionValueDisplay[]>([]);
+  const [productOptionValueGet, setProductOptionValueGet] = useState<ProductOptionValueDisplay[]>(
+    []
+  );
 
   useEffect(() => {
     getAverageStarByProductId(product.id)
@@ -135,7 +137,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
     });
     getProductOptionValueByProductId(product.id).then((res) => {
       setProductOptionValueGet(res);
-    })
+    });
   }, [pageNo, pageSize, product.id, isPost]);
 
   const handlePageChange = ({ selected }: any) => {

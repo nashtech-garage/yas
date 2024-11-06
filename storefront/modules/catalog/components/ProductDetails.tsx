@@ -67,13 +67,13 @@ export default function ProductDetails({
     setListImages(
       productWithColor
         ? [
-          ...(productWithColor.thumbnail?.url ? [productWithColor.thumbnail.url] : []),
-          ...productWithColor.productImages.map((image) => image.url),
-        ]
+            ...(productWithColor.thumbnail?.url ? [productWithColor.thumbnail.url] : []),
+            ...productWithColor.productImages.map((image) => image.url),
+          ]
         : [
-          ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
-          ...product.productImageMediaUrls,
-        ]
+            ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
+            ...product.productImageMediaUrls,
+          ]
     );
     return productWithColor ? productWithColor.options : productVariations[0].options;
   }, [productOptions, productVariations, pvid]);
@@ -230,7 +230,9 @@ export default function ProductDetails({
             const productOptionPost = productOptionValueGet?.find(
               (productOptionPost) => productOptionPost.productOptionId === productOption.id
             );
-            const parsedValue = productOptionPost?.productOptionValue ? JSON.parse(productOptionPost.productOptionValue) : [];
+            const parsedValue = productOptionPost?.productOptionValue
+              ? JSON.parse(productOptionPost.productOptionValue)
+              : [];
             return productOptionPost ? (
               <div className="mb-3" key={productOption.name}>
                 <h5 className="mb-2 fs-6">{productOption.name}:</h5>
@@ -239,10 +241,17 @@ export default function ProductDetails({
                     {Object.entries(parsedValue).map(([key, value]: any, id: any) => (
                       <Button
                         key={key}
-                        className={`color-swatch me-2 py-1 px-2 ${currentSelectedOption[productOptionPost.productOptionId] === key
-                          ? 'border border-2 border-primary opacity-100'
-                          : 'btn-outline-primary opacity-25'}`}
-                        style={{ backgroundColor: value, width: '30px', height: '30px', borderRadius: '50%' }}
+                        className={`color-swatch me-2 py-1 px-2 ${
+                          currentSelectedOption[productOptionPost.productOptionId] === key
+                            ? 'border border-2 border-primary opacity-100'
+                            : 'btn-outline-primary opacity-25'
+                        }`}
+                        style={{
+                          backgroundColor: value,
+                          width: '30px',
+                          height: '30px',
+                          borderRadius: '50%',
+                        }}
                         onClick={() => handleSelectOption(productOptionPost.productOptionId, key)}
                         aria-label={`Color option ${value}`}
                       ></Button>
@@ -253,18 +262,24 @@ export default function ProductDetails({
                     {Object.entries(parsedValue).map(([key, value]: any, id: any) => (
                       <Button
                         key={key}
-                        className={`${currentSelectedOption[productOptionPost.productOptionId] === key
-                          ? 'btn btn-primary text-white'
-                          : 'text-dark btn-outline-primary'}`}
+                        className={`${
+                          currentSelectedOption[productOptionPost.productOptionId] === key
+                            ? 'btn btn-primary text-white'
+                            : 'text-dark btn-outline-primary'
+                        }`}
                         onClick={() => handleSelectOption(productOptionPost.productOptionId, key)}
                         aria-label={`Color option ${value}`}
-                        variant='outline-secondary'
-                      >{key}</Button>
+                        variant="outline-secondary"
+                      >
+                        {key}
+                      </Button>
                     ))}
                   </div>
                 )}
               </div>
-            ) : productOption.name;
+            ) : (
+              productOption.name
+            );
           })}
 
           <h4 className="fs-3" style={{ color: 'red' }}>
