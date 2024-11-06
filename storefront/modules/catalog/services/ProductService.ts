@@ -2,7 +2,7 @@ import { YasError } from '@/common/services/errors/YasError';
 import { ProductSlug } from '../../cart/models/ProductSlug';
 import { ProductDetail } from '../models/ProductDetail';
 import { ProductAll, ProductFeature } from '../models/ProductFeature';
-import { ProductOptionValueGet } from '../models/ProductOptionValueGet';
+import { ProductOptionValueDisplay, ProductOptionValueGet } from '../models/ProductOptionValueGet';
 import { ProductThumbnail } from '../models/ProductThumbnail';
 import { ProductVariation } from '../models/ProductVariation';
 import { ProductsGet } from '../models/ProductsGet';
@@ -70,4 +70,13 @@ export async function getProductsByIds(ids: number[]): Promise<ProductThumbnail[
     throw new YasError(jsonResponse);
   }
   return jsonResponse;
+}
+
+export async function getProductOptionValueByProductId(productId: number): Promise<ProductOptionValueDisplay[]> {
+  const url = `${baseUrl}/product-option-values/${productId}`;
+  console.log(url);
+  
+  const response = await apiClientService.get(url);
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(new Error(response.statusText));
 }

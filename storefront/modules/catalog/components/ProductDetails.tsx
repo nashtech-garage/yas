@@ -13,11 +13,14 @@ import DetailHeader from './DetailHeader';
 import { CartItemPostVm } from '@/modules/cart/models/CartItemPostVm';
 import { YasError } from '@/common/services/errors/YasError';
 import { addCartItem } from '@/modules/cart/services/CartService';
+import { ProductOptionValueDisplay } from '../models/ProductOptionValueGet';
+import { Button } from 'react-bootstrap';
 
 type ProductDetailProps = {
   product: ProductDetail;
   productOptions?: ProductOptions[];
   productVariations?: ProductVariation[];
+  productOptionValueGet?: ProductOptionValueDisplay[];
   pvid: string | null;
   averageStar: number;
   totalRating: number;
@@ -31,6 +34,7 @@ export default function ProductDetails({
   product,
   productOptions,
   productVariations,
+  productOptionValueGet,
   pvid,
   averageStar,
   totalRating,
@@ -63,13 +67,13 @@ export default function ProductDetails({
     setListImages(
       productWithColor
         ? [
-            ...(productWithColor.thumbnail?.url ? [productWithColor.thumbnail.url] : []),
-            ...productWithColor.productImages.map((image) => image.url),
-          ]
+          ...(productWithColor.thumbnail?.url ? [productWithColor.thumbnail.url] : []),
+          ...productWithColor.productImages.map((image) => image.url),
+        ]
         : [
-            ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
-            ...product.productImageMediaUrls,
-          ]
+          ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
+          ...product.productImageMediaUrls,
+        ]
     );
     return productWithColor ? productWithColor.options : productVariations[0].options;
   }, [productOptions, productVariations, pvid]);
@@ -199,7 +203,7 @@ export default function ProductDetails({
         setIsUnchecking(false);
       }
     }
-  };
+  }; 
   return (
     <>
       <DetailHeader
@@ -222,24 +226,47 @@ export default function ProductDetails({
           </div>
 
           {/* product options */}
-          {(productOptions || []).map((productOption) => (
-            <div className="mb-3" key={productOption.name}>
-              <h5 className="mb-2 fs-6">{productOption.name}:</h5>
-              {(productOption.value || []).map((productOptionValue) => (
-                <button
-                  key={productOptionValue}
-                  className={`btn me-2 py-1 px-2 ${
-                    currentSelectedOption[productOption.id] === productOptionValue
-                      ? 'btn-primary'
-                      : 'btn-outline-primary'
-                  }`}
-                  onClick={() => handleSelectOption(productOption.id, productOptionValue)}
-                >
-                  {productOptionValue}
-                </button>
-              ))}
-            </div>
-          ))}
+          {(productOptions || []).map((productOption) => {
+            const productOptionPost = productOptionValueGet?.find(
+              (productOptionPost) => productOptionPost.productOptionId === productOption.id
+            );
+            const parsedValue = productOptionPost?.productOptionValue ? JSON.parse(productOptionPost.productOptionValue) : [];
+            return productOptionPost ? (
+              <div className="mb-3" key={productOption.name}>
+                <h5 className="mb-2 fs-6">{productOption.name}:</h5>
+                {productOptionPost.displayType === 'color' ? (
+                  <div className="d-flex">
+                    {Object.entries(parsedValue).map(([key, value]: any, id: any) => (
+                      <Button
+                        key={key}
+                        className={`color-swatch me-2 py-1 px-2 ${currentSelectedOption[productOptionPost.productOptionId] === key
+                          ? 'border border-2 border-primary opacity-100'
+                          : 'btn-outline-primary opacity-25'}`}
+                        style={{ backgroundColor: value, width: '30px', height: '30px', borderRadius: '50%' }}
+                        onClick={() => handleSelectOption(productOptionPost.productOptionId, key)}
+                        aria-label={`Color option ${value}`}
+                      ></Button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="d-flex gap-2">
+                    {Object.entries(parsedValue).map(([key, value]: any, id: any) => (
+                      <Button
+                        key={key}
+                        className={`${currentSelectedOption[productOptionPost.productOptionId] === key
+                          ? 'btn btn-primary text-white'
+                          : 'text-dark btn-outline-primary'}`}
+                        onClick={() => handleSelectOption(productOptionPost.productOptionId, key)}
+                        aria-label={`Color option ${value}`}
+                        variant='outline-secondary'
+                      >{key}</Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : productOption.name;
+          })}
+
           <h4 className="fs-3" style={{ color: 'red' }}>
             {formatPrice(currentProduct.price)}
           </h4>
