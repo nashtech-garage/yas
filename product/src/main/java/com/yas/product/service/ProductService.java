@@ -303,7 +303,6 @@ public class ProductService {
                                                                Map<Long, ProductOption> optionsById) {
         List<ProductOptionValue> optionValues = new ArrayList<>();
         productPostVm.productOptionValueDisplay().forEach(optionValueVm -> {
-            System.out.println("Option Value Id: " + optionValueVm.productOptionId());
             ProductOptionValue optionValue = ProductOptionValue.builder()
                 .product(savedMainProduct)
                 .displayOrder(optionValueVm.displayOrder())
