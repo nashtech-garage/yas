@@ -72,10 +72,12 @@ export async function getProductsByIds(ids: number[]): Promise<ProductThumbnail[
   return jsonResponse;
 }
 
-export async function getProductOptionValueByProductId(productId: number): Promise<ProductOptionValueDisplay[]> {
+export async function getProductOptionValueByProductId(
+  productId: number
+): Promise<ProductOptionValueDisplay[]> {
   const url = `${baseUrl}/product-option-values/${productId}`;
   console.log(url);
-  
+
   const response = await apiClientService.get(url);
   if (response.status >= 200 && response.status < 300) return await response.json();
   return Promise.reject(new Error(response.statusText));

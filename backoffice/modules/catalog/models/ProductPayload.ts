@@ -1,7 +1,11 @@
 import slugify from 'slugify';
 
 import { FormProduct } from './FormProduct';
-import { ProductOptionsValuePost, ProductOptionValueDisplay, ProductOptionValuePost } from './ProductOptionValuePost';
+import {
+  ProductOptionsValuePost,
+  ProductOptionValueDisplay,
+  ProductOptionValuePost,
+} from './ProductOptionValuePost';
 import { ProductVariation } from './ProductVariation';
 import { ProductVariationPost } from './ProductVariationPost';
 import { ProductVariationPut } from './ProductVariationPut';
@@ -96,7 +100,7 @@ const createProductOptionValueDisplay = (productOptionValuePost: ProductOptionVa
     value: JSON.stringify(item.value),
     displayType: item.displayType,
     displayOrder: item.displayOrder,
-  }));;
+  }));
 };
 
 const createProductOptionValues = (productVariations: ProductVariation[]) => {

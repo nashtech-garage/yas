@@ -67,7 +67,9 @@ export async function getRelatedProductByProductId(productId: number): Promise<P
   return Promise.reject(new Error(response.statusText));
 }
 
-export async function getProductOptionValueByProductId(productId: number): Promise<ProductOptionValueDisplayGet[]> {
+export async function getProductOptionValueByProductId(
+  productId: number
+): Promise<ProductOptionValueDisplayGet[]> {
   const url = `${baseUrlOptionValue}/storefront/product-option-values/${productId}`;
   const response = await apiClientService.get(url);
   if (response.status >= 200 && response.status < 300) return await response.json();

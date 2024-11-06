@@ -32,7 +32,7 @@ const CustomInput: React.FC<CustomInputProps> = ({ defaultValue, onChange, produ
     }
   };
 
-  const handleRemoveOption = (option: string) => {   
+  const handleRemoveOption = (option: string) => {
     const optionExists = productVariations?.some((variation) =>
       Object.values(variation.optionValuesByOptionId).includes(option)
     );
@@ -53,9 +53,9 @@ const CustomInput: React.FC<CustomInputProps> = ({ defaultValue, onChange, produ
     if (defaultValue) {
       const parsedOptions = defaultValue.split(',').map(option => option.trim());
       setSelectedOptions(parsedOptions);
-      
+
     }
-}, [defaultValue]);
+  }, [defaultValue]);
 
   return (
     <div style={{ width: '100%', border: '1px solid #ced4da', borderRadius: '4px', padding: '5px', display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>

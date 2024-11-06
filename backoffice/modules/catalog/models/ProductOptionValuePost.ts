@@ -20,7 +20,7 @@ export type ProductOptionValueDisplay = {
   displayType?: string;
   displayOrder?: number;
   productOptionName?: string;
-}
+};
 
 export type ProductOptionValueDisplayGet = {
   productOptionId?: number;
@@ -28,4 +28,4 @@ export type ProductOptionValueDisplayGet = {
   displayType?: string;
   displayOrder?: number;
   productOptionName?: string;
-}
+};

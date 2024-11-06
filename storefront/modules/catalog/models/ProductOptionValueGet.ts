@@ -6,10 +6,10 @@ export type ProductOptionValueGet = {
 };
 
 export type ProductOptionValueDisplay = {
-  id: number,
+  id: number;
   productOptionId: number;
   productOptionValue: string;
   displayType?: string;
   displayOrder?: number;
-  productOptionName: string
-}
+  productOptionName: string;
+};

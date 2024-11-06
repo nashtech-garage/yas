@@ -40,16 +40,16 @@ const DisplayTypeModal: React.FC<DisplayTypeModalProps> = ({
                             <Col sm={5} className="d-flex align-items-center">
                                 <Row>
                                     <Col className="d-flex align-items-center">
-                                        <Form.Check type="radio" label="Text" 
-                                        checked={getOption()?.displayType === 'text'}
-                                        onChange={() => setDisplayType('text')} 
-                                        name="displayType" id="text" className="d-flex align-items-center gap-2" />
+                                        <Form.Check type="radio" label="Text"
+                                            checked={getOption()?.displayType === 'text'}
+                                            onChange={() => setDisplayType('text')}
+                                            name="displayType" id="text" className="d-flex align-items-center gap-2" />
                                     </Col>
                                     <Col className="d-flex align-items-center">
                                         <Form.Check type="radio" label="Color"
-                                        checked={getOption()?.displayType === 'color'}
-                                        onChange={() => setDisplayType('color')} 
-                                        name="displayType" id="color" className="d-flex align-items-center gap-2" />
+                                            checked={getOption()?.displayType === 'color'}
+                                            onChange={() => setDisplayType('color')}
+                                            name="displayType" id="color" className="d-flex align-items-center gap-2" />
                                     </Col>
                                 </Row>
                             </Col>

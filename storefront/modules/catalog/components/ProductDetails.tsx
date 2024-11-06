@@ -203,7 +203,7 @@ export default function ProductDetails({
         setIsUnchecking(false);
       }
     }
-  }; 
+  };
   return (
     <>
       <DetailHeader
