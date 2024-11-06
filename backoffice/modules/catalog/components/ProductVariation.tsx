@@ -91,7 +91,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         updatedProductOptionValuePost = [
           ...preProductOptionValuePost,
           {
-            productOptionId: currentModelOption?.id || 0,
+            productOptionId: currentModelOption?.id,
             displayType: 'text',
             displayOrder: 1,
             value: { [optionValueKey]: displayColor },
@@ -133,7 +133,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       } else {
         // Create a new entry if it doesn't exist
         const newProductOptionValuePost: ProductOptionValuePost = {
-          productOptionId: productOption?.id || 0,
+          productOptionId: productOption?.id,
           displayOrder: 1,
           displayType: 'text',
           value: optionValues.reduce((acc, optionValue) => {
@@ -187,43 +187,50 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         results.forEach((item) => {
           productOptionValuePosts.push({
             productOptionId: item.productOptionId,
-            displayType: item.displayType || 'text',
-            displayOrder: item.displayOrder || 0,
+            displayType: item.displayType ?? 'text',
+            displayOrder: item.displayOrder ?? 0,
             value: item.productOptionValue ? JSON.parse(item.productOptionValue) : {},
           });
 
-          setSelectedOptions((prevSelectedOptions) => {
-            const option: SelectedOptionValue = {
-              id: item.productOptionId ? item.productOptionId : 0,
-              name: item.productOptionName ? item.productOptionName : '',
-              value: item ? Object.keys(JSON.parse(item.productOptionValue)).join(',') : '',
-            };
-
-            if (!prevSelectedOptions.find((t) => t.name === option.name)) {
-              return [...prevSelectedOptions, option];
-            }
-            return prevSelectedOptions;
-          });
-
-          setCustomInputValues((prevInputValues) => {
-            const newValues = item.productOptionValue
-              ? Object.keys(JSON.parse(item.productOptionValue))
-                  .join(',')
-                  .split(',')
-                  .map((v) => v.trim())
-              : [];
-            return {
-              ...prevInputValues,
-              [item.productOptionName ?? '']: [
-                ...(prevInputValues[item.productOptionName ?? ''] || []),
-                ...newValues,
-              ],
-            };
-          });
+          updateSelectedOptions(item);
+          updateCustomInputValues(item);
         });
         setValue('productOptionValuePost', productOptionValuePosts);
         setProductOptionValuePost(productOptionValuePosts);
       }
+    });
+  };
+
+  const updateSelectedOptions = (item: any) => {
+    setSelectedOptions((prevSelectedOptions) => {
+      const option: SelectedOptionValue = {
+        id: item.productOptionId ? item.productOptionId : 0,
+        name: item.productOptionName ? item.productOptionName : '',
+        value: item ? Object.keys(JSON.parse(item.productOptionValue)).join(',') : '',
+      };
+
+      if (!prevSelectedOptions.find((t) => t.name === option.name)) {
+        return [...prevSelectedOptions, option];
+      }
+      return prevSelectedOptions;
+    });
+  };
+
+  const updateCustomInputValues = (item: any) => {
+    setCustomInputValues((prevInputValues) => {
+      const newValues = item.productOptionValue
+        ? Object.keys(JSON.parse(item.productOptionValue))
+            .join(',')
+            .split(',')
+            .map((v) => v.trim())
+        : [];
+      return {
+        ...prevInputValues,
+        [item.productOptionName ?? '']: [
+          ...(prevInputValues[item.productOptionName ?? ''] || []),
+          ...newValues,
+        ],
+      };
     });
   };
 
