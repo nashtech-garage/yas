@@ -1,4 +1,3 @@
-import { ProfileRequest } from '../../profile/models/ProfileRequest';
 import { Customer, CustomerCreateVM, CustomerUpdateVM } from '../models/Customer';
 import { Customers } from '../models/Customers';
 import apiClientService from '@commonServices/ApiClientService';

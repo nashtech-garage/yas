@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.yas.customer.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -73,7 +73,7 @@ class CustomerServiceTest {
         user2.setEmail("user2@example.com");
         user2.setFirstName("FirstName2");
         user2.setLastName("LastName2");
-        user2.setEnabled(false);
+        user2.setEnabled(true);
         user2.setCreatedTimestamp(946684800000L);
 
         List<UserRepresentation> userList = new ArrayList<>();
@@ -170,9 +170,12 @@ class CustomerServiceTest {
         when(usersResource.get(USER_NAME)).thenReturn(userResource);
         when(userResource.toRepresentation()).thenReturn(userRepresentation);
 
+        ArgumentCaptor<UserRepresentation> argumentCaptor = ArgumentCaptor.forClass(UserRepresentation.class);
         customerService.deleteCustomer(USER_NAME);
 
-        verify(userResource).remove();
+        verify(userResource).update(argumentCaptor.capture());
+        UserRepresentation actual = argumentCaptor.getValue();
+        assertFalse(actual.isEnabled());
     }
 
     @Test

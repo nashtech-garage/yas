@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 public class CustomerService {
 
     private static final String ERROR_FORMAT = "%s: Client %s don't have access right for this resource";
-    private static final int USER_PER_PAGE = 2;
+    private static final int USER_PER_PAGE = 10;
     private static final String GUEST = "GUEST";
     private final Keycloak keycloak;
     private final KeycloakPropsConfig keycloakPropsConfig;
@@ -54,9 +54,10 @@ public class CustomerService {
         try {
             List<CustomerAdminVm> result = keycloak.realm(keycloakPropsConfig.getRealm()).users()
                 .search(null, pageNo * USER_PER_PAGE, USER_PER_PAGE).stream()
+                .filter(UserRepresentation::isEnabled)
                 .map(CustomerAdminVm::fromUserRepresentation)
                 .toList();
-            int totalUser = keycloak.realm(keycloakPropsConfig.getRealm()).users().count();
+            int totalUser = result.size();
 
             return new CustomerListVm(totalUser, result, (totalUser + USER_PER_PAGE - 1) / USER_PER_PAGE);
         } catch (ForbiddenException exception) {
@@ -86,7 +87,8 @@ public class CustomerService {
         if (userRepresentation != null) {
             RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
             UserResource userResource = realmResource.users().get(id);
-            userResource.remove();
+            userRepresentation.setEnabled(false);
+            userResource.update(userRepresentation);
         } else {
             throw new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND);
         }

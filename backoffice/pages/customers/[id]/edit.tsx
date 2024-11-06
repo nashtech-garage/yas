@@ -1,7 +1,6 @@
-import { Input } from '@commonItems/Input';
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { CUSTOMER_URL, ResponseStatus } from '@constants/Common';
-import { EMAIL_PATTERN } from 'modules/catalog/constants/validationPattern';
+import CustomerBaseInformation from 'modules/customer/components/CustomerBaseInformation';
 import { Customer, CustomerCreateVM, CustomerUpdateVM } from 'modules/customer/models/Customer';
 import { getCustomer, updateCustomer } from 'modules/customer/services/CustomerService';
 import type { NextPage } from 'next';
@@ -16,22 +15,21 @@ const EditCustomer: NextPage = () => {
   const { id } = router.query;
 
   const [customer, setCustomer] = useState<Customer>();
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<CustomerCreateVM>();
 
   useEffect(() => {
-    setLoading(true);
+    setIsLoading(true);
     if (id) {
       getCustomer(id as string)
         .then((data) => {
           setCustomer(data);
-          setLoading(false);
+          setIsLoading(false);
         })
         .catch((error) => console.log(error));
     }
@@ -62,40 +60,7 @@ const EditCustomer: NextPage = () => {
         <div className="col-md-8">
           <h2>Update {customer?.username} customer</h2>
           <form onSubmit={handleSubmit(handleSubmitEditCustomer)}>
-            <Input
-              labelText="Email"
-              field="email"
-              defaultValue={customer?.email}
-              register={register}
-              registerOptions={{
-                required: { value: true, message: 'Email is required' },
-                pattern: {
-                  value: EMAIL_PATTERN,
-                  message: 'Please provide correct email',
-                },
-              }}
-              error={errors.email?.message}
-            />
-            <Input
-              labelText="First name"
-              field="firstName"
-              defaultValue={customer?.firstName}
-              register={register}
-              registerOptions={{
-                required: { value: true, message: 'First name is required' },
-              }}
-              error={errors.firstName?.message}
-            />
-            <Input
-              labelText="Last name"
-              field="lastName"
-              defaultValue={customer?.lastName}
-              register={register}
-              registerOptions={{
-                required: { value: true, message: 'Last name is required' },
-              }}
-              error={errors.lastName?.message}
-            />
+            <CustomerBaseInformation register={register} errors={errors} customer={customer} />
             <button className="btn btn-primary" type="submit">
               Save
             </button>
