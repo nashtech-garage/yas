@@ -319,7 +319,6 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
   const generateProductOptionValue = (): ProductOptionValuePost[] => {
     const result = productOptionValuePost;
-    const optionValuesByOptionId = new Map<number, string>();
     let isEmptyOptions = false;
     selectedOptions.forEach((option) => {
       if (isEmptyOptions) return;
@@ -328,41 +327,39 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         isEmptyOptions = true;
         return;
       }
-      optionValues.forEach((value) => {
-        const productOption = productOptions.find(
-          (productOption) => productOption.name === option.name
-        );
-        const productOptionId = productOption?.id ?? -1;
-        optionValuesByOptionId.set(productOptionId, value);
-        const productOptionValue = productOptionValuePost.find(
-          (t) => t.productOptionId === productOptionId
-        );
-
-        if (!productOptionValue) {
-          result.push({
-            productOptionId,
-            value: { [`${value}`]: '#000000' },
-            displayType: 'text',
-            displayOrder: 1,
-          });
-        } else {
-          let keyExists = false;
-          for (const key in productOptionValue.value) {
-            if (key === value) {
-              keyExists = true;
-              break;
-            }
-          }
-          if (!keyExists) {
-            productOptionValue.value = {
-              ...productOptionValue.value,
-              [`${value}`]: '#000000',
-            };
-          }
-        }
-      });
+      updateAllOptionValues(optionValues, option.name, result);
     });
     return result;
+  };
+
+  const updateAllOptionValues = (
+    optionValues: string[],
+    optionName: string,
+    result: ProductOptionValuePost[]
+  ) => {
+    const productOption = productOptions.find((productOption) => productOption.name === optionName);
+    const productOptionId = productOption?.id ?? -1;
+    optionValues.forEach((value) => {
+      const productOptionValue = productOptionValuePost.find(
+        (t) => t.productOptionId === productOptionId
+      );
+
+      if (!productOptionValue) {
+        result.push({
+          productOptionId,
+          value: { [`${value}`]: '#000000' },
+          displayType: 'text',
+          displayOrder: 1,
+        });
+      } else {
+        if (!(value in productOptionValue.value)) {
+          productOptionValue.value = {
+            ...productOptionValue.value,
+            [`${value}`]: '#000000',
+          };
+        }
+      }
+    });
   };
 
   const generateProductOptionCombinations = (): Array<Map<number, string>> => {
@@ -376,19 +373,25 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         isEmptyOptions = true;
         return;
       }
-      optionValues.forEach((value) => {
-        const productOption = productOptions.find(
-          (productOption) => productOption.name === option.name
-        );
-        const productOptionId = productOption?.id ?? -1;
-
-        const optionMap = new Map<number, string>();
-        optionMap.set(productOptionId, value);
-        optionValuesArray.push(optionMap);
-      });
+      updateOptionValuesForCombinations(optionValues, option.name, optionValuesArray);
     });
 
     return isEmptyOptions ? [] : optionValuesArray;
+  };
+
+  const updateOptionValuesForCombinations = (
+    optionValues: string[],
+    optionName: string,
+    optionValuesArray: Array<Map<number, string>>
+  ) => {
+    const productOption = productOptions.find((productOption) => productOption.name === optionName);
+    const productOptionId = productOption?.id ?? -1;
+
+    optionValues.forEach((value) => {
+      const optionMap = new Map<number, string>();
+      optionMap.set(productOptionId, value);
+      optionValuesArray.push(optionMap);
+    });
   };
 
   const generateDistinctProductOptionCombinations = (): Array<Map<number, string>> => {
