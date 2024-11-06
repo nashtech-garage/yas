@@ -2,7 +2,6 @@ package common.kafka;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
 import java.net.URI;
 import java.time.Duration;
 import java.util.HashMap;
@@ -11,15 +10,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.Getter;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -78,16 +83,22 @@ public abstract class CdcConsumerTest<M> {
     }
 
     protected void sendMsg(M message)
-        throws InterruptedException, ExecutionException, TimeoutException {
+            throws InterruptedException, ExecutionException, TimeoutException {
         var rs = getKafkaTemplate()
-            .send(this.cdcEvent, message)
-            .get(10, TimeUnit.SECONDS);
+                .send(this.cdcEvent, message)
+                .get(10, TimeUnit.SECONDS);
         logger.info("Sent message completed: {}", rs);
     }
 
     protected <R> void simulateHttpRequestWithResponse(URI url, R response, Class<R> responseType) {
         setupMockGetRequest(url);
         when(responseSpec.body(responseType)).thenReturn(response);
+    }
+
+    protected <R> void simulateHttpRequestWithResponseToEntity(URI url, R response, Class<R> responseType) {
+        setupMockGetRequest(url);
+        when(responseSpec.toEntity(any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(response));
     }
 
     protected <R> void simulateHttpRequestWithError(URI url, Throwable exception, Class<R> responseType) {
@@ -113,10 +124,10 @@ public abstract class CdcConsumerTest<M> {
      * @throws InterruptedException If the thread is interrupted while sleeping.
      */
     public void waitForConsumer(
-        long processTime,
-        int numOfRecords,
-        int attempts,
-        long backOff
+            long processTime,
+            int numOfRecords,
+            int attempts,
+            long backOff
     ) throws InterruptedException {
         // retryTime =  (1st run) + (total run when retrying) + (total back off time)
         long retryTime = processTime + (attempts * processTime) + (backOff * attempts);
