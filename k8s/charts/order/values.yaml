@@ -7,9 +7,7 @@ backend:
   fullnameOverride: order
   databaseName: order
   ingress:
-    enabled: true
-    host: api.yas.local.com
-    path: /order
+    enabled: false
   extraVolumes:
     - name: order-application-config
       configMap:
