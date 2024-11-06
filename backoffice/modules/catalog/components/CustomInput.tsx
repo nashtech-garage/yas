@@ -51,14 +51,23 @@ const CustomInput: React.FC<CustomInputProps> = ({ defaultValue, onChange, produ
 
   useEffect(() => {
     if (defaultValue) {
-      const parsedOptions = defaultValue.split(',').map(option => option.trim());
+      const parsedOptions = defaultValue.split(',').map((option) => option.trim());
       setSelectedOptions(parsedOptions);
-
     }
   }, [defaultValue]);
 
   return (
-    <div style={{ width: '100%', border: '1px solid #ced4da', borderRadius: '4px', padding: '5px', display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div
+      style={{
+        width: '100%',
+        border: '1px solid #ced4da',
+        borderRadius: '4px',
+        padding: '5px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+      }}
+    >
       {selectedOptions.map((option) => (
         <Badge
           key={option}

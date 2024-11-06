@@ -1,4 +1,7 @@
-import { getProductOptionValueByProductId, getVariationsByProductId } from '@catalogServices/ProductService';
+import {
+  getProductOptionValueByProductId,
+  getVariationsByProductId,
+} from '@catalogServices/ProductService';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
@@ -24,7 +27,7 @@ type SelectedOptionValue = {
   id: number;
   name: string;
   value?: string;
-}
+};
 
 const ProductVariations = ({ getValue, setValue }: Props) => {
   const router = useRouter();
@@ -34,7 +37,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptionValue[]>([]);
   const [optionCombines, setOptionCombines] = useState<string[]>([]);
-  const [productOptionValuePost, setProductOptionValuePost] = useState<ProductOptionValuePost[]>([]);
+  const [productOptionValuePost, setProductOptionValuePost] = useState<ProductOptionValuePost[]>(
+    []
+  );
   const [currentModelOption, setCurrentModelOption] = useState<SingleValue<ProductOption>>(null);
   const [customInputValues, setCustomInputValues] = useState<Record<string, string[]>>({});
   const [showDisplayStyleModel, setShowDisplayStyleModel] = useState(false);
@@ -60,39 +65,47 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       setValue('productOptionValuePost', updatedPosts);
       return updatedPosts;
     });
-  }
+  };
 
-  const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>, optionValueKey: string) => {
+  const handleColorChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    optionValueKey: string
+  ) => {
     event.preventDefault();
     const displayColor = event.target.value;
     setProductOptionValuePost((preProductOptionValuePost) => {
       let updatedProductOptionValuePost;
-      const existingProductOptionValuePost = preProductOptionValuePost.find((t) => (t.productOptionId === currentModelOption?.id));
+      const existingProductOptionValuePost = preProductOptionValuePost.find(
+        (t) => t.productOptionId === currentModelOption?.id
+      );
       if (existingProductOptionValuePost) {
         updatedProductOptionValuePost = preProductOptionValuePost.map((post) =>
           post.productOptionId === currentModelOption?.id
             ? {
-              ...post,
-              value: { ...post.value, [optionValueKey]: displayColor },
-            }
+                ...post,
+                value: { ...post.value, [optionValueKey]: displayColor },
+              }
             : post
         );
       } else {
-        updatedProductOptionValuePost = [...preProductOptionValuePost, {
-          productOptionId: currentModelOption?.id || 0,
-          displayType: "text",
-          displayOrder: 1,
-          value: { [optionValueKey]: displayColor },
-        }];
+        updatedProductOptionValuePost = [
+          ...preProductOptionValuePost,
+          {
+            productOptionId: currentModelOption?.id || 0,
+            displayType: 'text',
+            displayOrder: 1,
+            value: { [optionValueKey]: displayColor },
+          },
+        ];
       }
       setValue('productOptionValuePost', updatedProductOptionValuePost);
       return updatedProductOptionValuePost;
     });
-  }
+  };
 
   const openSelectOptionModel = (event: React.MouseEvent<HTMLElement>, option: string) => {
     event.preventDefault();
-    const optionValues = customInputValues[option]
+    const optionValues = customInputValues[option];
     if (!optionValues || optionValues.length === 0) {
       return toast.warning('Please insert option value');
     }
@@ -113,16 +126,16 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         const existingValue = currentOptions[index].value;
         const updatedValue: Record<string, string> = {};
         // Loop through option values to create a new value object
-        optionValues.forEach(optionValue => {
+        optionValues.forEach((optionValue) => {
           updatedValue[optionValue] = existingValue[optionValue] || '#000000';
         });
-        currentOptions[index] = { ...currentOptions[index], value: updatedValue, };
+        currentOptions[index] = { ...currentOptions[index], value: updatedValue };
       } else {
         // Create a new entry if it doesn't exist
         const newProductOptionValuePost: ProductOptionValuePost = {
           productOptionId: productOption?.id || 0,
           displayOrder: 1,
-          displayType: "text",
+          displayType: 'text',
           value: optionValues.reduce((acc, optionValue) => {
             acc[optionValue] = '#000000';
             return acc;
@@ -133,7 +146,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       setValue('productOptionValuePost', currentOptions);
       return currentOptions;
     });
-  }
+  };
 
   useEffect(() => {
     if (id) {
@@ -182,9 +195,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           setSelectedOptions((prevSelectedOptions) => {
             const option: SelectedOptionValue = {
               id: item.productOptionId ? item.productOptionId : 0,
-              name: item.productOptionName ? item.productOptionName : "",
+              name: item.productOptionName ? item.productOptionName : '',
               value: item ? Object.keys(JSON.parse(item.productOptionValue)).join(',') : '',
-            }
+            };
 
             if (!prevSelectedOptions.find((t) => t.name === option.name)) {
               return [...prevSelectedOptions, option];
@@ -193,21 +206,26 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           });
 
           setCustomInputValues((prevInputValues) => {
-            const newValues = item.productOptionValue ? Object.keys(JSON.parse(item.productOptionValue))
-              .join(',').split(',').map(v => v.trim()) : [];
+            const newValues = item.productOptionValue
+              ? Object.keys(JSON.parse(item.productOptionValue))
+                  .join(',')
+                  .split(',')
+                  .map((v) => v.trim())
+              : [];
             return {
               ...prevInputValues,
-              [item.productOptionName ?? '']: [...(prevInputValues[item.productOptionName ?? ''] || []),
-              ...newValues],
+              [item.productOptionName ?? '']: [
+                ...(prevInputValues[item.productOptionName ?? ''] || []),
+                ...newValues,
+              ],
             };
           });
-
         });
         setValue('productOptionValuePost', productOptionValuePosts);
         setProductOptionValuePost(productOptionValuePosts);
       }
-    })
-  }
+    });
+  };
 
   const options = useMemo(() => {
     return productOptions.map((option) => ({ value: option.name, label: option.name }));
@@ -234,7 +252,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         let newOption: SelectedOptionValue = {
           id: currentOption.id,
           name: currentOption.name,
-        }
+        };
         setSelectedOptions([...selectedOptions, newOption]);
       } else {
         toast.info(`${currentOption.name} is selected. Select Other`);
@@ -247,7 +265,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     setOptionCombines([]);
     const result = selectedOptions.filter((_option) => _option.name !== option);
     const productOption = productOptions.find((productOption) => productOption.name === option);
-    const productOptionPosts = productOptionValuePost.filter((_option) => _option.productOptionId != productOption?.id)
+    const productOptionPosts = productOptionValuePost.filter(
+      (_option) => _option.productOptionId != productOption?.id
+    );
     setCurrentModelOption(null);
     setProductOptionValuePost([...productOptionPosts]);
     setSelectedOptions([...result]);
@@ -287,7 +307,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
       setValue('productVariations', [...formProductVariations, newVariation]);
       formProductVariations.push(newVariation);
     });
-    setValue('productOptionValuePost', productOptionValues)
+    setValue('productOptionValuePost', productOptionValues);
   };
 
   const generateProductOptionValue = (): ProductOptionValuePost[] => {
@@ -302,10 +322,14 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         return;
       }
       optionValues.forEach((value) => {
-        const productOption = productOptions.find((productOption) => productOption.name === option.name);
+        const productOption = productOptions.find(
+          (productOption) => productOption.name === option.name
+        );
         const productOptionId = productOption?.id ?? -1;
         optionValuesByOptionId.set(productOptionId, value);
-        const productOptionValue = productOptionValuePost.find((t) => t.productOptionId === productOptionId);
+        const productOptionValue = productOptionValuePost.find(
+          (t) => t.productOptionId === productOptionId
+        );
 
         if (!productOptionValue) {
           result.push({
@@ -325,14 +349,14 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           if (!keyExists) {
             productOptionValue.value = {
               ...productOptionValue.value,
-              [`${value}`]: '#000000'
+              [`${value}`]: '#000000',
             };
           }
         }
-      })
+      });
     });
     return result;
-  }
+  };
 
   const generateProductOptionCombinations = (): Array<Map<number, string>> => {
     const optionValuesArray: Array<Map<number, string>> = [];
@@ -346,7 +370,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
         return;
       }
       optionValues.forEach((value) => {
-        const productOption = productOptions.find((productOption) => productOption.name === option.name);
+        const productOption = productOptions.find(
+          (productOption) => productOption.name === option.name
+        );
         const productOptionId = productOption?.id ?? -1;
 
         const optionMap = new Map<number, string>();
@@ -383,7 +409,10 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     const optionIds = Array.from(groupedByOptionId.keys());
 
     // Generate all combinations using recursive helper function
-    const combine = (index: number, currentCombination: Map<number, string>): Array<Map<number, string>> => {
+    const combine = (
+      index: number,
+      currentCombination: Map<number, string>
+    ): Array<Map<number, string>> => {
       if (index === optionIds.length) {
         return [new Map(currentCombination)];
       }
@@ -424,7 +453,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           className="w-50"
           options={options}
           isClearable
-          isOptionDisabled={(option) => (selectedOptions.find((t) => t.name === option.value.toString()) != null)}
+          isOptionDisabled={(option) =>
+            selectedOptions.find((t) => t.name === option.value.toString()) != null
+          }
           onChange={(option) => {
             if (option?.label) {
               setCurrentOption({
@@ -446,7 +477,10 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           <div className="mb-3">
             {(selectedOptions || []).map((option) => (
               <div className="mb-3 d-flex gap-4" key={option.name}>
-                <label className="form-label flex-grow-1 d-flex flex-col align-items-center" htmlFor={option.name}>
+                <label
+                  className="form-label flex-grow-1 d-flex flex-col align-items-center"
+                  htmlFor={option.name}
+                >
                   {option.name}
                 </label>
                 <span className="form-control w-75 border-none p-0">
@@ -456,7 +490,13 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
                     productVariations={listVariant}
                   />
                 </span>
-                <Button className='py-0' variant="primary" onClick={(event) => { openSelectOptionModel(event, option.name); }}>
+                <Button
+                  className="py-0"
+                  variant="primary"
+                  onClick={(event) => {
+                    openSelectOptionModel(event, option.name);
+                  }}
+                >
                   Display Style
                 </Button>
                 <DisplayTypeModal
