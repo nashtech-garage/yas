@@ -20,15 +20,22 @@ import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.product.ProductCheckoutListVm;
+import com.yas.order.viewmodel.product.ProductGetCheckoutListVm;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.instancio.Instancio;
 import static org.instancio.Select.field;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,6 +67,9 @@ class CheckoutServiceTest {
     List<CheckoutItem> checkoutItems;
     Checkout checkoutCreated;
     String checkoutId = UUID.randomUUID().toString();
+    List<ProductCheckoutListVm> productCheckoutListVms;
+    ProductGetCheckoutListVm productGetCheckoutListVm;
+    Map<Long, ProductCheckoutListVm> productCheckoutListVmMap;
 
     @BeforeEach
     void setUp() {
@@ -87,6 +97,21 @@ class CheckoutServiceTest {
                 .checkout(checkoutCreated)
                 .build()
                 ).toList();
+
+        productCheckoutListVms = checkoutItems.stream().map((t) -> {
+            return Instancio.of(ProductCheckoutListVm.class)
+                    .set(field(ProductCheckoutListVm.class, "id"), t.getProductId())
+                    .create();
+        }).toList();
+        productGetCheckoutListVm = new ProductGetCheckoutListVm(
+                productCheckoutListVms,
+                0,
+                productCheckoutListVms.size(),
+                productCheckoutListVms.size(),
+                1,
+                true);
+        productCheckoutListVmMap = productCheckoutListVms.stream()
+                .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
     }
 
     @Test
@@ -94,6 +119,7 @@ class CheckoutServiceTest {
         checkoutCreated.setCheckoutItems(checkoutItems);
         when(checkoutRepository.save(any())).thenReturn(checkoutCreated);
         when(checkoutItemRepository.saveAll(anyCollection())).thenReturn(checkoutItems);
+        when(productService.getProductInfomation(any(Set.class), anyInt(), anyInt())).thenReturn(productCheckoutListVmMap);
         var res = checkoutService.createCheckout(checkoutPostVm);
 
         assertThat(res)
@@ -108,19 +134,13 @@ class CheckoutServiceTest {
     }
 
     @Test
-    void testCreateCheckout_whenCheckoutItemsIsEmpty_returnCheckoutWithoutCheckoutItems() {
+    void testCreateCheckout_whenCheckoutItemsIsEmpty_throwError() {
 
         when(checkoutRepository.save(any())).thenReturn(checkoutCreated);
         when(checkoutItemRepository.saveAll(anyCollection())).thenReturn(List.of());
-        var res = checkoutService.createCheckout(checkoutPostVm);
-
-        assertThat(res)
-                .hasFieldOrPropertyWithValue("id", checkoutId)
-                .hasFieldOrPropertyWithValue("email", checkoutPostVm.email())
-                .hasFieldOrPropertyWithValue("promotionCode", checkoutPostVm.promotionCode())
-                .hasFieldOrPropertyWithValue("note", checkoutPostVm.note());
-
-        assertThat(res.checkoutItemVms()).isEmpty();
+        
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> checkoutService.createCheckout(checkoutPostVm));
+        assertThat(exception).hasMessage("PRODUCT_NOT_FOUND");
     }
 
     @Test

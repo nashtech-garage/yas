@@ -84,7 +84,7 @@ class CheckoutMapperTest {
                 .hasFieldOrPropertyWithValue("description", checkoutItem.getDescription())
                 .hasFieldOrPropertyWithValue("quantity", checkoutItem.getQuantity())
                 .hasFieldOrPropertyWithValue("productPrice", checkoutItem.getProductPrice())
-                .hasFieldOrPropertyWithValue("tax", checkoutItem.getTax())
+                .hasFieldOrPropertyWithValue("taxAmount", checkoutItem.getTaxAmount())
                 .hasFieldOrPropertyWithValue("discountAmount", checkoutItem.getDiscountAmount())
                 .hasFieldOrPropertyWithValue("shipmentFee", checkoutItem.getShipmentFee())
                 .hasFieldOrPropertyWithValue("shipmentTax", checkoutItem.getShipmentTax())

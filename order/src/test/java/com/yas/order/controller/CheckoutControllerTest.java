@@ -116,14 +116,15 @@ class CheckoutControllerTest {
         doNothing().when(checkoutService).updateCheckoutPaymentMethod(id, request);
 
         mockMvc.perform(put("/storefront/checkouts/{id}/payment-method", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectWriter.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         verify(checkoutService).updateCheckoutPaymentMethod(id, request);
     }
 
-    private static @NotNull List<CheckoutItemPostVm> getCheckoutItemPostVms() {
+    private static @NotNull
+    List<CheckoutItemPostVm> getCheckoutItemPostVms() {
         CheckoutItemPostVm item1 = new CheckoutItemPostVm(
                 101L,
                 "First item note",
@@ -148,7 +149,7 @@ class CheckoutControllerTest {
                 .productPrice(new BigDecimal("19.99"))
                 .description("First item description")
                 .discountAmount(new BigDecimal("2.00"))
-                .tax(1L)
+                .taxAmount(new BigDecimal("1.50"))
                 .checkoutId("checkout123")
                 .build();
 
@@ -160,7 +161,7 @@ class CheckoutControllerTest {
                 .productPrice(new BigDecimal("9.99"))
                 .description("Second item description")
                 .discountAmount(new BigDecimal("1.00"))
-                .tax(1L)
+                .taxAmount(new BigDecimal("0.75"))
                 .checkoutId("checkout123")
                 .build();
 
@@ -175,7 +176,7 @@ class CheckoutControllerTest {
                 "DISCOUNT20",
                 CheckoutState.CHECKED_OUT,
                 "Inprogress",
-                10,
+                BigDecimal.valueOf(900),
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
