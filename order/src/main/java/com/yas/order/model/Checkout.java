@@ -74,13 +74,15 @@ public class Checkout extends AbstractAuditEntity {
 
     @SuppressWarnings("unused")
     @Builder.Default
-    private long totalAmount = 0;
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 
     @SuppressWarnings("unused")
-    private BigDecimal totalShipmentFee;
+    @Builder.Default
+    private BigDecimal totalShipmentFee = BigDecimal.ZERO;
 
     @SuppressWarnings("unused")
-    private BigDecimal totalShipmentTax;
+    @Builder.Default
+    private BigDecimal totalShipmentTax = BigDecimal.ZERO;
 
     @SuppressWarnings("unused")
     private BigDecimal totalTax;
@@ -94,14 +96,18 @@ public class Checkout extends AbstractAuditEntity {
     @Builder.Default
     private List<CheckoutItem> checkoutItems = new ArrayList<>();
 
-    public void addAmount(long a) {
-        this.totalAmount += a;
+    public void addAmount(BigDecimal a) {
+        this.totalAmount = this.totalAmount.add(a);
     }
 
-    public void subtractAmount(long a) {
-        this.totalAmount -= a;
-        if (this.totalAmount < 0) {
-            this.totalAmount = 0;
+    public void addAmount(double a) {
+        this.totalAmount = this.totalAmount.add(BigDecimal.valueOf(a));
+    }
+
+    public void subtractAmount(BigDecimal a) {
+        this.totalAmount = this.totalAmount.subtract(a);
+        if (this.totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            this.totalAmount = BigDecimal.ZERO;
         }
     }
 }

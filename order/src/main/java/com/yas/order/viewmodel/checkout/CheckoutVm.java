@@ -13,7 +13,7 @@ public record CheckoutVm(
         String promotionCode,
         CheckoutState checkoutState,
         String progress,
-        long totalAmount,
+        BigDecimal totalAmount,
         BigDecimal totalShipmentFee,
         BigDecimal totalShipmentTax, 
         BigDecimal totalTax,

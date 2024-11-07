@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,8 +44,8 @@ public class CheckoutItem extends AbstractAuditEntity {
     @Column(name = "price")
     private BigDecimal productPrice;
 
-    @SuppressWarnings("unused")
-    private Long tax;
+    @Column(name = "tax")
+    private BigDecimal taxAmount;
 
     @SuppressWarnings("unused")
     private BigDecimal shipmentFee;

@@ -1,7 +1,6 @@
 package com.yas.order.viewmodel.checkout;
 
-import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record CheckoutPostVm(
@@ -11,7 +10,7 @@ public record CheckoutPostVm(
         String shipmentMethodId,
         String paymentMethodId,
         String shippingAddressId,
-        @NotNull
+        @NotEmpty(message = "Checkout Items must not be empty")
         List<CheckoutItemPostVm> checkoutItemPostVms) {
 
 }

@@ -11,7 +11,7 @@ public record CheckoutItemVm(
         String description,
         int quantity,
         BigDecimal productPrice,
-        Long tax,
+        BigDecimal taxAmount,
         BigDecimal discountAmount,
         BigDecimal shipmentFee,
         BigDecimal shipmentTax,
