@@ -98,7 +98,7 @@ class CheckoutServiceTest {
                 .build()
                 ).toList();
 
-        productCheckoutListVms = checkoutItems.stream().map((t) -> {
+        productCheckoutListVms = checkoutItems.stream().map(t -> {
             return Instancio.of(ProductCheckoutListVm.class)
                     .set(field(ProductCheckoutListVm.class, "id"), t.getProductId())
                     .create();

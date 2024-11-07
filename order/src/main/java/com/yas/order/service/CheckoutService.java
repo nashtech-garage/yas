@@ -1,6 +1,5 @@
 package com.yas.order.service;
 
-import com.yas.commonlibrary.exception.BadRequestException;
 import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
 
 import com.yas.commonlibrary.exception.ForbiddenException;
@@ -10,7 +9,6 @@ import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.CheckoutState;
-import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
@@ -20,17 +18,14 @@ import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
 import com.yas.order.viewmodel.product.ProductCheckoutListVm;
-import com.yas.order.viewmodel.product.ProductGetCheckoutListVm;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;

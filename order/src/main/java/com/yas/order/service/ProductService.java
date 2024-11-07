@@ -93,11 +93,9 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         if (response == null || response.productCheckoutListVms() == null) {
             throw new NotFoundException("PRODUCT_NOT_FOUND");
         } else {
-            Map<Long, ProductCheckoutListVm> products
-                    = response.productCheckoutListVms()
-                            .stream()
-                            .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
-            return products;
+            return response.productCheckoutListVms()
+                    .stream()
+                    .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
         }
     }
 
