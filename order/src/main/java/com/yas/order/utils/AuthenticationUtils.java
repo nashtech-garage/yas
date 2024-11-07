@@ -4,10 +4,12 @@ import com.yas.commonlibrary.exception.SignInRequiredException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 public class AuthenticationUtils {
-    public static String getCurrentUserId() {
+
+    public static Jwt getCurrentJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof AnonymousAuthenticationToken) {
@@ -16,6 +18,15 @@ public class AuthenticationUtils {
 
         JwtAuthenticationToken contextHolder = (JwtAuthenticationToken) authentication;
 
-        return contextHolder.getToken().getSubject();
+        return contextHolder.getToken();
     }
+
+    public static String getCurrentUserId() {
+        return getCurrentJwt().getSubject();
+    }
+
+    public static String getCurrentJwtTokenValue() {
+        return getCurrentJwt().getTokenValue();
+    }
+
 }
