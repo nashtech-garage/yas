@@ -72,7 +72,8 @@ public class CheckoutService {
                 })
                 .toList();
 
-        Map<Long, ProductCheckoutListVm> products = productService.getProductInfomation(productIds, 0, productIds.size());
+        Map<Long, ProductCheckoutListVm> products = 
+                productService.getProductInfomation(productIds, 0, productIds.size());
         associateProductWithCheckoutItem(checkout, products, checkoutItems);
 
         checkout.setCheckoutItems(checkoutItems);
