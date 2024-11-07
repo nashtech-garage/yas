@@ -1,5 +1,6 @@
 package com.yas.order.service;
 
+import com.yas.commonlibrary.exception.BadRequestException;
 import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
 
 import com.yas.commonlibrary.exception.ForbiddenException;
@@ -29,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -50,43 +52,12 @@ public class CheckoutService {
         checkout.setCheckoutState(CheckoutState.PENDING);
         checkout.setCustomerId(AuthenticationUtils.getCurrentUserId());
 
-        if (CollectionUtils.isEmpty(checkoutPostVm.checkoutItemPostVms())) {
-            Checkout savedCheckout = checkoutRepository.save(checkout);
-            return checkoutMapper.toVm(savedCheckout);
-        }
+        checkout = setCheckoutItems(checkout, checkoutPostVm);
 
-        Set<Long> productIds = new HashSet<>();
-        List<CheckoutItem> checkoutItemList = checkoutPostVm.checkoutItemPostVms()
-                .stream()
-                .map(checkoutItemPostVm -> {
-                    CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);
-                    checkout.addAmount(item.getQuantity());
-                    productIds.add(item.getProductId());
-                    return item;
-                })
-                .toList();
+        checkout = checkoutRepository.save(checkout);
 
-        ProductGetCheckoutListVm response = productService.getProductInfomation(productIds, 0, productIds.size());
-
-        if (response != null) {
-            Map<Long, ProductCheckoutListVm> products
-                    = response.productCheckoutListVms()
-                            .stream()
-                            .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
-            checkoutItemList.forEach(t -> {
-                ProductCheckoutListVm product = products.get(t.getProductId());
-                if (product != null) {
-                    t.setProductName(product.getName());
-                    t.setProductPrice(BigDecimal.valueOf(product.getPrice()));
-                    t.setTax(product.getTaxClassId());
-                }
-            });
-        }
-        checkout.setCheckoutItems(checkoutItemList);
-        Checkout savedCheckout = checkoutRepository.save(checkout);
-
-        CheckoutVm checkoutVm = checkoutMapper.toVm(savedCheckout);
-        Set<CheckoutItemVm> checkoutItemVms = savedCheckout.getCheckoutItems()
+        CheckoutVm checkoutVm = checkoutMapper.toVm(checkout);
+        Set<CheckoutItemVm> checkoutItemVms = checkout.getCheckoutItems()
                 .stream()
                 .map(checkoutMapper::toVm)
                 .collect(Collectors.toSet());
@@ -94,13 +65,48 @@ public class CheckoutService {
         return checkoutVm.toBuilder().checkoutItemVms(checkoutItemVms).build();
     }
 
+    private Checkout setCheckoutItems(Checkout checkout, CheckoutPostVm checkoutPostVm) {
+        Set<Long> productIds = new HashSet<>();
+        List<CheckoutItem> checkoutItems = checkoutPostVm.checkoutItemPostVms()
+                .stream()
+                .map(checkoutItemPostVm -> {
+                    CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);
+                    item.setCheckout(checkout);
+                    productIds.add(item.getProductId());
+                    return item;
+                })
+                .toList();
+
+        Map<Long, ProductCheckoutListVm> products = productService.getProductInfomation(productIds, 0, productIds.size());
+        associateProductWithCheckoutItem(checkout, products, checkoutItems);
+
+        checkout.setCheckoutItems(checkoutItems);
+        return checkout;
+    }
+
+    private void associateProductWithCheckoutItem(
+            Checkout checkout,
+            Map<Long, ProductCheckoutListVm> products,
+            List<CheckoutItem> checkoutItems) {
+        checkoutItems.forEach(t -> {
+            ProductCheckoutListVm product = products.get(t.getProductId());
+            if (product == null) {
+                throw new NotFoundException("PRODUCT_NOT_FOUND", t.getProductId());
+            } else {
+                t.setProductName(product.getName());
+                t.setProductPrice(BigDecimal.valueOf(product.getPrice()));
+                checkout.addAmount(product.getPrice() * t.getQuantity());
+            }
+        });
+    }
+
     public CheckoutVm getCheckoutPendingStateWithItemsById(String id) {
 
         Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING).orElseThrow(()
-            -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
+                -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
 
         if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId())) {
-            throw new ForbiddenException(Constants.ErrorCode.FORBIDDEN);
+            throw new ForbiddenException(Constants.ErrorCode.FORBIDDEN, "You can not view this checkout");
         }
 
         CheckoutVm checkoutVm = checkoutMapper.toVm(checkout);
@@ -120,7 +126,7 @@ public class CheckoutService {
 
     public Long updateCheckoutStatus(CheckoutStatusPutVm checkoutStatusPutVm) {
         Checkout checkout = checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
-            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
+                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
         checkout.setCheckoutState(CheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
         checkoutRepository.save(checkout);
         Order order = orderService.findOrderByCheckoutId(checkoutStatusPutVm.checkoutId());
@@ -129,7 +135,7 @@ public class CheckoutService {
 
     public void updateCheckoutPaymentMethod(String id, CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm) {
         Checkout checkout = checkoutRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
+                .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
         checkout.setPaymentMethodId(checkoutPaymentMethodPutVm.paymentMethodId());
         checkoutRepository.save(checkout);
     }
