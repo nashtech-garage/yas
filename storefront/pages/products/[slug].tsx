@@ -122,6 +122,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
       .catch((error) => {
         console.error('Error fetching average star:', error);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
