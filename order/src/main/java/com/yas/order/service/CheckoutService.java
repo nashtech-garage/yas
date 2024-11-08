@@ -52,11 +52,11 @@ public class CheckoutService {
         Checkout savedCheckout = checkoutRepository.save(checkout);
 
         CheckoutVm checkoutVm = checkoutMapper.toVm(savedCheckout);
-        if (CollectionUtils.isEmpty(checkoutPostVm.checkoutItemPostVms())) {
+        if (CollectionUtils.isEmpty(checkoutPostVm.checkoutItemVms())) {
             return checkoutVm;
         }
 
-        List<CheckoutItem> checkoutItemList = checkoutPostVm.checkoutItemPostVms()
+        List<CheckoutItem> checkoutItemList = checkoutPostVm.checkoutItemVms()
             .stream()
             .map(checkoutItemPostVm -> {
                 CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);

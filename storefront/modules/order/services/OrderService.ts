@@ -33,8 +33,14 @@ export async function createCheckout(checkout: Checkout): Promise<Checkout | nul
   throw new Error(response.statusText);
 }
 
-export async function getCheckoutById(id: string) {
+export async function getCheckoutById(id: string): Promise<Checkout> {
   const response = await apiClientService.get(`${baseUrl}/checkouts/${id}`);
   if (response.status >= 200 && response.status < 300) return response.json();
+  throw new Error(response.statusText);
+}
+
+export async function processPayment(id: string): Promise<void> {
+  const response = await apiClientService.post(`${baseUrl}/checkouts/${id}/process-payment`, {});
+  if (response.status >= 200 && response.status < 300) return;
   throw new Error(response.statusText);
 }

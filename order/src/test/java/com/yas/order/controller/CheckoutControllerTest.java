@@ -12,6 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.order.OrderApplication;
+import com.yas.order.model.enumeration.CheckoutProgress;
+import com.yas.order.model.enumeration.CheckoutState;
+import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.service.CheckoutService;
 import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutItemVm;
@@ -201,6 +204,11 @@ class CheckoutControllerTest {
                 "user@example.com",
                 "Please deliver after 5 PM",
                 "DISCOUNT20",
+                CheckoutState.PAYMENT_PROCESSING,
+                CheckoutProgress.PROMOTION_CODE_APPLIED,
+                PaymentMethod.PAYPAL,
+                null,
+                null,
                 BigDecimal.valueOf(900),
                 BigDecimal.valueOf(9),
                 checkoutItemVms

@@ -15,7 +15,9 @@ public record PaymentVm(
     PaymentMethod paymentMethod,
     PaymentStatus paymentStatus,
     String gatewayTransactionId,
-    String failureMessage
+    String failureMessage,
+    String paymentProviderCheckoutId,
+    String attributes
 ) {
 
     public static PaymentVm fromModel(Payment payment) {
@@ -28,7 +30,9 @@ public record PaymentVm(
             payment.getPaymentMethod(),
             payment.getPaymentStatus(),
             payment.getGatewayTransactionId(),
-            payment.getFailureMessage()
+            payment.getFailureMessage(),
+            payment.getPaymentProviderCheckoutId(),
+            payment.getAttributes()
         );
     }
 }

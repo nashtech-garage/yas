@@ -89,20 +89,12 @@ public class PaymentUpdateConsumer {
         checkout.setCheckoutState(CheckoutState.PAYMENT_PROCESSING);
         checkout.setProgress(CheckoutProgress.PAYMENT_CREATED);
 
-        ObjectNode updatedAttributes = updateAttributesWithCheckout(checkout.getAttributes(),
-            paymentProviderCheckoutId);
-        checkout.setAttributes(convertObjectToString(objectMapper, updatedAttributes));
-
-        checkoutService.updateCheckout(checkout);
-    }
-
-    private ObjectNode updateAttributesWithCheckout(String attributes, String paymentProviderCheckoutId) {
-
-        ObjectNode attributesNode = getAttributesNode(objectMapper, attributes);
+        ObjectNode attributesNode = getAttributesNode(objectMapper, checkout.getAttributes());
         attributesNode.put(Constants.Column.CHECKOUT_ATTRIBUTES_PAYMENT_PROVIDER_CHECKOUT_ID_FIELD,
             paymentProviderCheckoutId);
+        checkout.setAttributes(convertObjectToString(objectMapper, attributesNode));
 
-        return attributesNode;
+        checkoutService.updateCheckout(checkout);
     }
 
 }

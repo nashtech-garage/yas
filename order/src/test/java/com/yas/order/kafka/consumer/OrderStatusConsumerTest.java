@@ -34,7 +34,7 @@ class OrderStatusConsumerTest {
 
     private OrderStatusConsumer orderStatusConsumer;
 
-    private final String jsonRecord = "{\"after\": {"
+    private final String jsonRecord = "{\"op\": \"u\", \"after\": {"
         + " \"status\": \"PAYMENT_PROCESSING\","
         + " \"progress\": \"STOCK_LOCKED\","
         + " \"id\": 12345,"

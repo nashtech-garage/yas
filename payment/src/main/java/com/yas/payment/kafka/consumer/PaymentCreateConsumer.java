@@ -1,5 +1,10 @@
 package com.yas.payment.kafka.consumer;
 
+import static com.yas.payment.utils.JsonUtils.convertObjectToString;
+import static com.yas.payment.utils.JsonUtils.getAttributesNode;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,6 +32,7 @@ public class PaymentCreateConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentCreateConsumer.class);
     private final PaymentService paymentService;
+    private final ObjectMapper objectMapper;
     private final Gson gson;
 
     @KafkaListener(
@@ -91,6 +97,10 @@ public class PaymentCreateConsumer {
 
             payment.setPaymentStatus(PaymentStatus.PROCESSING);
             payment.setPaymentProviderCheckoutId(initPaymentResponseVm.paymentId());
+
+            ObjectNode attributesNode = getAttributesNode(objectMapper, payment.getAttributes());
+            attributesNode.put(Constants.Column.REDIRECT_URL_ID_COLUMN, initPaymentResponseVm.redirectUrl());
+            payment.setAttributes(convertObjectToString(objectMapper, attributesNode));
 
             paymentService.updatePayment(payment);
         } else {

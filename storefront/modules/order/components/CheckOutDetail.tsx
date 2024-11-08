@@ -137,6 +137,7 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
         </p>
 
         <button
+          id="processToPaymentButton"
           type="submit"
           className="site-btn"
           disabled={disablePaymentProcess ? true : disableCheckout}
@@ -147,6 +148,19 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
           }
         >
           Process to Payment
+        </button>
+        <button
+          id="newProcessToPaymentButton"
+          type="submit"
+          className="site-btn"
+          disabled={disablePaymentProcess ? true : disableCheckout}
+          style={
+            disablePaymentProcess || disableCheckout
+              ? { cursor: 'not-allowed', backgroundColor: 'gray' }
+              : { cursor: 'pointer' }
+          }
+        >
+          New Process to Payment
         </button>
       </div>
     </>

@@ -22,7 +22,7 @@ public final class Constants {
         public static final String ID_COLUMN = "id";
 
         // Column name of Checkout table
-        public static final String REDIRECT_URL_ID_COLUMN = "redirect-url";
+        public static final String REDIRECT_URL_ID_COLUMN = "redirect_url";
     }
 
     public final class Message {

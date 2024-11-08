@@ -58,7 +58,9 @@ public class OrderStatusConsumer {
 
     private void processCheckoutEvent(JsonObject valueObject) {
         Optional.ofNullable(valueObject)
-            .filter(value -> value.has("after"))
+            .filter(
+                value -> value.has("op") && "u".equals(value.get("op").getAsString())
+            )
             .map(value -> value.getAsJsonObject("after"))
             .ifPresent(this::handleAfterJson);
     }

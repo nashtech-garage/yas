@@ -70,7 +70,7 @@ class CheckoutServiceTest {
             .couponCode(checkoutPostVm.couponCode())
             .build();
 
-        checkoutItems = checkoutPostVm.checkoutItemPostVms().stream()
+        checkoutItems = checkoutPostVm.checkoutItemVms().stream()
             .map(itemVm -> CheckoutItem.builder()
                 .id(Instancio.create(Long.class))
                 .productId(itemVm.productId())
@@ -101,7 +101,7 @@ class CheckoutServiceTest {
             .hasFieldOrPropertyWithValue("note", checkoutPostVm.note());
 
         assertThat(res.checkoutItemVms())
-            .hasSize(checkoutPostVm.checkoutItemPostVms().size())
+            .hasSize(checkoutPostVm.checkoutItemVms().size())
             .allMatch(item -> item.checkoutId().equals(checkoutId));
     }
 
@@ -140,7 +140,7 @@ class CheckoutServiceTest {
 
         assertThat(res.checkoutItemVms())
             .allMatch(item -> item.checkoutId().equals(checkoutId))
-            .hasSize(checkoutPostVm.checkoutItemPostVms().size());
+            .hasSize(checkoutPostVm.checkoutItemVms().size());
     }
 
     @Test

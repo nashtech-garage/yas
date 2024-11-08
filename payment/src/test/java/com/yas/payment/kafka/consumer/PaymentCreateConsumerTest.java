@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.payment.model.Payment;
@@ -31,8 +32,9 @@ class PaymentCreateConsumerTest {
     @BeforeEach
     void setUp() {
         paymentService = mock(PaymentService.class);
+        ObjectMapper objectMapper = new ObjectMapper();
         Gson gson = new Gson();
-        paymentCreateConsumer = new PaymentCreateConsumer(paymentService, gson);
+        paymentCreateConsumer = new PaymentCreateConsumer(paymentService, objectMapper, gson);
     }
 
     @Test

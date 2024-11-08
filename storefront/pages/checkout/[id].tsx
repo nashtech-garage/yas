@@ -4,12 +4,16 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Order } from '@/modules/order/models/Order';
 import CheckOutDetail from 'modules/order/components/CheckOutDetail';
 import { OrderItem } from '@/modules/order/models/OrderItem';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Input } from 'common/items/Input';
 import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
-import { createOrder, getCheckoutById } from '@/modules/order/services/OrderService';
+import {
+  createOrder,
+  getCheckoutById,
+  processPayment,
+} from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 import {
   createUserAddress,
@@ -17,12 +21,17 @@ import {
 } from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
-import { Checkout } from '@/modules/order/models/Checkout';
+import type { Checkout } from '@/modules/order/models/Checkout';
 import { toastError } from '@/modules/catalog/services/ToastService';
 import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
 import { initPaymentPaypal } from '@/modules/paymentPaypal/services/PaymentPaypalService';
 import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
 import SpinnerComponent from '@/common/components/SpinnerComponent';
+import { getPaymentById } from '@/modules/payment/services/PaymentService';
+import { Payment } from '@/modules/payment/models/Payment';
+import { ECheckoutState } from '@/modules/order/models/ECheckoutState';
+import { ECheckoutProgress } from '@/modules/order/models/ECheckoutProgress';
+import { EPaymentStatus } from '@/modules/payment/models/EPaymentStatus';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -40,6 +49,11 @@ const Checkout = () => {
   const router = useRouter();
   const { id } = router.query;
   const [checkout, setCheckout] = useState<Checkout>();
+
+  const CREATE_PAYMENT_TIMEOUT = 10;
+  const elapsedTimeRef = useRef(0);
+  let intervalId: NodeJS.Timeout | undefined;
+
   const {
     handleSubmit,
     register,
@@ -142,7 +156,12 @@ const Checkout = () => {
     });
   };
 
-  const onSubmitForm: SubmitHandler<Order> = async (data) => {
+  const onSubmitForm: SubmitHandler<Order> = async (data, event) => {
+    const nativeEvent = event?.nativeEvent as SubmitEvent;
+
+    const clickedButton = nativeEvent?.submitter as HTMLButtonElement | undefined;
+    const clickedButtonId = clickedButton?.id;
+
     let isValidate = true;
 
     if (addShippingAddress) {
@@ -202,16 +221,112 @@ const Checkout = () => {
       order.orderItemPostVms = orderItems;
       setIsShowSpinner(true);
       setDisableProcessPayment(true);
-      createOrder(order)
-        .then(() => {
-          handleCheckOutProcess(order);
-        })
-        .catch(() => {
-          setIsShowSpinner(false);
-          setDisableProcessPayment(false);
-          toast.error('Place order failed');
-        });
+
+      if (clickedButtonId === 'newProcessToPaymentButton') {
+        processPayment(id as string);
+        handlePaymentProcess(order);
+      } else {
+        createOrder(order)
+          .then(() => {
+            handleCheckOutProcess(order);
+          })
+          .catch(() => {
+            setIsShowSpinner(false);
+            setDisableProcessPayment(false);
+            toast.error('Place order failed');
+          });
+      }
     }
+  };
+
+  const fetchOrderCheckout = async (id: string): Promise<Checkout | null> => {
+    try {
+      const res = await getCheckoutById(id);
+      return res;
+    } catch (err) {
+      console.log('Fetch Order Checkout Failed: ', err);
+      return null;
+    }
+  };
+
+  const fetchOrderPayment = async (id: string): Promise<Payment | null> => {
+    try {
+      const res = await getPaymentById(id);
+      return res;
+    } catch (err) {
+      console.log('Fetch Order Payment Failed: ', err);
+      return null;
+    }
+  };
+
+  const handlePaymentProcessForPaypal = () => {
+    intervalId = setInterval(async () => {
+      try {
+        elapsedTimeRef.current += 2;
+
+        const orderCheckout = await fetchOrderCheckout(id as string);
+
+        if (isCreatedPayment(orderCheckout)) {
+          const attributes = orderCheckout?.attributes
+            ? JSON.parse(orderCheckout.attributes)
+            : null;
+          const orderPayment = await fetchOrderPayment(attributes?.payment_id);
+
+          if (isPaymentProcessingAndExistedOrderId(orderPayment)) {
+            redirectToPayment(orderPayment);
+            clearInterval(intervalId);
+          }
+        } else if (elapsedTimeRef.current >= CREATE_PAYMENT_TIMEOUT) {
+          handleErrorCreatingOrder();
+        }
+      } catch (err) {
+        console.error('Handler check status Checkout and Payment Failed: ', err);
+        handleErrorCreatingOrder();
+      }
+    }, 2000);
+  };
+
+  const isCreatedPayment = (orderCheckout: Checkout | null): boolean => {
+    return (
+      orderCheckout?.checkoutState === ECheckoutState.PAYMENT_PROCESSING &&
+      orderCheckout?.progress === ECheckoutProgress.PAYMENT_CREATED
+    );
+  };
+
+  const isPaymentProcessingAndExistedOrderId = (orderPayment: Payment | null): boolean => {
+    return (
+      orderPayment?.paymentStatus === EPaymentStatus.PROCESSING &&
+      orderPayment.paymentProviderCheckoutId !== null
+    );
+  };
+
+  const redirectToPayment = (orderPayment: Payment | null) => {
+    const attributes = orderPayment?.attributes ? JSON.parse(orderPayment.attributes) : null;
+    window.location.replace(attributes.redirect_url);
+  };
+
+  const handlePaymentProcess = (order: Order) => {
+    const paymentMethod = order?.paymentMethod ?? '';
+    switch (paymentMethod.toUpperCase()) {
+      case 'COD':
+        processCodPayment(order);
+        break;
+      case 'PAYPAL':
+        handlePaymentProcessForPaypal();
+        break;
+      default:
+        setIsShowSpinner(false);
+        setDisableProcessPayment(false);
+        toast.error('Place order failed');
+    }
+  };
+
+  const handleErrorCreatingOrder = () => {
+    setIsShowSpinner(false);
+    clearInterval(intervalId);
+    elapsedTimeRef.current = 0;
+    setDisableProcessPayment(false);
+    toast.error('Payment processing failed, please try again later.');
   };
 
   const handleCheckOutProcess = async (order: Order) => {
@@ -254,7 +369,12 @@ const Checkout = () => {
           <SpinnerComponent show={isShowSpinner}></SpinnerComponent>
           <div className="container">
             <div className="checkout__form">
-              <form onSubmit={(event) => void handleSubmit(onSubmitForm)(event)}>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleSubmit((data) => onSubmitForm(data, event))(event);
+                }}
+              >
                 <div className="row">
                   <div className="col-lg-8 col-md-6">
                     <h4>Shipping Address</h4>
