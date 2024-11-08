@@ -31,24 +31,24 @@ const CompletePayment = () => {
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   useEffect(() => {
     if (token) {
+      const fetchCapturePaymentPaypal = async (capturePaymentRequestVM: CapturePaymentRequest) => {
+        setIsShowSpinner(true);
+        const res = await capturePaymentPaypal(capturePaymentRequestVM);
+        if (res.paymentStatus == 'COMPLETED') {
+          setIsPaymentSuccess(true);
+        } else {
+          extractPaymentPaypalFailure(res);
+        }
+        setIsShowSpinner(false);
+      };
+
       const capturePaymentRequestVM: CapturePaymentRequest = {
         token: token as string,
         paymentMethod: paymentMethod as string,
       };
       fetchCapturePaymentPaypal(capturePaymentRequestVM).then();
     }
-  }, [router.query]);
-
-  const fetchCapturePaymentPaypal = async (capturePaymentRequestVM: CapturePaymentRequest) => {
-    setIsShowSpinner(true);
-    const res = await capturePaymentPaypal(capturePaymentRequestVM);
-    if (res.paymentStatus == 'COMPLETED') {
-      setIsPaymentSuccess(true);
-    } else {
-      extractPaymentPaypalFailure(res);
-    }
-    setIsShowSpinner(false);
-  };
+  }, [router.query, token, paymentMethod]);
 
   const extractPaymentPaypalFailure = (res: CapturePaymentPaypalResponse) => {
     const failureMessage: PaymentPaypalFailureMessage = JSON.parse(res.failureMessage!!);
