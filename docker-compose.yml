@@ -576,18 +576,12 @@ services:
       - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
     networks:
       - yas-network
-  akhq:
-    image: tchiotludo/akhq:0.25.1
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
     environment:
-      AKHQ_CONFIGURATION: |
-        akhq:
-          connections:
-            docker-kafka-server:
-              properties:
-                bootstrap.servers: 'kafka:9092'
-              connect:
-                - name: "kafka-connect"
-                  url: "http://kafka-connect:8083/"
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     ports:
       - 8089:8080
     depends_on:

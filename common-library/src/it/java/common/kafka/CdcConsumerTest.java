@@ -41,10 +41,11 @@ import org.testcontainers.containers.KafkaContainer;
  * @param <M> Message Type
  */
 @Getter
-public abstract class CdcConsumerTest<M> {
+public abstract class CdcConsumerTest<K, M> {
 
     private final Logger logger = LoggerFactory.getLogger(CdcConsumerTest.class);
 
+    private final Class<K> keyType;
     private final Class<M> messageType;
 
     private final String cdcEvent;
@@ -61,22 +62,24 @@ public abstract class CdcConsumerTest<M> {
     @Mock
     RestClient.RequestHeadersUriSpec requestHeadersUriSpec;
 
-    private KafkaTemplate<String, M> kafkaTemplate;
+    private KafkaTemplate<K, M> kafkaTemplate;
 
-    public CdcConsumerTest(Class<M> messageType, String topicEvent) {
+    public CdcConsumerTest(Class<K> keyType, Class<M> messageType, String topicEvent) {
         Assert.notNull(topicEvent, "CDC topic must not be null");
         Assert.notNull(messageType, "Message type must not be null");
+        Assert.notNull(keyType, "Key type must not be null");
         this.cdcEvent = topicEvent;
+        this.keyType = keyType;
         this.messageType = messageType;
     }
 
-    public synchronized KafkaTemplate<String, M> getKafkaTemplate() {
+    public synchronized KafkaTemplate<K, M> getKafkaTemplate() {
         // Now, we haven't had any process need Kafka Producer,
         // then just temporary config producer like this for testing
         if (kafkaTemplate == null) {
             synchronized (this) {
                 final Map<String, Object> props = getProducerProps();
-                kafkaTemplate = new KafkaTemplate<>(new DefaultKafkaProducerFactory<String, M>(props));
+                kafkaTemplate = new KafkaTemplate<>(new DefaultKafkaProducerFactory<K, M>(props));
             }
         }
         return kafkaTemplate;
@@ -87,6 +90,14 @@ public abstract class CdcConsumerTest<M> {
         var rs = getKafkaTemplate()
                 .send(this.cdcEvent, message)
                 .get(10, TimeUnit.SECONDS);
+        logger.info("Sent message completed: {}", rs);
+    }
+
+    protected void sendMsg(K key, M message)
+        throws InterruptedException, ExecutionException, TimeoutException {
+        var rs = getKafkaTemplate()
+            .send(this.cdcEvent, key, message)
+            .get(10, TimeUnit.SECONDS);
         logger.info("Sent message completed: {}", rs);
     }
 
@@ -141,7 +152,7 @@ public abstract class CdcConsumerTest<M> {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 0);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return props;
     }
