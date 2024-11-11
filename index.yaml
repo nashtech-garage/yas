@@ -43,6 +43,20 @@ entries:
     version: 0.1.0
   cart:
   - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-11T03:11:33.065362998Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 381bb528b7e22f8dddf6db6605f3eb838cc9000000c542743989f1aad6a5fc35
+    name: cart
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/cart-0.2.0/cart-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2023-07-11T06:41:32.164176862Z"
     dependencies:
@@ -118,6 +132,20 @@ entries:
     version: 0.1.0
   order:
   - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-11T03:11:33.682188544Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: e20a9a7698ec72938571f0c44ebcf168cb4d433f62af6f47a483816636533eac
+    name: order
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/order-0.2.0/order-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2023-07-11T06:41:32.909158506Z"
     dependencies:
@@ -133,6 +161,20 @@ entries:
     version: 0.1.0
   payment:
   - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-11T03:11:33.784065789Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: f0e7c6fea267785af5e61f40411270a9515cc70c6f0e635d854c5a425fd565dc
+    name: payment
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/payment-0.2.0/payment-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2023-07-11T06:41:33.081731503Z"
     dependencies:
@@ -147,6 +189,20 @@ entries:
     - https://github.com/nashtech-garage/yas/releases/download/payment-0.1.0/payment-0.1.0.tgz
     version: 0.1.0
   payment-paypal:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-11T03:11:33.878867478Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: ffd49502b2cbd004a4333daedfcdcb1969f5c1a6944cbcd004e3d41787e0574f
+    name: payment-paypal
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/payment-paypal-0.2.0/payment-paypal-0.2.0.tgz
+    version: 0.2.0
   - apiVersion: v2
     appVersion: 1.16.0
     created: "2023-07-11T06:41:33.209885761Z"
@@ -205,6 +261,36 @@ entries:
     type: application
     urls:
     - https://github.com/nashtech-garage/yas/releases/download/rating-0.1.0/rating-0.1.0.tgz
+    version: 0.1.0
+  recommendation:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-11T03:11:34.39950428Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: e4531680902a4ef99c9a70ba42fffe6ef202e3fb0a180fd2abc771d686a775f1
+    name: recommendation
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/recommendation-0.1.0/recommendation-0.1.0.tgz
+    version: 0.1.0
+  sampledata:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-11T03:11:34.522784865Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: c26599230c72bcb86c14a806a62524b0eaaa1b0421b2a97d81f09c9dafdc04c2
+    name: sampledata
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/sampledata-0.1.0/sampledata-0.1.0.tgz
     version: 0.1.0
   search:
   - apiVersion: v2
@@ -288,6 +374,21 @@ entries:
     urls:
     - https://github.com/nashtech-garage/yas/releases/download/ui-0.1.0/ui-0.1.0.tgz
     version: 0.1.0
+  webhook:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-11T03:11:34.945734391Z"
+    dependencies:
+    - name: backend
+      repository: file://../backend
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 008a8e45f50e4c1dd290b01eefc0ca1158155677b579fa8ec81d417a0da364cf
+    name: webhook
+    type: application
+    urls:
+    - https://github.com/nashtech-garage/yas/releases/download/webhook-0.1.0/webhook-0.1.0.tgz
+    version: 0.1.0
   yas-configuration:
   - apiVersion: v2
     appVersion: 1.1.0
@@ -317,4 +418,4 @@ entries:
     urls:
     - https://github.com/nashtech-garage/yas/releases/download/yas-configuration-0.1.0/yas-configuration-0.1.0.tgz
     version: 0.1.0
-generated: "2024-06-14T04:58:46.76653579Z"
+generated: "2024-11-11T03:11:35.074547124Z"
