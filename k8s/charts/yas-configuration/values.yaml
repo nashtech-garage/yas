@@ -11,6 +11,8 @@ credentials:
     customerManagementClientSecret: NKAr3rnjwm9jlakgKpelukZGFaHYqIWE
   redis:
     password: redis
+  openai:
+    apiKey: update-me
 
 #Genneral application.yaml for all microservice
 applicationConfig:
@@ -173,6 +175,27 @@ gatewayRoutesConfig:
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
+          - id: recommendation_api
+            uri: http://recommendation
+            predicates:
+              - Path=/api/recommendation/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: webhook_api
+            uri: http://webhook
+            predicates:
+              - Path=/api/webhook/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
+          - id: sampledata_api
+            uri: http://sampledata
+            predicates:
+              - Path=/api/sampledata/**
+            filters:
+              - RewritePath=/api/(?<segment>.*), /$\{segment}
+              - TokenRelay=
           - id: ui
             uri: ${UI_HOST}
             predicates:
@@ -247,6 +270,26 @@ paymentPaypalApplicationConfig:
   yas:
     public:
       url: http://storefront.yas.local.com/complete-payment
+
+# Recommendation application config custom
+recommendationApplicationConfig:
+  spring:
+    ai:
+      azure:
+        openai:
+          api-key: ${OPENAI_API_KEY}
+          endpoint: https://product-recommendation.openai.azure.com
+          embedding:
+            options:
+              model: text-embedding-3-small
+
+sampledataApplicationConfig:
+  spring:
+    datasource:
+      product:
+        url: jdbc:postgresql://postgresql.postgres:5432/product
+      media:
+        url: jdbc:postgresql://postgresql.postgres:5432/media
 
 logbackConfig: |
   <?xml version="1.0" encoding="UTF-8" ?>

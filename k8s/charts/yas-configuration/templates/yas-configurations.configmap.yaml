@@ -131,3 +131,27 @@ metadata:
 data:
   product-application.yaml: |
     {{ toYaml .Values.productApplicationConfig | nindent 4 }}
+
+---
+# Configmap of recommendation application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recommendation-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  recommendation-application.yaml: |
+    {{ toYaml .Values.recommendationApplicationConfig | nindent 4 }}
+
+---
+# Configmap of sampledata application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sampledata-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  sampledata-application.yaml: |
+    {{ toYaml .Values.sampledataApplicationConfig | nindent 4 }}
