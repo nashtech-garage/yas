@@ -90,6 +90,26 @@ a {
   background-color: black;
 }
 
+.pagination-helper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.pagination-tool {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.pagination-tool .form-control,
+.pagination-tool button {
+  width: 45px;
+  height: 36.5px;
+  margin: 0 5px;
+}
+
 .pagination-active {
   pointer-events: none;
 }
