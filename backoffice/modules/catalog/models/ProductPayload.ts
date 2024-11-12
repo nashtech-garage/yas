@@ -39,7 +39,7 @@ export type ProductPayload = {
   productImageIds?: number[];
   variations?: ProductVariationPost[] | ProductVariationPut[];
   productOptionValues?: ProductOptionsValuePost[];
-  productOptionValueDisplay?: ProductOptionValueDisplay[];
+  productOptionValueDisplays?: ProductOptionValueDisplay[];
   relatedProductIds?: number[];
   taxClassId?: number;
 };
@@ -88,7 +88,7 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
         })
       : [],
     productOptionValues: createProductOptionValues(data.productVariations || []),
-    productOptionValueDisplay: createProductOptionValueDisplay(data.productOptionValuePost || []),
+    productOptionValueDisplays: createProductOptionValueDisplay(data.productOptionValuePost || []),
     relatedProductIds: data.relateProduct,
     taxClassId: data.taxClassId,
   };

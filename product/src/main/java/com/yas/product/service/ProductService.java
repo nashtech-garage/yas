@@ -302,7 +302,7 @@ public class ProductService {
     private List<ProductOptionValue> createProductOptionValues(ProductPostVm productPostVm, Product savedMainProduct,
                                                                Map<Long, ProductOption> optionsById) {
         List<ProductOptionValue> optionValues = new ArrayList<>();
-        productPostVm.productOptionValueDisplay().forEach(optionValueVm -> {
+        productPostVm.productOptionValueDisplays().forEach(optionValueVm -> {
             ProductOptionValue optionValue = ProductOptionValue.builder()
                 .product(savedMainProduct)
                 .displayOrder(optionValueVm.displayOrder())
@@ -499,7 +499,7 @@ public class ProductService {
         productOptionValueRepository.deleteAllByProductId(product.getId());
 
         List<ProductOptionValue> productOptionValues = new ArrayList<>();
-        productPutVm.productOptionValueDisplay().forEach(optionValueVm -> {
+        productPutVm.productOptionValueDisplays().forEach(optionValueVm -> {
             ProductOptionValue optionValue = ProductOptionValue.builder()
                 .product(product)
                 .displayOrder(optionValueVm.displayOrder())

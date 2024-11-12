@@ -9,7 +9,11 @@ type CustomInputProps = {
   productVariations?: ProductVariation[];
 };
 
-const CustomInput: React.FC<CustomInputProps> = ({ defaultValue, onChange, productVariations }) => {
+const CustomOptionInput: React.FC<CustomInputProps> = ({
+  defaultValue,
+  onChange,
+  productVariations,
+}) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
@@ -18,7 +22,7 @@ const CustomInput: React.FC<CustomInputProps> = ({ defaultValue, onChange, produ
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === ' ') {
+    if (event.key === ';') {
       event.preventDefault();
       if (inputValue.trim()) {
         const newOptions = [...selectedOptions, inputValue.trim()];
@@ -73,10 +77,17 @@ const CustomInput: React.FC<CustomInputProps> = ({ defaultValue, onChange, produ
           key={option}
           pill
           bg="success"
-          style={{ marginRight: '5px', cursor: 'pointer', padding: '10px' }}
-          onClick={() => handleRemoveOption(option)}
+          style={{ display: 'inline-flex', alignItems: 'center', marginRight: '5px', padding: '10px', cursor: 'default' }}
         >
-          {option} <span>&times;</span>
+          <span style={{ marginRight: '8px' }}>{option}</span>
+          <Badge
+            pill
+            bg='light'
+            style={{ cursor: 'pointer', marginLeft: '5px', padding: '4px 4px', color: 'black' }}
+            onClick={() => handleRemoveOption(option)}
+          >
+            &times;
+          </Badge>
         </Badge>
       ))}
       <Form.Control
@@ -84,11 +95,11 @@ const CustomInput: React.FC<CustomInputProps> = ({ defaultValue, onChange, produ
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        placeholder="Type and press space"
+        placeholder="Type and press ';' for select option value"
         style={{ border: 'none', boxShadow: 'none', flex: 1, minWidth: '150px' }}
       />
     </div>
   );
 };
 
-export default CustomInput;
+export default CustomOptionInput;

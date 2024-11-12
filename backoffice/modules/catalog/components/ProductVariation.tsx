@@ -15,8 +15,8 @@ import { getProductOptions } from '../services/ProductOptionService';
 import ProductVariant from './ProductVariant';
 import { ProductOptionValuePost } from '@catalogModels/ProductOptionValuePost';
 import { Button } from 'react-bootstrap';
-import DisplayTypeModal from './DisplayTypeModel';
-import CustomInput from './CustomInput';
+import DisplayTypeModal from './DisplayTypeModal';
+import CustomOptionInput from './CustomOptionInput';
 
 type Props = {
   getValue: UseFormGetValues<FormProduct>;
@@ -41,13 +41,13 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     []
   );
   const [currentModelOption, setCurrentModelOption] = useState<SingleValue<ProductOption>>(null);
-  const [customInputValues, setCustomInputValues] = useState<Record<string, string[]>>({});
+  const [customOptionInputValues, setCustomOptionInputValues] = useState<Record<string, string[]>>({});
   const [showDisplayStyleModel, setShowDisplayStyleModel] = useState(false);
 
   const handleCloseDisplayModel = () => setShowDisplayStyleModel(false);
 
-  const handleCustomInputChange = (optionName: string, value: string[]) => {
-    setCustomInputValues((prevValues) => ({
+  const handleCustomOptionInputChange = (optionName: string, value: string[]) => {
+    setCustomOptionInputValues((prevValues) => ({
       ...prevValues,
       [optionName]: value,
     }));
@@ -105,7 +105,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
   const openSelectOptionModel = (event: React.MouseEvent<HTMLElement>, option: string) => {
     event.preventDefault();
-    const optionValues = customInputValues[option];
+    const optionValues = customOptionInputValues[option];
     if (!optionValues || optionValues.length === 0) {
       return toast.warning('Please insert option value');
     }
@@ -193,7 +193,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           });
 
           updateSelectedOptions(item);
-          updateCustomInputValues(item);
+          updateCustomOptionInputValues(item);
         });
         setValue('productOptionValuePost', productOptionValuePosts);
         setProductOptionValuePost(productOptionValuePosts);
@@ -216,8 +216,8 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     });
   };
 
-  const updateCustomInputValues = (item: any) => {
-    setCustomInputValues((prevInputValues) => {
+  const updateCustomOptionInputValues = (item: any) => {
+    setCustomOptionInputValues((prevInputValues) => {
       const newValues = item.productOptionValue
         ? Object.keys(JSON.parse(item.productOptionValue))
             .join(',')
@@ -322,7 +322,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     let isEmptyOptions = false;
     selectedOptions.forEach((option) => {
       if (isEmptyOptions) return;
-      const optionValues = customInputValues[option.name];
+      const optionValues = customOptionInputValues[option.name];
       if (optionValues.length === 0) {
         isEmptyOptions = true;
         return;
@@ -368,7 +368,7 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
 
     selectedOptions.forEach((option) => {
       if (isEmptyOptions) return;
-      const optionValues = customInputValues[option.name];
+      const optionValues = customOptionInputValues[option.name];
       if (optionValues.length === 0) {
         isEmptyOptions = true;
         return;
@@ -494,9 +494,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
                   {option.name}
                 </label>
                 <span className="form-control w-75 border-none p-0">
-                  <CustomInput
+                  <CustomOptionInput
                     defaultValue={option.value}
-                    onChange={(value) => handleCustomInputChange(option.name, value)}
+                    onChange={(value) => handleCustomOptionInputChange(option.name, value)}
                     productVariations={listVariant}
                   />
                 </span>

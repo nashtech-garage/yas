@@ -38,7 +38,7 @@ public record ProductPutVm(
         List<Long> productImageIds,
         List<ProductVariationPutVm> variations,
         List<ProductOptionValuePutVm> productOptionValues,
-        List<ProductOptionValueDisplay> productOptionValueDisplay,
+        List<ProductOptionValueDisplay> productOptionValueDisplays,
         List<Long> relatedProductIds,
         Long taxClassId) implements ProductSaveVm<ProductVariationPutVm> {
 }

@@ -7,7 +7,7 @@ import ProductVariations from './ProductVariation';
 import RelatedProduct from './RelatedProduct';
 import ProductCategoryMapping from './CategoryMapping';
 import ExportProduct from './ExportProduct';
-import DisplayTypeModel from './DisplayTypeModel';
+import DisplayTypeModel from './DisplayTypeModal';
 
 export {
   CrossSellProduct,
