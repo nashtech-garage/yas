@@ -41,7 +41,9 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
     []
   );
   const [currentModelOption, setCurrentModelOption] = useState<SingleValue<ProductOption>>(null);
-  const [customOptionInputValues, setCustomOptionInputValues] = useState<Record<string, string[]>>({});
+  const [customOptionInputValues, setCustomOptionInputValues] = useState<Record<string, string[]>>(
+    {}
+  );
   const [showDisplayStyleModel, setShowDisplayStyleModel] = useState(false);
 
   const handleCloseDisplayModel = () => setShowDisplayStyleModel(false);

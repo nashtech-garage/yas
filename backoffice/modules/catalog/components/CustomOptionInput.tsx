@@ -77,12 +77,18 @@ const CustomOptionInput: React.FC<CustomInputProps> = ({
           key={option}
           pill
           bg="success"
-          style={{ display: 'inline-flex', alignItems: 'center', marginRight: '5px', padding: '10px', cursor: 'default' }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            marginRight: '5px',
+            padding: '10px',
+            cursor: 'default',
+          }}
         >
           <span style={{ marginRight: '8px' }}>{option}</span>
           <Badge
             pill
-            bg='light'
+            bg="light"
             style={{ cursor: 'pointer', marginLeft: '5px', padding: '4px 4px', color: 'black' }}
             onClick={() => handleRemoveOption(option)}
           >
