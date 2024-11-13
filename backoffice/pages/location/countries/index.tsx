@@ -59,7 +59,7 @@ const CountryList: NextPage = () => {
     const value = parseInt((e.target as HTMLSelectElement).value, 10);
     setItemsPerPage(value);
     setPageNo(0);
-  };  
+  };
 
   const handleGoToPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGoToPage(e.target.value);
@@ -147,7 +147,7 @@ const CountryList: NextPage = () => {
             activeClassName={'pagination-active'}
           />
           <div className="pagination-helper mt-3">
-            <div className='pagination-tool me-5'>
+            <div className="pagination-tool me-5">
               <p>To page</p>
               <Form.Control
                 type="number"
@@ -163,13 +163,9 @@ const CountryList: NextPage = () => {
                 Go
               </Button>
             </div>
-            <div className='pagination-tool'>
+            <div className="pagination-tool">
               <p>Show</p>
-              <Form.Control
-                as="select"
-                value={itemsPerPage}
-                onChange={handleItemsPerPageChange}
-              >
+              <Form.Control as="select" value={itemsPerPage} onChange={handleItemsPerPageChange}>
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="15">15</option>
