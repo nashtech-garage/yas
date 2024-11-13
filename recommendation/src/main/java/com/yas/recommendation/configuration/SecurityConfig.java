@@ -20,7 +20,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/error",
                     "/v3/api-docs/**",
-                    "/embedding/product/**"
+                    "/embedding/product/**",
+                    "/cs/**"
                 ).permitAll().anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

@@ -253,6 +253,15 @@ public class OrderService {
                 .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, "of checkoutId " + checkoutId));
     }
 
+    public void cancelOrder(long orderId) {
+        var order = this.orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, orderId));
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        order.setDeliveryStatus(DeliveryStatus.CANCELLED);
+        this.orderRepository.save(order);
+    }
+
     public PaymentOrderStatusVm updateOrderPaymentStatus(PaymentOrderStatusVm paymentOrderStatusVm) {
         var order = this.orderRepository
                 .findById(paymentOrderStatusVm.orderId())

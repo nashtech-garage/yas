@@ -116,7 +116,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
         when(embeddingModel.embed(any(Document.class))).thenReturn(randomEmbed());
 
         // Simulate Product Detail API response
-        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getApiUrl())
+        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getProductUrl())
                 .path(STOREFRONT_PRODUCTS_PATH)
                 .buildAndExpand(productId)
                 .toUri();
@@ -147,7 +147,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
         when(embeddingModel.embed(any(Document.class))).thenReturn(randomEmbed());
 
         // Simulate Product Detail API response
-        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getApiUrl())
+        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getProductUrl())
                 .path(STOREFRONT_PRODUCTS_PATH)
                 .buildAndExpand(productId)
                 .toUri();
@@ -168,7 +168,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
         ProductDetailVm response2 = getProductDetailVm(productId2);
 
         // Simulate Product Detail API response
-        final URI url2 = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getApiUrl())
+        final URI url2 = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getProductUrl())
                 .path(STOREFRONT_PRODUCTS_PATH)
                 .buildAndExpand(productId2)
                 .toUri();
@@ -217,7 +217,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
         when(embeddingModel.embed(any(Document.class))).thenReturn(randomEmbed());
 
         // Simulate Product Detail API response
-        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getApiUrl())
+        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getProductUrl())
                 .path(STOREFRONT_PRODUCTS_PATH)
                 .buildAndExpand(productId)
                 .toUri();
@@ -281,7 +281,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
         when(embeddingModel.embed(any(Document.class))).thenReturn(randomEmbed());
 
         // Simulate Product Detail API response
-        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getApiUrl())
+        final URI url = UriComponentsBuilder.fromHttpUrl(recommendationConfig.getProductUrl())
                 .path(STOREFRONT_PRODUCTS_PATH)
                 .buildAndExpand(productId)
                 .toUri();

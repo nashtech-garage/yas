@@ -18,9 +18,29 @@ import '../styles/form.css';
 import '../styles/globals.css';
 import '../styles/productDetail.css';
 import '../styles/util.css';
+import '../styles/chatBox.css';
 
 import Layout from '@/common/components/Layout';
+import ChatBox from '@/modules/chatbox/components/ChatBox';
 import { AppProvider } from '@/context/AppContext';
+
+const colors = {
+  headerBackground: '#31363F',
+  headerText: '#FCFAEE',
+  cardBackground: '#F7F7F7',
+  chatContainerBackground: '#F7F7F7',
+  avatarBackgroundBot: '#526D82',
+  avatarBackgroundUser: '#526D82',
+  userMessageBackground: '#DDDDDD',
+  botMessageBackground: '#F7F7F7',
+  userMessageTextColor: '#333',
+  botMessageTextColor: '#3C3D37',
+  typingIndicatorTextColor: '#343131',
+  buttonBackground: '#393646',
+  buttonHoverBackground: '#4A5E70',
+  inputBackground: '', 
+  inputTextColor: ''
+};
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -30,6 +50,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <Layout>
         <Component {...pageProps} />
+        <ChatBox colors={colors} />
       </Layout>
       <ToastContainer style={{ marginTop: '70px' }} />
     </AppProvider>

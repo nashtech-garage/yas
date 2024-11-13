@@ -50,6 +50,12 @@ public class OrderController {
         return ResponseEntity.ok(orderStatusVm);
     }
 
+    @PutMapping("/storefront/orders/{id}/cancel")
+    public ResponseEntity<Void> cancelOrder(@PathVariable("id") long id) {
+        orderService.cancelOrder(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/storefront/orders/completed")
     public ResponseEntity<OrderExistsByProductAndUserGetVm> checkOrderExistsByProductIdAndUserIdWithStatus(
             @RequestParam Long productId) {

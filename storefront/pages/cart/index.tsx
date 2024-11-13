@@ -397,7 +397,7 @@ const Cart = () => {
           cancel={() => setIsDeleteConfirmationModalOpened(false)}
           ok={() => handleDeleteCartItem(productIdToRemove)}
         >
-          <p>Do you want to remove this Product from the cart ?</p>
+          <p>Do you want to remove this Product from the cart?</p>
         </ConfirmationDialog>
       </div>
     </section>

@@ -1,0 +1,36 @@
+{
+  "id": 19,
+  "sku": "lenovo-thinkpad-x1-carbon-gen-10",
+  "gtin": "lenovo-thinkpad-x1-carbon-gen-10",
+  "name": "Lenovo ThinkPad X1 Carbon Gen 10",
+  "slug": "lenovo-thinkpad-x1-carbon-gen-10",
+  "type": "PRODUCT",
+  "price": 1699.0,
+  "brandId": 4,
+  "brandName": "Lenovo",
+  "isVisible": true,
+  "metaTitle": "",
+  "thumbnail": {
+    "id": 90,
+    "url": ""
+  },
+  "categories": "[Laptop, Ultrabook, Business]",
+  "isFeatured": true,
+  "taxClassId": 1,
+  "variations": [],
+  "description": "<p>The Lenovo ThinkPad X1 Carbon is a business ultrabook with high security features and lightweight design.</p>",
+  "isPublished": true,
+  "metaKeyword": "",
+  "productImages": [
+    {
+      "id": 91,
+      "url": ""
+    }
+  ],
+  "specification": "<p><h1>Specifications</h1><ul><li>14-inch 4K UHD display</li><li>Intel Core i7 processor</li><li>1TB SSD</li><li>16GB RAM</li><li>Windows 11 Pro</li></ul></p>",
+  "attributeValues": "[CPU: Intel Core i7, GPU: Integrated Intel Iris Xe, RAM: 16GB, Capacity: 1TB, Screen Size: 14 inches, OS: Win 11 Pro, Screen Resolution: 3840 x 2160]",
+  "metaDescription": "<p>ThinkPad X1 Carbon offers high performance with Intel Core processors and enterprise-level security.</p>",
+  "isAllowedToOrder": true,
+  "shortDescription": "<p>Powerful ultrabook for business with high-resolution display and robust performance.</p>",
+  "stockTrackingEnabled": false
+}

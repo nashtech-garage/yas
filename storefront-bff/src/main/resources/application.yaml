@@ -20,12 +20,12 @@ spring:
             client-id: storefront-bff
             client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn #gitleaks:allow
             scope: openid, profile, email, roles
-  data:
-    redis:
-      host: redis
-      port: 6379
-  session:
-    store-type: redis
+#  data:
+#    redis:
+#      host: redis
+#      port: 6379
+#  session:
+#    store-type: redis
 management:
   metrics:
     distribution:
@@ -49,10 +49,17 @@ spring:
         - SaveSession
       routes:
         # Changes for your local development should not be committed
-        - id: api_servicename_local
-          uri: http://localhost:8081
+        - id: recommendation
+          uri: http://localhost:8095
           predicates:
-            - Path=/api/servicename/**
+            - Path=/api/recommendation/**
+          filters:
+            - TokenRelay=
+            - StripPrefix=1
+        - id: order
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/order/**
           filters:
             - TokenRelay=
             - StripPrefix=1
@@ -78,7 +85,7 @@ spring:
         - SaveSession
       routes:
         - id: api
-          uri: http://nginx
+          uri: http://api.yas.local/
           predicates:
             - Path=/api/**
           filters:
@@ -86,7 +93,7 @@ spring:
             - TokenRelay=
             - StripPrefix=1
         - id: nextjs
-          uri: http://storefront-nextjs:3000
+          uri: http://localhost:3000
           predicates:
             - Path=/**
 ---

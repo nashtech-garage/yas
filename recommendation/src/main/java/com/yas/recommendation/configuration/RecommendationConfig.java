@@ -8,7 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RecommendationConfig {
 
+    @Value("${yas.services.order}")
+    private String orderUrl;
+
+    @Value("${yas.services.cart}")
+    private String cartUrl;
+
     @Value("${yas.services.product}")
-    private String apiUrl;
+    private String productUrl;
 
 }
