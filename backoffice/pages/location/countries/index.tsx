@@ -1,14 +1,15 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Button, Table, Form } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
+import { Button, Table } from 'react-bootstrap';
 
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import type { Country } from '@locationModels/Country';
 import { deleteCountry, getPageableCountries } from '@locationServices/CountryService';
 import { COUNTRY_URL, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 const CountryList: NextPage = () => {
   const [countryIdWantToDelete, setCountryIdWantToDelete] = useState<number>(-1);
@@ -16,10 +17,22 @@ const CountryList: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(DEFAULT_PAGE_SIZE);
-  const [goToPage, setGoToPage] = useState<string>('');
+
+  const {
+    pageNo,
+    totalPage,
+    setTotalPage,
+    itemsPerPage,
+    goToPage,
+    setPageNo,
+    changePage,
+    handleItemsPerPageChange,
+    handleGoToPageChange,
+    goToPageHandler,
+  } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -51,32 +64,9 @@ const CountryList: NextPage = () => {
     getListCountry();
   }, [pageNo, itemsPerPage]);
 
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
-
-  const handleItemsPerPageChange = (e: React.ChangeEvent<any>) => {
-    const value = parseInt((e.target as HTMLSelectElement).value, 10);
-    setItemsPerPage(value);
-    setPageNo(0);
-  };
-
-  const handleGoToPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGoToPage(e.target.value);
-  };
-
-  const goToPageHandler = () => {
-    const page = parseInt(goToPage, 10) - 1;
-    if (page >= 0 && page < totalPage) {
-      setPageNo(page);
-      setGoToPage('');
-    } else {
-      alert('Invalid page number');
-    }
-  };
-
   if (isLoading) return <p>Loading...</p>;
   if (!countries) return <p>No country</p>;
+
   return (
     <>
       <div className="row mt-5">
@@ -133,48 +123,16 @@ const CountryList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <>
-          <ReactPaginate
-            forcePage={pageNo}
-            previousLabel={'Previous'}
-            nextLabel={'Next'}
-            pageCount={totalPage}
-            onPageChange={changePage}
-            containerClassName={'pagination-container'}
-            previousClassName={'previous-btn'}
-            nextClassName={'next-btn'}
-            disabledClassName={'pagination-disabled'}
-            activeClassName={'pagination-active'}
-          />
-          <div className="pagination-helper mt-3">
-            <div className="pagination-tool me-5">
-              <p>To page</p>
-              <Form.Control
-                type="number"
-                value={goToPage}
-                onChange={handleGoToPageChange}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    goToPageHandler();
-                  }
-                }}
-              />
-              <Button variant="primary" onClick={goToPageHandler} className="ml-2">
-                Go
-              </Button>
-            </div>
-            <div className="pagination-tool">
-              <p>Show</p>
-              <Form.Control as="select" value={itemsPerPage} onChange={handleItemsPerPageChange}>
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-              </Form.Control>
-              <p>/ page</p>
-            </div>
-          </div>
-        </>
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
+          goToPage={goToPage}
+          onPageChange={changePage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          onGoToPageChange={handleGoToPageChange}
+          onGoToPageSubmit={goToPageHandler}
+        />
       )}
     </>
   );
