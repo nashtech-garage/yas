@@ -59,8 +59,6 @@ const CheckOutDetail = ({ orderItems, disablePaymentProcess, setPaymentMethod }:
   }, [orderItems]);
 
   const calculateProductPrice = (item: OrderItem) => {
-    console.log('item');
-    console.log(item);
     return item.productPrice * item.quantity - (item.discountAmount ?? 0);
   };
 
