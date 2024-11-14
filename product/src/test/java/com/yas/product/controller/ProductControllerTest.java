@@ -72,7 +72,7 @@ class ProductControllerTest {
                 10d, DimensionUnit.CM, 10d, 10d, 10d, 50000D,
                 true, true, true, true, true,
                 "laptop-meta", "laptop-keywords", "laptop--meta-description",
-                1L, null, null, null, null, 1L);
+                1L, null, null, null,  null,null, 1L);
         String jsonBody = objectMapper.writeValueAsString(productPostVm);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/backoffice/products")
@@ -90,8 +90,7 @@ class ProductControllerTest {
                 "laptop-description", null, null, null,
                 10d, DimensionUnit.CM, 10d, 10d, 10d, "laptop-meta-title", "laptop-meta-key",
                 "laptop--meta-description", 1L, null, null, null,
-                null, null
-
+                null, null, 1L
         );
         String jsonBody = objectMapper.writeValueAsString(productPutVm);
 

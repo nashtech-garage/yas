@@ -302,16 +302,16 @@ public class ProductService {
     private List<ProductOptionValue> createProductOptionValues(ProductPostVm productPostVm, Product savedMainProduct,
                                                                Map<Long, ProductOption> optionsById) {
         List<ProductOptionValue> optionValues = new ArrayList<>();
-        productPostVm.productOptionValues().forEach(optionValueVm -> optionValueVm.value().forEach(value -> {
+        productPostVm.productOptionValueDisplays().forEach(optionValueVm -> {
             ProductOptionValue optionValue = ProductOptionValue.builder()
                 .product(savedMainProduct)
                 .displayOrder(optionValueVm.displayOrder())
                 .displayType(optionValueVm.displayType())
                 .productOption(optionsById.get(optionValueVm.productOptionId()))
-                .value(value)
+                .value(optionValueVm.value())
                 .build();
             optionValues.add(optionValue);
-        }));
+        });
         return productOptionValueRepository.saveAll(optionValues);
     }
 
@@ -338,7 +338,7 @@ public class ProductService {
                 ProductOption productOption = optionsById.get(optionId);
                 List<ProductOptionValue> foundOptionValues = optionValues.stream()
                     .filter(
-                        pov -> pov.getProductOption().getId().equals(optionId) && optionValue.contains(pov.getValue()))
+                        pov -> pov.getProductOption().getId().equals(optionId))
                     .toList();
 
                 if (CollectionUtils.isEmpty(foundOptionValues)) {
@@ -350,7 +350,7 @@ public class ProductService {
                         ProductOptionCombination.builder()
                         .product(savedVariation)
                         .productOption(productOption)
-                        .value(foundOptionValue.getValue())
+                        .value(optionValue)
                         .displayOrder(foundOptionValue.getDisplayOrder())
                         .build()
                     ).toList();
@@ -396,6 +396,9 @@ public class ProductService {
         updateExistingVariants(productPutVm, allVariationImages, existingVariations);
         productRepository.saveAll(existingVariations);
 
+        Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPutVm.productOptionValues());
+        List<ProductOptionValue> productOptionValues = updateProductOptionValues(productPutVm, product, optionsById);
+
         List<ProductVariationPutVm> newVariationVms = productPutVm.variations().stream()
             .filter(variant -> variant.id() == null).toList();
         if (CollectionUtils.isEmpty(newVariationVms)) {
@@ -404,10 +407,6 @@ public class ProductService {
 
         List<Product> newSavedVariations =
             createProductVariationsFromPutVm(newVariationVms, product, allVariationImages);
-
-        Map<Long, ProductOption> optionsById = getProductOptionByIdMap(productPutVm.productOptionValues());
-
-        List<ProductOptionValue> productOptionValues = updateProductOptionValues(productPutVm, product, optionsById);
 
         product.setHasOptions((CollectionUtils.isNotEmpty(newSavedVariations)
             || CollectionUtils.isNotEmpty(existingVariations))
@@ -500,18 +499,17 @@ public class ProductService {
         productOptionValueRepository.deleteAllByProductId(product.getId());
 
         List<ProductOptionValue> productOptionValues = new ArrayList<>();
-        productPutVm.productOptionValues().forEach(optionValueVm -> optionValueVm.value().forEach(value -> {
+        productPutVm.productOptionValueDisplays().forEach(optionValueVm -> {
             ProductOptionValue optionValue = ProductOptionValue.builder()
                 .product(product)
                 .displayOrder(optionValueVm.displayOrder())
                 .displayType(optionValueVm.displayType())
                 .productOption(optionsById.get(optionValueVm.productOptionId()))
-                .value(value)
+                .value(optionValueVm.value())
                 .build();
             productOptionValues.add(optionValue);
-        }));
-        productOptionValueRepository.saveAll(productOptionValues);
-        return productOptionValues;
+        });
+        return productOptionValueRepository.saveAll(productOptionValues);
     }
 
     private void updateExistingVariants(

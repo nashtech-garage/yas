@@ -13,6 +13,6 @@ public record ProductVariationPutVm(
         Double price,
         Long thumbnailMediaId,
         List<Long> productImageIds,
-        Map<Long, List<String>> optionValuesByOptionId
+        Map<Long, String> optionValuesByOptionId
 ) implements ProductVariationSaveVm {
 }
