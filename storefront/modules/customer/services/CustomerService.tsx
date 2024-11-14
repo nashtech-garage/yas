@@ -1,11 +1,17 @@
 import { Address } from '@/modules/address/models/AddressModel';
 import apiClientService from '@/common/services/ApiClientService';
+import { YasError } from '@/common/services/errors/YasError';
+import { UserAddresVm } from '../models/UserAddressVm';
 
 const userAddressUrl = '/api/customer/storefront/user-address';
 
-export async function createUserAddress(address: Address) {
+export async function createUserAddress(address: Address): Promise<UserAddresVm> {
   const response = await apiClientService.post(userAddressUrl, JSON.stringify(address));
-  return response.json();
+  const jsonResult = await response.json();
+  if (!response.ok) {
+    throw new YasError(jsonResult);
+  }
+  return jsonResult;
 }
 
 export async function getUserAddress() {
