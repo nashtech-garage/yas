@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { FieldErrorsImpl, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import {
+  FieldErrorsImpl,
+  UseFormHandleSubmit,
+  UseFormRegister,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { Input } from '../../../common/items/Input';
 import { OptionSelect } from '../../../common/items/OptionSelect';
 import { Address } from '../../../modules/address/models/AddressModel';
@@ -10,15 +15,25 @@ import { useRouter } from 'next/router';
 import { getCountries } from '../../country/services/CountryService';
 import { getStatesOrProvinces } from '../../stateAndProvince/services/StatesOrProvicesService';
 import { getDistricts } from '../../district/services/DistrictService';
+import { createUserAddress } from '@/modules/customer/services/CustomerService';
+import { toast } from 'react-toastify';
 
 type AddressFormProps = {
+  handleSubmit: () => void;
   register: UseFormRegister<Address>;
   setValue: UseFormSetValue<Address>;
   errors: FieldErrorsImpl<Address>;
   address: Address | undefined;
   isDisplay?: boolean | true;
 };
-const AddressForm = ({ register, errors, address, isDisplay, setValue }: AddressFormProps) => {
+const AddressForm = ({
+  handleSubmit,
+  register,
+  errors,
+  address,
+  isDisplay,
+  setValue,
+}: AddressFormProps) => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -64,9 +79,19 @@ const AddressForm = ({ register, errors, address, isDisplay, setValue }: Address
     });
   };
 
+  const handleCreateAddress = async (data: Address) => {
+    console.log(data);
+    try {
+      const response = await createUserAddress(data);
+      console.log(response);
+    } catch (error) {
+      toast.error('Save new address failed!');
+      console.log('Save new address failed', error);
+    }
+  };
+
   return (
     <>
-      {' '}
       <div className={`shipping_address_new ${isDisplay ? `` : `d-none`}`}>
         <div className="row">
           <div className="col-lg-6">
@@ -191,6 +216,11 @@ const AddressForm = ({ register, errors, address, isDisplay, setValue }: Address
               />
             </div>
           </div>
+        </div>
+        <div className="row justify-content-end">
+          <button type="button" className="btn btn-sm btn-primary" onClick={handleSubmit}>
+            Use this address
+          </button>
         </div>
       </div>
     </>

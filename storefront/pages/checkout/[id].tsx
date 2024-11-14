@@ -47,6 +47,7 @@ const Checkout = () => {
     watch,
   } = useForm<Order>();
   const {
+    handleSubmit: handleSubmitShippingAddress,
     register: registerShippingAddress,
     setValue: setValueShippingAddress,
     formState: { errors: errorsShippingAddress },
@@ -54,6 +55,7 @@ const Checkout = () => {
   } = useForm<Address>();
 
   const {
+    handleSubmit: handleSubmitBillingAddress,
     register: registerBillingAddress,
     setValue: setValueBillingAddress,
     formState: { errors: errorsBillingAddress },
@@ -203,7 +205,31 @@ const Checkout = () => {
     }
   }
 
-  const handleCreateAddress = async () => {};
+  const handleSaveNewShippingAddress: SubmitHandler<Address> = async (data: Address) => {
+    try {
+      await addressSchema.validate(data);
+      const response = await createUserAddress(data);
+
+      const savedAddress: Address = {
+        id: response.id,
+        addressLine1: response.addressGetVm.addressLine1,
+        city: response.addressGetVm.city,
+        contactName: response.addressGetVm.contactName,
+        countryId: response.addressGetVm.countryId,
+        districtId: response.addressGetVm.districtId,
+        phone: response.addressGetVm.phone,
+        stateOrProvinceId: response.addressGetVm.stateOrProvinceId,
+        zipCode: response.addressGetVm.zipCode,
+      };
+      setShippingAddress(savedAddress);
+      setAddShippingAddress(false);
+    } catch (error) {
+      toast.error('Save new address failed!');
+      console.log('Save new address failed', error);
+    }
+  };
+
+  console.log('shipping address: ', shippingAddress);
 
   const handleSaveNewAddress = (data: Address) => {
     createUserAddress(data).catch((e) => {
@@ -349,6 +375,7 @@ const Checkout = () => {
                   </div>
                   <CheckOutAddress address={shippingAddress!} isDisplay={!addShippingAddress} />
                   <AddressForm
+                    handleSubmit={handleSubmitShippingAddress(handleSaveNewShippingAddress)}
                     isDisplay={addShippingAddress}
                     register={registerShippingAddress}
                     setValue={setValueShippingAddress}
@@ -394,6 +421,7 @@ const Checkout = () => {
                   />
 
                   <AddressForm
+                    handleSubmit={() => {}}
                     isDisplay={addBillingAddress}
                     setValue={setValueBillingAddress}
                     register={registerBillingAddress}
