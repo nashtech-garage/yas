@@ -25,7 +25,7 @@ function Pagination({
   onGoToPageChange,
   onGoToPageSubmit,
   showHelpers = true,
-}: PaginationProps) {
+}: Readonly<PaginationProps>) {
   return (
     <div>
       <ReactPaginate
