@@ -20,7 +20,7 @@ const usePagination = ({
   const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value, 10);
     setItemsPerPage(value);
-    setPageNo(0); // Reset to first page when items per page change
+    setPageNo(0); 
   };
 
   const handleGoToPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
