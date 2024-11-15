@@ -23,7 +23,6 @@ import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
 import { initPaymentPaypal } from '@/modules/paymentPaypal/services/PaymentPaypalService';
 import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
 import SpinnerComponent from '@/common/components/SpinnerComponent';
-import { create } from 'domain';
 import { getAddress } from '@/modules/address/services/AddressService';
 
 const phoneRegExp =
