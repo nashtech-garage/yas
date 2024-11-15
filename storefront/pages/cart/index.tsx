@@ -30,7 +30,10 @@ const Cart = () => {
     slug: string;
     thumbnailUrl: string;
     price: number;
+    stock: number;
   };
+
+  const LOW_STOCK_THRESHOLD = 5;
 
   const [items, setItems] = useState<Item[]>([]);
 
@@ -90,13 +93,16 @@ const Cart = () => {
           .then((results) => {
             const newItems: Item[] = [];
             results.forEach((result) => {
+              const quantity = cartDetails.find((detail) => detail.productId === result.id)
+                ?.quantity!;
               newItems.push({
                 productId: result.id,
-                quantity: cartDetails.find((detail) => detail.productId === result.id)?.quantity!,
+                quantity: quantity,
                 productName: result.name,
                 slug: result.slug,
                 thumbnailUrl: result.thumbnailUrl,
                 price: result.price,
+                stock: result.stock,
               });
             });
             setItems(newItems);
@@ -292,16 +298,18 @@ const Cart = () => {
                   </thead>
                   <tbody>
                     {items.map((item) => {
+                      const isOutOfStock = item.stock === 0;
+                      const isLowStock = item.stock > 0 && item.stock <= LOW_STOCK_THRESHOLD;
                       return (
                         <tr key={item.quantity.toString() + item.productId.toString()}>
                           <td>
                             <label className="item-checkbox-label" htmlFor="select-item-checkbox">
-                              {''}
                               <input
                                 className="form-check-input item-checkbox"
                                 type="checkbox"
                                 checked={selectedProductIds.has(item.productId)}
                                 onChange={() => handleSelectItemChange(item.productId)}
+                                disabled={isOutOfStock}
                               />
                             </label>
                           </td>
@@ -329,6 +337,12 @@ const Cart = () => {
                               >
                                 <h6 className="product-link">{item.productName}</h6>
                               </Link>
+                              {isOutOfStock && (
+                                <p className="text-danger">Out of stock</p>
+                              )}
+                              {isLowStock && (
+                                <p className="text-warning">Low stock: only {item.stock} left!</p>
+                              )}
                             </div>
                           </td>
                           <td className="cart__price">{formatPrice(item.price)}</td>
@@ -341,13 +355,13 @@ const Cart = () => {
                                   value="-"
                                   className="minus"
                                   onClick={() => handleMinus(item.productId, item.quantity)}
+                                  disabled={isOutOfStock}
                                 />
                                 <input
-                                  id="quanity"
+                                  id="quantity"
                                   type="number"
                                   step="1"
                                   min="1"
-                                  max=""
                                   name="quantity"
                                   defaultValue={item.quantity}
                                   onBlur={(e) =>
@@ -362,6 +376,7 @@ const Cart = () => {
                                   onKeyDown={(e) => handleQuantityKeyDown(item.productId, e.key)}
                                   title="Qty"
                                   className="input-text qty text"
+                                  disabled={isOutOfStock}
                                 />
                                 <input
                                   id="plus-button"
@@ -369,21 +384,20 @@ const Cart = () => {
                                   value="+"
                                   className="plus"
                                   onClick={() => handlePlus(item.productId, item.quantity)}
+                                  disabled={isOutOfStock}
                                 />
                               </div>
                             </div>
                           </td>
                           <td className="cart__total">{calculateProductPrice(item)}</td>
                           <td className="cart__close">
-                            {' '}
                             <button
                               className="remove_product"
-                              onClick={() => {
-                                openRemoveConfirmDialog(item.productId);
-                              }}
+                              onClick={() => openRemoveConfirmDialog(item.productId)}
+                              disabled={isOutOfStock}
                             >
                               <i className="bi bi-x-lg fs-5"></i>
-                            </button>{' '}
+                            </button>
                           </td>
                         </tr>
                       );

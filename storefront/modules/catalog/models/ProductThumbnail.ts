@@ -4,4 +4,5 @@ export type ProductThumbnail = {
   slug: string;
   thumbnailUrl: string;
   price: number;
+  stock: number; 
 };
