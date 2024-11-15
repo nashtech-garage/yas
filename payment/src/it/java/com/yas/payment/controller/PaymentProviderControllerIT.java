@@ -4,6 +4,7 @@ import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
+import com.yas.payment.service.MediaService;
 import io.restassured.RestAssured;
 import org.instancio.Instancio;
 import org.junit.Ignore;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
@@ -29,6 +30,9 @@ class PaymentProviderControllerIT extends AbstractControllerIT {
 
     @Autowired
     PaymentProviderRepository paymentProviderRepository;
+
+    @MockBean
+    MediaService mediaService;
 
     PaymentProvider paymentProvider;
 
@@ -54,6 +58,7 @@ class PaymentProviderControllerIT extends AbstractControllerIT {
             .then()
             .statusCode(HttpStatus.OK.value())
             .body(".", hasSize(1))
-            .log().ifValidationFails();
+            .log()
+            .ifValidationFails();
     }
 }

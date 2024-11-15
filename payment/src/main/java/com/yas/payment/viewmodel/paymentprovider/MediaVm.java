@@ -1,5 +1,8 @@
-package com.yas.media.viewmodel;
+package com.yas.payment.viewmodel.paymentprovider;
 
+import lombok.Builder;
+
+@Builder
 @lombok.Getter
 @lombok.Setter
 public class MediaVm {

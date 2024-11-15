@@ -2,6 +2,7 @@ package com.yas.media.service;
 
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.media.config.YasConfig;
+import com.yas.media.mapper.MediaVmMapper;
 import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
 import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;
@@ -12,6 +13,8 @@ import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
@@ -22,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class MediaServiceImpl implements MediaService {
 
+    private final MediaVmMapper mediaVmMapper;
     private final MediaRepository mediaRepository;
     private final FileSystemRepository fileSystemRepository;
     private final YasConfig yasConfig;
@@ -89,5 +93,20 @@ public class MediaServiceImpl implements MediaService {
             .content(fileContent)
             .mediaType(mediaType)
             .build();
+    }
+
+    @Override
+    public List<MediaVm> getMediaByIds(List<Long> ids) {
+        var medias = mediaRepository.findAllById(ids);
+        List<MediaVm> mediaVms = new ArrayList<>();
+        for (Media media : medias) {
+            String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
+                .path(String.format("/medias/%s/file/%s", media.getId(), media.getFileName()))
+                .build().toUriString();
+            var mediaVm = mediaVmMapper.toVm(media);
+            mediaVm.setUrl(url);
+            mediaVms.add(mediaVm);
+        }
+        return mediaVms;
     }
 }

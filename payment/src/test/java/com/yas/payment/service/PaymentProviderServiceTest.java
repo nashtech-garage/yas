@@ -7,16 +7,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.payment.mapper.PaymentProviderMapper;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
-import com.yas.payment.viewmodel.PaymentProviderVm;
+import com.yas.payment.viewmodel.paymentprovider.PaymentProviderVm;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 
 class PaymentProviderServiceTest {
 
@@ -26,7 +31,15 @@ class PaymentProviderServiceTest {
     @InjectMocks
     private PaymentProviderService paymentProviderService;
 
+    @Mock
+    private MediaService mediaService;
+
+    @Spy
+    private PaymentProviderMapper paymentProviderMapper = Mappers.getMapper(PaymentProviderMapper.class);
+
     private PaymentProvider paymentProvider;
+
+    private Pageable defaultPageable = Pageable.ofSize(10);
 
     @BeforeEach
     void setUp() {
@@ -61,24 +74,23 @@ class PaymentProviderServiceTest {
     @Test
     void getEnabledPaymentProviders_ShouldReturnListOfEnabledPaymentProviders() {
         List<PaymentProvider> enabledProviders = List.of(paymentProvider);
-        when(paymentProviderRepository.findByIsEnabledTrue()).thenReturn(enabledProviders);
+        when(paymentProviderRepository.findByIsEnabledTrue(defaultPageable)).thenReturn(enabledProviders);
 
-        List<PaymentProviderVm> result = paymentProviderService.getEnabledPaymentProviders();
+        List<PaymentProviderVm> result = paymentProviderService.getEnabledPaymentProviders(defaultPageable);
 
         assertThat(result).hasSize(1);
-        assertThat(result.getFirst().id()).isEqualTo(paymentProvider.getId());
-        assertThat(result.getFirst().additionalSettings()).isEqualTo(paymentProvider.getAdditionalSettings());
-        verify(paymentProviderRepository, times(1)).findByIsEnabledTrue();
+        assertThat(result.getFirst().getId()).isEqualTo(paymentProvider.getId());
+        verify(paymentProviderRepository, times(1)).findByIsEnabledTrue(defaultPageable);
     }
 
     @Test
     void getEnabledPaymentProviders_ShouldReturnEmptyList_WhenNoEnabledPaymentProvidersExist() {
-        when(paymentProviderRepository.findByIsEnabledTrue()).thenReturn(List.of());
+        when(paymentProviderRepository.findByIsEnabledTrue(defaultPageable)).thenReturn(List.of());
 
-        List<PaymentProviderVm> result = paymentProviderService.getEnabledPaymentProviders();
+        List<PaymentProviderVm> result = paymentProviderService.getEnabledPaymentProviders(defaultPageable);
 
         assertThat(result).isEmpty();
-        verify(paymentProviderRepository, times(1)).findByIsEnabledTrue();
+        verify(paymentProviderRepository, times(1)).findByIsEnabledTrue(defaultPageable);
     }
 }
 
