@@ -6,6 +6,8 @@ Yas AI is a project that explores the power of **[Generative AI](https://en.wiki
 ### Product Recommendation
 #### Similar Search
 Implements vector-based search to identify and recommend similar products, leveraging the capabilities of Generative AI and Spring AI. This feature can help users discover products related to their preferences based on semantic similarity.
+![vector-search.svg](vector-search.svg)!
+
 
 ### AI Assistant
 #### Intelligent Assistant Capabilities
