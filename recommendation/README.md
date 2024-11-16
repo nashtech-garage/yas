@@ -14,7 +14,7 @@ recommendation must sync them.
 We are using Kafka Connect, Debezium to do that, below is the flow how product data come to 
 recommendation.
 
-![vector-search.svg](docs/vector-search.svg)
+<p style="text-align: center"><img src="docs/vector-search.svg"></p>
 
 1. There are changes on product data.
 2. Debezium, Kafka Connect sent changes event to kafka topic (configured from kafka connect).
@@ -31,8 +31,8 @@ It's help us to integrate with OpenAI provider
 We assume that you have known the data structure which SpringAI define. 
 
 Generally, by default data will be saved as below table.
+<p style="text-align: center"><img src="docs/img.png"></p>
 
-![img.png](docs/img.png "Data Flow")
 
 For simple functionality, using the guide from SpringAI we can create simple implementation as we need.
 
