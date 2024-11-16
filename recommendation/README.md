@@ -6,8 +6,46 @@ Yas AI is a project that explores the power of **[Generative AI](https://en.wiki
 ### Product Recommendation
 #### Similar Search
 Implements vector-based search to identify and recommend similar products, leveraging the capabilities of Generative AI and Spring AI. This feature can help users discover products related to their preferences based on semantic similarity.
-![vector-search.svg](vector-search.svg)!
+##### How data come to vector database?
+Let's say we have a product and recommendation database. 
+Our purpose is to make sure they are consistent, if product have any changes, 
+recommendation must sync them. 
 
+We are using Kafka Connect, Debezium to do that, below is the flow how product data come to 
+recommendation.
+
+![vector-search.svg](docs/vector-search.svg)
+
+1. There are changes on product data.
+2. Debezium, Kafka Connect sent changes event to kafka topic (configured from kafka connect).
+3. The **recommendation** service consumes message from the kafka topic.
+4. The **recommendation** service send product data (in text) to 
+OpenAI provider (Azure OpenAI, Ollama, etc) to get product embedding value.
+5. OpenAI provider responses the embedding value.
+6. The **recommendation** service saved product and its embedding value to database.
+
+The utilization of Spring AI is in step **No4**, and **No5**. 
+It's help us to integrate with OpenAI provider
+
+##### How recommendation service handle data
+We assume that you have known the data structure which SpringAI define. 
+
+Generally, by default data will be saved as below table.
+
+![img.png](docs/img.png "Data Flow")
+
+For simple functionality, using the guide from SpringAI we can create simple implementation as we need.
+
+But the idea is the **vector_store** table is too generic, so we need to create our own **layer** 
+to support our needs:
+
+- Custom Content Formatter.
+- Custom Id Generator.
+- Make data entity oriented.
+
+![img_1.png](docs/img_1.png)
+
+---
 
 ### AI Assistant
 #### Intelligent Assistant Capabilities
