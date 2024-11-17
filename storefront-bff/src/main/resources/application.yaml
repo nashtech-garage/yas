@@ -20,12 +20,12 @@ spring:
             client-id: storefront-bff
             client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn #gitleaks:allow
             scope: openid, profile, email, roles
-#  data:
-#    redis:
-#      host: redis
-#      port: 6379
-#  session:
-#    store-type: redis
+  data:
+    redis:
+      host: redis
+      port: 6379
+  session:
+    store-type: redis
 management:
   metrics:
     distribution:
@@ -93,7 +93,7 @@ spring:
             - TokenRelay=
             - StripPrefix=1
         - id: nextjs
-          uri: http://localhost:3000
+          uri: http://storefront-nextjs:3000
           predicates:
             - Path=/**
 ---

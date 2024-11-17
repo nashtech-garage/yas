@@ -8,26 +8,52 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
+
+    @Bean
+    public UserDetailsService users() {
+        User.UserBuilder users = User.withDefaultPasswordEncoder();
+        UserDetails admin = users
+            .username("admin")
+            .password("password")
+            .roles("ADMIN")
+            .build();
+        return new InMemoryUserDetailsManager(admin);
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
-            .authorizeHttpRequests(auth -> auth
+            .authorizeHttpRequests(
+                auth -> auth
                 .requestMatchers("/sampledata/**").permitAll()
-                .requestMatchers("/actuator/prometheus", "/actuator/health/**",
-                    "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
+                .requestMatchers(
+                    "/actuator/prometheus",
+                    "/actuator/health/**",
+                    "/swagger-ui",
+                    "/swagger-ui/**",
+                    "/error",
+                    "/v3/api-docs/**"
+                ).permitAll()
                 .requestMatchers("/storefront/**").permitAll()
                 .requestMatchers("/backoffice/**").hasRole("ADMIN")
-                .anyRequest().authenticated())
+                .anyRequest().authenticated()
+            )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+            .csrf(AbstractHttpConfigurer::disable)
             .build();
     }
 

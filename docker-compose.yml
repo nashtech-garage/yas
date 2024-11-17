@@ -30,7 +30,7 @@ services:
   backoffice:
     build: ./backoffice-bff
     image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-#    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
+    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
     environment:
     - SPRING_PROFILES_ACTIVE=prod
     - SERVER_PORT
