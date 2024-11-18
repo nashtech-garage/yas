@@ -1,0 +1,90 @@
+@startuml Payment Flow: Customer executes Payment on Paypal
+
+title Payment Flow: Customer executes Payment on Paypal
+
+actor "Customer" as customer #fad7a0
+
+box YAS
+  participant "Storefront" as storefront #fdf2e9   
+  participant "Order Service" as order_service #3498db   
+  entity "Checkout" as checkout #3498db  
+  entity "Order" as order #3498db
+  queue "Order.Checkout.Events.Topic" as checkout_topic #3498db
+  queue "Order.Order.Events.Topic" as otopic #3498db
+  participant "Notification Service" as notification_service #fad7a0
+  participant "Shopping Cart" as shopping_cart #a9cce3
+  participant "Payment Service" as payment_service #73c6b6
+  entity "Checkout Payment" as checkout_payment #73c6b6
+  queue "Payment.Events.Topic" as payment_topic #73c6b6
+  queue "Payment.Message.Queue" as payment_queue #73c6b6
+  participant "Payment Provider" as payment_provider #73c6b6
+end box 
+
+box "Paypal" #eafaf1
+  participant "Paypal" as paypal #73c6b6
+  entity "Paypal: Order Checkout" as paypal_provider_checkout #73c6b6
+end box
+
+
+loop reload to get payment information util payment status is PROCESSING and payment_provider_checkout_id existing (if not COD)
+  storefront -> payment_service: GET /payment/payments/{payment_id} 
+  activate payment_service #73c6b6
+    payment_service -> checkout_payment: find by payment_id
+    storefront <-- payment_service: { status=PROCESSING, payment_provider_checkout_id }
+  deactivate payment_service
+end 
+
+storefront --> customer: redirect to payment_provider : Payment Provider: Checkout { payment_provider_checkout_id }
+
+activate customer
+  customer -> paypal: execute payment { payment_provider_checkout_id }
+deactivate customer
+activate paypal #73c6b6
+  paypal -> paypal_provider_checkout: update { status=COMPETED, \npayment_provider_checkout_id }
+  paypal --> storefront: redirect to storefront with confirmation
+  paypal -> payment_provider: WEBHOOK \n{ checkout_id, \npayment_provider_checkout_id, \nstatus=COMPETED/FAILURE } 
+deactivate paypal 
+activate payment_provider #73c6b6
+  payment_provider -> payment_queue: MESSAGE_PAYMENT_UPDATE_STATE \n{ checkout_id, \npayment_provider_checkout_id, \nstatus=COMPETED/FAILURE }
+deactivate payment_provider
+activate payment_queue #73c6b6
+  payment_queue -> payment_service: Event: MESSAGE_PAYMENT_UPDATE_STATE \n{ checkout_id, payment_id, payment_provider_checkout_id }
+deactivate payment_queue
+activate payment_service #73c6b6
+  payment_service -> checkout_payment: update { status=COMPLETED/FAILURE }
+deactivate payment_service
+activate checkout_payment #73c6b6
+  checkout_payment -> payment_topic: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
+deactivate  checkout_payment
+payment_topic --> order_service: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
+activate order_service #3498db
+  order_service -> checkout: update { checkout_id, status=PAYMENT_CONFIRMED }
+deactivate order_service
+activate checkout #3498db
+  checkout -> checkout_topic: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_CONFIRMED }
+deactivate checkout
+activate checkout_topic #3498db
+  checkout_topic --> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_CONFIRMED }
+deactivate checkout_topic
+activate order_service #3498db
+  order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
+  order --> order_service: order
+deactivate order_service
+activate order #3498db
+  order --> otopic: Event: CDC_EVENT_ORDER_CREATED \n{ order_id, checkout_id, status=PAYMENT_CONFIRMED }
+deactivate order
+
+
+activate otopic #3498db
+  otopic --> order_service: CDC_EVENT_ORDER_CREATED \n{ order_id, checkout_id, status=PAYMENT_CONFIRMED }  
+deactivate otopic
+activate order_service #3498db
+  order_service --> shopping_cart: POST cart/items/remove {products:[{productIds, quantity}]}
+deactivate order_service
+
+otopic --> notification_service: CDC_EVENT_ORDER_CREATED \n{ order_id, checkout_id, status=PAYMENT_CONFIRMED }
+activate notification_service #fad7a0
+  notification_service --> customer: notification for order creation
+deactivate notification_service
+
+@enduml

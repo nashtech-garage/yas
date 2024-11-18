@@ -1,0 +1,81 @@
+@startuml Create order flow
+autonumber
+actor Client
+box "YAS" #D6EAF8
+participant Storefront as NextJs
+participant CartService as cart
+participant ProductService as product
+participant OrderService as order
+participant PaymentService as payment
+participant PayPalService as ppal
+end box
+participant PaypalAPI as ppAPI
+
+Client -> NextJs: Click "Proceed to payment"
+activate NextJs
+NextJs -> order: POST /api/order/storefront/orders
+note right
+    Body = {checkoutId, email, note, tax,
+    discount, number of items, total price, delivery fee,
+    coupon code, delivery method, payment status="PENDING",
+    order items: [{id, product id, product name, quantity,
+    product price, note?, discount?, taxAmount?, taxPercent?}]}
+
+    Header: Authorization
+end note
+activate order
+order -> product: PUT /api/backoffice/products/subtract-quantity
+activate product
+product --> order: 204 NO CONTENT
+deactivate product
+order -> cart: DELETE /api/storefront/carts/multi-item?productIds=
+activate cart
+cart --> order: 204 NO CONTENT
+deactivate cart
+order --> NextJs: 201 CREATED
+deactivate order
+NextJs --> Client: 201 CREATED
+NextJs -> ppal: POST /api/payment-paypal/init
+activate ppal
+ppal -> ppAPI: POST /orders
+activate ppAPI
+ppAPI --> ppal: Redirect API
+deactivate ppAPI
+ppal --> NextJs: Redirect API
+deactivate ppal
+NextJs --> Client: Redirect to PayPal payment
+deactivate NextJs
+Client -> ppAPI: GET payment page
+activate ppAPI
+ppAPI --> Client: 200 OK
+Client -> ppAPI: POST payment
+ppAPI --> Client: Redirect /complete-payment/capture
+note left
+token=
+end note
+deactivate ppAPI
+Client -> NextJs: GET /complete-payment/capture
+activate NextJs
+NextJs -> ppal: POST /api/payment-paypal/capture
+activate ppal
+ppal -> ppAPI: GET order captures
+activate ppAPI
+ppAPI --> ppal: 200 OK
+deactivate ppAPI
+ppal -> payment: POST /api/payment/capture
+activate payment
+payment -> order: PUT /api/order/storefront/checkouts/status
+activate order
+order --> payment: 200 OK
+deactivate order
+payment -> order: PUT /api/order/storefront/orders/status
+activate order
+order --> payment: 200 OK
+deactivate order
+payment --> ppal: 201 CREATED
+deactivate payment
+ppal --> NextJs: 201 CREATED
+deactivate ppal
+NextJs --> Client: 200 OK
+deactivate NextJs
+@enduml

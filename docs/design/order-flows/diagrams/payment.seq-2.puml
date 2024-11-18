@@ -1,0 +1,26 @@
+@startuml Payment Flow Sub 2
+
+title Payment Flow Init External Checkout object 
+
+box YAS
+    participant "Payment Service" as payment_service #73c6b6
+    entity "Checkout Payment" as checkout_payment #73c6b6
+end box 
+
+box "Payment Provider" #eafaf1
+    participant "Payment Provider" as payment_provider #73c6b6
+    entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
+end box
+checkout_payment --> payment_service: [CDC Create Event]
+activate payment_service #73c6b6 
+    alt payment_type is NOT COD:
+      payment_service  -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+      activate payment_provider #73c6b6          
+        payment_provider -> payment_provider_checkout **: create checkout
+        payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
+        payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
+      deactivate payment_provider
+      payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
+    end 
+deactivate payment_service
+@enduml

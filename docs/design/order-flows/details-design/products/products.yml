@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: Carts API
+  description: API for managing a shopping cart
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server
+paths:
+  /products:
+    get:
+      summary: Get all products
+      operationId: getProducts
+      parameters:
+        - name: ids
+          in: query
+          description: The product ids
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+        - name: page
+          in: query
+          description: The page number
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 0
+        - name: size
+          in: query
+          description: The size of page
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 20
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPage'                  
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: SESSION
+  schemas:
+    ProductPage:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        page:
+          type: integer
+          format: int64
+          default: 0
+        size:
+          type: integer
+          format: int64
+          default: 20
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        sku:
+          type: string
+          format: int64
+        parrent_id:
+          type: integer
+          format: int64
+        brandId:
+          type: integer
+          format: int64
+        price:
+          type: number
+          format: float
+        tax:
+          type: integer
+          format: float
+        createAt: 
+          type: string
+          format: date-time
+        createBy:
+          type: string
+          format: uuid
+        lastUpdateAt:
+          type: string
+          format: date-time
+        lastUpdateBy:
+          type: string
+          format: uuid
+security:
+  - cookieAuth: []
