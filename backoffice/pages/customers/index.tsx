@@ -3,20 +3,43 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Button, Stack, Table, Form } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
-import { getCustomers, updateCustomer } from '../../modules/customer/services/CustomerService';
+import { deleteCustomer, getCustomers } from '../../modules/customer/services/CustomerService';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { Customer } from '../../modules/customer/models/Customer';
+import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
+import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
+import { DEFAULT_PAGE_NUMBER } from '@constants/Common';
 
 const Customers: NextPage = () => {
+  const [userIdWantToDelete, setUserIdWantToDelete] = useState<string>('');
+  const [userNameWantToDelete, setUserNameWantToDelete] = useState<string>('');
+  const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [pageNo, setPageNo] = useState<number>(0);
   const [totalPage, setTotalPage] = useState<number>(0);
   const [totalUser, setTotalUser] = useState<number>(0);
 
-  useEffect(() => {
-    setIsLoading(true);
+  const handleClose: any = () => setShowModalDelete(false);
+  const handleDelete: any = () => {
+    if (userIdWantToDelete == '') {
+      return;
+    }
+
+    deleteCustomer(userIdWantToDelete)
+      .then((response) => {
+        setShowModalDelete(false);
+        handleDeletingResponse(response, userNameWantToDelete);
+        setPageNo(DEFAULT_PAGE_NUMBER);
+        getListCustomer();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const getListCustomer = () => {
     getCustomers(pageNo)
       .then((data) => {
         setCustomers(data.customers);
@@ -27,6 +50,12 @@ const Customers: NextPage = () => {
       .catch((err) => {
         toast.error('Something was wrong! Try later!');
       });
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    getListCustomer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
   const changePage = ({ selected }: any) => {
@@ -73,22 +102,35 @@ const Customers: NextPage = () => {
               <td>{moment(customer.createdTimestamp).format('MMMM Do YYYY, h:mm:ss a')}</td>
               <td>
                 <Stack direction="horizontal" gap={3}>
-                  <Link href={`/customer/${customer.id}/edit`}>
+                  <Link href={`/customers/${customer.id}/edit`}>
                     <button className="btn btn-outline-primary btn-sm" type="button">
                       Edit
                     </button>
                   </Link>
-                  <Link href={`/customer/${customer.id}/delete`}>
-                    <button className="btn btn-outline-primary btn-sm" type="button">
-                      Del
-                    </button>
-                  </Link>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    type="button"
+                    onClick={() => {
+                      setShowModalDelete(true);
+                      setUserIdWantToDelete(customer.id);
+                      setUserNameWantToDelete(customer.username);
+                    }}
+                  >
+                    Del
+                  </button>
                 </Stack>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      <ModalDeleteCustom
+        showModalDelete={showModalDelete}
+        handleClose={handleClose}
+        nameWantToDelete={userNameWantToDelete}
+        handleDelete={handleDelete}
+        action="delete"
+      />
       {totalPage > 1 && (
         <ReactPaginate
           forcePage={pageNo}

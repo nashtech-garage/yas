@@ -1,16 +1,16 @@
 import { Input, Select } from '@commonItems/Input';
-import { EMAIL_PATTERN, USER_NAME_PATTERN } from 'modules/catalog/constants/validationPattern';
+import { USER_NAME_PATTERN } from 'modules/catalog/constants/validationPattern';
 import { FieldErrorsImpl, UseFormRegister, UseFormWatch } from 'react-hook-form';
 import { CustomerCreateVM } from '../models/Customer';
+import CustomerBaseInformation from './CustomerBaseInformation';
 
 type Props = {
   register: UseFormRegister<CustomerCreateVM>;
   errors: FieldErrorsImpl<CustomerCreateVM>;
   watch: UseFormWatch<CustomerCreateVM>;
-  customer?: CustomerCreateVM;
 };
 
-const CustomerInformation = ({ register, errors, watch, customer }: Props) => {
+const CustomerInformation = ({ register, errors, watch }: Props) => {
   const password = watch('password');
 
   return (
@@ -18,7 +18,6 @@ const CustomerInformation = ({ register, errors, watch, customer }: Props) => {
       <Input
         labelText="Username"
         field="username"
-        defaultValue={customer?.username}
         register={register}
         registerOptions={{
           required: { value: true, message: 'Username is required' },
@@ -51,46 +50,13 @@ const CustomerInformation = ({ register, errors, watch, customer }: Props) => {
         }}
         error={errors.confirmPassword?.message}
       />
-      <Input
-        labelText="Email"
-        field="email"
-        defaultValue={customer?.email}
-        register={register}
-        registerOptions={{
-          required: { value: true, message: 'Email is required' },
-          pattern: {
-            value: EMAIL_PATTERN,
-            message: 'Please provide correct email',
-          },
-        }}
-        error={errors.email?.message}
-      />
-      <Input
-        labelText="First name"
-        field="firstName"
-        defaultValue={customer?.firstName}
-        register={register}
-        registerOptions={{
-          required: { value: true, message: 'First name is required' },
-        }}
-        error={errors.firstName?.message}
-      />
-      <Input
-        labelText="Last name"
-        field="lastName"
-        defaultValue={customer?.lastName}
-        register={register}
-        registerOptions={{
-          required: { value: true, message: 'Last name is required' },
-        }}
-        error={errors.lastName?.message}
-      />
+
+      <CustomerBaseInformation register={register} errors={errors} />
 
       <Select
         labelText="Role"
         field="role"
         placeholder="Select Role"
-        defaultValue={customer?.role}
         register={register}
         registerOptions={{
           required: { value: true, message: 'Role is required' },
