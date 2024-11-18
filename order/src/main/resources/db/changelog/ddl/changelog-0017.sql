@@ -1,0 +1,1 @@
+ALTER TABLE public.checkout REPLICA IDENTITY FULL;

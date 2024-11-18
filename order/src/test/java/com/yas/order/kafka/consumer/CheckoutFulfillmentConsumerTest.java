@@ -9,16 +9,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.yas.commonlibrary.exception.BadRequestException;
-import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.enumeration.CheckoutProgress;
-import com.yas.order.repository.CheckoutRepository;
+import com.yas.order.service.CheckoutService;
 import com.yas.order.service.PaymentService;
-import java.util.Optional;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,29 +23,35 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-class OrderStatusConsumerTest {
+class CheckoutFulfillmentConsumerTest {
 
     private PaymentService paymentService;
 
-    private CheckoutRepository checkoutRepository;
+    private CheckoutService checkoutService;
 
-    private OrderStatusConsumer orderStatusConsumer;
+    private CheckoutFulfillmentConsumer orderStatusConsumer;
 
-    private final String jsonRecord = "{\"op\": \"u\", \"after\": {"
-        + " \"status\": \"PAYMENT_PROCESSING\","
-        + " \"progress\": \"STOCK_LOCKED\","
-        + " \"id\": 12345,"
-        + " \"payment_method_id\":  \"PAYPAL\","
-        + " \"total_amount\": 123}"
+    private final String jsonRecord = "{\"op\": \"u\"," +
+        "\"before\": {"
+            + " \"status\": \"PAYMENT_PROCESSING\","
+            + " \"progress\": \"STOCK_LOCKED\","
+            + " \"id\": 12345,"
+            + " \"payment_method_id\":  \"PAYPAL\","
+            + " \"total_amount\": 123},"
+        +"\"after\": {"
+            + " \"status\": \"PAYMENT_PROCESSING\","
+            + " \"progress\": \"STOCK_LOCKED\","
+            + " \"id\": 12345,"
+            + " \"payment_method_id\":  \"PAYPAL\","
+            + " \"total_amount\": 123}"
         + "}";
 
     @BeforeEach
     void setUp() {
         paymentService = Mockito.mock(PaymentService.class);
-        checkoutRepository = Mockito.mock(CheckoutRepository.class);
+        checkoutService = Mockito.mock(CheckoutService.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        Gson gson = new Gson();
-        orderStatusConsumer = new OrderStatusConsumer(paymentService, checkoutRepository, objectMapper, gson);
+        orderStatusConsumer = new CheckoutFulfillmentConsumer(paymentService, checkoutService, objectMapper);
 
     }
 
@@ -57,9 +60,9 @@ class OrderStatusConsumerTest {
 
         orderStatusConsumer.listen(null);
 
-        verify(checkoutRepository, never()).findById(any());
+        verify(checkoutService, never()).findCheckoutById(any());
         verify(paymentService, never()).createPaymentFromEvent(any());
-        verify(checkoutRepository, never()).save(any());
+        verify(checkoutService, never()).updateCheckout(any());
     }
 
     @Test
@@ -71,8 +74,8 @@ class OrderStatusConsumerTest {
 
         orderStatusConsumer.listen(consumerRecord);
 
-        verify(checkoutRepository, never()).save(any());
-        verify(checkoutRepository, never()).findById(any());
+        verify(checkoutService, never()).updateCheckout(any());
+        verify(checkoutService, never()).findCheckoutById(any());
         verify(paymentService, never()).createPaymentFromEvent(any());
     }
 
@@ -93,8 +96,8 @@ class OrderStatusConsumerTest {
 
         orderStatusConsumer.listen(consumerRecord);
 
-        verify(checkoutRepository, never()).findById(any());
-        verify(checkoutRepository, never()).save(any());
+        verify(checkoutService, never()).findCheckoutById(any());
+        verify(checkoutService, never()).updateCheckout(any());
         verify(paymentService, never()).createPaymentFromEvent(any());
     }
 
@@ -115,31 +118,8 @@ class OrderStatusConsumerTest {
 
         orderStatusConsumer.listen(consumerRecord);
 
-        verify(checkoutRepository, never()).findById(any());
-        verify(checkoutRepository, never()).save(any());
-        verify(paymentService, never()).createPaymentFromEvent(any());
-    }
-
-    @Test
-    void testListen_whenCheckoutIsNotFound_shouldNotSave() {
-
-        ConsumerRecord<?, String> consumerRecord = mock(ConsumerRecord.class);
-
-        when(consumerRecord.value()).thenReturn(jsonRecord);
-        JsonObject jsonObject = mock(JsonObject.class);
-        when(jsonObject.has("after")).thenReturn(true);
-        when(jsonObject.getAsJsonObject("after")).thenReturn(mock(JsonObject.class));
-
-        when(checkoutRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        when(paymentService.createPaymentFromEvent(any())).thenReturn(1L);
-
-        NotFoundException notFoundException
-            = Assertions.assertThrows(NotFoundException.class, () -> orderStatusConsumer.listen(consumerRecord));
-
-        assertThat(notFoundException.getMessage()).isEqualTo("Checkout 12345 is not found");
-        verify(checkoutRepository, atLeastOnce()).findById(any());
-        verify(checkoutRepository, never()).save(any());
+        verify(checkoutService, never()).findCheckoutById(any());
+        verify(checkoutService, never()).updateCheckout(any());
         verify(paymentService, never()).createPaymentFromEvent(any());
     }
 
@@ -149,21 +129,21 @@ class OrderStatusConsumerTest {
         ConsumerRecord<?, String> consumerRecord = mock(ConsumerRecord.class);
 
         when(consumerRecord.value()).thenReturn(jsonRecord);
-        JsonObject jsonObject = mock(JsonObject.class);
+        JsonNode jsonObject = mock(JsonNode.class);
         when(jsonObject.has("after")).thenReturn(true);
-        when(jsonObject.getAsJsonObject("after")).thenReturn(mock(JsonObject.class));
+        when(jsonObject.get("after")).thenReturn(mock(JsonNode.class));
 
         ArgumentCaptor<Checkout> argumentCaptor = ArgumentCaptor.forClass(Checkout.class);
 
-        when(checkoutRepository.findById(anyString())).thenReturn(Optional.of(new Checkout()));
+        when(checkoutService.findCheckoutById(anyString())).thenReturn(new Checkout());
 
         when(paymentService.createPaymentFromEvent(any())).thenReturn(2L);
 
         orderStatusConsumer.listen(consumerRecord);
 
-        verify(checkoutRepository, atLeastOnce()).findById(any());
+        verify(checkoutService, atLeastOnce()).findCheckoutById(any());
         verify(paymentService, atLeastOnce()).createPaymentFromEvent(any());
-        verify(checkoutRepository, atLeastOnce()).save(argumentCaptor.capture());
+        verify(checkoutService, atLeastOnce()).updateCheckout(argumentCaptor.capture());
 
         Checkout actual = argumentCaptor.getValue();
         assertThat(actual.getProgress()).isEqualTo(CheckoutProgress.PAYMENT_CREATED);
@@ -176,13 +156,13 @@ class OrderStatusConsumerTest {
         ConsumerRecord<?, String> consumerRecord = mock(ConsumerRecord.class);
 
         when(consumerRecord.value()).thenReturn(jsonRecord);
-        JsonObject jsonObject = mock(JsonObject.class);
+        JsonNode jsonObject = mock(JsonNode.class);
         when(jsonObject.has("after")).thenReturn(true);
-        when(jsonObject.getAsJsonObject("after")).thenReturn(mock(JsonObject.class));
+        when(jsonObject.get("after")).thenReturn(mock(JsonNode.class));
 
         Checkout checkout = new Checkout();
         checkout.setId("12345");
-        when(checkoutRepository.findById(anyString())).thenReturn(Optional.of(checkout));
+        when(checkoutService.findCheckoutById(anyString())).thenReturn(checkout);
 
         BadRequestException badRequestException = new BadRequestException("test exception");
         when(paymentService.createPaymentFromEvent(any())).thenThrow(badRequestException);
@@ -192,8 +172,8 @@ class OrderStatusConsumerTest {
         assertThat(badRequest.getMessage()).isEqualTo("Failed to process checkout event for ID 12345");
 
         ArgumentCaptor<Checkout> argumentCaptor = ArgumentCaptor.forClass(Checkout.class);
-        verify(checkoutRepository, atLeastOnce()).findById(any());
-        verify(checkoutRepository, atLeastOnce()).save(argumentCaptor.capture());
+        verify(checkoutService, atLeastOnce()).findCheckoutById(any());
+        verify(checkoutService, atLeastOnce()).updateCheckout(argumentCaptor.capture());
         verify(paymentService, atLeastOnce()).createPaymentFromEvent(any());
 
         Checkout actual = argumentCaptor.getValue();

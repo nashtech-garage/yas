@@ -9,6 +9,7 @@ import com.yas.order.mapper.CheckoutMapper;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.model.Order;
+import com.yas.order.model.enumeration.CheckoutProgress;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.repository.CheckoutItemRepository;
@@ -42,6 +43,17 @@ public class CheckoutService {
     private final CheckoutItemRepository checkoutItemRepository;
     private final OrderService orderService;
     private final CheckoutMapper checkoutMapper;
+
+    public void processPayment(String checkoutId) {
+        Checkout checkout = checkoutRepository.findById(checkoutId)
+            .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutId));
+        checkout.setCheckoutState(CheckoutState.PAYMENT_PROCESSING);
+        checkout.setProgress(CheckoutProgress.STOCK_LOCKED);
+        checkout.setPaymentMethodId(PaymentMethod.PAYPAL);
+        checkout.setShippingAddressId(1L);
+        checkout.setBillingAddressId(1L);
+        checkoutRepository.save(checkout);
+    }
 
     public CheckoutVm createCheckout(CheckoutPostVm checkoutPostVm) {
 

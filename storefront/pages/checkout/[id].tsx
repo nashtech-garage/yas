@@ -9,11 +9,7 @@ import { useRouter } from 'next/router';
 import { Input } from 'common/items/Input';
 import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
-import {
-  createOrder,
-  getCheckoutById,
-  processPayment,
-} from '@/modules/order/services/OrderService';
+import { getCheckoutById, processPayment } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 import {
   createUserAddress,
@@ -24,8 +20,6 @@ import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
 import type { Checkout } from '@/modules/order/models/Checkout';
 import { toastError } from '@/modules/catalog/services/ToastService';
 import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
-import { initPaymentPaypal } from '@/modules/paymentPaypal/services/PaymentPaypalService';
-import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
 import SpinnerComponent from '@/common/components/SpinnerComponent';
 import { getPaymentById } from '@/modules/payment/services/PaymentService';
 import { Payment } from '@/modules/payment/models/Payment';
@@ -156,12 +150,7 @@ const Checkout = () => {
     });
   };
 
-  const onSubmitForm: SubmitHandler<Order> = async (data, event) => {
-    const nativeEvent = event?.nativeEvent as SubmitEvent;
-
-    const clickedButton = nativeEvent?.submitter as HTMLButtonElement | undefined;
-    const clickedButtonId = clickedButton?.id;
-
+  const onSubmitForm: SubmitHandler<Order> = async (data) => {
     let isValidate = true;
 
     if (addShippingAddress) {
@@ -222,20 +211,8 @@ const Checkout = () => {
       setIsShowSpinner(true);
       setDisableProcessPayment(true);
 
-      if (clickedButtonId === 'newProcessToPaymentButton') {
-        processPayment(id as string);
-        handlePaymentProcess(order);
-      } else {
-        createOrder(order)
-          .then(() => {
-            handleCheckOutProcess(order);
-          })
-          .catch(() => {
-            setIsShowSpinner(false);
-            setDisableProcessPayment(false);
-            toast.error('Place order failed');
-          });
-      }
+      processPayment(id as string);
+      handlePaymentProcess(order);
     }
   };
 
@@ -329,37 +306,10 @@ const Checkout = () => {
     toast.error('Payment processing failed, please try again later.');
   };
 
-  const handleCheckOutProcess = async (order: Order) => {
-    const paymentMethod = order.paymentMethod ?? '';
-    switch (paymentMethod.toUpperCase()) {
-      case 'COD':
-        processCodPayment(order);
-        break;
-      case 'PAYPAL':
-        redirectToPaypal(order);
-        break;
-      default:
-        setIsShowSpinner(false);
-        setDisableProcessPayment(false);
-        toast.error('Place order failed');
-    }
-  };
-
   const processCodPayment = async (order: Order) => {
     setIsShowSpinner(false);
     setDisableProcessPayment(false);
     toast.error('COD payment feature is under construction');
-  };
-
-  const redirectToPaypal = async (order: Order) => {
-    const initPaymentPaypalRequest: InitPaymentPaypalRequest = {
-      paymentMethod: order.paymentMethod,
-      checkoutId: order.checkoutId,
-      totalPrice: order.totalPrice,
-    };
-    const initPaymentResponse = await initPaymentPaypal(initPaymentPaypalRequest);
-    const redirectUrl = initPaymentResponse.redirectUrl;
-    window.location.replace(redirectUrl);
   };
 
   return (

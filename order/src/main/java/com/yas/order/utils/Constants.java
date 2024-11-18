@@ -7,6 +7,7 @@ public final class Constants {
 
         public static final String ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
         public static final String CHECKOUT_NOT_FOUND = "CHECKOUT_NOT_FOUND";
+        public static final String ORDER_ADDRESS_NOT_FOUND = "ORDER_ADDRESS_NOT_FOUND";
         public static final String SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED";
         public static final String FORBIDDEN = "FORBIDDEN";
         public static final String CANNOT_CONVERT_TO_STRING = "CANNOT_CONVERT_TO_STRING";
@@ -44,8 +45,11 @@ public final class Constants {
         public static final String CHECKOUT_PROGRESS_COLUMN = "progress";
         public static final String CHECKOUT_ATTRIBUTES_PAYMENT_ID_FIELD = "payment_id";
         public static final String CHECKOUT_ID_COLUMN = "checkout_id";
-        public static final String CHECKOUT_STATUS_COLUMN = "status";
-        public static final String CHECKOUT_ATTRIBUTES_PAYMENT_PROVIDER_CHECKOUT_ID_FIELD
+
+        // Column name of Payment table
+        public static final String PAYMENT_ATTRIBUTES_PAYMENT_PROVIDER_CHECKOUT_ID_FIELD
             = "payment_provider_checkout_id";
+        public static final String PAYMENT_STATUS_FIELD
+            = "payment_status";
     }
 }

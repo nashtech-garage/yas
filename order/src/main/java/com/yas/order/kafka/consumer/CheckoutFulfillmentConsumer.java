@@ -1,25 +1,22 @@
 package com.yas.order.kafka.consumer;
 
+import static com.yas.order.kafka.helper.ConsumerHelper.processForEventUpdate;
 import static com.yas.order.utils.JsonUtils.convertObjectToString;
 import static com.yas.order.utils.JsonUtils.createJsonErrorObject;
 import static com.yas.order.utils.JsonUtils.getAttributesNode;
 import static com.yas.order.utils.JsonUtils.getJsonValueOrThrow;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.yas.commonlibrary.exception.BadRequestException;
-import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.enumeration.CheckoutProgress;
 import com.yas.order.model.enumeration.CheckoutState;
-import com.yas.order.repository.CheckoutRepository;
+import com.yas.order.service.CheckoutService;
 import com.yas.order.service.PaymentService;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.payment.CheckoutPaymentVm;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -28,50 +25,41 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.stereotype.Service;
 
+/**
+ * After fulfillment, process payment and create order in PayPal.
+ */
 @Service
 @RequiredArgsConstructor
-public class OrderStatusConsumer {
+public class CheckoutFulfillmentConsumer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrderStatusConsumer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckoutFulfillmentConsumer.class);
     private final PaymentService paymentService;
-    private final CheckoutRepository checkoutRepository;
+    private final CheckoutService checkoutService;
     private final ObjectMapper objectMapper;
-    private final Gson gson;
 
     @KafkaListener(
         topics = "${cdc.event.checkout.status.topic-name}",
-        groupId = "${cdc.event.checkout.status.group-id}"
+        groupId = "${cdc.event.checkout.fulfillment.group-id}"
     )
     @RetryableTopic(
         attempts = "1"
     )
     public void listen(ConsumerRecord<?, ?> consumerRecord) {
-
-        if (Objects.isNull(consumerRecord)) {
-            LOGGER.info("ConsumerRecord is null");
-            return;
-        }
-        JsonObject valueObject = gson.fromJson((String) consumerRecord.value(), JsonObject.class);
-        processCheckoutEvent(valueObject);
-
+        processForEventUpdate(
+            consumerRecord,
+            this::handleAfterJson,
+            objectMapper,
+            LOGGER
+        );
     }
 
-    private void processCheckoutEvent(JsonObject valueObject) {
-        Optional.ofNullable(valueObject)
-            .filter(
-                value -> value.has("op") && "u".equals(value.get("op").getAsString())
-            )
-            .map(value -> value.getAsJsonObject("after"))
-            .ifPresent(this::handleAfterJson);
-    }
-
-    private void handleAfterJson(JsonObject after) {
-
-        String id = getJsonValueOrThrow(after, Constants.Column.ID_COLUMN,
+    private void handleAfterJson(JsonNode valueObject) {
+        JsonNode afterObject = valueObject.get("after");
+        String id = getJsonValueOrThrow(afterObject, Constants.Column.ID_COLUMN,
             Constants.ErrorCode.ID_NOT_EXISTED);
-        String status = getJsonValueOrThrow(after, Constants.Column.STATUS_COLUMN,
+        String status = getJsonValueOrThrow(afterObject, Constants.Column.STATUS_COLUMN,
             Constants.ErrorCode.STATUS_NOT_EXISTED, id);
-        String progress = getJsonValueOrThrow(after, Constants.Column.CHECKOUT_PROGRESS_COLUMN,
+        String progress = getJsonValueOrThrow(afterObject, Constants.Column.CHECKOUT_PROGRESS_COLUMN,
             Constants.ErrorCode.PROGRESS_NOT_EXISTED, id);
 
         if (!isPaymentProcessing(status, progress)) {
@@ -83,9 +71,7 @@ public class OrderStatusConsumer {
         LOGGER.info("Checkout record with ID {} has the status 'PAYMENT_PROCESSING' and the process 'STOCK_LOCKED'",
             id);
 
-        Checkout checkout = checkoutRepository
-            .findById(id)
-            .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.CHECKOUT_NOT_FOUND, id));
+        Checkout checkout = checkoutService.findCheckoutById(id);
 
         processPaymentAndUpdateCheckout(checkout);
     }
@@ -117,7 +103,7 @@ public class OrderStatusConsumer {
             throw new BadRequestException(Constants.ErrorCode.PROCESS_CHECKOUT_FAILED, checkout.getId());
 
         } finally {
-            checkoutRepository.save(checkout);
+            checkoutService.updateCheckout(checkout);
         }
     }
 

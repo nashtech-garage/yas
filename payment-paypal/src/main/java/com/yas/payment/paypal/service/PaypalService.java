@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 public class PaypalService {
     private final PayPalHttpClientInitializer payPalHttpClientInitializer;
     private final BigDecimal maxPay = BigDecimal.valueOf(1000);
-    @Value("${yas.public.url}/capture")
+    @Value("${yas.public.url}/success")
     private String returnUrl;
     @Value("${yas.public.url}/cancel")
     private String cancelUrl;
@@ -52,10 +52,8 @@ public class PaypalService {
             .value(totalPrice.toString());
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountWithBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
-        String paymentMethodReturnUrl
-            = String.format("%s?paymentMethod=%s", returnUrl, createPaymentRequest.paymentMethod());
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl(paymentMethodReturnUrl)
+                .returnUrl(returnUrl)
                 .cancelUrl(cancelUrl)
                 .brandName(Constants.Yas.BRAND_NAME)
                 .landingPage("BILLING")

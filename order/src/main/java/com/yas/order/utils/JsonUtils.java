@@ -1,12 +1,12 @@
 package com.yas.order.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.yas.commonlibrary.exception.BadRequestException;
 import java.util.Optional;
+import org.slf4j.Logger;
 
 public class JsonUtils {
 
@@ -42,25 +42,38 @@ public class JsonUtils {
     }
 
     public static String getJsonValueOrThrow(
-        JsonObject jsonObject,
+        JsonNode jsonObject,
         String columnName,
         String errorCode,
         Object... errorParams
     ) {
         return Optional.ofNullable(jsonObject.get(columnName))
-            .filter(jsonElement -> !jsonElement.isJsonNull())
-            .map(JsonElement::getAsString)
+            .map(JsonNode::asText)
             .orElseThrow(() -> new BadRequestException(errorCode, errorParams));
     }
 
     public static String getJsonValueOrNull(
-        JsonObject jsonObject,
+        JsonNode jsonObject,
         String columnName
     ) {
-        JsonElement jsonElement = jsonObject.get(columnName);
-        if (jsonElement != null && !jsonElement.isJsonNull()) {
-            return jsonElement.getAsString();
+        JsonNode jsonElement = jsonObject.get(columnName);
+        if (jsonElement != null && !jsonElement.isNull()) {
+            return jsonElement.asText();
         }
         return null;
+    }
+
+
+    public static JsonNode getJsonNodeByValue(
+        ObjectMapper objectMapper,
+        String jsonValue,
+        Logger logger
+    ) {
+        try {
+            return objectMapper.readTree(jsonValue);
+        } catch (JsonProcessingException e) {
+            logger.error("Invalid JSON. Message: {}", jsonValue, e);
+            throw new BadRequestException("Failed to parse message as JSON. Message: {}", jsonValue);
+        }
     }
 }

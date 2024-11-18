@@ -2,12 +2,11 @@ package com.yas.payment.kafka.consumer;
 
 import static com.yas.payment.utils.JsonUtils.convertObjectToString;
 import static com.yas.payment.utils.JsonUtils.getAttributesNode;
+import static com.yas.payment.utils.JsonUtils.getJsonNodeByValue;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.payment.model.Payment;
 import com.yas.payment.model.enumeration.PaymentMethod;
@@ -33,7 +32,6 @@ public class PaymentCreateConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentCreateConsumer.class);
     private final PaymentService paymentService;
     private final ObjectMapper objectMapper;
-    private final Gson gson;
 
     @KafkaListener(
         topics = "${cdc.event.payment.topic-name}",
@@ -46,26 +44,26 @@ public class PaymentCreateConsumer {
             LOGGER.info("Consumer Record is null");
             return;
         }
-        JsonObject valueObject = gson.fromJson((String) consumerRecord.value(), JsonObject.class);
+        String jsonValue = (String) consumerRecord.value();
+        JsonNode valueObject = getJsonNodeByValue(objectMapper, jsonValue, LOGGER);
         processCheckoutEvent(valueObject);
-
     }
 
-    private void processCheckoutEvent(JsonObject valueObject) {
+    private void processCheckoutEvent(JsonNode valueObject) {
         Optional.ofNullable(valueObject)
             .filter(
-                value -> value.has("op") && "c".equals(value.get("op").getAsString())
+                value -> value.has("op") && "c".equals(value.get("op").asText())
             )
             .filter(value -> value.has("after"))
-            .map(value -> value.getAsJsonObject("after"))
+            .map(value -> value.get("after"))
             .ifPresent(this::handleAfterJsonForCreatingOrder);
     }
 
-    private void handleAfterJsonForCreatingOrder(JsonObject after) {
+    private void handleAfterJsonForCreatingOrder(JsonNode after) {
 
         Long id = Optional.ofNullable(after.get(Constants.Column.ID_COLUMN))
-            .filter(jsonElement -> !jsonElement.isJsonNull())
-            .map(JsonElement::getAsLong)
+            .filter(jsonElement -> !jsonElement.isNull())
+            .map(JsonNode::asLong)
             .orElseThrow(() -> new BadRequestException(Constants.ErrorCode.ID_NOT_EXISTED));
 
         LOGGER.info("Handle after json for creating order Payment ID {}", id);

@@ -32,6 +32,12 @@ public class CheckoutController {
         return ResponseEntity.ok(checkoutService.createCheckout(checkoutPostVm));
     }
 
+    @PostMapping("/storefront/checkouts/{id}/process-payment")
+    public ResponseEntity<Void> processPayment(@PathVariable String id) {
+        checkoutService.processPayment(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/storefront/checkouts/status")
     public ResponseEntity<Long> updateCheckoutStatus(@Valid @RequestBody CheckoutStatusPutVm checkoutStatusPutVm) {
         return ResponseEntity.ok(checkoutService.updateCheckoutStatus(checkoutStatusPutVm));

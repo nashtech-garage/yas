@@ -52,10 +52,10 @@ public class Order extends AbstractAuditEntity {
     private String note;
 
     @Column(name = "total_tax")
-    private float tax;
+    private BigDecimal tax;
 
     @Column(name = "total_discount_amount")
-    private float discount;
+    private BigDecimal discount;
 
     private int numberItem;
 

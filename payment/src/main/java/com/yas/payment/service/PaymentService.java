@@ -133,6 +133,14 @@ public class PaymentService {
                 () -> new NotFoundException(Constants.ErrorCode.PAYMENT_NOT_FOUND, id));
     }
 
+    public Payment findPaymentByPaypalOrderId(String id) {
+
+        return paymentRepository
+            .findByPaymentProviderCheckoutId(id)
+            .orElseThrow(
+                () -> new NotFoundException(Constants.ErrorCode.PAYMENT_NOT_FOUND, id));
+    }
+
     public void updatePayment(Payment payment) {
 
         if (Objects.isNull(payment.getId())) {

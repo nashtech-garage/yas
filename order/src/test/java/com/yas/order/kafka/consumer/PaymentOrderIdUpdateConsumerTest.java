@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.enumeration.CheckoutProgress;
 import com.yas.order.model.enumeration.CheckoutState;
@@ -19,11 +18,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-class PaymentUpdateConsumerTest {
+class PaymentOrderIdUpdateConsumerTest {
 
     private CheckoutService checkoutService;
 
-    private PaymentUpdateConsumer paymentUpdateConsumer;
+    private PaymentPaypalOrderIdUpdateConsumer paymentUpdateConsumer;
 
     private final String jsonRecord = "{\"op\":\"u\"," +
         " \"before\":{\"payment_provider_checkout_id\":\"OLD\"}," +
@@ -35,8 +34,7 @@ class PaymentUpdateConsumerTest {
     void setUp() {
         checkoutService = mock(CheckoutService.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        Gson gson = new Gson();
-        paymentUpdateConsumer = new PaymentUpdateConsumer(checkoutService, objectMapper, gson);
+        paymentUpdateConsumer = new PaymentPaypalOrderIdUpdateConsumer(checkoutService, objectMapper);
     }
 
     @Test
