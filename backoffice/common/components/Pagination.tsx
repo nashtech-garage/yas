@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactPaginate from 'react-paginate';
-import { Button, Form } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 interface PaginationProps {
@@ -43,7 +43,7 @@ function Pagination({
       {showHelpers && (
         <div className="pagination-helper mt-3 mb-3">
           <div className="pagination-tool me-5">
-            <p>To page</p>
+            <p>Go to</p>
             <Form.Control
               type="number"
               value={goToPage}
@@ -54,14 +54,10 @@ function Pagination({
                 }
               }}
             />
-            <Button variant="primary" onClick={onGoToPageSubmit} className="ml-2">
-              Go
-            </Button>
           </div>
           <div className="pagination-tool">
             <p>Show</p>
-            <Form.Control
-              as="select"
+            <Form.Select
               value={itemsPerPage}
               onChange={(e) =>
                 onItemsPerPageChange?.(e as unknown as React.ChangeEvent<HTMLSelectElement>)
@@ -71,8 +67,7 @@ function Pagination({
               <option value="10">10</option>
               <option value="15">15</option>
               <option value="20">20</option>
-            </Form.Control>
-            <p>/ page</p>
+            </Form.Select>
           </div>
         </div>
       )}

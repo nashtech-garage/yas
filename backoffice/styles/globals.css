@@ -103,9 +103,13 @@ a {
   font-size: 14px;
 }
 
-.pagination-tool .form-control,
-.pagination-tool button {
+.pagination-tool .form-control {
   width: 45px;
+  height: 36.5px;
+  margin: 0 5px;
+}
+
+.pagination-tool select {
   height: 36.5px;
   margin: 0 5px;
 }
