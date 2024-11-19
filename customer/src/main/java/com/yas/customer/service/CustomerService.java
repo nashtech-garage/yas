@@ -26,14 +26,13 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerService {
 
     private static final String ERROR_FORMAT = "%s: Client %s don't have access right for this resource";
-    private static final int USER_PER_PAGE = 2;
+    private static final int USER_PER_PAGE = 10;
     private static final String GUEST = "GUEST";
     private final Keycloak keycloak;
     private final KeycloakPropsConfig keycloakPropsConfig;
@@ -55,9 +54,10 @@ public class CustomerService {
         try {
             List<CustomerAdminVm> result = keycloak.realm(keycloakPropsConfig.getRealm()).users()
                 .search(null, pageNo * USER_PER_PAGE, USER_PER_PAGE).stream()
+                .filter(UserRepresentation::isEnabled)
                 .map(CustomerAdminVm::fromUserRepresentation)
                 .toList();
-            int totalUser = keycloak.realm(keycloakPropsConfig.getRealm()).users().count();
+            int totalUser = result.size();
 
             return new CustomerListVm(totalUser, result, (totalUser + USER_PER_PAGE - 1) / USER_PER_PAGE);
         } catch (ForbiddenException exception) {
@@ -66,8 +66,7 @@ public class CustomerService {
         }
     }
 
-    public void updateCustomers(CustomerProfileRequestVm requestVm) {
-        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+    public void updateCustomer(String id, CustomerProfileRequestVm requestVm) {
         UserRepresentation userRepresentation =
             keycloak.realm(keycloakPropsConfig.getRealm()).users().get(id).toRepresentation();
         if (userRepresentation != null) {
@@ -76,6 +75,19 @@ public class CustomerService {
             userRepresentation.setEmail(requestVm.email());
             RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
             UserResource userResource = realmResource.users().get(id);
+            userResource.update(userRepresentation);
+        } else {
+            throw new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND);
+        }
+    }
+
+    public void deleteCustomer(String id) {
+        UserRepresentation userRepresentation =
+            keycloak.realm(keycloakPropsConfig.getRealm()).users().get(id).toRepresentation();
+        if (userRepresentation != null) {
+            RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
+            UserResource userResource = realmResource.users().get(id);
+            userRepresentation.setEnabled(false);
             userResource.update(userRepresentation);
         } else {
             throw new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND);

@@ -55,6 +55,7 @@ const ProductTemplateEdit: NextPage = () => {
       });
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const onAddAttributeList = (event: React.MouseEvent<HTMLElement>) => {

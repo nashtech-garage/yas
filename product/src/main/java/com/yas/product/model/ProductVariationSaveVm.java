@@ -11,5 +11,5 @@ public interface ProductVariationSaveVm extends ProductProperties {
 
     List<Long> productImageIds();
 
-    Map<Long, List<String>> optionValuesByOptionId();
+    Map<Long, String> optionValuesByOptionId();
 }

@@ -2,7 +2,6 @@ package common.kafka;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
 import java.net.URI;
 import java.time.Duration;
 import java.util.HashMap;
@@ -11,15 +10,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.Getter;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -36,10 +41,11 @@ import org.testcontainers.containers.KafkaContainer;
  * @param <M> Message Type
  */
 @Getter
-public abstract class CdcConsumerTest<M> {
+public abstract class CdcConsumerTest<K, M> {
 
     private final Logger logger = LoggerFactory.getLogger(CdcConsumerTest.class);
 
+    private final Class<K> keyType;
     private final Class<M> messageType;
 
     private final String cdcEvent;
@@ -56,31 +62,41 @@ public abstract class CdcConsumerTest<M> {
     @Mock
     RestClient.RequestHeadersUriSpec requestHeadersUriSpec;
 
-    private KafkaTemplate<String, M> kafkaTemplate;
+    private KafkaTemplate<K, M> kafkaTemplate;
 
-    public CdcConsumerTest(Class<M> messageType, String topicEvent) {
+    public CdcConsumerTest(Class<K> keyType, Class<M> messageType, String topicEvent) {
         Assert.notNull(topicEvent, "CDC topic must not be null");
         Assert.notNull(messageType, "Message type must not be null");
+        Assert.notNull(keyType, "Key type must not be null");
         this.cdcEvent = topicEvent;
+        this.keyType = keyType;
         this.messageType = messageType;
     }
 
-    public synchronized KafkaTemplate<String, M> getKafkaTemplate() {
+    public synchronized KafkaTemplate<K, M> getKafkaTemplate() {
         // Now, we haven't had any process need Kafka Producer,
         // then just temporary config producer like this for testing
         if (kafkaTemplate == null) {
             synchronized (this) {
                 final Map<String, Object> props = getProducerProps();
-                kafkaTemplate = new KafkaTemplate<>(new DefaultKafkaProducerFactory<String, M>(props));
+                kafkaTemplate = new KafkaTemplate<>(new DefaultKafkaProducerFactory<K, M>(props));
             }
         }
         return kafkaTemplate;
     }
 
     protected void sendMsg(M message)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        var rs = getKafkaTemplate()
+                .send(this.cdcEvent, message)
+                .get(10, TimeUnit.SECONDS);
+        logger.info("Sent message completed: {}", rs);
+    }
+
+    protected void sendMsg(K key, M message)
         throws InterruptedException, ExecutionException, TimeoutException {
         var rs = getKafkaTemplate()
-            .send(this.cdcEvent, message)
+            .send(this.cdcEvent, key, message)
             .get(10, TimeUnit.SECONDS);
         logger.info("Sent message completed: {}", rs);
     }
@@ -88,6 +104,12 @@ public abstract class CdcConsumerTest<M> {
     protected <R> void simulateHttpRequestWithResponse(URI url, R response, Class<R> responseType) {
         setupMockGetRequest(url);
         when(responseSpec.body(responseType)).thenReturn(response);
+    }
+
+    protected <R> void simulateHttpRequestWithResponseToEntity(URI url, R response, Class<R> responseType) {
+        setupMockGetRequest(url);
+        when(responseSpec.toEntity(any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(response));
     }
 
     protected <R> void simulateHttpRequestWithError(URI url, Throwable exception, Class<R> responseType) {
@@ -113,10 +135,10 @@ public abstract class CdcConsumerTest<M> {
      * @throws InterruptedException If the thread is interrupted while sleeping.
      */
     public void waitForConsumer(
-        long processTime,
-        int numOfRecords,
-        int attempts,
-        long backOff
+            long processTime,
+            int numOfRecords,
+            int attempts,
+            long backOff
     ) throws InterruptedException {
         // retryTime =  (1st run) + (total run when retrying) + (total back off time)
         long retryTime = processTime + (attempts * processTime) + (backOff * attempts);
@@ -130,7 +152,7 @@ public abstract class CdcConsumerTest<M> {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 0);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return props;
     }

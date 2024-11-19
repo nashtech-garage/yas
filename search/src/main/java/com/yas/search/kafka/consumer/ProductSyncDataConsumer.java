@@ -1,15 +1,19 @@
 package com.yas.search.kafka.consumer;
 
+import static com.yas.commonlibrary.kafka.cdc.message.Operation.DELETE;
 import static com.yas.search.kafka.config.consumer.ProductCdcKafkaListenerConfig.PRODUCT_CDC_LISTENER_CONTAINER_FACTORY;
 
 import com.yas.commonlibrary.kafka.cdc.BaseCdcConsumer;
 import com.yas.commonlibrary.kafka.cdc.RetrySupportDql;
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
+import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
 import com.yas.search.service.ProductSyncDataService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductCdcMessage> {
+public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductMsgKey, ProductCdcMessage> {
 
     private final ProductSyncDataService productSyncDataService;
 
@@ -35,26 +39,25 @@ public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductCdcMessage> 
     )
     @RetrySupportDql(listenerContainerFactory = PRODUCT_CDC_LISTENER_CONTAINER_FACTORY)
     public void processMessage(
+        @Header(KafkaHeaders.RECEIVED_KEY) ProductMsgKey key,
         @Payload(required = false) @Valid ProductCdcMessage productCdcMessage,
         @Headers MessageHeaders headers
     ) {
-        processMessage(productCdcMessage, headers, this::sync);
+        processMessage(key, productCdcMessage, headers, this::sync);
     }
 
-    public void sync(ProductCdcMessage productCdcMessage) {
-        if (productCdcMessage.getAfter() != null) {
+    public void sync(ProductMsgKey key, ProductCdcMessage productCdcMessage) {
+        boolean isHardDeleteEvent = productCdcMessage == null || DELETE.equals(productCdcMessage.getOp());
+        if (isHardDeleteEvent) {
+            log.warn("Having hard delete event for product: '{}'", key.getId());
+            productSyncDataService.deleteProduct(key.getId());
+        } else {
             var operation = productCdcMessage.getOp();
-            var productId = productCdcMessage.getAfter().getId();
+            var productId = key.getId();
             switch (operation) {
-                case CREATE, READ:
-                    productSyncDataService.createProduct(productId);
-                    break;
-                case UPDATE:
-                    productSyncDataService.updateProduct(productId);
-                    break;
-                default:
-                    log.warn("Unsupported operation '{}' for product: '{}'", operation, productId);
-                    break;
+                case CREATE, READ -> productSyncDataService.createProduct(productId);
+                case UPDATE -> productSyncDataService.updateProduct(productId);
+                default -> log.warn("Unsupported operation '{}' for product: '{}'", operation, productId);
             }
         }
     }

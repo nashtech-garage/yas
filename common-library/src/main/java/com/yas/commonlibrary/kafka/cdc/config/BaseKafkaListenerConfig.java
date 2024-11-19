@@ -1,7 +1,6 @@
 package com.yas.commonlibrary.kafka.cdc.config;
 
 import java.util.Map;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -12,15 +11,17 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 /**
  * Base configuration class for setting up Kafka consumers with typed deserialization.
  *
- * @param <T> The type of messages consumed.
+ * @param <V> The type of messages consumed.
  */
-public abstract class BaseKafkaListenerConfig<T> {
+public abstract class BaseKafkaListenerConfig<K, V> {
 
-    private final Class<T> type;
+    private final Class<K> keyType;
+    private final Class<V> valueType;
     private final KafkaProperties kafkaProperties;
 
-    public BaseKafkaListenerConfig(Class<T> type, KafkaProperties kafkaProperties) {
-        this.type = type;
+    public BaseKafkaListenerConfig(Class<K> keyType, Class<V> type, KafkaProperties kafkaProperties) {
+        this.valueType = type;
+        this.keyType = keyType;
         this.kafkaProperties = kafkaProperties;
     }
 
@@ -31,27 +32,31 @@ public abstract class BaseKafkaListenerConfig<T> {
      *
      * @return a configured instance of {@link ConcurrentKafkaListenerContainerFactory}.
      */
-    public abstract ConcurrentKafkaListenerContainerFactory<String, T> listenerContainerFactory();
+    public abstract ConcurrentKafkaListenerContainerFactory<K, V> listenerContainerFactory();
 
     /**
      * Common instance type ConcurrentKafkaListenerContainerFactory.
      *
      * @return concurrentKafkaListenerContainerFactory {@link ConcurrentKafkaListenerContainerFactory}.
      */
-    public ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, T>();
-        factory.setConsumerFactory(typeConsumerFactory(type));
+    public ConcurrentKafkaListenerContainerFactory<K, V> kafkaListenerContainerFactory() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<K, V>();
+        factory.setConsumerFactory(typeConsumerFactory(keyType, valueType));
         return factory;
     }
 
-    private ConsumerFactory<String, T> typeConsumerFactory(Class<T> clazz) {
+    private ConsumerFactory<K, V> typeConsumerFactory(Class<K> keyClazz, Class<V> valueClazz) {
         Map<String, Object> props = buildConsumerProperties();
-        var serialize = new StringDeserializer();
         // wrapper in case serialization/deserialization occur
+        var keyDeserialize = new ErrorHandlingDeserializer<>(gettJsonDeserializer(keyClazz));
+        var valueDeserialize = new ErrorHandlingDeserializer<>(gettJsonDeserializer(valueClazz));
+        return new DefaultKafkaConsumerFactory<>(props, keyDeserialize, valueDeserialize);
+    }
+
+    private static <T> JsonDeserializer<T> gettJsonDeserializer(Class<T> clazz) {
         var jsonDeserializer = new JsonDeserializer<>(clazz);
         jsonDeserializer.addTrustedPackages("*");
-        var deserialize = new ErrorHandlingDeserializer<>(jsonDeserializer);
-        return new DefaultKafkaConsumerFactory<>(props, serialize, deserialize);
+        return jsonDeserializer;
     }
 
     private Map<String, Object> buildConsumerProperties() {

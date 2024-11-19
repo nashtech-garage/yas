@@ -1,0 +1,19 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-sampledata
+    tag: latest
+
+  nameOverride: sampledata
+  fullnameOverride: sampledata
+  databaseName: sampledata
+  ingress:
+    enabled: false
+  extraVolumes:
+    - name: sampledata-application
+      configMap:
+        name: sampledata-application-configmap
+  extraVolumeMounts:
+    - name: sampledata-application
+      mountPath: /opt/yas/sampledata
+  extraApplicationConfigPaths:
+    - /opt/yas/sampledata/sampledata-application.yaml

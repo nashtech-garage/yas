@@ -45,9 +45,6 @@ server {
   location /payment/ {
     proxy_pass http://payment;
   }
-  location /payment-paypal/ {
-    proxy_pass http://payment-paypal;
-  }
   location /webhook/ {
     proxy_pass http://webhook;
   }

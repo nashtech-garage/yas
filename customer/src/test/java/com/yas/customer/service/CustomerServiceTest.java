@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.yas.customer.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -73,7 +73,7 @@ class CustomerServiceTest {
         user2.setEmail("user2@example.com");
         user2.setFirstName("FirstName2");
         user2.setLastName("LastName2");
-        user2.setEnabled(false);
+        user2.setEnabled(true);
         user2.setCreatedTimestamp(946684800000L);
 
         List<UserRepresentation> userList = new ArrayList<>();
@@ -135,17 +135,14 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testUpdateCustomers_isNormalCase_methodSuccess() {
-
-        setUpSecurityContext(USER_NAME);
-
+    void testUpdateCustomer_isNormalCase_methodSuccess() {
         UserRepresentation userRepresentation = getUserRepresentation();
         UserResource userResource = mock(UserResource.class);
         when(usersResource.get(USER_NAME)).thenReturn(userResource);
         when(userResource.toRepresentation()).thenReturn(userRepresentation);
 
         ArgumentCaptor<UserRepresentation> argumentCaptor = ArgumentCaptor.forClass(UserRepresentation.class);
-        customerService.updateCustomers(getCustomerProfileRequestVm());
+        customerService.updateCustomer(USER_NAME, getCustomerProfileRequestVm());
 
         verify(userResource).update(argumentCaptor.capture());
         UserRepresentation actual = argumentCaptor.getValue();
@@ -155,18 +152,30 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testUpdateCustomers_isUserNotFound_ThrowNotFoundException() {
-
-        setUpSecurityContext(USER_NAME);
-
+    void testUpdateCustomer_isUserNotFound_ThrowNotFoundException() {
         UserResource userResource = mock(UserResource.class);
         when(usersResource.get(USER_NAME)).thenReturn(userResource);
         when(userResource.toRepresentation()).thenReturn(null);
 
         CustomerProfileRequestVm customerProfileRequestVm = getCustomerProfileRequestVm();
         NotFoundException thrown = assertThrows(NotFoundException.class,
-            () -> customerService.updateCustomers(customerProfileRequestVm));
+            () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
         assertTrue(thrown.getMessage().contains("User not found"));
+    }
+
+    @Test
+    void testDeleteCustomer_isNormalCase_methodSuccess() {
+        UserRepresentation userRepresentation = getUserRepresentation();
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_NAME)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(userRepresentation);
+
+        ArgumentCaptor<UserRepresentation> argumentCaptor = ArgumentCaptor.forClass(UserRepresentation.class);
+        customerService.deleteCustomer(USER_NAME);
+
+        verify(userResource).update(argumentCaptor.capture());
+        UserRepresentation actual = argumentCaptor.getValue();
+        assertFalse(actual.isEnabled());
     }
 
     @Test

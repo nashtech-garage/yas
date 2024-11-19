@@ -16,3 +16,9 @@ export type CustomerCreateVM = {
   confirmPassword?: string;
   role: string;
 };
+
+export type CustomerUpdateVM = {
+  email: string;
+  firstName: string;
+  lastName: string;
+};

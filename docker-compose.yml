@@ -300,35 +300,6 @@ services:
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
-  payment-paypal:
-    build: ./payment-paypal  
-    image: ghcr.io/nashtech-garage/yas-payment-paypal:latest
-    environment:
-    - SERVER_SERVLET_CONTEXT_PATH=/payment-paypal
-    - YAS_PUBLIC_URL=http://storefront/complete-payment
-    - YAS_SERVICES_PAYMENT
-    - SERVER_PORT
-    - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS
-    - OTEL_EXPORTER_OTLP_ENDPOINT
-    - OTEL_EXPORTER_OTLP_PROTOCOL
-    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-    - OTEL_RESOURCE_ATTRIBUTES
-    - OTEL_SERVICE_NAME=payment-paypal-service
-    - OTEL_LOGS_EXPORTER
-    - OTEL_TRACES_EXPORTER
-    - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-    - OTEL_JAVAAGENT_LOGGING
-    - OTEL_JAVAAGENT_ENABLED
-    - OTEL_JAVAAGENT_DEBUG
-    - YAS_CURRENCY_UNIT
-    - YAS_PRICE_INCLUDES_TAX
-    volumes:
-    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
   location:
     build: ./location
     image: ghcr.io/nashtech-garage/yas-location:latest
@@ -605,18 +576,12 @@ services:
       - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
     networks:
       - yas-network
-  akhq:
-    image: tchiotludo/akhq:0.25.1
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
     environment:
-      AKHQ_CONFIGURATION: |
-        akhq:
-          connections:
-            docker-kafka-server:
-              properties:
-                bootstrap.servers: 'kafka:9092'
-              connect:
-                - name: "kafka-connect"
-                  url: "http://kafka-connect:8083/"
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     ports:
       - 8089:8080
     depends_on:
