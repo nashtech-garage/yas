@@ -1,27 +1,40 @@
 import type { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import { Stack, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 import moment from 'moment';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import queryString from 'query-string';
 import { getOrders } from 'modules/order/services/OrderService';
 import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
-import { DEFAULT_PAGE_SIZE } from '@constants/Common';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { Order } from 'modules/order/models/Order';
 import OrderSearch from 'modules/order/components/OrderSearch';
 import { formatPriceUSD } from 'utils/formatPrice';
 import Link from 'next/link';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 const Orders: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<OrderSearchForm>();
   const [isLoading, setLoading] = useState(false);
-
   const [orderList, setOrderList] = useState<Order[]>([]);
-  const [pageNo, setPageNo] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(1);
   const [isDelete, setDelete] = useState<boolean>(false);
-  const orderPageSize = DEFAULT_PAGE_SIZE;
+
+  const {
+    pageNo,
+    totalPage,
+    setTotalPage,
+    itemsPerPage,
+    goToPage,
+    setPageNo,
+    changePage,
+    handleItemsPerPageChange,
+    handleGoToPageChange,
+    goToPageHandler,
+  } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
 
@@ -29,7 +42,7 @@ const Orders: NextPage = () => {
     const params = queryString.stringify({
       ...watchAllFields,
       pageNo: pageNo,
-      pageSize: orderPageSize,
+      pageSize: DEFAULT_PAGE_SIZE,
       createdFrom: moment(watchAllFields.createdFrom).format(),
       createdTo: moment(watchAllFields.createdTo).format(),
     });
@@ -62,9 +75,7 @@ const Orders: NextPage = () => {
     handleGetOrders();
     setPageNo(0);
   };
-  const handlePageChange = ({ selected }: any) => {
-    setPageNo(selected);
-  };
+
   if (isLoading) return <p>Loading...</p>;
   return (
     <>
@@ -203,17 +214,15 @@ const Orders: NextPage = () => {
         </tbody>
       </Table>
       {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
-          onPageChange={handlePageChange}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
+          goToPage={goToPage}
+          onPageChange={changePage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          onGoToPageChange={handleGoToPageChange}
+          onGoToPageSubmit={goToPageHandler}
         />
       )}
     </>

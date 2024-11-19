@@ -2,13 +2,14 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import type { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
 import { deleteWarehouse, getPageableWarehouses } from '@inventoryServices/WarehouseService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WAREHOUSE_URL } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 const WarehouseList: NextPage = () => {
   const [warehouseIdWantToDelete, setWarehouseIdWantToDelete] = useState<number>(-1);
@@ -16,8 +17,11 @@ const WarehouseList: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [warehouses, setWarehouses] = useState<WarehouseDetail[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -49,9 +53,6 @@ const WarehouseList: NextPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
   if (isLoading) return <p>Loading...</p>;
   if (!warehouses) return <p>No Warehouse</p>;
   return (
@@ -110,17 +111,12 @@ const WarehouseList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
+          showHelpers={false}
         />
       )}
     </>

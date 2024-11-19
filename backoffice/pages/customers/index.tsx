@@ -1,19 +1,24 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Button, Stack, Table, Form } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
-import { getCustomers, updateCustomer } from '../../modules/customer/services/CustomerService';
+import { Button, Stack, Table } from 'react-bootstrap';
+import { getCustomers } from '../../modules/customer/services/CustomerService';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { Customer } from '../../modules/customer/models/Customer';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 const Customers: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [pageNo, setPageNo] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(0);
   const [totalUser, setTotalUser] = useState<number>(0);
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   useEffect(() => {
     setIsLoading(true);
@@ -28,10 +33,6 @@ const Customers: NextPage = () => {
         toast.error('Something was wrong! Try later!');
       });
   }, [pageNo]);
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
 
   if (isLoading) return <p>Loading...</p>;
   if (!customers) return <p>No Customer</p>;
@@ -90,17 +91,12 @@ const Customers: NextPage = () => {
         </tbody>
       </Table>
       {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
+          showHelpers={false}
         />
       )}
     </>
