@@ -22,7 +22,7 @@ spring:
             scope: openid, profile, email, roles
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
   session:
     store-type: redis
@@ -86,7 +86,7 @@ spring:
             - TokenRelay=
             - StripPrefix=1
         - id: nextjs
-          uri: http://localhost:3000
+          uri: http://storefront-nextjs:3000
           predicates:
             - Path=/**
 ---
