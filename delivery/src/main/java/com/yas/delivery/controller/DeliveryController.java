@@ -17,12 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
     private final DeliveryService deliveryService;
 
-    @GetMapping("/storefront/shipment/providers")
-    public ResponseEntity<List<ShipmentProviderVm>> getShipmentProviders() {
-        List<ShipmentProviderVm> shipmentProviders = deliveryService.getShipmentProviders();
-        return ResponseEntity.ok(shipmentProviders);
-    }
-
     @PostMapping("/storefront/shipment/calculate")
     public ResponseEntity<List<ShipmentFeeVm>> calculateShipmentFees(
         @RequestBody CalculateFeesPostVm calculateFeePostVm) {

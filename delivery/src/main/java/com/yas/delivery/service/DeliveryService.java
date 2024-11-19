@@ -6,7 +6,6 @@ import com.yas.delivery.model.ShipmentServiceType;
 import com.yas.delivery.viewmodel.CalculateFeesPostVm;
 import com.yas.delivery.viewmodel.CheckoutItemVm;
 import com.yas.delivery.viewmodel.ShipmentFeeVm;
-import com.yas.delivery.viewmodel.ShipmentProviderVm;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,10 +19,8 @@ public class DeliveryService {
     private static final List<ShipmentProvider> shipmentProviders;
 
     static {
-        // Initialize shipment providers and service types
         ShipmentProvider fedexProvider = buildFedexProvider();
         ShipmentProvider upsProvider = buildUPSProvider();
-
         shipmentProviders = Arrays.asList(fedexProvider, upsProvider);
     }
 
@@ -77,17 +74,6 @@ public class DeliveryService {
         );
         upsProvider.setServiceTypes(upsServiceTypes);
         return upsProvider;
-    }
-
-    /**
-     * Retrieves a list of available shipment providers.
-     *
-     * @return a list of {@link ShipmentProviderVm} representing the available shipment providers.
-     */
-    public List<ShipmentProviderVm> getShipmentProviders() {
-        return shipmentProviders.stream().map(shipmentProvider ->
-            new ShipmentProviderVm(shipmentProvider.getId(), shipmentProvider.getName())
-        ).toList();
     }
 
     /**
