@@ -7,9 +7,9 @@ server {
   location /media/ {
     proxy_pass http://media;
   }
-  location /swagger-ui/ {
-    proxy_pass http://swagger-ui:8080;
-  }
+#  location /swagger-ui/ {
+#    proxy_pass http://swagger-ui:8080;
+#  }
   location /product/ {
     proxy_pass http://product;
   }
@@ -19,9 +19,9 @@ server {
   location /cart/ {
     proxy_pass http://cart;
   }
-  location /rating/ {
-    proxy_pass http://rating;
-  }
+#  location /rating/ {
+#    proxy_pass http://rating;
+#  }
   location /order/ {
     proxy_pass http://order;
   }
@@ -31,29 +31,29 @@ server {
   location /inventory/ {
     proxy_pass http://inventory;
   }
-  location /tax/ {
-    proxy_pass http://tax;
-  }
-  location /promotion/ {
-    proxy_pass http://promotion;
-  }
-  location /search/ {
-    #hack to prevent nginx to resolve container's host on start up
-    set $docker_search_host "search";
-    proxy_pass http://$docker_search_host;
-  }
+#  location /tax/ {
+#    proxy_pass http://tax;
+#  }
+#  location /promotion/ {
+#    proxy_pass http://promotion;
+#  }
+#  location /search/ {
+#    #hack to prevent nginx to resolve container's host on start up
+#    set $docker_search_host "search";
+#    proxy_pass http://$docker_search_host;
+#  }
   location /payment/ {
     proxy_pass http://payment;
   }
-  location /webhook/ {
-    proxy_pass http://webhook;
-  }
-  location /sampledata/ {
-    proxy_pass http://sampledata;
-  }
-  location /recommendation/ {
-    proxy_pass http://recommendation;
-  }
+#  location /webhook/ {
+#    proxy_pass http://webhook;
+#  }
+#  location /sampledata/ {
+#    proxy_pass http://sampledata;
+#  }
+#  location /recommendation/ {
+#    proxy_pass http://recommendation;
+#  }
 }
 
 server {
@@ -66,7 +66,7 @@ server {
 server {
   server_name storefront;
   location / {
-    proxy_pass http://storefront;
+    proxy_pass http://host.docker.internal:8076;
   }
 }
 

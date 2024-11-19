@@ -27,78 +27,78 @@ services:
       - ./identity/themes/yas/theme:/opt/keycloak/themes
     networks:
       - yas-network
-  backoffice:
-    build: ./backoffice-bff
-    image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
-    environment:
-    - SPRING_PROFILES_ACTIVE=prod
-    - SERVER_PORT
-    - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS
-    - OTEL_EXPORTER_OTLP_ENDPOINT
-    - OTEL_EXPORTER_OTLP_PROTOCOL
-    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-    - OTEL_RESOURCE_ATTRIBUTES
-    - OTEL_SERVICE_NAME=backoffice-bff-service
-    - OTEL_LOGS_EXPORTER
-    - OTEL_TRACES_EXPORTER
-    - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-    - OTEL_JAVAAGENT_LOGGING
-    - OTEL_JAVAAGENT_ENABLED
-    - OTEL_JAVAAGENT_DEBUG
-    volumes:
-    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
-  backoffice-nextjs:
-    image: ghcr.io/nashtech-garage/yas-backoffice:latest
-    networks:
-    - yas-network
-  storefront:
-    build: ./storefront-bff
-    image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
-    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
-    environment:
-    - SPRING_PROFILES_ACTIVE=prod
-    - YAS_SERVICES_CUSTOMER
-    - YAS_SERVICES_CART
-    - YAS_SERVICES_RATING
-    - YAS_SERVICES_ORDER
-    - YAS_SERVICES_LOCATION
-    - YAS_SERVICES_INVENTORY
-    - YAS_SERVICES_TAX
-    - YAS_SERVICES_PROMOTION
-    - YAS_SERVICES_PAYMENT
-    - YAS_SERVICES_SAMPLE_DATA
-    - SERVER_PORT
-    - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS
-    - OTEL_EXPORTER_OTLP_ENDPOINT
-    - OTEL_EXPORTER_OTLP_PROTOCOL
-    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-    - OTEL_RESOURCE_ATTRIBUTES
-    - OTEL_SERVICE_NAME=storefront-bff-service
-    - OTEL_LOGS_EXPORTER
-    - OTEL_TRACES_EXPORTER
-    - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-    - OTEL_JAVAAGENT_LOGGING
-    - OTEL_JAVAAGENT_ENABLED
-    - OTEL_JAVAAGENT_DEBUG
-    volumes:
-    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config      
-    networks:
-      - yas-network
-  storefront-nextjs:
-    image: ghcr.io/nashtech-garage/yas-storefront:latest
-    networks:
-      - yas-network
+#  backoffice:
+#    build: ./backoffice-bff
+#    image: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
+#    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
+#    environment:
+#    - SPRING_PROFILES_ACTIVE=prod
+#    - SERVER_PORT
+#    - LOGGING_CONFIG
+#    - JAVA_TOOL_OPTIONS
+#    - OTEL_EXPORTER_OTLP_ENDPOINT
+#    - OTEL_EXPORTER_OTLP_PROTOCOL
+#    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#    - OTEL_RESOURCE_ATTRIBUTES
+#    - OTEL_SERVICE_NAME=backoffice-bff-service
+#    - OTEL_LOGS_EXPORTER
+#    - OTEL_TRACES_EXPORTER
+#    - OTEL_METRICS_EXPORTER
+#    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#    - OTEL_JAVAAGENT_LOGGING
+#    - OTEL_JAVAAGENT_ENABLED
+#    - OTEL_JAVAAGENT_DEBUG
+#    volumes:
+#    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#    - ./deployment/app-config:/app-config
+#    networks:
+#      - yas-network
+#  backoffice-nextjs:
+#    image: ghcr.io/nashtech-garage/yas-backoffice:latest
+#    networks:
+#    - yas-network
+#  storefront:
+#    build: ./storefront-bff
+#    image: ghcr.io/nashtech-garage/yas-storefront-bff:latest
+#    entrypoint: ["./wait-for-it.sh", "identity:80", "--timeout=300", "--", "java", "-jar", "/app.jar"]
+#    environment:
+#    - SPRING_PROFILES_ACTIVE=prod
+#    - YAS_SERVICES_CUSTOMER
+#    - YAS_SERVICES_CART
+#    - YAS_SERVICES_RATING
+#    - YAS_SERVICES_ORDER
+#    - YAS_SERVICES_LOCATION
+#    - YAS_SERVICES_INVENTORY
+#    - YAS_SERVICES_TAX
+#    - YAS_SERVICES_PROMOTION
+#    - YAS_SERVICES_PAYMENT
+#    - YAS_SERVICES_SAMPLE_DATA
+#    - SERVER_PORT
+#    - LOGGING_CONFIG
+#    - JAVA_TOOL_OPTIONS
+#    - OTEL_EXPORTER_OTLP_ENDPOINT
+#    - OTEL_EXPORTER_OTLP_PROTOCOL
+#    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#    - OTEL_RESOURCE_ATTRIBUTES
+#    - OTEL_SERVICE_NAME=storefront-bff-service
+#    - OTEL_LOGS_EXPORTER
+#    - OTEL_TRACES_EXPORTER
+#    - OTEL_METRICS_EXPORTER
+#    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#    - OTEL_JAVAAGENT_LOGGING
+#    - OTEL_JAVAAGENT_ENABLED
+#    - OTEL_JAVAAGENT_DEBUG
+#    volumes:
+#    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#    - ./deployment/app-config:/app-config
+#    networks:
+#      - yas-network
+#  storefront-nextjs:
+#    image: storefront-test
+#    networks:
+#      - yas-network
   media:
-    build: ./media  
+    build: ./media
     image: ghcr.io/nashtech-garage/yas-media:latest
     environment:
     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/media
@@ -134,7 +134,7 @@ services:
     - YAS_SERVICES_MEDIA
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS    
+    - JAVA_TOOL_OPTIONS
     - OTEL_EXPORTER_OTLP_ENDPOINT
     - OTEL_EXPORTER_OTLP_PROTOCOL
     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
@@ -207,36 +207,36 @@ services:
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
-  rating:
-    build: ./rating  
-    image: ghcr.io/nashtech-garage/yas-rating:latest
-    environment:
-    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rating
-    - SERVER_SERVLET_CONTEXT_PATH=/rating
-    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/rating
-    - YAS_SERVICES_PRODUCT
-    - YAS_SERVICES_CUSTOMER
-    - YAS_SERVICES_ORDER
-    - SERVER_PORT
-    - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS
-    - OTEL_EXPORTER_OTLP_ENDPOINT
-    - OTEL_EXPORTER_OTLP_PROTOCOL
-    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-    - OTEL_RESOURCE_ATTRIBUTES
-    - OTEL_SERVICE_NAME=rate-service
-    - OTEL_LOGS_EXPORTER
-    - OTEL_TRACES_EXPORTER
-    - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-    - OTEL_JAVAAGENT_LOGGING
-    - OTEL_JAVAAGENT_ENABLED
-    - OTEL_JAVAAGENT_DEBUG
-    volumes:
-    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
+#  rating:
+#    build: ./rating
+#    image: ghcr.io/nashtech-garage/yas-rating:latest
+#    environment:
+#    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rating
+#    - SERVER_SERVLET_CONTEXT_PATH=/rating
+#    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/rating
+#    - YAS_SERVICES_PRODUCT
+#    - YAS_SERVICES_CUSTOMER
+#    - YAS_SERVICES_ORDER
+#    - SERVER_PORT
+#    - LOGGING_CONFIG
+#    - JAVA_TOOL_OPTIONS
+#    - OTEL_EXPORTER_OTLP_ENDPOINT
+#    - OTEL_EXPORTER_OTLP_PROTOCOL
+#    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#    - OTEL_RESOURCE_ATTRIBUTES
+#    - OTEL_SERVICE_NAME=rate-service
+#    - OTEL_LOGS_EXPORTER
+#    - OTEL_TRACES_EXPORTER
+#    - OTEL_METRICS_EXPORTER
+#    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#    - OTEL_JAVAAGENT_LOGGING
+#    - OTEL_JAVAAGENT_ENABLED
+#    - OTEL_JAVAAGENT_DEBUG
+#    volumes:
+#    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#    - ./deployment/app-config:/app-config
+#    networks:
+#      - yas-network
   order:
     build: ./order
     image: ghcr.io/nashtech-garage/yas-order:latest
@@ -245,7 +245,7 @@ services:
     - SERVER_SERVLET_CONTEXT_PATH=/order
     - SERVER_PORT
     - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS        
+    - JAVA_TOOL_OPTIONS
     - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/order
     - YAS_SERVICES_CART
     - YAS_SERVICES_CUSTOMER
@@ -356,166 +356,166 @@ services:
     - ./deployment/app-config:/app-config
     networks:
       - yas-network
-  promotion:
-    build: ./promotion  
-    image: ghcr.io/nashtech-garage/yas-promotion:latest
-    environment:
-    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/promotion
-    - SERVER_SERVLET_CONTEXT_PATH=/promotion
-    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/promotion
-    - YAS_SERVICES_PRODUCT
-    - SERVER_PORT
-    - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS
-    - OTEL_EXPORTER_OTLP_ENDPOINT
-    - OTEL_EXPORTER_OTLP_PROTOCOL
-    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-    - OTEL_RESOURCE_ATTRIBUTES
-    - OTEL_SERVICE_NAME=promotion-service
-    - OTEL_LOGS_EXPORTER
-    - OTEL_TRACES_EXPORTER
-    - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-    - OTEL_JAVAAGENT_LOGGING
-    - OTEL_JAVAAGENT_ENABLED
-    - OTEL_JAVAAGENT_DEBUG
-    volumes:
-    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config      
-    networks:
-      - yas-network
-  tax:
-    build: ./tax    
-    image: ghcr.io/nashtech-garage/yas-tax:latest
-    environment:
-    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tax
-    - SERVER_SERVLET_CONTEXT_PATH=/tax
-    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/tax
-    - YAS_SERVICES_LOCATION
-    - SERVER_PORT
-    - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS
-    - OTEL_EXPORTER_OTLP_ENDPOINT
-    - OTEL_EXPORTER_OTLP_PROTOCOL
-    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-    - OTEL_RESOURCE_ATTRIBUTES
-    - OTEL_SERVICE_NAME=tax-service
-    - OTEL_LOGS_EXPORTER
-    - OTEL_TRACES_EXPORTER
-    - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-    - OTEL_JAVAAGENT_LOGGING
-    - OTEL_JAVAAGENT_ENABLED
-    - OTEL_JAVAAGENT_DEBUG
-    volumes:
-    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config
-    networks:
-    - yas-network
-  sampledata:
-    build: ./sampledata
-    image: ghcr.io/nashtech-garage/yas-sampledata:latest
-    environment:
-      - SERVER_SERVLET_CONTEXT_PATH=/sampledata
-      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/sampledata
-      - YAS_SERVICES_SAMPLE_DATA
-      - SERVER_PORT
-      - LOGGING_CONFIG
-      - JAVA_TOOL_OPTIONS
-      - OTEL_EXPORTER_OTLP_ENDPOINT
-      - OTEL_EXPORTER_OTLP_PROTOCOL
-      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-      - OTEL_RESOURCE_ATTRIBUTES
-      - OTEL_SERVICE_NAME=sampledata-service
-      - OTEL_LOGS_EXPORTER
-      - OTEL_TRACES_EXPORTER
-      - OTEL_METRICS_EXPORTER
-      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-      - OTEL_JAVAAGENT_LOGGING
-      - OTEL_JAVAAGENT_ENABLED
-      - OTEL_JAVAAGENT_DEBUG
-    volumes:
-      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-      - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
-  webhook:
-    build: ./webhook
-    image: ghcr.io/nashtech-garage/yas-webhook:latest
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/webhook
-      - SERVER_SERVLET_CONTEXT_PATH=/webhook
-      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/webhook
-      - YAS_SERVICES_LOCATION
-      - SERVER_PORT
-      - LOGGING_CONFIG
-      - JAVA_TOOL_OPTIONS
-      - OTEL_EXPORTER_OTLP_ENDPOINT
-      - OTEL_EXPORTER_OTLP_PROTOCOL
-      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-      - OTEL_RESOURCE_ATTRIBUTES
-      - OTEL_SERVICE_NAME=webhook-service
-      - OTEL_LOGS_EXPORTER
-      - OTEL_TRACES_EXPORTER
-      - OTEL_METRICS_EXPORTER
-      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-      - OTEL_JAVAAGENT_LOGGING
-      - OTEL_JAVAAGENT_ENABLED
-      - OTEL_JAVAAGENT_DEBUG
-    volumes:
-      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-      - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
-  recommendation:
-    build: ./recommendation
-    image: ghcr.io/nashtech-garage/yas-recommendation:latest
-    ports:
-      - '9791:9791'
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/recommendation
-      - SERVER_SERVLET_CONTEXT_PATH=/recommendation
-      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/recommendation
-      - YAS_SERVICES_PRODUCT
-      - SERVER_PORT
-      - LOGGING_CONFIG
-      - JAVA_TOOL_OPTIONS
-      - OTEL_EXPORTER_OTLP_ENDPOINT
-      - OTEL_EXPORTER_OTLP_PROTOCOL
-      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-      - OTEL_RESOURCE_ATTRIBUTES
-      - OTEL_SERVICE_NAME=recommendation-service
-      - OTEL_LOGS_EXPORTER
-      - OTEL_TRACES_EXPORTER
-      - OTEL_METRICS_EXPORTER
-      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-      - OTEL_JAVAAGENT_LOGGING
-      - OTEL_JAVAAGENT_ENABLED
-      - OTEL_JAVAAGENT_DEBUG
-      # OpenAI Config
-      - SPRING_AI_AZURE_OPENAI_API_KEY
-      - SPRING_AI_AZURE_OPENAI_ENDPOINT
-      - SPRING_AI_AZURE_OPENAI_EMBEDDING_OPTIONS_MODEL
-    volumes:
-      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-      - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
-  swagger-ui:
-    image: swaggerapi/swagger-ui:v5.17.14
-    environment:
-    - BASE_URL=/swagger-ui
-    - URLS
-    - OAUTH_CLIENT_ID=swagger-ui
-    - OAUTH_USE_PKCE=true
-    networks:
-      - yas-network
+#  promotion:
+#    build: ./promotion
+#    image: ghcr.io/nashtech-garage/yas-promotion:latest
+#    environment:
+#    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/promotion
+#    - SERVER_SERVLET_CONTEXT_PATH=/promotion
+#    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/promotion
+#    - YAS_SERVICES_PRODUCT
+#    - SERVER_PORT
+#    - LOGGING_CONFIG
+#    - JAVA_TOOL_OPTIONS
+#    - OTEL_EXPORTER_OTLP_ENDPOINT
+#    - OTEL_EXPORTER_OTLP_PROTOCOL
+#    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#    - OTEL_RESOURCE_ATTRIBUTES
+#    - OTEL_SERVICE_NAME=promotion-service
+#    - OTEL_LOGS_EXPORTER
+#    - OTEL_TRACES_EXPORTER
+#    - OTEL_METRICS_EXPORTER
+#    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#    - OTEL_JAVAAGENT_LOGGING
+#    - OTEL_JAVAAGENT_ENABLED
+#    - OTEL_JAVAAGENT_DEBUG
+#    volumes:
+#    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#    - ./deployment/app-config:/app-config
+#    networks:
+#      - yas-network
+#  tax:
+#    build: ./tax
+#    image: ghcr.io/nashtech-garage/yas-tax:latest
+#    environment:
+#    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tax
+#    - SERVER_SERVLET_CONTEXT_PATH=/tax
+#    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/tax
+#    - YAS_SERVICES_LOCATION
+#    - SERVER_PORT
+#    - LOGGING_CONFIG
+#    - JAVA_TOOL_OPTIONS
+#    - OTEL_EXPORTER_OTLP_ENDPOINT
+#    - OTEL_EXPORTER_OTLP_PROTOCOL
+#    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#    - OTEL_RESOURCE_ATTRIBUTES
+#    - OTEL_SERVICE_NAME=tax-service
+#    - OTEL_LOGS_EXPORTER
+#    - OTEL_TRACES_EXPORTER
+#    - OTEL_METRICS_EXPORTER
+#    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#    - OTEL_JAVAAGENT_LOGGING
+#    - OTEL_JAVAAGENT_ENABLED
+#    - OTEL_JAVAAGENT_DEBUG
+#    volumes:
+#    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#    - ./deployment/app-config:/app-config
+#    networks:
+#    - yas-network
+#  sampledata:
+#    build: ./sampledata
+#    image: ghcr.io/nashtech-garage/yas-sampledata:latest
+#    environment:
+#      - SERVER_SERVLET_CONTEXT_PATH=/sampledata
+#      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/sampledata
+#      - YAS_SERVICES_SAMPLE_DATA
+#      - SERVER_PORT
+#      - LOGGING_CONFIG
+#      - JAVA_TOOL_OPTIONS
+#      - OTEL_EXPORTER_OTLP_ENDPOINT
+#      - OTEL_EXPORTER_OTLP_PROTOCOL
+#      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#      - OTEL_RESOURCE_ATTRIBUTES
+#      - OTEL_SERVICE_NAME=sampledata-service
+#      - OTEL_LOGS_EXPORTER
+#      - OTEL_TRACES_EXPORTER
+#      - OTEL_METRICS_EXPORTER
+#      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#      - OTEL_JAVAAGENT_LOGGING
+#      - OTEL_JAVAAGENT_ENABLED
+#      - OTEL_JAVAAGENT_DEBUG
+#    volumes:
+#      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#      - ./deployment/app-config:/app-config
+#    networks:
+#      - yas-network
+#  webhook:
+#    build: ./webhook
+#    image: ghcr.io/nashtech-garage/yas-webhook:latest
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/webhook
+#      - SERVER_SERVLET_CONTEXT_PATH=/webhook
+#      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/webhook
+#      - YAS_SERVICES_LOCATION
+#      - SERVER_PORT
+#      - LOGGING_CONFIG
+#      - JAVA_TOOL_OPTIONS
+#      - OTEL_EXPORTER_OTLP_ENDPOINT
+#      - OTEL_EXPORTER_OTLP_PROTOCOL
+#      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#      - OTEL_RESOURCE_ATTRIBUTES
+#      - OTEL_SERVICE_NAME=webhook-service
+#      - OTEL_LOGS_EXPORTER
+#      - OTEL_TRACES_EXPORTER
+#      - OTEL_METRICS_EXPORTER
+#      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#      - OTEL_JAVAAGENT_LOGGING
+#      - OTEL_JAVAAGENT_ENABLED
+#      - OTEL_JAVAAGENT_DEBUG
+#    volumes:
+#      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#      - ./deployment/app-config:/app-config
+#    networks:
+#      - yas-network
+#  recommendation:
+#    build: ./recommendation
+#    image: ghcr.io/nashtech-garage/yas-recommendation:latest
+#    ports:
+#      - '9791:9791'
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/recommendation
+#      - SERVER_SERVLET_CONTEXT_PATH=/recommendation
+#      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/recommendation
+#      - YAS_SERVICES_PRODUCT
+#      - SERVER_PORT
+#      - LOGGING_CONFIG
+#      - JAVA_TOOL_OPTIONS
+#      - OTEL_EXPORTER_OTLP_ENDPOINT
+#      - OTEL_EXPORTER_OTLP_PROTOCOL
+#      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+#      - OTEL_RESOURCE_ATTRIBUTES
+#      - OTEL_SERVICE_NAME=recommendation-service
+#      - OTEL_LOGS_EXPORTER
+#      - OTEL_TRACES_EXPORTER
+#      - OTEL_METRICS_EXPORTER
+#      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+#      - OTEL_JAVAAGENT_LOGGING
+#      - OTEL_JAVAAGENT_ENABLED
+#      - OTEL_JAVAAGENT_DEBUG
+#      # OpenAI Config
+#      - SPRING_AI_AZURE_OPENAI_API_KEY
+#      - SPRING_AI_AZURE_OPENAI_ENDPOINT
+#      - SPRING_AI_AZURE_OPENAI_EMBEDDING_OPTIONS_MODEL
+#    volumes:
+#      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+#      - ./deployment/app-config:/app-config
+#    networks:
+#      - yas-network
+#  swagger-ui:
+#    image: swaggerapi/swagger-ui:v5.17.14
+#    environment:
+#    - BASE_URL=/swagger-ui
+#    - URLS
+#    - OAUTH_CLIENT_ID=swagger-ui
+#    - OAUTH_USE_PKCE=true
+#    networks:
+#      - yas-network
   postgres:
     image: debezium/postgres:16-alpine
     build: ./docker/postgres
     hostname: ${POSTGRES_HOST}
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "5000:${POSTGRES_PORT}"
     volumes:
       - ./docker/postgres/postgresql.conf.sample:/usr/share/postgresql/postgresql.conf.sample
       - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
@@ -576,19 +576,19 @@ services:
       - OFFSET_STORAGE_TOPIC=kafka_connect_offsets
     networks:
       - yas-network
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-    ports:
-      - 8089:8080
-    depends_on:
-      - kafka
-      - kafka-connect
-    networks:
-      - yas-network
+#  kafka-ui:
+#    container_name: kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    environment:
+#      DYNAMIC_CONFIG_ENABLED: 'true'
+#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+#    ports:
+#      - 8089:8080
+#    depends_on:
+#      - kafka
+#      - kafka-connect
+#    networks:
+#      - yas-network
   redis:
     image: redis:7.4.1-alpine
     restart: always
