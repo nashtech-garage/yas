@@ -18,7 +18,7 @@ const PromotionList: NextPage = () => {
   const [promotionNameWantToDelete, setPromotionNameWantToDelete] = useState<string>('');
   const [promotionIdWantToDelete, setPromotionIdWantToDelete] = useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
