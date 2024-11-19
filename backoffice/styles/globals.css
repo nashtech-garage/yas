@@ -103,15 +103,14 @@ a {
   font-size: 14px;
 }
 
-.pagination-tool .form-control {
-  width: 45px;
+.pagination-tool .form-control,
+.pagination-tool select {
   height: 36.5px;
   margin: 0 5px;
 }
 
-.pagination-tool select {
-  height: 36.5px;
-  margin: 0 5px;
+.pagination-tool .form-control {
+  width: 45px;
 }
 
 .pagination-active {

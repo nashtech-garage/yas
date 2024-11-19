@@ -28,7 +28,7 @@ const usePagination = ({
   };
 
   const goToPageHandler = () => {
-    const page = parseInt(goToPage, 10) - 1;
+    const page = parseInt(goToPage, 10) - 1; // (10 => decimal numbers)
     if (page >= 0 && page < totalPage) {
       setPageNo(page);
       setGoToPage('');
