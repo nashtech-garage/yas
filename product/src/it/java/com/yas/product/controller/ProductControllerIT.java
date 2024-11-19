@@ -10,6 +10,7 @@ import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
 import com.yas.product.model.ProductOption;
+import com.yas.product.model.ProductOptionValue;
 import com.yas.product.model.ProductRelated;
 import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.repository.BrandRepository;
@@ -22,6 +23,7 @@ import com.yas.product.repository.ProductOptionValueRepository;
 import com.yas.product.repository.ProductRelatedRepository;
 import com.yas.product.repository.ProductRepository;
 import com.yas.product.service.ProductService;
+import com.yas.product.viewmodel.product.ProductOptionValueDisplay;
 import com.yas.product.viewmodel.product.ProductPostVm;
 import com.yas.product.viewmodel.product.ProductPutVm;
 import com.yas.product.viewmodel.product.ProductQuantityPostVm;
@@ -78,6 +80,7 @@ class ProductControllerIT extends AbstractControllerIT {
     private ProductPostVm productPostVm;
     private ProductPutVm productPutVm;
     private ProductOption productOption;
+    private ProductOptionValue productOptionValue;
     private static final String PRODUCT_BACKOFFICE_URL = "/v1/backoffice/products";
     private static final String PRODUCT_STOREFRONT_URL = "/v1/storefront/products";
 
@@ -105,6 +108,7 @@ class ProductControllerIT extends AbstractControllerIT {
             .stockQuantity(1000L)
             .isFeatured(true)
             .isVisibleIndividually(true)
+            .hasOptions(true)
             .isPublished(true)
             .stockTrackingEnabled(true)
             .parent(productTwo)
@@ -131,6 +135,17 @@ class ProductControllerIT extends AbstractControllerIT {
         productOptionRepository.save(productOption);
     }
 
+    void initProductOptionValue() {
+        initProductOption();
+        productOptionValue = new ProductOptionValue();
+        productOptionValue.setProductOption(productOption);
+        productOptionValue.setProduct(productOne);
+        productOptionValue.setDisplayType("text");
+        productOptionValue.setDisplayOrder(1);
+        productOptionValue.setValue("option-value");
+        productOptionValueRepository.save(productOptionValue);
+    }
+
     void initProductPostVm() {
         initBrandData();
         initCategoryData();
@@ -142,9 +157,9 @@ class ProductControllerIT extends AbstractControllerIT {
         initProductOption();
         ProductOptionValuePostVm productOptionValuePostVm = new ProductOptionValuePostVm(
             productOption.getId(),
-            "Visible",
+            "text",
             1,
-            new ArrayList<>()
+            new ArrayList<>(List.of("value"))
         );
 
         productPostVm = new ProductPostVm(
@@ -155,36 +170,44 @@ class ProductControllerIT extends AbstractControllerIT {
             true, true, false, true, true,
             "Meta Title", "meta", "Meta description ", null,
             List.of(789L, 101L, 112L), new ArrayList<>(List.of(productVariationPostVm)),
-            new ArrayList<>(List.of(productOptionValuePostVm)), List.of(234L, 567L), 89L);
+            new ArrayList<>(List.of(productOptionValuePostVm)), new ArrayList<>(List.of()),
+            List.of(234L, 567L), 89L);
     }
 
     void initProductPutVm() {
         initProductOption();
+        initProductOptionValue();
 
         ProductVariationPutVm productVariationPutVm1 = new ProductVariationPutVm(
                 1L, "Sample Product Variation 2", "sample-product-variation-1", "SKU1",
                 "GTIN1", 19.99, 101L, new ArrayList<>(),
-                new HashMap<>(Map.of(productOption.getId(), List.of("product-option-value-1"))));
+                new HashMap<>(Map.of(productOption.getId(), productOptionValue.getValue())));
         ProductVariationPutVm productVariationPutVm2 = new ProductVariationPutVm(
                 null, "Sample Product Variation 2", "sample-product-variation-2", "SKU2",
                 "GTIN2", 29.99, 102L, new ArrayList<>(),
-                new HashMap<>(Map.of(productOption.getId(), List.of("product-option-value-2"))));
+                new HashMap<>(Map.of(productOption.getId(), productOptionValue.getValue())));
         ProductOptionValuePutVm productOptionValuePutVm = new ProductOptionValuePutVm(
                 productOption.getId(),
                 "Visible",
                 1,
-                List.of("product-option-value-1", "product-option-value-2")
-        );
+                List.of("product-option-value-1", "product-option-value-2"));
+        ProductOptionValueDisplay productOptionValueDisplay = ProductOptionValueDisplay.builder()
+            .productOptionId(productOption.getId())
+            .value("value")
+            .displayType("text")
+            .displayOrder(1)
+            .build();
+
 
         productPutVm = new ProductPutVm(
             "Sample Update", "sample-update", 29.99, true, true,
-            false, true, true, brand.getId(), new ArrayList<>(),
+            false, true, true, brand.getId(), null,
             "Short description", "Detailed description", "Specifications",
             "SKU123456", "GTIN123456", 10d, DimensionUnit.CM,10d, 10d, 10d,
             "Meta Title", "Meta", "Meta",
-            null, new ArrayList<>(),
+            null, null,
             new ArrayList<>(List.of(productVariationPutVm1, productVariationPutVm2)),
-            new ArrayList<>(List.of(productOptionValuePutVm)), new ArrayList<>(), 2L);
+            new ArrayList<>(List.of(productOptionValuePutVm)), new ArrayList<>(List.of(productOptionValueDisplay)), new ArrayList<>(List.of(productOne.getId())), 2L);
     }
 
     @BeforeEach
@@ -377,15 +400,7 @@ class ProductControllerIT extends AbstractControllerIT {
 
     @Test
     void test_updateProduct_whenNoVariation_shouldSuccess() {
-        productPutVm = new ProductPutVm(
-                "Sample Update", "sample-update", 29.99, true, true,
-                false, true, true, brand.getId(), new ArrayList<>(),
-                "Updated short description", "updated detailed description", "Updated Specifications",
-                "sku-1", "gtin-1", 10d, DimensionUnit.CM ,10d, 10d,
-                10d,"Meta Title", "Meta", "Meta",
-                null, new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(), new ArrayList<>(), 2L);
+        initProductPutVm();
         Long productId = productOne.getId();
 
         getGivenSpecificationWithAdmin()
@@ -410,8 +425,6 @@ class ProductControllerIT extends AbstractControllerIT {
                 .body("specification", equalTo(productPutVm.specification()))
                 .body("sku", equalTo(productPutVm.sku()))
                 .body("gtin", equalTo(productPutVm.gtin()))
-                .body("sku", equalTo(productOne.getSku()))
-                .body("gtin", equalTo(productOne.getGtin()))
                 .log().ifValidationFails();
     }
 

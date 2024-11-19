@@ -14,6 +14,7 @@ import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
 import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
 import {
   getProductDetail,
+  getProductOptionValueByProductId,
   getProductOptionValues,
   getProductVariationsByParentId,
 } from '../../modules/catalog/services/ProductService';
@@ -26,6 +27,7 @@ import {
   getAverageStarByProductId,
   getRatingsByProductId,
 } from '../../modules/rating/services/RatingService';
+import { ProductOptionValueDisplay } from '@/modules/catalog/models/ProductOptionValueGet';
 
 type Props = {
   product: ProductDetail;
@@ -113,6 +115,9 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
   const [isPost, setIsPost] = useState<boolean>(false);
 
   const [averageStar, setAverageStar] = useState<number>(0);
+  const [productOptionValueGet, setProductOptionValueGet] = useState<ProductOptionValueDisplay[]>(
+    []
+  );
 
   useEffect(() => {
     getAverageStarByProductId(product.id)
@@ -130,6 +135,9 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
       setRatingList(res.ratingList);
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);
+    });
+    getProductOptionValueByProductId(product.id).then((res) => {
+      setProductOptionValueGet(res);
     });
   }, [pageNo, pageSize, product.id, isPost]);
 
@@ -198,6 +206,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
         product={product}
         productOptions={productOptions}
         productVariations={productVariations}
+        productOptionValueGet={productOptionValueGet}
         pvid={pvid}
         averageStar={averageStar}
         totalRating={totalElements}
