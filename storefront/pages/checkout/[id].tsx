@@ -77,9 +77,6 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
 
   const handleCloseModalShipping = () => {
-    if (shippingAddress?.id == null || shippingAddress.id == undefined) {
-      setAddShippingAddress(true);
-    }
     setShowModalShipping(false);
   };
 
@@ -143,7 +140,9 @@ const Checkout = () => {
     } else if (address?.id === billingAddress?.id) {
       setSameAddress(true);
     }
+    setAddShippingAddress(false);
   };
+
   const handleSelectBillingAddress = (address: Address) => {
     setBillingAddress(address);
     if (address?.id === shippingAddress?.id) {
@@ -323,16 +322,18 @@ const Checkout = () => {
                         Add new address <i className="bi bi-plus-circle-fill"></i>
                       </button>
                     </div>
-                    <CheckOutAddress address={shippingAddress} isDisplay={!addShippingAddress} />
-                    <AddressForm
-                      handleSubmit={handleSubmitShippingAddress(onSubmitShippingAddressForm)}
-                      isDisplay={addShippingAddress}
-                      register={registerShippingAddress}
-                      setValue={setValueShippingAddress}
-                      errors={errorsShippingAddress}
-                      address={undefined}
-                      buttonText="Use this address"
-                    />
+                    <div className="checkout-address-card">
+                      <CheckOutAddress address={shippingAddress} isDisplay={!addShippingAddress} />
+                      <AddressForm
+                        handleSubmit={handleSubmitShippingAddress(onSubmitShippingAddressForm)}
+                        isDisplay={addShippingAddress}
+                        register={registerShippingAddress}
+                        setValue={setValueShippingAddress}
+                        errors={errorsShippingAddress}
+                        address={undefined}
+                        buttonText="Use this address"
+                      />
+                    </div>
                   </div>
 
                   <h4>Billing Address</h4>
@@ -365,44 +366,50 @@ const Checkout = () => {
                         Add new address <i className="bi bi-plus-circle-fill"></i>
                       </button>
                     </div>
-                    <div className={addBillingAddress || !sameAddress ? 'mb-24' : ''}></div>
-                    <CheckOutAddress
-                      address={billingAddress}
-                      isDisplay={!sameAddress && !addBillingAddress}
-                    />
-                    <AddressForm
-                      handleSubmit={handleSubmitBillingAddress(onSubmitBillingAddressForm)}
-                      isDisplay={addBillingAddress}
-                      setValue={setValueBillingAddress}
-                      register={registerBillingAddress}
-                      errors={errorsBillingAddress}
-                      address={undefined}
-                      buttonText="Use this address"
-                    />
+                    <div
+                      className={addBillingAddress || !sameAddress ? 'billing-bottom' : ''}
+                    ></div>
+                    <div className="checkout-address-card">
+                      <CheckOutAddress
+                        address={billingAddress}
+                        isDisplay={!sameAddress && !addBillingAddress}
+                      />
+                      <AddressForm
+                        handleSubmit={handleSubmitBillingAddress(onSubmitBillingAddressForm)}
+                        isDisplay={addBillingAddress}
+                        setValue={setValueBillingAddress}
+                        register={registerBillingAddress}
+                        errors={errorsBillingAddress}
+                        address={undefined}
+                        buttonText="Use this address"
+                      />
+                    </div>
                   </div>
 
                   <h4>Additional Information</h4>
-                  <div className="row mb-4">
-                    <div className="checkout__input">
-                      <Input
-                        type="text"
-                        labelText="Order Notes"
-                        field="note"
-                        register={register}
-                        placeholder="Notes about your order, e.g. special notes for delivery."
-                        error={errors.note?.message}
-                      />
-                    </div>
-                    <div className="checkout__input">
-                      <Input
-                        type="text"
-                        labelText="Email"
-                        field="email"
-                        register={register}
-                        defaultValue={checkout?.email}
-                        error={errors.note?.message}
-                        disabled={true}
-                      />
+                  <div className="checkout-address-card">
+                    <div className="row mb-4">
+                      <div className="checkout__input">
+                        <Input
+                          type="text"
+                          labelText="Order Notes"
+                          field="note"
+                          register={register}
+                          placeholder="Notes about your order, e.g. special notes for delivery."
+                          error={errors.note?.message}
+                        />
+                      </div>
+                      <div className="checkout__input">
+                        <Input
+                          type="text"
+                          labelText="Email"
+                          field="email"
+                          register={register}
+                          defaultValue={checkout?.email}
+                          error={errors.note?.message}
+                          disabled={true}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -40,7 +40,7 @@
 }
 
 .checkout__input {
-  margin-bottom: 16px;
+  margin-bottom: 25px;
 }
 
 .checkout__input p {
@@ -69,10 +69,6 @@
 .checkout__input input::placeholder {
   color: #9ca3af;
   font-style: italic;
-}
-
-.checkout__input__checkbox {
-  margin-bottom: 10px;
 }
 
 .checkout__input__checkbox label {
@@ -241,6 +237,13 @@
   box-shadow: rgba(50, 50, 93, 0.25) 0 13px 27px -5px, rgba(0, 0, 0, 0.3) 0 8px 16px -8px;
 }
 
-.mb-24 {
-  margin-bottom: 24px;
+.billing-bottom {
+  margin-bottom: 25px;
+}
+
+.checkout-address-card .shipping_address_new,
+.checkout-address-card .address {
+  border: 1px solid #ced4da;
+  padding: 20px;
+  border-radius: 10px;
 }
