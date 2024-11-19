@@ -46,12 +46,14 @@ public class PaypalHandler extends AbstractPaymentHandler implements PaymentHand
     }
 
     @Override
-    public CapturedPayment capturePayment(CapturePaymentRequestVm capturePaymentRequestVM) {
+    public CapturedPayment capturePayment(CapturePaymentRequestVm capturePaymentRequestVm) {
         PaypalCapturePaymentRequest paypalCapturePaymentRequest = PaypalCapturePaymentRequest.builder()
-                .token(capturePaymentRequestVM.token())
+                .token(capturePaymentRequestVm.token())
                 .paymentSettings(getPaymentSettings(getProviderId()))
                 .build();
-        PaypalCapturePaymentResponse paypalCapturePaymentResponse = paypalService.capturePayment(paypalCapturePaymentRequest);
+        PaypalCapturePaymentResponse paypalCapturePaymentResponse = paypalService.capturePayment(
+            paypalCapturePaymentRequest
+        );
         return CapturedPayment.builder()
                 .checkoutId(paypalCapturePaymentResponse.checkoutId())
                 .amount(paypalCapturePaymentResponse.amount())

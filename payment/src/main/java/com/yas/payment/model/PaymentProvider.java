@@ -7,17 +7,15 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.domain.Persistable;
 
 @DynamicUpdate
 @Entity
 @Table(name = "payment_provider")
-@Getter
-@Setter
+@lombok.Setter
+@lombok.Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

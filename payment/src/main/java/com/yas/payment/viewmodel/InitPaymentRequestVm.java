@@ -1,7 +1,6 @@
 package com.yas.payment.viewmodel;
 
 import lombok.Builder;
-
 import java.math.BigDecimal;
 
 @Builder

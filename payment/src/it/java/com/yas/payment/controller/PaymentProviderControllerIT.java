@@ -7,9 +7,9 @@ import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.service.MediaService;
 import io.restassured.RestAssured;
 import org.instancio.Instancio;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -50,7 +50,7 @@ class PaymentProviderControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    @Ignore
+    @Disabled
     void test_getPaymentProviders_shouldReturnPaymentProviders() {
         RestAssured.given(getRequestSpecification())
             .when()

@@ -1,6 +1,8 @@
 package com.yas.payment.service;
 
 import static com.yas.commonlibrary.utils.AuthenticationUtils.extractJwt;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.yas.payment.config.ServiceUrlConfig;
@@ -12,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -41,6 +42,8 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
 
         try {
             final URI url = getMediasUrl(providers);
+
+            log.debug("Fetch media to get payment provider medias: {}", url);
             var medias = restClient.get()
                 .uri(url)
                 .headers(h -> h.setBearerAuth(extractJwt()))
@@ -52,10 +55,13 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
                 mediaVmMap = medias
                     .stream()
                     .collect(
-                        Collectors.toMap(
+                        toMap(
                             MediaVm::getId,
-                            Function.identity(),
-                            (existing, duplicate) -> existing
+                            identity(),
+                            (existing, duplicate) -> {
+                                log.debug("Duplicate payment provider media {}", existing.getId());
+                                return existing;
+                            }
                         )
                     );
             }
