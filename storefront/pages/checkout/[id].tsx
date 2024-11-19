@@ -367,9 +367,10 @@ const Checkout = () => {
                       </button>
                     </div>
                     <div
-                      className={addBillingAddress || !sameAddress ? 'billing-bottom' : ''}
-                    ></div>
-                    <div className="checkout-address-card">
+                      className={`checkout-address-card ${
+                        addBillingAddress || !sameAddress ? '' : 'd-none'
+                      }`}
+                    >
                       <CheckOutAddress
                         address={billingAddress}
                         isDisplay={!sameAddress && !addBillingAddress}
@@ -387,29 +388,27 @@ const Checkout = () => {
                   </div>
 
                   <h4>Additional Information</h4>
-                  <div className="checkout-address-card">
-                    <div className="row mb-4">
-                      <div className="checkout__input">
-                        <Input
-                          type="text"
-                          labelText="Order Notes"
-                          field="note"
-                          register={register}
-                          placeholder="Notes about your order, e.g. special notes for delivery."
-                          error={errors.note?.message}
-                        />
-                      </div>
-                      <div className="checkout__input">
-                        <Input
-                          type="text"
-                          labelText="Email"
-                          field="email"
-                          register={register}
-                          defaultValue={checkout?.email}
-                          error={errors.note?.message}
-                          disabled={true}
-                        />
-                      </div>
+                  <div className="row mb-4">
+                    <div className="checkout__input">
+                      <Input
+                        type="text"
+                        labelText="Order Notes"
+                        field="note"
+                        register={register}
+                        placeholder="Notes about your order, e.g. special notes for delivery."
+                        error={errors.note?.message}
+                      />
+                    </div>
+                    <div className="checkout__input">
+                      <Input
+                        type="text"
+                        labelText="Email"
+                        field="email"
+                        register={register}
+                        defaultValue={checkout?.email}
+                        error={errors.note?.message}
+                        disabled={true}
+                      />
                     </div>
                   </div>
                 </div>

@@ -39,10 +39,6 @@
   column-rule: #b2b2b2;
 }
 
-.checkout__input {
-  margin-bottom: 25px;
-}
-
 .checkout__input p {
   color: #1c1c1c;
   margin-bottom: 20px;
@@ -237,8 +233,12 @@
   box-shadow: rgba(50, 50, 93, 0.25) 0 13px 27px -5px, rgba(0, 0, 0, 0.3) 0 8px 16px -8px;
 }
 
-.billing-bottom {
+.address-buttons-bottom {
   margin-bottom: 25px;
+}
+
+.checkout-address-card {
+  margin-top: 25px;
 }
 
 .checkout-address-card .shipping_address_new,
