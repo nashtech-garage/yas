@@ -7,8 +7,15 @@ public final class Constants {
 
         public static final String ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
         public static final String CHECKOUT_NOT_FOUND = "CHECKOUT_NOT_FOUND";
+        public static final String ORDER_ADDRESS_NOT_FOUND = "ORDER_ADDRESS_NOT_FOUND";
         public static final String SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED";
         public static final String FORBIDDEN = "FORBIDDEN";
+        public static final String CANNOT_CONVERT_TO_STRING = "CANNOT_CONVERT_TO_STRING";
+        public static final String PROCESS_CHECKOUT_FAILED = "PROCESS_CHECKOUT_FAILED";
+        public static final String ID_NOT_EXISTED = "ID_NOT_EXISTED";
+        public static final String STATUS_NOT_EXISTED = "STATUS_NOT_EXISTED";
+        public static final String PROGRESS_NOT_EXISTED = "PROGRESS_NOT_EXISTED";
+        public static final String CHECKOUT_ID_NOT_EXISTED = "CHECKOUT_ID_NOT_EXISTED";
     }
 
     public final class Column {
@@ -17,6 +24,7 @@ public final class Constants {
 
         // common column
         public static final String ID_COLUMN = "id";
+        public static final String STATUS_COLUMN = "status";
         public static final String CREATE_ON_COLUMN = "createdOn";
         public static final String CREATE_BY_COLUMN = "createdBy";
 
@@ -33,5 +41,15 @@ public final class Constants {
         public static final String ORDER_ITEM_PRODUCT_ID_COLUMN = "productId";
         public static final String ORDER_ITEM_PRODUCT_NAME_COLUMN = "productName";
 
+        // Column name of Checkout table
+        public static final String CHECKOUT_PROGRESS_COLUMN = "progress";
+        public static final String CHECKOUT_ATTRIBUTES_PAYMENT_ID_FIELD = "payment_id";
+        public static final String CHECKOUT_ID_COLUMN = "checkout_id";
+
+        // Column name of Payment table
+        public static final String PAYMENT_ATTRIBUTES_PAYMENT_PROVIDER_CHECKOUT_ID_FIELD
+            = "payment_provider_checkout_id";
+        public static final String PAYMENT_STATUS_FIELD
+            = "payment_status";
     }
 }

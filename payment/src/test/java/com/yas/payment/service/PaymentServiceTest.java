@@ -1,5 +1,15 @@
 package com.yas.payment.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.InitiatedPayment;
 import com.yas.payment.model.Payment;
@@ -7,22 +17,19 @@ import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.provider.handler.PaymentHandler;
-import com.yas.payment.service.provider.handler.PaypalHandler;
-import com.yas.payment.viewmodel.*;
+import com.yas.payment.viewmodel.CapturePaymentRequestVm;
+import com.yas.payment.viewmodel.CapturePaymentResponseVm;
+import com.yas.payment.viewmodel.CheckoutPaymentVm;
+import com.yas.payment.viewmodel.InitPaymentRequestVm;
+import com.yas.payment.viewmodel.InitPaymentResponseVm;
+import com.yas.payment.viewmodel.PaymentOrderStatusVm;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class PaymentServiceTest {
     private PaymentRepository paymentRepository;
@@ -70,17 +77,61 @@ class PaymentServiceTest {
 
     @Test
     void capturePayment_Success() {
-        CapturePaymentRequestVm capturePaymentRequestVM = CapturePaymentRequestVm.builder()
+        CapturePaymentRequestVm capturePaymentRequestVm = CapturePaymentRequestVm.builder()
                 .paymentMethod(PaymentMethod.PAYPAL.name()).token("123").build();
         CapturedPayment capturedPayment = prepareCapturedPayment();
         Long orderId = 999L;
-        when(paymentHandler.capturePayment(capturePaymentRequestVM)).thenReturn(capturedPayment);
+        when(paymentHandler.capturePayment(capturePaymentRequestVm)).thenReturn(capturedPayment);
         when(orderService.updateCheckoutStatus(capturedPayment)).thenReturn(orderId);
         when(paymentRepository.save(any())).thenReturn(payment);
-        CapturePaymentResponseVm capturePaymentResponseVm = paymentService.capturePayment(capturePaymentRequestVM);
+        CapturePaymentResponseVm capturePaymentResponseVm = paymentService.capturePayment(capturePaymentRequestVm);
         verifyPaymentCreation(capturePaymentResponseVm);
         verifyOrderServiceInteractions(capturedPayment);
         verifyResult(capturedPayment, capturePaymentResponseVm);
+    }
+
+    @Test
+    void testCreatePaymentFromEvent() {
+
+        CheckoutPaymentVm checkoutPaymentRequestDto = new CheckoutPaymentVm(
+            "123",
+            PaymentMethod.PAYPAL,
+            new BigDecimal(12)
+        );
+
+        Payment actualPayment = Payment.builder().id(1L).paymentMethod(PaymentMethod.PAYPAL).build();
+        ArgumentCaptor<Payment> argumentCaptor = ArgumentCaptor.forClass(Payment.class);
+        when(paymentRepository.save(argumentCaptor.capture())).thenReturn(actualPayment);
+
+        Long result = paymentService.createPaymentFromEvent(checkoutPaymentRequestDto);
+
+        assertThat(result).isEqualTo(1);
+        Payment captorValue = argumentCaptor.getValue();
+        assertThat(captorValue.getPaymentMethod()).isEqualTo(PaymentMethod.PAYPAL);
+        assertThat(captorValue.getPaymentStatus()).isEqualTo(PaymentStatus.PROCESSING);
+        assertThat(captorValue.getAmount()).isEqualTo(new BigDecimal(12));
+
+    }
+
+    @Test
+    void testFindPaymentById_whenNormalCase_methodSuccess() {
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
+        Payment actual = paymentService.findPaymentById(1L);
+        assertThat(actual).isNotNull();
+    }
+
+    @Test
+    void testFindPaymentById_whenNotFound_throwNotFoundException() {
+        when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
+        NotFoundException foundException
+            = assertThrows(NotFoundException.class, () -> paymentService.findPaymentById(1L));
+        assertThat(foundException.getMessage()).isEqualTo("Payment 1 is not found");
+    }
+
+    @Test
+    void testUpdatePayment_whenNormalCase_methodSuccess() {
+        paymentService.updatePayment(payment);
+        verify(paymentRepository, times(1)).save(any());
     }
 
     private CapturedPayment prepareCapturedPayment() {

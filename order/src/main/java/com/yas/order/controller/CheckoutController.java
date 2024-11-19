@@ -32,14 +32,25 @@ public class CheckoutController {
         return ResponseEntity.ok(checkoutService.createCheckout(checkoutPostVm));
     }
 
+    @PostMapping("/storefront/checkouts/{id}/process-payment")
+    public ResponseEntity<Void> processPayment(@PathVariable String id) {
+        checkoutService.processPayment(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/storefront/checkouts/status")
     public ResponseEntity<Long> updateCheckoutStatus(@Valid @RequestBody CheckoutStatusPutVm checkoutStatusPutVm) {
         return ResponseEntity.ok(checkoutService.updateCheckoutStatus(checkoutStatusPutVm));
     }
 
-    @GetMapping("/storefront/checkouts/{id}")
-    public ResponseEntity<CheckoutVm> getOrderWithItemsById(@PathVariable String id) {
+    @GetMapping("/storefront/checkouts/pending/{id}")
+    public ResponseEntity<CheckoutVm> getPendingCheckoutDetailsById(@PathVariable String id) {
         return ResponseEntity.ok(checkoutService.getCheckoutPendingStateWithItemsById(id));
+    }
+
+    @GetMapping("/storefront/checkouts/{id}")
+    public ResponseEntity<CheckoutVm> getCheckoutById(@PathVariable String id) {
+        return ResponseEntity.ok(checkoutService.findCheckoutWithItemsById(id));
     }
 
     @PutMapping("/storefront/checkouts/{id}/payment-method")

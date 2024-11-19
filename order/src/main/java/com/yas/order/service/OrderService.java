@@ -4,6 +4,7 @@ import static com.yas.order.utils.Constants.ErrorCode.ORDER_NOT_FOUND;
 
 import com.yas.commonlibrary.csv.BaseCsv;
 import com.yas.commonlibrary.csv.CsvExporter;
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.OrderMapper;
 import com.yas.order.model.Order;
@@ -286,6 +287,13 @@ public class OrderService {
                 .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND, orderId));
         order.setOrderStatus(OrderStatus.ACCEPTED);
         this.orderRepository.save(order);
+    }
+
+    public Order updateOrder(Order order) {
+        if (Objects.isNull(order)) {
+            throw new BadRequestException("Order is not existed.");
+        }
+        return orderRepository.save(order);
     }
 
     public byte[] exportCsv(OrderRequest orderRequest) throws IOException {

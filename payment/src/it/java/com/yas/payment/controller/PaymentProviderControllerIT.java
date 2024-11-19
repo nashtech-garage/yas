@@ -1,7 +1,11 @@
 package com.yas.payment.controller;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
+
 import com.yas.commonlibrary.AbstractControllerIT;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
+import com.yas.payment.config.KafkaIntegrationTestConfiguration;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
 import io.restassured.RestAssured;
@@ -13,16 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.instancio.Select.field;
-
+@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import({IntegrationTestConfiguration.class, KafkaIntegrationTestConfiguration.class})
 class PaymentProviderControllerIT extends AbstractControllerIT {
 
     private static final String PAYMENT_PROVIDERS_URL = "v1/storefront/payment-providers";

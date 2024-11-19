@@ -1,7 +1,9 @@
 package com.yas.order.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -10,20 +12,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.order.OrderApplication;
+import com.yas.order.model.enumeration.CheckoutProgress;
+import com.yas.order.model.enumeration.CheckoutState;
+import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.service.CheckoutService;
 import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutItemVm;
+import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
-
-import com.yas.order.viewmodel.checkout.*;
-
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,16 +98,29 @@ class CheckoutControllerTest {
     }
 
     @Test
-    void testGetOrderWithItemsById_whenRequestIsValid_thenReturnCheckoutVm() throws Exception {
+    void testGetPendingCheckoutDetailsById_whenRequestIsValid_thenReturnCheckoutVm() throws Exception {
 
         String id = "123";
         CheckoutVm response = getCheckoutVm();
         when(checkoutService.getCheckoutPendingStateWithItemsById(id)).thenReturn(response);
 
-        mockMvc.perform(get("/storefront/checkouts/{id}", id)
+        mockMvc.perform(get("/storefront/checkouts/pending/{id}", id)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
+    }
+
+    @Test
+    void testGetCheckoutById_whenRequestIsValid_thenReturnCheckoutVm() throws Exception {
+
+        String id = "123";
+        CheckoutVm response = getCheckoutVm();
+        when(checkoutService.findCheckoutWithItemsById(id)).thenReturn(response);
+
+        mockMvc.perform(get("/storefront/checkouts/{id}", id)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
     }
 
     @Test
@@ -189,6 +204,11 @@ class CheckoutControllerTest {
                 "user@example.com",
                 "Please deliver after 5 PM",
                 "DISCOUNT20",
+                CheckoutState.PAYMENT_PROCESSING,
+                CheckoutProgress.PROMOTION_CODE_APPLIED,
+                PaymentMethod.PAYPAL,
+                null,
+                null,
                 BigDecimal.valueOf(900),
                 BigDecimal.valueOf(9),
                 checkoutItemVms

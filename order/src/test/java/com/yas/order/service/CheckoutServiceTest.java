@@ -7,9 +7,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.Forbidden;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.CheckoutMapperImpl;
@@ -20,11 +23,12 @@ import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutVm;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +70,7 @@ class CheckoutServiceTest {
             .couponCode(checkoutPostVm.couponCode())
             .build();
 
-        checkoutItems = checkoutPostVm.checkoutItemPostVms().stream()
+        checkoutItems = checkoutPostVm.checkoutItemVms().stream()
             .map(itemVm -> CheckoutItem.builder()
                 .id(Instancio.create(Long.class))
                 .productId(itemVm.productId())
@@ -97,7 +101,7 @@ class CheckoutServiceTest {
             .hasFieldOrPropertyWithValue("note", checkoutPostVm.note());
 
         assertThat(res.checkoutItemVms())
-            .hasSize(checkoutPostVm.checkoutItemPostVms().size())
+            .hasSize(checkoutPostVm.checkoutItemVms().size())
             .allMatch(item -> item.checkoutId().equals(checkoutId));
     }
 
@@ -136,7 +140,7 @@ class CheckoutServiceTest {
 
         assertThat(res.checkoutItemVms())
             .allMatch(item -> item.checkoutId().equals(checkoutId))
-            .hasSize(checkoutPostVm.checkoutItemPostVms().size());
+            .hasSize(checkoutPostVm.checkoutItemVms().size());
     }
 
     @Test
@@ -181,7 +185,7 @@ class CheckoutServiceTest {
         Checkout checkout = new Checkout();
         checkout.setId(id);
 
-        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("new-payment-method-id");
+        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("BANKING");
 
         when(checkoutRepository.findById(id)).thenReturn(Optional.of(checkout));
 
@@ -190,7 +194,7 @@ class CheckoutServiceTest {
 
         // Assert
         verify(checkoutRepository).save(checkout);
-        assertThat(checkout.getPaymentMethodId()).isEqualTo(request.paymentMethodId());
+        assertThat(checkout.getPaymentMethodId().name()).isEqualTo(request.paymentMethodId());
     }
 
     @Test
@@ -220,7 +224,83 @@ class CheckoutServiceTest {
         checkoutService.updateCheckoutPaymentMethod(id, request);
 
         // Assert
-        verify(checkoutRepository).save(checkout);
+        verify(checkoutRepository, never()).save(checkout);
         assertThat(checkout.getPaymentMethodId()).isNull();
+    }
+
+    @Test
+    void testFindCheckoutById_whenNotFound_throwNotFoundException() {
+        String id = "123";
+        when(checkoutRepository.findById(id))
+            .thenReturn(Optional.empty());
+        NotFoundException notFound = assertThrows(NotFoundException.class,
+            () -> checkoutService.findCheckoutById(id));
+        assertThat(notFound.getMessage()).isEqualTo("Checkout 123 is not found");
+    }
+
+    @Test
+    void testFindCheckoutWithItemsById_whenNormalCase_returnCheckoutVm() {
+        String id = "123";
+        Checkout checkout = new Checkout();
+        checkout.setId(id);
+        when(checkoutRepository.findById(id))
+            .thenReturn(Optional.of(checkout));
+
+        List<CheckoutItem> checkoutItemVms = getCheckoutItems();
+        when(checkoutItemRepository.findAllByCheckoutId(id))
+            .thenReturn(checkoutItemVms);
+        CheckoutVm checkoutVm = checkoutService.findCheckoutWithItemsById(id);
+        assertThat(checkoutVm.id()).isEqualTo(id);
+        assertThat(checkoutVm.checkoutItemVms()).hasSize(2);
+    }
+
+    @Test
+    void testUpdateCheckout_whenNormalCase_thenUpdateCheckout() {
+        String id = "123";
+        Checkout checkout = new Checkout();
+        checkout.setId(id);
+        checkoutService.updateCheckout(checkout);
+        verify(checkoutRepository, times(1)).save(checkout);
+    }
+
+    @Test
+    void testUpdateCheckout_whenIdIsNull_throwBadRequestException() {
+        Checkout checkout = new Checkout();
+        BadRequestException badRequestException = assertThrows(BadRequestException.class,
+            () -> checkoutService.updateCheckout(checkout));
+        assertThat(badRequestException.getMessage()).isEqualTo("ID is not existed");
+    }
+
+    private List<CheckoutItem > getCheckoutItems() {
+        return List.of(
+            CheckoutItem.builder()
+                .id(1L)
+                .productId(101L)
+                .checkoutId("checkout123")
+                .productName("Product A")
+                .quantity(2)
+                .productPrice(BigDecimal.valueOf(50.0))
+                .note("Note A")
+                .discountAmount(BigDecimal.valueOf(5.0))
+                .taxAmount(BigDecimal.valueOf(1.0))
+                .taxPercent(BigDecimal.valueOf(0.02))
+                .shipmentTax(BigDecimal.valueOf(0.5))
+                .shipmentFee(BigDecimal.valueOf(3.0))
+                .build(),
+            CheckoutItem.builder()
+                .id(2L)
+                .productId(102L)
+                .checkoutId("checkout124")
+                .productName("Product B")
+                .quantity(1)
+                .productPrice(BigDecimal.valueOf(30.0))
+                .note("Note B")
+                .discountAmount(BigDecimal.valueOf(3.0))
+                .taxAmount(BigDecimal.valueOf(0.6))
+                .taxPercent(BigDecimal.valueOf(0.02))
+                .shipmentTax(BigDecimal.valueOf(0.3))
+                .shipmentFee(BigDecimal.valueOf(2.0))
+                .build()
+        );
     }
 }

@@ -1,6 +1,9 @@
 package com.yas.order.model;
 
+import com.yas.order.model.enumeration.CheckoutProgress;
 import com.yas.order.model.enumeration.CheckoutState;
+import com.yas.order.model.enumeration.DeliveryMethod;
+import com.yas.order.model.enumeration.PaymentMethod;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,27 +42,28 @@ public class Checkout extends AbstractAuditEntity {
     @Enumerated(EnumType.STRING)
     private CheckoutState checkoutState;
 
-    @SuppressWarnings("unused")
-    private String progress;
+    @Enumerated(EnumType.STRING)
+    private CheckoutProgress progress;
 
     @SuppressWarnings("unused")
     private Long customerId;
 
     @SuppressWarnings("unused")
-    private String shipmentMethodId;
+    private DeliveryMethod shipmentMethodId;
 
-    @Column(name = "payment_method_id")
-    private String paymentMethodId;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethodId;
 
     @SuppressWarnings("unused")
     private Long shippingAddressId;
 
     @SuppressWarnings("unused")
+    private Long billingAddressId;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "last_error", columnDefinition = "jsonb")
     private String lastError;
 
-    @SuppressWarnings("unused")
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "attributes", columnDefinition = "jsonb")
     private String attributes;

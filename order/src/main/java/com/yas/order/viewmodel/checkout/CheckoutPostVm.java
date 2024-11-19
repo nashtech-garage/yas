@@ -11,6 +11,6 @@ public record CheckoutPostVm(
         BigDecimal totalAmount,
         BigDecimal totalDiscountAmount,
         @NotNull
-        List<CheckoutItemPostVm> checkoutItemPostVms
+        List<CheckoutItemPostVm> checkoutItemVms
 ) {
 }

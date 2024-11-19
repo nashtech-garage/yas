@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS "payment"
+ADD COLUMN attributes JSONB;

@@ -25,9 +25,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/prometheus", "/actuator/health/**",
                                 "/swagger-ui", "/swagger-ui/**", "/error", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/webhook/paypal/payment-events").permitAll()
                         .requestMatchers("/storefront/**").permitAll()
                         .requestMatchers("/backoffice/**").hasRole("ADMIN")
                         .requestMatchers("/payment-providers/**").permitAll()
+                        .requestMatchers("/capture-payment").permitAll()
+                        .requestMatchers("/events/payments").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

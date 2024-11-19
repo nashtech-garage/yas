@@ -281,8 +281,8 @@ class OrderControllerTest {
             shippingAddress,
             billingAddress,
             "Please deliver by next week.",
-            7.50f,
-            15.00f,
+            new BigDecimal("7.50"),
+            new BigDecimal("15.00"),
             3,
             new BigDecimal("159.97"),
             new BigDecimal("7.99"),
@@ -332,6 +332,7 @@ class OrderControllerTest {
     private OrderPostVm getOrderPostVm() {
 
         OrderAddressPostVm shippingAddress = new OrderAddressPostVm(
+            1L,
             "John Doe",
             "+123456789",
             "123 Main St",
@@ -347,6 +348,7 @@ class OrderControllerTest {
         );
 
         OrderAddressPostVm billingAddress = new OrderAddressPostVm(
+            1L,
             "Jane Smith",
             "+1987654321",
             "789 Elm Street",
@@ -369,8 +371,8 @@ class OrderControllerTest {
             shippingAddress,
             billingAddress,
             "Please handle with care.",
-            5.00f,
-            10.00f,
+            new BigDecimal("5.00"),
+            new BigDecimal("10.00"),
             2,
             new BigDecimal("89.97"),
             new BigDecimal("5.00"),

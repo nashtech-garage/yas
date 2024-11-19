@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.OrderApplication;
+import com.yas.order.config.KafkaIntegrationTestConfiguration;
 import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.OrderStatus;
 import com.yas.order.model.enumeration.PaymentStatus;
@@ -37,7 +38,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.util.Pair;
 
 @SpringBootTest(classes = OrderApplication.class)
-@Import(IntegrationTestConfiguration.class)
+@Import({IntegrationTestConfiguration.class, KafkaIntegrationTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class OrderServiceIT {
 

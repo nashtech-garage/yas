@@ -1,26 +1,38 @@
 package com.yas.payment.paypal.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
-import com.paypal.orders.*;
-import com.yas.payment.paypal.model.*;
+import com.paypal.orders.Capture;
+import com.paypal.orders.LinkDescription;
+import com.paypal.orders.MerchantReceivableBreakdown;
+import com.paypal.orders.Money;
+import com.paypal.orders.Order;
+import com.paypal.orders.OrdersCaptureRequest;
+import com.paypal.orders.OrdersCreateRequest;
+import com.paypal.orders.PaymentCollection;
+import com.paypal.orders.PurchaseUnit;
+import com.yas.payment.paypal.model.CheckoutIdHelper;
 import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentRequest;
 import com.yas.payment.paypal.viewmodel.PaypalCapturePaymentResponse;
 import com.yas.payment.paypal.viewmodel.PaypalCreatePaymentRequest;
 import com.yas.payment.paypal.viewmodel.PaypalCreatePaymentResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class PaypalServiceTest {
 

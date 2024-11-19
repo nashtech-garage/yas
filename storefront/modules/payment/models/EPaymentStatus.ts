@@ -1,0 +1,7 @@
+export enum EPaymentStatus {
+  NEW = 'NEW',
+  PROCESSING = 'PROCESSING',
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
