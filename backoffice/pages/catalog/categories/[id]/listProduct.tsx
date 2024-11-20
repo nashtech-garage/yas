@@ -7,16 +7,22 @@ import {
   getProductsByCategory,
   getCategory,
 } from '../../../../modules/catalog/services/CategoryService';
-import ReactPaginate from 'react-paginate';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 const GetProductsByCategory: NextPage = () => {
   const [products, setProducts] = useState<ProductThumbnail[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(1);
   const [categorySlug, setCategorySlug] = useState<string>('');
   const router = useRouter();
   const { id } = router.query;
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
+
   useEffect(() => {
     if (id)
       getCategory(+id).then((data) => {
@@ -25,15 +31,13 @@ const GetProductsByCategory: NextPage = () => {
   }, [id]);
   useEffect(() => {
     setLoading(true);
-    getProductsByCategory(pageNo, categorySlug).then((data) => {
+    getProductsByCategory(pageNo, itemsPerPage, categorySlug).then((data) => {
       setTotalPage(data.totalPages);
       setProducts(data.productContent);
       setLoading(false);
     });
   }, [pageNo, categorySlug]);
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
+
   if (isLoading) return <p>Loading...</p>;
   if (!products) return <p>No product</p>;
   return (
@@ -58,17 +62,12 @@ const GetProductsByCategory: NextPage = () => {
         </tbody>
       </Table>
       {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
+          showHelpers={false}
         />
       )}
     </>

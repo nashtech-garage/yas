@@ -38,7 +38,7 @@ const WarehouseList: NextPage = () => {
       .catch((error) => console.log(error));
   };
   const getListWarehouse = () => {
-    getPageableWarehouses(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableWarehouses(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setWarehouses(data.warehouseContent);

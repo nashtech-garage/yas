@@ -2,7 +2,8 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 import { Brand } from '@catalogModels/Brand';
 import { deleteBrand, getPageableBrands } from '@catalogServices/BrandService';
@@ -16,8 +17,11 @@ const BrandList: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -38,7 +42,7 @@ const BrandList: NextPage = () => {
   };
 
   const getListBrand = () => {
-    getPageableBrands(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableBrands(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setBrands(data.brandContent);
@@ -54,10 +58,6 @@ const BrandList: NextPage = () => {
     getListBrand();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -121,17 +121,12 @@ const BrandList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
+          showHelpers={false}
         />
       )}
     </>

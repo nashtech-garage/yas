@@ -39,7 +39,7 @@ const TaxClassList: NextPage = () => {
   };
 
   const getListTaxClass = () => {
-    getPageableTaxClasses(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableTaxClasses(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setTaxClasses(data.taxClassContent);

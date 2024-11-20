@@ -4,8 +4,8 @@ import apiClientService from '@commonServices/ApiClientService';
 
 const baseUrl = '/api/customer';
 
-export async function getCustomers(pageNo: number): Promise<Customers> {
-  const url = `${baseUrl}/backoffice/customers?pageNo=${pageNo}`;
+export async function getCustomers(pageNo: number, pageSize: number): Promise<Customers> {
+  const url = `${baseUrl}/backoffice/customers?pageNo=${pageNo}&pageSize=${pageSize}`;
   return (await apiClientService.get(url)).json();
 }
 

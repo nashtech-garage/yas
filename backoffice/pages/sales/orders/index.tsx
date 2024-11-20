@@ -20,18 +20,7 @@ const Orders: NextPage = () => {
   const [orderList, setOrderList] = useState<Order[]>([]);
   const [isDelete, setDelete] = useState<boolean>(false);
 
-  const {
-    pageNo,
-    totalPage,
-    setTotalPage,
-    itemsPerPage,
-    goToPage,
-    setPageNo,
-    changePage,
-    handleItemsPerPageChange,
-    handleGoToPageChange,
-    goToPageHandler,
-  } = usePagination({
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -42,7 +31,7 @@ const Orders: NextPage = () => {
     const params = queryString.stringify({
       ...watchAllFields,
       pageNo: pageNo,
-      pageSize: DEFAULT_PAGE_SIZE,
+      pageSize: itemsPerPage,
       createdFrom: moment(watchAllFields.createdFrom).format(),
       createdTo: moment(watchAllFields.createdTo).format(),
     });
@@ -218,11 +207,8 @@ const Orders: NextPage = () => {
           pageNo={pageNo}
           totalPage={totalPage}
           itemsPerPage={itemsPerPage}
-          goToPage={goToPage}
           onPageChange={changePage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-          onGoToPageChange={handleGoToPageChange}
-          onGoToPageSubmit={goToPageHandler}
+          showHelpers={false}
         />
       )}
     </>

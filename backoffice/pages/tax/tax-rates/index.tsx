@@ -39,7 +39,7 @@ const TaxRateList: NextPage = () => {
   };
 
   const getListTaxRate = () => {
-    getPageableTaxRates(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableTaxRates(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setTaxRates(data.taxRateGetDetailContent);

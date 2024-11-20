@@ -2,7 +2,6 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 
 import { ProductOption } from '@catalogModels/ProductOption';
 import {
@@ -12,6 +11,8 @@ import {
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 const ProductOptionList: NextPage = () => {
   const [productOptions, setProductOptions] = useState<ProductOption[]>();
@@ -19,8 +20,11 @@ const ProductOptionList: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [productOptionNameWantToDelete, setProductOptionNameWantToDelete] = useState<string>('');
   const [productOptionIdWantToDelete, setProductOptionIdWantToDelete] = useState<number>(-1);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -45,17 +49,13 @@ const ProductOptionList: NextPage = () => {
   };
 
   const getListProductOption = () => {
-    getPageableProductOptions(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableProductOptions(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setProductOptions(data.productOptionContent);
         setLoading(false);
       })
       .catch((err) => console.log(err));
-  };
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -116,17 +116,12 @@ const ProductOptionList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
+          showHelpers={false}
         />
       )}
     </>

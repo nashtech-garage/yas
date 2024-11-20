@@ -2,16 +2,20 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 import type { ProductTemplate } from '@catalogModels/ProductTemplate';
 import { getPageableProductTemplates } from '@catalogServices/ProductTemplateService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 const ProductTemplate: NextPage = () => {
   const [productTemplates, setProductTemplates] = useState<ProductTemplate[]>();
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -20,7 +24,7 @@ const ProductTemplate: NextPage = () => {
   }, [pageNo]);
 
   const getListProductTemplate = () => {
-    getPageableProductTemplates(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableProductTemplates(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setProductTemplates(data.productTemplateVms);
@@ -29,10 +33,6 @@ const ProductTemplate: NextPage = () => {
       .catch((error) => {
         console.log(error);
       });
-  };
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -81,17 +81,12 @@ const ProductTemplate: NextPage = () => {
             </tbody>
           </Table>
           {totalPage > 1 && (
-            <ReactPaginate
-              forcePage={pageNo}
-              previousLabel={'Previous'}
-              nextLabel={'Next'}
-              pageCount={totalPage}
+            <Pagination
+              pageNo={pageNo}
+              totalPage={totalPage}
+              itemsPerPage={itemsPerPage}
               onPageChange={changePage}
-              containerClassName={'pagination-container'}
-              previousClassName={'previous-btn'}
-              nextClassName={'next-btn'}
-              disabledClassName={'pagination-disabled'}
-              activeClassName={'pagination-active'}
+              showHelpers={false}
             />
           )}
         </>

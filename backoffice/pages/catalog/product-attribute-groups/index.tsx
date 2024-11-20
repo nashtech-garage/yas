@@ -2,7 +2,8 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 import { ProductAttributeGroup } from '@catalogModels/ProductAttributeGroup';
 import {
@@ -21,8 +22,11 @@ const ProductAttrbuteGroupList: NextPage = () => {
     useState<string>('');
   const [productAttributeGroupIdWantToDelete, setProductAttributeGroupIdWantToDelete] =
     useState<number>(-1);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PAGE_SIZE,
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -45,17 +49,13 @@ const ProductAttrbuteGroupList: NextPage = () => {
   };
 
   const getListProductAttributeGroup = () => {
-    getPageableProductAttributeGroups(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableProductAttributeGroups(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setProductAttributeGroups(data.productAttributeGroupContent);
         setLoading(false);
       })
       .catch((error) => console.log(error));
-  };
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -116,17 +116,12 @@ const ProductAttrbuteGroupList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          itemsPerPage={itemsPerPage}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
+          showHelpers={false}
         />
       )}
     </>

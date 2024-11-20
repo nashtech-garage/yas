@@ -39,7 +39,7 @@ const WebhookList: NextPage = () => {
   };
 
   const getListWebhook = () => {
-    getWebhooks(pageNo, DEFAULT_PAGE_SIZE)
+    getWebhooks(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setWebhooks(data.webhooks);

@@ -29,7 +29,18 @@ const StateOrProvinceList: NextPage = () => {
     useState<string>('');
   const [stateOrProvinceIdWantToDelete, setStateOrProvinceIdWantToDelete] = useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const {
+    pageNo,
+    totalPage,
+    setTotalPage,
+    itemsPerPage,
+    goToPage,
+    setPageNo,
+    changePage,
+    handleItemsPerPageChange,
+    handleGoToPageChange,
+    goToPageHandler,
+  } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -43,7 +54,7 @@ const StateOrProvinceList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, stateOrProvinceNameWantToDelete);
-        getPageableStateOrProvinces(pageNo, DEFAULT_PAGE_SIZE, countryId).then((data) => {
+        getPageableStateOrProvinces(pageNo, itemsPerPage, countryId).then((data) => {
           setTotalPage(data.totalPages);
           setStateOrProvinces(data.stateOrProvinceContent);
           setLoading(false);
@@ -57,13 +68,13 @@ const StateOrProvinceList: NextPage = () => {
   useEffect(() => {
     setLoading(true);
 
-    getPageableStateOrProvinces(pageNo, DEFAULT_PAGE_SIZE, countryId).then((data) => {
+    getPageableStateOrProvinces(pageNo, itemsPerPage, countryId).then((data) => {
       console.log(data.stateOrProvinceContent);
       setTotalPage(data.totalPages);
       setStateOrProvinces(data.stateOrProvinceContent);
       setLoading(false);
     });
-  }, [pageNo, countryId]);
+  }, [pageNo, itemsPerPage, countryId]);
 
   useEffect(() => {
     setLoading(true);
@@ -166,8 +177,11 @@ const StateOrProvinceList: NextPage = () => {
           pageNo={pageNo}
           totalPage={totalPage}
           itemsPerPage={itemsPerPage}
+          goToPage={goToPage}
           onPageChange={changePage}
-          showHelpers={false}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          onGoToPageChange={handleGoToPageChange}
+          onGoToPageSubmit={goToPageHandler}
         />
       )}
     </>

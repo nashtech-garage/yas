@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 import { useRouter } from 'next/router';
 
 import { Product } from '@catalogModels/Product';
 import { getProducts } from '@catalogServices/ProductService';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PRODUCT_PAGE_SIZE } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonServices/PaginationService';
 
 type Props = {
   show: boolean;
@@ -20,11 +22,14 @@ const ShowProductModel = (props: Props) => {
 
   const [selectedProduct, setSelectedProduct] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [pageNo, setPageNo] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(0);
+
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PRODUCT_PAGE_SIZE,
+  });
 
   useEffect(() => {
-    getProducts(pageNo, '', '').then((data) => {
+    getProducts(pageNo, itemsPerPage, '', '').then((data) => {
       if (id) {
         let filterProduct = data.productContent.filter((product) => product.id !== +id);
         setProducts(filterProduct);
@@ -38,10 +43,6 @@ const ShowProductModel = (props: Props) => {
   useEffect(() => {
     setSelectedProduct(props.selectedProduct);
   }, [props.selectedProduct]);
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
 
   return (
     <Modal show={props.show} size="lg" aria-labelledby="contained-modal-title-vcenter" centered>
@@ -83,17 +84,12 @@ const ShowProductModel = (props: Props) => {
           </tbody>
         </Table>
         {totalPage > 1 && (
-          <ReactPaginate
-            forcePage={pageNo}
-            previousLabel={'Previous'}
-            nextLabel={'Next'}
-            pageCount={totalPage}
+          <Pagination
+            pageNo={pageNo}
+            totalPage={totalPage}
+            itemsPerPage={itemsPerPage}
             onPageChange={changePage}
-            containerClassName={'pagination-container'}
-            previousClassName={'previous-btn'}
-            nextClassName={'next-btn'}
-            disabledClassName={'pagination-disabled'}
-            activeClassName={'pagination-active'}
+            showHelpers={false}
           />
         )}
       </Modal.Body>

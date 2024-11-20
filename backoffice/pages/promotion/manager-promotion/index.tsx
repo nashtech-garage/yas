@@ -41,7 +41,7 @@ const PromotionList: NextPage = () => {
     return {
       couponCode: couponCode,
       pageNo: pageNo,
-      pageSize: DEFAULT_PAGE_SIZE,
+      pageSize: itemsPerPage,
       promotionName: promotionName,
     };
   };
