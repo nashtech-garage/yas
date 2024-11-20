@@ -18,7 +18,7 @@ const GetProductsByCategory: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
