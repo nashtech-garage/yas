@@ -1,10 +1,12 @@
 package com.yas.delivery.service;
 
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.delivery.model.DeliveryProvider;
 import com.yas.delivery.model.DeliveryServiceType;
-import com.yas.delivery.viewmodel.CalculateFeesPostVm;
+import com.yas.delivery.viewmodel.CalculateFeePostVm;
 import com.yas.delivery.viewmodel.DeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryOptions;
+import com.yas.delivery.viewmodel.DeliveryProviderVm;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -31,15 +33,15 @@ public class DeliveryService {
             DeliveryServiceType.builder()
                 .id("FEDEX_INTERNATIONAL_PRIORITY")
                 .name("FedEx International Priority")
-                .cost(20.0)
-                .tax(2.0)
+                .totalCost(20.0)
+                .totalTax(2.0)
                 .expectedDeliveryTime(now.plusDays(1).format(DateTimeFormatter.ISO_INSTANT))
                 .build(),
             DeliveryServiceType.builder()
                 .id("INTERNATIONAL_ECONOMY")
                 .name("FedEx International Economy")
-                .cost(30.0)
-                .tax(3.0)
+                .totalCost(30.0)
+                .totalTax(3.0)
                 .expectedDeliveryTime(now.plusDays(3).format(DateTimeFormatter.ISO_INSTANT))
                 .build()
         );
@@ -57,16 +59,16 @@ public class DeliveryService {
             DeliveryServiceType.builder()
                 .id("07")
                 .name("UPS Worldwide Express")
-                .cost(10.0)
-                .tax(1.0)
+                .totalCost(10.0)
+                .totalTax(1.0)
                 .expectedDeliveryTime(now.plusDays(5).format(DateTimeFormatter.ISO_INSTANT))
                 .build(),
             DeliveryServiceType.builder()
                 .id("11")
                 .name("UPS Standard")
-                .cost(15.0)
+                .totalCost(15.0)
                 .expectedDeliveryTime(now.plusDays(7).format(DateTimeFormatter.ISO_INSTANT))
-                .tax(1.5)
+                .totalTax(1.5)
                 .build()
         );
         upsProvider.setServiceTypes(upsServiceTypes);
@@ -74,29 +76,44 @@ public class DeliveryService {
     }
 
     /**
-     * Calculates the delivery fees for the given delivery address based on delivery items.
+     * Retrieves a list of available delivery providers.
      *
-     * @param calculateFeePostVm the view model containing the necessary data for fee calculation.
-     * @return a {@link DeliveryFeeVm} representing the calculated delivery fees for each checkout item.
+     * @return a list of {@link DeliveryProviderVm} representing the available delivery providers.
      */
-    public DeliveryFeeVm calculateDeliveryFee(CalculateFeesPostVm calculateFeePostVm) {
-        List<DeliveryOptions> availableDeliveryOptions = deliveryProviders.stream()
-            .flatMap(provider -> getDeliveryOptionsByProvider(provider).stream())
-            .toList();
-        return new DeliveryFeeVm(availableDeliveryOptions);
+    public List<DeliveryProviderVm> getDeliveryProviders() {
+        return deliveryProviders.stream().map(deliveryProvider ->
+            new DeliveryProviderVm(deliveryProvider.getId(), deliveryProvider.getName())
+        ).toList();
+    }
+
+    /**
+     * Calculates the delivery fee based on the provided delivery information.
+     *
+     * @param calculateFeePostVm the delivery information including delivery provider ID, warehouse address,
+     *                           recipient address, and delivery items.
+     * @return a {@link DeliveryFeeVm} containing the calculated delivery fee options.
+     * @throws IllegalArgumentException if the delivery provider ID is invalid.
+     */
+    public DeliveryFeeVm calculateDeliveryFee(CalculateFeePostVm calculateFeePostVm) {
+        DeliveryProvider deliveryProvider = deliveryProviders.stream()
+            .filter(provider -> provider.getId().equals(calculateFeePostVm.deliveryProviderId()))
+            .findFirst()
+            .orElseThrow(() -> new BadRequestException("Invalid delivery provider ID"));
+        return new DeliveryFeeVm(getDeliveryOptionsByProvider(deliveryProvider));
     }
 
     public List<DeliveryOptions> getDeliveryOptionsByProvider(DeliveryProvider deliveryProvider) {
         return deliveryProvider.getServiceTypes().stream()
-            .map(serviceType -> new DeliveryOptions(
-                deliveryProvider.getId(),
-                deliveryProvider.getName(),
-                serviceType.getId(),
-                serviceType.getName(),
-                serviceType.getCost(),
-                serviceType.getTax(),
-                serviceType.getExpectedDeliveryTime()
-            ))
+            .map(serviceType -> DeliveryOptions
+                .builder()
+                .deliveryProviderId(deliveryProvider.getId())
+                .deliveryProviderName(deliveryProvider.getName())
+                .deliveryServiceTypeId(serviceType.getId())
+                .deliveryServiceTypeName(serviceType.getName())
+                .totalCost(serviceType.getTotalCost())
+                .totalTax(serviceType.getTotalTax())
+                .expectedDeliveryTime(serviceType.getExpectedDeliveryTime())
+                .build())
             .toList();
     }
 }

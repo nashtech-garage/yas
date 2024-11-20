@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class DeliveryServiceType {
     private String id;
     private String name;
-    private double cost;
-    private double tax;
+    private double totalCost;
+    private double totalTax;
     private String expectedDeliveryTime;
 }

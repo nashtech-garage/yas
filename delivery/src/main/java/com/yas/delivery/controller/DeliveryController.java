@@ -1,11 +1,14 @@
 package com.yas.delivery.controller;
 
 import com.yas.delivery.service.DeliveryService;
-import com.yas.delivery.viewmodel.CalculateFeesPostVm;
+import com.yas.delivery.viewmodel.CalculateFeePostVm;
 import com.yas.delivery.viewmodel.DeliveryFeeVm;
+import com.yas.delivery.viewmodel.DeliveryProviderVm;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,9 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
     private final DeliveryService deliveryService;
 
-    @PostMapping("/storefront/shipment/calculate")
+    @GetMapping("/storefront/delivery/providers")
+    public ResponseEntity<List<DeliveryProviderVm>> getDeliveryProviders() {
+        return ResponseEntity.ok(deliveryService.getDeliveryProviders());
+    }
+
+    @PostMapping("/storefront/delivery/calculate")
     public ResponseEntity<DeliveryFeeVm> calculateDeliveryFee(
-        @Valid @RequestBody CalculateFeesPostVm calculateFeePostVm) {
+        @Valid @RequestBody CalculateFeePostVm calculateFeePostVm) {
         return ResponseEntity.ok(deliveryService.calculateDeliveryFee(calculateFeePostVm));
     }
 }
