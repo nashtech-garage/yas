@@ -1,5 +1,6 @@
 package com.yas.delivery.model;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -9,10 +10,8 @@ import lombok.NoArgsConstructor;
 @lombok.Getter
 @lombok.Setter
 @Builder
-public class ShipmentServiceType {
+public class DeliveryProvider {
     private String id;
     private String name;
-    private double cost;
-    private double tax;
-    private String expectedDeliveryTime;
+    private List<DeliveryServiceType> serviceTypes;
 }

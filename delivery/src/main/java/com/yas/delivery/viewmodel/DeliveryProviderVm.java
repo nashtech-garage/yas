@@ -1,4 +1,4 @@
 package com.yas.delivery.viewmodel;
 
-public record ShipmentProviderVm(String id,
+public record DeliveryProviderVm(String id,
                                  String name) {}
