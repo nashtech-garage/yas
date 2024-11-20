@@ -10,16 +10,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.commonlibrary.exception.ApiExceptionHandler;
 import com.yas.delivery.service.DeliveryService;
+import com.yas.delivery.utils.InvalidCalculatePostVmTestCase;
 import com.yas.delivery.utils.TestUtils;
 import com.yas.delivery.viewmodel.CalculateFeePostVm;
 import com.yas.delivery.viewmodel.DeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryOption;
 import com.yas.delivery.viewmodel.DeliveryProviderVm;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -68,12 +71,7 @@ class DeliveryControllerTest {
     @Nested
     class CalculateDeliveryFeeTest {
 
-        private CalculateFeePostVm calculateFeePostVm;
-
-        @BeforeEach
-        void setUp() {
-            calculateFeePostVm = TestUtils.generateCalculateFeePostVm();
-        }
+        private static final CalculateFeePostVm calculateFeePostVm = TestUtils.generateCalculateFeePostVm();
 
         @Test
         void testCalculateDeliveryFee_whenRequestIsValid_shouldReturnDeliveryFee() throws Exception {
@@ -95,6 +93,13 @@ class DeliveryControllerTest {
             verify(deliveryService).calculateDeliveryFee(calculateFeePostVm);
         }
 
+        @ParameterizedTest(name = "should return bad request when {0}")
+        @MethodSource({"invalidDeliveryProviderCases", "invalidAddressesCases", "invalidDeliveryItemsCases"})
+        void testCalculateDeliveryFee_whenAddressesAreInvalid_shouldReturnBadRequest(
+            InvalidCalculatePostVmTestCase testCase) throws Exception {
+            performCalculateFeeAndExpectBadRequest(testCase.getInput());
+        }
+
         private void performCalculateFeeAndExpectValid(DeliveryOption deliveryOption) throws Exception {
             mockMvc.perform(post("/storefront/delivery/calculate")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -114,56 +119,78 @@ class DeliveryControllerTest {
                     .value(deliveryOption.totalTax()));
         }
 
-        @Test
-        void testCalculateDeliveryFee_whenProviderIdIsInvalid_shouldReturnBadRequest() throws Exception {
-            CalculateFeePostVm nullProviderIdPostVm = calculateFeePostVm
-                .toBuilder()
-                .deliveryProviderId(null)
-                .build();
 
-            performCalculateFeeAndExpectBadRequest(nullProviderIdPostVm);
+        @SuppressWarnings("unused")
+        private static Stream<InvalidCalculatePostVmTestCase> invalidDeliveryProviderCases() {
+            return Stream.of(
+                new InvalidCalculatePostVmTestCase(
+                    "delivery provider ID is null",
+                    calculateFeePostVm.toBuilder().deliveryProviderId(null).build()
+                )
+            );
         }
 
-        @Test
-        void testCalculateDeliveryFee_whenWarehouseAddressIsInvalid_shouldReturnBadRequest() throws Exception {
-            CalculateFeePostVm nullWarehouseAddressPostVm = calculateFeePostVm
-                .toBuilder()
-                .warehouseAddress(null)
-                .build();
-
-            CalculateFeePostVm nullZipCodeWarehousePostVm = calculateFeePostVm
-                .toBuilder()
-                .warehouseAddress(calculateFeePostVm.warehouseAddress().toBuilder().zipCode(null).build())
-                .build();
-
-            performCalculateFeeAndExpectBadRequest(nullWarehouseAddressPostVm);
-            performCalculateFeeAndExpectBadRequest(nullZipCodeWarehousePostVm);
+        @SuppressWarnings("unused")
+        private static Stream<InvalidCalculatePostVmTestCase> invalidAddressesCases() {
+            return Stream.of(
+                new InvalidCalculatePostVmTestCase(
+                    "warehouse address is null",
+                    calculateFeePostVm.toBuilder().warehouseAddress(null).build()
+                ),
+                new InvalidCalculatePostVmTestCase(
+                    "warehouse address ID is null",
+                    calculateFeePostVm.toBuilder()
+                        .warehouseAddress(calculateFeePostVm.warehouseAddress().toBuilder().id(null).build())
+                        .build()
+                ),
+                new InvalidCalculatePostVmTestCase(
+                    "warehouse zip code is null",
+                    calculateFeePostVm.toBuilder()
+                        .warehouseAddress(calculateFeePostVm.warehouseAddress().toBuilder().zipCode(null).build())
+                        .build()
+                ),
+                new InvalidCalculatePostVmTestCase(
+                    "warehouse country ID is null",
+                    calculateFeePostVm.toBuilder()
+                        .warehouseAddress(calculateFeePostVm.warehouseAddress().toBuilder().countryId(null).build())
+                        .build()
+                ),
+                new InvalidCalculatePostVmTestCase(
+                    "recipient address is null",
+                    calculateFeePostVm.toBuilder().recipientAddress(null).build()
+                )
+            );
         }
 
-        @Test
-        void testCalculateDeliveryFee_whenRecipientAddressIsInvalid_shouldReturnBadRequest() throws Exception {
-            CalculateFeePostVm invalidCalculateFeePostVm = calculateFeePostVm
-                .toBuilder()
-                .recipientAddress(null)
-                .build();
-
-            performCalculateFeeAndExpectBadRequest(invalidCalculateFeePostVm);
-        }
-
-        @Test
-        void testCalculateDeliveryFee_whenDeliveryItemsIsInvalid_shouldReturnBadRequest() throws Exception {
-            CalculateFeePostVm emptyDeliveryItemsPostVm = calculateFeePostVm
-                .toBuilder()
-                .deliveryItems(List.of())
-                .build();
-
-            CalculateFeePostVm nullQuantityDeliveryItemsPostVm = calculateFeePostVm
-                .toBuilder()
-                .deliveryItems(List.of(calculateFeePostVm.deliveryItems().getFirst().toBuilder().quantity(null).build()))
-                .build();
-
-            performCalculateFeeAndExpectBadRequest(emptyDeliveryItemsPostVm);
-            performCalculateFeeAndExpectBadRequest(nullQuantityDeliveryItemsPostVm);
+        @SuppressWarnings("unused")
+        private static Stream<InvalidCalculatePostVmTestCase> invalidDeliveryItemsCases() {
+            return Stream.of(
+                new InvalidCalculatePostVmTestCase(
+                    "delivery items is empty",
+                    calculateFeePostVm.toBuilder().deliveryItems(List.of()).build()
+                ),
+                new InvalidCalculatePostVmTestCase(
+                    "delivery item product ID is null",
+                    calculateFeePostVm.toBuilder()
+                        .deliveryItems(
+                            List.of(calculateFeePostVm.deliveryItems().getFirst().toBuilder().productId(null).build()))
+                        .build()
+                ),
+                new InvalidCalculatePostVmTestCase(
+                    "delivery item quantity is null",
+                    calculateFeePostVm.toBuilder()
+                        .deliveryItems(
+                            List.of(calculateFeePostVm.deliveryItems().getFirst().toBuilder().quantity(null).build()))
+                        .build()
+                ),
+                new InvalidCalculatePostVmTestCase(
+                    "delivery item weight is null",
+                    calculateFeePostVm.toBuilder()
+                        .deliveryItems(
+                            List.of(calculateFeePostVm.deliveryItems().getFirst().toBuilder().weight(null).build()))
+                        .build()
+                )
+            );
         }
 
         void performCalculateFeeAndExpectBadRequest(CalculateFeePostVm calculateFeePostVm) throws Exception {
@@ -173,5 +200,4 @@ class DeliveryControllerTest {
                 .andExpect(status().isBadRequest());
         }
     }
-
 }
