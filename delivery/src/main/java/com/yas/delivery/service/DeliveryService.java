@@ -1,11 +1,13 @@
 package com.yas.delivery.service;
 
+import static com.yas.delivery.utils.Constants.ErrorCode.INVALID_DELIVERY_PROVIDER;
+
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.delivery.model.DeliveryProvider;
 import com.yas.delivery.model.DeliveryServiceType;
 import com.yas.delivery.viewmodel.CalculateFeePostVm;
 import com.yas.delivery.viewmodel.DeliveryFeeVm;
-import com.yas.delivery.viewmodel.DeliveryOptions;
+import com.yas.delivery.viewmodel.DeliveryOption;
 import com.yas.delivery.viewmodel.DeliveryProviderVm;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DeliveryService {
+
     private static final List<DeliveryProvider> deliveryProviders;
 
     static {
@@ -28,7 +31,7 @@ public class DeliveryService {
 
         DeliveryProvider fedexProvider = new DeliveryProvider();
         fedexProvider.setId("FEDEX");
-        fedexProvider.setName("Fedex");
+        fedexProvider.setName("FedEx");
         List<DeliveryServiceType> fedexServiceTypes = Arrays.asList(
             DeliveryServiceType.builder()
                 .id("FEDEX_INTERNATIONAL_PRIORITY")
@@ -98,13 +101,14 @@ public class DeliveryService {
         DeliveryProvider deliveryProvider = deliveryProviders.stream()
             .filter(provider -> provider.getId().equals(calculateFeePostVm.deliveryProviderId()))
             .findFirst()
-            .orElseThrow(() -> new BadRequestException("Invalid delivery provider ID"));
+            .orElseThrow(
+                () -> new BadRequestException(INVALID_DELIVERY_PROVIDER, calculateFeePostVm.deliveryProviderId()));
         return new DeliveryFeeVm(getDeliveryOptionsByProvider(deliveryProvider));
     }
 
-    public List<DeliveryOptions> getDeliveryOptionsByProvider(DeliveryProvider deliveryProvider) {
+    public List<DeliveryOption> getDeliveryOptionsByProvider(DeliveryProvider deliveryProvider) {
         return deliveryProvider.getServiceTypes().stream()
-            .map(serviceType -> DeliveryOptions
+            .map(serviceType -> DeliveryOption
                 .builder()
                 .deliveryProviderId(deliveryProvider.getId())
                 .deliveryProviderName(deliveryProvider.getName())
