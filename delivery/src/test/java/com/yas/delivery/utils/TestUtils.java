@@ -1,12 +1,12 @@
 package com.yas.delivery.utils;
 
-import com.yas.delivery.viewmodel.CalculateFeePostVm;
+import com.yas.delivery.viewmodel.CalculateDeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryAddressVm;
 import com.yas.delivery.viewmodel.DeliveryItemVm;
 import java.util.List;
 
 public class TestUtils {
-    public static CalculateFeePostVm generateCalculateFeePostVm() {
+    public static CalculateDeliveryFeeVm generateCalculateDeliveryFeeVm() {
         DeliveryAddressVm warehouseAddress = DeliveryAddressVm.builder()
             .id(1L)
             .addressLine1("123 Warehouse Street")
@@ -27,7 +27,7 @@ public class TestUtils {
             .weight(1.5)
             .build();
 
-        return CalculateFeePostVm.builder()
+        return CalculateDeliveryFeeVm.builder()
             .deliveryProviderId("FEDEX")
             .warehouseAddress(warehouseAddress)
             .recipientAddress(recipientAddress)

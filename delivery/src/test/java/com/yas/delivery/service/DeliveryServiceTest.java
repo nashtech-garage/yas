@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.delivery.utils.TestUtils;
-import com.yas.delivery.viewmodel.CalculateFeePostVm;
+import com.yas.delivery.viewmodel.CalculateDeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryOption;
 import com.yas.delivery.viewmodel.DeliveryProviderVm;
@@ -39,30 +39,30 @@ class DeliveryServiceTest {
     @Nested
     class CalculateDeliveryFeeTest {
 
-        private CalculateFeePostVm calculateFeePostVm;
+        private CalculateDeliveryFeeVm calculateDeliveryFeeVm;
 
         @BeforeEach
         void setUp() {
-            calculateFeePostVm = TestUtils.generateCalculateFeePostVm();
+            calculateDeliveryFeeVm = TestUtils.generateCalculateDeliveryFeeVm();
         }
 
         @Test
         void testCalculateDeliveryFee_whenProviderIdIsInvalid_shouldThrowBadRequestException() {
             String invalidProviderId = "INVALID";
-            CalculateFeePostVm invalidProviderCalculateFeePostVm =
-                calculateFeePostVm.toBuilder().deliveryProviderId(invalidProviderId).build();
+            CalculateDeliveryFeeVm invalidCalculateDeliveryFeeVm =
+                calculateDeliveryFeeVm.toBuilder().deliveryProviderId(invalidProviderId).build();
 
             assertThrows(BadRequestException.class,
-                () -> deliveryService.calculateDeliveryFee(invalidProviderCalculateFeePostVm));
+                () -> deliveryService.calculateDeliveryFee(invalidCalculateDeliveryFeeVm));
         }
 
         @Test
         void testCalculateDeliveryFee_whenCalled_shouldReturnDeliveryFee() {
-            DeliveryFeeVm deliveryFee = deliveryService.calculateDeliveryFee(calculateFeePostVm);
+            DeliveryFeeVm deliveryFee = deliveryService.calculateDeliveryFee(calculateDeliveryFeeVm);
             
             assertNotNull(deliveryFee);
             DeliveryOption firstDeliveryOption = deliveryFee.deliveryOptions().getFirst();
-            assertEquals(calculateFeePostVm.deliveryProviderId(), firstDeliveryOption.deliveryProviderId());
+            assertEquals(calculateDeliveryFeeVm.deliveryProviderId(), firstDeliveryOption.deliveryProviderId());
             assertEquals(FEDEX_PROVIDER_NAME, firstDeliveryOption.deliveryProviderName());
             assertEquals("FEDEX_INTERNATIONAL_PRIORITY", firstDeliveryOption.deliveryServiceTypeId());
             assertEquals("FedEx International Priority", firstDeliveryOption.deliveryServiceTypeName());

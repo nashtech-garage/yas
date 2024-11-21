@@ -7,7 +7,7 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record CalculateFeePostVm(
+public record CalculateDeliveryFeeVm(
     @NotNull(message = "Delivery provider is required") String deliveryProviderId,
     @Valid @NotNull(message = "Warehouse address is required") DeliveryAddressVm warehouseAddress,
     @Valid @NotNull(message = "Recipient address is required") DeliveryAddressVm recipientAddress,

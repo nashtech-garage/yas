@@ -1,7 +1,7 @@
 package com.yas.delivery.controller;
 
 import com.yas.delivery.service.DeliveryService;
-import com.yas.delivery.viewmodel.CalculateFeePostVm;
+import com.yas.delivery.viewmodel.CalculateDeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryProviderVm;
 import jakarta.validation.Valid;
@@ -25,7 +25,7 @@ public class DeliveryController {
 
     @PostMapping("/storefront/delivery/calculate")
     public ResponseEntity<DeliveryFeeVm> calculateDeliveryFee(
-        @Valid @RequestBody CalculateFeePostVm calculateFeePostVm) {
-        return ResponseEntity.ok(deliveryService.calculateDeliveryFee(calculateFeePostVm));
+        @Valid @RequestBody CalculateDeliveryFeeVm calculateDeliveryFeeVm) {
+        return ResponseEntity.ok(deliveryService.calculateDeliveryFee(calculateDeliveryFeeVm));
     }
 }

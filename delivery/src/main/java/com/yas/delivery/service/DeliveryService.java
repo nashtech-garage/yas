@@ -5,7 +5,7 @@ import static com.yas.delivery.utils.Constants.ErrorCode.INVALID_DELIVERY_PROVID
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.delivery.model.DeliveryProvider;
 import com.yas.delivery.model.DeliveryServiceType;
-import com.yas.delivery.viewmodel.CalculateFeePostVm;
+import com.yas.delivery.viewmodel.CalculateDeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryFeeVm;
 import com.yas.delivery.viewmodel.DeliveryOption;
 import com.yas.delivery.viewmodel.DeliveryProviderVm;
@@ -92,17 +92,17 @@ public class DeliveryService {
     /**
      * Calculates the delivery fee based on the provided delivery information.
      *
-     * @param calculateFeePostVm the delivery information including delivery provider ID, warehouse address,
+     * @param calculateDeliveryFeeVm the delivery information including delivery provider ID, warehouse address,
      *                           recipient address, and delivery items.
      * @return a {@link DeliveryFeeVm} containing the calculated delivery fee options.
      * @throws IllegalArgumentException if the delivery provider ID is invalid.
      */
-    public DeliveryFeeVm calculateDeliveryFee(CalculateFeePostVm calculateFeePostVm) {
+    public DeliveryFeeVm calculateDeliveryFee(CalculateDeliveryFeeVm calculateDeliveryFeeVm) {
         DeliveryProvider deliveryProvider = deliveryProviders.stream()
-            .filter(provider -> provider.getId().equals(calculateFeePostVm.deliveryProviderId()))
+            .filter(provider -> provider.getId().equals(calculateDeliveryFeeVm.deliveryProviderId()))
             .findFirst()
             .orElseThrow(
-                () -> new BadRequestException(INVALID_DELIVERY_PROVIDER, calculateFeePostVm.deliveryProviderId()));
+                () -> new BadRequestException(INVALID_DELIVERY_PROVIDER, calculateDeliveryFeeVm.deliveryProviderId()));
         return new DeliveryFeeVm(getDeliveryOptionsByProvider(deliveryProvider));
     }
 
