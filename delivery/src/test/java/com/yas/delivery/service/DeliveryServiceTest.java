@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class DeliveryServiceTest {
-    private static final String FEDEX_ID = "FEDEX";
-    private static final String FEDEX_NAME = "FedEx";
+    private static final String FEDEX_PROVIDER_ID = "FEDEX";
+    private static final String FEDEX_PROVIDER_NAME = "FedEx";
 
     private final DeliveryService deliveryService = new DeliveryService();
 
@@ -31,7 +31,8 @@ class DeliveryServiceTest {
 
             assertNotNull(deliveryProviders);
             assertEquals(2, deliveryProviders.size());
-            assertTrue(deliveryProviders.stream().anyMatch(p -> p.id().equals(FEDEX_ID) && p.name().equals(FEDEX_NAME)));
+            assertTrue(deliveryProviders.stream().anyMatch(p -> p.id().equals(FEDEX_PROVIDER_ID) && p.name().equals(
+                FEDEX_PROVIDER_NAME)));
         }
     }
 
@@ -62,7 +63,7 @@ class DeliveryServiceTest {
             assertNotNull(deliveryFee);
             DeliveryOption firstDeliveryOption = deliveryFee.deliveryOptions().getFirst();
             assertEquals(calculateFeePostVm.deliveryProviderId(), firstDeliveryOption.deliveryProviderId());
-            assertEquals(FEDEX_NAME, firstDeliveryOption.deliveryProviderName());
+            assertEquals(FEDEX_PROVIDER_NAME, firstDeliveryOption.deliveryProviderName());
             assertEquals("FEDEX_INTERNATIONAL_PRIORITY", firstDeliveryOption.deliveryServiceTypeId());
             assertEquals("FedEx International Priority", firstDeliveryOption.deliveryServiceTypeName());
             assertEquals(20.0, firstDeliveryOption.totalCost());
