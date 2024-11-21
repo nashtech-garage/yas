@@ -9,7 +9,14 @@ public final class Constants {
         public static final String CHECKOUT_NOT_FOUND = "CHECKOUT_NOT_FOUND";
         public static final String CHECKOUT_ITEM_NOT_EMPTY = "CHECKOUT_ITEM_NOT_EMPTY";
         public static final String SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED";
-        public static final String FORBIDDEN = "FORBIDDEN";
+    }
+    public final class MessageCode {
+
+        private MessageCode() {}
+
+        public static final String CREATE_CHECKOUT = "Create checkout {} by user {}";
+        public static final String UPDATE_CHECKOUT_STATUS = "Update checkout {} STATUS from {} to {}";
+        public static final String UPDATE_CHECKOUT_PAYMENT = "Update checkout {} PAYMENT from {} to {}";
     }
 
     public final class Column {

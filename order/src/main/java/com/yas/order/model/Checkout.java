@@ -99,15 +99,4 @@ public class Checkout extends AbstractAuditEntity {
     public void addAmount(BigDecimal a) {
         this.totalAmount = this.totalAmount.add(a);
     }
-
-    public void addAmount(double a) {
-        this.totalAmount = this.totalAmount.add(BigDecimal.valueOf(a));
-    }
-
-    public void subtractAmount(BigDecimal a) {
-        this.totalAmount = this.totalAmount.subtract(a);
-        if (this.totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            this.totalAmount = BigDecimal.ZERO;
-        }
-    }
 }

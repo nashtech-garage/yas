@@ -1,17 +1,18 @@
 package com.yas.order.service;
 
-import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
-
+import com.yas.commonlibrary.constants.ApiConstant;
+import com.yas.commonlibrary.constants.MessageCode;
 import com.yas.commonlibrary.exception.ForbiddenException;
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.utils.AuthenticationUtils;
 import com.yas.order.mapper.CheckoutMapper;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.repository.CheckoutRepository;
-import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
+import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
 import com.yas.order.viewmodel.checkout.CheckoutItemVm;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
@@ -45,7 +46,7 @@ public class CheckoutService {
 
         Checkout checkout = checkoutMapper.toModel(checkoutPostVm);
         checkout.setCheckoutState(CheckoutState.PENDING);
-        checkout.setCustomerId(AuthenticationUtils.getCurrentUserId());
+        checkout.setCustomerId(AuthenticationUtils.extractUserId());
 
         checkout = setCheckoutItems(checkout, checkoutPostVm);
 
@@ -56,7 +57,7 @@ public class CheckoutService {
                 .stream()
                 .map(checkoutMapper::toVm)
                 .collect(Collectors.toSet());
-
+        log.info(Constants.MessageCode.CREATE_CHECKOUT, checkout.getId(), checkout.getCustomerId());
         return checkoutVm.toBuilder().checkoutItemVms(checkoutItemVms).build();
     }
 
@@ -72,8 +73,8 @@ public class CheckoutService {
                 })
                 .toList();
 
-        Map<Long, ProductCheckoutListVm> products = 
-                productService.getProductInfomation(productIds, 0, productIds.size());
+        Map<Long, ProductCheckoutListVm> products
+                = productService.getProductInfomation(productIds, 0, productIds.size());
         associateProductWithCheckoutItem(checkout, products, checkoutItems);
 
         checkout.setCheckoutItems(checkoutItems);
@@ -87,11 +88,14 @@ public class CheckoutService {
         checkoutItems.forEach(t -> {
             ProductCheckoutListVm product = products.get(t.getProductId());
             if (product == null) {
-                throw new NotFoundException("PRODUCT_NOT_FOUND", t.getProductId());
+                throw new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, t.getProductId());
             } else {
                 t.setProductName(product.getName());
                 t.setProductPrice(BigDecimal.valueOf(product.getPrice()));
-                checkout.addAmount(product.getPrice() * t.getQuantity());
+                checkout.addAmount(
+                        BigDecimal.valueOf(product.getPrice())
+                                .multiply(BigDecimal.valueOf(t.getQuantity()))
+                );
             }
         });
     }
@@ -101,8 +105,8 @@ public class CheckoutService {
         Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING).orElseThrow(()
                 -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
 
-        if (!checkout.getCreatedBy().equals(AuthenticationUtils.getCurrentUserId())) {
-            throw new ForbiddenException(Constants.ErrorCode.FORBIDDEN, "You can not view this checkout");
+        if (!checkout.getCreatedBy().equals(AuthenticationUtils.extractUserId())) {
+            throw new ForbiddenException(ApiConstant.FORBIDDEN, "You can not view this checkout");
         }
 
         CheckoutVm checkoutVm = checkoutMapper.toVm(checkout);
@@ -125,6 +129,11 @@ public class CheckoutService {
                 .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
         checkout.setCheckoutState(CheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
         checkoutRepository.save(checkout);
+        log.info(Constants.MessageCode.UPDATE_CHECKOUT_STATUS,
+                checkout.getId(),
+                checkoutStatusPutVm.checkoutStatus(),
+                checkout.getCheckoutState()
+        );
         Order order = orderService.findOrderByCheckoutId(checkoutStatusPutVm.checkoutId());
         return order.getId();
     }
@@ -133,6 +142,11 @@ public class CheckoutService {
         Checkout checkout = checkoutRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
         checkout.setPaymentMethodId(checkoutPaymentMethodPutVm.paymentMethodId());
+        log.info(Constants.MessageCode.UPDATE_CHECKOUT_PAYMENT,
+                checkout.getId(),
+                checkoutPaymentMethodPutVm.paymentMethodId(),
+                checkout.getPaymentMethodId()
+        );
         checkoutRepository.save(checkout);
     }
 }

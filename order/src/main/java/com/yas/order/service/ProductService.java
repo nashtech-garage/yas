@@ -1,8 +1,8 @@
 package com.yas.order.service;
 
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.utils.AuthenticationUtils;
 import com.yas.order.config.ServiceUrlConfig;
-import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.viewmodel.order.OrderItemVm;
 import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.product.ProductCheckoutListVm;
@@ -33,12 +33,12 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductVariationListFallback")
     public List<ProductVariationVm> getProductVariations(Long productId) {
-        final String jwt = AuthenticationUtils.getCurrentJwtTokenValue();
+        final String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())
-                .path("/backoffice/product-variations/" + productId)
-                .buildAndExpand()
+                .path("/backoffice/product-variations/${productId}")
+                .buildAndExpand(productId)
                 .toUri();
 
         return restClient.get()
@@ -53,7 +53,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void subtractProductStockQuantity(OrderVm orderVm) {
-        final String jwt = AuthenticationUtils.getCurrentJwtTokenValue();
+        final String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())
@@ -71,7 +71,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductInfomationFallback")
     public Map<Long, ProductCheckoutListVm> getProductInfomation(Set<Long> ids, int pageNo, int pageSize) {
-        final String jwt = AuthenticationUtils.getCurrentJwtTokenValue();
+        final String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
                 .fromHttpUrl(serviceUrlConfig.product())
