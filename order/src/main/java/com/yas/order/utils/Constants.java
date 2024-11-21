@@ -1,18 +1,22 @@
 package com.yas.order.utils;
 
 public final class Constants {
+
     public final class ErrorCode {
 
-        private ErrorCode() {}
+        private ErrorCode() {
+        }
 
         public static final String ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
         public static final String CHECKOUT_NOT_FOUND = "CHECKOUT_NOT_FOUND";
         public static final String CHECKOUT_ITEM_NOT_EMPTY = "CHECKOUT_ITEM_NOT_EMPTY";
         public static final String SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED";
     }
+
     public final class MessageCode {
 
-        private MessageCode() {}
+        private MessageCode() {
+        }
 
         public static final String CREATE_CHECKOUT = "Create checkout {} by user {}";
         public static final String UPDATE_CHECKOUT_STATUS = "Update checkout {} STATUS from {} to {}";
@@ -21,7 +25,8 @@ public final class Constants {
 
     public final class Column {
 
-        private Column() {}
+        private Column() {
+        }
 
         // common column
         public static final String ID_COLUMN = "id";

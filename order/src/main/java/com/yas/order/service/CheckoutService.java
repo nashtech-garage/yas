@@ -1,5 +1,7 @@
 package com.yas.order.service;
 
+import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
+
 import com.yas.commonlibrary.constants.ApiConstant;
 import com.yas.commonlibrary.constants.MessageCode;
 import com.yas.commonlibrary.exception.ForbiddenException;
@@ -12,7 +14,6 @@ import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.Constants;
-import static com.yas.order.utils.Constants.ErrorCode.CHECKOUT_NOT_FOUND;
 import com.yas.order.viewmodel.checkout.CheckoutItemVm;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
