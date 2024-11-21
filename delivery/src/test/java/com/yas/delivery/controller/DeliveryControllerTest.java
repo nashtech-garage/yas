@@ -95,7 +95,7 @@ class DeliveryControllerTest {
 
         @ParameterizedTest(name = "should return bad request when {0}")
         @MethodSource({"invalidDeliveryProviderCases", "invalidAddressesCases", "invalidDeliveryItemsCases"})
-        void testCalculateDeliveryFee_whenAddressesAreInvalid_shouldReturnBadRequest(
+        void testCalculateDeliveryFee_whenInputIsInvalid_shouldReturnBadRequest(
             InvalidCalculatePostVmTestCase testCase) throws Exception {
             performCalculateFeeAndExpectBadRequest(testCase.getInput());
         }
