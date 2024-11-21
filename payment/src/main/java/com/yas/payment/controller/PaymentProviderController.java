@@ -39,9 +39,6 @@ public class PaymentProviderController {
     @GetMapping("/storefront/payment-providers")
     public ResponseEntity<List<PaymentProviderVm>> getAll(Pageable pageable) {
         var paymentProviders = paymentProviderService.getEnabledPaymentProviders(pageable);
-        if (paymentProviders.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(paymentProviders);
-        }
         return ResponseEntity.ok(paymentProviders);
     }
 
