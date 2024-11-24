@@ -22,21 +22,12 @@ const ProductAttributeList: NextPage = () => {
     useState<string>('');
   const [productAttributeIdWantToDelete, setProductAttributeIdWantToDelete] = useState<number>(-1);
 
-  const {
-    pageNo,
-    totalPage,
-    setTotalPage,
-    itemsPerPage,
-    goToPage,
-    setPageNo,
-    changePage,
-    handleItemsPerPageChange,
-    handleGoToPageChange,
-    goToPageHandler,
-  } = usePagination({
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
+
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
   useEffect(() => {
     setLoading(true);
@@ -52,7 +43,7 @@ const ProductAttributeList: NextPage = () => {
       .then((response) => {
         setIsShowModalDelete(false);
         handleDeletingResponse(response, productAttributeIdWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListProductAttributes();
       })
       .catch((err) => {
@@ -133,12 +124,8 @@ const ProductAttributeList: NextPage = () => {
         <Pagination
           pageNo={pageNo}
           totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          goToPage={goToPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-          onGoToPageChange={handleGoToPageChange}
-          onGoToPageSubmit={goToPageHandler}
         />
       )}
     </>

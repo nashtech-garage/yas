@@ -18,7 +18,7 @@ const BrandList: NextPage = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -33,7 +33,7 @@ const BrandList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, brandNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListBrand();
       })
       .catch((error) => {
@@ -42,7 +42,7 @@ const BrandList: NextPage = () => {
   };
 
   const getListBrand = () => {
-    getPageableBrands(pageNo, itemsPerPage)
+    getPageableBrands(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setBrands(data.brandContent);
@@ -121,13 +121,7 @@ const BrandList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

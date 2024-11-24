@@ -18,21 +18,12 @@ const CountryList: NextPage = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const {
-    pageNo,
-    totalPage,
-    setTotalPage,
-    itemsPerPage,
-    goToPage,
-    setPageNo,
-    changePage,
-    handleItemsPerPageChange,
-    handleGoToPageChange,
-    goToPageHandler,
-  } = usePagination({
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
+
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -43,7 +34,7 @@ const CountryList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, countryNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListCountry();
       })
       .catch((error) => console.log(error));
@@ -126,12 +117,8 @@ const CountryList: NextPage = () => {
         <Pagination
           pageNo={pageNo}
           totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          goToPage={goToPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-          onGoToPageChange={handleGoToPageChange}
-          onGoToPageSubmit={goToPageHandler}
         />
       )}
     </>

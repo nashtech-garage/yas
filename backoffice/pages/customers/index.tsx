@@ -20,7 +20,7 @@ const Customers: NextPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [totalUser, setTotalUser] = useState<number>(0);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -35,7 +35,7 @@ const Customers: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, userNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListCustomer();
       })
       .catch((error) => {
@@ -44,7 +44,7 @@ const Customers: NextPage = () => {
   };
 
   const getListCustomer = () => {
-    getCustomers(pageNo, itemsPerPage)
+    getCustomers(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setCustomers(data.customers);
         setTotalPage(data.totalPage);
@@ -132,13 +132,7 @@ const Customers: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

@@ -18,7 +18,7 @@ const TaxRateList: NextPage = () => {
   const [taxRates, setTaxRates] = useState<TaxRate[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -32,14 +32,14 @@ const TaxRateList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, taxRateNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListTaxRate();
       })
       .catch((error) => console.log(error));
   };
 
   const getListTaxRate = () => {
-    getPageableTaxRates(pageNo, itemsPerPage)
+    getPageableTaxRates(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setTaxRates(data.taxRateGetDetailContent);
@@ -118,13 +118,7 @@ const TaxRateList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

@@ -12,7 +12,7 @@ const ProductTemplate: NextPage = () => {
   const [productTemplates, setProductTemplates] = useState<ProductTemplate[]>();
   const [isLoading, setLoading] = useState<boolean>(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -24,7 +24,7 @@ const ProductTemplate: NextPage = () => {
   }, [pageNo]);
 
   const getListProductTemplate = () => {
-    getPageableProductTemplates(pageNo, itemsPerPage)
+    getPageableProductTemplates(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setProductTemplates(data.productTemplateVms);
@@ -81,13 +81,7 @@ const ProductTemplate: NextPage = () => {
             </tbody>
           </Table>
           {totalPage > 1 && (
-            <Pagination
-              pageNo={pageNo}
-              totalPage={totalPage}
-              itemsPerPage={itemsPerPage}
-              onPageChange={changePage}
-              showHelpers={false}
-            />
+            <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
           )}
         </>
       )}

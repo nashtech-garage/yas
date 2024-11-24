@@ -1,74 +1,77 @@
 import React from 'react';
 import ReactPaginate from 'react-paginate';
 import { Form } from 'react-bootstrap';
-import { DEFAULT_PAGE_SIZE } from '@constants/Common';
+import { PAGE_SIZE_OPTION } from '@commonServices/PaginationService';
+
+interface PaginationControls {
+  itemsPerPage?: {
+    value: number;
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  };
+  goToPage?: {
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onSubmit: () => void;
+  };
+}
 
 interface PaginationProps {
   pageNo: number;
   totalPage: number;
-  itemsPerPage: number;
-  goToPage?: string;
+  paginationControls?: PaginationControls;
   onPageChange: (selectedItem: { selected: number }) => void;
-  onItemsPerPageChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  onGoToPageChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onGoToPageSubmit?: () => void;
-  showHelpers?: boolean;
+  pageSizeOption?: number[];
 }
 
 function Pagination({
   pageNo,
   totalPage,
-  itemsPerPage = DEFAULT_PAGE_SIZE,
-  goToPage,
+  paginationControls,
   onPageChange,
-  onItemsPerPageChange,
-  onGoToPageChange,
-  onGoToPageSubmit,
-  showHelpers = true,
+  pageSizeOption = PAGE_SIZE_OPTION,
 }: Readonly<PaginationProps>) {
   return (
     <div>
       <ReactPaginate
         forcePage={pageNo}
-        previousLabel={'Previous'}
-        nextLabel={'Next'}
+        previousLabel="Previous"
+        nextLabel="Next"
         pageCount={totalPage}
         onPageChange={onPageChange}
-        containerClassName={'pagination-container'}
-        previousClassName={'previous-btn'}
-        nextClassName={'next-btn'}
-        disabledClassName={'pagination-disabled'}
-        activeClassName={'pagination-active'}
+        containerClassName="pagination-container"
+        previousClassName="previous-btn"
+        nextClassName="next-btn"
+        disabledClassName="pagination-disabled"
+        activeClassName="pagination-active"
       />
-      {showHelpers && (
+      {paginationControls && (
         <div className="pagination-helper mt-3 mb-3">
-          <div className="pagination-tool me-5">
-            <p>Go to</p>
-            <Form.Control
-              type="number"
-              value={goToPage}
-              onChange={(e) => onGoToPageChange?.(e as React.ChangeEvent<HTMLInputElement>)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && onGoToPageSubmit) {
-                  onGoToPageSubmit();
-                }
-              }}
-            />
-          </div>
-          <div className="pagination-tool">
-            <p>Show</p>
-            <Form.Select
-              value={itemsPerPage}
-              onChange={(e) =>
-                onItemsPerPageChange?.(e as unknown as React.ChangeEvent<HTMLSelectElement>)
-              }
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="20">20</option>
-            </Form.Select>
-          </div>
+          {paginationControls.goToPage && (
+            <div className={`pagination-tool ${paginationControls.itemsPerPage ? 'me-5' : ''}`}>
+              <p>Go to</p>
+              <Form.Control
+                type="number"
+                value={paginationControls.goToPage.value || ''}
+                onChange={paginationControls.goToPage.onChange}
+                onKeyDown={(e) => e.key === 'Enter' && paginationControls.goToPage?.onSubmit()}
+              />
+            </div>
+          )}
+          {paginationControls.itemsPerPage && (
+            <div className="pagination-tool">
+              <p>Show</p>
+              <Form.Select
+                value={paginationControls.itemsPerPage.value}
+                onChange={paginationControls.itemsPerPage.onChange}
+              >
+                {pageSizeOption.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
+          )}
         </div>
       )}
     </div>

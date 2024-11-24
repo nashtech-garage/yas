@@ -29,21 +29,12 @@ const StateOrProvinceList: NextPage = () => {
     useState<string>('');
   const [stateOrProvinceIdWantToDelete, setStateOrProvinceIdWantToDelete] = useState<number>(-1);
 
-  const {
-    pageNo,
-    totalPage,
-    setTotalPage,
-    itemsPerPage,
-    goToPage,
-    setPageNo,
-    changePage,
-    handleItemsPerPageChange,
-    handleGoToPageChange,
-    goToPageHandler,
-  } = usePagination({
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
+
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -108,7 +99,7 @@ const StateOrProvinceList: NextPage = () => {
           <Form.Select
             id="country-filter"
             onChange={(e) => {
-              setPageNo(DEFAULT_PAGE_NUMBER);
+              changePage({ selected: DEFAULT_PAGE_NUMBER });
               setCountryId(parseInt(e.target.value));
               setCountryName(e.target.value);
             }}
@@ -176,12 +167,8 @@ const StateOrProvinceList: NextPage = () => {
         <Pagination
           pageNo={pageNo}
           totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          goToPage={goToPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-          onGoToPageChange={handleGoToPageChange}
-          onGoToPageSubmit={goToPageHandler}
         />
       )}
     </>

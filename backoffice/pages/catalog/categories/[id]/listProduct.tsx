@@ -18,7 +18,7 @@ const GetProductsByCategory: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -31,7 +31,7 @@ const GetProductsByCategory: NextPage = () => {
   }, [id]);
   useEffect(() => {
     setLoading(true);
-    getProductsByCategory(pageNo, itemsPerPage, categorySlug).then((data) => {
+    getProductsByCategory(pageNo, DEFAULT_PAGE_SIZE, categorySlug).then((data) => {
       setTotalPage(data.totalPages);
       setProducts(data.productContent);
       setLoading(false);
@@ -62,13 +62,7 @@ const GetProductsByCategory: NextPage = () => {
         </tbody>
       </Table>
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

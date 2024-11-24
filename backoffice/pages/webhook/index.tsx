@@ -18,7 +18,7 @@ const WebhookList: NextPage = () => {
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -32,14 +32,14 @@ const WebhookList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, webhookClassNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListWebhook();
       })
       .catch((error) => console.log(error));
   };
 
   const getListWebhook = () => {
-    getWebhooks(pageNo, itemsPerPage)
+    getWebhooks(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setWebhooks(data.webhooks);
@@ -125,13 +125,7 @@ const WebhookList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

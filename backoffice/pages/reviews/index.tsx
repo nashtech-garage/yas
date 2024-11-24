@@ -20,7 +20,7 @@ const Reviews: NextPage = () => {
   const [ratingList, setRatingList] = useState<Rating[]>([]);
   const [isDelete, setDelete] = useState<boolean>(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -32,7 +32,7 @@ const Reviews: NextPage = () => {
       queryString.stringify({
         ...watchAllFields,
         pageNo: pageNo,
-        pageSize: itemsPerPage,
+        pageSize: DEFAULT_PAGE_SIZE,
         createdFrom: moment(watchAllFields.createdFrom).format(),
         createdTo: moment(watchAllFields.createdTo).format(),
       })
@@ -53,7 +53,7 @@ const Reviews: NextPage = () => {
 
   const onSubmitSearch: SubmitHandler<RatingSearchForm> = async (data) => {
     handleGetRating();
-    setPageNo(0);
+    changePage({ selected: DEFAULT_PAGE_NUMBER });
   };
 
   const handleDeleteRating = (ratingId: number) => {
@@ -145,13 +145,7 @@ const Reviews: NextPage = () => {
         </tbody>
       </Table>
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

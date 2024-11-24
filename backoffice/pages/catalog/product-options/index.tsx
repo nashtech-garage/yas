@@ -21,7 +21,7 @@ const ProductOptionList: NextPage = () => {
   const [productOptionNameWantToDelete, setProductOptionNameWantToDelete] = useState<string>('');
   const [productOptionIdWantToDelete, setProductOptionIdWantToDelete] = useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -40,7 +40,7 @@ const ProductOptionList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, productOptionNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListProductOption();
       })
       .catch((err) => {
@@ -49,7 +49,7 @@ const ProductOptionList: NextPage = () => {
   };
 
   const getListProductOption = () => {
-    getPageableProductOptions(pageNo, itemsPerPage)
+    getPageableProductOptions(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setProductOptions(data.productOptionContent);
@@ -116,13 +116,7 @@ const ProductOptionList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

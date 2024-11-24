@@ -23,7 +23,7 @@ const ProductAttrbuteGroupList: NextPage = () => {
   const [productAttributeGroupIdWantToDelete, setProductAttributeGroupIdWantToDelete] =
     useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -42,14 +42,14 @@ const ProductAttrbuteGroupList: NextPage = () => {
       .then((response) => {
         setIsShowModalDelete(false);
         handleDeletingResponse(response, productAttributeGroupIdWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListProductAttributeGroup();
       })
       .catch((error) => console.log(error));
   };
 
   const getListProductAttributeGroup = () => {
-    getPageableProductAttributeGroups(pageNo, itemsPerPage)
+    getPageableProductAttributeGroups(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setProductAttributeGroups(data.productAttributeGroupContent);
@@ -116,13 +116,7 @@ const ProductAttrbuteGroupList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

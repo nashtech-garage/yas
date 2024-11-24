@@ -18,7 +18,7 @@ const PromotionList: NextPage = () => {
   const [promotionNameWantToDelete, setPromotionNameWantToDelete] = useState<string>('');
   const [promotionIdWantToDelete, setPromotionIdWantToDelete] = useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -41,7 +41,7 @@ const PromotionList: NextPage = () => {
     return {
       couponCode: couponCode,
       pageNo: pageNo,
-      pageSize: itemsPerPage,
+      pageSize: DEFAULT_PAGE_SIZE,
       promotionName: promotionName,
     };
   };
@@ -165,13 +165,7 @@ const PromotionList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

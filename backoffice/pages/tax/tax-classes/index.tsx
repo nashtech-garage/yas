@@ -18,7 +18,7 @@ const TaxClassList: NextPage = () => {
   const [taxClasses, setTaxClasses] = useState<TaxClass[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -32,14 +32,14 @@ const TaxClassList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, taxClassNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListTaxClass();
       })
       .catch((error) => console.log(error));
   };
 
   const getListTaxClass = () => {
-    getPageableTaxClasses(pageNo, itemsPerPage)
+    getPageableTaxClasses(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setTaxClasses(data.taxClassContent);
@@ -112,13 +112,7 @@ const TaxClassList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

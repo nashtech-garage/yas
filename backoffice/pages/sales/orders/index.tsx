@@ -20,7 +20,7 @@ const Orders: NextPage = () => {
   const [orderList, setOrderList] = useState<Order[]>([]);
   const [isDelete, setDelete] = useState<boolean>(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -31,7 +31,7 @@ const Orders: NextPage = () => {
     const params = queryString.stringify({
       ...watchAllFields,
       pageNo: pageNo,
-      pageSize: itemsPerPage,
+      pageSize: DEFAULT_PAGE_SIZE,
       createdFrom: moment(watchAllFields.createdFrom).format(),
       createdTo: moment(watchAllFields.createdTo).format(),
     });
@@ -62,7 +62,7 @@ const Orders: NextPage = () => {
 
   const onSubmitSearch: SubmitHandler<OrderSearchForm> = async (data) => {
     handleGetOrders();
-    setPageNo(0);
+    changePage({ selected: DEFAULT_PAGE_NUMBER });
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -203,13 +203,7 @@ const Orders: NextPage = () => {
         </tbody>
       </Table>
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

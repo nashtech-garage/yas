@@ -23,13 +23,13 @@ const ShowProductModel = (props: Props) => {
   const [selectedProduct, setSelectedProduct] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PRODUCT_PAGE_SIZE,
   });
 
   useEffect(() => {
-    getProducts(pageNo, itemsPerPage, '', '').then((data) => {
+    getProducts(pageNo, DEFAULT_PRODUCT_PAGE_SIZE, '', '').then((data) => {
       if (id) {
         let filterProduct = data.productContent.filter((product) => product.id !== +id);
         setProducts(filterProduct);
@@ -84,13 +84,7 @@ const ShowProductModel = (props: Props) => {
           </tbody>
         </Table>
         {totalPage > 1 && (
-          <Pagination
-            pageNo={pageNo}
-            totalPage={totalPage}
-            itemsPerPage={itemsPerPage}
-            onPageChange={changePage}
-            showHelpers={false}
-          />
+          <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
         )}
       </Modal.Body>
       <Modal.Footer>

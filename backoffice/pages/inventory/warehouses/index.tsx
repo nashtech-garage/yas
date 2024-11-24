@@ -18,7 +18,7 @@ const WarehouseList: NextPage = () => {
   const [warehouses, setWarehouses] = useState<WarehouseDetail[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, itemsPerPage, setPageNo, changePage } = usePagination({
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PAGE_SIZE,
   });
@@ -32,13 +32,13 @@ const WarehouseList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, warehouseNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListWarehouse();
       })
       .catch((error) => console.log(error));
   };
   const getListWarehouse = () => {
-    getPageableWarehouses(pageNo, itemsPerPage)
+    getPageableWarehouses(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setTotalPage(data.totalPages);
         setWarehouses(data.warehouseContent);
@@ -111,13 +111,7 @@ const WarehouseList: NextPage = () => {
         action="delete"
       />
       {totalPage > 1 && (
-        <Pagination
-          pageNo={pageNo}
-          totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={changePage}
-          showHelpers={false}
-        />
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

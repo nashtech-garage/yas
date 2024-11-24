@@ -30,22 +30,12 @@ const ProductList: NextPage = () => {
   const [productNameWantToDelete, setProductNameWantToDelete] = useState<string>('');
   const [productIdWantToDelete, setProductIdWantToDelete] = useState<number>(-1);
 
-  const {
-    pageNo,
-    totalPage,
-    setTotalPage,
-    itemsPerPage,
-    goToPage,
-    setPageNo,
-    changePage,
-    handleItemsPerPageChange,
-    handleGoToPageChange,
-    goToPageHandler,
-  } = usePagination({
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination({
     initialPageNo: DEFAULT_PAGE_NUMBER,
     initialItemsPerPage: DEFAULT_PRODUCT_PAGE_SIZE,
   });
 
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PRODUCT_PAGE_SIZE;
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
     if (productIdWantToDelete == -1) {
@@ -92,7 +82,7 @@ const ProductList: NextPage = () => {
     typingTimeOutRef = setTimeout(() => {
       let inputValue = (document.getElementById('product-name') as HTMLInputElement).value;
       setProductName(inputValue);
-      setPageNo(0);
+      changePage({ selected: DEFAULT_PAGE_NUMBER });
     }, 500);
   };
 
@@ -119,7 +109,7 @@ const ProductList: NextPage = () => {
           <Form.Select
             id="brand-filter"
             onChange={(e) => {
-              setPageNo(0);
+              changePage({ selected: DEFAULT_PAGE_NUMBER });
               setBrandName(e.target.value);
             }}
             className={styles.filterButton}
@@ -213,12 +203,8 @@ const ProductList: NextPage = () => {
         <Pagination
           pageNo={pageNo}
           totalPage={totalPage}
-          itemsPerPage={itemsPerPage}
-          goToPage={goToPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-          onGoToPageChange={handleGoToPageChange}
-          onGoToPageSubmit={goToPageHandler}
         />
       )}
     </>
