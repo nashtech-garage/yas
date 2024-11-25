@@ -4,161 +4,170 @@ title Payment Flow Init Internal PaymentCheckout
 
 actor Customer as customer #fad7a0
 
-box YAS
-    participant "Storefront" as storefront #fdf2e9        
-    participant "Order Service" as order_service #3498db    
-    entity "Checkout" as checkout #3498db
-    queue "Order.Events.Topic" as otopic #3498db
-    participant "Promotion Service" as promotion_service #8af1f0
-    participant "Inventory Service" as inventory_service #808b96
-    participant "Payment Service" as payment_service #73c6b6
-    entity "Checkout Payment" as checkout_payment #73c6b6
-    queue "Payment.Events.Topic" as payment_topic #73c6b6
-    participant "Notification Service" as notification_service #fad7a0
-end box 
-
-box "Payment Provider" #eafaf1
-    participant "Payment Provider" as payment_provider #73c6b6
-    entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
+box #E4E0E1
+    participant "Storefront" as storefront #FFF1DB
+    participant "Order Service" as order_service #77CDFF
+    database "order" as order #77CDFF
+    participant "Product Service" as product_service #77CDFF
+    queue "Order.Events.Topic" as order_topic #77CDFF
+'    entity "Checkout Payment" as checkout_payment #73c6b6
+'    queue "Payment.Events.Topic" as payment_topic #73c6b6
+'    participant "Notification Service" as notification_service #fad7a0
 end box
 
+box #eafaf1
+    participant "Inventory Service" as inventory_service #8af1f0
+    participant "Promotion Service" as promotion_service #8af1f0
+    participant "Delivery Service" as delivery_service #8af1f0
+    participant "Customer Service" as customer_service #8af1f0
+end box
+
+box #F4D9D0
+    participant "Payment Service" as payment_service #73c6b6
+end box
+
+box #F3EEEA
+    participant "Shipmen Providers" as shipment_provider #73c6b6
+    participant "Payment Provider" as payment_provider #73c6b6
+end box
+
+
 customer -> storefront: Proceed to payment
-activate storefront #fdf2e9   
+activate storefront #FFF
   storefront -> order_service: POST /order/checkouts/{checkout_id}/process-payment
-  activate order_service #3498db
-    order_service -> checkout **: find by {checkout_id}
-    order_service -> checkout: update { status=PAYMENT_PROCESSING, progress=INIT }   
-    activate checkout #3498db
-      checkout --> otopic: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=INIT }
-    deactivate checkout
-    storefront <-- order_service: 202 ACCEPTED
-  deactivate order_service
-deactivate storefrontt
-otopic -> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=INIT }
-activate order_service #3498db
-  alt PROMOCODE is provided 
-    
-    order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/apply {checkout_id }
-    activate promotion_service #8af1f0
-      promotion_service --> order_service: 201 CREATED
-    deactivate promotion_service 
+  activate order_service #77CDFF
+    order_service -> order: Find by {checkout_id}
+    activate order
+        order --> order_service: Checkout{...}
+    deactivate
 
-    alt #f1948a "Promotion is no more valid"
-      order_service --> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=PROMOTION_CODE_APPLYING_FAILED, ErrorCode, ErrorMessage }
-    else #ffffff
-      order_service --> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=PROMOTION_CODE_APPLIED }
-      activate checkout #3498db
-        checkout -> otopic: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=PROMOTION_CODE_APPLIED }
-      deactivate checkout
+    'Product integration'
+'    order_service -> product_service: Find product items {product_ids}
+'    activate product_service
+'        product_service --> order_service: Product[...]
+'    deactivate
+
+    ||50||
+
+    order_service -> inventory_service: Get products inventory info {product_ids}
+    activate inventory_service
+        inventory_service --> order_service: ProductInventory[...]
+    deactivate
+
+    alt #pink Products out of stock
+        order_service -> order: Update Checkout status
+        activate order
+            order --> order_service
+        deactivate
+        storefront <-- order_service: 400 BAD REQUEST
+        ||10||
     end
-  else "Process Product Stocks Locking"
-    order_service -> inventory_service: POST /inventory/products/stocks \n{ checkout_id, product_items }
-    activate inventory_service #808b96
-      inventory_service --> order_service: confirmation { product_items }
-      note right of order_service
-        Stock confirmation, list out state of stock
-        {
-          <product_id_01>: OK,
-          <product_id_02>: OUT_OF_STOCK,
-          <product_id_03>: OK
-        }
-      end note
-    deactivate inventory_service
-    
-    alt #f1948a "any out of stock"
-      order_service -> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=STOCK_LOCKING_FAILED, ErrorCode, ErrorMessage }
-    else #ffffff
-      order_service -> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=STOCK_LOCKED }
-    end 
 
-  end
-deactivate order_service
+    ||50||
+    order_service -> promotion_service: Get promotion {promotion_code}
+    activate promotion_service
+        promotion_service --> order_service: Promotion[...]
+    deactivate
 
-otopic -> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=PROMOTION_CODE_APPLIED }
-activate order_service #3498db
-  break
-    note right of order_service
-      Ref to "Process Product Stocks Locking"
-    end note
-  end 
-deactivate order_service
+    alt #pink Promotion is Invalid
+        order_service -> order: Update Checkout status
+        activate order
+            order --> order_service
+        deactivate
+        storefront <-- order_service: 400 BAD REQUEST
+        ||10||
+    end
 
-otopic -> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=STOCK_LOCKED }
-activate order_service #3498db
-  order_service -> payment_service: POST /payment/payments { checkout }
-    note right of order_service
-      checkout includes:
-        - payment_method
-        - product_items
-        - shipment_fees
-        - taxes
-    end note 
-    activate payment_service #73c6b6 
-      payment_service -> checkout_payment **: create { status=(payment_type is COD ? PROCESSING : NEW), \npayment_provider_checkout_id, \ncheckout_id, \nproduct_items, \nshipment_fees, \ntaxes, \npayment_type: checkout.payment_method }
-      order_service <-- payment_service: checkout_payment
-      note right of order_service
-        checkout_payment:
-          - payment_id
-          - checkout
-          - payment_type
-      end note
-      activate checkout_payment #73c6b6 
-        checkout_payment --> payment_topic: Event: CDC_EVENT_PAYMENT_CREATED \n{ checkout_id, payment_id}
-      deactivate checkout_payment
+    ||50||
+    group Delivery
+      order_service -> delivery_service: Get delivery fee {shipping_address_id}
+      activate delivery_service
+        note left: optional
+        delivery_service -> customer_service: Get Address {addressId}
+        activate customer_service
+            customer_service -> delivery_service: Address{...}
+        deactivate customer_service
+        ||20||
+        delivery_service -> shipment_provider: Get Shipping Fee {address_info}
+        activate shipment_provider
+            shipment_provider -> delivery_service: ShippingFee{...}
+        deactivate shipment_provider
+
+        delivery_service --> order_service: DeliveryInfo[...]
+      deactivate delivery_service
+
+      alt #pink Product Quantity Invalid
+        order_service -> order: Update Checkout status
+        activate order
+            order --> order_service
+        deactivate order
+        storefront <-- order_service: 400 BAD REQUEST
+        ||10||
+      end
+      ||10||
+    end
+
+    ||50||
+    group #AFC8AD Update Checkout & Create Order:
+        order_service -> order: Update Checkout status
+        activate order
+            order --> order_service
+        deactivate order
+
+        order_service -> order: Create Order
+        activate order
+            order --> order_service
+        deactivate order
+        ||10||
+    end
+
+    alt #pink Failed
+        storefront <-- order_service: 400 BAD REQUEST
+        ||10||
+    end
+
+    ||50||
+    order_service -> payment_service: Capture payment {payment_info}
+    activate payment_service
+        payment_service --> order_service: CapturePaymentInfo[redirectUrl, returnUrl, cancelUrl, etc.]
     deactivate payment_service
-    alt #ffffff "Payment creation success"
-      order_service -> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=PAYMENT_CREATED, attributes { payment_id } }
-    else #f1948a "Payment creation failed"
-      order_service -> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=PAYMENT_CREATING_FAILED, ErrorCode, ErrorMessage }      
-    end 
-deactivate order_service
+        payment_service -> payment_provider: Proceed to payment
+        activate payment_provider
+            payment_provider --> payment_service: PaymentResultInfo{redirectUrl, }
+        deactivate payment_provider
+    alt Capture Payment successfully
+        ||20||
+        order_service --> storefront: CapturePaymentInfo[redirectUrl, etc.]
+        storefront -> payment_provider: Redirect to PaymentProvider
+        activate payment_provider
+        deactivate payment_provider
+    else #pink Process Payment failed
+        order_service -> order: Update Checkout status
+        activate order
+            order --> order_service
+        deactivate order
+        storefront <-- order_service: 400 BAD REQUEST
+        ||10||
+    end
 
-otopic -> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=STOCK_LOCKING_FAILED }
-activate order_service #3498db
-  order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/rollback { checkout_id }
-  order_service -> checkout: update { checkout_id, status=CHECKED_OUT, progress=ERROR_PROMOCODE_APPLYING_FAILED, ErrorCode, ErrorMessage }
-deactivate order_service
+    ||50||
 
-otopic -> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=PROMOTION_CODE_APPLYING_FAILED }
-activate order_service #3498db
-  order_service -> checkout: update { checkout_id, status=CHECKED_OUT, progress=PROMOTION_CODE_APPLYING_FAILED, ErrorCode, ErrorMessage }
-deactivate order_service
-
-otopic -> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_PROCESSING, progress=PAYMENT_CREATING_FAILED }
-activate order_service #3498db
-  order_service -> otopic: Message: COMMAND_ROLLBACK_PROMOTION \n{ checkout_id, PROMOCODE }
-  order_service -> otopic: Message: COMMAND_ROLLBACK_PRODUCT_STOCK \n{ checkout }
-  order_service -> checkout: update { checkout_id, status=CHECKED_OUT, progress=PAYMENT_CREATING_FAILED, ErrorCode, ErrorMessage }
-deactivate order_service
-
-otopic -> order_service: Message: COMMAND_ROLLBACK_PROMOTION 
-activate order_service #3498db
-  order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/rollback { checkout_id } 
-  activate promotion_service #8af1f0
-  deactivate promotion_service
-deactivate  order_service
-
-otopic -> order_service: Message: COMMAND_ROLLBACK_PRODUCT_STOCK 
-activate order_service #3498db
-  order_service -> inventory_service: POST /inventory/products/stocks/rollback { checkout_id, product_items }
-  activate inventory_service #808b96
-  deactivate inventory_service
-deactivate  order_service
-
-payment_topic --> payment_service: Event: CDC_EVENT_PAYMENT_CREATED \n{ checkout_id, payment_id }
-activate payment_service #73c6b6
-  payment_service -> checkout_payment: find (payment_id)
-  alt payment_type is NOT COD:
-    payment_service  -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
-    activate payment_provider #73c6b6          
-      payment_provider -> payment_provider_checkout **: create checkout
-      payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
-      payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
-    deactivate payment_provider
-    payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
-    activate checkout_payment #73c6b6 
-      checkout_payment -> payment_topic: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
-    deactivate checkout_payment    
-  end 
-deactivate payment_service
+    order_service -> order_topic: Publish order creation message
+    storefront <-- order_service: 202 ACCEPTED
+    activate order_topic
+        order_topic -> inventory_service: Update Inventory
+        activate inventory_service
+        deactivate inventory_service
+        ||10||
+        order_topic -> promotion_service: Update Promotion
+        activate promotion_service
+        deactivate promotion_service
+        ||10||
+        order_topic -> delivery_service: Create Order Delivery
+        activate delivery_service
+        deactivate delivery_service
+        ||10||
+    deactivate order_topic
+  deactivate order_service
+deactivate storefront
 @enduml

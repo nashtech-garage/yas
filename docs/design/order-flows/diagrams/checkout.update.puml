@@ -1,0 +1,87 @@
+@startuml Payment Flow. Payment Initialization
+
+title Checkout to Payment flow
+
+skinparam ParticipantPadding 200
+actor Customer as customer #fad7a0
+
+====
+
+||40||
+customer -> storefront: 1. Init checkout
+activate storefront #fdf2e9
+customer <-- storefront: Checkout{id, state=INITIATION}
+deactivate
+||40||
+
+====
+
+customer -> storefront: 2. Update checkout {checkout_id, checkout_info{...}}
+    ||10||
+activate storefront #fdf2e9
+    alt #C2FFC7 Valid checkout
+        ||10||
+        customer <-- storefront: Checkout{state=FULFILL, error=[]}
+    else #FAF6E3 Invalid checkout
+        customer <-- storefront: Checkout{state=UNCOMPLETED, error=[INVALID_ADDRESS, etc.]}
+        ||10||
+    end
+deactivate
+
+note right
+1)
+- Update items total amount.
+- Update tax.
+- Update promotion.
+- Update shipping fee.
+
+---
+2)
+- Update checkout state.
+end note
+
+||40||
+
+====
+
+customer -> storefront: 3. Process to Payment {checkout_id}
+||10||
+
+activate storefront #fdf2e9
+
+    alt checkout.state = FULFILL
+        alt #C2FFC7 Success
+            ||10||
+            customer <-- storefront: "Payment successful"
+        else #Pink Failed
+            customer <-- storefront: "Payment failed"
+            ||10||
+        end
+    ||5||
+    else #Pink checkout.state != FULFILL
+        ||10||
+        customer <-- storefront: "Payment failed"
+        ||10||
+    end
+deactivate
+
+
+note right
+1)
+- Validate stock.
+- Validate promotion.
+- Validate shipping fee (optional).
+
+---
+2)
+- Process Payment.
+
+---
+3)
+- Update product quantity.
+- Update promotion.
+end note
+
+
+||40||
+@enduml
