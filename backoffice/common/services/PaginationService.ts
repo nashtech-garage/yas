@@ -29,23 +29,19 @@ const usePagination = ({
     }
   }, []);
 
-  const handleGoToPage = useCallback(
-    (e?: React.ChangeEvent<HTMLInputElement>, submit?: boolean) => {
-      if (e) {
-        setGoToPage(e.target.value);
-      }
-      if (submit) {
-        const page = parseInt(goToPage, 10) - 1; // Convert to zero-based index
-        if (!isNaN(page) && page >= 0 && page < totalPage) {
-          setPageNo(page);
-          setGoToPage('');
-        } else {
-          alert(`Invalid page number: "${goToPage}" (Expected: 1 - ${totalPage})`);
-        }
-      }
-    },
-    [goToPage, totalPage]
-  );
+  const handleGoToPageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setGoToPage(e.target.value);
+  }, []);
+
+  const handleGoToPageSubmit = useCallback(() => {
+    const page = parseInt(goToPage, 10) - 1; // Convert to zero-based index
+    if (!isNaN(page) && page >= 0 && page < totalPage) {
+      setPageNo(page);
+      setGoToPage('');
+    } else {
+      alert(`Invalid page number: "${goToPage}" (Expected: 1 - ${totalPage})`);
+    }
+  }, [goToPage, totalPage]);
 
   const paginationControls = useMemo(
     () => ({
@@ -55,11 +51,11 @@ const usePagination = ({
       },
       goToPage: {
         value: goToPage,
-        onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleGoToPage(e),
-        onSubmit: () => handleGoToPage(undefined, true),
+        onChange: handleGoToPageChange,
+        onSubmit: handleGoToPageSubmit,
       },
     }),
-    [itemsPerPage, goToPage, handleGoToPage]
+    [itemsPerPage, goToPage, handleGoToPageChange, handleGoToPageSubmit]
   );
 
   return {
