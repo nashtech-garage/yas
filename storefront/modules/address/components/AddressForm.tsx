@@ -164,7 +164,7 @@ const AddressForm = ({ register, errors, address, isDisplay, setValue }: Address
             </div>
           </div>
         </div>
-        <div className="row">
+        <div className="row mb-5">
           <div className="col-lg-10">
             <div className="checkout__input">
               <Input

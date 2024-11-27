@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { Input } from 'common/items/Input';
 import { Address } from '@/modules/address/models/AddressModel';
 import AddressForm from '@/modules/address/components/AddressForm';
+import DeliveryForm from '@/modules/delivery/DeliveryForm';
 import { createOrder, getCheckoutById } from '@/modules/order/services/OrderService';
 import * as yup from 'yup';
 import {
@@ -40,18 +41,26 @@ const Checkout = () => {
   const router = useRouter();
   const { id } = router.query;
   const [checkout, setCheckout] = useState<Checkout>();
+
   const {
     handleSubmit,
     register,
     formState: { errors },
     watch,
   } = useForm<Order>();
+
   const {
     register: registerShippingAddress,
     setValue: setValueShippingAddress,
     formState: { errors: errorsShippingAddress },
     watch: watchShippingAddress,
   } = useForm<Address>();
+
+  const {
+    register: registerDelivery,
+    setValue: setValueDelivery,
+    formState: { errors: errorsDelivery },
+  } = useForm();
 
   const {
     register: registerBillingAddress,
@@ -286,6 +295,14 @@ const Checkout = () => {
                       setValue={setValueShippingAddress}
                       errors={errorsShippingAddress}
                       address={undefined}
+                    />
+
+                    <h4>Delivery Method</h4>
+                    <DeliveryForm
+                      isDisplay={true}
+                      register={registerDelivery} // Delivery-specific register
+                      setValue={setValueDelivery} // Delivery-specific setValue
+                      errors={errorsDelivery} // Delivery-specific errors
                     />
 
                     <h4>Billing Address</h4>
