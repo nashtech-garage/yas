@@ -138,7 +138,7 @@ class CheckoutServiceTest {
 
         when(checkoutRepository.save(any())).thenReturn(checkoutCreated);
         when(checkoutItemRepository.saveAll(anyCollection())).thenReturn(List.of());
-        
+
         NotFoundException exception = assertThrows(NotFoundException.class, () -> checkoutService.createCheckout(checkoutPostVm));
         assertThat(exception).hasMessage("PRODUCT_NOT_FOUND");
     }

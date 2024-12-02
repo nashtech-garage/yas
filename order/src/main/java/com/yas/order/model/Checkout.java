@@ -95,8 +95,4 @@ public class Checkout extends AbstractAuditEntity {
     @JsonManagedReference
     @Builder.Default
     private List<CheckoutItem> checkoutItems = new ArrayList<>();
-
-    public void addAmount(BigDecimal a) {
-        this.totalAmount = this.totalAmount.add(a);
-    }
 }

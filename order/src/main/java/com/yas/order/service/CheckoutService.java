@@ -14,6 +14,7 @@ import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.utils.Constants;
+import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutItemVm;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
@@ -21,7 +22,6 @@ import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutVm;
 import com.yas.order.viewmodel.product.ProductCheckoutListVm;
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,14 +43,18 @@ public class CheckoutService {
     private final ProductService productService;
     private final CheckoutMapper checkoutMapper;
 
+    /**
+     * Creates a new {@link Checkout} object in a PENDING state.
+     *
+     * @param checkoutPostVm the view model containing checkout details and items
+     * @return a {@link CheckoutVm} object representing the newly created checkout
+     */
     public CheckoutVm createCheckout(CheckoutPostVm checkoutPostVm) {
-
         Checkout checkout = checkoutMapper.toModel(checkoutPostVm);
         checkout.setCheckoutState(CheckoutState.PENDING);
         checkout.setCustomerId(AuthenticationUtils.extractUserId());
 
-        checkout = setCheckoutItems(checkout, checkoutPostVm);
-
+        prepareCheckoutItems(checkout, checkoutPostVm);
         checkout = checkoutRepository.save(checkout);
 
         CheckoutVm checkoutVm = checkoutMapper.toVm(checkout);
@@ -59,54 +63,57 @@ public class CheckoutService {
                 .map(checkoutMapper::toVm)
                 .collect(Collectors.toSet());
         log.info(Constants.MessageCode.CREATE_CHECKOUT, checkout.getId(), checkout.getCustomerId());
-        return checkoutVm.toBuilder().checkoutItemVms(checkoutItemVms).build();
+        return checkoutVm.toBuilder()
+                .checkoutItemVms(checkoutItemVms)
+                .build();
     }
 
-    private Checkout setCheckoutItems(Checkout checkout, CheckoutPostVm checkoutPostVm) {
-        Set<Long> productIds = new HashSet<>();
+    private void prepareCheckoutItems(Checkout checkout, CheckoutPostVm checkoutPostVm) {
+        Set<Long> productIds = checkoutPostVm.checkoutItemPostVms()
+                .stream()
+                .map(CheckoutItemPostVm::productId)
+                .collect(Collectors.toSet());
+
         List<CheckoutItem> checkoutItems = checkoutPostVm.checkoutItemPostVms()
                 .stream()
-                .map(checkoutItemPostVm -> {
-                    CheckoutItem item = checkoutMapper.toModel(checkoutItemPostVm);
+                .map(checkoutMapper::toModel)
+                .map(item -> {
                     item.setCheckout(checkout);
-                    productIds.add(item.getProductId());
                     return item;
-                })
-                .toList();
+                }).toList();
 
         Map<Long, ProductCheckoutListVm> products
                 = productService.getProductInfomation(productIds, 0, productIds.size());
-        associateProductWithCheckoutItem(checkout, products, checkoutItems);
 
-        checkout.setCheckoutItems(checkoutItems);
-        return checkout;
+        List<CheckoutItem> enrichedItems = enrichCheckoutItemsWithProductDetails(products, checkoutItems);
+        BigDecimal totalAmount = enrichedItems.stream()
+                .map(item -> item.getProductPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        checkout.setCheckoutItems(enrichedItems);
+        checkout.setTotalAmount(totalAmount);
     }
 
-    private void associateProductWithCheckoutItem(
-            Checkout checkout,
+    private List<CheckoutItem> enrichCheckoutItemsWithProductDetails(
             Map<Long, ProductCheckoutListVm> products,
             List<CheckoutItem> checkoutItems) {
-        checkoutItems.forEach(t -> {
-            ProductCheckoutListVm product = products.get(t.getProductId());
+        return checkoutItems.stream().map(item -> {
+            ProductCheckoutListVm product = products.get(item.getProductId());
             if (product == null) {
-                throw new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, t.getProductId());
-            } else {
-                t.setProductName(product.getName());
-                t.setProductPrice(BigDecimal.valueOf(product.getPrice()));
-                checkout.addAmount(
-                        BigDecimal.valueOf(product.getPrice())
-                                .multiply(BigDecimal.valueOf(t.getQuantity()))
-                );
+                throw new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, item.getProductId());
             }
-        });
+            return item.toBuilder()
+                    .productName(product.getName())
+                    .productPrice(BigDecimal.valueOf(product.getPrice()))
+                    .build();
+        }).toList();
     }
 
     public CheckoutVm getCheckoutPendingStateWithItemsById(String id) {
-
         Checkout checkout = checkoutRepository.findByIdAndCheckoutState(id, CheckoutState.PENDING).orElseThrow(()
                 -> new NotFoundException(CHECKOUT_NOT_FOUND, id));
 
-        if (!checkout.getCreatedBy().equals(AuthenticationUtils.extractUserId())) {
+        if (isNotOwnedByCurrentUser(checkout)) {
             throw new ForbiddenException(ApiConstant.FORBIDDEN, "You can not view this checkout");
         }
 
@@ -128,6 +135,11 @@ public class CheckoutService {
     public Long updateCheckoutStatus(CheckoutStatusPutVm checkoutStatusPutVm) {
         Checkout checkout = checkoutRepository.findById(checkoutStatusPutVm.checkoutId())
                 .orElseThrow(() -> new NotFoundException(CHECKOUT_NOT_FOUND, checkoutStatusPutVm.checkoutId()));
+
+        if (isNotOwnedByCurrentUser(checkout)) {
+            throw new ForbiddenException(ApiConstant.FORBIDDEN, "You are not authorized to update this checkout");
+        }
+
         checkout.setCheckoutState(CheckoutState.valueOf(checkoutStatusPutVm.checkoutStatus()));
         checkoutRepository.save(checkout);
         log.info(Constants.MessageCode.UPDATE_CHECKOUT_STATUS,
@@ -149,5 +161,9 @@ public class CheckoutService {
                 checkout.getPaymentMethodId()
         );
         checkoutRepository.save(checkout);
+    }
+
+    private boolean isNotOwnedByCurrentUser(Checkout checkout) {
+        return !checkout.getCreatedBy().equals(AuthenticationUtils.extractUserId());
     }
 }

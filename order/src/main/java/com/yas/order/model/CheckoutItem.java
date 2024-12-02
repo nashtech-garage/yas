@@ -22,7 +22,7 @@ import lombok.Setter;
 @Table(name = "checkout_item")
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class CheckoutItem extends AbstractAuditEntity {
