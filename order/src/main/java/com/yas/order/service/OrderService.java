@@ -5,6 +5,7 @@ import static com.yas.order.utils.Constants.ErrorCode.ORDER_NOT_FOUND;
 import com.yas.commonlibrary.csv.BaseCsv;
 import com.yas.commonlibrary.csv.CsvExporter;
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.utils.AuthenticationUtils;
 import com.yas.order.mapper.OrderMapper;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
@@ -17,7 +18,6 @@ import com.yas.order.model.request.OrderRequest;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
 import com.yas.order.specification.OrderSpecification;
-import com.yas.order.utils.AuthenticationUtils;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
@@ -216,7 +216,7 @@ public class OrderService {
 
     public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {
 
-        String userId = AuthenticationUtils.getCurrentUserId();
+        String userId = AuthenticationUtils.extractUserId();
 
         List<ProductVariationVm> productVariations = productService.getProductVariations(productId);
 
@@ -235,7 +235,7 @@ public class OrderService {
     }
 
     public List<OrderGetVm> getMyOrders(String productName, OrderStatus orderStatus) {
-        String userId = AuthenticationUtils.getCurrentUserId();
+        String userId = AuthenticationUtils.extractUserId();
         Specification<Order> orderSpec = OrderSpecification.findMyOrders(userId, productName, orderStatus);
         Sort sort = Sort.by(Sort.Direction.DESC, Constants.Column.CREATE_ON_COLUMN);
         List<Order> orders = orderRepository.findAll(orderSpec, sort);

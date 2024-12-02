@@ -14,16 +14,16 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = "spring")
 @Component
 public interface CheckoutMapper {
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkout", ignore = true)
     CheckoutItem toModel(CheckoutItemPostVm checkoutItemPostVm);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkoutState", ignore = true)
-    @Mapping(target = "totalAmount", source = "totalAmount") // Ánh xạ tường minh cho totalAmount
-    @Mapping(target = "totalDiscountAmount", source = "totalDiscountAmount")
     Checkout toModel(CheckoutPostVm checkoutPostVm);
 
+    @Mapping(target = "checkoutId", source = "checkout.id")
     CheckoutItemVm toVm(CheckoutItem checkoutItem);
 
     @Mapping(target = "checkoutItemVms", ignore = true)
