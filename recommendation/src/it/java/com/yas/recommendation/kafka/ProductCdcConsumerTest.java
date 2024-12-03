@@ -111,7 +111,6 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
 
         // Given
         long productId = 1L;
-        ProductDetailVm response = getProductDetailVm(productId);
 
         // When
         when(embeddingModel.embed(any(Document.class))).thenReturn(randomEmbed());
@@ -158,13 +157,11 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
         simulateHttpRequestWithResponseToEntity(url, response, ProductDetailVm.class);
 
         // Sending CDC Event
-        sendMsg(
-            ProductMsgKey.builder().id(productId).build(),
+        sendMsg(ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
                 .op(CREATE)
                 .after(Product.builder().id(productId).isPublished(true).build())
-                .build()
-        );
+                .build());
 
         // Then
         waitForConsumer(2, 1, 0, 0);
@@ -182,13 +179,11 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
         simulateHttpRequestWithResponseToEntity(url2, response2, ProductDetailVm.class);
 
         // Sending CDC Event
-        sendMsg(
-            ProductMsgKey.builder().id(productId).build(),
+        sendMsg(ProductMsgKey.builder().id(productId2).build(),
             ProductCdcMessage.builder()
                 .op(CREATE)
                 .after(Product.builder().id(productId2).isPublished(true).build())
-                .build()
-        );
+                .build());
 
         // Verify consumer
         waitForConsumer(2, 1, 0, 0);
@@ -239,8 +234,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
             ProductCdcMessage.builder()
                 .op(UPDATE)
                 .after(Product.builder().id(productId).isPublished(true).build())
-                .build()
-        );
+                .build());
 
         // Verify consumer
         waitForConsumer(2, 2, 0, 0);

@@ -417,6 +417,8 @@ services:
     build: ./sampledata
     image: ghcr.io/nashtech-garage/yas-sampledata:latest
     environment:
+      - SPRING_DATASOURCE_PRODUCT_URL=jdbc:postgresql://postgres:5432/product
+      - SPRING_DATASOURCE_MEDIA_URL=jdbc:postgresql://postgres:5432/media
       - SERVER_SERVLET_CONTEXT_PATH=/sampledata
       - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/sampledata
       - YAS_SERVICES_SAMPLE_DATA
