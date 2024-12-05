@@ -127,12 +127,12 @@ server {
 }
 
 server {
-  server_name akhq;
+  server_name kafka-ui;
 
   resolver 127.0.0.11;
 
   location / {
-    set $docker_akhq_host "akhq";
-    proxy_pass http://$docker_akhq_host:8080;
+    set $docker_kafka-ui_host "kafka-ui";
+    proxy_pass http://$docker_kafka-ui_host:8080;
   }
 }
