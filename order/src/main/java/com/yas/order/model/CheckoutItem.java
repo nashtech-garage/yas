@@ -1,6 +1,8 @@
 package com.yas.order.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.yas.commonlibrary.model.AbstractAuditEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

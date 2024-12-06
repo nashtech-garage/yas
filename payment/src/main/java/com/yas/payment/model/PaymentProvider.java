@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.domain.Persistable;
 
+import com.yas.commonlibrary.model.AbstractAuditEntity;
+
 @DynamicUpdate
 @Entity
 @Table(name = "payment_provider")

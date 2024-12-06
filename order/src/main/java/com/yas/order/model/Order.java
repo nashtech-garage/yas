@@ -1,6 +1,7 @@
 package com.yas.order.model;
 
 
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
