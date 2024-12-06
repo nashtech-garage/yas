@@ -3,18 +3,19 @@ package com.yas.payment.service;
 import static com.yas.commonlibrary.utils.AuthenticationUtils.extractJwt;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.yas.payment.config.ServiceUrlConfig;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.viewmodel.paymentprovider.MediaVm;
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -35,47 +36,33 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
         this.serviceUrlConfig = serviceUrlConfig;
     }
 
+    @Retry(name = "restApi")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "fallbackGetMediaVmMap")
     public Map<Long, MediaVm> getMediaVmMap(List<PaymentProvider> providers) {
-        if (providers.isEmpty()) {
+        Set<Long> mediaIds = getMediaIds(providers);
+        if (mediaIds.isEmpty()) {
             return Collections.emptyMap();
         }
+        final URI url = getMediasUrl(mediaIds);
+        log.debug("Fetch media to get payment provider medias: {}", url);
+        var medias = restClient.get()
+            .uri(url)
+            .headers(h -> h.setBearerAuth(extractJwt()))
+            .retrieve()
+            .body(new ParameterizedTypeReference<List<MediaVm>>() {});
 
-        try {
-            final URI url = getMediasUrl(providers);
-
-            log.debug("Fetch media to get payment provider medias: {}", url);
-            var medias = restClient.get()
-                .uri(url)
-                .headers(h -> h.setBearerAuth(extractJwt()))
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<MediaVm>>() {});
-
-            Map<Long, MediaVm> mediaVmMap = new HashMap<>();
-            if (!isEmpty(medias)) {
-                mediaVmMap = medias
-                    .stream()
-                    .collect(
-                        toMap(
-                            MediaVm::getId,
-                            identity(),
-                            (existing, duplicate) -> {
-                                log.debug("Duplicate payment provider media {}", existing.getId());
-                                return existing;
-                            }
-                        )
-                    );
-            }
-            return mediaVmMap;
-        } catch (Exception exception) {
-            log.error("Get payment providers media got error: {}", exception.getMessage());
-            return Collections.emptyMap();
-        }
+        return medias.stream().collect(toMap(MediaVm::getId, identity()));
     }
 
-    private URI getMediasUrl(List<PaymentProvider> providers) {
-        var iconIds = providers.stream()
-            .filter(pm -> Objects.nonNull(pm.getMediaId()))
-            .map(pm -> String.valueOf(pm.getMediaId()))
+    private Set<Long> getMediaIds(List<PaymentProvider> providers) {
+        return providers.stream()
+                .map(PaymentProvider::getMediaId)
+                .collect(Collectors.toSet());
+    }
+
+    private URI getMediasUrl(Set<Long> mediaIds) {
+        var iconIds = mediaIds.stream()
+            .map(String::valueOf)
             .collect(Collectors.joining(","));
         return UriComponentsBuilder
             .fromHttpUrl(serviceUrlConfig.media())
@@ -83,6 +70,13 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
             .queryParam(IDS_PARAMS, iconIds)
             .build()
             .toUri();
+    }
+
+    private Map<Long, MediaVm> fallbackGetMediaVmMap(List<PaymentProvider> providers,
+            Throwable throwable) {
+        log.error("Failed to get media for IDs: {}", providers.stream().map(PaymentProvider::getMediaId).toList());
+        log.error("Fallback triggered for getMediaVmMap", throwable);
+        return Collections.emptyMap();
     }
 
 }

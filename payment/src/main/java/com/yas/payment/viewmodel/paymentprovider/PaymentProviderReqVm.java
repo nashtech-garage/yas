@@ -10,8 +10,7 @@ public class PaymentProviderReqVm {
     @NotNull
     private String id;
 
-    @JsonProperty("isEnabled")
-    private boolean isEnabled;
+    private boolean enabled;
 
     @NotNull
     private String name;

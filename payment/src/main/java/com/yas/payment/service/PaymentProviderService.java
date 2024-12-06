@@ -55,9 +55,9 @@ public class PaymentProviderService {
      */
     @Transactional
     public PaymentProviderVm create(CreatePaymentVm createPaymentVm) {
-        var pm = createPaymentProviderMapper.toModel(createPaymentVm);
-        var pmProvider = paymentProviderRepository.save(pm);
-        return createPaymentProviderMapper.toVmResponse(pmProvider);
+        var paymentProvider = createPaymentProviderMapper.toModel(createPaymentVm);
+        var savedPaymentProvider = paymentProviderRepository.save(paymentProvider);
+        return createPaymentProviderMapper.toVmResponse(savedPaymentProvider);
     }
 
     /**
@@ -84,7 +84,7 @@ public class PaymentProviderService {
      * @return enabled providers.
      */
     public List<PaymentProviderVm> getEnabledPaymentProviders(Pageable pageable) {
-        var providers = paymentProviderRepository.findByIsEnabledTrue(pageable);
+        var providers = paymentProviderRepository.findByEnabledTrue(pageable);
         if (providers.isEmpty()) {
             log.debug("No enabled payment provider found");
             return Collections.emptyList();

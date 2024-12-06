@@ -24,14 +24,14 @@ public class PaymentProviderController {
         this.paymentProviderService = paymentProviderService;
     }
 
-    @PostMapping("/storefront/payment-providers")
+    @PostMapping("/backoffice/payment-providers")
     public ResponseEntity<PaymentProviderVm> create(@Valid @RequestBody CreatePaymentVm createPaymentVm) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(paymentProviderService.create(createPaymentVm));
     }
 
-   @PutMapping("/storefront/payment-providers")
+   @PutMapping("/backoffice/payment-providers")
     public ResponseEntity<PaymentProviderVm> update(@Valid @RequestBody UpdatePaymentVm updatePaymentVm) {
         return ResponseEntity.ok(paymentProviderService.update(updatePaymentVm));
     }

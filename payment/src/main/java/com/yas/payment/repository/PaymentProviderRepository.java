@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PaymentProviderRepository extends JpaRepository<PaymentProvider, String> {
 
-    List<PaymentProvider> findByIsEnabledTrue(Pageable pageable);
+    List<PaymentProvider> findByEnabledTrue(Pageable pageable);
 
 }

@@ -22,7 +22,7 @@ import org.springframework.data.domain.Persistable;
 public class PaymentProvider extends AbstractAuditEntity implements Persistable<String> {
     @Id
     private String id;
-    private boolean isEnabled;
+    private boolean enabled;
     private String name;
     private String configureUrl;
     private String landingViewComponentName;

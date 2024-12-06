@@ -15,7 +15,6 @@ import com.yas.payment.mapper.UpdatePaymentProviderMapper;
 import com.yas.payment.model.PaymentProvider;
 import com.yas.payment.repository.PaymentProviderRepository;
 import com.yas.payment.viewmodel.paymentprovider.CreatePaymentVm;
-import com.yas.payment.viewmodel.paymentprovider.PaymentProviderReqVm;
 import com.yas.payment.viewmodel.paymentprovider.PaymentProviderVm;
 import com.yas.payment.viewmodel.paymentprovider.UpdatePaymentVm;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 
 class PaymentProviderServiceTest {
@@ -155,23 +153,23 @@ class PaymentProviderServiceTest {
     @Test
     void getEnabledPaymentProviders_ShouldReturnListOfEnabledPaymentProviders() {
         List<PaymentProvider> enabledProviders = List.of(paymentProvider);
-        when(paymentProviderRepository.findByIsEnabledTrue(defaultPageable)).thenReturn(enabledProviders);
+        when(paymentProviderRepository.findByEnabledTrue(defaultPageable)).thenReturn(enabledProviders);
 
         List<PaymentProviderVm> result = paymentProviderService.getEnabledPaymentProviders(defaultPageable);
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().getId()).isEqualTo(paymentProvider.getId());
-        verify(paymentProviderRepository, times(1)).findByIsEnabledTrue(defaultPageable);
+        verify(paymentProviderRepository, times(1)).findByEnabledTrue(defaultPageable);
     }
 
     @Test
     void getEnabledPaymentProviders_ShouldReturnEmptyList_WhenNoEnabledPaymentProvidersExist() {
-        when(paymentProviderRepository.findByIsEnabledTrue(defaultPageable)).thenReturn(List.of());
+        when(paymentProviderRepository.findByEnabledTrue(defaultPageable)).thenReturn(List.of());
 
         List<PaymentProviderVm> result = paymentProviderService.getEnabledPaymentProviders(defaultPageable);
 
         assertThat(result).isEmpty();
-        verify(paymentProviderRepository, times(1)).findByIsEnabledTrue(defaultPageable);
+        verify(paymentProviderRepository, times(1)).findByEnabledTrue(defaultPageable);
     }
 
     private static @NotNull PaymentProvider getPaymentProvider(String randomVal) {
@@ -204,4 +202,3 @@ class PaymentProviderServiceTest {
         return updatePaymentVm;
     }
 }
-
