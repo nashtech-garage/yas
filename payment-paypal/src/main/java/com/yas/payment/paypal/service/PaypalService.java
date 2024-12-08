@@ -81,8 +81,8 @@ public class PaypalService {
             CheckoutIdHelper.setCheckoutId(createPaymentRequest.checkoutId());
             return new PaypalCreatePaymentResponse("success", order.id(), redirectUrl);
         } catch (IOException e) {
-            log.error(e.getMessage());
-            return new PaypalCreatePaymentResponse("Error" + e.getMessage(),null, null);
+            log.error("Failed to create paypal payment", e);
+            return new PaypalCreatePaymentResponse("Error" + e.getMessage(), null, null);
         }
     }
 

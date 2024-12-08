@@ -64,9 +64,7 @@ public class MediaServiceImpl implements MediaService {
         if (noFileMediaVm == null) {
             return null;
         }
-        String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
-            .path(String.format("/medias/%1$s/file/%2$s", noFileMediaVm.id(), noFileMediaVm.fileName()))
-            .build().toUriString();
+        String url = getMediaUrl(noFileMediaVm.id(), noFileMediaVm.fileName());
 
         return new MediaVm(
             noFileMediaVm.id(),
@@ -97,16 +95,18 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public List<MediaVm> getMediaByIds(List<Long> ids) {
-        var medias = mediaRepository.findAllById(ids);
-        List<MediaVm> mediaVms = new ArrayList<>();
-        for (Media media : medias) {
-            String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
-                .path(String.format("/medias/%s/file/%s", media.getId(), media.getFileName()))
+        return mediaRepository.findAllById(ids).stream()
+                .map(mediaVmMapper::toVm)
+                .map(media -> {
+                    String url = getMediaUrl(media.getId(), media.getFileName());
+                    media.setUrl(url);
+                    return media;
+                }).toList();
+    }
+
+    private String getMediaUrl(Long mediaId, String fileName) {
+        return UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
+                .path(String.format("/medias/%1$s/file/%2$s", mediaId, fileName))
                 .build().toUriString();
-            var mediaVm = mediaVmMapper.toVm(media);
-            mediaVm.setUrl(url);
-            mediaVms.add(mediaVm);
-        }
-        return mediaVms;
     }
 }
