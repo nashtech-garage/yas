@@ -8,11 +8,13 @@ public record CheckoutItemVm(
         Long id,
         Long productId,
         String productName,
+        String description,
         int quantity,
         BigDecimal productPrice,
-        String note,
-        BigDecimal discountAmount,
         BigDecimal taxAmount,
-        BigDecimal taxPercent,
+        BigDecimal discountAmount,
+        BigDecimal shipmentFee,
+        BigDecimal shipmentTax,
         String checkoutId) {
+
 }

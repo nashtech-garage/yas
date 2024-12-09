@@ -1,2 +1,3 @@
 ALTER TABLE IF EXISTS "checkout"
-ADD COLUMN billing_address_id bigint;
+ALTER COLUMN customer_id TYPE VARCHAR(255);
+

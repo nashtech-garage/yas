@@ -70,14 +70,13 @@ class CheckoutControllerTest {
                 "customer@example.com",
                 "Please deliver before noon.",
                 "SUMMER2024",
-                BigDecimal.valueOf(900),
-                BigDecimal.valueOf(9),
+                null, null, null,
                 items
         );
 
         mockMvc.perform(post("/storefront/checkouts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectWriter.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
 
@@ -91,8 +90,8 @@ class CheckoutControllerTest {
         when(checkoutService.updateCheckoutStatus(any(CheckoutStatusPutVm.class))).thenReturn(response);
 
         mockMvc.perform(put("/storefront/checkouts/status")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectWriter.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
     }
@@ -131,38 +130,25 @@ class CheckoutControllerTest {
         doNothing().when(checkoutService).updateCheckoutPaymentMethod(id, request);
 
         mockMvc.perform(put("/storefront/checkouts/{id}/payment-method", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectWriter.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         verify(checkoutService).updateCheckoutPaymentMethod(id, request);
     }
 
-    private static @NotNull List<CheckoutItemPostVm> getCheckoutItemPostVms() {
+    private static @NotNull
+    List<CheckoutItemPostVm> getCheckoutItemPostVms() {
         CheckoutItemPostVm item1 = new CheckoutItemPostVm(
                 101L,
-                "Product One",
-                3,
-                new BigDecimal("29.99"),
                 "First item note",
-                new BigDecimal("5.00"),
-                new BigDecimal("2.50"),
-                new BigDecimal("8.5"),
-                new BigDecimal("8.5"),
-                new BigDecimal("8.5")
+                3
         );
 
         CheckoutItemPostVm item2 = new CheckoutItemPostVm(
                 102L,
-                "Product Two",
-                1,
-                new BigDecimal("49.99"),
                 "Second item note",
-                new BigDecimal("10.00"),
-                new BigDecimal("5.00"),
-                new BigDecimal("10.0"),
-                new BigDecimal("8.5"),
-                new BigDecimal("8.5")
+                1
         );
 
         return List.of(item1, item2);
@@ -175,10 +161,9 @@ class CheckoutControllerTest {
                 .productName("Product 1")
                 .quantity(2)
                 .productPrice(new BigDecimal("19.99"))
-                .note("First item note")
+                .description("First item description")
                 .discountAmount(new BigDecimal("2.00"))
                 .taxAmount(new BigDecimal("1.50"))
-                .taxPercent(new BigDecimal("5.0"))
                 .checkoutId("checkout123")
                 .build();
 
@@ -188,10 +173,9 @@ class CheckoutControllerTest {
                 .productName("Product 2")
                 .quantity(1)
                 .productPrice(new BigDecimal("9.99"))
-                .note("Second item note")
+                .description("Second item description")
                 .discountAmount(new BigDecimal("1.00"))
                 .taxAmount(new BigDecimal("0.75"))
-                .taxPercent(new BigDecimal("5.0"))
                 .checkoutId("checkout123")
                 .build();
 
@@ -200,7 +184,7 @@ class CheckoutControllerTest {
         checkoutItemVms.add(item2);
 
         return new CheckoutVm(
-                "checkout123",
+                "014476b3-243a-4111-9f2a-a25661aea89c",
                 "user@example.com",
                 "Please deliver after 5 PM",
                 "DISCOUNT20",
@@ -210,7 +194,10 @@ class CheckoutControllerTest {
                 null,
                 null,
                 BigDecimal.valueOf(900),
-                BigDecimal.valueOf(9),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
                 checkoutItemVms
         );
     }

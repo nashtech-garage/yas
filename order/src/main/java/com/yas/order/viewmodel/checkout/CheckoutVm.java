@@ -20,6 +20,9 @@ public record CheckoutVm(
         String attributes,
         String lastError,
         BigDecimal totalAmount,
+        BigDecimal totalShipmentFee,
+        BigDecimal totalShipmentTax, 
+        BigDecimal totalTax,
         BigDecimal totalDiscountAmount,
         Set<CheckoutItemVm> checkoutItemVms
 ) {
@@ -29,7 +32,7 @@ public record CheckoutVm(
             .id(checkout.getId())
             .email(checkout.getEmail())
             .note(checkout.getNote())
-            .couponCode(checkout.getCouponCode())
+            .couponCode(checkout.getPromotionCode())
             .checkoutState(checkout.getCheckoutState())
             .progress(checkout.getProgress())
             .paymentMethodId(checkout.getPaymentMethodId())

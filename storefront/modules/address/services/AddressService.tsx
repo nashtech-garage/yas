@@ -1,3 +1,4 @@
+import { YasError } from '@/common/services/errors/YasError';
 import { Address } from '../models/AddressModel';
 import apiClientService from '@/common/services/ApiClientService';
 
@@ -15,7 +16,11 @@ export async function updateAddress(id: string, address: Address) {
 
 export async function getAddress(id: string) {
   const response = await apiClientService.get(`${baseUrl}/${id}`);
-  return await response.json();
+  const jsonResult = await response.json();
+  if (!response.ok) {
+    throw new YasError(jsonResult);
+  }
+  return jsonResult;
 }
 
 export async function deleteAddress(id: number) {

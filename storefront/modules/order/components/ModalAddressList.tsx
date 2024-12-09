@@ -6,42 +6,51 @@ import Modal from 'react-bootstrap/Modal';
 
 type Props = {
   showModal: boolean;
-  handleClose: () => void;
+  handleModalClose: (isSelectionMade?: boolean) => void;
   handleSelectAddress: (address: Address) => any;
   defaultUserAddress?: Address;
+  selectedAddressId?: number;
 };
 
 const ModalAddressList = ({
   showModal,
-  handleClose,
+  handleModalClose,
   handleSelectAddress,
   defaultUserAddress,
+  selectedAddressId,
 }: Props) => {
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<number>();
 
   useEffect(() => {
+    if (!showModal) {
+      return;
+    }
     getUserAddress()
       .then((res) => {
         setAddresses(res);
-
-        if (defaultUserAddress?.id) {
-          setSelectedAddressId(defaultUserAddress.id);
-        }
       })
       .catch((err) => {
         console.log('Load address fail: ', err.message);
       });
-  }, [defaultUserAddress]);
+  }, [showModal]);
 
   const handleAddressClick = (address: Address) => {
-    setSelectedAddressId(address.id);
     handleSelectAddress(address);
-    handleClose();
+    handleModalClose(true);
+  };
+
+  const isAddressSelected = (address: Address) => {
+    if (selectedAddressId) {
+      return selectedAddressId == address.id;
+    }
+    if (defaultUserAddress?.id) {
+      return defaultUserAddress.id == address.id;
+    }
+    return false;
   };
 
   return (
-    <Modal show={showModal} onHide={handleClose} size="lg" centered>
+    <Modal show={showModal} onHide={() => handleModalClose()} size="lg" centered>
       <Modal.Header closeButton>
         <Modal.Title className="text-dark fw-bold">Select address</Modal.Title>
       </Modal.Header>
@@ -59,7 +68,7 @@ const ModalAddressList = ({
                   }}
                   key={address.id}
                 >
-                  <AddressCard address={address} isSelected={selectedAddressId == address.id} />
+                  <AddressCard address={address} isSelected={isAddressSelected(address)} />
                 </div>
               ))
             )}

@@ -39,10 +39,6 @@
   column-rule: #b2b2b2;
 }
 
-.checkout__input {
-  margin-bottom: 24px;
-}
-
 .checkout__input p {
   color: #1c1c1c;
   margin-bottom: 20px;
@@ -54,12 +50,12 @@
 
 .checkout__input input {
   width: 100%;
-  height: 46px;
-  border: 1px solid #ebebeb;
+  height: 48px;
   padding-left: 20px;
   font-size: 16px;
-  color: #b2b2b2;
-  border-radius: 4px;
+  color: #111827;
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
 }
 
 .checkout__input input.checkout__input__add {
@@ -67,11 +63,8 @@
 }
 
 .checkout__input input::placeholder {
-  color: #b2b2b2;
-}
-
-.checkout__input__checkbox {
-  margin-bottom: 10px;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .checkout__input__checkbox label {
@@ -238,4 +231,19 @@
   border-color: #ee4d2d;
   transform: translateY(-2px);
   box-shadow: rgba(50, 50, 93, 0.25) 0 13px 27px -5px, rgba(0, 0, 0, 0.3) 0 8px 16px -8px;
+}
+
+.address-buttons-bottom {
+  margin-bottom: 25px;
+}
+
+.checkout-address-card {
+  margin-top: 25px;
+}
+
+.checkout-address-card .shipping_address_new,
+.checkout-address-card .address {
+  border: 1px solid #ced4da;
+  padding: 20px;
+  border-radius: 10px;
 }
