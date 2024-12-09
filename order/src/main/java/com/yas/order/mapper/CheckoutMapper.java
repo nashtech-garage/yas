@@ -17,7 +17,6 @@ public interface CheckoutMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "checkout", ignore = true)
-    @Mapping(target = "checkoutId", ignore = true)
     CheckoutItem toModel(CheckoutItemPostVm checkoutItemPostVm);
 
     @Mapping(target = "id", ignore = true)
@@ -32,8 +31,6 @@ public interface CheckoutMapper {
     @Mapping(target = "totalShipmentFee", ignore = true)
     @Mapping(target = "totalShipmentTax", ignore = true)
     @Mapping(target = "totalTax", ignore = true)
-    @Mapping(target = "totalAmount", source = "totalAmount")
-    @Mapping(target = "totalDiscountAmount", source = "totalDiscountAmount")
     
     Checkout toModel(CheckoutPostVm checkoutPostVm);
 

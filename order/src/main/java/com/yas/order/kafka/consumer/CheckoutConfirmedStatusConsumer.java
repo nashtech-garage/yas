@@ -98,7 +98,7 @@ public class CheckoutConfirmedStatusConsumer {
             .tax(checkout.getTotalTax())
             .discount(checkout.getTotalDiscountAmount())
             .totalPrice(checkout.getTotalAmount())
-            .couponCode(checkout.getCouponCode())
+            .couponCode(checkout.getPromotionCode())
             .orderStatus(OrderStatus.PAYMENT_CONFIRMED)
             .deliveryFee(checkout.getTotalShipmentFee())
             .deliveryMethod(checkout.getShipmentMethodId())
@@ -132,7 +132,6 @@ public class CheckoutConfirmedStatusConsumer {
                 .productName(item.getProductName())
                 .quantity(item.getQuantity())
                 .productPrice(item.getProductPrice())
-                .note(item.getNote())
                 .orderId(order.getId())
                 .build())
             .toList();
