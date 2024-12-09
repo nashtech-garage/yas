@@ -38,24 +38,24 @@ activate payment_service #73c6b6
     deactivate checkout_payment    
   end 
 deactivate payment_service
-payment_topic --> order_service: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
+payment_topic --> order_service: <color:green> Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
 activate order_service #3498db
-  order_service -> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=PAYMENT_CREATED, attributes { payment_id, payment_provider_checkout_id } }
+  order_service -> checkout: <color:green> update { checkout_id, status=PAYMENT_PROCESSING, progress=PAYMENT_CREATED, attributes { payment_id, payment_provider_checkout_id } }
 deactivate order_service
  
-loop reload to get checkout status PAYMENT_PROCESSING and progress=PAYMENT_CREATED
-  storefront -> order_service: GET /order/checkouts/{checkout_id}
+loop  reload to get checkout status PAYMENT_PROCESSING and progress=PAYMENT_CREATED
+  storefront -> order_service: <color:green> GET /order/checkouts/{checkout_id}
   activate order_service #3498db
-    order_service -> checkout: find by checkout_id
-    storefront <-- order_service: { status=PAYMENT_PROCESSING, progress=PAYMENT_CREATED. checkout_id, \nattributes { payment_id, payment_provider_checkout_id } }
+    order_service -> checkout: <color:green> find by checkout_id
+    storefront <-- order_service: <color:green> { status=PAYMENT_PROCESSING, progress=PAYMENT_CREATED. checkout_id, \nattributes { payment_id, payment_provider_checkout_id } }
   deactivate order_service
 end 
 
 loop reload to get payment information util payment status is PROCESSING and payment_provider_checkout_id existing (if not COD)
-  storefront -> payment_service: GET /payment/payments/{payment_id} 
+  storefront -> payment_service: <color:green> GET /payment/payments/{payment_id}
   activate payment_service #73c6b6
-    payment_service -> checkout_payment: find by payment_id
-    storefront <-- payment_service: { status=PROCESSING, payment_provider_checkout_id }
+    payment_service -> checkout_payment: <color:green> find by payment_id
+    storefront <-- payment_service: <color:green> { status=PROCESSING, payment_provider_checkout_id }
   deactivate payment_service
 end 
 

@@ -27,47 +27,54 @@ end box
 
 
 loop reload to get payment information util payment status is PROCESSING and payment_provider_checkout_id existing (if not COD)
-  storefront -> payment_service: GET /payment/payments/{payment_id} 
+  storefront -> payment_service: <color:green> GET /payment/payments/{payment_id}
   activate payment_service #73c6b6
-    payment_service -> checkout_payment: find by payment_id
-    storefront <-- payment_service: { status=PROCESSING, payment_provider_checkout_id }
+    payment_service -> checkout_payment: <color:green> find by payment_id
+    storefront <-- payment_service: <color:green> { status=PROCESSING, payment_provider_checkout_id }
   deactivate payment_service
 end 
 
-storefront --> customer: redirect to payment_provider : Payment Provider: Checkout { payment_provider_checkout_id }
+storefront --> customer: <color:green> redirect to payment_provider : Payment Provider: Checkout { payment_provider_checkout_id }
 
 activate customer
-  customer -> paypal: execute payment { payment_provider_checkout_id }
+  customer -> paypal: <color:green> execute payment { payment_provider_checkout_id }
 deactivate customer
 activate paypal #73c6b6
-  paypal -> paypal_provider_checkout: update { status=COMPETED, \npayment_provider_checkout_id }
-  paypal --> storefront: redirect to storefront with confirmation
-  paypal -> payment_provider: WEBHOOK \n{ checkout_id, \npayment_provider_checkout_id, \nstatus=COMPETED/FAILURE } 
-deactivate paypal 
-activate payment_provider #73c6b6
-  payment_provider -> payment_queue: MESSAGE_PAYMENT_UPDATE_STATE \n{ checkout_id, \npayment_provider_checkout_id, \nstatus=COMPETED/FAILURE }
-deactivate payment_provider
-activate payment_queue #73c6b6
-  payment_queue -> payment_service: Event: MESSAGE_PAYMENT_UPDATE_STATE \n{ checkout_id, payment_id, payment_provider_checkout_id }
-deactivate payment_queue
+  paypal -> paypal_provider_checkout: <color:green> update { status=COMPETED, \npayment_provider_checkout_id }
+  paypal --> storefront: <color:green> redirect to storefront with confirmation
+  paypal -> payment_service:<color:green> WEBHOOK \n{ checkout_id, \npayment_provider_checkout_id, \nstatus=COMPETED/FAILURE }
+  note right of paypal #pink
+    Webhook doesn't support on local.
+    Need manually call webhook API.
+  end note
+deactivate paypal
+'activate payment_provider #73c6b6
+'  payment_provider -> payment_queue: <color:green> MESSAGE_PAYMENT_UPDATE_STATE \n{ checkout_id, \npayment_provider_checkout_id, \nstatus=COMPETED/FAILURE }
+'deactivate payment_provider
+'activate payment_queue #73c6b6
+'  payment_queue -> payment_service: <color:green> Event: MESSAGE_PAYMENT_UPDATE_STATE \n{ checkout_id, payment_id, payment_provider_checkout_id }
+'deactivate payment_queue
 activate payment_service #73c6b6
-  payment_service -> checkout_payment: update { status=COMPLETED/FAILURE }
+  payment_service -> checkout_payment: <color:green> update { status=COMPLETED/FAILURE }
 deactivate payment_service
 activate checkout_payment #73c6b6
-  checkout_payment -> payment_topic: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
+  checkout_payment -> payment_topic: <color:green> Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
 deactivate  checkout_payment
-payment_topic --> order_service: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
+payment_topic --> order_service: <color:green> Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
 activate order_service #3498db
-  order_service -> checkout: update { checkout_id, status=PAYMENT_CONFIRMED }
+  order_service -> checkout: <color:green> update { checkout_id, status=PAYMENT_CONFIRMED }
 deactivate order_service
 activate checkout #3498db
-  checkout -> checkout_topic: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_CONFIRMED }
+  checkout -> checkout_topic: <color:green> Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_CONFIRMED }
 deactivate checkout
 activate checkout_topic #3498db
-  checkout_topic --> order_service: Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_CONFIRMED }
+  checkout_topic --> order_service: <color:green> Event: CDC_EVENT_STATUS_UPDATED \n{ checkout_id, status=PAYMENT_CONFIRMED }
 deactivate checkout_topic
 activate order_service #3498db
-  order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
+  order_service -> order**:<color:green> create { checkout_id, status=PAYMENT_CONFIRMED }
+  note right of order_service #red
+    Update order failed. Flow stop here.
+  end note
   order --> order_service: order
 deactivate order_service
 activate order #3498db
