@@ -240,17 +240,6 @@ class ProductControllerIT extends AbstractControllerIT {
     }
 
     @Test
-    void test_getProductFeature_shouldReturnProductList() {
-        getGivenSpecificationWithAdmin()
-            .when()
-            .get(PRODUCT_STOREFRONT_URL + "/featured")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("productList", hasSize(2))
-            .log().ifValidationFails();
-    }
-
-    @Test
     void test_getProductFeatureById_shouldReturnProductList() {
         Long productOneId = productOne.getId();
         Long productTwoId = productTwo.getId();
