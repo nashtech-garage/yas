@@ -111,21 +111,13 @@ const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormPro
                   ) : (
                     <ul className="shipping-method-list">
                       {shippingMethods.map((method) => (
-                        <li
-                          key={method.id}
-                          className={`shipping-method-item ${
-                            selectedMethodId === method.id ? 'selected' : ''
-                          }`}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => onMethodChange(method)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault(); // Prevent default behavior for space
-                              onMethodChange(method);
-                            }
-                          }}
-                        >
+                        <li key={method.id} className="shipping-method-item">
+                          <button
+                            className={`shipping-method-item-button ${
+                              selectedMethodId === method.id ? 'selected' : ''
+                            }`}
+                            onClick={() => onMethodChange(method)}
+                          />
                           <div className="method-info">
                             <span className="method-name">{method.name}</span>
                             <span className="method-price">${method.price.toFixed(2)}</span>
