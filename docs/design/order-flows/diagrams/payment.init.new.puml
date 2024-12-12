@@ -1,0 +1,84 @@
+@startuml Payment Flow. Payment Initialization
+
+title Payment Flow Init Internal PaymentCheckout 
+
+actor Customer as customer #fad7a0
+
+box YAS
+    participant "Storefront" as storefront #fdf2e9        
+    participant "Order Service" as order_service #3498db    
+    entity "Checkout" as checkout #3498db
+    participant "Payment Service" as payment_service #73c6b6
+    entity "Checkout Payment" as checkout_payment #73c6b6
+end box 
+
+box "Payment Provider" #eafaf1
+    participant "Payment Provider" as payment_provider #73c6b6
+    entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
+end box
+
+customer -> storefront: Proceed to payment
+activate storefront #fdf2e9   
+  storefront -> order_service: POST /order/checkouts/{checkout_id}/process-payment
+  activate order_service #3498db
+    order_service -> checkout **: find by {checkout_id}
+    activate checkout #3498db
+    checkout --> order_service: return { checkout }
+    deactivate checkout
+order_service -> payment_service: POST /payment/payments { checkout }
+    note right of order_service
+      checkout:
+        - payment_method
+        - product_items
+        - shipment_fees
+        - taxes
+    end note 
+    activate payment_service #73c6b6 
+      payment_service -> checkout_payment **: create { status=(payment_type is COD ? PROCESSING : NEW), \npayment_provider_checkout_id, \ncheckout_id, \nproduct_items, \nshipment_fees, \ntaxes, \npayment_type: checkout.payment_method }
+      activate checkout_payment #73c6b6
+      checkout_payment --> payment_service: return { checkout_payment }
+      deactivate checkout_payment
+      alt payment_type is not COD
+        payment_service -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+        activate payment_provider #73c6b6          
+        payment_provider -> payment_provider_checkout **: create checkout
+        activate payment_provider_checkout #73c6b6
+        payment_provider_checkout --> payment_provider: return { payment_provider_checkout_id, redirect_url }
+        deactivate payment_provider_checkout
+        payment_provider --> payment_service: return { payment_provider_checkout_id, redirect_url }
+        deactivate payment_provider
+        payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id, redirect_url }
+        activate checkout_payment #73c6b6 
+        checkout_payment --> payment_service: return { checkout_payment }
+        deactivate checkout_payment
+      end
+    payment_service --> order_service: return { checkout_payment }
+    deactivate payment_service
+    note right of order_service
+    checkout_payment:
+        - payment_id
+        - checkout
+        - payment_type
+        - redirect_url
+    end note
+    order_service -> checkout: update { attributes: {payment_id, payment_provider_checkout_id, redirect_url } }
+    activate checkout #3498db
+    checkout --> order_service: return { checkout }
+    deactivate checkout
+    alt payment_type is COD
+      order_service -> order_service: complete order
+      note right of order_service
+        reference to complete order
+      end note
+      activate order_service #3498db
+      deactivate order_service
+    end
+    order_service --> storefront: return { checkout payment }
+  deactivate order_service
+  alt payment_type is COD
+    storefront -> customer: show success message
+  else payment_type is not COD
+    storefront -> customer: redirect to payment provider at redirect_url
+  end
+deactivate storefront
+@enduml
