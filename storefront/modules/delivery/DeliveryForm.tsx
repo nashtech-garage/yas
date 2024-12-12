@@ -40,7 +40,7 @@ type DeliveryFormProps = {
   register: UseFormRegister<any>;
   setValue: UseFormSetValue<any>;
   errors: FieldErrorsImpl<any>;
-  isDisplay?: boolean | true;
+  isDisplay?: boolean;
 };
 
 const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormProps) => {
@@ -104,7 +104,7 @@ const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormPro
             </div>
             <div className="col-lg-8">
               <div className="checkout__input">
-                <label className="mb-2">Shipping Method</label>
+                <div className="mb-2">Shipping Method</div>
                 <div className="custom-dropdown">
                   {shippingMethods.length === 0 ? (
                     <p className="mb-0">Select a delivery provider to see methods</p>
@@ -116,7 +116,15 @@ const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormPro
                           className={`shipping-method-item ${
                             selectedMethodId === method.id ? 'selected' : ''
                           }`}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => onMethodChange(method)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault(); // Prevent default behavior for space
+                              onMethodChange(method);
+                            }
+                          }}
                         >
                           <div className="method-info">
                             <span className="method-name">{method.name}</span>
@@ -134,59 +142,6 @@ const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormPro
           </>
         )}
       </div>
-
-      <style jsx>{`
-        .custom-dropdown {
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          padding: 0.9rem 0.75rem;
-          overflow-y: auto;
-          background: #fff;
-          max-height: 150px;
-        }
-
-        .shipping-method-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-
-        .shipping-method-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 10px;
-          border-bottom: 1px solid #eee;
-          cursor: pointer;
-        }
-
-        .shipping-method-item.selected {
-          background-color: #e0f7fa;
-          border: 2px solid #00796b;
-        }
-
-        .shipping-method-item:hover {
-          background-color: #f9f9f9;
-        }
-
-        .method-info {
-          display: flex;
-          justify-content: space-between;
-          width: 100%;
-        }
-
-        .method-name {
-          font-weight: bold;
-        }
-
-        .method-price {
-          color: #28a745;
-        }
-
-        .method-date {
-          color: #6c757d;
-        }
-      `}</style>
     </div>
   );
 };
