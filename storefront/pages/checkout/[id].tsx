@@ -344,13 +344,13 @@ const Checkout = () => {
                     </div>
                   </div>
 
-                    <h4>Delivery Method</h4>
-                    <DeliveryForm
-                      isDisplay={true}
-                      register={registerDelivery} // Delivery-specific register
-                      setValue={setValueDelivery} // Delivery-specific setValue
-                      errors={errorsDelivery} // Delivery-specific errors
-                    />
+                  <h4>Delivery Method</h4>
+                  <DeliveryForm
+                    isDisplay={true}
+                    register={registerDelivery} // Delivery-specific register
+                    setValue={setValueDelivery} // Delivery-specific setValue
+                    errors={errorsDelivery} // Delivery-specific errors
+                  />
 
                   <h4>Billing Address</h4>
                   <div className="row mb-4">
