@@ -104,25 +104,28 @@ const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormPro
             </div>
             <div className="col-lg-8">
               <div className="checkout__input">
-                <div className="mb-2">Shipping Method</div>
+                <div className="mb-2">
+                  Shipping Method<span className="text-danger ms-1">*</span>
+                </div>
                 <div className="custom-dropdown">
                   {shippingMethods.length === 0 ? (
                     <p className="mb-0">Select a delivery provider to see methods</p>
                   ) : (
                     <ul className="shipping-method-list">
                       {shippingMethods.map((method) => (
-                        <li key={method.id} className="shipping-method-item">
-                          <button
-                            className={`shipping-method-item-button ${
+                        <li key={method.id}>
+                          <a
+                            className={`shipping-method-item ${
                               selectedMethodId === method.id ? 'selected' : ''
                             }`}
                             onClick={() => onMethodChange(method)}
-                          />
-                          <div className="method-info">
-                            <span className="method-name">{method.name}</span>
-                            <span className="method-price">${method.price.toFixed(2)}</span>
-                            <span className="method-date">Delivery by {method.deliveryDate}</span>
-                          </div>
+                          >
+                            <div className="method-info">
+                              <span className="method-name">{method.name}</span>
+                              <span className="method-price">${method.price.toFixed(2)}</span>
+                              <span className="method-date">Delivery by {method.deliveryDate}</span>
+                            </div>
+                          </a>
                         </li>
                       ))}
                     </ul>
