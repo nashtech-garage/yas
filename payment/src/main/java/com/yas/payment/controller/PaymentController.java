@@ -25,8 +25,10 @@ public class PaymentController {
     }
 
     @PostMapping(value = "/capture")
-    public CapturePaymentResponseVm capturePayment(@Valid @RequestBody CapturePaymentRequestVm capturePaymentRequestVM) {
-        return paymentService.capturePayment(capturePaymentRequestVM);
+    public CapturePaymentResponseVm capturePayment(
+        @Valid @RequestBody CapturePaymentRequestVm capturePaymentRequestVm
+    ) {
+        return paymentService.capturePayment(capturePaymentRequestVm);
     }
 
     @GetMapping(value = "/cancel")

@@ -7,6 +7,8 @@ import com.yas.payment.viewmodel.InitPaymentRequestVm;
 
 public interface PaymentHandler {
     String getProviderId();
+
     InitiatedPayment initPayment(InitPaymentRequestVm initPaymentRequestVm);
-    CapturedPayment capturePayment(CapturePaymentRequestVm capturePaymentRequestVM);
+
+    CapturedPayment capturePayment(CapturePaymentRequestVm capturePaymentRequestVm);
 }

@@ -1,9 +1,13 @@
 package com.yas.payment.paypal.viewmodel;
 
+import java.math.BigDecimal;
 import lombok.Builder;
 
-import java.math.BigDecimal;
-
 @Builder
-public record PaypalCreatePaymentRequest(BigDecimal totalPrice, String checkoutId, String paymentMethod, String paymentSettings) {
+public record PaypalCreatePaymentRequest(
+    BigDecimal totalPrice,
+    String checkoutId,
+    String paymentMethod,
+    String paymentSettings
+) {
 }

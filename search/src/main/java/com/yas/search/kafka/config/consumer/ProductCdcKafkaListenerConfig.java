@@ -1,8 +1,8 @@
 package com.yas.search.kafka.config.consumer;
 
 import com.yas.commonlibrary.kafka.cdc.config.BaseKafkaListenerConfig;
-import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
+import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

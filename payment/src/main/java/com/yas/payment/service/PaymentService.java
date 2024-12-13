@@ -5,16 +5,19 @@ import com.yas.payment.model.InitiatedPayment;
 import com.yas.payment.model.Payment;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.provider.handler.PaymentHandler;
-import com.yas.payment.viewmodel.*;
+import com.yas.payment.viewmodel.CapturePaymentRequestVm;
+import com.yas.payment.viewmodel.CapturePaymentResponseVm;
+import com.yas.payment.viewmodel.InitPaymentRequestVm;
+import com.yas.payment.viewmodel.InitPaymentResponseVm;
+import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import jakarta.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -52,9 +55,9 @@ public class PaymentService {
                 .build();
     }
 
-    public CapturePaymentResponseVm capturePayment(CapturePaymentRequestVm capturePaymentRequestVM) {
-        PaymentHandler paymentHandler = getPaymentHandler(capturePaymentRequestVM.paymentMethod());
-        CapturedPayment capturedPayment = paymentHandler.capturePayment(capturePaymentRequestVM);
+    public CapturePaymentResponseVm capturePayment(CapturePaymentRequestVm capturePaymentRequestVm) {
+        PaymentHandler paymentHandler = getPaymentHandler(capturePaymentRequestVm.paymentMethod());
+        CapturedPayment capturedPayment = paymentHandler.capturePayment(capturePaymentRequestVm);
         Long orderId = orderService.updateCheckoutStatus(capturedPayment);
         capturedPayment.setOrderId(orderId);
         Payment payment = createPayment(capturedPayment);
