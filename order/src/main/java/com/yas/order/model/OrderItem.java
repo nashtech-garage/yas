@@ -18,6 +18,8 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.yas.commonlibrary.model.AbstractAuditEntity;
+
 @Entity
 @Table(name = "order_item")
 @Getter

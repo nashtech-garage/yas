@@ -1,6 +1,7 @@
 package com.yas.order.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.order.model.enumeration.CheckoutState;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
