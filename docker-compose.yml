@@ -442,68 +442,68 @@ services:
       - ./deployment/app-config:/app-config
     networks:
       - yas-network
-  webhook:
-    build: ./webhook
-    image: ghcr.io/nashtech-garage/yas-webhook:latest
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/webhook
-      - SERVER_SERVLET_CONTEXT_PATH=/webhook
-      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/webhook
-      - YAS_SERVICES_LOCATION
-      - SERVER_PORT
-      - LOGGING_CONFIG
-      - JAVA_TOOL_OPTIONS
-      - OTEL_EXPORTER_OTLP_ENDPOINT
-      - OTEL_EXPORTER_OTLP_PROTOCOL
-      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-      - OTEL_RESOURCE_ATTRIBUTES
-      - OTEL_SERVICE_NAME=webhook-service
-      - OTEL_LOGS_EXPORTER
-      - OTEL_TRACES_EXPORTER
-      - OTEL_METRICS_EXPORTER
-      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-      - OTEL_JAVAAGENT_LOGGING
-      - OTEL_JAVAAGENT_ENABLED
-      - OTEL_JAVAAGENT_DEBUG
-    volumes:
-      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-      - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
-  recommendation:
-    build: ./recommendation
-    image: ghcr.io/nashtech-garage/yas-recommendation:latest
-    ports:
-      - '9791:9791'
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/recommendation
-      - SERVER_SERVLET_CONTEXT_PATH=/recommendation
-      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/recommendation
-      - YAS_SERVICES_PRODUCT
-      - SERVER_PORT
-      - LOGGING_CONFIG
-      - JAVA_TOOL_OPTIONS
-      - OTEL_EXPORTER_OTLP_ENDPOINT
-      - OTEL_EXPORTER_OTLP_PROTOCOL
-      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-      - OTEL_RESOURCE_ATTRIBUTES
-      - OTEL_SERVICE_NAME=recommendation-service
-      - OTEL_LOGS_EXPORTER
-      - OTEL_TRACES_EXPORTER
-      - OTEL_METRICS_EXPORTER
-      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-      - OTEL_JAVAAGENT_LOGGING
-      - OTEL_JAVAAGENT_ENABLED
-      - OTEL_JAVAAGENT_DEBUG
-      # OpenAI Config
-      - SPRING_AI_AZURE_OPENAI_API_KEY
-      - SPRING_AI_AZURE_OPENAI_ENDPOINT
-      - SPRING_AI_AZURE_OPENAI_EMBEDDING_OPTIONS_MODEL
-    volumes:
-      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-      - ./deployment/app-config:/app-config
-    networks:
-      - yas-network
+  # webhook:
+  #   build: ./webhook
+  #   image: ghcr.io/nashtech-garage/yas-webhook:latest
+  #   environment:
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/webhook
+  #     - SERVER_SERVLET_CONTEXT_PATH=/webhook
+  #     - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/webhook
+  #     - YAS_SERVICES_LOCATION
+  #     - SERVER_PORT
+  #     - LOGGING_CONFIG
+  #     - JAVA_TOOL_OPTIONS
+  #     - OTEL_EXPORTER_OTLP_ENDPOINT
+  #     - OTEL_EXPORTER_OTLP_PROTOCOL
+  #     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+  #     - OTEL_RESOURCE_ATTRIBUTES
+  #     - OTEL_SERVICE_NAME=webhook-service
+  #     - OTEL_LOGS_EXPORTER
+  #     - OTEL_TRACES_EXPORTER
+  #     - OTEL_METRICS_EXPORTER
+  #     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+  #     - OTEL_JAVAAGENT_LOGGING
+  #     - OTEL_JAVAAGENT_ENABLED
+  #     - OTEL_JAVAAGENT_DEBUG
+  #   volumes:
+  #     - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+  #     - ./deployment/app-config:/app-config
+  #   networks:
+  #     - yas-network
+  # recommendation:
+  #   build: ./recommendation
+  #   image: ghcr.io/nashtech-garage/yas-recommendation:latest
+  #   ports:
+  #     - '9791:9791'
+  #   environment:
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/recommendation
+  #     - SERVER_SERVLET_CONTEXT_PATH=/recommendation
+  #     - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/recommendation
+  #     - YAS_SERVICES_PRODUCT
+  #     - SERVER_PORT
+  #     - LOGGING_CONFIG
+  #     - JAVA_TOOL_OPTIONS
+  #     - OTEL_EXPORTER_OTLP_ENDPOINT
+  #     - OTEL_EXPORTER_OTLP_PROTOCOL
+  #     - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+  #     - OTEL_RESOURCE_ATTRIBUTES
+  #     - OTEL_SERVICE_NAME=recommendation-service
+  #     - OTEL_LOGS_EXPORTER
+  #     - OTEL_TRACES_EXPORTER
+  #     - OTEL_METRICS_EXPORTER
+  #     - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+  #     - OTEL_JAVAAGENT_LOGGING
+  #     - OTEL_JAVAAGENT_ENABLED
+  #     - OTEL_JAVAAGENT_DEBUG
+  #     # OpenAI Config
+  #     - SPRING_AI_AZURE_OPENAI_API_KEY
+  #     - SPRING_AI_AZURE_OPENAI_ENDPOINT
+  #     - SPRING_AI_AZURE_OPENAI_EMBEDDING_OPTIONS_MODEL
+  #   volumes:
+  #     - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+  #     - ./deployment/app-config:/app-config
+  #   networks:
+  #     - yas-network
   swagger-ui:
     image: swaggerapi/swagger-ui:v5.17.14
     environment:

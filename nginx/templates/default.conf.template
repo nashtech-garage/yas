@@ -46,13 +46,15 @@ server {
     proxy_pass http://payment;
   }
   location /webhook/ {
-    proxy_pass http://webhook;
+    set $docker_webhook_host "webhook";
+    proxy_pass http://$docker_webhook_host;
   }
   location /sampledata/ {
     proxy_pass http://sampledata;
   }
   location /recommendation/ {
-    proxy_pass http://recommendation;
+    set $docker_recommendation_host "recommendation";
+    proxy_pass http://$docker_recommendation_host;
   }
 }
 
@@ -123,16 +125,5 @@ server {
 
   location / {
     proxy_pass http://kafka:9092;
-  }
-}
-
-server {
-  server_name akhq;
-
-  resolver 127.0.0.11;
-
-  location / {
-    set $docker_akhq_host "akhq";
-    proxy_pass http://$docker_akhq_host:8080;
   }
 }
