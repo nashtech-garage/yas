@@ -1,0 +1,50 @@
+.custom-dropdown {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.9rem 0.75rem;
+    overflow-y: auto;
+    background: #fff;
+    max-height: 150px;
+}
+
+.shipping-method-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.shipping-method-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.shipping-method-item.selected {
+    background-color: #e0f7fa;
+    border: 2px solid #00796b;
+}
+
+.shipping-method-item:hover {
+    background-color: #f9f9f9;
+}
+
+.method-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.method-name {
+    font-weight: bold;
+}
+
+.method-price {
+    color: #28a745;
+}
+
+.method-date {
+    color: #6c757d;
+}
