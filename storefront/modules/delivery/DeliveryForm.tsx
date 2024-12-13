@@ -114,18 +114,19 @@ const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormPro
                     <ul className="shipping-method-list">
                       {shippingMethods.map((method) => (
                         <li key={method.id}>
-                          <a
+                          <button
                             className={`shipping-method-item ${
                               selectedMethodId === method.id ? 'selected' : ''
                             }`}
                             onClick={() => onMethodChange(method)}
+                            onKeyDown={() => {}}
                           >
                             <div className="method-info">
                               <span className="method-name">{method.name}</span>
                               <span className="method-price">${method.price.toFixed(2)}</span>
                               <span className="method-date">Delivery by {method.deliveryDate}</span>
                             </div>
-                          </a>
+                          </button>
                         </li>
                       ))}
                     </ul>
