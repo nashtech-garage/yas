@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../styles/spinner.css';
 import '../styles/completePayment.css';
 import '../styles/MyOrder.css';
+import '../styles/DeliveryForm.css';
 import '../styles/Footer.css';
 import '../styles/Header.css';
 import '../styles/HomePage.css';
