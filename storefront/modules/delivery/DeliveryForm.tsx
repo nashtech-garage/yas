@@ -115,6 +115,7 @@ const DeliveryForm = ({ register, setValue, errors, isDisplay }: DeliveryFormPro
                       {shippingMethods.map((method) => (
                         <li key={method.id}>
                           <button
+                            type="button"
                             className={`shipping-method-item ${
                               selectedMethodId === method.id ? 'selected' : ''
                             }`}

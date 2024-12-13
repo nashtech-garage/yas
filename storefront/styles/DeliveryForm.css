@@ -20,6 +20,7 @@
   padding: 10px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
+  width: 100%;
 }
 
 .shipping-method-item.selected {
