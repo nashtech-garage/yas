@@ -81,24 +81,23 @@ public class Tools {
     private List<Product> getContent() {
         return List.of(
             new Product(
-                "Dell Inspiron 16 5640 Laptop 16\" -  Intel&nbsp;Core Ultra processors&nbsp;deliver the next level in an immersive graphics experience, and high-performance low power processing\n",
-                16L
+                "Dell Inspiron 16 5640 -  Intel Core Ultra processors deliver the next level in an immersive graphics experience, and high-performance low power processing\n" +
+                    "Product Id is 16L"
             ),
             new Product(
-                "Laptop Dell XPS 14 9440 -  Unlock non-stop creativity with the new Dell XPS 14, a perfect balance of go-anywhere mobility and high performance.\u200B&nbsp;\n",
-                5L
+                "Laptop Dell XPS 14 9440 - ProductId is 5L -  Unlock non-stop creativity with the new Dell XPS 14, a perfect balance of go-anywhere mobility and high performance" +
+                    "ProductId is 5L"
             ),
-            new Product("MacBook Pro 14 M3 Pro -  The 14-inch MacBook Pro blasts forward with M3 Pro and M3 Max, radically advanced chips that drive even greater performance for more demanding workflows.\n",
-                12L
+            new Product("MacBook Pro 14 M3 Pro - ProductId is 12L -  The 14-inch MacBook Pro blasts forward with M3 Pro and M3 Max, radically advanced chips that drive even greater performance for more demanding workflows. - " +
+                "ProductId is 12L"
             ),
-            new Product("MacBook Air M2 -  Supercharged by the next-generation M2 chip, the redesigned MacBook Air",
-                13L
-            )
+            new Product("MacBook Air M2 - ProductId is 13L -  Supercharged by the next-generation M2 chip, the redesigned MacBook Air - " +
+                "ProductId is 13L")
         );
     }
 
 }
 
-record Product(String content, long productId) {}
+record Product(String content) {}
 record SearchRequest(String prompt) {}
 record OrderStatusRequest(String userId) {}

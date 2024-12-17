@@ -17,19 +17,19 @@ public class ChatService {
         this.promptFactory = promptFactory;
         this.chatClient = modelBuilder
             .defaultAdvisors(
-//                new PromptChatMemoryAdvisor(new InMemoryChatMemory())
+                new PromptChatMemoryAdvisor(new InMemoryChatMemory())
             ).build();
     }
 
     public String chat(String message) {
         var user = ChatUtil.getUser();
         return chatClient.prompt()
-//            .system(s ->
-//                s.text(promptFactory.getSystemPrompt())
-//                    .param("isAuthenticated", user.isAuthenticated())
-//                    .param("userName", user.name())
-//                    .param("termOfService", "termOfService")
-//            )
+            .system(s ->
+                s.text(promptFactory.getSystemPrompt())
+                    .param("isAuthenticated", user.isAuthenticated())
+                    .param("userName", user.name())
+                    .param("termOfService", "termOfService")
+            )
             .user(message)
             .call()
             .content();

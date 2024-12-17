@@ -5,9 +5,9 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.ai.azure.openai.AzureOpenAiChatModel;
+import org.springframework.ai.azure.openai.AzureOpenAiEmbeddingModel;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,8 +23,8 @@ public class AppConfig {
 
     @Bean
     @Primary
-    public EmbeddingModel embeddingModelModel(OllamaEmbeddingModel ollamaEmbeddingModel) {
-        return ollamaEmbeddingModel;
+    public EmbeddingModel embeddingModelModel(AzureOpenAiEmbeddingModel azureOpenAiEmbeddingModel) {
+        return azureOpenAiEmbeddingModel;
     }
 
     @Bean

@@ -20,12 +20,12 @@ spring:
             client-id: storefront-bff
             client-secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn #gitleaks:allow
             scope: openid, profile, email, roles
-  data:
-    redis:
-      host: redis
-      port: 6379
-  session:
-    store-type: redis
+#  data:
+#    redis:
+#      host: redis
+#      port: 6379
+#  session:
+#    store-type: redis
 management:
   metrics:
     distribution:
@@ -56,13 +56,13 @@ spring:
           filters:
             - TokenRelay=
             - StripPrefix=1
-        - id: order
-          uri: http://localhost:8085
-          predicates:
-            - Path=/api/order/**
-          filters:
-            - TokenRelay=
-            - StripPrefix=1
+#        - id: order
+#          uri: http://localhost:8085
+#          predicates:
+#            - Path=/api/order/**
+#          filters:
+#            - TokenRelay=
+#            - StripPrefix=1
         - id: api
           uri: http://api.yas.local
           predicates:
