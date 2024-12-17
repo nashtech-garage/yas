@@ -11,6 +11,10 @@ public final class Constants {
         public static final String CHECKOUT_NOT_FOUND = "CHECKOUT_NOT_FOUND";
         public static final String CHECKOUT_ITEM_NOT_EMPTY = "CHECKOUT_ITEM_NOT_EMPTY";
         public static final String SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED";
+        public static final String PAYMENT_NOT_AVAILABLE = "PAYMENT_NOT_AVAILABLE";
+        public static final String ADDRESS_NOT_AVAILABLE = "ADDRESS_NOT_AVAILABLE";
+        public static final String CHECKOUT_IS_EXPIRED = "CHECKOUT_IS_EXPIRED";
+        public static final String CHECKOUT_UPDATE_ILLEGAL_FIELD = "CHECKOUT_UPDATE_ILLEGAL_FIELD";
     }
 
     public final class MessageCode {

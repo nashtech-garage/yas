@@ -126,20 +126,20 @@ class LocationServiceTest {
     }
 
     private AddressDetailVm getAddressDetailVm() {
-        return new AddressDetailVm(
-            1L,
-            "John Doe",
-            "+1234567890",
-            "123 Elm Street",
-            "Springfield",
-            "62701",
-            101L,
-            "Downtown",
-            201L,
-            "Illinois",
-            301L,
-            "United States"
-        );
+        return AddressDetailVm.builder()
+            .id(1L)
+            .contactName("John Doe")
+            .phone("+1234567890")
+            .addressLine1("123 Elm Street")
+            .city("Springfield")
+            .zipCode("62701")
+            .districtId(101L)
+            .districtName("Downtown")
+            .stateOrProvinceId(201L)
+            .stateOrProvinceName("Illinois")
+            .countryId(301L)
+            .countryName("United States")
+            .build();
     }
 
     private AddressPostVm getAddressPostVm() {

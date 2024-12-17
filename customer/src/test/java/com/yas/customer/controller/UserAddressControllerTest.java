@@ -106,36 +106,42 @@ class UserAddressControllerTest {
 
     private List<ActiveAddressVm> getActiveAddressVms() {
         return List.of(
-            new ActiveAddressVm(
-                1L,
-                "John Doe",
-                "123-456-7890",
-                "123 Elm Street",
-                "Springfield",
-                "12345",
-                101L,
-                "District A",
-                10L,
-                "State A",
-                1L,
-                "Country A",
-                true
-            ),
-            new ActiveAddressVm(
-                2L,
-                "Jane Smith",
-                "987-654-3210",
-                "456 Oak Avenue",
-                "Springfield",
-                "67890",
-                102L,
-                "District B",
-                11L,
-                "State B",
-                2L,
-                "Country B",
-                false
-            )
+            ActiveAddressVm.builder()
+                .id(1L)
+                .contactName("John Doe")
+                .phone("123-456-7890")
+                .addressLine1("123 Elm Street")
+                .city("Springfield")
+                .zipCode("12345")
+                .districtId(101L)
+                .districtName("District A")
+                .stateOrProvinceId(10L)
+                .stateOrProvinceName("State A")
+                .stateOrProvinceCode("ST")
+                .countryId(1L)
+                .countryName("Country A")
+                .countryCode2("CA")
+                .countryCode3("CAN")
+                .isActive(true)
+                .build(),
+            ActiveAddressVm.builder()
+                .id(2L)
+                .contactName("Jane Smith")
+                .phone("987-654-3210")
+                .addressLine1("456 Oak Avenue")
+                .city("Springfield")
+                .zipCode("67890")
+                .districtId(102L)
+                .districtName("District B")
+                .stateOrProvinceId(11L)
+                .stateOrProvinceName("State B")
+                .stateOrProvinceCode("SB")
+                .countryId(2L)
+                .countryName("Country B")
+                .countryCode2("CB")
+                .countryCode3("CBB")
+                .isActive(false)
+                .build()
         );
 
     }

@@ -7,5 +7,4 @@ public record CheckoutItemPostVm(
         String description,
         @Positive
         int quantity) {
-
 }

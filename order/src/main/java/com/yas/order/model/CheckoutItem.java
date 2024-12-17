@@ -1,6 +1,8 @@
 package com.yas.order.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yas.order.viewmodel.enumeration.DimensionUnit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -59,6 +61,18 @@ public class CheckoutItem extends AbstractAuditEntity {
     @JoinColumn(name = "checkout_id", updatable = false, nullable = false)
     @JsonBackReference
     private Checkout checkout;
+
+    private Long taxClassId;
+
+    private Double weight;
+
+    private DimensionUnit dimensionUnit;
+
+    private Double length;
+
+    private Double width;
+
+    private Double height;
 
     @Override
     public boolean equals(Object o) {

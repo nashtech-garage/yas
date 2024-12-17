@@ -39,13 +39,29 @@ public class UserAddressService {
         List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(
             userAddressList.stream().map(UserAddress::getAddressId).collect(Collectors.toList()));
 
-        List<ActiveAddressVm> addressActiveVms = userAddressList.stream().flatMap(userAddress -> addressVmList.stream()
-                .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id())).map(
-                    addressDetailVm -> new ActiveAddressVm(addressDetailVm.id(), addressDetailVm.contactName(),
-                        addressDetailVm.phone(), addressDetailVm.addressLine1(), addressDetailVm.city(),
-                        addressDetailVm.zipCode(), addressDetailVm.districtId(), addressDetailVm.districtName(),
-                        addressDetailVm.stateOrProvinceId(), addressDetailVm.stateOrProvinceName(),
-                        addressDetailVm.countryId(), addressDetailVm.countryName(), userAddress.getIsActive())))
+        List<ActiveAddressVm> addressActiveVms = userAddressList.stream()
+                .flatMap(userAddress -> addressVmList.stream()
+                .filter(addressDetailVm -> userAddress.getAddressId().equals(addressDetailVm.id()))
+                .map(
+                    addressDetailVm -> ActiveAddressVm.builder()
+                        .id(addressDetailVm.id())
+                        .contactName(addressDetailVm.contactName())
+                        .phone(addressDetailVm.phone())
+                        .addressLine1(addressDetailVm.addressLine1())
+                        .city(addressDetailVm.city())
+                        .zipCode(addressDetailVm.zipCode())
+                        .districtId(addressDetailVm.districtId())
+                        .districtName(addressDetailVm.districtName())
+                        .stateOrProvinceId(addressDetailVm.stateOrProvinceId())
+                        .stateOrProvinceName(addressDetailVm.stateOrProvinceName())
+                        .stateOrProvinceCode(addressDetailVm.stateOrProvinceCode())
+                        .countryId(addressDetailVm.countryId())
+                        .countryName(addressDetailVm.countryName())
+                        .countryCode2(addressDetailVm.countryCode2())
+                        .countryCode3(addressDetailVm.countryCode3())
+                        .isActive(userAddress.getIsActive())
+                        .build()
+                    ))
             .toList();
 
         //sort by isActive
