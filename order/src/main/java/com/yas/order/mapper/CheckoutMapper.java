@@ -27,6 +27,7 @@ public interface CheckoutMapper {
     CheckoutItemVm toVm(CheckoutItem checkoutItem);
 
     @Mapping(target = "checkoutItemVms", ignore = true)
+    @Mapping(target = "shippingAddressDetail", ignore = true)
     CheckoutVm toVm(Checkout checkout);
 
     default BigDecimal map(BigDecimal value) {

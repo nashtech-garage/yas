@@ -65,13 +65,16 @@ class CheckoutControllerTest {
         when(checkoutService.createCheckout(any(CheckoutPostVm.class))).thenReturn(response);
 
         List<CheckoutItemPostVm> items = getCheckoutItemPostVms();
-        CheckoutPostVm request = new CheckoutPostVm(
-                "customer@example.com",
-                "Please deliver before noon.",
-                "SUMMER2024",
-                null, null, null,
-                items
-        );
+        CheckoutPostVm request = CheckoutPostVm.builder()
+            .email("customer@example.com")
+            .note("Please deliver before noon.")
+            .promotionCode("SUMMER2024")
+            .shipmentMethodId(null)
+            .shipmentServiceId(null)
+            .paymentMethodId(null)
+            .shippingAddressId(null)
+            .checkoutItemPostVms(items)
+            .build();
 
         mockMvc.perform(post("/storefront/checkouts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -169,20 +172,24 @@ class CheckoutControllerTest {
         checkoutItemVms.add(item1);
         checkoutItemVms.add(item2);
 
-        return new CheckoutVm(
-                "014476b3-243a-4111-9f2a-a25661aea89c",
-                "user@example.com",
-                "Please deliver after 5 PM",
-                "DISCOUNT20",
-                CheckoutState.CHECKED_OUT,
-                "Inprogress",
-                BigDecimal.valueOf(900),
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                null, null, null,
-                checkoutItemVms
-        );
+        return CheckoutVm.builder()
+            .id("014476b3-243a-4111-9f2a-a25661aea89c")
+            .email("user@example.com")
+            .note("Please deliver after 5 PM")
+            .promotionCode("DISCOUNT20")
+            .checkoutState(CheckoutState.CHECKED_OUT)
+            .progress("Inprogress")
+            .totalAmount(BigDecimal.valueOf(900))
+            .totalShipmentFee(BigDecimal.ZERO)
+            .totalShipmentTax(BigDecimal.ZERO)
+            .totalTax(BigDecimal.ZERO)
+            .totalDiscountAmount(BigDecimal.ZERO)
+            .shipmentMethodId(null)
+            .shipmentServiceId(null)
+            .paymentMethodId(null)
+            .shippingAddressId(null)
+            .shippingAddressDetail(null)
+            .checkoutItemVms(checkoutItemVms)
+            .build();
     }
 }

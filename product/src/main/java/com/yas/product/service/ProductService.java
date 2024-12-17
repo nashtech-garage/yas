@@ -1173,6 +1173,15 @@ public class ProductService {
         List<ProductCheckoutListVm> productCheckoutListVms = productPage.getContent()
             .stream().map(product -> {
                 String thumbnailUrl = mediaService.getMedia(product.getThumbnailMediaId()).url();
+                if (product.getParent() != null) {
+                    product.setWeight(product.getParent().getWeight());
+                    product.setHeight(product.getParent().getHeight());
+                    product.setLength(product.getParent().getLength());
+                    product.setWidth(product.getParent().getWidth());
+                    product.setBrand(product.getParent().getBrand());
+                    product.setDimensionUnit(product.getParent().getDimensionUnit());
+                    product.setTaxClassId(product.getParent().getTaxClassId());
+                }
                 ProductCheckoutListVm productCheckoutListVm = ProductCheckoutListVm.fromModel(product);
                 if (StringUtils.isNotEmpty(thumbnailUrl)) {
                     return productCheckoutListVm.toBuilder().thumbnailUrl(thumbnailUrl).build();

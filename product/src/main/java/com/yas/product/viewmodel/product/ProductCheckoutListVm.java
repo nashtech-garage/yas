@@ -1,6 +1,7 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.model.Product;
+import com.yas.product.model.enumeration.DimensionUnit;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import lombok.Builder;
@@ -19,7 +20,12 @@ public record ProductCheckoutListVm(Long id,
                                     ZonedDateTime createdOn,
                                     String createdBy,
                                     ZonedDateTime lastModifiedOn,
-                                    String lastModifiedBy) {
+                                    String lastModifiedBy,
+                                    Double weight,
+                                    DimensionUnit dimensionUnit,
+                                    Double length,
+                                    Double width,
+                                    Double height) {
     public static ProductCheckoutListVm fromModel(Product product) {
         return new ProductCheckoutListVm(
             product.getId(),
@@ -35,7 +41,12 @@ public record ProductCheckoutListVm(Long id,
             product.getCreatedOn(),
             product.getCreatedBy(),
             product.getLastModifiedOn(),
-            product.getLastModifiedBy()
+            product.getLastModifiedBy(),
+            product.getWeight(),
+            product.getDimensionUnit(),
+            product.getLength(),
+            product.getWidth(),
+            product.getHeight()
         );
     }
 }

@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.ForbiddenException;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.order.mapper.CheckoutMapperImpl;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.model.enumeration.CheckoutState;
@@ -45,7 +44,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {CheckoutMapperImpl.class, CheckoutService.class})
+@SpringBootTest
 class CheckoutServiceTest {
 
     @MockBean
