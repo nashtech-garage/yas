@@ -59,6 +59,7 @@ public class Checkout extends AbstractAuditEntity {
     @SuppressWarnings("unused")
     private String shipmentMethodId;
 
+    @SuppressWarnings("unused")
     private String shipmentServiceId;
 
     @Column(name = "payment_method_id")

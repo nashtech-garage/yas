@@ -10,7 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,29 +25,57 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CheckoutAddress {
+public class CheckoutAddress{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @SuppressWarnings("unused")
     private String contactName;
+
+    @SuppressWarnings("unused")
     private String phone;
+
+    @SuppressWarnings("unused")
     private String addressLine1;
+
+    @SuppressWarnings("unused")
     private String city;
+
+    @SuppressWarnings("unused")
     private String zipCode;
+
+    @SuppressWarnings("unused")
     private Long districtId;
+
+    @SuppressWarnings("unused")
     private String districtName;
+
+    @SuppressWarnings("unused")
     private Long stateOrProvinceId;
+
+    @SuppressWarnings("unused")
     private String stateOrProvinceName;
+
+    @SuppressWarnings("unused")
     private String stateOrProvinceCode;
+
+    @SuppressWarnings("unused")
     private Long countryId;
+
+    @SuppressWarnings("unused")
     private String countryName;
+
+    @SuppressWarnings("unused")
     private String countryCode2;
+
+    @SuppressWarnings("unused")
     private String countryCode3;
 
     @Enumerated(EnumType.STRING)
     private CheckoutAddressType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "checkout_id", updatable = false, nullable = false)
     @JsonBackReference
     private Checkout checkout;

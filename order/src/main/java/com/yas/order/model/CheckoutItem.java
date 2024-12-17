@@ -62,16 +62,22 @@ public class CheckoutItem extends AbstractAuditEntity {
     @JsonBackReference
     private Checkout checkout;
 
+    @SuppressWarnings("unused")
     private Long taxClassId;
 
+    @SuppressWarnings("unused")
     private Double weight;
 
+    @SuppressWarnings("unused")
     private DimensionUnit dimensionUnit;
 
+    @SuppressWarnings("unused")
     private Double length;
 
+    @SuppressWarnings("unused")
     private Double width;
 
+    @SuppressWarnings("unused")
     private Double height;
 
     @Override

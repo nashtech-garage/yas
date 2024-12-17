@@ -59,8 +59,6 @@ import org.springframework.util.CollectionUtils;
 @RequiredArgsConstructor
 public class CheckoutService {
     private final CheckoutAddressRepository checkoutAddressRepository;
-    private final OrderAddressRepository orderAddressRepository;
-
     private final CheckoutRepository checkoutRepository;
     private final OrderService orderService;
     private final ProductService productService;
@@ -303,13 +301,13 @@ public class CheckoutService {
             existingCheckout.getCheckoutAddress().getStateOrProvinceId(),
             existingCheckout.getCheckoutAddress().getZipCode());
 
-        existingCheckout.getCheckoutItems().forEach((item) -> {
-            taxRateVmList.forEach((tax) -> {
+        existingCheckout.getCheckoutItems().forEach(item ->
+            taxRateVmList.forEach(tax -> {
                 if (Objects.equals(item.getTaxClassId(), tax.taxClassId())) {
                     item.setTaxAmount(calculateTaxAmount(tax.rate(), item.getProductPrice()));
                 }
-            });
-        });
+            })
+        );
     }
 
     // This function is using mock data
@@ -319,7 +317,7 @@ public class CheckoutService {
         }
         if (existingCheckout.getShippingAddressId() != null) {
             // Mock data
-            existingCheckout.getCheckoutItems().forEach((item) -> {
+            existingCheckout.getCheckoutItems().forEach(item -> {
                 item.setShipmentFee(new BigDecimal(5000));
                 item.setShipmentTax(new BigDecimal(500));
             });
@@ -328,7 +326,7 @@ public class CheckoutService {
 
     public void updatePromotionCode(Checkout existingCheckout, String value) {
         if (Objects.equals(value, "")) {
-            existingCheckout.getCheckoutItems().forEach((item) -> item.setDiscountAmount(BigDecimal.ZERO));
+            existingCheckout.getCheckoutItems().forEach(item -> item.setDiscountAmount(BigDecimal.ZERO));
             existingCheckout.setPromotionCode(null);
             return;
         }
@@ -348,7 +346,7 @@ public class CheckoutService {
 
         PromotionVerifyResultDto promotion = promotionService.validateCouponCode(promotionVerifyVm);
 
-        existingCheckout.getCheckoutItems().forEach((item) -> {
+        existingCheckout.getCheckoutItems().forEach(item -> {
             if (Objects.equals(item.getProductId(), promotion.productId())) {
                 BigDecimal discount = DiscountType.FIXED.equals(promotion.discountType())
                     ? BigDecimal.valueOf(promotion.discountValue())
