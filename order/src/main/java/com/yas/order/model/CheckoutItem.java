@@ -1,8 +1,9 @@
 package com.yas.order.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yas.order.viewmodel.enumeration.DimensionUnit;
+import com.yas.commonlibrary.model.AbstractAuditEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

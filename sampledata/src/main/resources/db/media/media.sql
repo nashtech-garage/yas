@@ -79,4 +79,7 @@ INSERT INTO media (id, file_name, file_path, media_type) VALUES(77, 'iPad_5th_1.
 INSERT INTO media (id, file_name, file_path, media_type) VALUES(78, 'iPad_5th_2.jpg', '/images/sample/product/ipad5/iPad_5th_2.jpg', 'image/jpeg');
 INSERT INTO media (id, file_name, file_path, media_type) VALUES(79, 'iPad_5th_3.jpg', '/images/sample/product/ipad5/iPad_5th_3.jpg', 'image/jpeg');
 INSERT INTO media (id, file_name, file_path, media_type) VALUES(80, 'iPad_5th_4.jpg', '/images/sample/product/ipad5/iPad_5th_4.jpg', 'image/jpeg');
-ALTER SEQUENCE media_id_seq RESTART WITH 81;
+
+INSERT INTO media (id, file_name, file_path, media_type) VALUES(81, 'cod.png', '/images/sample/payment-provider/cod.png', 'image/png');
+INSERT INTO media (id, file_name, file_path, media_type) VALUES(82, 'paypal.png', '/images/sample/payment-provider/paypal.png', 'image/png');
+ALTER SEQUENCE media_id_seq RESTART WITH 83;

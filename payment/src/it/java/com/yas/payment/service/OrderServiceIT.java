@@ -9,19 +9,17 @@ import static org.mockito.Mockito.verify;
 import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
-import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import java.math.BigDecimal;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.ComponentScan;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -38,7 +36,7 @@ class OrderServiceIT {
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
     @Test
-    @Ignore
+    @Disabled
     void test_updateCheckoutStatus_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
         CapturedPayment capturedPayment = CapturedPayment.builder()
             .orderId(2L)
@@ -56,7 +54,7 @@ class OrderServiceIT {
     }
 
     @Test
-    @Ignore
+    @Disabled
     void test_updateOrderStatus_shouldThrowCallNotPermittedException_whenCircuitBreakerIsOpen() throws Throwable {
         PaymentOrderStatusVm paymentOrderStatusVm = PaymentOrderStatusVm.builder()
             .orderId(2L)

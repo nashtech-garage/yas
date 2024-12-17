@@ -1,6 +1,7 @@
 package com.yas.product.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.product.model.attribute.ProductAttributeValue;
 import com.yas.product.model.enumeration.DimensionUnit;
 import jakarta.persistence.CascadeType;
