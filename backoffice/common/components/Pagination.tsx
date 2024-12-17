@@ -2,6 +2,7 @@ import React from 'react';
 import ReactPaginate from 'react-paginate';
 import { Form } from 'react-bootstrap';
 import { PAGE_SIZE_OPTION } from '@commonServices/PaginationService';
+import styles from 'styles/Pagination.module.css';
 
 interface PaginationControls {
   itemsPerPage?: {
@@ -45,24 +46,31 @@ function Pagination({
         activeClassName="pagination-active"
       />
       {paginationControls && (
-        <div className="pagination-helper mt-3 mb-3">
+        <div className={`${styles['pagination-helper']} mt-3 mb-3`}>
           {paginationControls.goToPage && (
-            <div className={`pagination-tool ${paginationControls.itemsPerPage ? 'me-5' : ''}`}>
+            <div
+              className={`${styles['pagination-tool']} ${
+                paginationControls.itemsPerPage ? 'me-5' : ''
+              }`}
+            >
               <p>Go to</p>
               <Form.Control
                 type="number"
                 value={paginationControls.goToPage.value || ''}
+                placeholder=""
+                aria-label="Go to page number"
                 onChange={paginationControls.goToPage.onChange}
                 onKeyDown={(e) => e.key === 'Enter' && paginationControls.goToPage?.onSubmit()}
               />
             </div>
           )}
           {paginationControls.itemsPerPage && (
-            <div className="pagination-tool">
+            <div className={styles['pagination-tool']}>
               <p>Show</p>
               <Form.Select
                 value={paginationControls.itemsPerPage.value}
                 onChange={paginationControls.itemsPerPage.onChange}
+                aria-label="Select items per page"
               >
                 {pageSizeOption.map((size) => (
                   <option key={size} value={size}>
