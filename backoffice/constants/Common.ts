@@ -50,6 +50,7 @@ export const SYSTEM_SETTINGS = '/system/settings';
 export const WEBHOOKS_URL = '/webhook';
 
 export const DEFAULT_PAGE_SIZE = 10;
+export const DEFAULT_PRODUCT_PAGE_SIZE = 5;
 export const DEFAULT_PAGE_NUMBER = 0;
 export const FORMAT_DATE_YYYY_MM_DD_HH_MM = 'YYYYMMDDHHmmss';
 
