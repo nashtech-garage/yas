@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 import { ProductAttributeGroup } from '@catalogModels/ProductAttributeGroup';
 import {

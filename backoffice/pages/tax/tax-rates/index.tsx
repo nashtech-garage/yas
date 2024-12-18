@@ -9,7 +9,7 @@ import type { TaxRate } from '@taxModels/TaxRate';
 import { deleteTaxRate, getPageableTaxRates } from '@taxServices/TaxRateService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, TAX_RATE_URL } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const TaxRateList: NextPage = () => {
   const [taxRateIdWantToDelete, setTaxRateIdWantToDelete] = useState<number>(-1);

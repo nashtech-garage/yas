@@ -16,7 +16,7 @@ import moment from 'moment';
 import { ExportProduct } from '../../../modules/catalog/components';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PRODUCT_PAGE_SIZE } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const ProductList: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;

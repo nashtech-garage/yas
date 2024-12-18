@@ -12,7 +12,7 @@ import type { Rating } from '../../modules/rating/models/Rating';
 import { deleteRatingById, getRatings } from '../../modules/rating/services/RatingService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const Reviews: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<RatingSearchForm>();

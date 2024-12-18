@@ -9,7 +9,7 @@ import type { Webhook } from '@webhookModels/Webhook';
 import { deleteWebhook, getWebhooks } from '@webhookServices/WebhookService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WEBHOOKS_URL } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const WebhookList: NextPage = () => {
   const [webhookClassIdWantToDelete, setWebhookIdWantToDelete] = useState<number>(-1);

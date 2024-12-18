@@ -15,7 +15,7 @@ import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingSe
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
 import { STATE_OR_PROVINCE_URL } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const StateOrProvinceList: NextPage = () => {
   const [stateOrProvinces, setStateOrProvinces] = useState<StateOrProvince[]>([]);

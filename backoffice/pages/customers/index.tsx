@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 import { Button, Stack, Table } from 'react-bootstrap';
 import { deleteCustomer, getCustomers } from '../../modules/customer/services/CustomerService';
 import moment from 'moment';

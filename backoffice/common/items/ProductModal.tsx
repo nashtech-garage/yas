@@ -6,7 +6,7 @@ import { Product } from '@catalogModels/Product';
 import { getProducts } from '@catalogServices/ProductService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PRODUCT_PAGE_SIZE } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 type Props = {
   show: boolean;

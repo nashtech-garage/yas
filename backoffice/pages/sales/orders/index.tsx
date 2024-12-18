@@ -12,7 +12,7 @@ import OrderSearch from 'modules/order/components/OrderSearch';
 import { formatPriceUSD } from 'utils/formatPrice';
 import Link from 'next/link';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const Orders: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<OrderSearchForm>();

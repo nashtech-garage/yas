@@ -9,7 +9,7 @@ import type { TaxClass } from '@taxModels/TaxClass';
 import { deleteTaxClass, getPageableTaxClasses } from '@taxServices/TaxClassService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, TAX_CLASS_URL } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const TaxClassList: NextPage = () => {
   const [taxClassIdWantToDelete, setTaxClassIdWantToDelete] = useState<number>(-1);

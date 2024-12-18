@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactPaginate from 'react-paginate';
 import { Form } from 'react-bootstrap';
-import { PAGE_SIZE_OPTION } from '@commonServices/PaginationService';
+import { PAGE_SIZE_OPTION } from '@commonHooks/usePagination';
 import styles from 'styles/Pagination.module.css';
 
 interface PaginationControls {

@@ -9,7 +9,7 @@ import type { Country } from '@locationModels/Country';
 import { deleteCountry, getPageableCountries } from '@locationServices/CountryService';
 import { COUNTRY_URL, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const CountryList: NextPage = () => {
   const [countryIdWantToDelete, setCountryIdWantToDelete] = useState<number>(-1);

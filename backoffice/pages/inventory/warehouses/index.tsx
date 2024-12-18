@@ -9,7 +9,7 @@ import type { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
 import { deleteWarehouse, getPageableWarehouses } from '@inventoryServices/WarehouseService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WAREHOUSE_URL } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 
 const WarehouseList: NextPage = () => {
   const [warehouseIdWantToDelete, setWarehouseIdWantToDelete] = useState<number>(-1);

@@ -8,7 +8,7 @@ import {
   getCategory,
 } from '../../../../modules/catalog/services/CategoryService';
 import Pagination from 'common/components/Pagination';
-import usePagination from '@commonServices/PaginationService';
+import usePagination from '@commonHooks/usePagination';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 const GetProductsByCategory: NextPage = () => {
