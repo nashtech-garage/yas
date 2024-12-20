@@ -2,13 +2,14 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import type { TaxClass } from '@taxModels/TaxClass';
 import { deleteTaxClass, getPageableTaxClasses } from '@taxServices/TaxClassService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, TAX_CLASS_URL } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
 
 const TaxClassList: NextPage = () => {
   const [taxClassIdWantToDelete, setTaxClassIdWantToDelete] = useState<number>(-1);
@@ -16,8 +17,8 @@ const TaxClassList: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [taxClasses, setTaxClasses] = useState<TaxClass[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -28,7 +29,7 @@ const TaxClassList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, taxClassNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListTaxClass();
       })
       .catch((error) => console.log(error));
@@ -49,10 +50,6 @@ const TaxClassList: NextPage = () => {
     getListTaxClass();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
 
   if (isLoading) return <p>Loading...</p>;
   if (!taxClasses) return <p>No Tax Class</p>;
@@ -111,19 +108,8 @@ const TaxClassList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
-          onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
-        />
+      {totalPage > 0 && (
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

@@ -2,7 +2,6 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 
 import { ProductAttribute } from '@catalogModels/ProductAttribute';
 import {
@@ -12,6 +11,8 @@ import {
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
 
 const ProductAttributeList: NextPage = () => {
   const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>();
@@ -20,14 +21,16 @@ const ProductAttributeList: NextPage = () => {
   const [productAttributeNameWantToDelete, setProductAttributeNameWantToDelete] =
     useState<string>('');
   const [productAttributeIdWantToDelete, setProductAttributeIdWantToDelete] = useState<number>(-1);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination();
+
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
   useEffect(() => {
     setLoading(true);
     getListProductAttributes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageNo]);
+  }, [pageNo, itemsPerPage]);
 
   const handleClose: any = () => setIsShowModalDelete(false);
   const handleDelete: any = () => {
@@ -37,7 +40,7 @@ const ProductAttributeList: NextPage = () => {
       .then((response) => {
         setIsShowModalDelete(false);
         handleDeletingResponse(response, productAttributeIdWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListProductAttributes();
       })
       .catch((err) => {
@@ -46,17 +49,13 @@ const ProductAttributeList: NextPage = () => {
   };
 
   const getListProductAttributes = () => {
-    getPageableProductAttributes(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableProductAttributes(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setProductAttributes(data.productAttributeContent);
         setLoading(false);
       })
       .catch((err) => console.log(err));
-  };
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -118,18 +117,12 @@ const ProductAttributeList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+      {totalPage > 0 && (
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
         />
       )}
     </>

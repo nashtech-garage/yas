@@ -4,6 +4,7 @@
     "paths": {
       "@commonServices/*": ["common/services/*"],
       "@commonItems/*": ["common/items/*"],
+      "@commonHooks/*": ["common/hooks/*"],
       "@locationComponents/*": ["modules/location/components/*"],
       "@locationModels/*": ["modules/location/models/*"],
       "@locationServices/*": ["modules/location/services/*"],
