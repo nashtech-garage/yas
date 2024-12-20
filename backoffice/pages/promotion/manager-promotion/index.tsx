@@ -1,5 +1,5 @@
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
+import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { PromotionListRequest, PromotionPage } from 'modules/promotion/models/Promotion';
 import { deletePromotion, getPromotions } from 'modules/promotion/services/PromotionService';
 import { NextPage } from 'next';
@@ -18,10 +18,7 @@ const PromotionList: NextPage = () => {
   const [promotionNameWantToDelete, setPromotionNameWantToDelete] = useState<string>('');
   const [promotionIdWantToDelete, setPromotionIdWantToDelete] = useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   useEffect(() => {
     setIsLoading(true);
@@ -164,7 +161,7 @@ const PromotionList: NextPage = () => {
         handleDelete={handleDeletePromotion}
         action="delete"
       />
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>

@@ -9,7 +9,7 @@ import {
 } from '../../../../modules/catalog/services/CategoryService';
 import Pagination from 'common/components/Pagination';
 import usePagination from '@commonHooks/usePagination';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
+import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 
 const GetProductsByCategory: NextPage = () => {
   const [products, setProducts] = useState<ProductThumbnail[]>([]);
@@ -18,10 +18,7 @@ const GetProductsByCategory: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   useEffect(() => {
     if (id)
@@ -61,7 +58,7 @@ const GetProductsByCategory: NextPage = () => {
             ))}
         </tbody>
       </Table>
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>

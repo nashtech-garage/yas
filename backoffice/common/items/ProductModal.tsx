@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 
 import { Product } from '@catalogModels/Product';
 import { getProducts } from '@catalogServices/ProductService';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PRODUCT_PAGE_SIZE } from 'constants/Common';
+import { DEFAULT_PRODUCT_PAGE_SIZE } from 'constants/Common';
 import Pagination from 'common/components/Pagination';
 import usePagination from '@commonHooks/usePagination';
 
@@ -23,10 +23,7 @@ const ShowProductModel = (props: Props) => {
   const [selectedProduct, setSelectedProduct] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PRODUCT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   useEffect(() => {
     getProducts(pageNo, DEFAULT_PRODUCT_PAGE_SIZE, '', '').then((data) => {
@@ -83,7 +80,7 @@ const ShowProductModel = (props: Props) => {
             ))}
           </tbody>
         </Table>
-        {totalPage > 1 && (
+        {totalPage > 0 && (
           <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
         )}
       </Modal.Body>

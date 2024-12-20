@@ -20,10 +20,7 @@ const Customers: NextPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [totalUser, setTotalUser] = useState<number>(0);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -131,7 +128,7 @@ const Customers: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>

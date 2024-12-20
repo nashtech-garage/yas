@@ -29,10 +29,7 @@ const StateOrProvinceList: NextPage = () => {
     useState<string>('');
   const [stateOrProvinceIdWantToDelete, setStateOrProvinceIdWantToDelete] = useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination();
 
   const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
@@ -163,7 +160,7 @@ const StateOrProvinceList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination
           pageNo={pageNo}
           totalPage={totalPage}

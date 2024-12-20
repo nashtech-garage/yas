@@ -18,10 +18,7 @@ const BrandList: NextPage = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -120,7 +117,7 @@ const BrandList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>

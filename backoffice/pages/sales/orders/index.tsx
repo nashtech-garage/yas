@@ -20,10 +20,7 @@ const Orders: NextPage = () => {
   const [orderList, setOrderList] = useState<Order[]>([]);
   const [isDelete, setDelete] = useState<boolean>(false);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
 
@@ -202,7 +199,7 @@ const Orders: NextPage = () => {
             ))}
         </tbody>
       </Table>
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactPaginate from 'react-paginate';
 import { Form } from 'react-bootstrap';
-import { PAGE_SIZE_OPTION } from '@commonHooks/usePagination';
+import { DEFAULT_PAGE_SIZE_OPTION } from '@constants/Common';
 import styles from 'styles/Pagination.module.css';
 
 interface PaginationControls {
@@ -29,7 +29,7 @@ function Pagination({
   totalPage,
   paginationControls,
   onPageChange,
-  pageSizeOption = PAGE_SIZE_OPTION,
+  pageSizeOption = DEFAULT_PAGE_SIZE_OPTION,
 }: Readonly<PaginationProps>) {
   return (
     <div>

@@ -1,17 +1,17 @@
 import { useState, useMemo, useCallback } from 'react';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
-
-export const PAGE_SIZE_OPTION = [5, 10, 15, 20];
+import {
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE_SIZE_OPTION,
+} from '@constants/Common';
 
 interface UsePaginationProps {
   initialPageNo?: number;
   initialItemsPerPage?: number;
 }
 
-const usePagination = ({
-  initialPageNo = DEFAULT_PAGE_NUMBER,
-  initialItemsPerPage = DEFAULT_PAGE_SIZE,
-}: UsePaginationProps) => {
+const usePagination = (props: UsePaginationProps = {}) => {
+  const { initialPageNo = DEFAULT_PAGE_NUMBER, initialItemsPerPage = DEFAULT_PAGE_SIZE } = props;
   const [pageNo, setPageNo] = useState<number>(initialPageNo);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(initialItemsPerPage);
@@ -64,7 +64,7 @@ const usePagination = ({
     setTotalPage,
     changePage,
     paginationControls,
-    PAGE_SIZE_OPTION, // Expose page sizes for reuse
+    DEFAULT_PAGE_SIZE_OPTION, // Expose page sizes for reuse
   };
 };
 

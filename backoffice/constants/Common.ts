@@ -52,6 +52,7 @@ export const WEBHOOKS_URL = '/webhook';
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PRODUCT_PAGE_SIZE = 5;
 export const DEFAULT_PAGE_NUMBER = 0;
+export const DEFAULT_PAGE_SIZE_OPTION = [5, 10, 15, 20];
 export const FORMAT_DATE_YYYY_MM_DD_HH_MM = 'YYYYMMDDHHmmss';
 
 //Column header to export for product

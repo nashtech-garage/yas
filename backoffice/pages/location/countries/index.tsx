@@ -18,10 +18,7 @@ const CountryList: NextPage = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination();
 
   const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
@@ -113,7 +110,7 @@ const CountryList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination
           pageNo={pageNo}
           totalPage={totalPage}

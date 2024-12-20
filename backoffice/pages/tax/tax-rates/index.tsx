@@ -18,10 +18,7 @@ const TaxRateList: NextPage = () => {
   const [taxRates, setTaxRates] = useState<TaxRate[]>([]);
   const [isLoading, setLoading] = useState(false);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -117,7 +114,7 @@ const TaxRateList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>

@@ -23,10 +23,7 @@ const ProductAttrbuteGroupList: NextPage = () => {
   const [productAttributeGroupIdWantToDelete, setProductAttributeGroupIdWantToDelete] =
     useState<number>(-1);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   useEffect(() => {
     setLoading(true);
@@ -115,7 +112,7 @@ const ProductAttrbuteGroupList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
+      {totalPage > 0 && (
         <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>

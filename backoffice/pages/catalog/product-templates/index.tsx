@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import type { ProductTemplate } from '@catalogModels/ProductTemplate';
 import { getPageableProductTemplates } from '@catalogServices/ProductTemplateService';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
+import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import Pagination from 'common/components/Pagination';
 import usePagination from '@commonHooks/usePagination';
 
@@ -12,10 +12,7 @@ const ProductTemplate: NextPage = () => {
   const [productTemplates, setProductTemplates] = useState<ProductTemplate[]>();
   const [isLoading, setLoading] = useState<boolean>(false);
 
-  const { pageNo, totalPage, setTotalPage, changePage } = usePagination({
-    initialPageNo: DEFAULT_PAGE_NUMBER,
-    initialItemsPerPage: DEFAULT_PAGE_SIZE,
-  });
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   useEffect(() => {
     setLoading(true);
@@ -80,7 +77,7 @@ const ProductTemplate: NextPage = () => {
               ))}
             </tbody>
           </Table>
-          {totalPage > 1 && (
+          {totalPage > 0 && (
             <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
           )}
         </>
