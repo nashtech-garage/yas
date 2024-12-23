@@ -1,7 +1,6 @@
 package com.yas.order.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -39,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -191,15 +191,11 @@ class OrderControllerTest {
         );
         when(orderService.getAllOrder(
             any(),
-            any(),
-            anyString(),
             anyString(),
             anyList(),
+            any(),
             anyString(),
-            anyString(),
-            anyString(),
-            anyInt(),
-            anyInt()
+            any()
         )).thenReturn(orderListVm);
 
         mockMvc.perform(get("/backoffice/orders")
@@ -225,8 +221,7 @@ class OrderControllerTest {
     }
 
     @Test
-    void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception
-    {
+    void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         OrderRequest orderRequest = new OrderRequest();
@@ -296,7 +291,8 @@ class OrderControllerTest {
             DeliveryMethod.GRAB_EXPRESS,
             DeliveryStatus.PREPARING,
             PaymentStatus.COMPLETED,
-            items
+            items,
+            UUID.randomUUID().toString()
         );
     }
 

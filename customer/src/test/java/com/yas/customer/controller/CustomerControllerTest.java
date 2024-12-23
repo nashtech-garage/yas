@@ -2,6 +2,7 @@ package com.yas.customer.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -136,9 +137,9 @@ class CustomerControllerTest {
             "Doe",
             "john.doe@example.com"
         );
-        doNothing().when(customerService).updateCustomers(any());
+        doNothing().when(customerService).updateCustomer(anyString(), any());
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/")
+        mockMvc.perform(MockMvcRequestBuilders.put(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile" + "/test")
                 .contentType("application/json")
                 .content(objectWriter.writeValueAsString(customerProfileRequestVm)))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
@@ -155,5 +156,14 @@ class CustomerControllerTest {
                 .contentType("application/json")
                 .content(objectWriter.writeValueAsString(customerPostVm)))
                 .andExpect(MockMvcResultMatchers.status().isCreated());
+    }
+
+    @Test
+    void testDeleteCustomer_whenNormalCase_methodSuccess() throws Exception {
+        doNothing().when(customerService).deleteCustomer(anyString());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile" + "/test")
+                .contentType("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 }

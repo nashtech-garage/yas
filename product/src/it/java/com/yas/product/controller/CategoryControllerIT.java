@@ -91,6 +91,17 @@ class CategoryControllerIT extends AbstractControllerIT {
     }
 
     @Test
+    void test_getTopNthCategories_shouldReturnEmptyList() {
+        given(getRequestSpecification())
+            .when()
+            .get(CATEGORY_STOREFRONT_URL + "/suggestions")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body(".", hasSize(0))
+            .log().ifValidationFails();
+    }
+
+    @Test
     void test_getCategoryById_shouldReturnCategory() {
         Long categoryId = categoryOne.getId();
         String name = categoryOne.getName();

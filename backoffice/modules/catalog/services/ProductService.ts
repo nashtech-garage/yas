@@ -3,8 +3,10 @@ import { Variantion } from '@catalogModels/ProductVariation';
 import { ProductPayload } from '../models/ProductPayload';
 import { Products } from '../models/Products';
 import apiClientService from '@commonServices/ApiClientService';
+import { ProductOptionValueDisplayGet } from '@catalogModels/ProductOptionValuePost';
 
 const baseUrl = '/api/product/backoffice';
+const baseUrlOptionValue = '/api/product';
 
 export async function getProducts(
   pageNo: number,
@@ -60,6 +62,15 @@ export async function getVariationsByProductId(productId: number): Promise<Varia
 
 export async function getRelatedProductByProductId(productId: number): Promise<Product[]> {
   const url = `${baseUrl}/products/related-products/${productId}`;
+  const response = await apiClientService.get(url);
+  if (response.status >= 200 && response.status < 300) return await response.json();
+  return Promise.reject(new Error(response.statusText));
+}
+
+export async function getProductOptionValueByProductId(
+  productId: number
+): Promise<ProductOptionValueDisplayGet[]> {
+  const url = `${baseUrlOptionValue}/storefront/product-option-values/${productId}`;
   const response = await apiClientService.get(url);
   if (response.status >= 200 && response.status < 300) return await response.json();
   return Promise.reject(new Error(response.statusText));

@@ -47,6 +47,7 @@ const WebhookList: NextPage = () => {
   useEffect(() => {
     setLoading(true);
     getListWebhook();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
   const changePage = ({ selected }: any) => {

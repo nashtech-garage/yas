@@ -5,6 +5,7 @@ import com.yas.payment.config.ServiceUrlConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(scanBasePackages = {"com.yas.payment", "com.yas.commonlibrary"})
 @EnableConfigurationProperties({ServiceUrlConfig.class, CorsConfig.class})

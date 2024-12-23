@@ -1,5 +1,6 @@
 package com.yas.promotion.model;
 
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.promotion.model.enumeration.ApplyTo;
 import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;

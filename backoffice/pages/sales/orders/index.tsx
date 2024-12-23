@@ -33,7 +33,6 @@ const Orders: NextPage = () => {
       createdFrom: moment(watchAllFields.createdFrom).format(),
       createdTo: moment(watchAllFields.createdTo).format(),
     });
-    console.log(params);
 
     getOrders(params)
       .then((res) => {
@@ -49,12 +48,14 @@ const Orders: NextPage = () => {
     setLoading(true);
     handleGetOrders();
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo, isDelete]);
 
   useEffect(() => {
     setLoading(true);
     handleGetOrders();
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSubmitSearch: SubmitHandler<OrderSearchForm> = async (data) => {

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -66,13 +67,17 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderWithItemsById(id));
     }
 
+    @GetMapping("/storefront/orders/checkout/{id}")
+    public ResponseEntity<OrderGetVm> getOrderWithCheckoutId(@PathVariable String id) {
+        return ResponseEntity.ok(orderService.findOrderVmByCheckoutId(id));
+    }
+
     @GetMapping("/backoffice/orders")
     public ResponseEntity<OrderListVm> getOrders(
             @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
             @RequestParam(value = "createdTo", defaultValue = "#{new java.util.Date()}", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
-            @RequestParam(value = "warehouse", defaultValue = "", required = false) String warehouse,
             @RequestParam(value = "productName", defaultValue = "", required = false) String productName,
             @RequestParam(value = "orderStatus", defaultValue = "", required = false) List<OrderStatus> orderStatus,
             @RequestParam(value = "billingPhoneNumber", defaultValue = "", required = false) String billingPhoneNumber,
@@ -81,17 +86,15 @@ public class OrderController {
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
     ) {
+
         return ResponseEntity.ok(orderService.getAllOrder(
-                createdFrom,
-                createdTo,
-                warehouse,
+                Pair.of(createdFrom, createdTo),
                 productName,
                 orderStatus,
-                billingCountry,
-                billingPhoneNumber,
+                Pair.of(billingCountry, billingPhoneNumber),
                 email,
-                pageNo,
-                pageSize));
+                Pair.of(pageNo, pageSize))
+        );
     }
 
     @GetMapping("/backoffice/orders/latest/{count}")

@@ -18,6 +18,8 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.yas.commonlibrary.model.AbstractAuditEntity;
+
 @Entity
 @Table(name = "order_item")
 @Getter
@@ -32,6 +34,9 @@ public class OrderItem extends AbstractAuditEntity {
     private Long id;
 
     private Long productId;
+
+    @Column(name = "order_id")
+    private Long orderId;
 
     @Column(name = "name")
     private String productName;
@@ -65,6 +70,6 @@ public class OrderItem extends AbstractAuditEntity {
     private String processingState;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "orderId", referencedColumnName = "id")
-    private Order orderId;
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private Order order;
 }

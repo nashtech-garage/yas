@@ -17,12 +17,13 @@ import {
 } from '@/modules/customer/services/CustomerService';
 import ModalAddressList from '@/modules/order/components/ModalAddressList';
 import CheckOutAddress from '@/modules/order/components/CheckOutAddress';
-import { Checkout } from '@/modules/order/models/Checkout';
+import { Checkout as CheckoutVm } from '@/modules/order/models/Checkout';
 import { toastError } from '@/modules/catalog/services/ToastService';
 import { CheckoutItem } from '@/modules/order/models/CheckoutItem';
 import { initPaymentPaypal } from '@/modules/paymentPaypal/services/PaymentPaypalService';
 import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
 import SpinnerComponent from '@/common/components/SpinnerComponent';
+import { getAddress } from '@/modules/address/services/AddressService';
 
 const phoneRegExp =
   /^((\+[1-9]{1,4}[ -]*)|(\([0-9]{2,3}\)[ -]*)|[0-9]{2,4}[ -]*)?[0-9]{3,4}?[ -]*[0-9]{3,4}?$/;
@@ -39,7 +40,7 @@ const addressSchema = yup.object().shape({
 const Checkout = () => {
   const router = useRouter();
   const { id } = router.query;
-  const [checkout, setCheckout] = useState<Checkout>();
+  const [checkout, setCheckout] = useState<CheckoutVm>();
   const {
     handleSubmit,
     register,
@@ -47,17 +48,17 @@ const Checkout = () => {
     watch,
   } = useForm<Order>();
   const {
+    handleSubmit: handleSubmitShippingAddress,
     register: registerShippingAddress,
     setValue: setValueShippingAddress,
     formState: { errors: errorsShippingAddress },
-    watch: watchShippingAddress,
   } = useForm<Address>();
 
   const {
+    handleSubmit: handleSubmitBillingAddress,
     register: registerBillingAddress,
     setValue: setValueBillingAddress,
     formState: { errors: errorsBillingAddress },
-    watch: watchBillingAddress,
   } = useForm<Address>();
 
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
@@ -69,18 +70,21 @@ const Checkout = () => {
   const [sameAddress, setSameAddress] = useState<boolean>(true);
   const [addShippingAddress, setAddShippingAddress] = useState<boolean>(false);
   const [addBillingAddress, setAddBillingAddress] = useState<boolean>(false);
-  const [showModalShipping, setModalShipping] = useState<boolean>(false);
-  const [showModalBilling, setModalBilling] = useState<boolean>(false);
+  const [showModalShipping, setShowModalShipping] = useState<boolean>(false);
+  const [showModalBilling, setShowModalBilling] = useState<boolean>(false);
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   const [disableProcessPayment, setDisableProcessPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+
   const handleCloseModalShipping = () => {
-    if (shippingAddress?.id == null || shippingAddress.id == undefined) setAddShippingAddress(true);
-    setModalShipping(false);
+    setShowModalShipping(false);
   };
-  const handleCloseModalBilling = () => {
-    if (billingAddress?.id == shippingAddress?.id) setSameAddress(true);
-    setModalBilling(false);
+
+  const handleCloseModalBilling = (isSelectionMade?: boolean) => {
+    setShowModalBilling(false);
+    if (!isSelectionMade) {
+      setSameAddress(!sameAddress);
+    }
   };
 
   useEffect(() => {
@@ -99,8 +103,6 @@ const Checkout = () => {
       const fetchCheckout = async () => {
         await getCheckoutById(id as string)
           .then((res) => {
-            console.log(res);
-
             setCheckout(res);
             const newItems: OrderItem[] = [];
             res.checkoutItemVms.forEach((result: CheckoutItem) => {
@@ -108,7 +110,9 @@ const Checkout = () => {
                 productId: result.productId,
                 quantity: result.quantity,
                 productName: result.productName,
-                productPrice: result.productPrice!,
+                productPrice: result.productPrice,
+                discountAmount: result.discountAmount,
+                taxAmount: result.taxAmount,
               });
             });
             setOrderItems(newItems);
@@ -131,87 +135,114 @@ const Checkout = () => {
 
   const handleSelectShippingAddress = (address: Address) => {
     setShippingAddress(address);
-  };
-  const handleSelectBillingAddress = (address: Address) => {
-    setBillingAddress(address);
+    if (sameAddress) {
+      setBillingAddress(address);
+    } else if (address?.id === billingAddress?.id) {
+      setSameAddress(true);
+    }
+    setAddShippingAddress(false);
   };
 
-  const handleSaveNewAddress = (data: Address) => {
-    createUserAddress(data).catch((e) => {
-      toast.error('Save new address failed!');
+  const handleSelectBillingAddress = (address: Address) => {
+    setBillingAddress(address);
+    if (address?.id === shippingAddress?.id) {
+      setSameAddress(true);
+    }
+  };
+
+  const onSubmitShippingAddressForm: SubmitHandler<Address> = async (data: Address) => {
+    try {
+      const newAddress = await performCreateUserAddress(data);
+      setShippingAddress(newAddress);
+      setAddShippingAddress(false);
+
+      if (sameAddress) {
+        setBillingAddress(newAddress);
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const onSubmitBillingAddressForm: SubmitHandler<Address> = async (data: Address) => {
+    try {
+      const newAddress = await performCreateUserAddress(data);
+      setBillingAddress(newAddress);
+      setAddBillingAddress(false);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const performCreateUserAddress = async (data: Address) => {
+    await addressSchema.validate(data).catch((error) => {
+      throw new Error(error.message);
     });
+
+    let createdUserAddress;
+    try {
+      const { addressGetVm } = await createUserAddress(data);
+      createdUserAddress = addressGetVm;
+    } catch (error) {
+      throw new Error('Failed to create new address');
+    }
+
+    let createdAddressDetails: Address = { ...createdUserAddress };
+    try {
+      createdAddressDetails = await getAddress(createdUserAddress.id.toString());
+    } catch (error) {
+      console.log('Failed to get address details');
+    }
+
+    return createdAddressDetails;
   };
 
   const onSubmitForm: SubmitHandler<Order> = async (data) => {
-    let isValidate = true;
-
-    if (addShippingAddress) {
-      await addressSchema
-        .validate(watchShippingAddress())
-        .then(() => {
-          handleSaveNewAddress(watchShippingAddress());
-          order.shippingAddressPostVm = watchShippingAddress();
-        })
-        .catch((error) => {
-          toast.error(error.message);
-          isValidate = false;
-        });
-    } else if (shippingAddress) {
-      order.shippingAddressPostVm = shippingAddress;
+    if (!shippingAddress) {
+      toast.error('Please choose shipping address!');
+      return;
+    }
+    if (!billingAddress && !sameAddress) {
+      toast.error('Please choose billing address!');
+      return;
+    }
+    if (!paymentMethod) {
+      toast.error('Please choose payment method!');
+      return;
     }
 
-    //handle BillingAddress
-    if (addBillingAddress) {
-      await addressSchema
-        .validate(watchBillingAddress())
-        .then(() => {
-          handleSaveNewAddress(watchBillingAddress());
-          order.billingAddressPostVm = watchBillingAddress();
-        })
-        .catch((error) => {
-          toast.error(error.message);
-          isValidate = false;
-        });
-    } else if (sameAddress) {
-      order.billingAddressPostVm = order.shippingAddressPostVm;
-    } else if (billingAddress) {
-      order.billingAddressPostVm = billingAddress;
-    }
+    order.shippingAddressPostVm = shippingAddress;
+    order.billingAddressPostVm = billingAddress ?? shippingAddress;
+    order.paymentMethod = paymentMethod;
 
-    if (isValidate) {
-      if (!paymentMethod) {
-        toast.error('Please choose payment method!');
-      } else {
-        order.paymentMethod = paymentMethod;
-      }
+    order.checkoutId = id as string;
+    order.email = checkout?.email!;
+    order.note = data.note;
+    order.tax = 0;
+    order.discount = checkout?.totalDiscountAmount;
+    order.numberItem = orderItems.reduce((result, item) => result + item.quantity, 0);
+    order.totalPrice = orderItems.reduce(
+      (result, item) => result + item.quantity * item.productPrice - (item.discountAmount ?? 0),
+      0
+    );
+    order.deliveryFee = 0;
+    order.couponCode = checkout?.couponCode;
+    order.deliveryMethod = 'YAS_EXPRESS';
+    order.paymentStatus = 'PENDING';
+    order.orderItemPostVms = orderItems;
 
-      order.checkoutId = id as string;
-      order.email = checkout?.email!;
-      order.note = data.note;
-      order.tax = 0;
-      order.discount = 0;
-      order.numberItem = orderItems.reduce((result, item) => result + item.quantity, 0);
-      order.totalPrice = orderItems.reduce(
-        (result, item) => result + item.quantity * item.productPrice,
-        0
-      );
-      order.deliveryFee = 0;
-      order.couponCode = '';
-      order.deliveryMethod = 'YAS_EXPRESS';
-      order.paymentStatus = 'PENDING';
-      order.orderItemPostVms = orderItems;
-      setIsShowSpinner(true);
-      setDisableProcessPayment(true);
-      createOrder(order)
-        .then(() => {
-          handleCheckOutProcess(order);
-        })
-        .catch(() => {
-          setIsShowSpinner(false);
-          setDisableProcessPayment(false);
-          toast.error('Place order failed');
-        });
-    }
+    setIsShowSpinner(true);
+    setDisableProcessPayment(true);
+
+    createOrder(order)
+      .then(() => {
+        handleCheckOutProcess(order);
+      })
+      .catch(() => {
+        setIsShowSpinner(false);
+        setDisableProcessPayment(false);
+        toast.error('Place order failed');
+      });
   };
 
   const handleCheckOutProcess = async (order: Order) => {
@@ -238,6 +269,7 @@ const Checkout = () => {
 
   const redirectToPaypal = async (order: Order) => {
     const initPaymentPaypalRequest: InitPaymentPaypalRequest = {
+      paymentMethod: order.paymentMethod,
       checkoutId: order.checkoutId,
       totalPrice: order.totalPrice,
     };
@@ -246,31 +278,43 @@ const Checkout = () => {
     window.location.replace(redirectUrl);
   };
 
+  const handleSameAddressCheckboxChanged = () => {
+    const newSameAddress = !sameAddress;
+    setSameAddress(newSameAddress);
+    setAddBillingAddress(false);
+
+    if (newSameAddress) {
+      setBillingAddress(shippingAddress);
+    } else if (!addBillingAddress) {
+      setShowModalBilling(true);
+    }
+  };
+
   return (
-    <>
-      <Container>
-        <section className="checkout spad">
-          <SpinnerComponent show={isShowSpinner}></SpinnerComponent>
-          <div className="container">
-            <div className="checkout__form">
-              <form onSubmit={(event) => void handleSubmit(onSubmitForm)(event)}>
-                <div className="row">
-                  <div className="col-lg-8 col-md-6">
-                    <h4>Shipping Address</h4>
+    <Container>
+      <section className="checkout spad">
+        <SpinnerComponent show={isShowSpinner}></SpinnerComponent>
+        <div className="container">
+          <div className="checkout__form">
+            <form onSubmit={(event) => void handleSubmit(onSubmitForm)(event)}>
+              <div className="row">
+                <div className="col-lg-8 col-md-6">
+                  <h4>Shipping Address</h4>
+                  <div className="row mb-4">
                     <div className="checkout__input">
                       <button
                         type="button"
-                        className="btn btn-outline-primary  fw-bold btn-sm me-2"
+                        className="btn btn-outline-primary fw-bold btn-sm me-2"
                         onClick={() => {
                           setAddShippingAddress(false);
-                          setModalShipping(true);
+                          setShowModalShipping(true);
                         }}
                       >
                         Change address <i className="bi bi-plus-circle-fill"></i>
                       </button>
                       <button
                         type="button"
-                        className={`btn btn-outline-primary  fw-bold btn-sm ${
+                        className={`btn btn-outline-primary fw-bold btn-sm ${
                           addShippingAddress ? `active` : ``
                         }`}
                         onClick={() => setAddShippingAddress(true)}
@@ -278,63 +322,73 @@ const Checkout = () => {
                         Add new address <i className="bi bi-plus-circle-fill"></i>
                       </button>
                     </div>
-                    <CheckOutAddress address={shippingAddress!} isDisplay={!addShippingAddress} />
-                    <AddressForm
-                      isDisplay={addShippingAddress}
-                      register={registerShippingAddress}
-                      setValue={setValueShippingAddress}
-                      errors={errorsShippingAddress}
-                      address={undefined}
-                    />
+                    <div className="checkout-address-card">
+                      <CheckOutAddress address={shippingAddress} isDisplay={!addShippingAddress} />
+                      <AddressForm
+                        handleSubmit={handleSubmitShippingAddress(onSubmitShippingAddressForm)}
+                        isDisplay={addShippingAddress}
+                        register={registerShippingAddress}
+                        setValue={setValueShippingAddress}
+                        errors={errorsShippingAddress}
+                        address={undefined}
+                        buttonText="Use this address"
+                      />
+                    </div>
+                  </div>
 
-                    <h4>Billing Address</h4>
-                    <div className="row mb-4">
-                      <div className="col-lg-6">
-                        <div className="checkout__input__checkbox">
-                          <label htmlFor="same_as_shipping">
-                            Selected Billing Address same as Shipping Address
-                            <input
-                              type="checkbox"
-                              id="same_as_shipping"
-                              onChange={() => {
-                                setSameAddress(!sameAddress);
-                                setAddBillingAddress(false);
-                                if (sameAddress && !addBillingAddress) setModalBilling(true);
-                              }}
-                              checked={sameAddress}
-                            />
-                            <span className="checkmark"></span>
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-lg-6">
-                        <button
-                          type="button"
-                          className={`btn btn-outline-primary  fw-bold btn-sm ${
-                            addBillingAddress ? `active` : ``
-                          }`}
-                          onClick={() => {
-                            setAddBillingAddress(true);
-                            setSameAddress(false);
-                          }}
-                        >
-                          Add new address <i className="bi bi-plus-circle-fill"></i>
-                        </button>
+                  <h4>Billing Address</h4>
+                  <div className="row mb-4">
+                    <div className="col-lg-6">
+                      <div className="checkout__input__checkbox">
+                        <label htmlFor="same_as_shipping">
+                          Selected Billing Address same as Shipping Address{' '}
+                          <input
+                            type="checkbox"
+                            id="same_as_shipping"
+                            onChange={() => handleSameAddressCheckboxChanged()}
+                            checked={sameAddress}
+                          />
+                          <span className="checkmark"></span>
+                        </label>
                       </div>
                     </div>
+                    <div className="col-lg-6">
+                      <button
+                        type="button"
+                        className={`btn btn-outline-primary  fw-bold btn-sm ${
+                          addBillingAddress ? `active` : ``
+                        }`}
+                        onClick={() => {
+                          setAddBillingAddress(true);
+                          setSameAddress(false);
+                        }}
+                      >
+                        Add new address <i className="bi bi-plus-circle-fill"></i>
+                      </button>
+                    </div>
+                    <div
+                      className={`checkout-address-card ${
+                        addBillingAddress || !sameAddress ? '' : 'd-none'
+                      }`}
+                    >
+                      <CheckOutAddress
+                        address={billingAddress}
+                        isDisplay={!sameAddress && !addBillingAddress}
+                      />
+                      <AddressForm
+                        handleSubmit={handleSubmitBillingAddress(onSubmitBillingAddressForm)}
+                        isDisplay={addBillingAddress}
+                        setValue={setValueBillingAddress}
+                        register={registerBillingAddress}
+                        errors={errorsBillingAddress}
+                        address={undefined}
+                        buttonText="Use this address"
+                      />
+                    </div>
+                  </div>
 
-                    <CheckOutAddress
-                      address={billingAddress!}
-                      isDisplay={!sameAddress && !addBillingAddress}
-                    />
-
-                    <AddressForm
-                      isDisplay={addBillingAddress}
-                      setValue={setValueBillingAddress}
-                      register={registerBillingAddress}
-                      errors={errorsBillingAddress}
-                      address={undefined}
-                    />
+                  <h4>Additional Information</h4>
+                  <div className="row mb-4">
                     <div className="checkout__input">
                       <Input
                         type="text"
@@ -357,32 +411,34 @@ const Checkout = () => {
                       />
                     </div>
                   </div>
-                  <div className="col-lg-4 col-md-6">
-                    <CheckOutDetail
-                      orderItems={orderItems}
-                      disablePaymentProcess={disableProcessPayment}
-                      setPaymentMethod={setPaymentMethod}
-                    />
-                  </div>
                 </div>
-              </form>
-              <ModalAddressList
-                showModal={showModalShipping}
-                handleClose={handleCloseModalShipping}
-                handleSelectAddress={handleSelectShippingAddress}
-                defaultUserAddress={shippingAddress}
-              />
-              <ModalAddressList
-                showModal={showModalBilling}
-                handleClose={handleCloseModalBilling}
-                handleSelectAddress={handleSelectBillingAddress}
-                defaultUserAddress={shippingAddress}
-              />
-            </div>
+                <div className="col-lg-4 col-md-6">
+                  <CheckOutDetail
+                    orderItems={orderItems}
+                    disablePaymentProcess={disableProcessPayment}
+                    setPaymentMethod={setPaymentMethod}
+                  />
+                </div>
+              </div>
+            </form>
+            <ModalAddressList
+              showModal={showModalShipping}
+              handleModalClose={handleCloseModalShipping}
+              handleSelectAddress={handleSelectShippingAddress}
+              defaultUserAddress={shippingAddress}
+              selectedAddressId={shippingAddress?.id}
+            />
+            <ModalAddressList
+              showModal={showModalBilling}
+              handleModalClose={handleCloseModalBilling}
+              handleSelectAddress={handleSelectBillingAddress}
+              defaultUserAddress={shippingAddress}
+              selectedAddressId={billingAddress?.id}
+            />
           </div>
-        </section>
-      </Container>
-    </>
+        </div>
+      </section>
+    </Container>
   );
 };
 

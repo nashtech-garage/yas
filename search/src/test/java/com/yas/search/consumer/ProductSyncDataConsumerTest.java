@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
+import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
 import com.yas.search.kafka.consumer.ProductSyncDataConsumer;
 import com.yas.commonlibrary.kafka.cdc.message.Product;
 import com.yas.search.service.ProductSyncDataService;
@@ -35,6 +36,7 @@ class ProductSyncDataConsumerTest {
         // When
         long productId = 1L;
         productSyncDataConsumer.sync(
+            ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
                 .after(Product.builder().id(productId).build())
                 .op(CREATE)
@@ -50,6 +52,7 @@ class ProductSyncDataConsumerTest {
         // When
         long productId = 2L;
         productSyncDataConsumer.sync(
+            ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
                 .after(Product.builder().id(productId).build())
                 .op(UPDATE)
@@ -66,6 +69,7 @@ class ProductSyncDataConsumerTest {
         // When
         final long productId = 3L;
         productSyncDataConsumer.sync(
+            ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
                 .after(Product.builder().id(productId).build())
                 .op(DELETE)

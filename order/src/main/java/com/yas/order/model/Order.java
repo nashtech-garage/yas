@@ -1,6 +1,7 @@
 package com.yas.order.model;
 
 
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
@@ -15,11 +16,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,9 +35,6 @@ import org.hibernate.type.SqlTypes;
 @AllArgsConstructor
 @Builder
 public class Order extends AbstractAuditEntity {
-
-    @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    Set<OrderItem> orderItems;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -101,7 +97,7 @@ public class Order extends AbstractAuditEntity {
     private String progress;
 
     @SuppressWarnings("unused")
-    private Long customerId;
+    private String customerId;
 
     @SuppressWarnings("unused")
     @JdbcTypeCode(SqlTypes.JSON)

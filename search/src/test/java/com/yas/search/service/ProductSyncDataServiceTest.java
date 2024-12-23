@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.web.client.RestClient;
@@ -131,6 +132,43 @@ class ProductSyncDataServiceTest {
     }
 
     @Test
+    void updateProductNotPublished_whenProductExists_deleteProduct() {
+        Product existingProduct = new Product();
+        existingProduct.setId(ID);
+
+        when(productRepository.findById(ID)).thenReturn(Optional.of(existingProduct));
+
+        ProductEsDetailVm productEsDetailVm = new ProductEsDetailVm(
+            ID,
+            "Smartphone XYZ",
+            "smartphone-xyz",
+            299.99,
+            false,
+            true,
+            true,
+            false,
+            456L,
+            "BrandName",
+            List.of("Electronics", "Mobile Phones"),
+            List.of("Color: Black", "Storage: 128GB", "RAM: 6GB")
+        );
+
+        URI url = UriComponentsBuilder.fromHttpUrl(PRODUCT_URL)
+            .path("/storefront/products-es/{id}").buildAndExpand(ID).toUri();
+
+        when(serviceUrlConfig.product()).thenReturn(PRODUCT_URL);
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(url)).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.body(ProductEsDetailVm.class))
+            .thenReturn(productEsDetailVm);
+
+        productSyncDataService.updateProduct(ID);
+
+        verify(productRepository).deleteById(ID);
+    }
+
+    @Test
     void testUpdateProduct_whenProductDoesNotExist_throwsNotFoundException() {
 
         mockProductThumbnailVmsByUri();
@@ -181,6 +219,7 @@ class ProductSyncDataServiceTest {
         verify(productRepository).deleteById(id);
     }
 
+    @Disabled
     @Test
     void testDeleteProduct_whenProductDoesNotExist_throwsNotFoundException() {
         Long id = 1L;

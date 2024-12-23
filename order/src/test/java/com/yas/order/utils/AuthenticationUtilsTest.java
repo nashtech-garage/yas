@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.utils.AuthenticationUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +24,7 @@ class AuthenticationUtilsTest {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
 
-        String au = AuthenticationUtils.getCurrentUserId();
+        String au = AuthenticationUtils.extractUserId();
         assertEquals("testUserId", au);
     }
 }

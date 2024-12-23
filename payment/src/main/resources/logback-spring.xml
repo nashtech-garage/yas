@@ -20,8 +20,4 @@
 			<charset>${ENCODING}</charset>
 		</encoder>
 	</appender>
-
-	<root level="INFO">
-		<appender-ref ref="CONSOLE" />
-	</root>
 </configuration>

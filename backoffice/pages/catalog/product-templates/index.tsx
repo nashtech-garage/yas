@@ -16,6 +16,7 @@ const ProductTemplate: NextPage = () => {
   useEffect(() => {
     setLoading(true);
     getListProductTemplate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
 
   const getListProductTemplate = () => {

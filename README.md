@@ -56,7 +56,6 @@ YAS is a pet project aim to practice building a typical microservice application
 127.0.0.1 grafana
 127.0.0.1 elasticsearch
 127.0.0.1 kafka
-127.0.0.1 akhq
 ```
 3. Open terminal of your choice, go to `yas` directory, run `docker compose up`, wait for all the containers up and running
 

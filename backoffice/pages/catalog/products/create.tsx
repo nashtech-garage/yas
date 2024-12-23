@@ -1,5 +1,7 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
@@ -20,7 +22,6 @@ import { ProductAttributeValuePost } from '../../../modules/catalog/models/Produ
 import { mapFormProductToProductPayload } from '../../../modules/catalog/models/ProductPayload';
 import { createProductAttributeValueOfProduct } from '../../../modules/catalog/services/ProductAttributeValueService';
 import { createProduct } from '../../../modules/catalog/services/ProductService';
-import { useRouter } from 'next/router';
 
 const ProductCreate: NextPage = () => {
   const router = useRouter();
@@ -29,6 +30,7 @@ const ProductCreate: NextPage = () => {
     setValue,
     handleSubmit,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<FormProduct>({
     defaultValues: {
@@ -37,6 +39,7 @@ const ProductCreate: NextPage = () => {
       isAllowedToOrder: true,
     },
   });
+  const [tabKey, setTabKey] = useState('general');
 
   const onSubmitForm: SubmitHandler<FormProduct> = async (data) => {
     try {
@@ -64,14 +67,28 @@ const ProductCreate: NextPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (Object.keys(errors).length) {
+      setTabKey('general');
+      setTimeout(() => {
+        document.getElementById(Object.keys(errors)[0])?.scrollIntoView();
+      }, 0);
+    }
+  }, [errors]);
+
   return (
     <div className="create-product">
       <h2>Create Product</h2>
 
       <form onSubmit={handleSubmit(onSubmitForm)}>
-        <Tabs defaultActiveKey={'general'} className="mb-3">
+        <Tabs className="mb-3" activeKey={tabKey} onSelect={(e: any) => setTabKey(e)}>
           <Tab eventKey={'general'} title="General Information">
-            <ProductGeneralInformation register={register} errors={errors} setValue={setValue} />
+            <ProductGeneralInformation
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              watch={watch}
+            />
           </Tab>
           <Tab eventKey={'image'} title="Product Images">
             <ProductImage setValue={setValue} />

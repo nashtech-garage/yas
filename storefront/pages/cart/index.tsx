@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 
 import ConfirmationDialog from '@/common/components/dialog/ConfirmationDialog';
@@ -46,7 +46,12 @@ const Cart = () => {
 
   useEffect(() => {
     loadCartItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getSelectedCartItems = useCallback(() => {
+    return cartItems.filter((cartItem) => selectedProductIds.has(cartItem.productId));
+  }, [cartItems, selectedProductIds]);
 
   useEffect(() => {
     const selectedItems = getSelectedCartItems();
@@ -71,7 +76,7 @@ const Cart = () => {
     // Calculate total price
     const totalPriceLast = newTotalPrice - newDiscountMoney;
     setTotalPrice(totalPriceLast);
-  }, [cartItems, selectedProductIds, promotionApply]);
+  }, [cartItems, selectedProductIds, promotionApply, getSelectedCartItems]);
 
   const loadCartItems = async () => {
     try {
@@ -81,10 +86,6 @@ const Cart = () => {
     } catch (error) {
       return [];
     }
-  };
-
-  const getSelectedCartItems = () => {
-    return cartItems.filter((cartItem) => selectedProductIds.has(cartItem.productId));
   };
 
   const handleSelectAllCartItemsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,10 +203,11 @@ const Cart = () => {
     let checkout: Checkout = {
       email: email,
       note: '',
-      couponCode: '',
+      couponCode: couponCode,
+      totalAmount: totalPrice,
+      totalDiscountAmount: discountMoney,
       checkoutItemPostVms: checkoutItems,
     };
-
     createCheckout(checkout)
       .then((res) => {
         router.push(`/checkout/${res?.id}`); //NOSONAR
@@ -221,6 +223,7 @@ const Cart = () => {
       productName: item.productName,
       quantity: item.quantity,
       productPrice: item.price,
+      discountAmount: discountMoney,
     };
   };
 

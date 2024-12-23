@@ -5,6 +5,7 @@ import static com.yas.order.utils.Constants.ErrorCode.ORDER_NOT_FOUND;
 import com.yas.commonlibrary.csv.BaseCsv;
 import com.yas.commonlibrary.csv.CsvExporter;
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.utils.AuthenticationUtils;
 import com.yas.order.mapper.OrderMapper;
 import com.yas.order.model.Order;
 import com.yas.order.model.OrderAddress;
@@ -16,7 +17,7 @@ import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.model.request.OrderRequest;
 import com.yas.order.repository.OrderItemRepository;
 import com.yas.order.repository.OrderRepository;
-import com.yas.order.utils.AuthenticationUtils;
+import com.yas.order.specification.OrderSpecification;
 import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
@@ -27,11 +28,13 @@ import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.product.ProductVariationVm;
+import com.yas.order.viewmodel.promotion.PromotionUsageVm;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -41,6 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -55,6 +61,7 @@ public class OrderService {
     private final ProductService productService;
     private final CartService cartService;
     private final OrderMapper orderMapper;
+    private final PromotionService promotionService;
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
 
@@ -109,7 +116,6 @@ public class OrderService {
                 .build();
         orderRepository.save(order);
 
-
         Set<OrderItem> orderItems = orderPostVm.orderItemPostVms().stream()
                 .map(item -> OrderItem.builder()
                         .productId(item.productId())
@@ -117,49 +123,67 @@ public class OrderService {
                         .quantity(item.quantity())
                         .productPrice(item.productPrice())
                         .note(item.note())
-                        .orderId(order)
+                        .orderId(order.getId())
                         .build())
                 .collect(Collectors.toSet());
         orderItemRepository.saveAll(orderItems);
 
-        //setOrderItems so that we able to return order with orderItems
-        order.setOrderItems(orderItems);
-        OrderVm orderVm = OrderVm.fromModel(order);
+        OrderVm orderVm = OrderVm.fromModel(order, orderItems);
         productService.subtractProductStockQuantity(orderVm);
         cartService.deleteCartItems(orderVm);
         acceptOrder(orderVm.id());
+
+        // update promotion
+        List<PromotionUsageVm> promotionUsageVms = new ArrayList<>();
+        orderItems.forEach(item -> {
+            PromotionUsageVm promotionUsageVm = PromotionUsageVm.builder()
+                    .productId(item.getProductId())
+                    .orderId(order.getId())
+                    .promotionCode(order.getCouponCode())
+                    .build();
+            promotionUsageVms.add(promotionUsageVm);
+        });
+        promotionService.updateUsagePromotion(promotionUsageVms);
         return orderVm;
     }
 
     public OrderVm getOrderWithItemsById(long id) {
+
         Order order = orderRepository.findById(id).orElseThrow(()
                 -> new NotFoundException(Constants.ErrorCode.ORDER_NOT_FOUND, id));
 
-        return OrderVm.fromModel(order);
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(order.getId());
+        return OrderVm.fromModel(order, new HashSet<>(orderItems));
     }
 
-    public OrderListVm getAllOrder(ZonedDateTime createdFrom,
-                                   ZonedDateTime createdTo,
-                                   String warehouse,
+    public OrderListVm getAllOrder(Pair<ZonedDateTime, ZonedDateTime> timePair,
                                    String productName,
                                    List<OrderStatus> orderStatus,
-                                   String billingCountry,
-                                   String billingPhoneNumber,
+                                   Pair<String, String> billingPair,
                                    String email,
-                                   int pageNo,
-                                   int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+                                   Pair<Integer, Integer> infoPage) {
+
+        Sort sort = Sort.by(Sort.Direction.DESC, Constants.Column.CREATE_ON_COLUMN);
+        Pageable pageable = PageRequest.of(infoPage.getFirst(), infoPage.getSecond(), sort);
 
         List<OrderStatus> allOrderStatus = Arrays.asList(OrderStatus.values());
-        Page<Order> orderPage = orderRepository.findOrderByWithMulCriteria(
-                orderStatus.isEmpty() ? allOrderStatus : orderStatus,
-                billingPhoneNumber,
-                billingCountry,
-                email.toLowerCase(),
-                productName.toLowerCase(),
-                createdFrom,
-                createdTo,
-                pageable);
+
+        ZonedDateTime createdFrom = timePair.getFirst();
+        ZonedDateTime createdTo = timePair.getSecond();
+        String billingCountry = billingPair.getFirst();
+        String billingPhoneNumber = billingPair.getSecond();
+
+        Specification<Order> spec = OrderSpecification.findOrderByWithMulCriteria(
+            orderStatus.isEmpty() ? allOrderStatus : orderStatus,
+            billingPhoneNumber,
+            billingCountry,
+            email,
+            productName,
+            createdFrom,
+            createdTo
+        );
+
+        Page<Order> orderPage = orderRepository.findAll(spec, pageable);
         if (orderPage.isEmpty()) {
             return new OrderListVm(null, 0, 0);
         }
@@ -179,7 +203,7 @@ public class OrderService {
         }
 
         Pageable pageable = PageRequest.of(0, count);
-        List<Order> orders =  orderRepository.getLatestOrders(pageable);
+        List<Order> orders = orderRepository.getLatestOrders(pageable);
 
         if (CollectionUtils.isEmpty(orders)) {
             return List.of();
@@ -192,7 +216,7 @@ public class OrderService {
 
     public OrderExistsByProductAndUserGetVm isOrderCompletedWithUserIdAndProductId(final Long productId) {
 
-        String userId = AuthenticationUtils.getCurrentUserId();
+        String userId = AuthenticationUtils.extractUserId();
 
         List<ProductVariationVm> productVariations = productService.getProductVariations(productId);
 
@@ -203,15 +227,25 @@ public class OrderService {
             productIds = productVariations.stream().map(ProductVariationVm::id).toList();
         }
 
-        return new OrderExistsByProductAndUserGetVm(
-                orderRepository.existsByCreatedByAndInProductIdAndOrderStatusCompleted(userId, productIds)
-        );
+        Specification<Order>
+            spec = OrderSpecification.existsByCreatedByAndInProductIdAndOrderStatusCompleted(userId, productIds);
+        boolean existedOrder = orderRepository.findOne(spec).isPresent();
+
+        return new OrderExistsByProductAndUserGetVm(existedOrder);
     }
 
     public List<OrderGetVm> getMyOrders(String productName, OrderStatus orderStatus) {
-        String userId = AuthenticationUtils.getCurrentUserId();
-        List<Order> orders = orderRepository.findMyOrders(userId, productName, orderStatus);
-        return orders.stream().map(OrderGetVm::fromModel).toList();
+        String userId = AuthenticationUtils.extractUserId();
+        Specification<Order> orderSpec = OrderSpecification.findMyOrders(userId, productName, orderStatus);
+        Sort sort = Sort.by(Sort.Direction.DESC, Constants.Column.CREATE_ON_COLUMN);
+        List<Order> orders = orderRepository.findAll(orderSpec, sort);
+        return orders.stream().map(order -> OrderGetVm.fromModel(order, null)).toList();
+    }
+
+    public OrderGetVm findOrderVmByCheckoutId(String checkoutId) {
+        Order order = this.findOrderByCheckoutId(checkoutId);
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(order.getId());
+        return OrderGetVm.fromModel(order, new HashSet<>(orderItems));
     }
 
     public Order findOrderByCheckoutId(String checkoutId) {
@@ -257,7 +291,6 @@ public class OrderService {
     public byte[] exportCsv(OrderRequest orderRequest) throws IOException {
         ZonedDateTime createdFrom = orderRequest.getCreatedFrom();
         ZonedDateTime createdTo = orderRequest.getCreatedTo();
-        String warehouse = orderRequest.getWarehouse();
         String productName = orderRequest.getProductName();
         List<OrderStatus> orderStatus = orderRequest.getOrderStatus();
         String billingCountry = orderRequest.getBillingCountry();
@@ -266,9 +299,15 @@ public class OrderService {
         int pageNo = orderRequest.getPageNo();
         int pageSize = orderRequest.getPageSize();
 
-        OrderListVm orderListVm = getAllOrder(createdFrom, createdTo,
-            warehouse, productName,
-            orderStatus, billingCountry, billingPhoneNumber, email, pageNo, pageSize);
+        OrderListVm orderListVm = getAllOrder(
+            Pair.of(createdFrom, createdTo),
+            productName,
+            orderStatus,
+            Pair.of(billingCountry, billingPhoneNumber),
+            email,
+            Pair.of(pageNo, pageSize)
+        );
+
         if (Objects.isNull(orderListVm.orderList())) {
             return CsvExporter.exportToCsv(List.of(), OrderItemCsv.class);
         }

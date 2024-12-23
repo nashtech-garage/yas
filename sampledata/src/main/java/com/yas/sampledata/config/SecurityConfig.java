@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,6 +21,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/storefront/sampledata") // Disable CSRF for these paths
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/sampledata/**").permitAll()
                 .requestMatchers("/actuator/prometheus", "/actuator/health/**",

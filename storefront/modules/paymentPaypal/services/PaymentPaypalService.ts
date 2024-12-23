@@ -1,9 +1,10 @@
 import { InitPaymentPaypalRequest } from '@/modules/paymentPaypal/models/InitPaymentPaypalRequest';
 import { InitPaymentPaypalResponse } from '@/modules/paymentPaypal/models/InitPaymentPaypalResponse';
+import { CapturePaymentRequest } from '@/modules/paymentPaypal/models/CapturePaymentRequest';
 import { CapturePaymentPaypalResponse } from '@/modules/paymentPaypal/models/CapturePaymentPaypalResponse';
 import apiClientService from '@/common/services/ApiClientService';
 
-const baseUrl = '/api/payment-paypal';
+const baseUrl = '/api/payment';
 
 export async function initPaymentPaypal(
   paymentPaypalRequest: InitPaymentPaypalRequest
@@ -15,8 +16,13 @@ export async function initPaymentPaypal(
   throw new Error(res.statusText);
 }
 
-export async function capturePaymentPaypal(token?: string): Promise<CapturePaymentPaypalResponse> {
-  const res = await apiClientService.get(`${baseUrl}/capture?token=${token}`);
+export async function capturePaymentPaypal(
+  capturePaymentRequestVM: CapturePaymentRequest
+): Promise<CapturePaymentPaypalResponse> {
+  const res = await apiClientService.post(
+    `${baseUrl}/capture`,
+    JSON.stringify(capturePaymentRequestVM)
+  );
   if (res.ok) {
     return res.json();
   }

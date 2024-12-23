@@ -1,7 +1,11 @@
 import slugify from 'slugify';
 
 import { FormProduct } from './FormProduct';
-import { ProductOptionValuePost } from './ProductOptionValuePost';
+import {
+  ProductOptionsValuePost,
+  ProductOptionValueDisplay,
+  ProductOptionValuePost,
+} from './ProductOptionValuePost';
 import { ProductVariation } from './ProductVariation';
 import { ProductVariationPost } from './ProductVariationPost';
 import { ProductVariationPut } from './ProductVariationPut';
@@ -34,7 +38,8 @@ export type ProductPayload = {
   thumbnailMediaId?: number;
   productImageIds?: number[];
   variations?: ProductVariationPost[] | ProductVariationPut[];
-  productOptionValues?: ProductOptionValuePost[];
+  productOptionValues?: ProductOptionsValuePost[];
+  productOptionValueDisplays?: ProductOptionValueDisplay[];
   relatedProductIds?: number[];
   taxClassId?: number;
 };
@@ -83,13 +88,23 @@ export function mapFormProductToProductPayload(data: FormProduct): ProductPayloa
         })
       : [],
     productOptionValues: createProductOptionValues(data.productVariations || []),
+    productOptionValueDisplays: createProductOptionValueDisplay(data.productOptionValuePost || []),
     relatedProductIds: data.relateProduct,
     taxClassId: data.taxClassId,
   };
 }
 
+const createProductOptionValueDisplay = (productOptionValuePost: ProductOptionValuePost[]) => {
+  return productOptionValuePost.map((item) => ({
+    productOptionId: item.productOptionId,
+    value: JSON.stringify(item.value),
+    displayType: item.displayType,
+    displayOrder: item.displayOrder,
+  }));
+};
+
 const createProductOptionValues = (productVariations: ProductVariation[]) => {
-  let productOptionValues: ProductOptionValuePost[] = [];
+  let productOptionValues: ProductOptionsValuePost[] = [];
   productVariations.forEach((variation) => {
     const option = variation.optionValuesByOptionId;
     Object.entries(option).forEach((entry) => {

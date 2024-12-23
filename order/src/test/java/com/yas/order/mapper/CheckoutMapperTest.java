@@ -6,6 +6,7 @@ import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import org.assertj.core.api.Assertions;
 import org.instancio.Instancio;
+import static org.instancio.Select.field;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,28 +28,27 @@ class CheckoutMapperTest {
         var res = checkoutMapper.toModel(src);
 
         Assertions.assertThat(res)
-            .hasFieldOrPropertyWithValue("productId", src.productId())
-            .hasFieldOrPropertyWithValue("productName", src.productName())
-            .hasFieldOrPropertyWithValue("quantity", src.quantity())
-            .hasFieldOrPropertyWithValue("productPrice", src.productPrice())
-            .hasFieldOrPropertyWithValue("note", src.note())
-            .hasFieldOrPropertyWithValue("discountAmount", src.discountAmount())
-            .hasFieldOrPropertyWithValue("taxAmount", src.taxAmount())
-            .hasFieldOrPropertyWithValue("taxPercent", src.taxPercent());
+                .hasFieldOrPropertyWithValue("productId", src.productId())
+                .hasFieldOrPropertyWithValue("quantity", src.quantity())
+                .hasFieldOrPropertyWithValue("description", src.description());
     }
 
     @Test
     void testCheckoutPostVmToModel_convertToCorrectCheckout() {
 
         CheckoutPostVm checkoutPostVm = Instancio.of(CheckoutPostVm.class)
-            .create();
-
+                .supply(field(CheckoutPostVm.class, "shippingAddressId"), gen -> Long.toString(gen.longRange(1, 10000)))
+                .create();
+        System.out.println(checkoutPostVm.toString());
         var res = checkoutMapper.toModel(checkoutPostVm);
 
         Assertions.assertThat(res)
-            .hasFieldOrPropertyWithValue("email", checkoutPostVm.email())
-            .hasFieldOrPropertyWithValue("note", checkoutPostVm.note())
-            .hasFieldOrPropertyWithValue("couponCode", checkoutPostVm.couponCode());
+                .hasFieldOrPropertyWithValue("email", checkoutPostVm.email())
+                .hasFieldOrPropertyWithValue("note", checkoutPostVm.note())
+                .hasFieldOrPropertyWithValue("promotionCode", checkoutPostVm.promotionCode())
+                .hasFieldOrPropertyWithValue("shipmentMethodId", checkoutPostVm.shipmentMethodId())
+                .hasFieldOrPropertyWithValue("paymentMethodId", checkoutPostVm.paymentMethodId())
+                .hasFieldOrPropertyWithValue("shippingAddressId", Long.valueOf(checkoutPostVm.shippingAddressId()));
 
     }
 
@@ -60,9 +60,12 @@ class CheckoutMapperTest {
         var res = checkoutMapper.toVm(checkout);
 
         Assertions.assertThat(res).hasFieldOrPropertyWithValue("id", checkout.getId())
-            .hasFieldOrPropertyWithValue("email", checkout.getEmail())
-            .hasFieldOrPropertyWithValue("note", checkout.getNote())
-            .hasFieldOrPropertyWithValue("couponCode", checkout.getCouponCode());
+                .hasFieldOrPropertyWithValue("email", checkout.getEmail())
+                .hasFieldOrPropertyWithValue("note", checkout.getNote())
+                .hasFieldOrPropertyWithValue("promotionCode", checkout.getPromotionCode())
+                .hasFieldOrPropertyWithValue("shipmentMethodId", checkout.getShipmentMethodId())
+                .hasFieldOrPropertyWithValue("paymentMethodId", checkout.getPaymentMethodId())
+                .hasFieldOrPropertyWithValue("shippingAddressId", checkout.getShippingAddressId());
 
         Assertions.assertThat(res.checkoutItemVms()).isNull();
     }
@@ -75,14 +78,16 @@ class CheckoutMapperTest {
         var res = checkoutMapper.toVm(checkoutItem);
 
         Assertions.assertThat(res)
-            .hasFieldOrPropertyWithValue("id", checkoutItem.getId())
-            .hasFieldOrPropertyWithValue("productId", checkoutItem.getProductId())
-            .hasFieldOrPropertyWithValue("productName", checkoutItem.getProductName())
-            .hasFieldOrPropertyWithValue("quantity", checkoutItem.getQuantity())
-            .hasFieldOrPropertyWithValue("productPrice", checkoutItem.getProductPrice())
-            .hasFieldOrPropertyWithValue("note", checkoutItem.getNote())
-            .hasFieldOrPropertyWithValue("discountAmount", checkoutItem.getDiscountAmount())
-            .hasFieldOrPropertyWithValue("taxAmount", checkoutItem.getTaxAmount())
-            .hasFieldOrPropertyWithValue("taxPercent", checkoutItem.getTaxPercent());
+                .hasFieldOrPropertyWithValue("id", checkoutItem.getId())
+                .hasFieldOrPropertyWithValue("productId", checkoutItem.getProductId())
+                .hasFieldOrPropertyWithValue("productName", checkoutItem.getProductName())
+                .hasFieldOrPropertyWithValue("description", checkoutItem.getDescription())
+                .hasFieldOrPropertyWithValue("quantity", checkoutItem.getQuantity())
+                .hasFieldOrPropertyWithValue("productPrice", checkoutItem.getProductPrice())
+                .hasFieldOrPropertyWithValue("taxAmount", checkoutItem.getTaxAmount())
+                .hasFieldOrPropertyWithValue("discountAmount", checkoutItem.getDiscountAmount())
+                .hasFieldOrPropertyWithValue("shipmentFee", checkoutItem.getShipmentFee())
+                .hasFieldOrPropertyWithValue("shipmentTax", checkoutItem.getShipmentTax())
+                .hasFieldOrPropertyWithValue("checkoutId", checkoutItem.getCheckout().getId());
     }
 }

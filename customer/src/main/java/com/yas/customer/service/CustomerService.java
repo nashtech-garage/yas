@@ -2,6 +2,7 @@ package com.yas.customer.service;
 
 import com.yas.commonlibrary.exception.AccessDeniedException;
 import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.ForbiddenException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.exception.WrongEmailFormatException;
 import com.yas.customer.config.KeycloakPropsConfig;
@@ -12,12 +13,11 @@ import com.yas.customer.viewmodel.customer.CustomerPostVm;
 import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
 import com.yas.customer.viewmodel.customer.CustomerVm;
 import com.yas.customer.viewmodel.customer.GuestUserVm;
+import jakarta.ws.rs.core.Response;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.Response;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -26,14 +26,13 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerService {
 
     private static final String ERROR_FORMAT = "%s: Client %s don't have access right for this resource";
-    private static final int USER_PER_PAGE = 2;
+    private static final int USER_PER_PAGE = 10;
     private static final String GUEST = "GUEST";
     private final Keycloak keycloak;
     private final KeycloakPropsConfig keycloakPropsConfig;
@@ -55,9 +54,10 @@ public class CustomerService {
         try {
             List<CustomerAdminVm> result = keycloak.realm(keycloakPropsConfig.getRealm()).users()
                 .search(null, pageNo * USER_PER_PAGE, USER_PER_PAGE).stream()
+                .filter(UserRepresentation::isEnabled)
                 .map(CustomerAdminVm::fromUserRepresentation)
                 .toList();
-            int totalUser = keycloak.realm(keycloakPropsConfig.getRealm()).users().count();
+            int totalUser = result.size();
 
             return new CustomerListVm(totalUser, result, (totalUser + USER_PER_PAGE - 1) / USER_PER_PAGE);
         } catch (ForbiddenException exception) {
@@ -66,8 +66,7 @@ public class CustomerService {
         }
     }
 
-    public void updateCustomers(CustomerProfileRequestVm requestVm) {
-        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+    public void updateCustomer(String id, CustomerProfileRequestVm requestVm) {
         UserRepresentation userRepresentation =
             keycloak.realm(keycloakPropsConfig.getRealm()).users().get(id).toRepresentation();
         if (userRepresentation != null) {
@@ -82,6 +81,19 @@ public class CustomerService {
         }
     }
 
+    public void deleteCustomer(String id) {
+        UserRepresentation userRepresentation =
+            keycloak.realm(keycloakPropsConfig.getRealm()).users().get(id).toRepresentation();
+        if (userRepresentation != null) {
+            RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
+            UserResource userResource = realmResource.users().get(id);
+            userRepresentation.setEnabled(false);
+            userResource.update(userRepresentation);
+        } else {
+            throw new NotFoundException(Constants.ErrorCode.USER_NOT_FOUND);
+        }
+    }
+
     public CustomerAdminVm getCustomerByEmail(String email) {
         try {
             if (EmailValidator.getInstance().isValid(email)) {
@@ -90,7 +102,7 @@ public class CustomerService {
                 if (searchResult.isEmpty()) {
                     throw new NotFoundException(Constants.ErrorCode.USER_WITH_EMAIL_NOT_FOUND, email);
                 }
-                return CustomerAdminVm.fromUserRepresentation(searchResult.get(0));
+                return CustomerAdminVm.fromUserRepresentation(searchResult.getFirst());
             } else {
                 throw new WrongEmailFormatException(Constants.ErrorCode.WRONG_EMAIL_FORMAT, email);
             }
