@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yas.commonlibrary.kafka.cdc.message.Product;
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
+import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
 import com.yas.search.config.KafkaIntegrationTestConfiguration;
 import com.yas.search.config.ServiceUrlConfig;
 import com.yas.search.repository.ProductRepository;
@@ -37,7 +38,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Import(KafkaIntegrationTestConfiguration.class)
 @PropertySource("classpath:application.properties")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
+public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, ProductCdcMessage> {
 
     public static final String STOREFRONT_PRODUCTS_ES_PATH = "/storefront/products-es/{id}";
 
@@ -54,7 +55,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
     private ProductSyncDataService productSyncDataService;
 
     public ProductCdcConsumerTest() {
-        super(ProductCdcMessage.class, "dbproduct.public.product");
+        super(ProductMsgKey.class, ProductCdcMessage.class, "dbproduct.public.product");
     }
 
     @AfterEach
@@ -80,6 +81,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
 
         // Sending CDC Event
         sendMsg(
+            ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
                 .op(CREATE)
                 .after(Product.builder().id(productId).isPublished(true).build())
@@ -113,6 +115,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
 
         // Sending CDC Event
         sendMsg(
+            ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
                 .op(CREATE)
                 .after(Product.builder().id(productId).isPublished(true).build())
@@ -146,6 +149,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
 
         // Sending CDC Event
         sendMsg(
+            ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
                 .op(UPDATE)
                 .after(Product.builder().id(productId).isPublished(true).build())
@@ -163,7 +167,6 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
         assertEquals(updated.get().getName(), response.name(), "Product name must be updated.");
     }
 
-    @Disabled("Handle later once elasticsearch sync delete complete")
     @DisplayName("When having product delete event, data must sync as delete")
     @Test
     public void test_whenHavingDeleteEvent_shouldSyncAsDelete()
@@ -186,6 +189,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductCdcMessage> {
 
         // Sending CDC Event
         sendMsg(
+            ProductMsgKey.builder().id(productId).build(),
             ProductCdcMessage.builder()
             .op(DELETE)
             .after(Product.builder().id(productId).isPublished(true).build())

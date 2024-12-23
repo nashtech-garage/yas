@@ -46,23 +46,14 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
      * @param vectorStore vector store service.
      */
     @SneakyThrows
-    public SimpleVectorRepository(Class<D> docType, VectorStore vectorStore) {
+    protected SimpleVectorRepository(Class<D> docType, VectorStore vectorStore) {
         Assert.isTrue(docType.isAnnotationPresent(DocumentMetadata.class),
-            "Document must be annotated by '@DocumentFormat'");
+                "Document must be annotated by '@DocumentFormat'");
         this.docType = docType;
         this.vectorStore = vectorStore;
         this.documentMetadata = docType.getAnnotation(DocumentMetadata.class);
         this.documentFormatter = documentMetadata.documentFormatter().getDeclaredConstructor().newInstance();
     }
-
-    /**
-     * Retrieves the entity data for a given product ID. It used for
-     * {@link SimpleVectorRepository#add(Long)}, and {@link SimpleVectorRepository#search(Long)} operation.
-     *
-     * @param id the ID.
-     * @return a map of entity attributes where keys are attribute names and values are their corresponding values.
-     */
-    public abstract E getEntity(Long id);
 
     /**
      * Add a record to the vector database by fetching data from an external source.
@@ -93,8 +84,8 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
      * @param entityId the ID of the entity to be deleted from the vector store
      */
     public void delete(Long entityId) {
-        DefaultIdGenerator defaultIdGenerator = new DefaultIdGenerator(documentMetadata.docIdPrefix(), entityId);
-        var docId = defaultIdGenerator.generateId();
+        IdGenerator idGenerator = getIdGenerator(entityId);
+        var docId = idGenerator.generateId();
         vectorStore.delete(List.of(docId));
     }
 
@@ -122,24 +113,24 @@ public abstract class SimpleVectorRepository<D extends BaseDocument, E> implemen
         final var entityContentMap = objectMapper.convertValue(entity, Map.class);
         final var content = documentFormatter.format(entityContentMap, documentMetadata.contentFormat(), objectMapper);
         return vectorStore.similaritySearch(
-                SearchRequest
-                    .query(content)
-                    .withTopK(embeddingSearchConfiguration.topK())
-                    .withFilterExpression(this.excludeSameEntityExpression(id))
-                    .withSimilarityThreshold(embeddingSearchConfiguration.similarityThreshold())
-            )
-            .stream()
-            .map(this::toBaseDocument)
-            .toList();
+                        SearchRequest
+                                .query(content)
+                                .withTopK(embeddingSearchConfiguration.topK())
+                                .withFilterExpression(this.excludeSameEntityExpression(id))
+                                .withSimilarityThreshold(embeddingSearchConfiguration.similarityThreshold())
+                )
+                .stream()
+                .map(this::toBaseDocument)
+                .toList();
     }
 
-    protected IdGenerator getIdGenerator(Long entityId) {
+    public IdGenerator getIdGenerator(Long entityId) {
         return new DefaultIdGenerator(documentMetadata.docIdPrefix(), entityId);
     }
 
     private Filter.Expression excludeSameEntityExpression(Long id) {
         FilterExpressionBuilder b = new FilterExpressionBuilder();
-        return b.ne(FIELD_ID, this.getIdGenerator(id).generateId()).build();
+        return b.ne(FIELD_ID, id).build();
     }
 
     @SneakyThrows

@@ -22,7 +22,7 @@ connectors:
 
 exporters:
   debug:
-    verbosity: detailed
+    verbosity: basic
   prometheusremotewrite:
     endpoint: http://prometheus:9090/api/v1/write
     resource_to_telemetry_conversion:

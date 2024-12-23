@@ -33,6 +33,7 @@ const PromotionUpdate: NextPage = () => {
       toastError(`Promotion id ${id} not found`);
       router.push({ pathname: `/404` }); //NOSONAR
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setDefaultValues = (promotion: PromotionDetail) => {

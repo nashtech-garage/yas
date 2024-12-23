@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
+        <version>3.3.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yas</groupId>
@@ -23,8 +23,8 @@
         <module>location</module>
         <module>media</module>
         <module>order</module>
-        <module>payment</module>
         <module>payment-paypal</module>
+        <module>payment</module>
         <module>product</module>
         <module>promotion</module>
         <module>rating</module>
@@ -49,22 +49,23 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>nashtech-garage_yas-yas-parent</sonar.projectKey>
         <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
-        <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
-        <org.lombok.version>1.18.30</org.lombok.version>
+        <org.mapstruct.version>	1.6.2</org.mapstruct.version>
+        <org.lombok.version>1.18.34</org.lombok.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
-        <opentelemetry-logback.vesion>1.30.0-alpha</opentelemetry-logback.vesion>
+        <logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
+        <opentelemetry-logback.vesion>2.9.0-alpha</opentelemetry-logback.vesion>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
-        <keycloak-spring-security-adapter.version>21.0.2</keycloak-spring-security-adapter.version>
-        <org.keycloak.version>16.1.0</org.keycloak.version>
-        <commons-validator.version>1.7</commons-validator.version>
-        <org.elasticsearch.version>8.14.0</org.elasticsearch.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+        <keycloak-spring-security-adapter.version>25.0.3</keycloak-spring-security-adapter.version>
+        <org.keycloak.version>26.0.1</org.keycloak.version>
+        <keycloak-spring-boot-starter.version>25.0.3</keycloak-spring-boot-starter.version>
+        <commons-validator.version>1.9.0</commons-validator.version>
+        <org.elasticsearch.version>8.15.3</org.elasticsearch.version>
         <paypal-checkout-sdk.version>2.0.0</paypal-checkout-sdk.version>
-        <testcontainers-keycloak.version>3.3.0</testcontainers-keycloak.version>
-        <rest-assured.version>5.4.0</rest-assured.version>
-        <instancio-junit.version>4.8.1</instancio-junit.version>
-        <opencsv.version>5.7.1</opencsv.version>
+        <testcontainers-keycloak.version>3.5.1</testcontainers-keycloak.version>
+        <rest-assured.version>5.5.0</rest-assured.version>
+        <instancio-junit.version>5.0.2</instancio-junit.version>
+        <opencsv.version>5.9</opencsv.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -108,7 +109,7 @@
             <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-spring-boot-starter</artifactId>
-                <version>${org.keycloak.version}</version>
+                <version>${keycloak-spring-boot-starter.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>

@@ -1,5 +1,6 @@
 package com.yas.payment.model;
 
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
 import jakarta.persistence.Entity;

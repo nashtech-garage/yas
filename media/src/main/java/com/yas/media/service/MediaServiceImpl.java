@@ -2,6 +2,7 @@ package com.yas.media.service;
 
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.media.config.YasConfig;
+import com.yas.media.mapper.MediaVmMapper;
 import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
 import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;
@@ -12,6 +13,8 @@ import com.yas.media.viewmodel.MediaPostVm;
 import com.yas.media.viewmodel.MediaVm;
 import com.yas.media.viewmodel.NoFileMediaVm;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
@@ -22,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class MediaServiceImpl implements MediaService {
 
+    private final MediaVmMapper mediaVmMapper;
     private final MediaRepository mediaRepository;
     private final FileSystemRepository fileSystemRepository;
     private final YasConfig yasConfig;
@@ -60,9 +64,7 @@ public class MediaServiceImpl implements MediaService {
         if (noFileMediaVm == null) {
             return null;
         }
-        String url = UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
-            .path(String.format("/medias/%1$s/file/%2$s", noFileMediaVm.id(), noFileMediaVm.fileName()))
-            .build().toUriString();
+        String url = getMediaUrl(noFileMediaVm.id(), noFileMediaVm.fileName());
 
         return new MediaVm(
             noFileMediaVm.id(),
@@ -89,5 +91,22 @@ public class MediaServiceImpl implements MediaService {
             .content(fileContent)
             .mediaType(mediaType)
             .build();
+    }
+
+    @Override
+    public List<MediaVm> getMediaByIds(List<Long> ids) {
+        return mediaRepository.findAllById(ids).stream()
+                .map(mediaVmMapper::toVm)
+                .map(media -> {
+                    String url = getMediaUrl(media.getId(), media.getFileName());
+                    media.setUrl(url);
+                    return media;
+                }).toList();
+    }
+
+    private String getMediaUrl(Long mediaId, String fileName) {
+        return UriComponentsBuilder.fromUriString(yasConfig.publicUrl())
+                .path(String.format("/medias/%1$s/file/%2$s", mediaId, fileName))
+                .build().toUriString();
     }
 }

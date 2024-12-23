@@ -1,6 +1,5 @@
 package com.yas.commonlibrary.kafka.cdc.message;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -12,12 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductCdcMessage {
 
-    @NotNull
     private Product after;
 
     private Product before;
 
-    @NotNull
     private Operation op;
 
 }

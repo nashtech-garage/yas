@@ -17,16 +17,3 @@ export const data_menu_top_no_login = [
     links: '#',
   },
 ];
-
-export const DATA_SEARCH_SUGGESTION = [
-  'Laptop',
-  'Mobile',
-  'Camera',
-  'Headphone',
-  'Watch',
-  'Speaker',
-  'Smartphone',
-  'Tablet',
-  'Smartwatch',
-  'Smart TV',
-];

@@ -7,9 +7,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.yas.payment.config.ServiceUrlConfig;
+import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
-import com.yas.payment.viewmodel.CapturedPayment;
+import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import java.math.BigDecimal;
@@ -45,7 +46,7 @@ class OrderServiceTest {
     @Test
     void testUpdateCheckoutStatus_whenNormalCase_returnLong() {
 
-        CapturedPayment payment = CapturedPayment.builder()
+        CapturedPayment capturedPayment = CapturedPayment.builder()
             .orderId(12345L)
             .checkoutId("checkout-1234")
             .amount(new BigDecimal("99.99"))
@@ -66,10 +67,11 @@ class OrderServiceTest {
         when(restClient.put()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(url)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(any(CheckoutStatusVm.class))).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(Long.class)).thenReturn(1L);
 
-        Long result = orderService.updateCheckoutStatus(payment);
+        Long result = orderService.updateCheckoutStatus(capturedPayment);
 
         assertThat(result).isEqualTo(1L);
 
@@ -77,6 +79,7 @@ class OrderServiceTest {
 
     @Test
     void testUpdateOrderStatus_whenNormalCase_returnPaymentOrderStatusVm() {
+
 
         PaymentOrderStatusVm statusVm = PaymentOrderStatusVm.builder()
             .orderId(123456L)
@@ -95,6 +98,7 @@ class OrderServiceTest {
         when(restClient.put()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(url)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(statusVm)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(PaymentOrderStatusVm.class)).thenReturn(statusVm);
 

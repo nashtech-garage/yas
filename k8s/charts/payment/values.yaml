@@ -7,9 +7,7 @@ backend:
   fullnameOverride: payment
   databaseName: payment
   ingress:
-    enabled: true
-    host: api.yas.local.com
-    path: /payment
+    enabled: false
   extraVolumes:
     - name: payment-application-config
       configMap:

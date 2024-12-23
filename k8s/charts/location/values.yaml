@@ -7,6 +7,4 @@ backend:
   fullnameOverride: location
   databaseName: location
   ingress:
-    enabled: true
-    host: api.yas.local.com
-    path: /location
+    enabled: false

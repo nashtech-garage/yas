@@ -12,13 +12,24 @@ import { getStatesOrProvinces } from '../../stateAndProvince/services/StatesOrPr
 import { getDistricts } from '../../district/services/DistrictService';
 
 type AddressFormProps = {
+  handleSubmit: () => void;
   register: UseFormRegister<Address>;
   setValue: UseFormSetValue<Address>;
   errors: FieldErrorsImpl<Address>;
   address: Address | undefined;
   isDisplay?: boolean | true;
+  buttonText?: string;
 };
-const AddressForm = ({ register, errors, address, isDisplay, setValue }: AddressFormProps) => {
+
+const AddressForm = ({
+  handleSubmit,
+  register,
+  errors,
+  address,
+  isDisplay,
+  setValue,
+  buttonText,
+}: AddressFormProps) => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -190,6 +201,17 @@ const AddressForm = ({ register, errors, address, isDisplay, setValue }: Address
                 defaultValue={address?.zipCode}
               />
             </div>
+          </div>
+        </div>
+        <div className="row mt-2">
+          <div className="col-lg-12 d-flex justify-content-end">
+            <button
+              type="button"
+              className="btn btn-outline-primary fw-bold px-2 py-2"
+              onClick={handleSubmit}
+            >
+              {buttonText ?? 'Create'}
+            </button>
           </div>
         </div>
       </div>

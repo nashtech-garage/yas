@@ -27,7 +27,7 @@ public record OrderItemVm(
                 .discountAmount(orderItem.getDiscountAmount())
                 .taxPercent(orderItem.getTaxPercent())
                 .taxAmount(orderItem.getTaxAmount())
-                .orderId(orderItem.getOrderId().getId())
+                .orderId(orderItem.getOrderId())
                 .build();
     }
 }

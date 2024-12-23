@@ -1,40 +1,49 @@
 package com.yas.payment.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.yas.payment.model.CapturedPayment;
+import com.yas.payment.model.InitiatedPayment;
 import com.yas.payment.model.Payment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.repository.PaymentRepository;
-import com.yas.payment.viewmodel.CapturedPayment;
-import com.yas.payment.viewmodel.PaymentOrderStatusVm;
-import java.math.BigDecimal;
+import com.yas.payment.service.provider.handler.PaymentHandler;
+import com.yas.payment.service.provider.handler.PaypalHandler;
+import com.yas.payment.viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class PaymentServiceTest {
-    @Mock
     private PaymentRepository paymentRepository;
-
-    @Mock
     private OrderService orderService;
-
-    @InjectMocks
+    private PaymentHandler paymentHandler;
+    private List<PaymentHandler> paymentHandlers = new ArrayList<>();
     private PaymentService paymentService;
 
     private Payment payment;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        paymentRepository = mock(PaymentRepository.class);
+        orderService = mock(OrderService.class);
+        paymentHandler = mock(PaymentHandler.class);
+        paymentHandlers.add(paymentHandler);
+        paymentService = new PaymentService(paymentRepository, orderService, paymentHandlers);
+
+        when(paymentHandler.getProviderId()).thenReturn(PaymentMethod.PAYPAL.name());
+        paymentService.initializeProviders();
+
         payment = new Payment();
         payment.setId(1L);
         payment.setCheckoutId("secretCheckoutId");
@@ -48,35 +57,30 @@ class PaymentServiceTest {
     }
 
     @Test
-    void capturePayment_ShouldReturnUpdatedOrderPaymentStatus() {
-        CapturedPayment capturedPayment = prepareCapturedPayment();
-        PaymentOrderStatusVm updatedOrderStatusVm = preparePaymentOrderStatusVm(payment);
-
-        when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
-        when(orderService.updateCheckoutStatus(any(CapturedPayment.class))).thenReturn(2L);
-        when(orderService.updateOrderStatus(any(PaymentOrderStatusVm.class))).thenReturn(updatedOrderStatusVm);
-
-        PaymentOrderStatusVm result = paymentService.capturePayment(capturedPayment);
-
-        verifyPaymentCreation(capturedPayment);
-        verifyOrderServiceInteractions(capturedPayment);
-        verifyResult(result, payment);
+    void initPayment_Success() {
+        InitPaymentRequestVm initPaymentRequestVm = InitPaymentRequestVm.builder()
+                .paymentMethod(PaymentMethod.PAYPAL.name()).totalPrice(BigDecimal.TEN).checkoutId("123").build();
+        InitiatedPayment initiatedPayment = InitiatedPayment.builder().paymentId("123").status("success").redirectUrl("http://abc.com").build();
+        when(paymentHandler.initPayment(initPaymentRequestVm)).thenReturn(initiatedPayment);
+        InitPaymentResponseVm result = paymentService.initPayment(initPaymentRequestVm);
+        assertEquals(initiatedPayment.getPaymentId(), result.paymentId());
+        assertEquals(initiatedPayment.getStatus(), result.status());
+        assertEquals(initiatedPayment.getRedirectUrl(), result.redirectUrl());
     }
 
     @Test
-    void createPayment_ShouldSaveAndReturnPayment() {
+    void capturePayment_Success() {
+        CapturePaymentRequestVm capturePaymentRequestVM = CapturePaymentRequestVm.builder()
+                .paymentMethod(PaymentMethod.PAYPAL.name()).token("123").build();
         CapturedPayment capturedPayment = prepareCapturedPayment();
-
-        when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
-
-        Payment result = paymentService.createPayment(capturedPayment);
-
-        assertThat(result).isEqualTo(payment);
-        assertThat(result.getCheckoutId()).isEqualTo(capturedPayment.checkoutId());
-        assertThat(result.getOrderId()).isEqualTo(capturedPayment.orderId());
-        assertThat(result.getPaymentStatus()).isEqualTo(capturedPayment.paymentStatus());
-        assertThat(result.getPaymentFee()).isEqualTo(capturedPayment.paymentFee());
-        assertThat(result.getAmount()).isEqualTo(capturedPayment.amount());
+        Long orderId = 999L;
+        when(paymentHandler.capturePayment(capturePaymentRequestVM)).thenReturn(capturedPayment);
+        when(orderService.updateCheckoutStatus(capturedPayment)).thenReturn(orderId);
+        when(paymentRepository.save(any())).thenReturn(payment);
+        CapturePaymentResponseVm capturePaymentResponseVm = paymentService.capturePayment(capturePaymentRequestVM);
+        verifyPaymentCreation(capturePaymentResponseVm);
+        verifyOrderServiceInteractions(capturedPayment);
+        verifyResult(capturedPayment, capturePaymentResponseVm);
     }
 
     private CapturedPayment prepareCapturedPayment() {
@@ -92,15 +96,7 @@ class PaymentServiceTest {
             .build();
     }
 
-    private PaymentOrderStatusVm preparePaymentOrderStatusVm(Payment payment) {
-        return PaymentOrderStatusVm.builder()
-            .paymentId(payment.getId())
-            .orderId(payment.getOrderId())
-            .paymentStatus(payment.getPaymentStatus().name())
-            .build();
-    }
-
-    private void verifyPaymentCreation(CapturedPayment capturedPayment) {
+    private void verifyPaymentCreation(CapturePaymentResponseVm capturedPayment) {
         ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
         verify(paymentRepository, times(1)).save(paymentCaptor.capture());
         Payment capturedPaymentResult = paymentCaptor.getValue();
@@ -117,10 +113,15 @@ class PaymentServiceTest {
         verify(orderService, times(1)).updateOrderStatus(any(PaymentOrderStatusVm.class));
     }
 
-    private void verifyResult(PaymentOrderStatusVm result, Payment payment) {
-        assertThat(result.paymentId()).isEqualTo(payment.getId());
-        assertThat(result.orderId()).isEqualTo(payment.getOrderId());
-        assertThat(result.paymentStatus()).isEqualTo(payment.getPaymentStatus().name());
+    private void verifyResult(CapturedPayment capturedPayment, CapturePaymentResponseVm responseVm) {
+        assertEquals(capturedPayment.getOrderId(), responseVm.orderId());
+        assertEquals(capturedPayment.getCheckoutId(), responseVm.checkoutId());
+        assertEquals(capturedPayment.getAmount(), responseVm.amount());
+        assertEquals(capturedPayment.getPaymentFee(), responseVm.paymentFee());
+        assertEquals(capturedPayment.getGatewayTransactionId(), responseVm.gatewayTransactionId());
+        assertEquals(capturedPayment.getPaymentMethod(), responseVm.paymentMethod());
+        assertEquals(capturedPayment.getPaymentStatus(), responseVm.paymentStatus());
+        assertEquals(capturedPayment.getFailureMessage(), responseVm.failureMessage());
     }
 
 }
