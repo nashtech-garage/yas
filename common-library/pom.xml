@@ -19,6 +19,7 @@
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>nashtech-garage_yas-common-library</sonar.projectKey>
+        <org.keycloak.version>16.1.0</org.keycloak.version>
     </properties>
     <dependencies>
         <dependency>
@@ -40,6 +41,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>${org.keycloak.version}</version>
         </dependency>
 
         <!--  Kafka Dependencies  -->
