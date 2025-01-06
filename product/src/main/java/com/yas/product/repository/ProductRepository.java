@@ -40,22 +40,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByIdIn(List<Long> productIds);
 
     @Query(value = "FROM Product p WHERE p.isFeatured = TRUE "
-            + "AND p.isVisibleIndividually = TRUE "
-            + "AND p.isPublished = TRUE ORDER BY p.id ASC ")
-    Page<Product> getFeaturedProduct(Pageable pageable);
+        + "AND p.isVisibleIndividually = TRUE "
+        + "AND p.isPublished = TRUE "
+        + "AND p.id IN (:productIds) "
+        + "ORDER BY p.id ASC ")
+    Page<Product> getFeaturedProductByProductIds(@Param("productIds") List<Long> productIds, Pageable pageable);
 
-    @Query(value = "SELECT p FROM Product p LEFT JOIN p.productCategories pc LEFT JOIN pc.category c "
+    @Query(value = "SELECT distinct p FROM Product p LEFT JOIN p.productCategories pc LEFT JOIN pc.category c "
             + "WHERE LOWER(p.name) LIKE %:productName% "
+            + "AND p.id IN (:productIds) "
             + "AND (c.slug = :categorySlug OR (:categorySlug IS NULL OR :categorySlug = '')) "
             + "AND (:startPrice IS NULL OR p.price >= :startPrice) "
             + "AND (:endPrice IS NULL OR p.price <= :endPrice) "
-            + "AND p.isVisibleIndividually = TRUE "
-            + "AND p.isPublished = TRUE "
+            + "AND p.isVisibleIndividually = true "
+            + "AND p.isPublished = true "
             + "ORDER BY p.id ASC ")
     Page<Product> findByProductNameAndCategorySlugAndPriceBetween(@Param("productName") String productName,
                                                                   @Param("categorySlug") String categorySlug,
                                                                   @Param("startPrice") Double startPrice,
                                                                   @Param("endPrice") Double endPrice,
+                                                                  @Param("productIds") List<Long> productIds,
                                                                   Pageable pageable);
 
     @Query(value = "SELECT p FROM Product p "

@@ -144,4 +144,8 @@ public class StockService {
             productService.updateProductQuantity(productQuantityPostVms);
         }
     }
+
+    public List<Long> findProductIdsAddedWarehouse() {
+        return stockRepository.findProductIdsAddedWarehouse();
+    }
 }

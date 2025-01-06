@@ -17,18 +17,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(ApiConstant.STOCK_URL)
 @RequiredArgsConstructor
 public class StockController {
     private final StockService stockService;
 
-    @PostMapping
+    @PostMapping(ApiConstant.BACKOFFICE_STOCK_URL)
     public ResponseEntity<Void> addProductIntoWarehouse(@RequestBody List<StockPostVm> postVms) {
         stockService.addProductIntoWarehouse(postVms);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
+    @GetMapping(ApiConstant.BACKOFFICE_STOCK_URL)
     public ResponseEntity<List<StockVm>> getStocksByWarehouseIdAndProductNameAndSku(
         @RequestParam(name = "warehouseId") Long warehouseId,
         @RequestParam(required = false) String productName,
@@ -40,10 +39,16 @@ public class StockController {
         ));
     }
 
-    @PutMapping
+    @PutMapping(ApiConstant.BACKOFFICE_STOCK_URL)
     public ResponseEntity<Void> updateProductQuantityInStock(@RequestBody StockQuantityUpdateVm requestBody) {
         stockService.updateProductQuantityInStock(requestBody);
 
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping(ApiConstant.STOREFRONT_STOCK_URL + "/products-in-warehouse")
+    public List<Long> getProductsInWarehouse() {
+        return stockService.findProductIdsAddedWarehouse();
+    }
+
 }
