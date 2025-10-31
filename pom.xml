@@ -35,6 +35,7 @@
         <module>sampledata</module>
         <module>recommendation</module>
         <module>delivery</module>
+        <module>order-tracking</module>
     </modules>
 
     <properties>

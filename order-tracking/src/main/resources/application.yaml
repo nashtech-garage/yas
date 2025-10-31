@@ -1,0 +1,12 @@
+server:
+  port: 8089
+spring:
+  application:
+    name: order-tracking
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+
+
