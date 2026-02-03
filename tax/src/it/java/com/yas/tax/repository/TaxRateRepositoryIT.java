@@ -38,18 +38,20 @@ class TaxRateRepositoryIT {
     @BeforeEach
     void setUp(){
         taxClass = taxClassRepository.save(Instancio.of(TaxClass.class)
-            .set(field(TaxClass::getId), 1L)
+            .ignore(field(TaxClass::getId))
             .create());
 
         taxClass2 = taxClassRepository.save(Instancio.of(TaxClass.class)
-            .set(field(TaxClass::getId), 2L)
+            .ignore(field(TaxClass::getId))
             .create());
 
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
 
         taxRate2 = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass2)
             .set(field("countryId"), taxRate.getCountryId())
             .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
@@ -57,6 +59,7 @@ class TaxRateRepositoryIT {
             .create());
 
         taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
     }

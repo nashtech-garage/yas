@@ -119,13 +119,13 @@ public class ProductService {
 
     private void extractedRange(Number min, Number max, BoolQuery.Builder bool) {
         if (min != null || max != null) {
-            bool.must(m -> m
-                    .range(r -> r
-                            .field(ProductField.PRICE)
-                            .from(min != null ? min.toString() : null)
-                            .to(max != null ? max.toString() : null)
+            bool.must(m -> m.range(r -> r
+                    .number(n -> n
+                        .field(ProductField.PRICE)
+                        .gte(min != null ? min.doubleValue() : null)
+                        .lte(max != null ? max.doubleValue() : null)
                     )
-            );
+            ));
         }
     }
 
@@ -157,6 +157,7 @@ public class ProductService {
                         )
                 )
                 .withSourceFilter(new FetchSourceFilter(
+                        true,
                         new String[]{"name"},
                         null)
                 )

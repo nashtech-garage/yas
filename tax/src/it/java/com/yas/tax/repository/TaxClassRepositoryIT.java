@@ -22,8 +22,8 @@ class TaxClassRepositoryIT {
 
     @BeforeEach
     void insertTestData(){
-        taxClassRepository.save(TaxClass.builder().name("test_tax_class").id(1L).build());
-        taxClassRepository.save(TaxClass.builder().name("another_tax_class").id(2L).build());
+        taxClassRepository.save(TaxClass.builder().name("test_tax_class").build());
+        taxClassRepository.save(TaxClass.builder().name("another_tax_class").build());
     }
 
     @AfterEach

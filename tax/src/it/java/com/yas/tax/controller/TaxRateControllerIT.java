@@ -55,15 +55,19 @@ class TaxRateControllerIT extends AbstractControllerIT {
 
     @BeforeEach
     void setUp() {
-        taxClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
+        taxClass = taxClassRepository.save(Instancio.of(TaxClass.class)
+            .ignore(field(TaxClass::getId))
+            .create());
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
         taxClass2 = taxClassRepository.save(Instancio.of(TaxClass.class)
-            .set(field(TaxClass::getId), 2L)
+            .ignore(field(TaxClass::getId))
             .create());
 
         taxRate2 = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass2)
             .set(field("countryId"), taxRate.getCountryId())
             .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
@@ -71,6 +75,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .create());
 
         taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
     }

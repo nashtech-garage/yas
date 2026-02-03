@@ -60,7 +60,6 @@ class MediaControllerIT extends AbstractControllerIT {
     @BeforeEach
     public void insertTestData() {
         media = new Media();
-        media.setId(1L);
         media.setCaption("test");
         media.setFileName("file");
         media.setMediaType("image/jpeg");

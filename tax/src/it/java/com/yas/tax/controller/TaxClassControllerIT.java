@@ -39,7 +39,9 @@ class TaxClassControllerIT extends AbstractControllerIT {
 
     @BeforeEach
     void setUp(){
-        taxClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
+        taxClass = taxClassRepository.save(Instancio.of(TaxClass.class)
+            .ignore(field(TaxClass::getId))
+            .create());
     }
 
     @AfterEach
@@ -215,7 +217,9 @@ class TaxClassControllerIT extends AbstractControllerIT {
 
     @Test
     void test_updateTaxClass_shouldReturn400_whenGivenAccessTokenAndDuplicateName() {
-        TaxClass anotherClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
+        TaxClass anotherClass = taxClassRepository.save(Instancio.of(TaxClass.class)
+            .ignore(field(TaxClass::getId))
+            .create());
 
         TaxClassPostVm body = Instancio.of(TaxClassPostVm.class)
             .set(field("name"), taxClass.getName()).create();
