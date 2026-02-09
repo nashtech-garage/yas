@@ -22,6 +22,9 @@ pipeline {
         stage('Detect Changed Modules') {
             steps {
                 script {
+                    // Cập nhật thông tin từ Remote để Jenkins "thấy" được nhánh main
+                    echo "Fetching origin main to compare..."
+                    sh "git fetch origin main"
 
                     def changedFiles = sh(
                         script: "git diff --name-only origin/main...HEAD",
