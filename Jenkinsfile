@@ -1,56 +1,93 @@
 pipeline {
+
     agent any
-    
+
     tools {
-        // Đảm bảo tên này khớp với cấu hình trong Manage Jenkins > Tools
-        jdk 'JDK21' 
+        jdk 'JDK21'
         maven 'Maven3'
     }
 
+    environment {
+        CHANGED_MODULES = ""
+    }
+
     stages {
-        stage('Detect Changes in Cart Service') {
-            when {
-                // Chỉ chạy các bước tiếp theo nếu có thay đổi trong thư mục 'cart'
-                changeset 'cart/**'
-            }
+
+        stage('Checkout') {
             steps {
-                echo "Detected changes in Cart Service. Proceeding with CI..."
+                checkout scm
             }
         }
 
-        stage('Unit Test - Cart Service') {
+        stage('Detect Changed Modules') {
+            steps {
+                script {
+
+                    def changedFiles = sh(
+                        script: "git diff --name-only origin/main...HEAD",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed files:\n${changedFiles}"
+
+                    def modules = []
+
+                    if (changedFiles.contains("cart/")) {
+                        modules.add("cart")
+                    }
+
+                    // --- Thêm service ở đây ---
+
+                    // Nếu common-library thay đổi
+                    if (changedFiles.contains("common-library/")) {
+                        modules.add("cart")
+                        //modules.add("customer")
+                    }
+
+                    env.CHANGED_MODULES = modules.unique().join(",")
+
+                    echo "Affected modules: ${env.CHANGED_MODULES}"
+                }
+            }
+        }
+
+        stage('Unit Test') {
             when {
-                changeset 'cart/**'
+                expression { return env.CHANGED_MODULES != "" }
             }
             steps {
-                // Di chuyển trực tiếp vào thư mục 'cart' ở root
-                dir('cart') { 
-                    echo 'Running Maven Tests for Cart Service...'
-                    sh 'mvn clean test' 
+                script {
+                    sh "mvn -pl ${env.CHANGED_MODULES} -am clean test"
                 }
             }
             post {
                 always {
-                    // Thu thập kết quả test từ thư mục target của cart
-                    junit 'cart/target/surefire-reports/*.xml'
+                    junit '**/target/surefire-reports/*.xml'
                 }
             }
         }
 
-        stage('Build Artifact - Cart Service') {
+        stage('Build Artifact') {
             when {
-                // Chỉ build khi ở nhánh main hoặc khi có thay đổi ở cart trên feature branch
                 anyOf {
                     branch 'main'
-                    changeset 'cart/**'
+                    expression { return env.CHANGED_MODULES != "" }
                 }
             }
             steps {
-                dir('cart') {
-                    echo 'Packaging Cart Service into JAR...'
-                    sh 'mvn package -DskipTests' 
+                script {
+                    sh "mvn -pl ${env.CHANGED_MODULES} -am package -DskipTests"
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "CI Pipeline SUCCESS"
+        }
+        failure {
+            echo "CI Pipeline FAILED"
         }
     }
 }
