@@ -1,11 +1,18 @@
+def CHANGED_SERVICES = ""
+def IS_ROOT_CHANGED = false
+def BUILD_BACKOFFICE = false
+def BUILD_STOREFRONT = false
+
 pipeline {
     agent any
 
     tools {
+        maven 'maven3'
         nodejs 'node20'
     }
 
     environment {
+        // Use local repository within the workspace for faster caching
         MAVEN_OPTS = "-Dmaven.repo.local=.m2/repository"
     }
 
@@ -24,30 +31,81 @@ pipeline {
         stage('Analyze Changes') {
             steps {
                 script {
-                    echo "Analyzing changes to determine build targets..."
+                    echo "Analyzing changes to determine build scope..."
 
-                    // Get list of changed files compared to previous commit
-                    def changedFiles = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
-                    echo "--- Changed Files ---\n${changedFiles}\n---------------------"
+                    def baseBranch = env.CHANGE_TARGET ?: 'main'
+                    def diffCommand = ""
 
-                    // If root 'pom.xml' changes, we must build EVERYTHING (dependencies might change)
-                    def buildAll = changedFiles.contains("pom.xml")
+                    if (env.BRANCH_NAME == 'main') {
+                        diffCommand = "git diff --name-only HEAD~1 HEAD"
+                    } else {
+                        sh "git fetch origin ${baseBranch}:refs/remotes/origin/${baseBranch}"
+                        diffCommand = "git diff --name-only origin/${baseBranch} HEAD"
+                    }
                     
-                    // Backend Services (Spring Boot)
-                    env.BUILD_MEDIA      = (buildAll || changedFiles.contains('media/'))      ? "true" : "false"
-                    env.BUILD_PRODUCT    = (buildAll || changedFiles.contains('product/'))    ? "true" : "false"
-                    env.BUILD_CART       = (buildAll || changedFiles.contains('cart/'))       ? "true" : "false"
-                    env.BUILD_ORDER      = (buildAll || changedFiles.contains('order/'))      ? "true" : "false"
-                    env.BUILD_RATING     = (buildAll || changedFiles.contains('rating/'))     ? "true" : "false"
-                    env.BUILD_CUSTOMER   = (buildAll || changedFiles.contains('customer/'))   ? "true" : "false"
-                    env.BUILD_LOCATION   = (buildAll || changedFiles.contains('location/'))   ? "true" : "false"
-                    env.BUILD_INVENTORY  = (buildAll || changedFiles.contains('inventory/'))  ? "true" : "false"
-                    env.BUILD_TAX        = (buildAll || changedFiles.contains('tax/'))        ? "true" : "false"
-                    env.BUILD_SEARCH     = (buildAll || changedFiles.contains('search/'))     ? "true" : "false"
+                    // Get the list of changed files
+                    def changedFilesList = []
+                    try {
+                        def changedOutput = sh(script: diffCommand, returnStdout: true).trim()
+                        changedFilesList = changedOutput.split('\n')
+                    } catch (Exception e) {
+                        echo "First build or error detected. Need to build ALL."
+                        IS_ROOT_CHANGED = true
+                    }
+                    echo "List of changed files: ${changedFilesList}"
 
-                    // Frontend Services (Next.js)
-                    env.BUILD_BACKOFFICE = (buildAll || changedFiles.contains('backoffice/')) ? "true" : "false"
-                    env.BUILD_STOREFRONT = (buildAll || changedFiles.contains('storefront/')) ? "true" : "false"
+                    def services = [
+                        "media/", "product/", "cart/", "order/", "rating/",
+                        "customer/", "location/", "inventory/", "tax/", "search/"
+                    ]
+
+                    def servicesToBuild = []
+
+                    // Iterate through changed files to detect affected services
+                    for (file in changedFilesList) {
+                        // If root configuration files change, rebuild ALL
+                        if (file == "pom.xml") {
+                            IS_ROOT_CHANGED = true
+                        }
+
+                        // Check backend services
+                        for (svcPath in services) {
+                            if (file.startsWith(svcPath)) {
+                                // Extract service name (e.g., "cart/" -> "cart")
+                                servicesToBuild.add(svcPath.replace("/", ""))
+                            }
+                        }
+
+                        // Check frontend services
+                        if (file.startsWith("backoffice/")) BUILD_BACKOFFICE = true
+                        if (file.startsWith("storefront/")) BUILD_STOREFRONT = true
+                        
+                        // Check common library
+                        // If common library changes, we must rebuild services that depend on it
+                        if (file.startsWith("common-library/")) {
+                            echo "Common library changed. Marking dependent services for build..."
+                            servicesToBuild.addAll([
+                                "media", "product", "cart", "order", "rating",
+                                "customer", "location", "inventory", "tax", "search"
+                            ])
+                        }
+                    }
+
+                    // Finalize build plan
+                    if (IS_ROOT_CHANGED) {
+                        echo "Root configuration changed. Building ALL services."
+                        BUILD_BACKOFFICE = true
+                        BUILD_STOREFRONT = true
+                    } else {
+                        // Remove duplicates and join with commas for Maven (e.g., "cart,order")
+                        CHANGED_SERVICES = servicesToBuild.unique().join(",")
+                    }
+                    
+                    echo "----- BUILD PLAN -----"
+                    echo "Backend Services: ${IS_ROOT_CHANGED ? 'ALL' : (CHANGED_SERVICES ?: 'None')}"
+                    echo "Frontend Backoffice: ${BUILD_BACKOFFICE}"
+                    echo "Frontend Storefront: ${BUILD_STOREFRONT}"
+                    echo "----------------------"
                 }
             }
         }
@@ -55,90 +113,82 @@ pipeline {
         // --- STAGE 3: BUILD & TEST ---
         stage('Build & Test') {
             parallel {
-                stage('Media Service') {
-                    when { expression { env.BUILD_MEDIA == "true" } }
-                    steps {
-                        buildJavaService('media')
+                // Backend Services (Spring Boot)
+                stage('Backend Pipeline') {
+                    when { expression { return IS_ROOT_CHANGED || CHANGED_SERVICES != "" } }
+                    stages {
+                        // --- PHASE 1: UNIT TEST & COVERAGE ---
+                        stage('Unit Test') {
+                            steps {
+                                script {
+                                    echo "Phase 1: Running unit tests..."
+                                    if (IS_ROOT_CHANGED) {
+                                        // Build All: Clean and Test everything
+                                        sh 'mvn clean test jacoco:report'
+                                    } else {
+                                        // Build Specific: Clean and Test changed services + dependencies (-am)
+                                        sh "mvn clean test jacoco:report -pl ${CHANGED_SERVICES} -am"
+                                    }
+                                }
+                            }
+
+                            post {
+                                always {
+                                    // Upload test results
+                                    junit '**/target/surefire-reports/*.xml'
+
+                                    // Upload coverage results
+                                    recordCoverage(
+                                        tools: [[
+                                            parser: 'JACOCO', 
+                                            pattern: '**/target/site/jacoco/jacoco.xml'
+                                        ]],
+                                        // qualityGates: [
+                                        //     [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                        //     [threshold: 60.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'FAILURE'],
+                                        //     [threshold: 70.0, metric: 'INSTRUCTION', baseline: 'PROJECT', criticality: 'FAILURE'],
+                                        //     [threshold: 80.0, metric: 'METHOD', baseline: 'PROJECT', criticality: 'UNSTABLE']
+                                        //     [threshold: 70.0, metric: 'CLASS', baseline: 'PROJECT', criticality: 'FAILURE']
+                                        // ]
+                                    )
+                                }
+                            }
+                        }
+
+                        // --- PHASE 2: BUILD ARTIFACT ---
+                        stage('Build Artifacts') {
+                            steps {
+                                script {
+                                    echo "Phase 2: Building artifacts..."
+                                    if (IS_ROOT_CHANGED) {
+                                        sh 'mvn package -DskipTests'
+                                    } else {
+                                        sh "mvn package -DskipTests -pl ${CHANGED_SERVICES} -am"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
-                stage('Product Service') {
-                    when { expression { env.BUILD_PRODUCT == "true" } }
-                    steps {
-                        buildJavaService('product')
-                    }
-                }
-
-                stage('Cart Service') {
-                    when { expression { env.BUILD_CART == "true" } }
-                    steps {
-                        buildJavaService('cart')
-                    }
-                }
-
-                stage('Order Service') {
-                    when { expression { env.BUILD_ORDER == "true" } }
-                    steps {
-                        buildJavaService('order')
-                    }
-                }
-
-                stage('Rating Service') {
-                    when { expression { env.BUILD_RATING == "true" } }
-                    steps {
-                        buildJavaService('rating')
-                    }
-                }
-
-                stage('Customer Service') {
-                    when { expression { env.BUILD_CUSTOMER == "true" } }
-                    steps {
-                        buildJavaService('customer')
-                    }
-                }
-
-                stage('Location Service') {
-                    when { expression { env.BUILD_LOCATION == "true" } }
-                    steps {
-                        buildJavaService('location')
-                    }
-                }
-
-                stage('Inventory Service') {
-                    when { expression { env.BUILD_INVENTORY == "true" } }
-                    steps {
-                        buildJavaService('inventory')
-                    }
-                }
-
-                stage('Tax Service') {
-                    when { expression { env.BUILD_TAX == "true" } }
-                    steps {
-                        buildJavaService('tax')
-                    }
-                }
-
-                stage('Search Service') {
-                    when { expression { env.BUILD_SEARCH == "true" } }
-                    steps {
-                        buildJavaService('search')
-                    }
-                }
-
-                stage('Backoffice Service') {
-                    when { expression { env.BUILD_BACKOFFICE == "true" } }
+                // Frontend Backoffice (NextJS)
+                stage('Backoffice Pipeline') {
+                    when { expression { return BUILD_BACKOFFICE || IS_ROOT_CHANGED } }
                     steps {
                         dir('backoffice') {
+                            echo "Building Backoffice UI..."
                             sh 'npm install'
                             sh 'npm run build'
                         }
                     }
                 }
 
-                stage('Storefront Service') {
-                    when { expression { env.BUILD_STOREFRONT == "true" } }
+                // Frontend Storefront (NextJS)
+                stage('Storefront Pipeline') {
+                    when { expression { return BUILD_STOREFRONT || IS_ROOT_CHANGED } }
                     steps {
                         dir('storefront') {
+                            echo "Building Storefront UI..."
                             sh 'npm install'
                             sh 'npm run build'
                         }
@@ -146,23 +196,5 @@ pipeline {
                 }
             }
         }
-    }
-}
-
-def buildJavaService(String serviceName) {
-    dir(serviceName) {
-        echo "Building service ${serviceName}..."
-        sh 'chmod +x ./mvnw'
-
-        // Unit Tests
-        sh "./mvnw clean install"
-        junit "target/surefire-reports/*.xml"
-
-        // Code Coverage
-        jacoco(
-            execPattern: "target/jacoco.exec",
-            classPattern: "target/classes",
-            sourcePattern: "src/main/java"
-        )
     }
 }
