@@ -60,14 +60,22 @@ pipeline {
             }
             steps {
                 script {
-                    // Nếu sửa file root, chạy test toàn bộ (không dùng -pl)
-                    def mavenArgs = (env.IS_ROOT_CHANGED == "true") ? "clean test" : "-pl ${env.CHANGED_MODULES} -am clean test"
-                    sh "mvn ${mavenArgs}"
+                    if (env.IS_ROOT_CHANGED == "true") {
+                        echo "Root files changed. Running full test suite..."
+                        sh "mvn clean test"
+                    }
+                    else if (env.CHANGED_MODULES != "") {
+                        echo "Testing affected modules: ${env.CHANGED_MODULES}"
+                        sh "mvn -pl ${env.CHANGED_MODULES} -am clean test"
+                    }
+                    else {
+                        echo "No specific modules detected for testing. Skipping Maven command."
+                    }
                 }
             }
             post {
                 always {
-                    junit '**/target/surefire-reports/*.xml'
+                    junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
                 }
             }
         }
