@@ -17,4 +17,5 @@ public class CartApplication {
     // Additional comment for trigger pipeline
     // More trigger for testing CI pipeline
     // Trigger x2
+    // Trigger x3
 }
