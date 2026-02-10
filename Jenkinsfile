@@ -1,13 +1,11 @@
+def CHANGED_MODULES = ""
+def IS_ROOT_CHANGED = false
+
 pipeline {
     agent any
     tools {
         jdk 'JDK21'
         maven 'Maven3'
-    }
-
-    environment {
-        CHANGED_MODULES = ""
-        IS_ROOT_CHANGED = "false"
     }
 
     stages {
@@ -31,42 +29,47 @@ pipeline {
                         returnStdout: true
                     ).trim().split('\n')
 
+                    echo "Files changed: ${changedFiles}"
+
                     def modules = []
-                    def rootFiles = ["pom.xml", "Jenkinsfile", "docker-compose.yml"]
+                    def rootFiles = ["pom.xml"]
 
                     for (file in changedFiles) {
-                        if (file.contains("cart/")) modules.add("cart")
-                        
-                        if (file.contains("common-library/")) {
-                            modules.addAll(["cart", "customer", "visit"])
+                        if (file.startsWith("cart/")) {
+                            modules.add("cart")
                         }
-                        
-                        // Kiểm tra nếu sửa file ở thư mục gốc
-                        if (rootFiles.any { rootFile -> file == rootFile }) {
-                            env.IS_ROOT_CHANGED = "true"
+
+                        if (file.startsWith("common-library/")) {
+                            //modules.addAll(["cart", "customer", "visit"])
+                            modules.addAll(["cart"])
+                        }
+
+                        if (rootFiles.contains(file)) {
+                            IS_ROOT_CHANGED = true
                         }
                     }
 
-                    env.CHANGED_MODULES = modules.unique().join(",")
-                    echo "Affected modules: ${env.CHANGED_MODULES}"
-                    echo "Root changed: ${env.IS_ROOT_CHANGED}"
+                    CHANGED_MODULES = modules.unique().join(",")
+
+                    echo "Affected modules: ${CHANGED_MODULES}"
+                    echo "Root changed: ${IS_ROOT_CHANGED}"
                 }
             }
         }
 
         stage('Unit Test') {
             when {
-                expression { return env.CHANGED_MODULES != "" || env.IS_ROOT_CHANGED == "true" }
+                expression { return CHANGED_MODULES != "" || IS_ROOT_CHANGED }
             }
             steps {
                 script {
-                    if (env.IS_ROOT_CHANGED == "true") {
+                    if (IS_ROOT_CHANGED) {
                         echo "Root files changed. Running full test suite..."
                         sh "mvn clean test"
                     }
-                    else if (env.CHANGED_MODULES != "") {
-                        echo "Testing affected modules: ${env.CHANGED_MODULES}"
-                        sh "mvn -pl ${env.CHANGED_MODULES} -am clean test"
+                    else if (CHANGED_MODULES != "") {
+                        echo "Testing affected modules: ${CHANGED_MODULES}"
+                        sh "mvn -pl ${CHANGED_MODULES} -am clean test"
                     }
                     else {
                         echo "No specific modules detected for testing. Skipping Maven command."
@@ -84,16 +87,16 @@ pipeline {
             when {
                 anyOf {
                     branch 'main'
-                    expression { return env.CHANGED_MODULES != "" || env.IS_ROOT_CHANGED == "true" }
+                    expression { return CHANGED_MODULES != "" || IS_ROOT_CHANGED }
                 }
             }
             steps {
                 script {
                     // Nếu là nhánh main hoặc sửa file root -> Build tất cả để đảm bảo an toàn
-                    if (env.BRANCH_NAME == 'main' || env.IS_ROOT_CHANGED == "true") {
+                    if (BRANCH_NAME == 'main' || IS_ROOT_CHANGED ) {
                         sh "mvn clean package -DskipTests"
                     } else {
-                        sh "mvn -pl ${env.CHANGED_MODULES} -am package -DskipTests"
+                        sh "mvn -pl ${CHANGED_MODULES} -am package -DskipTests"
                     }
                 }
             }
