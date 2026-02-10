@@ -121,13 +121,16 @@ pipeline {
                         stage('Unit Test') {
                             steps {
                                 script {
-                                    echo "Phase 1: Running unit tests..."
-                                    if (IS_ROOT_CHANGED) {
-                                        // Build All: Clean and Test everything
-                                        sh 'mvn clean test jacoco:report'
-                                    } else {
-                                        // Build Specific: Clean and Test changed services + dependencies (-am)
-                                        sh "mvn clean test jacoco:report -pl ${CHANGED_SERVICES} -am"
+                                    echo "Phase 1: Running tests & SonarQube analysis..."
+
+                                    withSonarQubeEnv('SonarQube-Local') {
+                                        if (IS_ROOT_CHANGED) {
+                                            // Clean and Test everything
+                                            sh 'mvn clean test jacoco:report sonar:sonar'
+                                        } else {
+                                            // Clean and Test changed services + dependencies (-am)
+                                            sh "mvn clean test jacoco:report sonar:sonar -pl ${CHANGED_SERVICES} -am"
+                                        }
                                     }
                                 }
                             }
@@ -155,11 +158,21 @@ pipeline {
                             }
                         }
 
-                        // --- PHASE 2: BUILD ARTIFACT ---
+                        // --- PHASE 2: QUALITY CHECK ---
+                        stage("Quality Gate") {
+                            steps {
+                                echo "Phase 2: Checking quality of code..."
+                                timeout(time: 5, unit: 'MINUTES') {
+                                    waitForQualityGate abortPipeline: true
+                                }
+                            }
+                        }
+
+                        // --- PHASE 3: BUILD ARTIFACT ---
                         stage('Build Artifacts') {
                             steps {
                                 script {
-                                    echo "Phase 2: Building artifacts..."
+                                    echo "Phase 3: Building artifacts..."
                                     if (IS_ROOT_CHANGED) {
                                         sh 'mvn package -DskipTests'
                                     } else {
