@@ -33,7 +33,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.product())
+            .fromUriString(serviceUrlConfig.product())
             .path("/backoffice/products/" + id)
             .build()
             .toUri();
@@ -58,7 +58,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         }
         String jwt = AuthenticationUtils.extractJwt();
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.product())
+            .fromUriString(serviceUrlConfig.product())
             .path("/backoffice/products/for-warehouse")
             .queryParams(params)
             .build()
@@ -79,7 +79,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
 
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.product())
+            .fromUriString(serviceUrlConfig.product())
             .path("/backoffice/products/update-quantity")
             .buildAndExpand()
             .toUri();

@@ -26,7 +26,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.location())
+            .fromUriString(serviceUrlConfig.location())
             .path("/storefront/addresses/{id}")
             .buildAndExpand(id)
             .toUri();
@@ -44,7 +44,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.location())
+            .fromUriString(serviceUrlConfig.location())
             .path("/storefront/addresses")
             .buildAndExpand()
             .toUri();
@@ -64,7 +64,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
 
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.location())
+            .fromUriString(serviceUrlConfig.location())
             .path("/storefront/addresses/{id}")
             .buildAndExpand(id)
             .toUri();
@@ -80,7 +80,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void deleteAddress(Long addressId) {
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.location()).path("/storefront/addresses/{id}")
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.location()).path("/storefront/addresses/{id}")
             .buildAndExpand(addressId).toUri();
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
