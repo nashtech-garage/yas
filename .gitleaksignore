@@ -1,5 +1,7 @@
 k8s/charts/yas-configuration/values.yaml:generic-api-key:7
 k8s/charts/yas-configuration/values.yaml:generic-api-key:9
+k8s/charts/yas-configuration/values.yaml:generic-api-key:10
+k8s/charts/yas-configuration/values.yaml:generic-api-key:11
 k8s/deploy/cluster-config.yaml:generic-api-key:13
 k8s/deploy/README.md:generic-api-key:80
 k8s/deploy/README.md:generic-api-key:97
@@ -9,3 +11,5 @@ payment/src/main/resources/db/changelog/data/changelog-0001-provider.sql:generic
 payment/src/main/resources/db/changelog/data/changelog-0001-provider.sql:generic-api-key:5
 customer/src/it/resources/application.properties:generic-api-key:14
 customer/src/main/resources/application.properties:generic-api-key:34
+automation-ui/backoffice/src/test/java/com/yas/automation/ui/steps/LoginSteps.java:hashicorp-tf-password:57
+automation-ui/storefront/src/test/java/com/yas/automation/ui/steps/LoginSteps.java:hashicorp-tf-password:78
