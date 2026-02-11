@@ -22,9 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
@@ -35,10 +34,10 @@ public class RatingControllerIT extends AbstractControllerIT {
     final String storeFrontUrl = "/v1/storefront/ratings";
     final String backOfficeUrl = "/v1/backoffice/ratings";
 
-    @MockBean
+    @MockitoBean
     protected OrderService orderService;
 
-    @MockBean
+    @MockitoBean
     protected CustomerService customerService;
 
     @Autowired
