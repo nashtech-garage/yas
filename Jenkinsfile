@@ -27,7 +27,30 @@ pipeline {
             }
         }
 
-        // --- STAGE 2: ANALYZE CHANGES ---
+        // --- STAGE 2: SECRET SCAN ---
+        stage('Secret Scan') {
+            steps {
+                script {
+                    echo "Checking for secrets..."
+
+                    if (!fileExists('gitleaks')) {
+                        echo "Downloading Gitleaks..."
+                        sh 'curl -ssfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar -xz gitleaks'
+                    }
+
+                    sh 'chmod +x gitleaks'
+
+                    try {
+                        sh './gitleaks detect --source . --config gitleaks.toml --verbose --no-git'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error("Gitleaks found secrets in your code")
+                    }
+                }
+            }
+        }
+
+        // --- STAGE 3: ANALYZE CHANGES ---
         stage('Analyze Changes') {
             steps {
                 script {
@@ -115,7 +138,7 @@ pipeline {
             }
         }
 
-        // --- STAGE 3: BUILD & TEST ---
+        // --- STAGE 4: BUILD & TEST ---
         stage('Build & Test') {
             parallel {
                 // Backend Services (Spring Boot)
