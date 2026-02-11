@@ -33,7 +33,7 @@ public class CartService extends AbstractCircuitBreakFallbackHandler {
             .toList();
 
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.cart())
+            .fromUriString(serviceUrlConfig.cart())
             .path("/storefront/cart/items/remove")
             .buildAndExpand()
             .toUri();

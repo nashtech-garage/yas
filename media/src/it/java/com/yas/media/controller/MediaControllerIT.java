@@ -27,27 +27,25 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MediaControllerIT extends AbstractControllerIT {
 
     private static final String MEDIA_URL = "/v1/medias";
     @Autowired
     private MediaRepository mediaRepository;
-    @MockBean
+    @MockitoBean
     private YasConfig yasConfig;
-    @MockBean
+    @MockitoBean
     private FileSystemRepository fileSystemRepository;
-    @MockBean
+    @MockitoBean
     private FilesystemConfig filesystemConfig;
     @Autowired
     private MediaService mediaService;

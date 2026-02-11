@@ -20,7 +20,7 @@ public class TaxService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleDoubleFallback")
     public Double getTaxPercentByAddress(Long taxClassId, Long countryId, Long stateOrProvinceId, String zipCode) {
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.tax())
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.tax())
             .path("/backoffice/tax-rates/tax-percent")
                 .queryParam("taxClassId", taxClassId)
                 .queryParam("countryId", countryId)
