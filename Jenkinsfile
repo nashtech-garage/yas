@@ -37,9 +37,14 @@ pipeline {
                     def diffCommand = ""
 
                     if (env.BRANCH_NAME == 'main') {
-                        diffCommand = "git diff --name-only HEAD~1 HEAD"
+                        def hasParent = sh(script: "git rev-parse HEAD~1", returnStatus: true) == 0
+                        if (hasParent) {
+                            diffCommand = "git diff --name-only HEAD~1 HEAD"
+                        } else {
+                            diffCommand = "git show --name-only --pretty='' HEAD"
+                        }
                     } else {
-                        sh "git fetch origin ${baseBranch}:refs/remotes/origin/${baseBranch}"
+                        sh "git fetch origin ${baseBranch}:refs/remotes/origin/${baseBranch} --depth=10"
                         diffCommand = "git diff --name-only origin/${baseBranch} HEAD"
                     }
                     
