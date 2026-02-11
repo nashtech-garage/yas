@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +31,8 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestClient;
 import org.testcontainers.containers.KafkaContainer;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.MockitoAnnotations;
 
 /**
  * Base class providing support for testing a CDC (Change Data Capture) consumer.
@@ -53,7 +55,7 @@ public abstract class CdcConsumerTest<K, M> {
     @Autowired
     private KafkaContainer kafkaContainer;
 
-    @MockBean
+    @MockitoBean
     private RestClient restClient;
 
     @Mock
@@ -71,6 +73,11 @@ public abstract class CdcConsumerTest<K, M> {
         this.cdcEvent = topicEvent;
         this.keyType = keyType;
         this.messageType = messageType;
+    }
+
+    @BeforeEach
+    public void initMocks() {
+        MockitoAnnotations.openMocks(this);
     }
 
     public synchronized KafkaTemplate<K, M> getKafkaTemplate() {

@@ -25,15 +25,15 @@ public class IntegrationTestConfiguration {
     }
 
     @Bean
-    public DynamicPropertyRegistrar keycloakDynamicProperties() {
+    public DynamicPropertyRegistrar keycloakDynamicProperties(KeycloakContainer keycloakContainer) {
         return registry -> {
             registry.add(
                 "spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                () -> keycloakContainer().getAuthServerUrl() + "/realms/quarkus"
+                () -> keycloakContainer.getAuthServerUrl() + "/realms/quarkus"
             );
             registry.add(
                 "spring.security.oauth2.resourceserver.jwt.jwk-set-uri",
-                () -> keycloakContainer().getAuthServerUrl()
+                () -> keycloakContainer.getAuthServerUrl()
                     + "/realms/quarkus/protocol/openid-connect/certs"
             );
         };
