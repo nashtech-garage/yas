@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
@@ -35,6 +34,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductService {
     private final ElasticsearchOperations elasticsearchOperations;
+    private static final String FUZZINESS_ONE = "1";
 
     public ProductService(ElasticsearchOperations elasticsearchOperations) {
         this.elasticsearchOperations = elasticsearchOperations;
@@ -54,7 +54,7 @@ public class ProductService {
                                         .multiMatch(m -> m
                                                 .fields(ProductField.NAME, ProductField.BRAND, ProductField.CATEGORIES)
                                                 .query(productCriteria.keyword())
-                                                .fuzziness(Fuzziness.ONE.asString())
+                                                .fuzziness(FUZZINESS_ONE)
                                         )
                                 )
                         )

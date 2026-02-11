@@ -1,6 +1,6 @@
 package com.yas.webhook.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.webhook.config.constants.MessageCode;
 import com.yas.webhook.model.Event;

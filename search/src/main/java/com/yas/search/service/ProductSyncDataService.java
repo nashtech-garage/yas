@@ -25,7 +25,7 @@ public class ProductSyncDataService {
     private final ProductRepository productRepository;
 
     public ProductEsDetailVm getProductEsDetailById(Long id) {
-        final URI url = UriComponentsBuilder.fromHttpUrl(
+        final URI url = UriComponentsBuilder.fromUriString(
                 serviceUrlConfig.product()).path("/storefront/products-es/{id}").buildAndExpand(id).toUri();
         return restClient.get()
                 .uri(url)

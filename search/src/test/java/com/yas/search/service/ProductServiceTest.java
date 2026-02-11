@@ -189,7 +189,7 @@ class ProductServiceTest {
             new HashMap<>(),
             null,
             null,
-            new ArrayList<>(),
+            new HashMap<>(),
             product
         );
 
