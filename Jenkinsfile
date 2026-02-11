@@ -122,6 +122,49 @@ pipeline {
                 stage('Backend Pipeline') {
                     when { expression { return IS_ROOT_CHANGED || CHANGED_SERVICES != "" } }
                     stages {
+                        // --- SECURITY SCAN ---
+                        stage('Backend Security Scan') {
+                            steps {
+                                script {
+                                    echo "Scanning backend dependencies..."
+
+                                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                                        def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
+                                        def snykCmd = "${snykHome}/snyk-linux"
+
+                                        def isMain = (env.BRANCH_NAME == 'main')
+                                        def isPRToMain = (env.CHANGE_ID && env.CHANGE_TARGET == 'main')
+
+                                        if (IS_ROOT_CHANGED) {
+                                            echo "Preparing full scan..."
+                                            sh "mvn install -DskipTests -q"
+                                            if (isMain || isPRToMain) {
+                                                sh "${snykCmd} test --all-projects --severity-threshold=high"
+                                            } else {
+                                                sh "${snykCmd} test --all-projects --severity-threshold=high || true"
+                                            }
+                                        } else {
+                                            echo "Optimized scan for: ${CHANGED_SERVICES}"
+                                            sh "mvn install -DskipTests -q -pl ${CHANGED_SERVICES} -am"
+
+                                            def services = CHANGED_SERVICES.split(',')
+                                            for (service in services) {
+                                                echo ">>> Snyk scanning: ${service}"
+                                                dir(service) {
+                                                    sh 'chmod +x ./mvnw'
+                                                    if (isMain || isPRToMain) {
+                                                        sh "${snykCmd} test --severity-threshold=high"
+                                                    } else {
+                                                        sh "${snykCmd} test --severity-threshold=high || true"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         // --- PHASE 1: UNIT TEST & COVERAGE ---
                         stage('Unit Test') {
                             steps {
@@ -194,9 +237,27 @@ pipeline {
                     when { expression { return BUILD_BACKOFFICE || IS_ROOT_CHANGED } }
                     steps {
                         dir('backoffice') {
-                            echo "Building Backoffice UI..."
-                            sh 'npm install'
-                            sh 'npm run build'
+                            script {
+                                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                                    def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
+                                    def snykCmd = "${snykHome}/snyk-linux"
+
+                                    echo "Installing Backoffice dependencies..."
+                                    sh 'npm install'
+
+                                    echo "Scanning Backoffice dependencies..."
+                                    def isMain = (env.BRANCH_NAME == 'main')
+                                    def isPRToMain = (env.CHANGE_ID && env.CHANGE_TARGET == 'main')
+                                    if (isMain || isPRToMain) {
+                                        sh "${snykCmd} test --severity-threshold=high"
+                                    } else {
+                                        sh "${snykCmd} test --severity-threshold=high || true"
+                                    }
+                                }
+
+                                echo "Building Backoffice UI..."
+                                sh 'npm run build'
+                            }
                         }
                     }
                 }
@@ -206,9 +267,27 @@ pipeline {
                     when { expression { return BUILD_STOREFRONT || IS_ROOT_CHANGED } }
                     steps {
                         dir('storefront') {
-                            echo "Building Storefront UI..."
-                            sh 'npm install'
-                            sh 'npm run build'
+                            script {
+                                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                                    def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
+                                    def snykCmd = "${snykHome}/snyk-linux"
+
+                                    echo "Installing Storefront dependencies..."
+                                    sh 'npm install'
+
+                                    echo "Scanning Storefront dependencies..."
+                                    def isMain = (env.BRANCH_NAME == 'main')
+                                    def isPRToMain = (env.CHANGE_ID && env.CHANGE_TARGET == 'main')
+                                    if (isMain || isPRToMain) {
+                                        sh "${snykCmd} test --severity-threshold=high"
+                                    } else {
+                                        sh "${snykCmd} test --severity-threshold=high || true"
+                                    }
+                                }
+
+                                echo "Building Storefront UI..."
+                                sh 'npm run build'
+                            }
                         }
                     }
                 }
