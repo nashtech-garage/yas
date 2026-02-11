@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
@@ -33,23 +34,23 @@ import com.yas.product.viewmodel.product.ProductThumbnailVm;
 import com.yas.product.viewmodel.product.ProductsGetVm;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ProductServiceIT {
     private final ZonedDateTime CREATED_ON = ZonedDateTime.now();
     @Autowired
@@ -66,7 +67,7 @@ class ProductServiceIT {
     private ProductOptionValueRepository productOptionValueRepository;
     @Autowired
     private ProductOptionRepository productOptionRepository;
-    @MockBean
+    @MockitoBean
     private MediaService mediaService;
     @Autowired
     private ProductService productService;
@@ -399,27 +400,14 @@ class ProductServiceIT {
     void testGetLatestProducts_WhenHasListProductListVm_returnListProductListVm() {
 
         List<Product>  actualResponse = productRepository.findAll();
-
         assertEquals(10, actualResponse.size());
-
-        actualResponse.getFirst().setCreatedOn(CREATED_ON.minusDays(1));
-        actualResponse.get(1).setCreatedOn(CREATED_ON.minusDays(2));
-        actualResponse.get(2).setCreatedOn(CREATED_ON.minusDays(3));
-        actualResponse.get(3).setCreatedOn(CREATED_ON.minusDays(4));
-        actualResponse.get(4).setCreatedOn(CREATED_ON.minusDays(5));
-        actualResponse.get(5).setCreatedOn(CREATED_ON.minusDays(6));
-        actualResponse.get(6).setCreatedOn(CREATED_ON.minusDays(7));
-        actualResponse.get(7).setCreatedOn(CREATED_ON.minusDays(8));
-        actualResponse.get(8).setCreatedOn(CREATED_ON.minusDays(9));
-        productRepository.saveAll(actualResponse);
+        actualResponse.sort((Comparator.comparing(AbstractAuditEntity::getCreatedOn).reversed()));
 
         List<ProductListVm>  newResponse = productService.getLatestProducts(5);
         assertEquals(5, newResponse.size());
-        assertEquals("product10", newResponse.getFirst().name());
-        assertEquals("product1", newResponse.get(1).name());
-        assertEquals("product2", newResponse.get(2).name());
-        assertEquals("product3", newResponse.get(3).name());
-        assertEquals("product4", newResponse.get(4).name());
+        IntStream.range(0, 5).forEach(i ->
+            assertEquals(actualResponse.get(i).getName(), newResponse.get(i).name())
+        );
     }
 
     @Test
