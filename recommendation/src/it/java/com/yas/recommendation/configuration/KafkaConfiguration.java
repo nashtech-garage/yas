@@ -3,7 +3,6 @@ package com.yas.recommendation.configuration;
 import com.yas.recommendation.kafka.config.consumer.ProductCdcKafkaListenerConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistrar;
@@ -21,7 +20,6 @@ public class KafkaConfiguration {
     private String pgVectorVersion;
 
     @Bean
-    @ServiceConnection
     public KafkaContainer kafkaContainer() {
         return new KafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:%s".formatted(kafkaVersion))
@@ -43,7 +41,6 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    @ServiceConnection
     public PostgreSQLContainer pgvectorContainer() {
         var image = DockerImageName.parse("pgvector/pgvector:%s".formatted(pgVectorVersion))
             .asCompatibleSubstituteFor("postgres");

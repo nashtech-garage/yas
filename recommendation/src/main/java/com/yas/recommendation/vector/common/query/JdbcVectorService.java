@@ -1,6 +1,6 @@
 package com.yas.recommendation.vector.common.query;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.yas.recommendation.configuration.EmbeddingSearchConfiguration;
 import com.yas.recommendation.vector.common.document.BaseDocument;
 import com.yas.recommendation.vector.common.document.DocumentMetadata;
@@ -98,4 +98,3 @@ class JdbcVectorService {
                 """.formatted(vectorTableName);
     }
 }
-

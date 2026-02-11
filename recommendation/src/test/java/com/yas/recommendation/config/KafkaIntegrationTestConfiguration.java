@@ -2,7 +2,6 @@ package com.yas.recommendation.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.KafkaContainer;
@@ -19,7 +18,6 @@ public class KafkaIntegrationTestConfiguration {
     private String pgVectorVersion;
 
     @Bean
-    @ServiceConnection
     public KafkaContainer kafkaContainer() {
         return new KafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:%s".formatted(kafkaVersion)));
@@ -40,7 +38,6 @@ public class KafkaIntegrationTestConfiguration {
     }
 
     @Bean
-    @ServiceConnection
     public PostgreSQLContainer pgvectorContainer() {
         var image = DockerImageName.parse("pgvector/pgvector:%s".formatted(pgVectorVersion))
             .asCompatibleSubstituteFor("postgres");
@@ -50,11 +47,11 @@ public class KafkaIntegrationTestConfiguration {
     }
 
     @Bean
-    public DynamicPropertyRegistrar pgvectorProperties() {
+    public DynamicPropertyRegistrar pgvectorProperties(PostgreSQLContainer pgvectorContainer) {
         return registry -> {
-            registry.add("spring.datasource.url", pgvectorContainer()::getJdbcUrl);
-            registry.add("spring.datasource.username", pgvectorContainer()::getUsername);
-            registry.add("spring.datasource.password", pgvectorContainer()::getPassword);
+            registry.add("spring.datasource.url", pgvectorContainer::getJdbcUrl);
+            registry.add("spring.datasource.username", pgvectorContainer::getUsername);
+            registry.add("spring.datasource.password", pgvectorContainer::getPassword);
         };
     }
 }
