@@ -37,7 +37,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
 
         final URI url = UriComponentsBuilder
                 .fromUriString(serviceUrlConfig.product())
-                .path("/backoffice/product-variations/${productId}")
+                .path("/backoffice/product-variations/{productId}")
                 .buildAndExpand(productId)
                 .toUri();
 

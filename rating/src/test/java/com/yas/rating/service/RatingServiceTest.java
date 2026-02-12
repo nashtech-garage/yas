@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.yas.commonlibrary.exception.AccessDeniedException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.commonlibrary.exception.ResourceExistedException;
-import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.rating.RatingApplication;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
@@ -213,7 +212,10 @@ class RatingServiceTest {
     @Test
     void testGetLatestProducts_WhenHasListProductListVm_returnListProductListVm() {
         List<Rating> list = ratingRepository.findAll();
-        list.sort((Comparator.comparing(AbstractAuditEntity::getCreatedOn).reversed()));
+        list.sort(Comparator
+            .comparing(Rating::getCreatedOn, Comparator.reverseOrder())
+            .thenComparing(Rating::getId, Comparator.reverseOrder())
+        );
 
         List<RatingVm> ratingList = ratingService.getLatestRatings(2);
         assertEquals(2, ratingList.size());

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.commonlibrary.model.AbstractAuditEntity;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Category;
 import com.yas.product.model.Product;
@@ -401,7 +400,10 @@ class ProductServiceIT {
 
         List<Product>  actualResponse = productRepository.findAll();
         assertEquals(10, actualResponse.size());
-        actualResponse.sort((Comparator.comparing(AbstractAuditEntity::getCreatedOn).reversed()));
+        actualResponse.sort(Comparator
+            .comparing(Product::getCreatedOn, Comparator.reverseOrder())
+            .thenComparing(Product::getId, Comparator.reverseOrder())
+        );
 
         List<ProductListVm>  newResponse = productService.getLatestProducts(5);
         assertEquals(5, newResponse.size());

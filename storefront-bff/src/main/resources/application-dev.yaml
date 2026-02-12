@@ -3,25 +3,25 @@ spring:
     gateway:
       server:
         webflux:
-        default-filters:
-          - SaveSession
-        routes:
-          # Changes for your local development should not be committed
-          - id: api_servicename_local
-            uri: http://localhost:8081
-            predicates:
-              - Path=/api/servicename/**
-            filters:
-              - TokenRelay=
-              - StripPrefix=1
-          - id: api
-            uri: http://api.yas.local
-            predicates:
-              - Path=/api/**
-            filters:
-              - TokenRelay=
-              - StripPrefix=1
-          - id: nextjs
-            uri: http://localhost:3000
-            predicates:
-              - Path=/**
+          default-filters:
+            - SaveSession
+          routes:
+            # Changes for your local development should not be committed
+            - id: api_servicename_local
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/servicename/**
+              filters:
+                - TokenRelay=
+                - StripPrefix=1
+            - id: api
+              uri: http://api.yas.local
+              predicates:
+                - Path=/api/**
+              filters:
+                - TokenRelay=
+                - StripPrefix=1
+            - id: nextjs
+              uri: http://localhost:3000
+              predicates:
+                - Path=/**
