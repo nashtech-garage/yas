@@ -113,7 +113,9 @@ class ProductServiceIT {
         categoryRepository.saveAll(categoryList);
 
         products = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
+        // Create products in reverse order (10 to 1) and save individually with delays
+        // to ensure distinct createdOn timestamps for deterministic sorting
+        for (int i = 10; i >= 1; i--) {
             Product product = Product.builder()
                     .name(String.format("product%s", i))
                     .slug(String.format("slug%s", i))
@@ -132,10 +134,17 @@ class ProductServiceIT {
                 product.setBrand(brand1);
                 product.setPrice(5.0);
             }
-            product.setCreatedOn(CREATED_ON.minusDays(i));
-            products.add(product);
+            // Save individually to ensure distinct createdOn timestamps
+            Product savedProduct = productRepository.save(product);
+            products.add(0, savedProduct); // Add at beginning to maintain order [product1, product2, ...]
+            
+            // Small delay to ensure distinct timestamps (Hibernate 7 auto-sets createdOn)
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
-        productRepository.saveAll(products);
 
         productCategoryList = new ArrayList<>();
         for (int i = 1; i <= products.size(); i++) {
