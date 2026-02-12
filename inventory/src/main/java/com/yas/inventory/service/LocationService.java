@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class LocationService extends AbstractCircuitBreakFallbackHandler {
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
+    private static final String ADDRESS_BY_ID_PATH = "/storefront/addresses/{id}";
 
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleAddressDetailFallback")
@@ -27,7 +28,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
             .fromUriString(serviceUrlConfig.location())
-            .path("/storefront/addresses/{id}")
+            .path(ADDRESS_BY_ID_PATH)
             .buildAndExpand(id)
             .toUri();
 
@@ -65,7 +66,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
 
         final URI url = UriComponentsBuilder
             .fromUriString(serviceUrlConfig.location())
-            .path("/storefront/addresses/{id}")
+            .path(ADDRESS_BY_ID_PATH)
             .buildAndExpand(id)
             .toUri();
 
@@ -80,7 +81,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleBodilessFallback")
     public void deleteAddress(Long addressId) {
-        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.location()).path("/storefront/addresses/{id}")
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.location()).path(ADDRESS_BY_ID_PATH)
             .buildAndExpand(addressId).toUri();
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
