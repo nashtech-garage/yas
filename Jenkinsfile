@@ -2,6 +2,20 @@ pipeline {
     agent any
 
     stages {
+        stage('Security Scan - Snyk') {
+            steps {
+                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                    sh '''
+                        curl --compressed https://static.snyk.io/cli/latest/snyk-linux -o snyk
+                        chmod +x ./snyk
+
+                        ./snyk auth $SNYK_TOKEN
+
+                        ./snyk test --all-projects
+                    '''
+                }
+            }
+        }
         stage('CI - Product Service') {
             when {
                 changeset "product/**"
