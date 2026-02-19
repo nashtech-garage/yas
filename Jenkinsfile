@@ -32,10 +32,7 @@ pipeline {
             stages {
                 stage('Test Customer') {
                     steps {
-                        dir('customer') {
-                            sh 'chmod +x ./mvnw'
-                            sh './mvnw clean test'
-                        }
+                        sh 'mvn clean test -pl customer -am'
                     }
                     post {
                         always {
@@ -51,10 +48,7 @@ pipeline {
                 }
                 stage('Build Customer') {
                     steps {
-                        dir('customer') {
-                            sh 'chmod +x ./mvnw'
-                            sh './mvnw clean package -DskipTests'
-                        }
+                        sh 'mvn clean package -pl customer -am -DskipTests'
                     }
                 }
             }
