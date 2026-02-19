@@ -11,6 +11,7 @@
     <version>${revision}</version>
     <name>customer</name>
     <description>YAS Customer service</description>
+    
 
     <properties>
         <sonar.organization>nashtech-garage</sonar.organization>
