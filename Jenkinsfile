@@ -4,7 +4,10 @@ pipeline {
     stages {
         stage('CI - Product Service') {
             when {
-                changeset "product/**"
+                anyOf {
+                    changeset "product/**"
+                    changeset "Jenkinsfile"
+                }
             }
             stages {
                 stage('Test Product') {
@@ -27,7 +30,10 @@ pipeline {
 
         stage('CI - Customer Service') {
             when {
-                changeset "customer/**"
+                anyOf {
+                    changeset "customer/**"
+                    changeset "Jenkinsfile"
+                }
             }
             stages {
                 stage('Test Customer') {
@@ -56,7 +62,10 @@ pipeline {
 
         stage('CI - Storefront Frontend') {
             when {
-                changeset "storefront/**"
+                anyOf {
+                    changeset "storefront/**"
+                    changeset "Jenkinsfile"
+                }
             }
             stages {
                 stage('Test & Build Storefront') {
