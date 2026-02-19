@@ -25,6 +25,39 @@ pipeline {
             }
         }
 
+        stage('CI - Customer Service') {
+            when {
+                changeset "customer/**"
+            }
+            stages {
+                stage('Test Customer') {
+                    steps {
+                        dir('customer') {
+                            sh './mvnw clean test'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'customer/target/surefire-reports/*.xml'
+                            jacoco(
+                                execPattern: 'customer/target/jacoco.exec',
+                                classPattern: 'customer/target/classes',
+                                sourcePattern: 'customer/src/main/java',
+                                inclusionPattern: '**/*.class'
+                            )
+                        }
+                    }
+                }
+                stage('Build Customer') {
+                    steps {
+                        dir('customer') {
+                            sh './mvnw clean package -DskipTests'
+                        }
+                    }
+                }
+            }
+        }
+
         stage('CI - Storefront Frontend') {
             when {
                 changeset "storefront/**"
