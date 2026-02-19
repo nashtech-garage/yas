@@ -4,15 +4,15 @@ pipeline {
     stages {
         stage('CI - Product Service') {
             when {
-                anyOf {
-                    changeset "product/**"
-                    changeset "Jenkinsfile"
-                }
+                changeset "product/**"
             }
             stages {
                 stage('Test Product') {
                     steps {
-                        sh 'mvn clean test -pl product -am'
+                        dir('product') {
+                            sh 'chmod +x ./mvnw'
+                            sh './mvnw -f ../pom.xml clean test -pl product -am'
+                        }
                     }
                     post {
                         always {
@@ -22,7 +22,10 @@ pipeline {
                 }
                 stage('Build Product') {
                     steps {
-                        sh 'mvn clean package -pl product -am -DskipTests'
+                        dir('product') {
+                            sh 'chmod +x ./mvnw'
+                            sh './mvnw -f ../pom.xml clean package -pl product -am -DskipTests'
+                        }
                     }
                 }
             }
@@ -30,15 +33,15 @@ pipeline {
 
         stage('CI - Customer Service') {
             when {
-                anyOf {
-                    changeset "customer/**"
-                    changeset "Jenkinsfile"
-                }
+                changeset "customer/**"
             }
             stages {
                 stage('Test Customer') {
                     steps {
-                        sh 'mvn clean test -pl customer -am'
+                        dir('customer') {
+                            sh 'chmod +x ./mvnw'
+                            sh './mvnw -f ../pom.xml clean test -pl customer -am'
+                        }
                     }
                     post {
                         always {
@@ -54,7 +57,10 @@ pipeline {
                 }
                 stage('Build Customer') {
                     steps {
-                        sh 'mvn clean package -pl customer -am -DskipTests'
+                        dir('customer') {
+                            sh 'chmod +x ./mvnw'
+                            sh './mvnw -f ../pom.xml clean package -pl customer -am -DskipTests'
+                        }
                     }
                 }
             }
@@ -62,10 +68,7 @@ pipeline {
 
         stage('CI - Storefront Frontend') {
             when {
-                anyOf {
-                    changeset "storefront/**"
-                    changeset "Jenkinsfile"
-                }
+                changeset "storefront/**"
             }
             stages {
                 stage('Test & Build Storefront') {
