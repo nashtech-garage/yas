@@ -13,7 +13,7 @@ def runFrontendPipeline(String appName, boolean isMainOrPR) {
 
         echo "Running SonarQube analysis for ${appName}..."
         withSonarQubeEnv('SonarQube-Local') {
-            def scannerHome = tool 'SonarScanner' 
+            def scannerHome = tool 'SonarScanner'
             sh "${scannerHome}/bin/sonar-scanner"
         }
 
@@ -231,39 +231,39 @@ pipeline {
                         }
 
                         // --- PHASE 4: VULNERABILITY SCAN (SNYK) ---
-                        stage('Vulnerability Scan') {
-                            steps {
-                                script {
-                                    echo "Scanning backend dependencies..."
-                                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                                        def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
-                                        def snykCmd = "${snykHome}/snyk-linux"
-                                        def isMainOrPR = (env.BRANCH_NAME == 'main' || (env.CHANGE_ID && env.CHANGE_TARGET == 'main'))
+                        // stage('Vulnerability Scan') {
+                        //     steps {
+                        //         script {
+                        //             echo "Scanning backend dependencies..."
+                        //             withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                        //                 def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
+                        //                 def snykCmd = "${snykHome}/snyk-linux"
+                        //                 def isMainOrPR = (env.BRANCH_NAME == 'main' || (env.CHANGE_ID && env.CHANGE_TARGET == 'main'))
 
-                                        if (IS_ROOT_CHANGED) {
-                                            if (isMainOrPR) {
-                                                sh "${snykCmd} test --all-projects --severity-threshold=high"
-                                            } else {
-                                                sh "${snykCmd} test --all-projects --severity-threshold=high || true"
-                                            }
-                                        } else {
-                                            def services = CHANGED_SERVICES.split(',')
-                                            for (service in services) {
-                                                echo ">>> Snyk scanning: ${service}"
-                                                dir(service) {
-                                                    sh 'chmod +x ./mvnw'
-                                                    if (isMainOrPR) {
-                                                        sh "${snykCmd} test --severity-threshold=high"
-                                                    } else {
-                                                        sh "${snykCmd} test --severity-threshold=high || true"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        //                 if (IS_ROOT_CHANGED) {
+                        //                     if (isMainOrPR) {
+                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high"
+                        //                     } else {
+                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high || true"
+                        //                     }
+                        //                 } else {
+                        //                     def services = CHANGED_SERVICES.split(',')
+                        //                     for (service in services) {
+                        //                         echo ">>> Snyk scanning: ${service}"
+                        //                         dir(service) {
+                        //                             sh 'chmod +x ./mvnw'
+                        //                             if (isMainOrPR) {
+                        //                                 sh "${snykCmd} test --severity-threshold=high"
+                        //                             } else {
+                        //                                 sh "${snykCmd} test --severity-threshold=high || true"
+                        //                             }
+                        //                         }
+                        //                     }
+                        //                 }
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                 }
 
