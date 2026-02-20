@@ -3,6 +3,37 @@ def IS_ROOT_CHANGED = false
 def BUILD_BACKOFFICE = false
 def BUILD_STOREFRONT = false
 
+def runFrontendPipeline(String appName, boolean isMainOrPR) {
+    dir(appName) {
+        echo "Installing ${appName} dependencies..."
+        sh 'npm ci'
+
+        echo "Checking code quality (Linting)..."
+        sh 'npm run lint'
+
+        echo "Running SonarQube analysis for ${appName}..."
+        withSonarQubeEnv('SonarQube-Local') {
+            def scannerHome = tool 'SonarScanner' 
+            sh "${scannerHome}/bin/sonar-scanner"
+        }
+
+        echo "Scanning ${appName} dependencies..."
+        withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+            def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
+            def snykCmd = "${snykHome}/snyk-linux"
+            
+            if (isMainOrPR) {
+                sh "${snykCmd} test --severity-threshold=high"
+            } else {
+                sh "${snykCmd} test --severity-threshold=high || true"
+            }
+        }
+
+        echo "Building ${appName} UI..."
+        sh 'npm run build'
+    }
+}
+
 pipeline {
     agent any
 
@@ -70,67 +101,60 @@ pipeline {
                         sh "git fetch origin ${baseBranch}:refs/remotes/origin/${baseBranch} --depth=10"
                         diffCommand = "git diff --name-only origin/${baseBranch} HEAD"
                     }
-                    
-                    // Get the list of changed files
+
                     def changedFilesList = []
                     try {
-                        def changedOutput = sh(script: diffCommand, returnStdout: true).trim()
-                        changedFilesList = changedOutput.split('\n')
+                        changedFilesList = sh(script: diffCommand, returnStdout: true).trim().split('\n')
                     } catch (Exception e) {
                         echo "First build or error detected. Need to build ALL."
                         IS_ROOT_CHANGED = true
                     }
-                    echo "List of changed files: ${changedFilesList}"
+                    echo "List of changed files:\n${changedFilesList.join('\n')}"
 
-                    def services = [
-                        "media/", "product/", "cart/", "order/", "rating/",
-                        "customer/", "location/", "inventory/", "tax/", "search/"
+                    def VALID_BACKEND_SERVICES = [
+                        "media", "product", "cart", "order", "rating",
+                        "customer", "location", "inventory", "tax", "search"
                     ]
 
-                    def servicesToBuild = []
+                    def servicesToBuild = [] as Set
 
                     // Iterate through changed files to detect affected services
                     for (file in changedFilesList) {
-                        // If root configuration files change, rebuild ALL
+                        if (!file) continue
+
+                        // if (file == "pom.xml" || file == "Jenkinsfile") {
                         if (file == "pom.xml") {
                             IS_ROOT_CHANGED = true
                         }
 
-                        // Check backend services
-                        for (svcPath in services) {
-                            if (file.startsWith(svcPath)) {
-                                // Extract service name (e.g., "cart/" -> "cart")
-                                servicesToBuild.add(svcPath.replace("/", ""))
-                            }
+                        if (file.startsWith("common-library/")) {
+                            echo "Common library changed. Marking all valid backend services..."
+                            servicesToBuild.addAll(VALID_BACKEND_SERVICES)
                         }
 
-                        // Check frontend services
                         if (file.startsWith("backoffice/")) BUILD_BACKOFFICE = true
                         if (file.startsWith("storefront/")) BUILD_STOREFRONT = true
-                        
-                        // Check common library
-                        // If common library changes, we must rebuild services that depend on it
-                        if (file.startsWith("common-library/")) {
-                            echo "Common library changed. Marking dependent services for build..."
-                            servicesToBuild.addAll([
-                                "media", "product", "cart", "order", "rating",
-                                "customer", "location", "inventory", "tax", "search"
-                            ])
+
+                        def pathParts = file.split('/')
+                        if (pathParts.length > 1) {
+                            def topLevelDir = pathParts[0]
+                            if (VALID_BACKEND_SERVICES.contains(topLevelDir)) {
+                                servicesToBuild.add(topLevelDir)
+                            }
                         }
                     }
 
-                    // Finalize build plan
                     if (IS_ROOT_CHANGED) {
                         echo "Root configuration changed. Building ALL services."
                         BUILD_BACKOFFICE = true
                         BUILD_STOREFRONT = true
                     } else {
-                        // Remove duplicates and join with commas for Maven (e.g., "cart,order")
-                        CHANGED_SERVICES = servicesToBuild.unique().join(",")
+                        // Join with commas for Maven (e.g., "cart,order")
+                        CHANGED_SERVICES = servicesToBuild.join(",")
                     }
                     
                     echo "----- BUILD PLAN -----"
-                    echo "Backend Services: ${IS_ROOT_CHANGED ? 'ALL' : (CHANGED_SERVICES ?: 'None')}"
+                    echo "Backend Services: ${IS_ROOT_CHANGED ? 'ALL' : (CHANGED_SERVICES ?: 'N/A')}"
                     echo "Frontend Backoffice: ${BUILD_BACKOFFICE}"
                     echo "Frontend Storefront: ${BUILD_STOREFRONT}"
                     echo "----------------------"
@@ -138,74 +162,25 @@ pipeline {
             }
         }
 
-        // --- STAGE 4: BUILD & TEST ---
-        stage('Build & Test') {
+        // --- STAGE 4: INTEGRATION & VALIDATION ---
+        stage('Integration & Validation') {
             parallel {
                 // Backend Services (Spring Boot)
                 stage('Backend Pipeline') {
                     when { expression { return IS_ROOT_CHANGED || CHANGED_SERVICES != "" } }
                     stages {
-                        // --- SECURITY SCAN ---
-                        stage('Backend Security Scan') {
+                        // --- PHASE 1: BUILD, TEST & INSTALL ---
+                        stage('Build & Test') {
                             steps {
                                 script {
-                                    echo "Scanning backend dependencies..."
-
-                                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                                        def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
-                                        def snykCmd = "${snykHome}/snyk-linux"
-
-                                        def isMain = (env.BRANCH_NAME == 'main')
-                                        def isPRToMain = (env.CHANGE_ID && env.CHANGE_TARGET == 'main')
-
-                                        if (IS_ROOT_CHANGED) {
-                                            echo "Preparing full scan..."
-                                            sh "mvn install -DskipTests -q"
-                                            if (isMain || isPRToMain) {
-                                                sh "${snykCmd} test --all-projects --severity-threshold=high"
-                                            } else {
-                                                sh "${snykCmd} test --all-projects --severity-threshold=high || true"
-                                            }
-                                        } else {
-                                            echo "Optimized scan for: ${CHANGED_SERVICES}"
-                                            sh "mvn install -DskipTests -q -pl ${CHANGED_SERVICES} -am"
-
-                                            def services = CHANGED_SERVICES.split(',')
-                                            for (service in services) {
-                                                echo ">>> Snyk scanning: ${service}"
-                                                dir(service) {
-                                                    sh 'chmod +x ./mvnw'
-                                                    if (isMain || isPRToMain) {
-                                                        sh "${snykCmd} test --severity-threshold=high"
-                                                    } else {
-                                                        sh "${snykCmd} test --severity-threshold=high || true"
-                                                    }
-                                                }
-                                            }
-                                        }
+                                    echo "Building, testing and installing artifacts..."
+                                    if (IS_ROOT_CHANGED) {
+                                        sh 'mvn clean install jacoco:report -DskipITs'
+                                    } else {
+                                        sh "mvn clean install jacoco:report -DskipITs -pl ${CHANGED_SERVICES} -am"
                                     }
                                 }
                             }
-                        }
-
-                        // --- PHASE 1: UNIT TEST & COVERAGE ---
-                        stage('Unit Test') {
-                            steps {
-                                script {
-                                    echo "Phase 1: Running tests & SonarQube analysis..."
-
-                                    withSonarQubeEnv('SonarQube-Local') {
-                                        if (IS_ROOT_CHANGED) {
-                                            // Clean and Test everything
-                                            sh 'mvn clean test jacoco:report sonar:sonar'
-                                        } else {
-                                            // Clean and Test changed services + dependencies (-am)
-                                            sh "mvn clean test jacoco:report sonar:sonar -pl ${CHANGED_SERVICES} -am"
-                                        }
-                                    }
-                                }
-                            }
-
                             post {
                                 always {
                                     // Upload test results
@@ -229,25 +204,62 @@ pipeline {
                             }
                         }
 
-                        // --- PHASE 2: QUALITY CHECK ---
+                        // --- PHASE 2: CODE QUALITY (SONARQUBE) ---
+                        stage('SonarQube Analysis') {
+                            steps {
+                                script {
+                                    echo "Running SonarQube analysis..."
+                                    withSonarQubeEnv('SonarQube-Local') {
+                                        if (IS_ROOT_CHANGED) {
+                                            sh 'mvn sonar:sonar'
+                                        } else {
+                                            sh "mvn sonar:sonar -pl ${CHANGED_SERVICES} -am"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // --- PHASE 3: QUALITY GATE ---
                         stage("Quality Gate") {
                             steps {
-                                echo "Phase 2: Checking quality of code..."
-                                timeout(time: 5, unit: 'MINUTES') {
+                                echo "Checking quality of code..."
+                                timeout(time: 2, unit: 'MINUTES') {
                                     waitForQualityGate abortPipeline: true
                                 }
                             }
                         }
 
-                        // --- PHASE 3: BUILD ARTIFACT ---
-                        stage('Build Artifacts') {
+                        // --- PHASE 4: VULNERABILITY SCAN (SNYK) ---
+                        stage('Vulnerability Scan') {
                             steps {
                                 script {
-                                    echo "Phase 3: Building artifacts..."
-                                    if (IS_ROOT_CHANGED) {
-                                        sh 'mvn package -DskipTests'
-                                    } else {
-                                        sh "mvn package -DskipTests -pl ${CHANGED_SERVICES} -am"
+                                    echo "Scanning backend dependencies..."
+                                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                                        def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
+                                        def snykCmd = "${snykHome}/snyk-linux"
+                                        def isMainOrPR = (env.BRANCH_NAME == 'main' || (env.CHANGE_ID && env.CHANGE_TARGET == 'main'))
+
+                                        if (IS_ROOT_CHANGED) {
+                                            if (isMainOrPR) {
+                                                sh "${snykCmd} test --all-projects --severity-threshold=high"
+                                            } else {
+                                                sh "${snykCmd} test --all-projects --severity-threshold=high || true"
+                                            }
+                                        } else {
+                                            def services = CHANGED_SERVICES.split(',')
+                                            for (service in services) {
+                                                echo ">>> Snyk scanning: ${service}"
+                                                dir(service) {
+                                                    sh 'chmod +x ./mvnw'
+                                                    if (isMainOrPR) {
+                                                        sh "${snykCmd} test --severity-threshold=high"
+                                                    } else {
+                                                        sh "${snykCmd} test --severity-threshold=high || true"
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -259,28 +271,9 @@ pipeline {
                 stage('Backoffice Pipeline') {
                     when { expression { return BUILD_BACKOFFICE || IS_ROOT_CHANGED } }
                     steps {
-                        dir('backoffice') {
-                            script {
-                                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                                    def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
-                                    def snykCmd = "${snykHome}/snyk-linux"
-
-                                    echo "Installing Backoffice dependencies..."
-                                    sh 'npm install'
-
-                                    echo "Scanning Backoffice dependencies..."
-                                    def isMain = (env.BRANCH_NAME == 'main')
-                                    def isPRToMain = (env.CHANGE_ID && env.CHANGE_TARGET == 'main')
-                                    if (isMain || isPRToMain) {
-                                        sh "${snykCmd} test --severity-threshold=high"
-                                    } else {
-                                        sh "${snykCmd} test --severity-threshold=high || true"
-                                    }
-                                }
-
-                                echo "Building Backoffice UI..."
-                                sh 'npm run build'
-                            }
+                        script {
+                            def isMainOrPR = (env.BRANCH_NAME == 'main' || (env.CHANGE_ID && env.CHANGE_TARGET == 'main'))
+                            runFrontendPipeline('backoffice', isMainOrPR)
                         }
                     }
                 }
@@ -289,28 +282,9 @@ pipeline {
                 stage('Storefront Pipeline') {
                     when { expression { return BUILD_STOREFRONT || IS_ROOT_CHANGED } }
                     steps {
-                        dir('storefront') {
-                            script {
-                                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                                    def snykHome = tool name: 'snyk-latest', type: 'io.snyk.jenkins.tools.SnykInstallation'
-                                    def snykCmd = "${snykHome}/snyk-linux"
-
-                                    echo "Installing Storefront dependencies..."
-                                    sh 'npm install'
-
-                                    echo "Scanning Storefront dependencies..."
-                                    def isMain = (env.BRANCH_NAME == 'main')
-                                    def isPRToMain = (env.CHANGE_ID && env.CHANGE_TARGET == 'main')
-                                    if (isMain || isPRToMain) {
-                                        sh "${snykCmd} test --severity-threshold=high"
-                                    } else {
-                                        sh "${snykCmd} test --severity-threshold=high || true"
-                                    }
-                                }
-
-                                echo "Building Storefront UI..."
-                                sh 'npm run build'
-                            }
+                        script {
+                            def isMainOrPR = (env.BRANCH_NAME == 'main' || (env.CHANGE_ID && env.CHANGE_TARGET == 'main'))
+                            runFrontendPipeline('storefront', isMainOrPR)
                         }
                     }
                 }
