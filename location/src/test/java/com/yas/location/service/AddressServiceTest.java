@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = LocationApplication.class)
-public class AddressServiceTest {
+class AddressServiceTest {
 
     @Autowired
     private AddressRepository addressRepository;

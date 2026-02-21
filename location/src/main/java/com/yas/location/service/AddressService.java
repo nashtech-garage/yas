@@ -55,7 +55,7 @@ public class AddressService {
 
     public List<AddressDetailVm> getAddressList(List<Long> ids) {
         List<Address> addressList = addressRepository.findAllByIdIn(ids);
-        return addressList.stream().map(address -> AddressDetailVm.fromModel(address)).toList();
+        return addressList.stream().map(AddressDetailVm::fromModel).toList();
     }
 
     public AddressDetailVm getAddress(Long id) {

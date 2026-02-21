@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.location.LocationApplication;
 import com.yas.location.service.StateOrProvinceService;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;

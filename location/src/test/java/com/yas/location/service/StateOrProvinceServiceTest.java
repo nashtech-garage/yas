@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = LocationApplication.class)
-public class StateOrProvinceServiceTest {
+class StateOrProvinceServiceTest {
 
     @Autowired
     private CountryRepository countryRepository;

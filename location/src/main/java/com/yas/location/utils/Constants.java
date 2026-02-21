@@ -3,6 +3,8 @@ package com.yas.location.utils;
 public final class Constants {
 
     public final class ErrorCode {
+        private ErrorCode() {
+        }
 
         public static final String COUNTRY_NOT_FOUND = "COUNTRY_NOT_FOUND";
         public static final String NAME_ALREADY_EXITED = "NAME_ALREADY_EXITED";
@@ -12,12 +14,16 @@ public final class Constants {
     }
 
     public final class PageableConstant {
+        private PageableConstant() {
+        }
 
         public static final String DEFAULT_PAGE_SIZE = "10";
         public static final String DEFAULT_PAGE_NUMBER = "0";
     }
 
     public final class ApiConstant {
+        private ApiConstant() {
+        }
 
         public static final String STATE_OR_PROVINCES_URL = "/backoffice/state-or-provinces";
 
