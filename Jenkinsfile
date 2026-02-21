@@ -217,20 +217,15 @@ pipeline {
                                         }
                                     }
                                 }
-                            }
-                        }
 
-                        // --- PHASE 3: QUALITY GATE ---
-                        stage("Quality Gate") {
-                            steps {
-                                echo "Checking quality of code..."
+                                echo "Waiting for Quality Gate result..."
                                 timeout(time: 2, unit: 'MINUTES') {
                                     waitForQualityGate abortPipeline: true
                                 }
                             }
                         }
 
-                        // --- PHASE 4: VULNERABILITY SCAN (SNYK) ---
+                        // --- PHASE 3: VULNERABILITY SCAN (SNYK) ---
                         // stage('Vulnerability Scan') {
                         //     steps {
                         //         script {
