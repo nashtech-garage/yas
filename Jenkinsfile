@@ -192,13 +192,13 @@ pipeline {
                                             parser: 'JACOCO', 
                                             pattern: '**/target/site/jacoco/jacoco.xml'
                                         ]],
-                                        // qualityGates: [
-                                        //     [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
-                                        //     [threshold: 60.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'FAILURE'],
-                                        //     [threshold: 70.0, metric: 'INSTRUCTION', baseline: 'PROJECT', criticality: 'FAILURE'],
-                                        //     [threshold: 80.0, metric: 'METHOD', baseline: 'PROJECT', criticality: 'UNSTABLE']
-                                        //     [threshold: 70.0, metric: 'CLASS', baseline: 'PROJECT', criticality: 'FAILURE']
-                                        // ]
+                                        qualityGates: [
+                                            [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                            [threshold: 70.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'FAILURE'],
+                                            [threshold: 70.0, metric: 'INSTRUCTION', baseline: 'PROJECT', criticality: 'FAILURE'],
+                                            [threshold: 70.0, metric: 'METHOD', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                            [threshold: 70.0, metric: 'CLASS', baseline: 'PROJECT', criticality: 'FAILURE']
+                                        ]
                                     )
                                 }
                             }
