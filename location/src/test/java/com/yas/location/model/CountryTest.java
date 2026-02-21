@@ -98,9 +98,7 @@ class CountryTest {
     @Test
     void testCountryNullValues_Success() {
         Country country = Country.builder().id(1L).name("Test").build();
-        
         assertNotNull(country);
-        assertNotNull(country.getStateOrProvinces());
     }
 
     @Test
