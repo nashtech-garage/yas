@@ -44,7 +44,7 @@ pipeline {
 
     environment {
         // Use local repository within the workspace for faster caching
-        MAVEN_OPTS = "-Dmaven.repo.local=.m2/repository"
+        MAVEN_OPTS = "-Dmaven.repo.local=${WORKSPACE}/.m2/repository"
     }
 
     stages {
@@ -169,7 +169,7 @@ pipeline {
                 stage('Backend Pipeline') {
                     when { expression { return IS_ROOT_CHANGED || CHANGED_SERVICES != "" } }
                     stages {
-                        // --- PHASE 1: BUILD, TEST & INSTALL ---
+                        // --- PHASE 1: BUILD, TEST & COVERAGE ---
                         stage('Build & Test') {
                             steps {
                                 script {
@@ -183,23 +183,41 @@ pipeline {
                             }
                             post {
                                 always {
-                                    // Upload test results
-                                    junit '**/target/surefire-reports/*.xml'
+                                    script {
+                                        // Upload test results
+                                        junit '**/target/surefire-reports/*.xml'
 
-                                    // Upload coverage results
-                                    recordCoverage(
-                                        tools: [[
-                                            parser: 'JACOCO', 
-                                            pattern: '**/target/site/jacoco/jacoco.xml'
-                                        ]],
-                                        qualityGates: [
-                                            [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
-                                            [threshold: 70.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'FAILURE'],
-                                            [threshold: 70.0, metric: 'INSTRUCTION', baseline: 'PROJECT', criticality: 'FAILURE'],
-                                            [threshold: 70.0, metric: 'METHOD', baseline: 'PROJECT', criticality: 'UNSTABLE'],
-                                            [threshold: 70.0, metric: 'CLASS', baseline: 'PROJECT', criticality: 'FAILURE']
-                                        ]
-                                    )
+                                        def VALID_BACKEND_SERVICES = []
+                                        if (IS_ROOT_CHANGED) {
+                                            VALID_BACKEND_SERVICES = [
+                                                "media", "product", "cart", "order", "rating",
+                                                "customer", "location", "inventory", "tax", "search"
+                                            ]
+                                        } else {
+                                            VALID_BACKEND_SERVICES = CHANGED_SERVICES.split(',')
+                                        }
+
+                                        for (String service : VALID_BACKEND_SERVICES) {
+                                            if (service.trim() == "") continue
+
+                                            // Upload coverage results
+                                            recordCoverage(
+                                                id: "coverage-${service}",
+                                                name: "Coverage: ${service.capitalize()}",
+                                                tools: [[
+                                                    parser: 'JACOCO', 
+                                                    pattern: "${service}/target/site/jacoco/jacoco.xml"
+                                                ]],
+                                                qualityGates: [
+                                                    [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                                    [threshold: 70.0, metric: 'BRANCH', baseline: 'PROJECT', criticality: 'FAILURE'],
+                                                    [threshold: 70.0, metric: 'INSTRUCTION', baseline: 'PROJECT', criticality: 'FAILURE'],
+                                                    [threshold: 70.0, metric: 'METHOD', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                                    [threshold: 70.0, metric: 'CLASS', baseline: 'PROJECT', criticality: 'FAILURE']
+                                                ]
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -210,22 +228,40 @@ pipeline {
                                 script {
                                     echo "Running SonarQube analysis..."
                                     withSonarQubeEnv('SonarQube-Local') {
+                                        def VALID_BACKEND_SERVICES = []
                                         if (IS_ROOT_CHANGED) {
-                                            sh 'mvn sonar:sonar'
+                                            VALID_BACKEND_SERVICES = [
+                                                "media", "product", "cart", "order", "rating",
+                                                "customer", "location", "inventory", "tax", "search"
+                                            ]
                                         } else {
-                                            sh "mvn sonar:sonar -pl ${CHANGED_SERVICES} -am"
+                                            VALID_BACKEND_SERVICES = CHANGED_SERVICES.split(',')
+                                        }
+
+                                        for (String service : VALID_BACKEND_SERVICES) {
+                                            if (service.trim() == "") continue
+                                            
+                                            echo ">>> SonarQube scanning: ${service}"
+                                            dir(service) {
+                                                sh 'mvn sonar:sonar'
+                                            }
                                         }
                                     }
                                 }
+                            }
+                        }
 
-                                echo "Waiting for Quality Gate result..."
+                        // --- PHASE 3: QUALITY GATE ---
+                        stage("Quality Gate") {
+                            steps {
+                                echo "Checking quality of code..."
                                 timeout(time: 2, unit: 'MINUTES') {
                                     waitForQualityGate abortPipeline: true
                                 }
                             }
                         }
 
-                        // --- PHASE 3: VULNERABILITY SCAN (SNYK) ---
+                        // --- PHASE 4: VULNERABILITY SCAN (SNYK) ---
                         // stage('Vulnerability Scan') {
                         //     steps {
                         //         script {
