@@ -8,6 +8,10 @@ import org.slf4j.helpers.MessageFormatter;
 
 public class MessagesUtils {
 
+    private MessagesUtils() {
+        /* This utility class should not be instantiated */
+    }
+
     static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
             Locale.getDefault());
 
