@@ -352,7 +352,7 @@ class CustomerServiceTest {
 
     @Test
     void testCreatePasswordCredentials_shouldReturnPasswordCredentials() {
-        String password = "testPassword123";
+        String password = "testPassword123"; // gitleaks:allow
         CredentialRepresentation credentials = CustomerService.createPasswordCredentials(password);
 
         assertThat(credentials).isNotNull();
