@@ -273,9 +273,9 @@ pipeline {
 
                         //                 if (IS_ROOT_CHANGED) {
                         //                     if (isMainOrPR) {
-                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high"
+                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high --command=mvn"
                         //                     } else {
-                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high || true"
+                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high --command=mvn || true"
                         //                     }
                         //                 } else {
                         //                     def services = CHANGED_SERVICES.split(',')
@@ -284,9 +284,9 @@ pipeline {
                         //                         dir(service) {
                         //                             sh 'chmod +x ./mvnw'
                         //                             if (isMainOrPR) {
-                        //                                 sh "${snykCmd} test --severity-threshold=high"
+                        //                                 sh "${snykCmd} test --severity-threshold=high --command=mvn"
                         //                             } else {
-                        //                                 sh "${snykCmd} test --severity-threshold=high || true"
+                        //                                 sh "${snykCmd} test --severity-threshold=high --command=mvn || true"
                         //                             }
                         //                         }
                         //                     }
