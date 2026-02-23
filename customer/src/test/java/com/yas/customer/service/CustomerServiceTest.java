@@ -11,12 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.*;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.ArgumentCaptor;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CustomerServiceTest {
@@ -126,10 +129,10 @@ class CustomerServiceTest {
     void testGetCustomers_hasError_throwForbiddenException() {
 
         when(usersResource.search(any(), anyInt(), anyInt()))
-            .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
+                .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
 
         AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
-            () -> customerService.getCustomers(1));
+                () -> customerService.getCustomers(1));
 
         assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
     }
@@ -159,7 +162,7 @@ class CustomerServiceTest {
 
         CustomerProfileRequestVm customerProfileRequestVm = getCustomerProfileRequestVm();
         NotFoundException thrown = assertThrows(NotFoundException.class,
-            () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
+                () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
         assertTrue(thrown.getMessage().contains("User not found"));
     }
 
@@ -190,7 +193,7 @@ class CustomerServiceTest {
     @Test
     void testGetCustomerByEmail_isInValidEmail_throwWrongEmailFormatException() {
         WrongEmailFormatException thrown = assertThrows(WrongEmailFormatException.class,
-            () -> customerService.getCustomerByEmail("invalid-email"));
+                () -> customerService.getCustomerByEmail("invalid-email"));
         assertTrue(thrown.getMessage().contains("Wrong email format for invalid-email"));
     }
 
@@ -198,7 +201,7 @@ class CustomerServiceTest {
     void testGetCustomerByEmail_searchResultIsEmpty_throwNotFoundException() {
         when(usersResource.search(VALID_EMAIL, true)).thenReturn(List.of());
         NotFoundException thrown = assertThrows(NotFoundException.class,
-            () -> customerService.getCustomerByEmail(VALID_EMAIL));
+                () -> customerService.getCustomerByEmail(VALID_EMAIL));
         assertTrue(thrown.getMessage().contains("User with email " + VALID_EMAIL + " not found"));
     }
 
@@ -206,10 +209,10 @@ class CustomerServiceTest {
     void testGetCustomerByEmail_isAbnormalCase_throwForbiddenException() {
 
         when(usersResource.search(VALID_EMAIL, true))
-            .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
+                .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
 
         AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
-            () -> customerService.getCustomerByEmail(VALID_EMAIL));
+                () -> customerService.getCustomerByEmail(VALID_EMAIL));
 
         assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
     }
@@ -233,10 +236,10 @@ class CustomerServiceTest {
     void testGetCustomerProfile_isAbnormalCase_throwForbiddenException() {
 
         when(usersResource.get(USER_NAME))
-            .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
+                .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
 
         AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
-            () -> customerService.getCustomerProfile(USER_NAME));
+                () -> customerService.getCustomerProfile(USER_NAME));
 
         assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
     }
@@ -275,7 +278,7 @@ class CustomerServiceTest {
     @Test
     void testCreateUser_isNormalCase_returnCustomerPostVm() {
         CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
-            "Doe", "123", "ADMIN");
+                "Doe", "123", "ADMIN");
         Response response = mock(Response.class);
 
         when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
@@ -288,7 +291,8 @@ class CustomerServiceTest {
         when(usersResource.get("1")).thenReturn(userResource);
 
         when(realmResource.users().search(anyString(), anyBoolean())).thenReturn(Collections.emptyList());
-        when(realmResource.users().search(any(), any(), any(), anyString(), any(), any())).thenReturn(Collections.emptyList());
+        when(realmResource.users().search(any(), any(), any(), anyString(), any(), any()))
+                .thenReturn(Collections.emptyList());
 
         RolesResource rolesResource = mock(RolesResource.class);
         when(realmResource.roles()).thenReturn(rolesResource);
@@ -311,11 +315,88 @@ class CustomerServiceTest {
     @Test
     void testCreateUser_whenUsernameAlreadyExisted_thenThrowDuplicateException() {
         CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
-            "Doe", "123", "ADMIN");
+                "Doe", "123", "ADMIN");
 
         when(realmResource.users().search(anyString(), anyBoolean()))
-            .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+                .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
 
         assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
+    }
+
+    @Test
+    void testCreateUser_whenEmailAlreadyExisted_thenThrowDuplicateException() {
+        CustomerPostVm customerPostVm = new CustomerPostVm("newuser", "existing@gmail.com", "John",
+                "Doe", "123", "ADMIN");
+
+        // Username doesn't exist
+        when(realmResource.users().search("newuser", true))
+                .thenReturn(Collections.emptyList());
+
+        // Email exists
+        when(realmResource.users().search(any(), any(), any(), anyString(), any(), any()))
+                .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+
+        assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
+    }
+
+    @Test
+    void testDeleteCustomer_whenUserNotFound_throwNotFoundException() {
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_NAME)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(null);
+
+        NotFoundException thrown = assertThrows(NotFoundException.class,
+                () -> customerService.deleteCustomer(USER_NAME));
+        assertTrue(thrown.getMessage().contains("User not found"));
+    }
+
+    @Test
+    void testCreatePasswordCredentials_shouldReturnPasswordCredentials() {
+        String password = "testPassword123"; // gitleaks:allow
+        CredentialRepresentation credentials = CustomerService.createPasswordCredentials(password);
+
+        assertThat(credentials).isNotNull();
+        assertThat(credentials.getValue()).isEqualTo(password);
+        assertThat(credentials.getType()).isEqualTo(CredentialRepresentation.PASSWORD);
+        assertThat(credentials.isTemporary()).isFalse();
+    }
+
+    @Test
+    void testGetCustomers_withPagination_shouldReturnCorrectPage() {
+        List<UserRepresentation> users = getUserRepresentations();
+        when(usersResource.search(any(), anyInt(), anyInt())).thenReturn(users);
+        when(usersResource.count()).thenReturn(25);
+
+        CustomerListVm customerListVm = customerService.getCustomers(2);
+
+        assertThat(customerListVm.totalUser()).isEqualTo(2);
+        verify(usersResource).search(any(), eq(20), eq(10));
+    }
+
+    @Test
+    void testGetCustomers_whenHasDisabledUsers_shouldFilterThem() {
+        UserRepresentation user1 = new UserRepresentation();
+        user1.setId("1");
+        user1.setUsername("user1");
+        user1.setEmail("user1@example.com");
+        user1.setEnabled(true);
+        user1.setCreatedTimestamp(1609459200000L);
+
+        UserRepresentation user2 = new UserRepresentation();
+        user2.setId("2");
+        user2.setUsername("user2");
+        user2.setEmail("user2@example.com");
+        user2.setEnabled(false);
+        user2.setCreatedTimestamp(1609459200000L);
+
+        List<UserRepresentation> userList = Arrays.asList(user1, user2);
+
+        when(usersResource.search(any(), anyInt(), anyInt())).thenReturn(userList);
+        when(usersResource.count()).thenReturn(2);
+
+        CustomerListVm customerListVm = customerService.getCustomers(0);
+
+        assertThat(customerListVm.customers()).hasSize(1);
+        assertThat(customerListVm.customers().get(0).email()).isEqualTo("user1@example.com");
     }
 }
