@@ -12,13 +12,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TaxRateRepositoryIT {
 
     @Autowired
@@ -38,18 +36,20 @@ class TaxRateRepositoryIT {
     @BeforeEach
     void setUp(){
         taxClass = taxClassRepository.save(Instancio.of(TaxClass.class)
-            .set(field(TaxClass::getId), 1L)
+            .ignore(field(TaxClass::getId))
             .create());
 
         taxClass2 = taxClassRepository.save(Instancio.of(TaxClass.class)
-            .set(field(TaxClass::getId), 2L)
+            .ignore(field(TaxClass::getId))
             .create());
 
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
 
         taxRate2 = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass2)
             .set(field("countryId"), taxRate.getCountryId())
             .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
@@ -57,6 +57,7 @@ class TaxRateRepositoryIT {
             .create());
 
         taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
     }

@@ -42,7 +42,7 @@ class ProductServiceTest {
 
         List<Long> ids = List.of(1L, 2L, 3L);
         URI url = UriComponentsBuilder
-            .fromHttpUrl("http://api.yas.local/media")
+            .fromUriString("http://api.yas.local/media")
             .path("/storefront/products/list-featured")
             .queryParam("productId", ids)
             .build()

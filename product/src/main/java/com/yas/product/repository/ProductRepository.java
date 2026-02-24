@@ -75,7 +75,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p JOIN p.brand b WHERE b.id IN :brandIds ORDER BY p.id ASC")
     List<Product> findByBrandIdsIn(@Param("brandIds") List<Long> brandIds);
 
-    @Query("SELECT p FROM Product p ORDER BY p.createdOn DESC")
+    @Query("SELECT p FROM Product p ORDER BY p.createdOn DESC, p.id DESC")
     List<Product> getLatestProducts(Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds AND p.isPublished = TRUE")

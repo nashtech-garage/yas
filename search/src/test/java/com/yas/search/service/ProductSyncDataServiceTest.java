@@ -53,7 +53,7 @@ class ProductSyncDataServiceTest {
 
     private void mockProductThumbnailVmsByUri() {
 
-        final URI url = UriComponentsBuilder.fromHttpUrl(PRODUCT_URL)
+        final URI url = UriComponentsBuilder.fromUriString(PRODUCT_URL)
             .path("/storefront/products-es/{id}").buildAndExpand(ID).toUri();
 
         when(serviceUrlConfig.product()).thenReturn(PRODUCT_URL);
@@ -153,7 +153,7 @@ class ProductSyncDataServiceTest {
             List.of("Color: Black", "Storage: 128GB", "RAM: 6GB")
         );
 
-        URI url = UriComponentsBuilder.fromHttpUrl(PRODUCT_URL)
+        URI url = UriComponentsBuilder.fromUriString(PRODUCT_URL)
             .path("/storefront/products-es/{id}").buildAndExpand(ID).toUri();
 
         when(serviceUrlConfig.product()).thenReturn(PRODUCT_URL);

@@ -23,15 +23,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TaxRateControllerIT extends AbstractControllerIT {
 
     @Autowired
@@ -40,7 +38,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
     @Autowired
     TaxClassRepository taxClassRepository;
 
-    @MockBean
+    @MockitoBean
     LocationService locationService;
 
     TaxClass taxClass;
@@ -55,15 +53,19 @@ class TaxRateControllerIT extends AbstractControllerIT {
 
     @BeforeEach
     void setUp() {
-        taxClass = taxClassRepository.save(Instancio.of(TaxClass.class).create());
+        taxClass = taxClassRepository.save(Instancio.of(TaxClass.class)
+            .ignore(field(TaxClass::getId))
+            .create());
         taxRate = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
         taxClass2 = taxClassRepository.save(Instancio.of(TaxClass.class)
-            .set(field(TaxClass::getId), 2L)
+            .ignore(field(TaxClass::getId))
             .create());
 
         taxRate2 = taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass2)
             .set(field("countryId"), taxRate.getCountryId())
             .set(field("stateOrProvinceId"), taxRate.getStateOrProvinceId())
@@ -71,6 +73,7 @@ class TaxRateControllerIT extends AbstractControllerIT {
             .create());
 
         taxRateRepository.save(Instancio.of(TaxRate.class)
+            .ignore(field(TaxRate::getId))
             .set(field("taxClass"), taxClass)
             .create());
     }

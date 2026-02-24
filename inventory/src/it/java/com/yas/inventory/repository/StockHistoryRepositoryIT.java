@@ -11,13 +11,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class StockHistoryRepositoryIT {
 
     @Autowired
@@ -33,12 +31,13 @@ class StockHistoryRepositoryIT {
     void insertTestData() {
         warehouse = warehouseRepository.save(
             Instancio.of(Warehouse.class)
-                .set(field(Warehouse::getId), 1L)
+                .ignore(field(Warehouse::getId))
                 .create()
         );
 
         stockHistory = stockHistoryRepository.save(
             Instancio.of(StockHistory.class)
+                .ignore(field(StockHistory::getId))
                 .set(field(StockHistory::getWarehouse), warehouse)
                 .create()
         );

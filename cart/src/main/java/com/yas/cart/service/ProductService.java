@@ -23,7 +23,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductThumbnailFallback")
     public List<ProductThumbnailVm> getProducts(List<Long> ids) {
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.product())
+            .fromUriString(serviceUrlConfig.product())
             .path("/storefront/products/list-featured")
             .queryParam("productId", ids)
             .build()

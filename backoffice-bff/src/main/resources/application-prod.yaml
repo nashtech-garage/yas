@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - SaveSession
+          routes:
+            - id: api
+              uri: http://nginx
+              predicates:
+                - Path=/api/**
+              filters:
+                - DedupeResponseHeader=Origin Access-Control-Request-Method Access-Control-Request-Headers
+                - TokenRelay=
+                - StripPrefix=1
+            - id: nextjs
+              uri: http://backoffice-nextjs:3000
+              predicates:
+                - Path=/**

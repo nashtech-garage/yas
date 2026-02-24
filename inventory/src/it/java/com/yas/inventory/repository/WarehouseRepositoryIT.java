@@ -8,13 +8,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class WarehouseRepositoryIT {
 
     @Autowired
@@ -22,8 +20,8 @@ class WarehouseRepositoryIT {
 
     @BeforeEach
     public void insertTestData() {
-        Warehouse warehouse = Warehouse.builder().id(1L).name("test_warehouse").addressId(1L).build();
-        Warehouse duplicateNameWarehouse = Warehouse.builder().id(2L).name("test_warehouse").addressId(2L).build();
+        Warehouse warehouse = Warehouse.builder().name("test_warehouse").addressId(1L).build();
+        Warehouse duplicateNameWarehouse = Warehouse.builder().name("test_warehouse").addressId(2L).build();
 
         warehouseRepository.save(warehouse);
         warehouseRepository.save(duplicateNameWarehouse);

@@ -1,42 +1,36 @@
 package com.yas.product.controller;
 
-
-import com.yas.product.ProductApplication;
-import com.yas.product.model.Product;
-import com.yas.product.model.ProductOption;
-import com.yas.product.model.ProductOptionValue;
-import com.yas.product.repository.ProductOptionValueRepository;
-import com.yas.product.repository.ProductRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = ProductOptionValueController.class)
-@ContextConfiguration(classes = ProductApplication.class)
+import com.yas.product.model.Product;
+import com.yas.product.model.ProductOption;
+import com.yas.product.model.ProductOptionValue;
+import com.yas.product.repository.ProductOptionValueRepository;
+import com.yas.product.repository.ProductRepository;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(controllers = ProductOptionValueController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ProductOptionValueControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ProductOptionValueRepository productOptionValueRepository;
 
-    @MockBean
+    @MockitoBean
     private ProductRepository productRepository;
 
     @Test

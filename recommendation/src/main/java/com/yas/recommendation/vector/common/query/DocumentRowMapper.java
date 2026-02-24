@@ -1,6 +1,6 @@
 package com.yas.recommendation.vector.common.query;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;

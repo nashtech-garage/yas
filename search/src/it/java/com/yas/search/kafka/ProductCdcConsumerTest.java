@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.yas.commonlibrary.kafka.cdc.message.Product;
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
 import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
-import com.yas.search.config.KafkaIntegrationTestConfiguration;
+import com.yas.search.config.SearchIntegrationTestConfiguration;
 import com.yas.search.config.ServiceUrlConfig;
 import com.yas.search.repository.ProductRepository;
 import com.yas.search.service.ProductSyncDataService;
@@ -25,17 +25,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@Import(KafkaIntegrationTestConfiguration.class)
+@Import(SearchIntegrationTestConfiguration.class)
 @PropertySource("classpath:application.properties")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, ProductCdcMessage> {
@@ -51,7 +50,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
     @Autowired
     private ProductRepository productRepository;
 
-    @SpyBean
+    @MockitoSpyBean
     private ProductSyncDataService productSyncDataService;
 
     public ProductCdcConsumerTest() {
@@ -73,7 +72,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
 
         // When
         // Simulate Product Detail API response
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product())
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.product())
             .path(STOREFRONT_PRODUCTS_ES_PATH)
             .buildAndExpand(productId)
             .toUri();
@@ -107,7 +106,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
 
         // When
         // Simulate Product Detail API throw errors
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product())
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.product())
             .path(STOREFRONT_PRODUCTS_ES_PATH)
             .buildAndExpand(productId)
             .toUri();
@@ -141,7 +140,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
 
         // When
         // Simulate Product Detail API response
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product())
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.product())
             .path(STOREFRONT_PRODUCTS_ES_PATH)
             .buildAndExpand(productId)
             .toUri();
@@ -181,7 +180,7 @@ public class ProductCdcConsumerTest extends CdcConsumerTest<ProductMsgKey, Produ
 
         // When
         // Simulate Product Detail API response
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.product())
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.product())
             .path(STOREFRONT_PRODUCTS_ES_PATH)
             .buildAndExpand(productId)
             .toUri();

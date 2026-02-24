@@ -19,6 +19,7 @@ import com.yas.rating.viewmodel.RatingListVm;
 import com.yas.rating.viewmodel.RatingPostVm;
 import com.yas.rating.viewmodel.RatingVm;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -37,9 +38,9 @@ class RatingServiceTest {
     private final String userId = "user1";
     @Autowired
     private RatingRepository ratingRepository;
-    @MockBean
+    @MockitoBean
     private CustomerService customerService;
-    @MockBean
+    @MockitoBean
     private OrderService orderService;
     @Autowired
     private RatingService ratingService;
@@ -211,15 +212,15 @@ class RatingServiceTest {
     @Test
     void testGetLatestProducts_WhenHasListProductListVm_returnListProductListVm() {
         List<Rating> list = ratingRepository.findAll();
-        list.getFirst().setCreatedOn(ZonedDateTime.now().minusDays(3));
-        list.get(1).setCreatedOn(ZonedDateTime.now().minusDays(1));
-        list.get(2).setCreatedOn(ZonedDateTime.now().minusDays(2));
-        ratingRepository.saveAll(list);
+        list.sort(Comparator
+            .comparing(Rating::getCreatedOn, Comparator.reverseOrder())
+            .thenComparing(Rating::getId, Comparator.reverseOrder())
+        );
 
         List<RatingVm> ratingList = ratingService.getLatestRatings(2);
         assertEquals(2, ratingList.size());
-        assertEquals("comment 2", ratingList.getFirst().content());
-        assertEquals("comment 3", ratingList.get(1).content());
+        assertEquals(list.getFirst().getContent(), ratingList.getFirst().content());
+        assertEquals(list.get(1).getContent(), ratingList.get(1).content());
     }
 
     @Test

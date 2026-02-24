@@ -1,28 +1,5 @@
 package com.yas.product.controller;
 
-import com.yas.product.ProductApplication;
-import com.yas.product.model.ProductOption;
-import com.yas.product.repository.ProductOptionRepository;
-import com.yas.product.service.ProductOptionService;
-import com.yas.product.viewmodel.productoption.ProductOptionGetVm;
-import com.yas.product.viewmodel.productoption.ProductOptionListGetVm;
-import com.yas.product.viewmodel.productoption.ProductOptionPostVm;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -37,16 +14,34 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = ProductOptionController.class)
-@ContextConfiguration(classes = ProductApplication.class)
+import com.yas.product.model.ProductOption;
+import com.yas.product.repository.ProductOptionRepository;
+import com.yas.product.service.ProductOptionService;
+import com.yas.product.viewmodel.productoption.ProductOptionGetVm;
+import com.yas.product.viewmodel.productoption.ProductOptionListGetVm;
+import com.yas.product.viewmodel.productoption.ProductOptionPostVm;
+import java.util.List;
+import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
+
+@WebMvcTest(controllers = ProductOptionController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ProductOptionControllerTest {
 
-    @MockBean
+    @MockitoBean
     private ProductOptionService productOptionService;
 
-    @MockBean
+    @MockitoBean
     private ProductOptionRepository productOptionRepository;
 
     @Autowired

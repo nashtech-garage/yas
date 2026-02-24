@@ -1,29 +1,5 @@
 package com.yas.product.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yas.product.ProductApplication;
-import com.yas.product.model.Product;
-import com.yas.product.model.attribute.ProductAttribute;
-import com.yas.product.model.attribute.ProductAttributeValue;
-import com.yas.product.repository.ProductAttributeRepository;
-import com.yas.product.repository.ProductAttributeValueRepository;
-import com.yas.product.repository.ProductRepository;
-import com.yas.product.viewmodel.productattribute.ProductAttributeValuePostVm;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
@@ -35,21 +11,40 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = ProductAttributeValueController.class)
-@ContextConfiguration(classes = ProductApplication.class)
+import com.yas.product.model.Product;
+import com.yas.product.model.attribute.ProductAttribute;
+import com.yas.product.model.attribute.ProductAttributeValue;
+import com.yas.product.repository.ProductAttributeRepository;
+import com.yas.product.repository.ProductAttributeValueRepository;
+import com.yas.product.repository.ProductRepository;
+import com.yas.product.viewmodel.productattribute.ProductAttributeValuePostVm;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
+
+@WebMvcTest(controllers = ProductAttributeValueController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ProductAttributeValueControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ProductAttributeValueRepository productAttributeValueRepository;
 
-    @MockBean
+    @MockitoBean
     private ProductAttributeRepository productAttributeRepository;
 
-    @MockBean
+    @MockitoBean
     private ProductRepository productRepository;
 
     @Test

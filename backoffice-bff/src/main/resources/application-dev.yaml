@@ -1,0 +1,27 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - SaveSession
+          routes:
+            # Changes for your local development should not be committed
+            - id: api_servicename_local
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/servicename/**
+              filters:
+                - RewritePath=/api/(?<segment>.*), /$\{segment}
+                - TokenRelay=
+            - id: api
+              uri: http://api.yas.local
+              predicates:
+                - Path=/api/**
+              filters:
+                - RewritePath=/api/(?<segment>.*), /$\{segment}
+                - TokenRelay=
+            - id: nextjs
+              uri: http://localhost:3000
+              predicates:
+                - Path=/**

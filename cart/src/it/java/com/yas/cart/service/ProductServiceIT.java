@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.ComponentScan;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -25,7 +25,7 @@ class ProductServiceIT {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:16");
-    @SpyBean
+    @MockitoSpyBean
     private ProductService productService;
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;

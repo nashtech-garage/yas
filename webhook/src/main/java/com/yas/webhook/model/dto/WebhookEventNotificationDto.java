@@ -1,6 +1,6 @@
 package com.yas.webhook.model.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.Builder;
 import lombok.Getter;
 
