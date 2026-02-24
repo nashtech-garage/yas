@@ -322,4 +322,16 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            cleanWs() // Clean up the workspace to save disk space
+        }
+        success {
+            echo "CI Pipeline Completed Successfully!"
+        }
+        failure {
+            echo "CI Pipeline Failed! Check logs for compile errors, test failures, or security issues."
+        }
+    }
 }
