@@ -6,8 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistrar;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 
 @TestConfiguration
 public class SearchIntegrationTestConfiguration {
@@ -19,13 +18,12 @@ public class SearchIntegrationTestConfiguration {
     private String elasticSearchVersion;
 
     @Bean
-    public KafkaContainer kafkaContainer() {
-        return new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:%s".formatted(kafkaVersion)));
+    public ConfluentKafkaContainer kafkaContainer() {
+        return new ConfluentKafkaContainer("confluentinc/cp-kafka:%s".formatted(kafkaVersion));
     }
 
     @Bean
-    public DynamicPropertyRegistrar kafkaProperties(KafkaContainer kafkaContainer) {
+    public DynamicPropertyRegistrar kafkaProperties(ConfluentKafkaContainer kafkaContainer) {
         return registry -> {
             registry.add("spring.kafka.bootstrap-servers",
                 kafkaContainer::getBootstrapServers);
