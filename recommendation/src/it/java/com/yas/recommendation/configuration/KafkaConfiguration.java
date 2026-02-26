@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistrar;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration
@@ -20,14 +20,12 @@ public class KafkaConfiguration {
     private String pgVectorVersion;
 
     @Bean
-    public KafkaContainer kafkaContainer() {
-        return new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:%s".formatted(kafkaVersion))
-        );
+    public ConfluentKafkaContainer kafkaContainer() {
+        return new ConfluentKafkaContainer("confluentinc/cp-kafka:%s".formatted(kafkaVersion));
     }
 
     @Bean()
-    public DynamicPropertyRegistrar kafkaProperties(KafkaContainer kafkaContainer) {
+    public DynamicPropertyRegistrar kafkaProperties(ConfluentKafkaContainer kafkaContainer) {
         return registry -> {
             registry.add("spring.kafka.bootstrap-servers",
                 kafkaContainer::getBootstrapServers);

@@ -30,7 +30,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestClient;
-import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockitoAnnotations;
 
@@ -53,7 +53,7 @@ public abstract class CdcConsumerTest<K, M> {
     private final String cdcEvent;
 
     @Autowired
-    private KafkaContainer kafkaContainer;
+    private ConfluentKafkaContainer kafkaContainer;
 
     @MockitoBean
     private RestClient restClient;
@@ -164,4 +164,3 @@ public abstract class CdcConsumerTest<K, M> {
         return props;
     }
 }
-
