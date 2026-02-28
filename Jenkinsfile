@@ -7,10 +7,9 @@ pipeline {
     }
 
     stages {
-      
         stage('Initialize') {
             steps {
-                echo 'Đang khởi tạo hệ thống CI cho nhóm 3 người...'
+                echo 'Đang khởi tạo hệ thống CI cho nhóm 3 người....'
                 sh 'mvn --version'
             }
         }
@@ -18,7 +17,7 @@ pipeline {
         stage('Customer Service') {
             when { changeset "customer/**" }
             steps {
-                echo 'Phát hiện thay đổi tại Customer Service...'
+                echo 'Phát hiện thay đổi tại Customer Service....'
                 sh 'mvn clean install -pl customer -am'
             }
             post {
