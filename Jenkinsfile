@@ -11,16 +11,6 @@ pipeline {
 
     stages {
 
-        // ========== INSTALL COMMON-LIBRARY (required by other services) ==========
-        stage('Install Common-Library') {
-            steps {
-                dir('customer') {
-                    sh 'chmod +x ./mvnw'
-                    sh './mvnw clean install -f ../common-library/pom.xml -DskipTests'
-                }
-            }
-        }
-
         // ========== CUSTOMER SERVICE ==========
         stage('Test Customer') {
             when { changeset 'customer/**' }
