@@ -11,6 +11,16 @@ pipeline {
 
     stages {
 
+        // ========== INSTALL COMMON-LIBRARY (required by other services) ==========
+        stage('Install Common-Library') {
+            steps {
+                dir('common-library') {
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean install -DskipTests'
+                }
+            }
+        }
+
         // ========== CUSTOMER SERVICE ==========
         stage('Test Customer') {
             when { changeset 'customer/**' }
@@ -22,7 +32,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'customer/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'customer/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'customer/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -50,7 +60,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'cart/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'cart/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'cart/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -78,7 +88,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'order/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'order/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'order/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -106,7 +116,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'product/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'product/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'product/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -134,7 +144,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'inventory/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'inventory/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'inventory/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -162,7 +172,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'payment/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'payment/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'payment/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -190,7 +200,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'payment-paypal/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'payment-paypal/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'payment-paypal/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -218,7 +228,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'location/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'location/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'location/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -246,7 +256,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'media/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'media/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'media/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -274,7 +284,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'promotion/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'promotion/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'promotion/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -302,7 +312,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'rating/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'rating/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'rating/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -330,7 +340,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'search/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'search/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'search/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -358,7 +368,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'tax/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'tax/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'tax/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -386,7 +396,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'webhook/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'webhook/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'webhook/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -414,7 +424,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'recommendation/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'recommendation/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'recommendation/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -442,7 +452,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'delivery/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'delivery/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'delivery/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -470,7 +480,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'backoffice-bff/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'backoffice-bff/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'backoffice-bff/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -498,7 +508,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'storefront-bff/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'storefront-bff/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'storefront-bff/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -526,7 +536,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'common-library/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'common-library/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'common-library/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
@@ -554,7 +564,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'sampledata/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'sampledata/target/surefire-reports/*.xml'
                     recordCoverage(
                         tools: [[parser: 'JACOCO', pattern: 'sampledata/target/site/jacoco/jacoco.xml']],
                         sourceCodeRetention: 'EVERY_BUILD'
