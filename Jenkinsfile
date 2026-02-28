@@ -23,9 +23,10 @@ pipeline {
             post {
                 always {
                     junit 'customer/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'customer/target/jacoco.exec',
-                           classPattern: 'customer/target/classes',
-                           sourcePattern: 'customer/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'customer/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -50,9 +51,10 @@ pipeline {
             post {
                 always {
                     junit 'cart/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'cart/target/jacoco.exec',
-                           classPattern: 'cart/target/classes',
-                           sourcePattern: 'cart/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'cart/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -77,9 +79,10 @@ pipeline {
             post {
                 always {
                     junit 'order/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'order/target/jacoco.exec',
-                           classPattern: 'order/target/classes',
-                           sourcePattern: 'order/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'order/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -104,9 +107,10 @@ pipeline {
             post {
                 always {
                     junit 'product/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'product/target/jacoco.exec',
-                           classPattern: 'product/target/classes',
-                           sourcePattern: 'product/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'product/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -131,9 +135,10 @@ pipeline {
             post {
                 always {
                     junit 'inventory/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'inventory/target/jacoco.exec',
-                           classPattern: 'inventory/target/classes',
-                           sourcePattern: 'inventory/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'inventory/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -158,9 +163,10 @@ pipeline {
             post {
                 always {
                     junit 'payment/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'payment/target/jacoco.exec',
-                           classPattern: 'payment/target/classes',
-                           sourcePattern: 'payment/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'payment/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -185,9 +191,10 @@ pipeline {
             post {
                 always {
                     junit 'payment-paypal/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'payment-paypal/target/jacoco.exec',
-                           classPattern: 'payment-paypal/target/classes',
-                           sourcePattern: 'payment-paypal/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'payment-paypal/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -212,9 +219,10 @@ pipeline {
             post {
                 always {
                     junit 'location/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'location/target/jacoco.exec',
-                           classPattern: 'location/target/classes',
-                           sourcePattern: 'location/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'location/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -239,9 +247,10 @@ pipeline {
             post {
                 always {
                     junit 'media/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'media/target/jacoco.exec',
-                           classPattern: 'media/target/classes',
-                           sourcePattern: 'media/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'media/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -266,9 +275,10 @@ pipeline {
             post {
                 always {
                     junit 'promotion/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'promotion/target/jacoco.exec',
-                           classPattern: 'promotion/target/classes',
-                           sourcePattern: 'promotion/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'promotion/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -293,9 +303,10 @@ pipeline {
             post {
                 always {
                     junit 'rating/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'rating/target/jacoco.exec',
-                           classPattern: 'rating/target/classes',
-                           sourcePattern: 'rating/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'rating/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -320,9 +331,10 @@ pipeline {
             post {
                 always {
                     junit 'search/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'search/target/jacoco.exec',
-                           classPattern: 'search/target/classes',
-                           sourcePattern: 'search/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'search/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -347,9 +359,10 @@ pipeline {
             post {
                 always {
                     junit 'tax/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'tax/target/jacoco.exec',
-                           classPattern: 'tax/target/classes',
-                           sourcePattern: 'tax/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'tax/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -374,9 +387,10 @@ pipeline {
             post {
                 always {
                     junit 'webhook/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'webhook/target/jacoco.exec',
-                           classPattern: 'webhook/target/classes',
-                           sourcePattern: 'webhook/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'webhook/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -401,9 +415,10 @@ pipeline {
             post {
                 always {
                     junit 'recommendation/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'recommendation/target/jacoco.exec',
-                           classPattern: 'recommendation/target/classes',
-                           sourcePattern: 'recommendation/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'recommendation/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -428,9 +443,10 @@ pipeline {
             post {
                 always {
                     junit 'delivery/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'delivery/target/jacoco.exec',
-                           classPattern: 'delivery/target/classes',
-                           sourcePattern: 'delivery/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'delivery/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -455,9 +471,10 @@ pipeline {
             post {
                 always {
                     junit 'backoffice-bff/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'backoffice-bff/target/jacoco.exec',
-                           classPattern: 'backoffice-bff/target/classes',
-                           sourcePattern: 'backoffice-bff/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'backoffice-bff/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -482,9 +499,10 @@ pipeline {
             post {
                 always {
                     junit 'storefront-bff/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'storefront-bff/target/jacoco.exec',
-                           classPattern: 'storefront-bff/target/classes',
-                           sourcePattern: 'storefront-bff/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'storefront-bff/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -509,9 +527,10 @@ pipeline {
             post {
                 always {
                     junit 'common-library/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'common-library/target/jacoco.exec',
-                           classPattern: 'common-library/target/classes',
-                           sourcePattern: 'common-library/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'common-library/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
@@ -536,9 +555,10 @@ pipeline {
             post {
                 always {
                     junit 'sampledata/target/surefire-reports/*.xml'
-                    jacoco execPattern: 'sampledata/target/jacoco.exec',
-                           classPattern: 'sampledata/target/classes',
-                           sourcePattern: 'sampledata/src/main/java'
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'sampledata/target/site/jacoco/jacoco.xml']],
+                        sourceCodeRetention: 'EVERY_BUILD'
+                    )
                 }
             }
         }
