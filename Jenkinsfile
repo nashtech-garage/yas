@@ -7,6 +7,7 @@ pipeline {
     }
 
     stages {
+      
         stage('Initialize') {
             steps {
                 echo 'Đang khởi tạo hệ thống CI cho nhóm 3 người...'
