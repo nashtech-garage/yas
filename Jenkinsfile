@@ -581,4 +581,17 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            githubNotify status: 'SUCCESS',
+                         context: 'continuous-integration/jenkins/branch',
+                         description: 'Build passed'
+        }
+        failure {
+            githubNotify status: 'FAILURE',
+                         context: 'continuous-integration/jenkins/branch',
+                         description: 'Build failed'
+        }
+    }
 }
