@@ -14,10 +14,8 @@ pipeline {
         // ========== INSTALL COMMON-LIBRARY (required by other services) ==========
         stage('Install Common-Library') {
             steps {
-                dir('common-library') {
-                    sh 'chmod +x ./mvnw'
-                    sh './mvnw clean install -DskipTests'
-                }
+                sh 'chmod +x customer/mvnw'
+                sh 'customer/mvnw clean install -f common-library/pom.xml -DskipTests'
             }
         }
 
