@@ -16,8 +16,8 @@ pipeline {
             when { changeset 'customer/**' }
             steps {
                 dir('customer') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -34,7 +34,7 @@ pipeline {
             when { changeset 'customer/**' }
             steps {
                 dir('customer') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -44,8 +44,8 @@ pipeline {
             when { changeset 'cart/**' }
             steps {
                 dir('cart') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -62,7 +62,7 @@ pipeline {
             when { changeset 'cart/**' }
             steps {
                 dir('cart') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -72,8 +72,8 @@ pipeline {
             when { changeset 'order/**' }
             steps {
                 dir('order') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -90,7 +90,7 @@ pipeline {
             when { changeset 'order/**' }
             steps {
                 dir('order') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -100,8 +100,8 @@ pipeline {
             when { changeset 'product/**' }
             steps {
                 dir('product') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -118,7 +118,7 @@ pipeline {
             when { changeset 'product/**' }
             steps {
                 dir('product') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -128,8 +128,8 @@ pipeline {
             when { changeset 'inventory/**' }
             steps {
                 dir('inventory') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -146,7 +146,7 @@ pipeline {
             when { changeset 'inventory/**' }
             steps {
                 dir('inventory') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -156,8 +156,8 @@ pipeline {
             when { changeset 'payment/**' }
             steps {
                 dir('payment') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -174,7 +174,7 @@ pipeline {
             when { changeset 'payment/**' }
             steps {
                 dir('payment') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -184,8 +184,8 @@ pipeline {
             when { changeset 'payment-paypal/**' }
             steps {
                 dir('payment-paypal') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -202,7 +202,7 @@ pipeline {
             when { changeset 'payment-paypal/**' }
             steps {
                 dir('payment-paypal') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -212,8 +212,8 @@ pipeline {
             when { changeset 'location/**' }
             steps {
                 dir('location') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -230,7 +230,7 @@ pipeline {
             when { changeset 'location/**' }
             steps {
                 dir('location') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -240,8 +240,8 @@ pipeline {
             when { changeset 'media/**' }
             steps {
                 dir('media') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -258,7 +258,7 @@ pipeline {
             when { changeset 'media/**' }
             steps {
                 dir('media') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -268,8 +268,8 @@ pipeline {
             when { changeset 'promotion/**' }
             steps {
                 dir('promotion') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -286,7 +286,7 @@ pipeline {
             when { changeset 'promotion/**' }
             steps {
                 dir('promotion') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -296,8 +296,8 @@ pipeline {
             when { changeset 'rating/**' }
             steps {
                 dir('rating') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -314,7 +314,7 @@ pipeline {
             when { changeset 'rating/**' }
             steps {
                 dir('rating') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -324,8 +324,8 @@ pipeline {
             when { changeset 'search/**' }
             steps {
                 dir('search') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -342,7 +342,7 @@ pipeline {
             when { changeset 'search/**' }
             steps {
                 dir('search') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -352,8 +352,8 @@ pipeline {
             when { changeset 'tax/**' }
             steps {
                 dir('tax') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -370,7 +370,7 @@ pipeline {
             when { changeset 'tax/**' }
             steps {
                 dir('tax') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -380,8 +380,8 @@ pipeline {
             when { changeset 'webhook/**' }
             steps {
                 dir('webhook') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -398,7 +398,7 @@ pipeline {
             when { changeset 'webhook/**' }
             steps {
                 dir('webhook') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -408,8 +408,8 @@ pipeline {
             when { changeset 'recommendation/**' }
             steps {
                 dir('recommendation') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -426,7 +426,7 @@ pipeline {
             when { changeset 'recommendation/**' }
             steps {
                 dir('recommendation') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -436,8 +436,8 @@ pipeline {
             when { changeset 'delivery/**' }
             steps {
                 dir('delivery') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -454,7 +454,7 @@ pipeline {
             when { changeset 'delivery/**' }
             steps {
                 dir('delivery') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -464,8 +464,8 @@ pipeline {
             when { changeset 'backoffice-bff/**' }
             steps {
                 dir('backoffice-bff') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -482,7 +482,7 @@ pipeline {
             when { changeset 'backoffice-bff/**' }
             steps {
                 dir('backoffice-bff') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -492,8 +492,8 @@ pipeline {
             when { changeset 'storefront-bff/**' }
             steps {
                 dir('storefront-bff') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -510,7 +510,7 @@ pipeline {
             when { changeset 'storefront-bff/**' }
             steps {
                 dir('storefront-bff') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -520,8 +520,8 @@ pipeline {
             when { changeset 'common-library/**' }
             steps {
                 dir('common-library') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -538,7 +538,7 @@ pipeline {
             when { changeset 'common-library/**' }
             steps {
                 dir('common-library') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
@@ -548,8 +548,8 @@ pipeline {
             when { changeset 'sampledata/**' }
             steps {
                 dir('sampledata') {
-                    sh 'chmod +x ../mvnw'
-                    sh '../mvnw clean verify'
+                    sh 'chmod +x ./mvnw'
+                    sh './mvnw clean verify'
                 }
             }
             post {
@@ -566,7 +566,7 @@ pipeline {
             when { changeset 'sampledata/**' }
             steps {
                 dir('sampledata') {
-                    sh '../mvnw package -DskipTests'
+                    sh './mvnw package -DskipTests'
                 }
             }
         }
