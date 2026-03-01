@@ -52,5 +52,13 @@ pipeline {
         //         }
         //     }
         // }
+
+        stage('Static Code Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    sh "mvn sonar:sonar -Dsonar.token=${SONAR_TOKEN} -pl customer -am"
+                }
+            }
+        }
     }
 }

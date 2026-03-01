@@ -13,9 +13,9 @@
     <description>YAS Customer service</description>
 
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>thannthai</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-customer</sonar.projectKey>
+        <sonar.projectKey>thannthai_CI-Project</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>
