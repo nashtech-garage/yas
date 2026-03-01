@@ -17,7 +17,7 @@ pipeline {
         stage('Customer Service') {
             when { changeset "customer/**" }
             steps {
-                echo 'Phát hiện thay đổi tại Customer Service....'
+                echo 'Change detection in Customer Service....'
                 sh 'mvn clean install -pl customer -am'
             }
             post {
