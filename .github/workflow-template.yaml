@@ -2,14 +2,14 @@ name: {{SERVICE_NAME}} service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
     paths:
       - "{{SERVICE_NAME}}/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/{{SERVICE_NAME}}-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
     paths:
       - "{{SERVICE_NAME}}/**"
       - ".github/workflows/actions/action.yaml"
