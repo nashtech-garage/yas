@@ -2,13 +2,13 @@ name: backoffice service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "backoffice/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/backoffice-ci.yaml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "backoffice/**"
       - ".github/workflows/actions/action.yaml"
@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -41,17 +41,17 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          scan-type: 'fs'
-          scan-ref: './backoffice'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          scan-type: "fs"
+          scan-ref: "./backoffice"
+          format: "sarif"
+          output: "trivy-results.sarif"
       - name: SonarCloud Scan
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: SonarSource/sonarcloud-github-action@master
         with:
           projectBaseDir: backoffice
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -70,9 +70,9 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: 'ghcr.io/nashtech-garage/yas-backoffice:latest'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          image-ref: "ghcr.io/nashtech-garage/yas-backoffice:latest"
+          format: "sarif"
+          output: "trivy-results.sarif"
       - name: Push Docker image
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
@@ -83,4 +83,4 @@ jobs:
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"

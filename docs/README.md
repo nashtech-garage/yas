@@ -1,4 +1,5 @@
 # YAS: Yet Another Shop
+
 YAS is a pet project aim to practice building a typical microservice application in Java
 https://github.com/nashtech-garage/yas
 
@@ -39,24 +40,24 @@ name: product service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "product/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "product/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
-      
+
   workflow_dispatch:
 ```
 
 We use the `on` keyword to specify what event will trigger our workflow. Here we trigger the workflow when there are pushes to the main branch. Since we organized the project in a single monorepo, we need to specify the paths that are relavant for each workflow. This way, the workflow will only run when there are changes in those paths. For example, pushing code to the order folders will not trigger the product workflow. We also want to run the workflows on pull requests to make sure that the code changes pass all the requirement before being merged. Finally, with `workflow_dispatch` we enable the workflow can be triggered manually from the GitHub UI.
 
-Next, we will define jobs in our workflow. A GitHub Actions workflow can contain multiple jobs that run in parallel by default. Each job runs inside its own virtual machine (runner) specified by `run-on`. In our case, we only need one job. Within the job we can have multiple steps. Each step is either a shell script or an action. Steps are executed in order and  depend on each other. Since all steps run on the same runner, we can share data from one step to another. For instance, we can have a step that builds our application followed by a step that tests the application that was built.
+Next, we will define jobs in our workflow. A GitHub Actions workflow can contain multiple jobs that run in parallel by default. Each job runs inside its own virtual machine (runner) specified by `run-on`. In our case, we only need one job. Within the job we can have multiple steps. Each step is either a shell script or an action. Steps are executed in order and depend on each other. Since all steps run on the same runner, we can share data from one step to another. For instance, we can have a step that builds our application followed by a step that tests the application that was built.
 
 ```yaml
 jobs:
@@ -65,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -f product
@@ -103,11 +104,9 @@ The first step in our workflow is checking out the source code. This is done by 
 
 ![yas-unit-test](images/yas-ci.png)
 
-
 We use SonarCloud to analyze the source code. SonarCloud is free for open-source projects. To authenticate with SonarCloud, we will need the SONAR_TOKEN. After registering an account on SonarCloud and add our GitHub repo to SonarCloud, we can get the SONAR_TOKEN. This SONAR_TOKEN needs to be added to repository secret in GitHub. In the repository, go to Settings –> Security –> Secrets and variables –> Actions and add new repository secret. Because the security reason, the SONAR_TOKEN is not available in pull requests from forked repos. We added the `if:` statement so that this step only run on the main branch or pull requests created from within our repo not from a fork. The SonarCloud bot will add the scanning report to every pull request as image below.
 
 ![yas-pr-check](images/yas-ci-check.png)
-
 
 The final steps are login to GitHub Packages, build and push the docker images. We only build and push docker images when the workflow is run in the main branch not on pull requests.
 
@@ -161,6 +160,7 @@ The BFF acts as a reverse proxy for both Next.js and resource servers behind it.
 	<artifactId>spring-boot-starter-oauth2-client</artifactId>
 </dependency>
 ```
+
 And this is the Spring Cloud configuration
 
 ```yaml
@@ -205,7 +205,7 @@ Because there many services, we created muliple docker compose file.
 
 Common environment variables are defined in .env at the root of the repo. In that file we also set the `COMPOSE_FILE=docker-compose.yml:docker-compose.search.yml:docker-compose.o11y.yml` so that it will run all the services when you run docker compose up. You can run each each docker file separately by `docker compose -f [docker compose file] up`.
 
-All services will be in the same network named yas-network. 
+All services will be in the same network named yas-network.
 
 ## Observability
 
@@ -213,9 +213,9 @@ All services will be in the same network named yas-network.
 
 In yas, we use OpenTelemetry Java Agent which is attacthed to Spring Boot applications to collect OpenTelemetry data including Log, Trace and Metric and send them all to an OpenTelemetry Collector that run as a container. In the Otel collector we will do some transformation see https://github.com/nashtech-garage/yas/blob/main/docker/otel-collector/otelcol-config.yml
 
- - The log data then sent to Grafana Loki
- - The trace data sent to Grafana Tempo
- - The metric data sent to Prometheus
+- The log data then sent to Grafana Loki
+- The trace data sent to Grafana Tempo
+- The metric data sent to Prometheus
 
 We use the Grafana to view the observability data
 
@@ -241,6 +241,7 @@ This document provides a detailed explanation of various Prometheus metrics used
 - **Description:** This query calculates the per-second rate of HTTP requests over the past minute.
 
 ##### `sum(rate(prometheus_http_requests_total{code=~"4.."}[5m])) + sum(rate(prometheus_http_requests_total{code=~"5.."}[5m])) or vector(0)`
+
 ##### `sum(rate(prometheus_http_requests_total{code="200"}[5m])) or vector(0)`
 
 - **Description:** This query calculates the sum per-second rate of HTTP requests over the past 5 minute between abnormal and normal requests.
@@ -342,7 +343,6 @@ This document provides a detailed explanation of various Prometheus metrics used
 
 - **Description:** The current number of active client connections to the database.
 
-
 ## Change Data Capture (CDC) with Debezium
 
 ![yas-cdc-debezium-kafka](images/yas-cdc-debezium-kafka.png)
@@ -355,6 +355,6 @@ Debezium acts as a source connector of Kafka connect. It captures row-level chan
 
 ## Duplicating data to improve performance
 
-## Frontend architecture 
+## Frontend architecture
 
 ## Kubernetes
