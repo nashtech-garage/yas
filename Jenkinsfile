@@ -9,16 +9,17 @@ pipeline {
     stages {
         stage('Initialize') {
             steps {
-                echo 'Đang khởi tạo hệ thống CI cho nhóm 3 người....'
+                echo 'Khởi tạo hệ thống CI...'
                 sh 'mvn --version'
             }
         }
 
-        stage('Customer Service') {
+        stage('Customer Build & Test') {
             when { changeset "customer/**" }
             steps {
-                echo 'Change detection in Customer Service....'
-                sh 'mvn clean install -pl customer -am'
+                echo 'Chạy Build và Unit Test cho Customer Service...'
+                // Thêm flag -Dmaven.test.failure.ignore=true để nếu test fail vẫn chạy tiếp Sonar
+                sh 'mvn clean install -pl customer -am -DskipTests=false'
             }
             post {
                 always {
@@ -27,36 +28,13 @@ pipeline {
             }
         }
 
-        // stage('Vets Service') {
-        //     when { changeset "vets/**" }
-        //     steps {
-        //         echo 'Phát hiện thay đổi tại Vets Service...'
-        //         sh 'mvn clean install -pl vets -am'
-        //     }
-        //     post {
-        //         always {
-        //             jacoco(minimumInstructionCoverage: '70')
-        //         }
-        //     }
-        // }
-
-        // stage('Visits Service') {
-        //     when { changeset "visit/**" }
-        //     steps {
-        //         echo 'Phát hiện thay đổi tại Visits Service...'
-        //         sh 'mvn clean install -pl visit -am'
-        //     }
-        //     post {
-        //         always {
-        //             jacoco(minimumInstructionCoverage: '70')
-        //         }
-        //     }
-        // }
-
-        stage('Static Code Analysis') {
+        stage('Static Code Analysis (SonarCloud)') {
+            when { changeset "customer/**" }
             steps {
+                echo 'Đang quét bảo mật với SonarCloud...'
                 withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                    sh "mvn sonar:sonar -Dsonar.token=${SONAR_TOKEN} -pl customer -am"
+                    // Dùng -DskipTests để không phải chạy lại Test một lần nữa, tiết kiệm RAM
+                    sh "mvn sonar:sonar -Dsonar.token=${SONAR_TOKEN} -pl customer -am -DskipTests"
                 }
             }
         }
