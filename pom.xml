@@ -355,7 +355,7 @@
                                 <goal>check</goal>
                             </goals>
                             <configuration>
-                                <haltOnFailure>false</haltOnFailure>
+                                <haltOnFailure>true</haltOnFailure>
                                 <rules>
                                     <rule>
                                         <element>BUNDLE</element>
