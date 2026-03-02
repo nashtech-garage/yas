@@ -47,3 +47,13 @@ jobs:
         path: | 
           cart/target/*-reports/*.xml
           cart/target/site/jacoco/*
+
+    - name: PR Coverage Comment & Check
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/cart/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 0
+        title: "Cart Service Coverage"
