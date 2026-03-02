@@ -43,5 +43,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: cart-test-results
-        path: cart/target/surefire-reports/*.xml
+        name: cart-test-results-and-coverage
+        path: | 
+          cart/target/*-reports/*.xml
+          cart/target/site/jacoco/*
