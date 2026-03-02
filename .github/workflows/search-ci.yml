@@ -64,3 +64,11 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         min-coverage-overall: 70
         title: "search coverage"
+
+    - name: public results
+      uses: mikepenz/action-junit-report@v4
+      if: success() || failure()
+      with:
+        report_paths: search/target/*-reports/TEST-*.xml
+        detailed_summary: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
