@@ -134,7 +134,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                not { buildingTag() }onarQube Analysis
+                not { buildingTag() }
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
