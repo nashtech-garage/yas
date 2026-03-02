@@ -1,0 +1,255 @@
+@startuml Checkout Flow
+
+title Checkout Flow
+
+actor Customer as customer #fad7a0
+
+box YAS
+    participant "Storefront" as storefront #fdf2e9        
+    participant "Order Service" as order_service #3498db
+    entity "Checkout" as checkout #3498db
+    participant "Payment Service" as payment_service #73c6b6
+    participant "Delivery Service" as delivery_service #c39bd3
+    participant "Promotion Service" as promotion_service #8af1f0
+    participant "Product Service" as product_service #28b463 
+    participant "Customer Service" as customer_service #fad7a0
+    participant "Shopping Cart" as shopping_cart #a9cce3
+    participant "Tax Service" as tax_service #ffcc99
+end box
+
+customer -> storefront: Browse cart page
+activate storefront #fdf2e9
+  storefront -> shopping_cart: <font color=green><b>GET /storefront/cart/items
+  activate shopping_cart #a9cce3
+    shopping_cart --> storefront: [cart_items]
+  deactivate shopping_cart
+  customer <-- storefront: [cart_items]
+deactivate storefront
+
+customer -> storefront: Update cart quantity
+activate storefront #fdf2e9
+  storefront -> shopping_cart: <font color=green><b>PUT /storefront/cart/items/{productId} \n { quantity }
+deactivate storefront
+
+customer -> storefront: Proceed to checkout
+activate storefront #fdf2e9
+  storefront -> order_service: POST /order/checkouts
+  activate order_service #3498db
+    order_service -> product_service: <font color=green><b>GET /products?ids={product_ids}
+    activate product_service #28b463 
+      product_service --> order_service: [products]
+    deactivate product_service
+    order_service -> checkout **: Create Checkout
+    order_service <-- checkout
+    storefront <-- order_service: checkout
+  deactivate order_service
+  storefront -[#green]> payment_service: <font color=green><b>GET /storefront/payment-providers
+
+  'Get payment methods
+  activate payment_service #73c6b6
+  note right of payment_service
+    Payment
+  end note
+    storefront <-- payment_service: payment_methods
+  deactivate payment_service
+
+  'Get delivery providers
+  storefront -> delivery_service: GET /delivery/providers
+  activate delivery_service #c39bd3
+  note right of delivery_service
+    Delivery
+  end note
+    storefront <-- delivery_service: delivery_providers
+  deactivate delivery_service
+
+  'Get customer addresses
+  storefront -[#green]> customer_service: <font color=green><b>GET /storefront/user-address
+  activate customer_service #fad7a0
+  note right of customer_service
+    Customer
+  end note
+    storefront <-- customer_service: addresses
+  deactivate customer_service
+
+  storefront --> customer: Display checkout page
+  note left of storefront 
+    Request customer for:
+    - Payment method
+    - Delivery method
+    - Shipping address
+  end note
+deactivate storefront
+activate customer
+
+  ''Pick a payment method
+  customer -> storefront: Pick a payment method
+  activate storefront #fdf2e9    
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { payment_method }
+    activate order_service #3498db
+    note left of order_service
+      Order Service
+    end note
+      order_service -[#green]> payment_service: <font color=green><b>GET /storefront/payment-providers
+        activate payment_service #73c6b6
+        note right of payment_service
+          Payment
+        end note
+          payment_service --> order_service: Valid/Invalid
+        deactivate payment_service
+        order_service -> checkout: Update payment method
+        activate checkout #3498db
+        note right of checkout
+          Check-out
+        end note
+          checkout --> order_service: Checkout information
+        deactivate checkout
+      order_service --> storefront: Checkout
+    deactivate order_service
+  deactivate storefront
+
+  ''Pick a delivery provider
+  customer -> storefront: Pick a delivery provider
+  activate storefront #fdf2e9
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { delivery_provider }
+    activate order_service #3498db
+    note left of order_service
+      Order Service
+    end note
+      order_service -> delivery_service: Validate delivery method
+      activate delivery_service #c39bd3
+      note right of delivery_service
+        Delivery
+      end note
+        delivery_service --> order_service: Valid/Invalid
+      deactivate delivery_service
+      group <font color=blue><b>If Checkout already has Address
+      order_service -> delivery_service: GET "delivery information"
+      activate delivery_service #c39bd3
+      note right of delivery_service
+        Delivery
+      end note
+        delivery_service --> order_service: Delivery fees details
+      deactivate delivery_service
+      group <font color=blue><b>If Checkout already has Promotion code
+      order_service -[#green]> promotion_service: <font color=green><b>POST /backoffice/promotions/verify
+      activate promotion_service #8af1f0
+      note right of promotion_service
+        Promotion
+      end note
+        promotion_service --> order_service: 200 OK {status: Valid/Invalid}
+      deactivate promotion_service
+      end
+      end
+      order_service -> checkout: Update delivery provider
+      activate checkout #3498db
+      note right of checkout
+        Check-out
+      end note
+        checkout --> order_service: Checkout information
+      deactivate checkout
+      order_service --> storefront: Checkout
+    deactivate order_service
+  deactivate storefront
+
+  ''Pick a shipping address
+  customer -> storefront: Pick or add a shipping address
+  activate storefront #fdf2e9
+    storefront -[#green]> customer_service: <font color=green><b>POST /storefront/user-address
+    activate customer_service #fad7a0
+    note right of customer_service
+      Customer
+    end note
+       customer_service --> storefront: Success / Fail
+    deactivate customer_service
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { address }
+    activate order_service #3498db
+    note left of order_service
+      Order Service
+    end note
+      order_service -[#green]> customer_service: <font color=green><b>GET /storefront/user-address
+      activate customer_service #fad7a0
+      note right of customer_service
+        Customer
+      end note
+        customer_service --> order_service: Valid/Invalid
+      deactivate customer_service
+      group <font color=blue><b>If Address is valid
+      order_service -[#green]> tax_service: <font color=green><b>GET /backoffice/tax-rates/location-based-batch
+      activate tax_service #ffcc99
+      note right of tax_service
+        Tax
+      end note
+        tax_service --> order_service: Tax details
+      deactivate tax_service
+      end
+      group <font color=blue><b>If Checkout already has Delivery provider
+      order_service -> delivery_service: GET "delivery information"
+      activate delivery_service #c39bd3
+      note right of delivery_service
+        Delivery
+      end note
+        delivery_service --> order_service: Delivery fees details
+      deactivate delivery_service
+      group <font color=blue><b>If Checkout already has Promotion code
+      order_service -[#green]> promotion_service: <font color=green><b>POST /backoffice/promotions/verify
+      activate promotion_service #8af1f0
+      note right of promotion_service
+        Promotion
+      end note
+        promotion_service --> order_service: 200 OK {status: Valid/Invalid}
+      deactivate promotion_service
+      end
+      end
+      order_service -> checkout: Update address
+      activate checkout #3498db
+      note right of checkout
+        Check-out
+      end note
+        checkout --> order_service: Checkout information
+      deactivate checkout
+      order_service --> storefront: Checkout
+    deactivate order_service
+  deactivate storefront
+  
+  ''Add coupon code
+  customer -> storefront: Add coupon code
+  activate storefront #fdf2e9
+    storefront -> order_service: PATCH /order/checkouts/{checkout_id} \n { coupon_code }
+    activate order_service #3498db
+    note left of order_service
+      Order Service
+    end note
+      order_service -[#green]> promotion_service: <font color=green><b>POST /backoffice/promotions/verify
+      activate promotion_service #8af1f0
+      note right of promotion_service
+        Promotion
+      end note
+        promotion_service --> order_service: 200 OK {status: Valid/Invalid}
+      deactivate promotion_service
+      order_service -> checkout: Add Promocode and update payment amount
+      activate checkout #3498db
+      note right of checkout
+        Check-out
+      end note
+        checkout --> order_service:Checkout information
+      deactivate checkout
+      order_service --> storefront: Checkout
+    deactivate order_service
+  deactivate storefront
+deactivate customer
+
+storefront --> storefront
+activate customer
+  customer -> storefront: Proceed to payment
+deactivate customer
+activate storefront #fdf2e9
+  break
+    note right of storefront
+      Continue to process on payment flow
+    end note
+  end 
+deactivate storefront
+
+@enduml
+
+

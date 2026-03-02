@@ -1,0 +1,31 @@
+@startuml Order State diagram
+[*] --> PENDING
+note on link
+After step 2 of sequence diagram
+end note
+PENDING: order.orderStatus = PENDING
+PENDING: order.paymentStatus = PENDING
+
+PENDING --> ACCEPTED: Subtract stock, delete cart 
+note on link
+Between Step 6 and 7 of sequence diagram
+end note
+ACCEPTED: order.orderStatus = ACCEPTED
+ACCEPTED: order.paymentStatus = PENDING
+
+ACCEPTED --> PAID: User request capture paypal payment, payment result is COMPLETED
+note on link
+After Step 26 of sequence diagram
+end note
+PAID: order.orderStatus = ACCEPTED
+PAID: order.paymentStatus = COMPLETED
+
+ACCEPTED --> PAYMENT_FAILED: User request capture paypal payment, payment result is CANCELLED
+note on link
+After Step 26 of sequence diagram
+end note
+PAYMENT_FAILED: order.orderStatus = ACCEPTED
+PAYMENT_FAILED: order.paymentStatus = CANCELLED
+PAID --> [*]
+PAYMENT_FAILED --> [*]
+@enduml
