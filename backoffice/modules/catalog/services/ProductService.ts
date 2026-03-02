@@ -10,10 +10,11 @@ const baseUrlOptionValue = '/api/product';
 
 export async function getProducts(
   pageNo: number,
+  pageSize: number,
   productName: string,
   brandName: string
 ): Promise<Products> {
-  const url = `${baseUrl}/products?pageNo=${pageNo}&product-name=${productName}&brand-name=${brandName}`;
+  const url = `${baseUrl}/products?pageNo=${pageNo}&pageSize=${pageSize}&product-name=${productName}&brand-name=${brandName}`;
   return (await apiClientService.get(url)).json();
 }
 
