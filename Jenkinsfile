@@ -138,12 +138,23 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
-                    sh """
-                    mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-                    -Dsonar.projectKey=NPT-102_yas \
-                    -Dsonar.organization=npt-102 \
-                    -Dsonar.host.url=https://sonarcloud.io
-                    """
+                    script {
+                        def sonarParams = "-Dsonar.projectKey=NPT-102_yas -Dsonar.organization=npt-102 -Dsonar.host.url=https://sonarcloud.io"
+
+                        if (env.CHANGE_ID) {
+                            // PR build → PR analysis (không conflict với branch analysis)
+                            sonarParams += " -Dsonar.pullrequest.key=${env.CHANGE_ID}"
+                            sonarParams += " -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}"
+                            sonarParams += " -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
+                            echo "🔍 Running SonarQube PR analysis for PR #${env.CHANGE_ID}"
+                        } else {
+                            // Branch build → Branch analysis
+                            sonarParams += " -Dsonar.branch.name=${env.BRANCH_NAME}"
+                            echo "🔍 Running SonarQube branch analysis for ${env.BRANCH_NAME}"
+                        }
+
+                        sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar ${sonarParams}"
+                    }
                 }
             }
         }
@@ -161,6 +172,16 @@ pipeline {
                     
                     // Get SonarCloud token from credentials
                     withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
+                        // Build Quality Gate API URL based on PR or branch
+                        def qgApiUrl = 'https://sonarcloud.io/api/qualitygates/project_status?projectKey=NPT-102_yas'
+                        if (env.CHANGE_ID) {
+                            qgApiUrl += "&pullRequest=${env.CHANGE_ID}"
+                            echo "Checking Quality Gate for PR #${env.CHANGE_ID}"
+                        } else {
+                            qgApiUrl += "&branch=${env.BRANCH_NAME}"
+                            echo "Checking Quality Gate for branch ${env.BRANCH_NAME}"
+                        }
+
                         def maxAttempts = 60  // 10 minutes with 10s interval
                         def attempt = 0
                         def qgPassed = false
@@ -173,7 +194,7 @@ pipeline {
                             def apiResponse = sh(
                                 script: """
                                     curl -s -u \${SONAR_TOKEN}: \
-                                    'https://sonarcloud.io/api/qualitygates/project_status?projectKey=NPT-102_yas' \
+                                    '${qgApiUrl}' \
                                     || echo '{"projectStatus":{"status":"ERROR"}}'
                                 """,
                                 returnStdout: true
