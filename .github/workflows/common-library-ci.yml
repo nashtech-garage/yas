@@ -44,4 +44,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: common-library-test-results
-        path: common-library/target/surefire-reports/*.xml
+        path: |
+          common-library/target/surefire-reports/*.xml
+          common-library/target/site/jacoco/*
+
+    - name: enforce 
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/common-library/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 70
+        title: "common-library coverage"

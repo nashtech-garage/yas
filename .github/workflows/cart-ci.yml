@@ -48,7 +48,7 @@ jobs:
           cart/target/*-reports/*.xml
           cart/target/site/jacoco/*
 
-    - name: PR Coverage Comment & Check
+    - name: enforce minimum coverage and PR comment
       id: jacoco
       uses: madrapps/jacoco-report@v1.7.2
       with:
@@ -56,4 +56,4 @@ jobs:
           ${{ github.workspace }}/cart/target/site/jacoco/jacoco.xml
         token: ${{ secrets.GITHUB_TOKEN }}
         min-coverage-overall: 70
-        title: "Cart Service Coverage"
+        title: "cart coverage"

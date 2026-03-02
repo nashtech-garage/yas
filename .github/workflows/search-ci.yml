@@ -5,12 +5,12 @@ on:
   push:
     paths:
       - 'search/**'
-      # any pushes to any, matches anything within cart recursively
+      # any pushes to any, matches anything within search recursively
   pull_request:
     branches: ["main"]
     paths:
       - 'search/**'
-      # any pull requests to main, matches anything within cart recursively
+      # any pull requests to main, matches anything within search recursively
 
 jobs:
   build-and-test:
@@ -44,4 +44,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: search-test-results
-        path: search/target/surefire-reports/*.xml
+        path: | 
+          search/target/*-reports/*.xml
+          search/target/site/jacoco/*
+
+    - name: enforce minimum coverage and PR comment
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/search/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 70
+        title: "search coverage"

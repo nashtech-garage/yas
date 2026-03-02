@@ -5,12 +5,12 @@ on:
   push:
     paths:
       - 'media/**'
-      # any pushes to any, matches anything within cart recursively
+      # any pushes to any, matches anything within media recursively
   pull_request:
     branches: ["main"]
     paths:
       - 'media/**'
-      # any pull requests to main, matches anything within cart recursively
+      # any pull requests to main, matches anything within media recursively
 
 jobs:
   build-and-test:
@@ -44,4 +44,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: media-test-results
-        path: media/target/surefire-reports/*.xml
+        path: | 
+          media/target/*-reports/*.xml
+          media/target/site/jacoco/*
+
+    - name: enforce minimum coverage and PR comment
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/media/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 70
+        title: "media coverage"

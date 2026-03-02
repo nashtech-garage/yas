@@ -5,12 +5,12 @@ on:
   push:
     paths:
       - 'sampledata/**'
-      # any pushes to any, matches anything within cart recursively
+      # any pushes to any, matches anything within sampledata recursively
   pull_request:
     branches: ["main"]
     paths:
       - 'sampledata/**'
-      # any pull requests to main, matches anything within cart recursively
+      # any pull requests to main, matches anything within sampledata recursively
 
 jobs:
   build-and-test:
@@ -44,4 +44,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: sampledata-test-results
-        path: sampledata/target/surefire-reports/*.xml
+        path: | 
+          sampledata/target/*-reports/*.xml
+          sampledata/target/site/jacoco/*
+
+    - name: enforce minimum coverage and PR comment
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/sampledata/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 70
+        title: "sampledata coverage"

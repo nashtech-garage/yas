@@ -5,12 +5,12 @@ on:
   push:
     paths:
       - 'location/**'
-      # any pushes to any, matches anything within cart recursively
+      # any pushes to any, matches anything within location recursively
   pull_request:
     branches: ["main"]
     paths:
       - 'location/**'
-      # any pull requests to main, matches anything within cart recursively
+      # any pull requests to main, matches anything within location recursively
 
 jobs:
   build-and-test:
@@ -44,4 +44,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: location-test-results
-        path: location/target/surefire-reports/*.xml
+        path: | 
+          location/target/*-reports/*.xml
+          location/target/site/jacoco/*
+
+    - name: enforce minimum coverage and PR comment
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/location/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 70
+        title: "location coverage"

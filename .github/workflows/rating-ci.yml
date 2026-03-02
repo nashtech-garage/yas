@@ -5,12 +5,12 @@ on:
   push:
     paths:
       - 'rating/**'
-      # any pushes to any, matches anything within cart recursively
+      # any pushes to any, matches anything within rating recursively
   pull_request:
     branches: ["main"]
     paths:
       - 'rating/**'
-      # any pull requests to main, matches anything within cart recursively
+      # any pull requests to main, matches anything within rating recursively
 
 jobs:
   build-and-test:
@@ -44,4 +44,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: rating-test-results
-        path: rating/target/surefire-reports/*.xml
+        path: | 
+          rating/target/*-reports/*.xml
+          rating/target/site/jacoco/*
+
+    - name: enforce minimum coverage and PR comment
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/rating/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 70
+        title: "rating coverage"
