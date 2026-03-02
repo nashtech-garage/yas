@@ -48,7 +48,7 @@ jobs:
           common-library/target/surefire-reports/*.xml
           common-library/target/site/jacoco/*
 
-    - name: enforce 
+    - name: enforce minimum coverage and PR comment
       id: jacoco
       uses: madrapps/jacoco-report@v1.7.2
       with:
