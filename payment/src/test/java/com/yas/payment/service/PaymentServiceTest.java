@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -122,6 +123,100 @@ class PaymentServiceTest {
         assertEquals(capturedPayment.getPaymentMethod(), responseVm.paymentMethod());
         assertEquals(capturedPayment.getPaymentStatus(), responseVm.paymentStatus());
         assertEquals(capturedPayment.getFailureMessage(), responseVm.failureMessage());
+    }
+
+    @Test
+    void testInitPayment_withUnknownProvider_shouldThrowException() {
+        // Given
+        InitPaymentRequestVm request = InitPaymentRequestVm.builder()
+                .paymentMethod("UNKNOWN_PROVIDER")
+                .totalPrice(BigDecimal.TEN)
+                .checkoutId("test-123")
+                .build();
+
+        // When/Then
+        assertThatThrownBy(() -> paymentService.initPayment(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No payment handler found for provider");
+    }
+
+    @Test
+    void testCapturePayment_withUnknownProvider_shouldThrowException() {
+        // Given
+        CapturePaymentRequestVm request = CapturePaymentRequestVm.builder()
+                .paymentMethod("INVALID_METHOD")
+                .token("token-123")
+                .build();
+
+        // When/Then
+        assertThatThrownBy(() -> paymentService.capturePayment(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No payment handler found for provider");
+    }
+
+    @Test
+    void testInitializeProviders_shouldRegisterAllHandlers() {
+        // Given
+        PaymentHandler handler1 = mock(PaymentHandler.class);
+        PaymentHandler handler2 = mock(PaymentHandler.class);
+        when(handler1.getProviderId()).thenReturn("PROVIDER1");
+        when(handler2.getProviderId()).thenReturn("PROVIDER2");
+
+        List<PaymentHandler> handlers = List.of(handler1, handler2);
+        PaymentService service = new PaymentService(paymentRepository, orderService, handlers);
+
+        // When
+        service.initializeProviders();
+
+        // Then - Should be able to use both providers
+        InitPaymentRequestVm request1 = InitPaymentRequestVm.builder()
+                .paymentMethod("PROVIDER1")
+                .totalPrice(BigDecimal.TEN)
+                .checkoutId("test")
+                .build();
+
+        when(handler1.initPayment(any())).thenReturn(
+                InitiatedPayment.builder()
+                        .paymentId("id1")
+                        .status("success")
+                        .redirectUrl("url1")
+                        .build()
+        );
+
+        InitPaymentResponseVm response = service.initPayment(request1);
+        assertThat(response.paymentId()).isEqualTo("id1");
+    }
+
+    @Test
+    void testCapturePayment_withFailedPayment_shouldHandleGracefully() {
+        // Given
+        CapturePaymentRequestVm request = CapturePaymentRequestVm.builder()
+                .paymentMethod(PaymentMethod.PAYPAL.name())
+                .token("failed-token")
+                .build();
+
+        CapturedPayment failedPayment = CapturedPayment.builder()
+                .orderId(null)
+                .checkoutId("checkout-456")
+                .amount(BigDecimal.valueOf(50.0))
+                .paymentFee(BigDecimal.ZERO)
+                .gatewayTransactionId(null)
+                .paymentMethod(PaymentMethod.PAYPAL)
+                .paymentStatus(PaymentStatus.CANCELLED)
+                .failureMessage("Payment declined")
+                .build();
+
+        Long orderId = 777L;
+        when(paymentHandler.capturePayment(request)).thenReturn(failedPayment);
+        when(orderService.updateCheckoutStatus(failedPayment)).thenReturn(orderId);
+        when(paymentRepository.save(any())).thenReturn(payment);
+
+        // When
+        CapturePaymentResponseVm response = paymentService.capturePayment(request);
+
+        // Then
+        assertThat(response.paymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
+        assertThat(response.failureMessage()).isEqualTo("Payment declined");
     }
 
 }

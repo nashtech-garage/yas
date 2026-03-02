@@ -15,6 +15,7 @@ pipeline {
     environment {
         MAVEN_OPTS = "-Dmaven.repo.local=.m2/repository"
         COVERAGE_THRESHOLD = "0.70"
+        ENFORCE_PER_MODULE = "true"  // Local JaCoCo check per module
         SONAR_PROJECT_KEY = "NPT-102_yas"
     }
 
@@ -84,6 +85,7 @@ pipeline {
             steps {
                 script {
                     echo "Building and testing services: ${env.SERVICES}"
+                    echo "📊 Coverage enforcement: Per-module >= ${env.COVERAGE_THRESHOLD} (JaCoCo local)"
                     
                     sh '''
                         echo "api.version=1.44" > ~/.docker-java.properties
@@ -99,6 +101,7 @@ pipeline {
                         mvn clean verify \
                             -pl ${env.SERVICES} \
                             -am \
+                            -Djacoco.haltOnFailure=${env.ENFORCE_PER_MODULE} \
                             -DDOCKER_API_VERSION=1.44
                     """
                 }
@@ -131,7 +134,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                not { buildingTag() }
+                not { buildingTag() }onarQube Analysis
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
@@ -152,6 +155,9 @@ pipeline {
             steps {
                 script {
                     echo "⏳ Polling SonarCloud Quality Gate status..."
+                    echo "📊 Quality Gate: Comprehensive quality checks (bugs, vulnerabilities, code smells)"
+                    echo "   Note: Per-module coverage >= ${env.COVERAGE_THRESHOLD} already enforced by JaCoCo in Build & Test stage"
+                    echo "   Note: Aggregate coverage checks can be configured in SonarCloud Quality Gate if needed"
                     
                     // Get SonarCloud token from credentials
                     withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
@@ -186,10 +192,14 @@ pipeline {
                             if (qgStatus == 'OK') {
                                 qgPassed = true
                                 echo "✅ Quality Gate PASSED!"
+                                echo "   ✓ Code quality metrics met (bugs, vulnerabilities, code smells)"
+                                echo "   ✓ Security standards satisfied"
+                                echo "   ✓ Per-module coverage >= ${env.COVERAGE_THRESHOLD} (enforced by JaCoCo)"
                                 break
                             } else if (qgStatus == 'ERROR') {
                                 echo "❌ Quality Gate FAILED"
                                 echo "Details: https://sonarcloud.io/dashboard?id=NPT-102_yas"
+                                echo "Note: Per-module checks already passed in Build & Test stage"
                                 
                                 // Get failure conditions
                                 def conditions = sh(
