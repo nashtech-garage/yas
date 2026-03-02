@@ -25,8 +25,10 @@ public class KafkaIntegrationTestConfiguration {
 
     @Bean
     @ServiceConnection
-    public ElasticTestContainer elasticTestContainer() {
-        return new ElasticTestContainer(elasticSearchVersion);
+    public ElasticTestContainer elasticTestContainer(DynamicPropertyRegistry registry) {
+        ElasticTestContainer container = new ElasticTestContainer(elasticSearchVersion);
+        registry.add("elasticsearch.url", container::getHttpHostAddress);
+        return container;
     }
 
 }
