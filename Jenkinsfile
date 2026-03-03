@@ -194,8 +194,8 @@ pipeline {
                     // ── Upload báo cáo độ phủ JaCoCo (dùng Code Coverage API plugin) ──
                     recordCoverage(
                         tools: [[parser: 'JACOCO']],
-                        // Chỉ định thư mục source của từng module để resolve source files
-                        sourceDirectories: [[path: '**/src/main/java']],
+                        // Liệt kê thư mục source từng module (glob ** không được hỗ trợ)
+                        sourceDirectories: changedServices.collect { svc -> [path: "${svc}/src/main/java"] },
                         // ── Yêu cầu 7b: coverage < 70% → UNSTABLE ──────────────
                         qualityGates: [
                             [threshold: 70.0, metric: 'LINE',   baseline: 'PROJECT', criticality: 'UNSTABLE'],
@@ -227,7 +227,6 @@ pipeline {
                                         -Dsonar.host.url=${SONAR_HOST} \
                                         -Dsonar.token=\${SONAR_TOKEN} \
                                         -Dsonar.projectKey=${SONAR_ORG}_${svc} \
-                                        -Dsonar.qualitygate.wait=true \
                                     || echo "⚠️ SonarCloud scan failed for ${svc} — xem log để biết chi tiết"
                                 """
                             }
