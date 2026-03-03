@@ -132,18 +132,18 @@ pipeline {
             }
             steps {
                 echo '🔍 Quét Snyk — phát hiện lỗ hổng trong dependencies...'
+                // Lấy đường dẫn snyk binary từ Jenkins Tool installation
                 script {
-                    changedServices.each { svc ->
-                        echo "  ▸ Snyk scan: ${svc}"
-                        dir(svc) {
-                            // Dùng snykSecurity step của Jenkins Snyk Plugin
-                            // (tự xử lý binary path + authentication)
-                            snykSecurity(
-                                snykInstallation: 'snyk',         // Khớp tên trong Jenkins Tools
-                                snykTokenId: 'snyk-token',        // Khớp credential ID
-                                severity: 'high',                 // Chỉ báo lỗ hổng mức high+
-                                failOnIssues: false               // Không fail pipeline vì lỗ hổng
-                            )
+                    def snykHome = tool(name: 'snyk', type: 'io.snyk.jenkins.tools.SnykInstallation')
+                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                        changedServices.each { svc ->
+                            echo "  ▸ Snyk scan: ${svc}"
+                            dir(svc) {
+                                sh """
+                                    ${snykHome}/snyk-linux auth \${SNYK_TOKEN}
+                                    ${snykHome}/snyk-linux test --severity-threshold=high || true
+                                """
+                            }
                         }
                     }
                 }
