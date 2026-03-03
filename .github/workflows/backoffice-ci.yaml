@@ -65,12 +65,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backoffice
-          tags: ghcr.io/nashtech-garage/yas-backoffice:latest
+          tags: ghcr.io/obiwan1805/yas-backoffice:latest
       - name: Run Trivy vulnerability scanner
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: 'ghcr.io/nashtech-garage/yas-backoffice:latest'
+          image-ref: 'ghcr.io/obiwan1805/yas-backoffice:latest'
           format: 'sarif'
           output: 'trivy-results.sarif'
       - name: Push Docker image
@@ -79,7 +79,7 @@ jobs:
         with:
           push: true
           context: ./backoffice
-          tags: ghcr.io/nashtech-garage/yas-backoffice:latest
+          tags: ghcr.io/obiwan1805/yas-backoffice:latest
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:

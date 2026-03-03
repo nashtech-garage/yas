@@ -56,4 +56,4 @@ jobs:
         with:
           context: ./storefront
           push: true
-          tags: ghcr.io/nashtech-garage/yas-storefront:latest
+          tags: ghcr.io/obiwan1805/yas-storefront:latest
