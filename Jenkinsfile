@@ -64,13 +64,13 @@ pipeline {
                         }
 
                         if (services.isEmpty()) {
-                            echo "No backend services changed, building all services"
-                            services = allServices
+                            echo "No backend services changed, skipping build and test"
                         }
                     }
 
+                    env.HAS_SERVICES = services.isEmpty() ? 'false' : 'true'
                     env.SERVICES = services.join(",")
-                    echo "Services to build: ${env.SERVICES}"
+                    echo "Services to build: ${env.SERVICES ?: 'none'}"
                 }
             }
         }
@@ -81,10 +81,29 @@ pipeline {
             }
         }
 
-       stage('Build & Test') {
+        stage('Build') {
+            when {
+                expression { env.HAS_SERVICES == 'true' }
+            }
             steps {
                 script {
-                    echo "Building and testing services: ${env.SERVICES}"
+                    echo "Building services: ${env.SERVICES}"
+                }
+                sh """
+                    mvn clean compile \
+                        -pl ${env.SERVICES} \
+                        -am
+                """
+            }
+        }
+
+        stage('Test') {
+            when {
+                expression { env.HAS_SERVICES == 'true' }
+            }
+            steps {
+                script {
+                    echo "Testing services: ${env.SERVICES}"
                     echo "📊 Coverage enforcement: Per-module >= ${env.COVERAGE_THRESHOLD} (JaCoCo local)"
                     
                     sh '''
@@ -98,7 +117,7 @@ pipeline {
                     'TESTCONTAINERS_RYUK_DISABLED=true'
                 ]) {
                     sh """
-                        mvn clean verify \
+                        mvn verify \
                             -pl ${env.SERVICES} \
                             -am \
                             -Djacoco.haltOnFailure=${env.ENFORCE_PER_MODULE} \
@@ -109,6 +128,9 @@ pipeline {
         }
 
         stage('Generate Aggregate Coverage Report') {
+            when {
+                expression { env.HAS_SERVICES == 'true' }
+            }
             steps {
                 script {
                     echo "Generating aggregate coverage report for all modules"
@@ -134,7 +156,10 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                not { buildingTag() }
+                allOf {
+                    not { buildingTag() }
+                    expression { env.HAS_SERVICES == 'true' }
+                }
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
@@ -161,7 +186,10 @@ pipeline {
 
         stage('Quality Gate') {
             when {
-                not { buildingTag() }
+                allOf {
+                    not { buildingTag() }
+                    expression { env.HAS_SERVICES == 'true' }
+                }
             }
             steps {
                 script {
