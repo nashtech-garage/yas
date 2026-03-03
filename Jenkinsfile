@@ -144,9 +144,6 @@ pipeline {
                             ${snykHome}/snyk-linux test --all-projects --severity-threshold=high || true
                         """
                     }
-
-                    // Xoá cache Maven bị nhiễm bởi Snyk (Snyk gọi Maven nội bộ với literal ${revision})
-                    sh 'rm -rf "$HOME/.m2/repository/com/yas/yas/\${revision}"'
                 }
             }
         }
@@ -166,10 +163,7 @@ pipeline {
                     // (flatten-maven-plugin sẽ resolve ${revision} trong installed POM)
                     sh 'mvn install -pl common-library -am -DskipTests -q'
 
-                    // ── Bước 2: Xoá cache ${revision} bị nhiễm (nếu có) ─────
-                    sh 'rm -rf "$HOME/.m2/repository/com/yas/yas/\${revision}"'
-
-                    // ── Bước 3: Test từng service thay đổi ────────────────────
+                    // ── Bước 2: Test từng service thay đổi ────────────────────
                     // Dùng -pl (project list) từ root directory thay vì cd vào service
                     // Đảm bảo ${revision} được resolve đúng qua reactor context
                     changedServices.each { svc ->
