@@ -53,7 +53,9 @@ pipeline {
 
                     def services = []
 
-                    if (changedFiles == 'all' || changedFiles.contains('pom.xml')) {
+                    def changedFilesList = changedFiles.split('\n').collect { it.trim() }.findAll { it }
+
+                    if (changedFiles == 'all' || changedFilesList.contains('pom.xml')) {
                         services = allServices
                         echo "Building all services due to root pom.xml change or initial build"
                     } else {
