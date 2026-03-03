@@ -174,10 +174,10 @@ pipeline {
                                 sh """
                                     if [ -S /var/run/docker.sock ]; then
                                         echo "Docker socket found — chạy cả unit test + integration test"
-                                        mvn clean verify -pl ${svc} -Dmaven.test.failure.ignore=true
+                                        mvn clean verify -pl ${svc} -am -Dmaven.test.failure.ignore=true
                                     else
                                         echo "⚠️ Docker socket KHÔNG có — chỉ chạy unit test (bỏ qua integration test)"
-                                        mvn clean verify -pl ${svc} -Dmaven.test.failure.ignore=true -DskipITs=true
+                                        mvn clean verify -pl ${svc} -am -Dmaven.test.failure.ignore=true -DskipITs=true
                                     fi
                                 """
                             }
@@ -220,7 +220,7 @@ pipeline {
                             stage("Sonar ${svc}") {
                                 echo "  ▸ SonarCloud scan: ${svc}"
                                 sh """
-                                    mvn sonar:sonar -pl ${svc} \
+                                    mvn sonar:sonar -pl ${svc} -am \
                                         -Dsonar.organization=${SONAR_ORG} \
                                         -Dsonar.host.url=${SONAR_HOST} \
                                         -Dsonar.token=\${SONAR_TOKEN} \
@@ -248,7 +248,7 @@ pipeline {
                         stage("Build ${svc}") {
                             echo "📦 Build artifact: ${svc}"
                             // Dùng -pl từ root directory để resolve ${revision} đúng
-                            sh "mvn package -pl ${svc} -DskipTests"
+                            sh "mvn package -pl ${svc} -am -DskipTests"
                         }
                     }
                 }
