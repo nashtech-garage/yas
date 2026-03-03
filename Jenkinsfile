@@ -32,6 +32,7 @@ pipeline {
         GITLEAKS_REPORT  = 'gitleaks-report.json'
         // ── Jenkins-in-Docker: Testcontainers config ──────────────────
         TESTCONTAINERS_RYUK_DISABLED = 'true'             // Tắt Ryuk (tránh lỗi khi Docker socket có giới hạn)
+        TESTCONTAINERS_HOST_OVERRIDE = 'host.docker.internal'  // Fix: route từ Jenkins container ra Docker host
     }
 
     stages {
