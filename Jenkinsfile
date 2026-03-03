@@ -36,8 +36,11 @@ pipeline {
         stage('Detect Changed Services') {
             steps {
                 script {
+                    def targetBranch = env.CHANGE_TARGET ?: 'main'
+                    sh "git fetch origin ${targetBranch}:refs/remotes/origin/${targetBranch} || true"
+
                     def changedFiles = sh(
-                        script: "git diff --name-only origin/${env.CHANGE_TARGET ?: 'main'} 2>/dev/null || echo 'all'",
+                        script: "git diff --name-only origin/${targetBranch} 2>/dev/null || echo 'all'",
                         returnStdout: true
                     ).trim()
 
