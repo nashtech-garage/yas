@@ -133,11 +133,9 @@ pipeline {
             steps {
                 echo '🔍 Quét Snyk — phát hiện lỗ hổng trong dependencies...'
                 script {
-                    // Cài đặt parent pom + common-library để Snyk resolve được dependency tree
-                    sh 'mvn install -N -DskipTests -q'
-                    dir('common-library') {
-                        sh 'mvn install -DskipTests -q'
-                    }
+                    // Cài đặt parent pom + common-library (dùng reactor để resolve ${revision} đúng)
+                    sh 'mvn install -pl common-library -am -DskipTests -q'
+
                     def snykHome = tool(name: 'snyk', type: 'io.snyk.jenkins.tools.SnykInstallation')
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                         // Quét toàn bộ monorepo 1 lần với --all-projects (tránh rate-limit free plan)
@@ -146,6 +144,9 @@ pipeline {
                             ${snykHome}/snyk-linux test --all-projects --severity-threshold=high || true
                         """
                     }
+
+                    // Xoá cache Maven bị nhiễm bởi Snyk (Snyk gọi Maven nội bộ với literal ${revision})
+                    sh 'rm -rf "$HOME/.m2/repository/com/yas/yas/\${revision}"'
                 }
             }
         }
@@ -161,31 +162,29 @@ pipeline {
             }
             steps {
                 script {
-                    // ── Bước 1: Cài đặt parent pom vào local Maven repo ───────
-                    sh 'mvn install -N -DskipTests -q'
+                    // ── Bước 1: Cài đặt parent pom + common-library bằng reactor ──
+                    // (flatten-maven-plugin sẽ resolve ${revision} trong installed POM)
+                    sh 'mvn install -pl common-library -am -DskipTests -q'
 
-                    // ── Bước 2: Cài đặt common-library (hầu hết service phụ thuộc) ────
-                    dir('common-library') {
-                        sh 'mvn install -DskipTests -q'
-                    }
+                    // ── Bước 2: Xoá cache ${revision} bị nhiễm (nếu có) ─────
+                    sh 'rm -rf "$HOME/.m2/repository/com/yas/yas/\${revision}"'
 
                     // ── Bước 3: Test từng service thay đổi ────────────────────
+                    // Dùng -pl (project list) từ root directory thay vì cd vào service
+                    // Đảm bảo ${revision} được resolve đúng qua reactor context
                     changedServices.each { svc ->
                         stage("Test ${svc}") {
                             echo "🧪 Chạy test cho: ${svc}"
-                            dir(svc) {
-                                // retry(2): thử lại nếu Maven gặp lỗi mạng tạm thời
-                                retry(2) {
-                                    sh '''
-                                        if [ -S /var/run/docker.sock ]; then
-                                            echo "Docker socket found — chạy cả unit test + integration test"
-                                            mvn clean verify -Dmaven.test.failure.ignore=true
-                                        else
-                                            echo "⚠️ Docker socket KHÔNG có — chỉ chạy unit test (bỏ qua integration test)"
-                                            mvn clean verify -Dmaven.test.failure.ignore=true -DskipITs=true
-                                        fi
-                                    '''
-                                }
+                            retry(2) {
+                                sh """
+                                    if [ -S /var/run/docker.sock ]; then
+                                        echo "Docker socket found — chạy cả unit test + integration test"
+                                        mvn clean verify -pl ${svc} -Dmaven.test.failure.ignore=true
+                                    else
+                                        echo "⚠️ Docker socket KHÔNG có — chỉ chạy unit test (bỏ qua integration test)"
+                                        mvn clean verify -pl ${svc} -Dmaven.test.failure.ignore=true -DskipITs=true
+                                    fi
+                                """
                             }
                         }
                     }
@@ -225,15 +224,14 @@ pipeline {
                         changedServices.each { svc ->
                             stage("Sonar ${svc}") {
                                 echo "  ▸ SonarCloud scan: ${svc}"
-                                dir(svc) {
-                                    sh """
-                                        mvn sonar:sonar \
-                                            -Dsonar.organization=${SONAR_ORG} \
-                                            -Dsonar.host.url=${SONAR_HOST} \
-                                            -Dsonar.token=${SONAR_TOKEN} \
-                                            -Dsonar.qualitygate.wait=true
-                                    """
-                                }
+                                sh """
+                                    mvn sonar:sonar -pl ${svc} \
+                                        -Dsonar.organization=${SONAR_ORG} \
+                                        -Dsonar.host.url=${SONAR_HOST} \
+                                        -Dsonar.token=\${SONAR_TOKEN} \
+                                        -Dsonar.projectKey=${SONAR_ORG}_${svc} \
+                                        -Dsonar.qualitygate.wait=true
+                                """
                             }
                         }
                     }
@@ -254,9 +252,8 @@ pipeline {
                     changedServices.each { svc ->
                         stage("Build ${svc}") {
                             echo "📦 Build artifact: ${svc}"
-                            dir(svc) {
-                                sh 'mvn package -DskipTests'
-                            }
+                            // Dùng -pl từ root directory để resolve ${revision} đúng
+                            sh "mvn package -pl ${svc} -DskipTests"
                         }
                     }
                 }
