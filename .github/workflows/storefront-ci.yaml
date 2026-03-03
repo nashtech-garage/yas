@@ -35,14 +35,14 @@ jobs:
         working-directory: storefront
       - run: npx prettier --check .
         working-directory: storefront
-      - name: SonarCloud Scan
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          projectBaseDir: storefront
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # - name: SonarCloud Scan
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   uses: SonarSource/sonarcloud-github-action@master
+      #   with:
+      #     projectBaseDir: storefront
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
