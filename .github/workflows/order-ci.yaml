@@ -87,4 +87,4 @@ jobs:
         with:
           context: ./order
           push: true
-          tags: ghcr.io/nashtech-garage/yas-order:latest
+          tags: ghcr.io/obiwan1805/yas-order:latest
