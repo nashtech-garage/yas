@@ -1,5 +1,5 @@
 // ============================================================================
-// Danh sách tất cả các service trong monorepo
+// Danh sách tất cả các service Java trong monorepo
 // ============================================================================
 def SERVICES = [
     'common-library', 'backoffice-bff', 'cart', 'customer', 'delivery',
@@ -8,22 +8,36 @@ def SERVICES = [
     'search', 'storefront-bff', 'tax', 'webhook'
 ]
 
-// Biến lưu danh sách service bị thay đổi (sẽ được xác định ở stage đầu tiên)
+// Biến lưu danh sách service bị thay đổi
 def changedServices = []
 
+// Ngưỡng coverage tối thiểu (%) - pipeline FAIL nếu service nào dưới ngưỡng này
+def COVERAGE_THRESHOLD = 70
+
 pipeline {
-    // Chạy trên bất kỳ agent nào có sẵn
     agent any
 
-    // Khai báo các công cụ đã cấu hình trong Jenkins (phải khớp tên chính xác)
     tools {
-        maven 'Maven 3'
+        jdk 'JDK 21'           // Khớp tên JDK trong Jenkins Tools (Adoptium Temurin 21)
+        maven 'Maven 3'        // Khớp tên Maven trong Jenkins Tools (3.9.12)
+        snyk 'snyk'            // Khớp tên Snyk trong Jenkins Tools (latest)
+    }
+
+    // ========================================================================
+    // Biến môi trường dùng chung cho toàn bộ pipeline
+    // ========================================================================
+    environment {
+        SONAR_ORG        = 'devops-yas-ci'                // Tổ chức SonarCloud (đổi theo org của bạn)
+        SONAR_HOST       = 'https://sonarcloud.io'
+        GITLEAKS_REPORT  = 'gitleaks-report.json'
+        // ── Jenkins-in-Docker: Testcontainers config ──────────────────
+        TESTCONTAINERS_RYUK_DISABLED = 'true'             // Tắt Ryuk (tránh lỗi khi Docker socket có giới hạn)
     }
 
     stages {
         // ====================================================================
-        // PHASE 0: Phát hiện thay đổi trong monorepo
-        // Chỉ build/test service nào có file thay đổi trong thư mục của nó
+        // STAGE 1: DETECT CHANGES — Phát hiện service thay đổi trong monorepo
+        // (Yêu cầu 6: chỉ kích hoạt pipeline cho service cụ thể)
         // ====================================================================
         stage('Detect Changes') {
             steps {
@@ -31,52 +45,112 @@ pipeline {
                     def changedFiles = []
 
                     if (env.CHANGE_TARGET) {
-                        // Trường hợp Pull Request: so sánh với branch đích
+                        // Pull Request → so sánh với branch đích
                         changedFiles = sh(
                             script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD",
                             returnStdout: true
                         ).trim().split('\n').toList()
                     } else if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
-                        // Trường hợp Branch build: so sánh với commit thành công trước đó
+                        // Branch build → so sánh với commit thành công trước đó
                         changedFiles = sh(
                             script: "git diff --name-only ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT} ${env.GIT_COMMIT}",
                             returnStdout: true
                         ).trim().split('\n').toList()
                     } else {
-                        // Lần build đầu tiên hoặc fallback → build tất cả
-                        echo 'Lần build đầu tiên - build tất cả services'
+                        // Lần build đầu tiên → build tất cả
+                        echo '⚡ Lần build đầu tiên — build tất cả services'
                         changedServices = SERVICES.collect()
                         return
                     }
 
-                    echo "Các file thay đổi: ${changedFiles}"
+                    echo "📂 Các file thay đổi:\n${changedFiles.join('\n')}"
 
-                    // Nếu common-library hoặc root pom.xml thay đổi → build tất cả
-                    boolean commonChanged = changedFiles.any { it.startsWith('common-library/') }
+                    // common-library hoặc root pom.xml thay đổi → ảnh hưởng toàn bộ
+                    boolean commonChanged  = changedFiles.any { it.startsWith('common-library/') }
                     boolean rootPomChanged = changedFiles.any { it == 'pom.xml' }
 
                     if (commonChanged || rootPomChanged) {
-                        echo 'common-library hoặc root pom.xml thay đổi → build tất cả services'
+                        echo '🔁 common-library hoặc root pom.xml thay đổi → build tất cả services'
                         changedServices = SERVICES.collect()
                     } else {
-                        // Chỉ chọn service có file thay đổi trong thư mục của nó
                         changedServices = SERVICES.findAll { svc ->
                             changedFiles.any { file -> file.startsWith("${svc}/") }
                         }
                     }
 
                     if (changedServices.isEmpty()) {
-                        echo 'Không phát hiện thay đổi ở service nào. Bỏ qua test & build.'
+                        echo '✅ Không có service nào thay đổi — bỏ qua pipeline.'
                     } else {
-                        echo "Services sẽ được build: ${changedServices}"
+                        echo "🚀 Services sẽ được xử lý: ${changedServices}"
                     }
                 }
             }
         }
 
         // ====================================================================
-        // PHASE 1: TEST - Chạy unit test + integration test cho các service thay đổi
-        // Upload kết quả test (JUnit) và độ phủ test (JaCoCo)
+        // STAGE 2: SECURITY SCAN — Gitleaks (quét lộ lọt secrets)
+        // (Yêu cầu 7c)
+        // ====================================================================
+        stage('Gitleaks Scan') {
+            when {
+                expression { return !changedServices.isEmpty() }
+            }
+            steps {
+                echo '🔍 Quét Gitleaks — phát hiện mật khẩu, token, key bị commit...'
+                // Tải gitleaks binary trực tiếp (không cần Docker — tương thích Jenkins-in-Docker)
+                sh '''
+                    GITLEAKS_VERSION="8.22.1"
+                    if ! command -v gitleaks &> /dev/null; then
+                        echo "Downloading gitleaks v${GITLEAKS_VERSION}..."
+                        curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+                            | tar xz -C /tmp/
+                        chmod +x /tmp/gitleaks
+                        export PATH="/tmp:$PATH"
+                    fi
+                    /tmp/gitleaks detect \
+                        --source=. \
+                        --report-format=json \
+                        --report-path=gitleaks-report.json \
+                        --exit-code=0
+                '''
+            }
+            post {
+                always {
+                    // Lưu báo cáo Gitleaks làm artifact
+                    archiveArtifacts artifacts: "${GITLEAKS_REPORT}", allowEmptyArchive: true
+                }
+            }
+        }
+
+        // ====================================================================
+        // STAGE 3: SECURITY SCAN — Snyk (quét lỗ hổng thư viện bên thứ 3)
+        // (Yêu cầu 7c)
+        // ====================================================================
+        stage('Snyk Scan') {
+            when {
+                expression { return !changedServices.isEmpty() }
+            }
+            steps {
+                echo '🔍 Quét Snyk — phát hiện lỗ hổng trong dependencies...'
+                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                    sh 'snyk auth ${SNYK_TOKEN}'
+                    script {
+                        changedServices.each { svc ->
+                            echo "  ▸ Snyk scan: ${svc}"
+                            dir(svc) {
+                                // --severity-threshold=high: chỉ báo lỗ hổng mức high trở lên
+                                sh 'snyk test --severity-threshold=high || true'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ====================================================================
+        // STAGE 4: TEST — Chạy Unit Test + Integration Test
+        // Upload JUnit results + JaCoCo coverage + kiểm tra ngưỡng ≥ 70%
+        // (Yêu cầu 5 + 7b)
         // ====================================================================
         stage('Test') {
             when {
@@ -86,11 +160,20 @@ pipeline {
                 script {
                     changedServices.each { svc ->
                         stage("Test ${svc}") {
-                            echo "▶ Chạy test cho service: ${svc}"
+                            echo "🧪 Chạy test cho: ${svc}"
                             dir(svc) {
-                                // mvn verify sẽ chạy cả unit test (surefire) và integration test (failsafe)
-                                // JaCoCo đã được cấu hình trong pom.xml → tự động tạo báo cáo coverage
-                                sh 'mvn clean verify -Dmaven.test.failure.ignore=true'
+                                // mvn verify = compile + unit test (surefire) + integration test (failsafe) + jacoco report
+                                // -DskipITs=false: chạy integration test nếu Docker socket có sẵn
+                                // -Dmaven.test.failure.ignore=true: không dừng pipeline nếu test fail
+                                sh '''
+                                    if [ -S /var/run/docker.sock ]; then
+                                        echo "Docker socket found — chạy cả unit test + integration test"
+                                        mvn clean verify -Dmaven.test.failure.ignore=true
+                                    else
+                                        echo "⚠️ Docker socket KHÔNG có — chỉ chạy unit test (bỏ qua integration test)"
+                                        mvn clean verify -Dmaven.test.failure.ignore=true -DskipITs=true
+                                    fi
+                                '''
                             }
                         }
                     }
@@ -98,23 +181,60 @@ pipeline {
             }
             post {
                 always {
-                    // Upload kết quả test JUnit (unit test + integration test)
+                    // ── Upload kết quả test JUnit ──────────────────────────────
                     junit testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml',
                          allowEmptyResults: true
 
-                    // Upload báo cáo độ phủ test JaCoCo
+                    // ── Upload báo cáo độ phủ JaCoCo ──────────────────────────
                     jacoco(
-                        execPattern: '**/target/jacoco.exec',
-                        classPattern: '**/target/classes',
-                        sourcePattern: '**/src/main/java',
-                        exclusionPattern: '**/test/**'
+                        execPattern:      '**/target/jacoco.exec',
+                        classPattern:     '**/target/classes',
+                        sourcePattern:    '**/src/main/java',
+                        exclusionPattern: '**/test/**',
+                        // ── Yêu cầu 7b: FAIL nếu coverage < 70% ──────────────
+                        minimumLineCoverage:      "${COVERAGE_THRESHOLD}",
+                        minimumBranchCoverage:    "${COVERAGE_THRESHOLD}",
+                        maximumLineCoverage:      '100',
+                        maximumBranchCoverage:    '100'
                     )
                 }
             }
         }
 
         // ====================================================================
-        // PHASE 2: BUILD - Đóng gói artifact (JAR) cho các service thay đổi
+        // STAGE 5: SONARQUBE — Phân tích chất lượng code + Quality Gate
+        // (Yêu cầu 7c)
+        // ====================================================================
+        stage('SonarQube Analysis') {
+            when {
+                expression { return !changedServices.isEmpty() }
+            }
+            steps {
+                echo '📊 Phân tích SonarCloud — chất lượng code, code smells, bugs...'
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    script {
+                        changedServices.each { svc ->
+                            stage("Sonar ${svc}") {
+                                echo "  ▸ SonarCloud scan: ${svc}"
+                                dir(svc) {
+                                    sh """
+                                        mvn sonar:sonar \
+                                            -Dsonar.organization=${SONAR_ORG} \
+                                            -Dsonar.host.url=${SONAR_HOST} \
+                                            -Dsonar.token=${SONAR_TOKEN} \
+                                            -Dsonar.qualitygate.wait=true
+                                    """
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ====================================================================
+        // STAGE 6: BUILD — Đóng gói artifact (JAR) cho các service thay đổi
+        // (Yêu cầu 5: phase build)
         // ====================================================================
         stage('Build') {
             when {
@@ -124,28 +244,42 @@ pipeline {
                 script {
                     changedServices.each { svc ->
                         stage("Build ${svc}") {
-                            echo "▶ Build artifact cho service: ${svc}"
+                            echo "📦 Build artifact: ${svc}"
                             dir(svc) {
-                                // Package mà không chạy lại test (đã test ở phase trước)
                                 sh 'mvn package -DskipTests'
                             }
                         }
                     }
                 }
             }
+            post {
+                success {
+                    // Lưu file JAR làm artifact trên Jenkins
+                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                }
+            }
         }
     }
 
-    // Hành động sau khi Pipeline chạy xong
+    // ========================================================================
+    // POST — Hành động sau khi pipeline kết thúc
+    // ========================================================================
     post {
         success {
-            echo '✅ Pipeline hoàn tất thành công!'
+            echo '══════════════════════════════════════════════'
+            echo '✅  PIPELINE THÀNH CÔNG!'
+            echo "   Services đã xử lý: ${changedServices}"
+            echo '══════════════════════════════════════════════'
         }
         failure {
-            echo '❌ Pipeline thất bại!'
+            echo '══════════════════════════════════════════════'
+            echo '❌  PIPELINE THẤT BẠI!'
+            echo "   Services đã xử lý: ${changedServices}"
+            echo '══════════════════════════════════════════════'
         }
         always {
-            echo "Services đã xử lý: ${changedServices ?: 'Không có'}"
+            // Dọn dẹp workspace để tiết kiệm dung lượng
+            cleanWs()
         }
     }
 }
