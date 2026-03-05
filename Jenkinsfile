@@ -36,10 +36,11 @@ pipeline {
     }
 
     // ========================================================================
-    // Shallow clone + HTTP/1.1 để tránh lỗi curl-92 / early-EOF trên repo lớn
+    // Bỏ qua auto-checkout của Declarative Pipeline — stage 'Checkout' tự xử lý
+    // để dùng shallow clone + HTTP/1.1, tránh double-checkout gây conflict
     // ========================================================================
     options {
-        checkoutToSubdirectory('.')
+        skipDefaultCheckout(true)
     }
 
     stages {
@@ -57,10 +58,9 @@ pipeline {
                     branches: scm.branches,
                     userRemoteConfigs: scm.userRemoteConfigs,
                     extensions: [
-                        // Shallow clone: chỉ lấy 1 commit gần nhất — giảm ~90% dữ liệu tải về
-                        [$class: 'CloneOption', depth: 1, shallow: true, noTags: true, timeout: 60],
-                        // Retry 3 lần nếu network tạm thời không ổn định
-                        [$class: 'GitSCMSourceDefaults'],
+                        // Full clone, bỏ tags để tiết kiệm bandwidth
+                        // shallow=false: đảm bảo git diff với bất kỳ commit cũ nào đều hoạt động
+                        [$class: 'CloneOption', shallow: false, noTags: true, timeout: 60]
                     ]
                 ])
             }
@@ -83,10 +83,17 @@ pipeline {
                         ).trim().split('\n').toList()
                     } else if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
                         // Branch build → so sánh với commit thành công trước đó
-                        changedFiles = sh(
-                            script: "git diff --name-only ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT} ${env.GIT_COMMIT}",
-                            returnStdout: true
-                        ).trim().split('\n').toList()
+                        // try/catch: shallow clone có thể không chứa commit cũ → fallback build all
+                        try {
+                            changedFiles = sh(
+                                script: "git diff --name-only ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT} ${env.GIT_COMMIT}",
+                                returnStdout: true
+                            ).trim().split('\n').toList()
+                        } catch (e) {
+                            echo "⚠️ git diff thất bại (shallow history) — build tất cả services"
+                            changedServices = SERVICES.collect()
+                            return
+                        }
                     } else {
                         // Lần build đầu tiên → build tất cả
                         echo '⚡ Lần build đầu tiên — build tất cả services'
@@ -311,10 +318,8 @@ pipeline {
             echo '══════════════════════════════════════════════'
         }
         always {
-            // Dọn dẹp workspace — phải nằm trong node để có FilePath context
-            node('built-in') {
-                cleanWs()
-            }
+            // Dọn dẹp workspace — chạy trong agent context của pipeline, không cần node() wrapper
+            cleanWs()
         }
     }
 }
