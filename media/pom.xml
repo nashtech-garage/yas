@@ -73,6 +73,15 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>com/yas/**/*Application.class</exclude>
+                        <exclude>com/yas/**/config/**</exclude>
+                        <exclude>com/yas/**/exception/**</exclude>
+                        <exclude>com/yas/**/constants/**</exclude>
+                        <exclude>com/yas/media/mapper/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

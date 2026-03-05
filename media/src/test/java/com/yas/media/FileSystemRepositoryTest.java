@@ -107,5 +107,29 @@ class FileSystemRepositoryTest {
         assertThrows(IllegalStateException.class, () -> fileSystemRepository.getFile(filePathStr));
     }
 
+    @Test
+    void testPersistFile_whenFilenameContainsDotDot_thenThrowsIllegalArgument() {
+        new File(TEST_URL).mkdirs();
+        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        assertThrows(IllegalArgumentException.class,
+            () -> fileSystemRepository.persistFile("../evil.png", "content".getBytes()));
+    }
+
+    @Test
+    void testPersistFile_whenFilenameContainsSlash_thenThrowsIllegalArgument() {
+        new File(TEST_URL).mkdirs();
+        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        assertThrows(IllegalArgumentException.class,
+            () -> fileSystemRepository.persistFile("path/evil.png", "content".getBytes()));
+    }
+
+    @Test
+    void testPersistFile_whenFilenameContainsBackslash_thenThrowsIllegalArgument() {
+        new File(TEST_URL).mkdirs();
+        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        assertThrows(IllegalArgumentException.class,
+            () -> fileSystemRepository.persistFile("path\\evil.png", "content".getBytes()));
+    }
+
 }
 

@@ -120,4 +120,12 @@ class MediaControllerTest {
         mockMvc.perform(get("/medias/1/file/test.png"))
             .andExpect(status().isOk());
     }
+
+    @Test
+    void getFile_whenMediaNotFound_thenReturn404() throws Exception {
+        when(mediaService.getFile(1L, "missing.png")).thenReturn(MediaDto.builder().build());
+
+        mockMvc.perform(get("/medias/1/file/missing.png"))
+            .andExpect(status().isNotFound());
+    }
 }
