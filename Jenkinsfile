@@ -35,7 +35,37 @@ pipeline {
         TESTCONTAINERS_HOST_OVERRIDE = 'host.docker.internal'  // Fix: route từ Jenkins container ra Docker host
     }
 
+    // ========================================================================
+    // Shallow clone + HTTP/1.1 để tránh lỗi curl-92 / early-EOF trên repo lớn
+    // ========================================================================
+    options {
+        checkoutToSubdirectory('.')
+    }
+
     stages {
+        // ====================================================================
+        // STAGE 0: CHECKOUT — Tải source code với shallow clone
+        // Giảm dung lượng clone từ ~17 MB toàn bộ lịch sử xuống commit mới nhất
+        // ====================================================================
+        stage('Checkout') {
+            steps {
+                // Tắt HTTP/2 + tăng buffer trước khi clone (tránh curl-92 early-EOF)
+                sh 'git config --global http.version HTTP/1.1'
+                sh 'git config --global http.postBuffer 524288000'
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    userRemoteConfigs: scm.userRemoteConfigs,
+                    extensions: [
+                        // Shallow clone: chỉ lấy 1 commit gần nhất — giảm ~90% dữ liệu tải về
+                        [$class: 'CloneOption', depth: 1, shallow: true, noTags: true, timeout: 60],
+                        // Retry 3 lần nếu network tạm thời không ổn định
+                        [$class: 'GitSCMSourceDefaults'],
+                    ]
+                ])
+            }
+        }
+
         // ====================================================================
         // STAGE 1: DETECT CHANGES — Phát hiện service thay đổi trong monorepo
         // (Yêu cầu 6: chỉ kích hoạt pipeline cho service cụ thể)
@@ -281,8 +311,10 @@ pipeline {
             echo '══════════════════════════════════════════════'
         }
         always {
-            // Dọn dẹp workspace để tiết kiệm dung lượng
-            cleanWs()
+            // Dọn dẹp workspace — phải nằm trong node để có FilePath context
+            node('built-in') {
+                cleanWs()
+            }
         }
     }
 }
