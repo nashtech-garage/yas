@@ -57,9 +57,10 @@ pipeline {
                     $class: 'GitSCM',
                     branches: scm.branches,
                     userRemoteConfigs: scm.userRemoteConfigs,
-                    extensions: [
-                        // Full clone, bỏ tags để tiết kiệm bandwidth
-                        // shallow=false: đảm bảo git diff với bất kỳ commit cũ nào đều hoạt động
+                    // Giữ scm.extensions gốc (chứa BuildData tracking — cần thiết để
+                    // GIT_PREVIOUS_SUCCESSFUL_COMMIT và currentBuild.changeSets hoạt động
+                    // đúng trên các lần build tiếp theo) + thêm CloneOption riêng
+                    extensions: scm.extensions + [
                         [$class: 'CloneOption', shallow: false, noTags: true, timeout: 60]
                     ]
                 ])
@@ -75,30 +76,71 @@ pipeline {
                 script {
                     def changedFiles = []
 
+                    // ── Debug: hiển thị trạng thái SCM tracking ──
+                    echo "🔍 DEBUG: GIT_COMMIT = ${env.GIT_COMMIT}"
+                    echo "🔍 DEBUG: GIT_PREVIOUS_SUCCESSFUL_COMMIT = ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT}"
+                    echo "🔍 DEBUG: changeSets.size() = ${currentBuild.changeSets.size()}"
+                    echo "🔍 DEBUG: previousSuccessfulBuild = ${currentBuild.previousSuccessfulBuild?.number}"
+
                     if (env.CHANGE_TARGET) {
-                        // Pull Request → so sánh với branch đích
-                        changedFiles = sh(
+                        // ── Pull Request → so sánh với branch đích ──
+                        def raw = sh(
                             script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD",
                             returnStdout: true
-                        ).trim().split('\n').toList()
-                    } else if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
-                        // Branch build → so sánh với commit thành công trước đó
-                        // try/catch: shallow clone có thể không chứa commit cũ → fallback build all
-                        try {
-                            changedFiles = sh(
-                                script: "git diff --name-only ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT} ${env.GIT_COMMIT}",
-                                returnStdout: true
-                            ).trim().split('\n').toList()
-                        } catch (e) {
-                            echo "⚠️ git diff thất bại (shallow history) — build tất cả services"
+                        ).trim()
+                        changedFiles = raw ? raw.split('\n').toList() : []
+
+                    } else {
+                        // ── Branch build: thử 3 phương pháp theo thứ tự ưu tiên ──
+
+                        // Method 1: currentBuild.changeSets (Jenkins native — đáng tin cậy nhất
+                        // khi BuildData tracking hoạt động đúng nhờ scm.extensions)
+                        currentBuild.changeSets.each { changeSet ->
+                            changeSet.each { entry ->
+                                changedFiles.addAll(entry.affectedPaths)
+                            }
+                        }
+                        echo "🔍 DEBUG: [Method 1] changeSets → ${changedFiles.size()} file(s)"
+
+                        // Method 2: git diff với GIT_PREVIOUS_SUCCESSFUL_COMMIT
+                        if (changedFiles.isEmpty() && env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
+                            echo '🔍 DEBUG: [Method 2] Thử git diff GIT_PREVIOUS_SUCCESSFUL_COMMIT'
+                            try {
+                                def raw = sh(
+                                    script: "git diff --name-only ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT} ${env.GIT_COMMIT}",
+                                    returnStdout: true
+                                ).trim()
+                                changedFiles = raw ? raw.split('\n').toList() : []
+                            } catch (e) {
+                                echo "⚠️ Method 2 thất bại: ${e.message}"
+                            }
+                        }
+
+                        // Method 3: git diff HEAD~1 (phòng tuyến cuối — chỉ dùng khi
+                        // ĐÃ CÓ build thành công trước, tức KHÔNG phải lần đầu)
+                        if (changedFiles.isEmpty() && currentBuild.previousSuccessfulBuild != null) {
+                            echo '⚠️ DEBUG: [Method 3] changeSets & GIT_PREVIOUS trống — thử git diff HEAD~1'
+                            try {
+                                def raw = sh(
+                                    script: 'git diff --name-only HEAD~1 HEAD',
+                                    returnStdout: true
+                                ).trim()
+                                changedFiles = raw ? raw.split('\n').toList() : []
+                            } catch (e) {
+                                echo "⚠️ Method 3 thất bại: ${e.message}"
+                            }
+                        }
+
+                        // Tất cả method đều trống → build lần đầu (chưa có dữ liệu so sánh)
+                        if (changedFiles.isEmpty()) {
+                            if (currentBuild.previousSuccessfulBuild == null) {
+                                echo '⚡ Lần build đầu tiên — build tất cả services'
+                            } else {
+                                echo '⚠️ Không detect được thay đổi dù có build trước — build tất cả services (an toàn)'
+                            }
                             changedServices = SERVICES.collect()
                             return
                         }
-                    } else {
-                        // Lần build đầu tiên → build tất cả
-                        echo '⚡ Lần build đầu tiên — build tất cả services'
-                        changedServices = SERVICES.collect()
-                        return
                     }
 
                     echo "📂 Các file thay đổi:\n${changedFiles.join('\n')}"
