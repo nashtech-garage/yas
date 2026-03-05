@@ -264,6 +264,7 @@ pipeline {
                                         -Dsonar.host.url=${SONAR_HOST} \
                                         -Dsonar.token=\${SONAR_TOKEN} \
                                         -Dsonar.projectKey=${SONAR_ORG}_${svc} \
+                                        -Dsonar.branch.name=${env.BRANCH_NAME} \
                                     || echo "⚠️ SonarCloud scan failed for ${svc} — xem log để biết chi tiết"
                                 """
                             }
