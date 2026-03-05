@@ -318,4 +318,58 @@ class CustomerServiceTest {
 
         assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
     }
+
+    @Test
+    void testCreateUser_whenEmailAlreadyExisted_thenThrowDuplicateException() {
+        CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
+            "Doe", "123", "ADMIN");
+
+        // Username doesn't exist, but email exists
+        when(realmResource.users().search("user1", true)).thenReturn(Collections.emptyList());
+        when(realmResource.users().search(null, null, null, "test@gmail.com", 0, 1))
+            .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+
+        assertThrows(DuplicatedException.class, 
+            () -> customerService.create(customerPostVm));
+    }
+
+    @Test
+    void testDeleteCustomer_whenUserNotFound_thenThrowNotFoundException() {
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_NAME)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(null);
+
+        NotFoundException thrown = assertThrows(NotFoundException.class,
+            () -> customerService.deleteCustomer(USER_NAME));
+        
+        assertTrue(thrown.getMessage().contains("User not found"));
+        verify(userResource, never()).update(any(UserRepresentation.class));
+    }
+
+    @Test
+    void testUpdateCustomer_whenAccessDenied_thenThrowAccessDeniedException() {
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_NAME)).thenReturn(userResource);
+        when(userResource.toRepresentation())
+            .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
+
+        CustomerProfileRequestVm customerProfileRequestVm = getCustomerProfileRequestVm();
+        AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
+            () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
+        
+        assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
+    }
+
+
+
+    @Test
+    void testCreatePasswordCredentials_isNormalCase_returnCredentials() {
+        String password = "testPassword123";
+        
+        var credentials = CustomerService.createPasswordCredentials(password);
+        
+        assertThat(credentials.getValue()).isEqualTo(password);
+        assertThat(credentials.getType()).isEqualTo("password");
+        assertThat(credentials.isTemporary()).isFalse();
+    }
 }
