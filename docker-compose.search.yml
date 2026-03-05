@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   search:
+    build: ./search
     image: ghcr.io/nashtech-garage/yas-search:latest
     entrypoint: [ "./wait-for-it.sh", "elasticsearch:9200", "--timeout=300", "--", "java", "-jar", "/app.jar" ]
     environment:
@@ -29,7 +30,7 @@ services:
     networks:
       - yas-network
   elasticsearch:
-    image: elasticsearch:8.6.2
+    image: elasticsearch:9.2.3
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
