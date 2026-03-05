@@ -2,13 +2,13 @@ name: storefront service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/storefront-ci.yaml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront/**"
       - ".github/workflows/actions/action.yaml"
@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -41,7 +41,7 @@ jobs:
         with:
           projectBaseDir: storefront
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}

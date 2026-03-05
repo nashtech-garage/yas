@@ -2,14 +2,14 @@ name: storefront-bff service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront-bff/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/storefront-bff-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront-bff/**"
       - ".github/workflows/actions/action.yaml"
@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -pl storefront-bff -am
@@ -36,7 +36,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/storefront-bff-checkstyle-result.xml'
+          path: "**/storefront-bff-checkstyle-result.xml"
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
@@ -48,9 +48,9 @@ jobs:
         env:
           JAVA_HOME: /opt/jdk
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
+          project: "yas"
+          path: "."
+          format: "HTML"
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
@@ -65,7 +65,7 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           min-coverage-overall: 80
           min-coverage-changed-files: 60
-          title: 'Storefront BFF Coverage Report'
+          title: "Storefront BFF Coverage Report"
           update-comment: true
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
