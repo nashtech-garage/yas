@@ -24,8 +24,8 @@ YAS is a pet project aim to practice building a typical microservice application
 
 ## Tentative technologies and frameworks
 
-- Java 21
-- Spring boot 3.2
+- Java 25
+- Spring Boot 4.0
 - Testcontainers
 - Next.js
 - Keycloak
