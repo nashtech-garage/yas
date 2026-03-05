@@ -27,6 +27,7 @@ import com.yas.media.viewmodel.NoFileMediaVm;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import org.springframework.http.MediaType;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
