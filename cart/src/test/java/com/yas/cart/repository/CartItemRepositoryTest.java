@@ -7,6 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -16,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(CartItemRepositoryTest.TestAuditingConfiguration.class)
 class CartItemRepositoryTest {
 
     @Autowired
@@ -391,5 +397,14 @@ class CartItemRepositoryTest {
         // Then
         assertEquals(3, saved.size());
         assertEquals(3, cartItemRepository.findAll().size());
+    }
+
+    @TestConfiguration
+    @EnableJpaAuditing(auditorAwareRef = "auditorAware")
+    static class TestAuditingConfiguration {
+        @Bean
+        public AuditorAware<String> auditorAware() {
+            return () -> Optional.of("test-user");
+        }
     }
 }
