@@ -80,18 +80,18 @@ jobs:
           reporter: java-junit
 
       # 7. Docker Build & Push (Yêu cầu 3)
-      - name: Log in to Registry
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to Registry
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./media
-          push: true
-          tags: ghcr.io/${{ github.repository }}/yas-media:latest
+      # - name: Build and push Docker images
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./media
+      #     push: true
+      #     tags: ghcr.io/${{ github.repository }}/yas-media:latest
