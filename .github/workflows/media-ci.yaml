@@ -2,7 +2,8 @@ name: media service ci
 
 on:
   push:
-    branches: [ "**" ]  # Chạy trên mọi branch
+    branches-ignore: 
+      - "main"  # Không chạy khi push/merge vào main (đã check qua PR rồi)
     paths:
       - "media/**"
       - ".github/workflows/actions/action.yaml"
@@ -15,7 +16,7 @@ on:
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/media-ci.yaml"
       - "pom.xml"
-  workflow_dispatch:
+  workflow_dispatch:  # Cho phép chạy thủ công nếu cần
 
 jobs:
   Build:
