@@ -1,6 +1,7 @@
 package com.yas.media.repository;
 
 import com.yas.media.config.FilesystemConfig;
+import com.yas.media.exception.MediaFileException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +44,7 @@ public class FileSystemRepository {
         try {
             return Files.newInputStream(path);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read file: " + filePath, e);
+            throw new MediaFileException("Failed to read file: " + filePath, e);
         }
     }
 

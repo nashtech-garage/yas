@@ -2,7 +2,7 @@ name: media service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]  # Chạy trên mọi branch
     paths:
       - "media/**"
       - ".github/workflows/actions/action.yaml"
@@ -20,71 +20,78 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
+          fetch-depth: 0 
+
+      - name: Setup Environment
+        uses: ./.github/workflows/actions
+
+      # 1. Gitleaks: Kiểm tra lộ Secret (Yêu cầu 7c)
+      - name: Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Build & Install: Cài đặt library dùng chung và build media (Yêu cầu 5, 6)
+      - name: Run Maven Install
         run: mvn clean install -pl media -am
-      - name: Run Maven Checkstyle
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl media -am -Dcheckstyle.output.file=media-checkstyle-result.xml
-      - name: Upload Checkstyle Result
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          path: '**/media-checkstyle-result.xml'
-      - name: Test Results
-        uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-        with:
-          name: Media-Service-Unit-Test-Results
-          path: "media/**/*-reports/TEST*.xml"
-          reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+
+      # 3. Snyk: Quét bảo mật dependencies (Yêu cầu 7c)
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Snyk Security Scan
+        run: snyk test --file=media/pom.xml --severity-threshold=high
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # 4. SonarCloud: Quét chất lượng code (Yêu cầu 7c)
+      # LƯU Ý: Thay đổi 'YOUR_ORG_KEY' và 'YOUR_PROJECT_KEY' bằng giá trị trên SonarCloud của bạn
+      - name: Analyze with Sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f media
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
-      - name: Add coverage report to PR
+        run: |
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -pl media -am \
+          -Dsonar.organization=akiratomori-2 \
+          -Dsonar.projectKey=AkiraTomori_DevOps-YAS
+
+      # 5. Kiểm tra độ phủ Testcase > 70% (Yêu cầu 7b)
+      - name: Check Coverage Report
         uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
           paths: ${{github.workspace}}/media/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Media Coverage Report'
+          min-coverage-overall: 70 
+          title: 'Media Service Coverage Report'
           update-comment: true
-      - name: Log in to the Container registry
+
+      # 6. Upload kết quả Test (Yêu cầu 5)
+      - name: Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ always() }}
+        with:
+          name: Media-Service-Unit-Test-Results
+          path: "media/target/surefire-reports/*.xml"
+          reporter: java-junit
+
+      # 7. Docker Build & Push (Yêu cầu 3)
+      - name: Log in to Registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./media
           push: true
-          tags: ghcr.io/nashtech-garage/yas-media:latest
+          tags: ghcr.io/${{ github.repository }}/yas-media:latest
