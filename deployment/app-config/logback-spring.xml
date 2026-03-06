@@ -46,7 +46,11 @@
 		<captureMdcAttributes>*</captureMdcAttributes>
 		<appender-ref ref="JSON_APPENDER" />
 	</appender>
-	<!-- This appender is to define the log to console that human friendly on 
+
+	<appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+	</appender>
+
+	<!-- This appender is to define the log to console that human friendly on
 		dev machine -->
 	<appender name="CONSOLE"
 		class="ch.qos.logback.core.ConsoleAppender">
@@ -56,7 +60,7 @@
 			<charset>${ENCODING}</charset>
 		</encoder>
 	</appender>
-	<!-- Define the logger and the log level to use (TRACE, DEBUG, INFO, WARN, 
+	<!-- Define the logger and the log level to use (TRACE, DEBUG, INFO, WARN,
 		ERROR, FATAL) -->
 	<logger
 		name="org.springframework.web.filter.CommonsRequestLoggingFilter"
