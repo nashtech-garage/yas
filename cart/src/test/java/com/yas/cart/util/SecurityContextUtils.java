@@ -19,5 +19,4 @@ public final class SecurityContextUtils {
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
     }
-
 }
