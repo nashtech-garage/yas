@@ -63,6 +63,7 @@ jobs:
           -pl media -am \
           -Dsonar.organization=nguyenthanhtien539 \
           -Dsonar.projectKey=nguyenthanhtien539_yas
+          -Dsonar.login=$SONAR_TOKEN
 
       # 5. Kiểm tra coverage >= 70%
       - name: Check Coverage
