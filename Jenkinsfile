@@ -19,15 +19,17 @@ pipeline {
                 changeset "customer/**"
             }
             steps {
-                dir('customer') {
-                    echo '=== 2. Chạy Unit Test cho Customer ==='
-                    script {
-                        docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                            // Tiếp tục thêm -Drevision ở đây
-                            sh 'mvn clean test -Drevision=1.0-SNAPSHOT'
-                        }
+                echo '=== 2. Chạy Unit Test cho Customer ==='
+                script {
+                    docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
+                        // -U: Ép cập nhật lại thư viện vừa build ở Stage 1
+                        // Chạy từ thư mục gốc, dùng -pl để chỉ định build riêng customer
+                        // -am: để nó tự liên kết với common-library đã install
+                        sh 'mvn clean test -Drevision=1.0-SNAPSHOT -U -pl customer -am'
                     }
+                }
 
+                dir('customer') {
                     echo '=== 3. Build Docker Image ==='
                     sh 'docker build -t yas-customer:${env.BUILD_ID} .'
                 }
