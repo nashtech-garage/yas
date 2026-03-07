@@ -61,8 +61,8 @@ jobs:
         run: |
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -pl media -am \
-          -Dsonar.organization=YOUR_ORG \
-          -Dsonar.projectKey=YOUR_PROJECT
+          -Dsonar.organization=nguyenthanhtien539 \
+          -Dsonar.projectKey=nguyenthanhtien539_yas
 
       # 5. Kiểm tra coverage >= 70%
       - name: Check Coverage
