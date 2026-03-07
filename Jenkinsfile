@@ -31,7 +31,7 @@ pipeline {
 
                 dir('customer') {
                     echo '=== 3. Build Docker Image ==='
-                    sh 'docker build -t yas-customer:${env.BUILD_ID} .'
+                    sh "docker build -t yas-customer:${env.BUILD_ID} ."
                 }
             }
             post {
