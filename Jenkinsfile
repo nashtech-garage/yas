@@ -84,8 +84,10 @@ pipeline {
 
                     if (env.CHANGE_TARGET) {
                         // ── Pull Request → so sánh với branch đích ──
+                        // Fetch target branch vì Jenkins PR checkout không tự fetch origin/<target>
+                        sh "git fetch origin ${env.CHANGE_TARGET} --no-tags"
                         def raw = sh(
-                            script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD",
+                            script: "git diff --name-only FETCH_HEAD...HEAD",
                             returnStdout: true
                         ).trim()
                         changedFiles = raw ? raw.split('\n').toList() : []
@@ -300,13 +302,18 @@ pipeline {
                         changedServices.each { svc ->
                             stage("Sonar ${svc}") {
                                 echo "  ▸ SonarCloud scan: ${svc}"
+                                // Phân biệt PR analysis vs branch scan
+                                // env.CHANGE_TARGET chỉ được set khi Jenkins chạy PR job
+                                def sonarScopeParams = env.CHANGE_TARGET
+                                    ? "-Dsonar.pullrequest.key=${env.CHANGE_ID} -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH} -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
+                                    : "-Dsonar.branch.name=${env.BRANCH_NAME}"
                                 sh """
                                     mvn sonar:sonar -pl ${svc} -am \
                                         -Dsonar.organization=${SONAR_ORG} \
                                         -Dsonar.host.url=${SONAR_HOST} \
                                         -Dsonar.token=\${SONAR_TOKEN} \
                                         -Dsonar.projectKey=${SONAR_ORG}_${svc} \
-                                        -Dsonar.branch.name=${env.BRANCH_NAME} \
+                                        ${sonarScopeParams} \
                                     || echo "⚠️ SonarCloud scan failed for ${svc} — xem log để biết chi tiết"
                                 """
                             }
