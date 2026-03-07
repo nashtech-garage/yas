@@ -1,16 +1,17 @@
 pipeline {
     agent any
     
-    // Thiết lập môi trường để Maven dùng đúng Java 21 (nếu server có sẵn)
-    // Hoặc tạm thời để agent any để chạy test
-    
     stages {
         stage('Prepare Root & Commons') {
             steps {
                 echo '=== 1. Cài đặt Parent POM và Common Library ==='
-                // Chạy lệnh install tại thư mục gốc nhưng chỉ cài đặt thư viện chung
-                // Lệnh này giúp Jenkins nhận diện được cấu hình Parent của YAS
-                sh './mvnw clean install -DskipTests -pl common-library -am'
+                script {
+                    // Dùng Docker image Maven 3.9 + Java 21
+                    // Chúng ta dùng lệnh 'mvn' thay vì './mvnw'
+                    docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
+                        sh 'mvn clean install -DskipTests -pl common-library -am'
+                    }
+                }
             }
         }
 
@@ -21,9 +22,12 @@ pipeline {
             steps {
                 dir('customer') {
                     echo '=== 2. Chạy Unit Test cho Customer ==='
-                    sh 'chmod +x mvnw || true'
-                    // Lưu ý: Nếu bước này báo lỗi Java version, hãy báo thầy ngay
-                    sh './mvnw clean test'
+                    script {
+                        docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
+                            // Ở đây dùng 'mvn' vì Docker image đã có sẵn Maven rồi
+                            sh 'mvn clean test'
+                        }
+                    }
 
                     echo '=== 3. Build Docker Image ==='
                     sh 'docker build -t yas-customer:${env.BUILD_ID} .'
