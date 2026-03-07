@@ -62,7 +62,7 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -pl media -am \
           -Dsonar.organization=nguyenthanhtien539 \
-          -Dsonar.projectKey=NguyenThanhTien539_yas
+          -Dsonar.projectKey=NguyenThanhTien539_yas \
           -Dsonar.login=$SONAR_TOKEN
 
       # 5. Kiểm tra coverage >= 70%
