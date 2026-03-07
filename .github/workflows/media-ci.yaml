@@ -18,7 +18,7 @@ on:
       - ".github/workflows/media-ci.yaml"
       - "pom.xml"
 
-  workflow_dispatch:  # Cho phép trigger thủ công từ tab Actions trên GitHub
+  workflow_dispatch: # Cho phép trigger thủ công từ tab Actions trên GitHub
 
 jobs:
   Build:
@@ -26,8 +26,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  #github runner -> clone code về máy runner
-        with: 
+        uses: actions/checkout@v4 #github runner -> clone code về máy runner
+        with:
           fetch-depth: 0 # Lấy toàn bộ lịch sử commit để Gitleaks có thể phân tích
 
       - name: Setup Environment
@@ -64,7 +64,6 @@ jobs:
           -Dsonar.organization=nguyenthanhtien539 \
           -Dsonar.projectKey=NguyenThanhTien539_yas
           -Dsonar.login=$SONAR_TOKEN
-
 
       # 5. Kiểm tra coverage >= 70%
       - name: Check Coverage
