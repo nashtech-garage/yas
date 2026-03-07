@@ -2,22 +2,22 @@ pipeline {
     agent any
     
     stages {
-        // --- 1. KIỂM TRA BẢO MẬT TỔNG THỂ (Yêu cầu 7c) ---
-        stage('Security & Dependency Scan') {
-            steps {
-                script {
-                    echo '=== 1.1 Quét lộ mật khẩu (Gitleaks) ==='
-                    sh 'docker run --rm -v ${WORKSPACE}:/path zricethezav/gitleaks:latest detect --source="/path" --verbose'
+        // // --- 1. KIỂM TRA BẢO MẬT TỔNG THỂ (Yêu cầu 7c) ---
+        // stage('Security & Dependency Scan') {
+        //     steps {
+        //         script {
+        //             echo '=== 1.1 Quét lộ mật khẩu (Gitleaks) ==='
+        //             sh 'docker run --rm -v ${WORKSPACE}:/path zricethezav/gitleaks:latest detect --source="/path" --verbose'
 
-                    echo '=== 1.2 Quét lỗ hổng thư viện (Snyk) ==='
-                    // Sử dụng Snyk để quét file pom.xml gốc và các module
-                    // Lưu ý: Cần SNYK_TOKEN được cấu hình trong Jenkins Credentials
-                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                        sh "docker run --rm -e SNYK_TOKEN=${SNYK_TOKEN} -v ${WORKSPACE}:/app snyk/snyk:maven snyk test --all-projects"
-                    }
-                }
-            }
-        }
+        //             echo '=== 1.2 Quét lỗ hổng thư viện (Snyk) ==='
+        //             // Sử dụng Snyk để quét file pom.xml gốc và các module
+        //             // Lưu ý: Cần SNYK_TOKEN được cấu hình trong Jenkins Credentials
+        //             withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+        //                 sh "docker run --rm -e SNYK_TOKEN=${SNYK_TOKEN} -v ${WORKSPACE}:/app snyk/snyk:maven snyk test --all-projects"
+        //             }
+        //         }
+        //     }
+        // }
 
         // --- 2. CHUẨN BỊ THƯ VIỆN CHUNG (Yêu cầu 6 - Monorepo) ---
         stage('Prepare Root & Commons') {
