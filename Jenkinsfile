@@ -6,10 +6,9 @@ pipeline {
             steps {
                 echo '=== 1. Cài đặt Parent POM và Common Library ==='
                 script {
-                    // Dùng Docker image Maven 3.9 + Java 21
-                    // Chúng ta dùng lệnh 'mvn' thay vì './mvnw'
                     docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                        sh 'mvn clean install -DskipTests -pl common-library -am'
+                        // Thêm -Drevision=1.0-SNAPSHOT để Maven hiểu biến version
+                        sh 'mvn clean install -DskipTests -Drevision=1.0-SNAPSHOT -pl common-library -am'
                     }
                 }
             }
@@ -24,8 +23,8 @@ pipeline {
                     echo '=== 2. Chạy Unit Test cho Customer ==='
                     script {
                         docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                            // Ở đây dùng 'mvn' vì Docker image đã có sẵn Maven rồi
-                            sh 'mvn clean test'
+                            // Tiếp tục thêm -Drevision ở đây
+                            sh 'mvn clean test -Drevision=1.0-SNAPSHOT'
                         }
                     }
 
