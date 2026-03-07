@@ -2,43 +2,40 @@ pipeline {
     agent any
 
     stages {
-        // --- CÁC STAGE CỦA CART SERVICE ---
-        stage('Cart - Test & Build') {
-            // Điều kiện: Chỉ chạy stage này nếu có thay đổi trong thư mục 'cart/'
+        stage('Customer Service - CI') {
             when {
-                changeset "cart/**"
+                // Chỉ kích hoạt khi có ai đó sửa code trong thư mục customer/
+                changeset "customer/**"
             }
             steps {
-                echo '=== Phát hiện thay đổi ở Cart Service! ==='
-                echo 'Đang chạy Test cho Cart...'
-                // Code chạy test (Thành viên 2 sẽ đắp vào sau)
-                
-                echo 'Đang chạy Build cho Cart...'
-                // Code build Docker (Em sẽ viết ở bước tới)
-            }
-        }
+                // CỰC KỲ QUAN TRỌNG: Lệnh dir() giúp Jenkins "cd" vào thư mục customer
+                // Nếu không có lệnh này, Jenkins sẽ đứng ở thư mục gốc và báo lỗi không tìm thấy code
+                dir('customer') {
+                    
+                    echo '=== 1. Chạy Unit Test ==='
+                    // Cấp quyền thực thi cho file Maven Wrapper (phòng trường hợp mất quyền)
+                    sh 'chmod +x mvnw || true'
+                    // Lệnh chạy test. Nó sẽ tự động sinh ra file báo cáo test (JUnit) và độ phủ (JaCoCo)
+                    sh './mvnw clean test'
 
-        // --- CÁC STAGE CỦA PRODUCT SERVICE ---
-        stage('Product - Test & Build') {
-            // Điều kiện: Chỉ chạy stage này nếu có thay đổi trong thư mục 'product/'
-            when {
-                changeset "product/**" 
+                    echo '=== 2. Build Docker Image ==='
+                    // Đọc file Dockerfile trong thư mục customer và build thành image
+                    // Sử dụng ${env.BUILD_ID} để mỗi lần build ra một version khác nhau (VD: yas-customer:15)
+                    sh 'docker build -t yas-customer:${env.BUILD_ID} .'
+                }
             }
-            steps {
-                echo '=== Phát hiện thay đổi ở Product Service! ==='
-                echo 'Đang chạy Test cho Product...'
-                echo 'Đang chạy Build cho Product...'
-            }
-        }
-
-        // --- CÁC STAGE CỦA VETS SERVICE (Theo ví dụ của đề bài) ---
-        stage('Vets - Test & Build') {
-            when {
-                changeset "vets-service/**"
-            }
-            steps {
-                echo '=== Phát hiện thay đổi ở Vets Service! ==='
-                echo 'Đang chạy Test và Build cho Vets...'
+            post {
+                always {
+                    dir('customer') {
+                        echo '=== 3. Upload Kết quả Test (Đáp ứng yêu cầu 5) ==='
+                        // Gom nhặt các file kết quả test (đuôi .xml) để hiển thị lên giao diện Jenkins
+                        junit 'target/surefire-reports/*.xml'
+                        
+                        // Gom nhặt báo cáo độ phủ code (Coverage)
+                        // Lưu ý: Cần cài đặt plugin JaCoCo trên Jenkins để lệnh này hoạt động
+                        // jacoco execPattern: 'target/jacoco.exec' 
+                    }
+                }
             }
         }
     }
