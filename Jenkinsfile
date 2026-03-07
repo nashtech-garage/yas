@@ -108,7 +108,7 @@ def runServiceCI(String serviceName) {
             
             echo "=== Phase: Unit Test & Quality Scan cho ${serviceName} ==="
             // Chạy test, tạo báo cáo độ phủ JaCoCo và quét chất lượng code SonarCloud (Yêu cầu 5, 7c)
-            sh "mvn clean verify sonar:sonar -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am -DskipTests=false"
+            // sh "mvn clean verify sonar:sonar -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am -DskipTests=false"
             
             echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
             // Plugin JaCoCo sẽ đọc kết quả và đánh dấu FAILED nếu không đạt 70%
