@@ -84,8 +84,10 @@ pipeline {
 
                     if (env.CHANGE_TARGET) {
                         // ── Pull Request → so sánh với branch đích ──
+                        // Fetch target branch vì Jenkins PR checkout không tự fetch origin/<target>
+                        sh "git fetch origin ${env.CHANGE_TARGET} --no-tags"
                         def raw = sh(
-                            script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD",
+                            script: "git diff --name-only FETCH_HEAD...HEAD",
                             returnStdout: true
                         ).trim()
                         changedFiles = raw ? raw.split('\n').toList() : []
