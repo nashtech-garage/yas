@@ -19,19 +19,18 @@ pipeline {
                 changeset "customer/**"
             }
             steps {
-                echo '=== 2. Chạy Unit Test cho Customer ==='
+                echo '=== 2. Chạy Unit Test & Đóng gói (Package) ==='
                 script {
                     docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                        // -U: Ép cập nhật lại thư viện vừa build ở Stage 1
-                        // Chạy từ thư mục gốc, dùng -pl để chỉ định build riêng customer
-                        // -am: để nó tự liên kết với common-library đã install
-                        sh 'mvn clean test -Drevision=1.0-SNAPSHOT -U -pl customer -am'
+                        // Đổi từ 'test' sang 'package' để tạo file .jar
+                        sh 'mvn clean package -Drevision=1.0-SNAPSHOT -U -pl customer -am -DskipTests=false'
                     }
                 }
 
                 dir('customer') {
                     echo '=== 3. Build Docker Image ==='
-                    sh "docker build -t yas-customer:${env.BUILD_ID} ."
+                    // Đảm bảo file .jar đã tồn tại trong thư mục target của customer
+                    sh "docker build -t yas-customer:${BUILD_ID} ."
                 }
             }
             post {
