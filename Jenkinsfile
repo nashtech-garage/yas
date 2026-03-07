@@ -118,6 +118,7 @@ def runServiceCI(String serviceName) {
                 sourcePattern: "**/src/main/java",
                 inclusionPattern: "**/*.class",
                 minimumInstructionCoverage: '70', 
+                maximumInstructionCoverage: '70',
                 buildOverBuild: true,
                 changeBuildStatus: true,
                 skipCopyOfSrcFiles: true 
