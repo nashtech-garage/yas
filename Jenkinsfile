@@ -107,18 +107,11 @@ pipeline {
             script {
                 echo "=== BẮT ĐẦU DỌN DẸP TÀI NGUYÊN (RESET) ==="
                 
-                // Sử dụng xargs -r (no-run-if-empty) để tránh lỗi khi không có container
+                // 1. Ép buộc tắt và xóa toàn bộ Testcontainers (Keycloak, Postgres) còn sót lại
+                // Testcontainers luôn gắn label 'org.testcontainers=true', ta dùng nó để tìm và diệt
                 sh '''
-                    containers=$(docker ps -aq --filter label=org.testcontainers=true)
-                    if [ ! -z "$containers" ]; then
-                        echo "Đang xóa các Testcontainers: $containers"
-                        docker rm -f $containers
-                    else
-                        echo "Không có Testcontainers nào cần dọn dẹp."
-                    fi
-                    
-                    # Dọn dẹp network và các container rác khác (nếu có)
-                    docker network prune -f
+                    docker rm -f $(docker ps -aq --filter label=org.testcontainers=true) || true
+                    docker network prune -f || true
                 '''
                 
                 echo "=== DỌN DẸP HOÀN TẤT ==="
