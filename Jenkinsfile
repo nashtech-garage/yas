@@ -7,13 +7,18 @@ pipeline {
             steps {
                 script {
                     echo '=== 1.1 Quét lộ mật khẩu (Gitleaks) ==='
-                    // Thêm --no-git để bỏ qua lịch sử commit, chỉ quét file hiện tại
-                    sh 'docker run --rm -v ${WORKSPACE}:/path zricethezav/gitleaks:latest detect --source="/path" --no-git --verbose'
+                    // Dùng .inside() để Jenkins tự động xử lý Volume
+                    // --entrypoint="" để ghi đè lệnh mặc định của container
+                    docker.image('zricethezav/gitleaks:latest').inside('--entrypoint=""') {
+                        sh 'gitleaks detect --source="." --no-git --verbose'
+                    }
 
                     echo '=== 1.2 Quét lỗ hổng thư viện (Snyk) ==='
-                    // Quét file pom.xml gốc và các module
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                        sh "docker run --rm -e SNYK_TOKEN=\$SNYK_TOKEN -v ${WORKSPACE}:/app -w /app snyk/snyk:maven snyk test --all-projects"
+                        docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
+                            // Snyk sẽ tự động lấy SNYK_TOKEN từ môi trường
+                            sh 'snyk test --all-projects'
+                        }
                     }
                 }
             }
