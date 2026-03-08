@@ -102,6 +102,22 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            script {
+                echo "=== BẮT ĐẦU DỌN DẸP TÀI NGUYÊN (RESET) ==="
+                
+                // 1. Ép buộc tắt và xóa toàn bộ Testcontainers (Keycloak, Postgres) còn sót lại
+                // Testcontainers luôn gắn label 'org.testcontainers=true', ta dùng nó để tìm và diệt
+                sh '''
+                    docker rm -f $(docker ps -aq --filter label=org.testcontainers=true) || true
+                    docker network prune -f || true
+                '''
+                
+                echo "=== DỌN DẸP HOÀN TẤT ==="
+            }
+        }
+    }
 }
 
 // --- CÁC HÀM HỖ TRỢ ĐỂ TỰ ĐỘNG HÓA QUY TRÌNH ---
