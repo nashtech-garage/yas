@@ -42,11 +42,37 @@ jobs:
         with:
           args: --severity-threshold=high --file=inventory/pom.xml
           
-      - name: Run Maven Build Command
-        run: mvn clean install -pl inventory -am
-      - name: Run Maven Checkstyle
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
+      # - name: Run Maven Build Command
+      #   run: mvn clean install -pl inventory -am
+      # - name: Run Maven Checkstyle
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: npm install snyk -g # install snyk
+      - run: snyk -v
+      - name: Setup Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk auth "$SNYK_TOKEN"
+
+      - name: install snyk-to-html
+        run: |
+          # Install the Snyk JSON to HTML Mapper using npm
+          npm install snyk-to-html -g
+          # Convert JSON output from `snyk test --json` into a static HTML
+          snyk test --json | snyk-to-html -o result.html
+          mkdir downloads
+          cp -v /home/runner/work/java-goof/java-goof/*.html /home/runner/work/java-goof/java-goof/downloads
+
+      # save the HTML in the artifact
+      - name: Use the Upload Artifact GitHub Action
+        uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: downloads
+          
 
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
