@@ -47,33 +47,52 @@ jobs:
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - run: npm install snyk -g # install snyk
-      - run: snyk -v
-      - name: Setup Snyk
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: "20"
+      # - run: npm install snyk -g # install snyk
+      # - run: snyk -v
+      # - name: Setup Snyk
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   run: snyk auth "$SNYK_TOKEN"
+
+      # - name: install snyk-to-html
+      #   run: |
+      #     # Install the Snyk JSON to HTML Mapper using npm
+      #     npm install snyk-to-html -g
+      #     # Convert JSON output from `snyk test --json` into a static HTML
+      #     snyk test --json | snyk-to-html -o result.html
+      #     mkdir downloads
+      #     cp -v /home/runner/work/java-goof/java-goof/*.html /home/runner/work/java-goof/java-goof/downloads
+
+      # # save the HTML in the artifact
+      # - name: Use the Upload Artifact GitHub Action
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   uses: actions/upload-artifact@master
+      #   with:
+      #     name: results
+      #     path: ${{github.workspace}}/reports
+      - name: Set up Snyk CLI to check for security issues
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
+
         env:
+          # This is where you will need to introduce the Snyk API token created with your Snyk account
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk auth "$SNYK_TOKEN"
 
-      - name: install snyk-to-html
-        run: |
-          # Install the Snyk JSON to HTML Mapper using npm
-          npm install snyk-to-html -g
-          # Convert JSON output from `snyk test --json` into a static HTML
-          snyk test --json | snyk-to-html -o result.html
-          mkdir downloads
-          cp -v /home/runner/work/java-goof/java-goof/*.html /home/runner/work/java-goof/java-goof/downloads
+        # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
+        # Use || true to not fail the pipeline
+      - name: Snyk Code test
+        run: snyk code test --sarif > snyk-code.sarif # || true
 
-      # save the HTML in the artifact
-      - name: Use the Upload Artifact GitHub Action
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: results
-          path: ${{github.workspace}}/reports
-          
+        # Runs Snyk Open Source (SCA) analysis and uploads result to Snyk.
+      - name: Snyk Open Source monitor
+        run: snyk monitor --all-projects
+
+        # Runs Snyk Infrastructure as Code (IaC) analysis and uploads result to Snyk.
+        # Use || true to not fail the pipeline.
+      - name: Snyk IaC test and report
+        run: snyk iac test --report # || true
 
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -105,5 +124,15 @@ jobs:
           context: ./inventory
           push: true
           tags: ghcr.io/nashtech-garage/yas-inventory:latest
+
+      - name: Snyk Container monitor
+        run: snyk container monitor ghcr.io/nashtech-garage/yas-inventory:latest --file=Dockerfile
+
+              # Push the Snyk Code results into GitHub Code Scanning tab
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-code.sarif
+
           
       
