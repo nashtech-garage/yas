@@ -38,7 +38,7 @@ Mình đã thêm cấu hình JaCoCo trực tiếp vào file `product/pom.xml` nh
 </plugin>
 ```
 
-**Mục đích:** JaCoCo sẽ chặn ở vòng đời `test` của Maven để theo dõi và tạo báo cáo `index.html` cho biết Unit test đã "phủ đỏ" hay "phủ xanh" những phần code nào.
+**Mục đích:** JaCoCo sẽ chặn ở vòng đời `test` của Maven để theo dõi và tạo báo cáo `index.html` cho biết Unit test đã "phủ đỏ" hay "phủ xanh" những phần code nào..
 
 ---
 
