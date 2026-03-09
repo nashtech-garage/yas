@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+// test media ci workflow
 @SpringBootApplication(scanBasePackages = {"com.yas.media", "com.yas.commonlibrary"})
 @EnableConfigurationProperties({YasConfig.class, CorsConfig.class})
 public class MediaApplication {
