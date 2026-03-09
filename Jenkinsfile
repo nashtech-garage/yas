@@ -17,7 +17,10 @@ pipeline {
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                         docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
                             // Snyk sẽ tự động lấy SNYK_TOKEN từ môi trường
-                            sh 'snyk test --all-projects || true'
+                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=backoffice,storefront || true'
+
+                            sh 'snyk test --token=$SNYK_TOKEN --file=backoffice/package-lock.json || true'
+                            sh 'snyk test --token=$SNYK_TOKEN --file=storefront/package-lock.json || true'
                         }
                     }
                 }
@@ -98,6 +101,36 @@ pipeline {
                 stage('Service: Search') {
                     when { changeset "search/**" }
                     steps { runServiceCI('search') }
+                }
+
+                // Service Payment
+                stage('Service: Payment') { 
+                    when { changeset "payment/**" }; 
+                    steps { runServiceCI('payment') } 
+                }
+
+                // Service Promotion
+                stage('Service: Promotion') { 
+                    when { changeset "promotion/**" }; 
+                    steps { runServiceCI('promotion') } 
+                }
+                
+                // Service Backoffice-BFF
+                stage('Service: Backoffice-BFF') { 
+                    when { changeset "backoffice-bff/**" }; 
+                    steps { runServiceCI('backoffice-bff') } 
+                }
+                
+                // Service Storefront-BFF
+                stage('Service: Storefront-BFF') { 
+                    when { changeset "storefront-bff/**" }; 
+                    steps { runServiceCI('storefront-bff') } 
+                }
+                
+                // Service Sampledata
+                stage('Service: Sampledata') { 
+                    when { changeset "sampledata/**" }; 
+                    steps { runServiceCI('sampledata') } 
                 }
             }
         }
