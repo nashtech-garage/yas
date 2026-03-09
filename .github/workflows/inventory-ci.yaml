@@ -68,10 +68,11 @@ jobs:
 
       # save the HTML in the artifact
       - name: Use the Upload Artifact GitHub Action
-        uses: actions/upload-artifact@v2
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: actions/upload-artifact@master
         with:
           name: results
-          path: downloads
+          path: ${{github.workspace}}/reports
           
 
       - name: Analyze with sonar cloud
