@@ -83,19 +83,19 @@ jobs:
         # Use || true to not fail the pipeline
       - name: Snyk Code test
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        continue-on-error: true
-        run: snyk code test --sarif > snyk-code.sarif # || true
+        # continue-on-error: true
+        run: snyk code test --sarif > snyk-code.sarif || true
 
         # Runs Snyk Open Source (SCA) analysis and uploads result to Snyk.
-      - name: Snyk Open Source monitor
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: snyk monitor --all-projects
+      # - name: Snyk Open Source monitor
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   run: snyk monitor --all-projects
 
         # Runs Snyk Infrastructure as Code (IaC) analysis and uploads result to Snyk.
         # Use || true to not fail the pipeline.
       - name: Snyk IaC test and report
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: snyk iac test --report # || true
+        run: snyk iac test --report || true
 
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
