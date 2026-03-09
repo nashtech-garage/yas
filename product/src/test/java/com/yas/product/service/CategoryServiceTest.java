@@ -2,16 +2,24 @@ package com.yas.product.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.yas.product.ProductApplication;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
-import com.yas.product.repository.ProductCategoryRepository;
-import com.yas.product.viewmodel.NoFileMediaVm;
+
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
+import com.yas.product.viewmodel.category.CategoryPostVm;
+import com.yas.product.repository.ProductCategoryRepository;
+import com.yas.product.viewmodel.NoFileMediaVm;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,5 +87,49 @@ class CategoryServiceTest {
         Assertions.assertEquals(1, categoryService.getPageableCategories(0, 1).categoryContent().size());
         CategoryGetVm categoryGetVm = categoryService.getCategories("a").getFirst();
         assertEquals("name", categoryGetVm.name());
+    }
+
+    @Test
+    void createCategory_Success() {
+        CategoryPostVm postVm = new CategoryPostVm("New Category", "new-category", "Desc", null, "Meta", "Key", (short)1, true, 1L);
+        Category created = categoryService.create(postVm);
+        assertNotNull(created);
+        assertNotNull(created.getId());
+        assertEquals("New Category", created.getName());
+    }
+
+    @Test
+    void createCategory_DuplicatedName_ThrowsException() {
+        CategoryPostVm postVm = new CategoryPostVm("name", "new-slug", "Desc", null, "Meta", "Key", (short)1, true, 1L);
+        assertThrows(DuplicatedException.class, () -> categoryService.create(postVm));
+    }
+
+    @Test
+    void updateCategory_Success() {
+        CategoryPostVm postVm = new CategoryPostVm("Updated Category", "updated-slug", "Desc", null, "Meta", "Key", (short)1, true, 1L);
+        categoryService.update(postVm, category.getId());
+        
+        Category updated = categoryRepository.findById(category.getId()).orElse(null);
+        assertNotNull(updated);
+        assertEquals("Updated Category", updated.getName());
+    }
+
+    @Test
+    void updateCategory_NotFound_ThrowsException() {
+        CategoryPostVm postVm = new CategoryPostVm("Updated", "updated-slug", "Desc", null, "Meta", "Key", (short)1, true, 1L);
+        assertThrows(NotFoundException.class, () -> categoryService.update(postVm, 999L));
+    }
+
+    @Test
+    void getCategoryByIds_Success() {
+        List<CategoryGetVm> result = categoryService.getCategoryByIds(List.of(category.getId()));
+        assertEquals(1, result.size());
+        assertEquals(category.getId(), result.get(0).id());
+    }
+
+    @Test
+    void getTopNthCategories_Success() {
+        List<String> result = categoryService.getTopNthCategories(10);
+        assertNotNull(result);
     }
 }
