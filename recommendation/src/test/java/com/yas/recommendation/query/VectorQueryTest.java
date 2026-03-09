@@ -22,7 +22,7 @@ import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
@@ -46,13 +46,13 @@ public class VectorQueryTest {
     @Autowired
     private ProductVectorRepository productVectorRepository;
 
-    @MockBean
+    @MockitoBean
     private EmbeddingModel embeddingModel;
 
-    @MockBean
+    @MockitoBean
     private ProductService productService;
 
-    @MockBean
+    @MockitoBean
     private EmbeddingSearchConfiguration embeddingSearchConfiguration;
 
     @AfterEach

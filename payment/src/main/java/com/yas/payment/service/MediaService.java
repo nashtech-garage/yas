@@ -64,7 +64,7 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
             .map(String::valueOf)
             .collect(Collectors.joining(","));
         return UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.media())
+            .fromUriString(serviceUrlConfig.media())
             .path("/medias")
             .queryParam(IDS_PARAMS, iconIds)
             .build()

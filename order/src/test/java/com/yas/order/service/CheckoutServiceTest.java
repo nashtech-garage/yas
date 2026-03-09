@@ -39,7 +39,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -48,16 +48,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(classes = {CheckoutMapperImpl.class, CheckoutService.class})
 class CheckoutServiceTest {
 
-    @MockBean
+    @MockitoBean
     CheckoutRepository checkoutRepository;
 
-    @MockBean
+    @MockitoBean
     CheckoutItemRepository checkoutItemRepository;
 
-    @MockBean
+    @MockitoBean
     OrderService orderService;
 
-    @MockBean
+    @MockitoBean
     ProductService productService;
 
     @Autowired

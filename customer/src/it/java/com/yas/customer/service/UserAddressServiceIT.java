@@ -1,7 +1,7 @@
 package com.yas.customer.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -24,14 +24,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserAddressServiceIT {
 
     private static final String USER_ID_1 = "user1";
@@ -41,7 +39,7 @@ class UserAddressServiceIT {
     @Autowired
     private UserAddressRepository userAddressRepository;
 
-    @MockBean
+    @MockitoBean
     private LocationService locationService;
 
     @Autowired
@@ -50,9 +48,9 @@ class UserAddressServiceIT {
     @BeforeEach
     void setUp() {
         List<UserAddress> userAddressList = new ArrayList<>();
-        userAddressList.add(createUserAddress(1L, USER_ID_1, 101L, true));
-        userAddressList.add(createUserAddress(2L, USER_ID_2, 102L, false));
-        userAddressList.add(createUserAddress(3L, USER_ID_2, 103L, true));
+        userAddressList.add(createUserAddress(USER_ID_1, 101L, true));
+        userAddressList.add(createUserAddress(USER_ID_2, 102L, false));
+        userAddressList.add(createUserAddress(USER_ID_2, 103L, true));
         userAddressRepository.saveAll(userAddressList);
     }
 
@@ -229,9 +227,8 @@ class UserAddressServiceIT {
         );
     }
 
-    private UserAddress createUserAddress(Long id, String userId, Long addressId, Boolean isActive) {
+    private UserAddress createUserAddress(String userId, Long addressId, Boolean isActive) {
         UserAddress userAddress = new UserAddress();
-        userAddress.setId(id);
         userAddress.setUserId(userId);
         userAddress.setAddressId(addressId);
         userAddress.setIsActive(isActive);

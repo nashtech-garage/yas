@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.kafka.annotation.BackOff;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.retrytopic.SameIntervalTopicReuseStrategy;
 import org.springframework.retry.annotation.Backoff;
@@ -22,7 +23,9 @@ import org.springframework.retry.annotation.Backoff;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RetrySupportDql {
 
-    @AliasFor(annotation = RetryableTopic.class, attribute = "backoff")
+    @AliasFor(annotation = RetryableTopic.class, attribute = "backOff")
+    BackOff kafkaBackoff() default @BackOff(value = 6000);
+
     Backoff backoff() default @Backoff(value = 6000);
 
     @AliasFor(annotation = RetryableTopic.class, attribute = "attempts")

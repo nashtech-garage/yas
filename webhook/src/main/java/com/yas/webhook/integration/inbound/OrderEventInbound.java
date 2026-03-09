@@ -1,6 +1,6 @@
 package com.yas.webhook.integration.inbound;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.yas.webhook.service.OrderEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;

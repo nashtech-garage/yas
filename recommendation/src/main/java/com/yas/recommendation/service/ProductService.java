@@ -26,7 +26,7 @@ public class ProductService {
      */
     public ProductDetailVm getProductDetail(long productId) {
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(config.getApiUrl())
+                .fromUriString(config.getApiUrl())
                 .path("/storefront/products/detail/" + productId)
                 .buildAndExpand()
                 .toUri();

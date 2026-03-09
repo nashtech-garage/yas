@@ -1,6 +1,6 @@
 package com.yas.recommendation.vector.product.formatter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.yas.recommendation.vector.common.formatter.DocumentFormatter;
 import com.yas.recommendation.viewmodel.CategoryVm;
 import com.yas.recommendation.viewmodel.ProductAttributeValueVm;

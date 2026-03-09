@@ -23,7 +23,7 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleLocationNameListFallback")
     public List<StateOrProvinceAndCountryGetNameVm> getStateOrProvinceAndCountryNames(List<Long> stateOrProvinceIds) {
-        final URI url = UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.location())
+        final URI url = UriComponentsBuilder.fromUriString(serviceUrlConfig.location())
             .path("/backoffice/state-or-provinces/state-country-names")
             .queryParam("stateOrProvinceIds", stateOrProvinceIds).build().toUri();
         final String jwt =

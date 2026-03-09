@@ -18,7 +18,6 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @PropertySource("classpath:application.properties")
 public class WebhookControllerIT extends AbstractControllerIT {
@@ -65,8 +63,8 @@ public class WebhookControllerIT extends AbstractControllerIT {
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(ContentType.JSON)
             .body("""
-                {"id":1,"payloadUrl":"","secret":"","contentType":"","isActive":true
-                ,"events":[{"id":1,"name":"ON_PRODUCT_UPDATED"}]}
+                {"id":1,"payloadUrl":"https://example.com/webhook","secret":"secret123","contentType":"application/json","isActive":true
+                ,"events":[{"id":1, "name":"ON_PRODUCT_UPDATED"}]}
                 """)
             .when()
             .post(WEBHOOK_URL)
@@ -81,7 +79,7 @@ public class WebhookControllerIT extends AbstractControllerIT {
             .auth().oauth2(getAccessToken("admin", "admin"))
             .contentType(ContentType.JSON)
             .body("""
-                {"id":1,"payloadUrl":"","secret":"","contentType":"","isActive":true
+                {"id":1,"payloadUrl":"https://example.com/webhook-updated","secret":"secret456","contentType":"application/json","isActive":false
                 ,"events":[{"id":1,"name":"ON_PRODUCT_UPDATED"}]}
                 """)
             .pathParam("id", 1)

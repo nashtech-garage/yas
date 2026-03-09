@@ -7,9 +7,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.yas.order.OrderApplication;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.service.CheckoutService;
 import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
@@ -28,24 +29,21 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = CheckoutController.class)
-@ContextConfiguration(classes = OrderApplication.class)
+@WebMvcTest(controllers = CheckoutController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @AutoConfigureMockMvc(addFilters = false)
 class CheckoutControllerTest {
 
-    @MockBean
+    @MockitoBean
     private CheckoutService checkoutService;
 
     @Autowired
@@ -75,6 +73,7 @@ class CheckoutControllerTest {
 
         mockMvc.perform(post("/storefront/checkouts")
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
@@ -90,6 +89,7 @@ class CheckoutControllerTest {
 
         mockMvc.perform(put("/storefront/checkouts/status")
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
@@ -117,6 +117,7 @@ class CheckoutControllerTest {
 
         mockMvc.perform(put("/storefront/checkouts/{id}/payment-method", id)
                 .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(request)))
                 .andExpect(status().isOk());
 

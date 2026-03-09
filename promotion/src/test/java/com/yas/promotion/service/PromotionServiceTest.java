@@ -31,13 +31,13 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(classes = PromotionApplication.class)
 class PromotionServiceTest {
     @Autowired
     private PromotionRepository promotionRepository;
-    @MockBean
+    @MockitoBean
     private ProductService productService;
     @Autowired
     private PromotionService promotionService;

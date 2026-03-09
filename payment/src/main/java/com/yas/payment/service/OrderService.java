@@ -29,7 +29,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .getTokenValue();
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(serviceUrlConfig.order())
+                .fromUriString(serviceUrlConfig.order())
                 .path("/storefront/checkouts/status")
                 .buildAndExpand()
                 .toUri();
@@ -50,7 +50,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.order())
+            .fromUriString(serviceUrlConfig.order())
             .path("/storefront/orders/status")
             .buildAndExpand()
             .toUri();

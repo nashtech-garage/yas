@@ -48,7 +48,7 @@ class LocationServiceTest {
         List<Long> ids = List.of(1L, 2L, 3L);
 
         when(serviceUrlConfig.location()).thenReturn(INVENTORY_URL);
-        URI uri = UriComponentsBuilder.fromHttpUrl(INVENTORY_URL)
+        URI uri = UriComponentsBuilder.fromUriString(INVENTORY_URL)
             .path("/storefront/addresses")
             .queryParam("ids", ids)
             .build()
@@ -77,7 +77,7 @@ class LocationServiceTest {
 
         Long id = 1L;
         when(serviceUrlConfig.location()).thenReturn(INVENTORY_URL);
-        URI uri = UriComponentsBuilder.fromHttpUrl(INVENTORY_URL)
+        URI uri = UriComponentsBuilder.fromUriString(INVENTORY_URL)
             .path("/storefront/addresses/{id}")
             .buildAndExpand(id)
             .toUri();
@@ -102,7 +102,7 @@ class LocationServiceTest {
     void testCreateAddress() {
 
         when(serviceUrlConfig.location()).thenReturn(INVENTORY_URL);
-        URI uri = UriComponentsBuilder.fromHttpUrl(INVENTORY_URL)
+        URI uri = UriComponentsBuilder.fromUriString(INVENTORY_URL)
             .path("/storefront/addresses")
             .build()
             .toUri();

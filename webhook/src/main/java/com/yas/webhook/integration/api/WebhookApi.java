@@ -1,6 +1,6 @@
 package com.yas.webhook.integration.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.yas.webhook.utils.HmacUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

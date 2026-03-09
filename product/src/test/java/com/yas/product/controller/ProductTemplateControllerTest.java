@@ -1,31 +1,5 @@
 package com.yas.product.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.product.ProductApplication;
-import com.yas.product.model.attribute.ProductTemplate;
-import com.yas.product.repository.ProductTemplateRepository;
-import com.yas.product.service.ProductTemplateService;
-import com.yas.product.viewmodel.productattribute.ProductAttributeVm;
-import com.yas.product.viewmodel.producttemplate.ProductAttributeTemplateGetVm;
-import com.yas.product.viewmodel.producttemplate.ProductAttributeTemplatePostVm;
-import com.yas.product.viewmodel.producttemplate.ProductTemplateGetVm;
-import com.yas.product.viewmodel.producttemplate.ProductTemplateListGetVm;
-import com.yas.product.viewmodel.producttemplate.ProductTemplatePostVm;
-import com.yas.product.viewmodel.producttemplate.ProductTemplateVm;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -37,16 +11,37 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = ProductTemplateController.class)
-@ContextConfiguration(classes = ProductApplication.class)
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.product.model.attribute.ProductTemplate;
+import com.yas.product.repository.ProductTemplateRepository;
+import com.yas.product.service.ProductTemplateService;
+import com.yas.product.viewmodel.productattribute.ProductAttributeVm;
+import com.yas.product.viewmodel.producttemplate.ProductAttributeTemplateGetVm;
+import com.yas.product.viewmodel.producttemplate.ProductAttributeTemplatePostVm;
+import com.yas.product.viewmodel.producttemplate.ProductTemplateGetVm;
+import com.yas.product.viewmodel.producttemplate.ProductTemplateListGetVm;
+import com.yas.product.viewmodel.producttemplate.ProductTemplatePostVm;
+import com.yas.product.viewmodel.producttemplate.ProductTemplateVm;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
+
+@WebMvcTest(controllers = ProductTemplateController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ProductTemplateControllerTest {
 
-    @MockBean
+    @MockitoBean
     private ProductTemplateService productTemplateService;
 
-    @MockBean
+    @MockitoBean
     private ProductTemplateRepository productTemplateRepository;
 
     @Autowired

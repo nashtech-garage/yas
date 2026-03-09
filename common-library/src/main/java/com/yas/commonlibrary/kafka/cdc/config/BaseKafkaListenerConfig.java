@@ -1,7 +1,7 @@
 package com.yas.commonlibrary.kafka.cdc.config;
 
 import java.util.Map;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -60,7 +60,7 @@ public abstract class BaseKafkaListenerConfig<K, V> {
     }
 
     private Map<String, Object> buildConsumerProperties() {
-        return kafkaProperties.buildConsumerProperties(null);
+        return kafkaProperties.buildConsumerProperties();
     }
 
 }

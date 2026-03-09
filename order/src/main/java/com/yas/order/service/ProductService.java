@@ -36,8 +36,8 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         final String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(serviceUrlConfig.product())
-                .path("/backoffice/product-variations/${productId}")
+                .fromUriString(serviceUrlConfig.product())
+                .path("/backoffice/product-variations/{productId}")
                 .buildAndExpand(productId)
                 .toUri();
 
@@ -56,7 +56,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         final String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(serviceUrlConfig.product())
+                .fromUriString(serviceUrlConfig.product())
                 .path("/backoffice/products/subtract-quantity")
                 .buildAndExpand()
                 .toUri();
@@ -74,7 +74,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         final String jwt = AuthenticationUtils.extractJwt();
 
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(serviceUrlConfig.product())
+                .fromUriString(serviceUrlConfig.product())
                 .path("/products")
                 .queryParam("ids", ids)
                 .queryParam("pageNo", pageNo)

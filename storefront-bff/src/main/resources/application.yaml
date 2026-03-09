@@ -35,61 +35,19 @@ management:
             requests: true
     tags:
       application: ${spring.application.name}
+#  endpoint:
+#    gateway:
+#      enabled: true
+#  endpoints:
+#    web:
+#      exposure:
+#        include: gateway,health,info
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
----
-spring:
-  config:
-    activate:
-      on-profile: "dev"
-  cloud:
-    gateway:
-      default-filters:
-        - SaveSession
-      routes:
-        # Changes for your local development should not be committed
-        - id: api_servicename_local
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/servicename/**
-          filters:
-            - TokenRelay=
-            - StripPrefix=1
-        - id: api
-          uri: http://api.yas.local
-          predicates:
-            - Path=/api/**
-          filters:
-            - TokenRelay=
-            - StripPrefix=1
-        - id: nextjs
-          uri: http://localhost:3000
-          predicates:
-            - Path=/**
----
-spring:
-  config:
-    activate:
-      on-profile: "prod"
-  cloud:
-    gateway:
-      default-filters:
-        - SaveSession
-      routes:
-        - id: api
-          uri: http://nginx
-          predicates:
-            - Path=/api/**
-          filters:
-            - DedupeResponseHeader=Origin Access-Control-Request-Method Access-Control-Request-Headers
-            - TokenRelay=
-            - StripPrefix=1
-        - id: nextjs
-          uri: http://storefront-nextjs:3000
-          predicates:
-            - Path=/**
----
+#  level:
+#    org.springframework.cloud.gateway: TRACE
+#    reactor.netty.http.client: TRACE
 yas:
   services:
     customer: http://api.yas.local/customer

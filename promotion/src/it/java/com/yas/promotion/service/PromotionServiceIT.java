@@ -28,21 +28,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest(classes = PromotionApplication.class)
 @Import(IntegrationTestConfiguration.class)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PromotionServiceIT {
 
     @Autowired
     private PromotionRepository promotionRepository;
     @Autowired
     private PromotionService promotionService;
-    @MockBean
+    @MockitoBean
     private ProductService productService;
     @Autowired
     private PromotionUsageRepository promotionUsageRepository;
