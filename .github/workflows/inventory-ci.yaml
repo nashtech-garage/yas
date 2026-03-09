@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,24 +76,24 @@ jobs:
       #     name: results
       #     path: ${{github.workspace}}/reports
       - name: Set up Snyk CLI to check for security issues
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
-
-        env:
-          # This is where you will need to introduce the Snyk API token created with your Snyk account
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
+          
         # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
         # Use || true to not fail the pipeline
       - name: Snyk Code test
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: snyk code test --sarif > snyk-code.sarif # || true
 
         # Runs Snyk Open Source (SCA) analysis and uploads result to Snyk.
       - name: Snyk Open Source monitor
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: snyk monitor --all-projects
 
         # Runs Snyk Infrastructure as Code (IaC) analysis and uploads result to Snyk.
         # Use || true to not fail the pipeline.
       - name: Snyk IaC test and report
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: snyk iac test --report # || true
 
       - name: Analyze with sonar cloud
@@ -123,10 +125,13 @@ jobs:
         with:
           context: ./inventory
           push: true
+          load: true
           tags: ghcr.io/nashtech-garage/yas-inventory:latest
 
       - name: Snyk Container monitor
-        run: snyk container monitor ghcr.io/nashtech-garage/yas-inventory:latest --file=Dockerfile
+        if: ${{ github.ref == 'refs/heads/main' }}
+        # FIX 3: Point to the correct Dockerfile path in the inventory directory
+        run: snyk container monitor ghcr.io/nashtech-garage/yas-inventory:latest --file=inventory/Dockerfile
 
               # Push the Snyk Code results into GitHub Code Scanning tab
       - name: Upload result to GitHub Code Scanning
