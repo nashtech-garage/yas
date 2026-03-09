@@ -152,44 +152,38 @@ class UserAddressControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    // ... inside UserAddressControllerTest class ...
-
+    // test controller tra response the nao khi k co data
     @Test
     void testGetDefaultAddress_whenNoDefaultAddress_responseNotFoundOrEmpty() throws Exception {
-        // Test the scenario where the user hasn't set a default address.
-        when(userAddressService.getAddressDefault()).thenReturn(null); // Or throw an exception depending on your service logic
+        when(userAddressService.getAddressDefault()).thenReturn(null); 
 
         mockMvc.perform(MockMvcRequestBuilders.get(USER_ADDRESS_BASE_URL + "/default-address")
                 .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().string("")); // Expect empty body if null is returned
+            .andExpect(MockMvcResultMatchers.content().string("")); 
     }
 
+    // test controller phản hồi lỗi thế nào
     @Test
     void testCreateAddress_whenInvalidData_responseBadRequest() throws Exception {
-        // Simulating sending incomplete data to the POST endpoint.
         AddressPostVm invalidAddressPostVm = new AddressPostVm(
-             // missing required fields
              null, null, null, null, null, null, null, null
         );
 
         mockMvc.perform(MockMvcRequestBuilders.post(USER_ADDRESS_BASE_URL)
                 .contentType("application/json")
                 .content(objectWriter.writeValueAsString(invalidAddressPostVm)))
-            // .andExpect(MockMvcResultMatchers.status().isBadRequest()); // Uncomment if @Valid is used in controller
-            .andExpect(MockMvcResultMatchers.status().isOk()); // Adjust based on your actual validation logic
+            .andExpect(MockMvcResultMatchers.status().isOk()); 
     }
 
     @Test
     void testDeleteAddress_whenAddressDoesNotExist_responseNotFound() throws Exception {
         Long nonExistentId = 999L;
-        // Assuming your service throws an exception when trying to delete an invalid ID
-        doThrow(new RuntimeException("Address not found")).when(userAddressService).deleteAddress(nonExistentId); // Replace RuntimeException with your specific exception
+        doThrow(new RuntimeException("Address not found")).when(userAddressService).deleteAddress(nonExistentId); 
 
         mockMvc.perform(MockMvcRequestBuilders.delete(USER_ADDRESS_BASE_URL + "/{id}", nonExistentId)
             .accept("application/json"))
-            // .andExpect(MockMvcResultMatchers.status().isNotFound()); // Uncomment if handled by GlobalExceptionHandler
-            .andExpect(MockMvcResultMatchers.status().isInternalServerError()); // Default fallback for the mock
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError()); 
     }
 
     private List<ActiveAddressVm> getActiveAddressVms() {
