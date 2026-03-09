@@ -34,19 +34,19 @@ jobs:
 
       - uses: ./.github/workflows/actions
 
-      - name: Snyk Open Source Scan
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --file=inventory/pom.xml
-          
-      # - name: Run Maven Build Command
-      #   run: mvn clean install -pl inventory -am
-      # - name: Run Maven Checkstyle
+      # - name: Snyk Open Source Scan
       #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-      #   run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
+      #   uses: snyk/actions/maven@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     args: --severity-threshold=high --file=inventory/pom.xml
+          
+      - name: Run Maven Build Command
+        run: mvn clean install -pl inventory -am
+      - name: Run Maven Checkstyle
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
