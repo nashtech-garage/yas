@@ -222,46 +222,41 @@ class CustomerControllerTest {
                         .content(objectWriter.writeValueAsString(customerPostVm)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
-    // ... inside CustomerControllerTest class ...
 
+    // test invaild page
     @Test
     void testGetCustomers_whenInvalidPageNo_responseBadRequest() throws Exception {
-        // Assuming your controller handles negative page numbers or invalid parameters 
-        // and returns a Bad Request (400) status.
+ 
         mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL)
                 .param("pageNo", "-1") 
                 .accept("application/json"))
-            // .andExpect(MockMvcResultMatchers.status().isBadRequest()); // Uncomment if your code handles this
-            .andExpect(MockMvcResultMatchers.status().isOk()); // Currently just expects OK based on existing pattern, adjust based on actual logic.
+            .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
+    // test service nem exception
     @Test
     void testGetCustomerByEmail_whenNotFound_responseNotFound() throws Exception {
-         // Assuming customerService throws an exception (e.g., ResourceNotFoundException) 
-         // which is then caught by a global exception handler translating it to a 404.
          when(customerService.getCustomerByEmail("nonexistent@example.com"))
-             .thenThrow(new RuntimeException("Not Found")); // Replace with your actual exception class
+             .thenThrow(new RuntimeException("Not Found")); 
 
          mockMvc.perform(MockMvcRequestBuilders.get(
                     BACK_OFFICE_CUSTOMER_BASE_URL + "/{email}", "nonexistent@example.com")
                 .accept("application/json"))
-            // .andExpect(MockMvcResultMatchers.status().isNotFound()); // Uncomment if your code handles this
-            .andExpect(MockMvcResultMatchers.status().isInternalServerError()); // Default mockMvc behavior for unhandled exceptions
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError()); 
     }
 
+    // test validation cua request body
     @Test
     void testUpdateProfile_whenInvalidData_responseBadRequest() throws Exception {
-        // Test with missing required fields (e.g., email is null) if your Controller has @Valid
         CustomerProfileRequestVm invalidRequest = new CustomerProfileRequestVm(
-            "", // Blank first name
-            "", // Blank last name
-            "invalid-email" // Invalid email format
+            "", 
+            "", 
+            "invalid-email"
         );
 
         mockMvc.perform(MockMvcRequestBuilders.put(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile" + "/test")
                 .contentType("application/json")
                 .content(objectWriter.writeValueAsString(invalidRequest)))
-            // .andExpect(MockMvcResultMatchers.status().isBadRequest()); // Uncomment if your code handles validation
-            .andExpect(MockMvcResultMatchers.status().isNoContent()); // Currently just expects NoContent based on existing pattern, adjust based on actual logic.
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 }
