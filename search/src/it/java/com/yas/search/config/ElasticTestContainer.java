@@ -12,7 +12,6 @@ public class ElasticTestContainer extends ElasticsearchContainer {
 
     public ElasticTestContainer(String version) {
         super(IMAGE_NAME.formatted(version));
-        this.addFixedExposedPort(9200, 9200);
         this.addEnv(CLUSTER_NAME, ELASTIC_SEARCH);
         this.withEnv("xpack.security.transport.ssl.enabled", "false");
         this.withEnv("xpack.security.http.ssl.enabled", "false");
