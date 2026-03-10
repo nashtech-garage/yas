@@ -20,6 +20,9 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
