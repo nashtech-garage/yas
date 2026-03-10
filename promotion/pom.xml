@@ -15,7 +15,7 @@
     <properties>
         <sonar.organization>danzgne</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>danzgne_yas-promotion</sonar.projectKey>
+        <sonar.projectKey>danzgne_devops</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>

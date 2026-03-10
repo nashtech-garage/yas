@@ -13,7 +13,7 @@
     <name>backoffice-bff</name>
     <description>Backend for backoffice</description>
     <properties>
-        <sonar.projectKey>danzgne_yas-backoffice-bff</sonar.projectKey>
+        <sonar.projectKey>danzgne_devops</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>
