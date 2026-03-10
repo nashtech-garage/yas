@@ -54,7 +54,7 @@ public class ProductCdcConsumerIT extends CdcConsumerTest<ProductMsgKey, Product
     @SpyBean
     private ProductSyncDataService productSyncDataService;
 
-    public ProductCdcConsumerTest() {
+    public ProductCdcConsumerIT() {
         super(ProductMsgKey.class, ProductCdcMessage.class, "dbproduct.public.product");
     }
 
