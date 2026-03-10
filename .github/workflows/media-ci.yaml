@@ -130,7 +130,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           JAVA_HOME: /opt/java/openjdk  # Temurin default
         with:
-          args: --file=media/pom.xml --severity-threshold=high
+          args: --file=media/pom.xml --severity-threshold=high -d
 
       # test
       - name: Test and coverage
