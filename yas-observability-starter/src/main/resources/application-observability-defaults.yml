@@ -1,0 +1,52 @@
+# ======================================================
+# YAS Observability Default Configuration
+# ------------------------------------------------------
+# This configuration provides the default observability
+# settings used by services that include the
+# YAS Observability Starter.
+#
+# Individual services may
+# override any property in their own application.yml
+# or environment configuration if different behavior
+# is required.
+#
+# ======================================================
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1
+
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
+  metrics:
+    tags:
+      service: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://collector:5555}
+          transport: ${OTEL_EXPORTER_OTLP_PROTOCOL:grpc}
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://collector:5555}
+          transport: ${OTEL_EXPORTER_OTLP_PROTOCOL:grpc}
+    resource-attributes:
+      "service.namespace": ${yas.observability.service-namespace:yas-msa}
+
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:http://collector:6666/v1/metrics}
+        step: 10s
