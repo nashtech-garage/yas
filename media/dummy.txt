@@ -1,3 +1,1 @@
-"test loc ahihi" 
-# Xin chao, day la file test thu Gitleaks
-AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE"Day la dong text thu 2 de danh thuc robot" 
+"ghp_1234567890abcdefghijklmnopqrstuvwxyzABCD" 
