@@ -30,8 +30,10 @@ pipeline {
                 script {
                     echo "Detecting which microservice this branch is modifying..."
 
-                    def baseBranch = env.CHANGE_TARGET ? "origin/${env.CHANGE_TARGET}" : "origin/main"
-                    sh "git fetch --no-tags origin"
+                    def baseBranch = env.CHANGE_TARGET ?: "main"
+                    sh """
+                        git fetch --no-tags origin ${baseBranch}:${baseBranch}
+                    """
 
                     def changedFiles = sh(
                         script: "git diff --name-only ${baseBranch}...HEAD",
