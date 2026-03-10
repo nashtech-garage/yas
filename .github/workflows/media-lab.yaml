@@ -6,7 +6,7 @@ on:
       - '**' 
     paths:
       - 'media/**' 
-      - '.github/workflows/media-lab.yml'
+      - '.github/workflows/media-lab.yaml'
 
 jobs:
   Lab-Run:
