@@ -126,6 +126,12 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
+      - name: show java
+        run: |
+          echo $JAVA_HOME
+          echo $PATH
+          java -version
+          
       # snyk scan
       - name: Snyk security scan
         uses: snyk/actions/maven@master
