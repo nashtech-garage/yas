@@ -8,8 +8,8 @@ pipeline {
     }
 
     tools {
-        jdk   'Java 21'
-        maven 'Maven 3'
+        jdk   'JDK-21'
+        maven 'Maven-3.9'
     }
 
     environment {
