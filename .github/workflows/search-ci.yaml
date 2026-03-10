@@ -31,6 +31,8 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
+        env:
+          JAVA_TOOL_OPTIONS: "-XX:-UseContainerSupport"
         run: mvn clean install -pl search -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
