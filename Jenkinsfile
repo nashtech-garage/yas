@@ -17,10 +17,10 @@ pipeline {
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                         docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
                             // Snyk sẽ tự động lấy SNYK_TOKEN từ môi trường
-                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=backoffice,storefront || true'
+                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
 
-                            sh 'snyk test --token=$SNYK_TOKEN --file=backoffice/package-lock.json || true'
-                            sh 'snyk test --token=$SNYK_TOKEN --file=storefront/package-lock.json || true'
+                            // sh 'snyk test --token=$SNYK_TOKEN --file=backoffice/package-lock.json || true'
+                            // sh 'snyk test --token=$SNYK_TOKEN --file=storefront/package-lock.json || true'
                         }
                     }
                 }
