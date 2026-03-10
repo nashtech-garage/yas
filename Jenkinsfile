@@ -11,12 +11,12 @@ pipeline {
                         sh 'gitleaks detect --source="." --no-git --verbose || true'
                     }
 
-                    // echo '=== 1.2 Quét lỗ hổng thư viện (Snyk) ==='
-                    // withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    //     docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                    //         sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
-                    //     }
-                    // }
+                    echo '=== 1.2 Quét lỗ hổng thư viện (Snyk) ==='
+                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                        docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
+                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
+                        }
+                    }
                 }
             }
         }
@@ -24,13 +24,10 @@ pipeline {
         // --- 2. CHUẨN BỊ THƯ VIỆN CHUNG (Yêu cầu 6 - Monorepo) ---
         stage('Prepare Root & Commons') {
             steps {
-                echo '=== Cài đặt POM gốc và thư viện dùng chung ==='
+                echo '=== Cài đặt cấu hình gốc và thư viện dùng chung cho các service ==='
                 script {
                     docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                        // Thêm -N (Non-recursive) để install tệp POM cha trước
-                        sh 'mvn install -N -Drevision=1.0-SNAPSHOT' 
-                        // Sau đó install common-library
-                        sh 'mvn install -DskipTests -Drevision=1.0-SNAPSHOT -pl common-library'
+                        sh 'mvn clean install -DskipTests -Drevision=1.0-SNAPSHOT -pl common-library -am'
                     }
                 }
             }
@@ -157,30 +154,25 @@ pipeline {
 def runServiceCI(String serviceName) {
     script {
         docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-            
-            // 1. Quét Snyk ngay tại đây (Chỉ quét đúng module bị sửa)
-            echo "=== Phase: Snyk Security Scan cho ${serviceName} ==="
-            withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                    sh "snyk test --file=${serviceName}/pom.xml --token=\$SNYK_TOKEN || true"
-                }
-            }
 
             echo "=== Phase: Unit Test & Sonar Scan cho ${serviceName} ==="
-            docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    // Giữ lại -am để Maven tự xử lý các phụ thuộc nội bộ nếu cần
-                    sh """
-                        mvn install sonar:sonar \
-                        -pl ${serviceName} -am \
-                        -Drevision=1.0-SNAPSHOT \
-                        -DskipITs=true \
-                        -Dsonar.token=\$SONAR_TOKEN \
-                        -Dsonar.organization=longlee0 \
-                        -Dsonar.projectKey=LongLee0_yas_${serviceName} \
-                        -T 1C || true
-                    """
-                }
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                // TỐI ƯU MAVEN:
+                // - Bỏ clean để dùng lại cache biên dịch
+                // - Bỏ -am vì common-library đã được cài đặt ở stage trước
+                // - Thêm -T 1C để tận dụng đa nhân CPU
+                // - Dùng install thay vì verify nếu em muốn các service sau dùng được kết quả của service trước
+                sh """
+                    mvn install sonar:sonar \
+                    -pl ${serviceName} \
+                    -Drevision=1.0-SNAPSHOT \
+                    -DskipITs=true \
+                    -Dsonar.token=\$SONAR_TOKEN \
+                    -Dsonar.organization=longlee0 \
+                    -Dsonar.projectKey=LongLee0_yas_${serviceName} \
+                    -T 1C || true
+                """
+            }
             
             echo "=== Phase: JaCoCo Report ==="
             jacoco(
@@ -199,7 +191,6 @@ def runServiceCI(String serviceName) {
         }
     }
     publishTestResults(serviceName)
-    }
 }
 
 def publishTestResults(String serviceName) {
