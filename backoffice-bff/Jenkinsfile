@@ -1,0 +1,120 @@
+pipeline {
+    agent any
+
+    environment {
+        SERVICE_NAME    = 'backoffice-bff'
+        DOCKER_REGISTRY = 'ghcr.io'
+        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/nashtech-garage/yas-${SERVICE_NAME}"
+    }
+
+    tools {
+        jdk   'jdk-21'
+        maven 'maven-3'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+        // Guard: skip entirely if nothing in this service changed.
+        // changeSets is empty on first scan of a new branch — always build then.
+        // For PR builds Jenkins automatically compares against the target branch.
+        stage('CI') {
+            when {
+                anyOf {
+                    changeset 'backoffice-bff/**'
+                    changeset 'pom.xml'
+                    expression { return currentBuild.changeSets.isEmpty() }
+                }
+            }
+            stages {
+                stage('Checkout') {
+                    steps {
+                        checkout scm
+                    }
+                }
+
+                stage('Checkstyle') {
+                    steps {
+                        sh 'mvn checkstyle:checkstyle -f backoffice-bff -Dcheckstyle.output.file=backoffice-bff-checkstyle-result.xml'
+                    }
+                }
+
+                stage('Build') {
+                    steps {
+                        sh 'mvn clean install -f backoffice-bff -DskipTests'
+                    }
+                }
+
+                stage('Test') {
+                    steps {
+                        sh 'mvn test jacoco:report -f backoffice-bff'
+                    }
+                    post {
+                        always {
+                            junit testResults: 'backoffice-bff/**/surefire-reports/TEST*.xml',
+                                  allowEmptyResults: true
+                            jacoco(
+                                execPattern: 'backoffice-bff/target/jacoco.exec',
+                                classPattern: 'backoffice-bff/target/classes',
+                                sourcePattern: 'backoffice-bff/src/main/java',
+                                inclusionPattern: '**/*.class',
+                                changeBuildStatus: false
+                            )
+                        }
+                    }
+                }
+
+                stage('SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f backoffice-bff'
+                        }
+                    }
+                }
+
+                stage('OWASP Dependency Check') {
+                    steps {
+                        sh 'mvn -f backoffice-bff org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7'
+                    }
+                    post {
+                        always {
+                            dependencyCheckPublisher pattern: 'backoffice-bff/target/dependency-check-report.xml'
+                        }
+                    }
+                }
+
+                stage('Docker Build & Push') {
+                    when { branch 'main' }
+                    steps {
+                        withCredentials([usernamePassword(
+                            credentialsId: 'docker-registry-credentials',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh """
+                                echo "\$DOCKER_PASS" | docker login ${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
+                                docker build -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ./backoffice-bff
+                                docker push ${DOCKER_IMAGE}:latest
+                                docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                                docker logout ${DOCKER_REGISTRY}
+                            """
+                        }
+                    }
+                }
+            } // end nested stages
+        } // end stage('CI')
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            echo "Build failed for service: ${SERVICE_NAME}"
+        }
+    }
+}
