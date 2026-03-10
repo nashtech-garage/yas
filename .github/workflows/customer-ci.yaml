@@ -20,10 +20,15 @@ on:
 jobs:
   security:
     runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+
     steps:
       - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
