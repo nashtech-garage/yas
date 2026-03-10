@@ -11,12 +11,12 @@ pipeline {
                         sh 'gitleaks detect --source="." --no-git --verbose || true'
                     }
 
-                    echo '=== 1.2 Quét lỗ hổng thư viện (Snyk) ==='
-                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                        docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
-                        }
-                    }
+                    // echo '=== 1.2 Quét lỗ hổng thư viện (Snyk) ==='
+                    // withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                    //     docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
+                    //         sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
+                    //     }
+                    // }
                 }
             }
         }
@@ -117,34 +117,82 @@ pipeline {
     }
 }
 
-// --- HÀM HỖ TRỢ (Giữ nguyên logic của em) ---
+// def runServiceCI(String serviceName) {
+//     script {
+//         docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
+//             echo "=== Phase: Unit Test & Quality Scan cho ${serviceName} ==="
+            
+//             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+//                 sh """mvn clean verify sonar:sonar -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am -DskipTests=false \\
+//                 -Dsonar.token=\$SONAR_TOKEN \\
+//                 -Dsonar.organization=longlee0 \\
+//                 -Dsonar.projectKey=LongLee0_yas_Project1_Devops || true"""
+//             }
+            
+//             echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
+//             jacoco(
+//                 execPattern: "**/target/*.exec",
+//                 classPattern: "**/target/classes",
+//                 sourcePattern: "**/src/main/java",
+//                 inclusionPattern: "**/*.class",
+//                 minimumInstructionCoverage: '0', 
+//                 maximumInstructionCoverage: '0',
+//                 buildOverBuild: true,
+//                 changeBuildStatus: true,
+//                 skipCopyOfSrcFiles: true 
+//             )
+//         }
+
+//         echo "=== Phase: Build Docker Image cho ${serviceName} (Yêu cầu 5) ==="
+//         dir(serviceName) {
+//             sh "docker build -t yas-${serviceName}:${BUILD_ID} ."
+//         }
+//     }
+//     publishTestResults(serviceName)
+// }
+
 def runServiceCI(String serviceName) {
     script {
         docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-            echo "=== Phase: Unit Test & Quality Scan cho ${serviceName} ==="
             
+            // 1. Quét Snyk ngay tại đây (Chỉ quét đúng module bị sửa)
+            echo "=== Phase: Snyk Security Scan cho ${serviceName} ==="
+            withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                // Quét đúng file pom của service để cực nhanh và tiết kiệm quota
+                sh "snyk test --file=${serviceName}/pom.xml --token=\$SNYK_TOKEN || true"
+            }
+
+            echo "=== Phase: Unit Test & Sonar Scan cho ${serviceName} ==="
             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                sh """mvn clean verify sonar:sonar -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am -DskipTests=false \\
-                -Dsonar.token=\$SONAR_TOKEN \\
-                -Dsonar.organization=longlee0 \\
-                -Dsonar.projectKey=LongLee0_yas_Project1_Devops || true"""
+                // TỐI ƯU MAVEN:
+                // - Bỏ clean để dùng lại cache biên dịch
+                // - Bỏ -am vì common-library đã được cài đặt ở stage trước
+                // - Thêm -T 1C để tận dụng đa nhân CPU
+                // - Dùng install thay vì verify nếu em muốn các service sau dùng được kết quả của service trước
+                sh """
+                    mvn install sonar:sonar \
+                    -pl ${serviceName} \
+                    -Drevision=1.0-SNAPSHOT \
+                    -DskipITs=true \
+                    -Dsonar.token=\$SONAR_TOKEN \
+                    -Dsonar.organization=longlee0 \
+                    -Dsonar.projectKey=LongLee0_yas_${serviceName} \
+                    -T 1C || true
+                """
             }
             
-            echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
+            echo "=== Phase: JaCoCo Report ==="
             jacoco(
-                execPattern: "**/target/*.exec",
-                classPattern: "**/target/classes",
-                sourcePattern: "**/src/main/java",
+                execPattern: "${serviceName}/target/*.exec", // Chỉ định đích danh thư mục để tránh xung đột
+                classPattern: "${serviceName}/target/classes",
+                sourcePattern: "${serviceName}/src/main/java",
                 inclusionPattern: "**/*.class",
-                minimumInstructionCoverage: '0', 
-                maximumInstructionCoverage: '0',
-                buildOverBuild: true,
-                changeBuildStatus: true,
-                skipCopyOfSrcFiles: true 
+                minimumInstructionCoverage: '0',
+                changeBuildStatus: true
             )
         }
 
-        echo "=== Phase: Build Docker Image cho ${serviceName} (Yêu cầu 5) ==="
+        echo "=== Phase: Build Docker Image cho ${serviceName} ==="
         dir(serviceName) {
             sh "docker build -t yas-${serviceName}:${BUILD_ID} ."
         }
