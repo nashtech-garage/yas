@@ -39,6 +39,21 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          repository: thanhdatttt/DevOps-Project
+
+      - name: Install core project with Maven
+        run: |
+          mvn -B install --file pom.xml
+
+      - uses: actions/checkout@v4
+      - name: Build project with Maven
+        run: |
+          mvn compile
+          mvn -B package --file pom.xml
+
       - name: Analyze with sonar cloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -70,11 +85,11 @@ jobs:
       #           name: Customer-Service-Unit-Test-Results
       #           path: "customer/**/*-reports/TEST*.xml"
       #           reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f customer
+    #   - name: Analyze with sonar cloud
+    #     if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+    #     env:
+    #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #     run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f customer
 #       - name: OWASP Dependency Check
 #         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
 #         uses: dependency-check/Dependency-Check_Action@main
