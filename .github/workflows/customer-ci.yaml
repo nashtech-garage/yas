@@ -39,18 +39,9 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-          repository: thanhdatttt/DevOps-Project
-
       - name: Install core project with Maven
         run: |
           mvn -B install --file pom.xml
-
-      - uses: actions/checkout@v4
-      - name: Build project with Maven
-        run: |
           mvn compile
           mvn -B package --file pom.xml
 
