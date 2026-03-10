@@ -111,7 +111,7 @@ jobs:
   build-test-analyze:
     name: Build, Test, Snyk & SonarQube
     runs-on: ubuntu-latest
-    permission:
+    permissions:
       security-events: write
     steps:
       - name: Checkout source code
@@ -134,7 +134,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --sarif-file-output=snyk.sarif
-          
+
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
