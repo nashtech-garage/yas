@@ -41,7 +41,8 @@ jobs:
 
       - name: Install core project with Maven
         run: |
-          mvn -B install --file pom.xml
+          mvn clean package
+          mvn -B -X install --file pom.xml
           mvn compile
           mvn -B package --file pom.xml
 
