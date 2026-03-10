@@ -68,7 +68,7 @@ class ProductServiceTest {
     void getProductById_WhenProductExists_ReturnProductThumbnailVm() {
         Long id = 1L;
         URI url = UriComponentsBuilder
-            .fromHttpUrl("http://api.yas.local/media")
+            .fromUriString("http://api.yas.local/media")
             .path("/storefront/products/list-featured")
             .queryParam("productId", List.of(id))
             .build()
@@ -91,7 +91,7 @@ class ProductServiceTest {
     void getProductById_WhenProductDoesNotExist_ReturnNull() {
         Long id = 99L;
         URI url = UriComponentsBuilder
-            .fromHttpUrl("http://api.yas.local/media")
+            .fromUriString("http://api.yas.local/media")
             .path("/storefront/products/list-featured")
             .queryParam("productId", List.of(id))
             .build()
@@ -113,7 +113,7 @@ class ProductServiceTest {
     void existsById_WhenProductExists_ReturnTrue() {
         Long id = 1L;
         URI url = UriComponentsBuilder
-            .fromHttpUrl("http://api.yas.local/media")
+            .fromUriString("http://api.yas.local/media")
             .path("/storefront/products/list-featured")
             .queryParam("productId", List.of(id))
             .build()
