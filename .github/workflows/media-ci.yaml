@@ -123,6 +123,9 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
+      - name: Set JAVA_HOME
+        run: echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> $GITHUB_ENV
+
       # snyk scan
       - name: Snyk security scan
         uses: snyk/actions/maven@master
