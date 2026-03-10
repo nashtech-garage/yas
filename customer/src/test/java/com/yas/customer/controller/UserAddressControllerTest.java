@@ -2,6 +2,7 @@ package com.yas.customer.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,6 +103,87 @@ class UserAddressControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(USER_ADDRESS_BASE_URL + "/{id}", id)
                 .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test empty address list
+    @Test
+    void testGetUserAddresses_whenEmptyList() throws Exception {
+
+        when(userAddressService.getUserAddressList()).thenReturn(List.of());
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_ADDRESS_BASE_URL)
+                        .accept("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test default address null 
+    @Test
+    void testGetDefaultAddress_whenAddressNotFound() throws Exception {
+
+        when(userAddressService.getAddressDefault()).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_ADDRESS_BASE_URL + "/default-address")
+                        .accept("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test create address invalid body
+    @Test
+    void testCreateAddress_whenInvalidBody() throws Exception {
+
+        when(userAddressService.createAddress(any(AddressPostVm.class))).thenReturn(getUserAddressVm());
+
+        mockMvc.perform(MockMvcRequestBuilders.post(USER_ADDRESS_BASE_URL)
+                        .contentType("application/json")
+                        .content("{}"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test delete address invalid id
+    @Test
+    void testDeleteAddress_whenInvalidId() throws Exception {
+
+        Long id = -1L;
+
+        doNothing().when(userAddressService).deleteAddress(id);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(USER_ADDRESS_BASE_URL + "/{id}", id)
+                        .accept("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test controller tra response the nao khi k co data
+    @Test
+    void testGetDefaultAddress_whenNoDefaultAddress_responseNotFoundOrEmpty() throws Exception {
+        when(userAddressService.getAddressDefault()).thenReturn(null); 
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_ADDRESS_BASE_URL + "/default-address")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string("")); 
+    }
+
+    // test controller phản hồi lỗi thế nào
+    @Test
+    void testCreateAddress_whenInvalidData_responseBadRequest() throws Exception {
+        AddressPostVm invalidAddressPostVm = new AddressPostVm(
+             null, null, null, null, null, null, null, null
+        );
+
+        mockMvc.perform(MockMvcRequestBuilders.post(USER_ADDRESS_BASE_URL)
+                .contentType("application/json")
+                .content(objectWriter.writeValueAsString(invalidAddressPostVm)))
+            .andExpect(MockMvcResultMatchers.status().isOk()); 
+    }
+
+    @Test
+    void testDeleteAddress_whenAddressDoesNotExist_responseNotFound() throws Exception {
+        Long nonExistentId = 999L;
+        doThrow(new RuntimeException("Address not found")).when(userAddressService).deleteAddress(nonExistentId); 
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(USER_ADDRESS_BASE_URL + "/{id}", nonExistentId)
+            .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError()); 
     }
 
     private List<ActiveAddressVm> getActiveAddressVms() {

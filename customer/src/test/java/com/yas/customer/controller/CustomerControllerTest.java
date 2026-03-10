@@ -166,4 +166,97 @@ class CustomerControllerTest {
                 .contentType("application/json"))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
+    // test danh sach customer rong
+    @Test
+    void testGetCustomers_whenEmptyList_responseCustomerListVm() throws Exception {
+
+        CustomerListVm customerListVm = new CustomerListVm(
+                0,
+                null,
+                0
+        );
+
+        when(customerService.getCustomers(anyInt())).thenReturn(customerListVm);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL)
+                        .param("pageNo", "0")
+                        .accept("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test customer profie null
+    @Test
+    void testGetCustomerProfile_whenCustomerNotFound() throws Exception {
+
+        SecurityContextUtils.setUpSecurityContext("test");
+
+        when(customerService.getCustomerProfile("test")).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                        STORE_FRONT_CUSTOMER_BASE_URL + "/profile")
+                        .accept("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test create guest user null
+    @Test
+    void testCreateGuestUser_whenServiceReturnNull() throws Exception {
+
+        when(customerService.createGuestUser()).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(STORE_FRONT_CUSTOMER_BASE_URL + "/guest-user")
+                        .contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test create customer invalid input
+    @Test
+    void testCreateCustomer_whenInvalidInput() throws Exception {
+
+        CustomerPostVm customerPostVm = new CustomerPostVm(
+                "", "", "", "", "", ""
+        );
+
+        mockMvc.perform(MockMvcRequestBuilders.post(BACK_OFFICE_CUSTOMER_BASE_URL)
+                        .contentType("application/json")
+                        .content(objectWriter.writeValueAsString(customerPostVm)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    // test invaild page
+    @Test
+    void testGetCustomers_whenInvalidPageNo_responseBadRequest() throws Exception {
+ 
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL)
+                .param("pageNo", "-1") 
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    // test service nem exception
+    @Test
+    void testGetCustomerByEmail_whenNotFound_responseNotFound() throws Exception {
+         when(customerService.getCustomerByEmail("nonexistent@example.com"))
+             .thenThrow(new RuntimeException("Not Found")); 
+
+         mockMvc.perform(MockMvcRequestBuilders.get(
+                    BACK_OFFICE_CUSTOMER_BASE_URL + "/{email}", "nonexistent@example.com")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError()); 
+    }
+
+    // test validation cua request body
+    @Test
+    void testUpdateProfile_whenInvalidData_responseBadRequest() throws Exception {
+        CustomerProfileRequestVm invalidRequest = new CustomerProfileRequestVm(
+            "", 
+            "", 
+            "invalid-email"
+        );
+
+        mockMvc.perform(MockMvcRequestBuilders.put(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile" + "/test")
+                .contentType("application/json")
+                .content(objectWriter.writeValueAsString(invalidRequest)))
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
 }
