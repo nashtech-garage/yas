@@ -1,3 +1,1 @@
------BEGIN RSA PRIVATE KEY-----
-MIIEpQIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz  
------END RSA PRIVATE KEY-----
+"STRIPE_SECRET_KEY=sk_live_51H8x9aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789abcdefg" 
