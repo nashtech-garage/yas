@@ -3,9 +3,9 @@ name: Media Lab - Hello DevOps
 on:
   push:
     branches:
-      - '**' # Chạy trên mọi nhánh
+      - '**' 
     paths:
-      - 'media/**' # QUAN TRỌNG: Chỉ kích hoạt nếu thư mục media có thay đổi
+      - 'media/**' 
       - '.github/workflows/media-lab.yml'
 
 jobs:
@@ -14,9 +14,16 @@ jobs:
     steps:
       - name: Lấy mã nguồn về máy ảo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Bắt buộc phải có cái này để Gitleaks đọc lịch sử commit
+
+      # Thêm ông bảo vệ Gitleaks vào đây!
+      - name: Gitleaks Scan (Bắt lỗi ngay lập tức)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Chú ý: Tuyệt đối KHÔNG DÙNG continue-on-error: true ở đây
 
       - name: In lời chào
         run: |
-          echo "Hello DevOps!"
-          echo "Pipeline đang chạy trên nhánh: $GITHUB_REF_NAME"
-          echo "Trạng thái: XANH LÁ CÂY 🟢"
+          echo "Nếu dòng này được in ra, nghĩa là Gitleaks đã ngủ quên!"
