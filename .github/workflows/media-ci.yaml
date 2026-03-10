@@ -131,14 +131,14 @@ jobs:
           echo $JAVA_HOME
           echo $PATH
           java -version
-          
+
       # snyk scan
       - name: Snyk security scan
         uses: snyk/actions/maven@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.10-7/x64
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.10-7/x64/bin
         with:
           args: --sarif-file-output=snyk.sarif
 
