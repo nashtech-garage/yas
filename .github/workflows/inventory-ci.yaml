@@ -53,6 +53,7 @@ jobs:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: --nvdApiKey ${{ secrets.NVD_API_KEY }}
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
