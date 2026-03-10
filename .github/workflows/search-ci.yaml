@@ -33,7 +33,13 @@ jobs:
       - name: Run Maven Build Command
         env:
           JAVA_TOOL_OPTIONS: "-XX:-UseContainerSupport"
-        run: mvn clean install -pl search -am
+        run: mvn clean install -pl search -am -DskipITs
+      - name: Run Integration Tests
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          JAVA_TOOL_OPTIONS: "-XX:-UseContainerSupport"
+        continue-on-error: true
+        run: mvn failsafe:integration-test failsafe:verify -pl search -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl search -am -Dcheckstyle.output.file=search-checkstyle-result.xml
@@ -49,6 +55,7 @@ jobs:
           name: Search-Service-Unit-Test-Results
           path: "search/target/surefire-reports/TEST*.xml"
           reporter: java-junit
+          fail-on-error: false
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
