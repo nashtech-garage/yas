@@ -199,6 +199,7 @@ def runServiceCI(String serviceName) {
         }
     }
     publishTestResults(serviceName)
+    }
 }
 
 def publishTestResults(String serviceName) {
