@@ -107,9 +107,12 @@ on:
       - "pom.xml"
 
 jobs:
+
   build-test-analyze:
     name: Build, Test, Snyk & SonarQube
     runs-on: ubuntu-latest
+    permission:
+      security-events: write
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -126,11 +129,16 @@ jobs:
       # snyk scan
       - name: Snyk security scan
         uses: snyk/actions/maven@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          JAVA_HOME: /opt/java/openjdk  # Temurin default
         with:
-          args: --file=media/pom.xml --severity-threshold=high -d
+          args: --sarif-file-output=snyk.sarif
+          
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
 
       # test
       - name: Test and coverage
