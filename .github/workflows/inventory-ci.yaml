@@ -90,10 +90,10 @@ jobs:
         # continue-on-error: true
         run: snyk code test --sarif > snyk-code.sarif || true
         
-      - name: Upload results to Github Code Scanning
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: snyk-code.sarif
+      # - name: Upload results to Github Code Scanning
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: snyk-code.sarif
 
         # Runs Snyk Open Source (SCA) analysis and uploads result to Snyk.
       # - name: Snyk Open Source monitor
@@ -139,7 +139,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./inventory
-          push: true
+          # push: true
           load: true
           tags: ghcr.io/nashtech-garage/yas-inventory:latest
 
