@@ -18,6 +18,7 @@ on:
       - ".github/workflows/media-ci.yaml"
       - "pom.xml"
 
+
   workflow_dispatch: # Cho phép trigger thủ công từ tab Actions trên GitHub
 
 jobs:
