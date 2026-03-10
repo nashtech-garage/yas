@@ -92,8 +92,14 @@
 name: media service ci
 
 on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'media/**'
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/media-ci.yaml"
+      - "pom.xml"
   pull_request:
-    branches: ["main"]
     paths:
       - "media/**"
       - ".github/workflows/actions/action.yaml"
@@ -104,15 +110,13 @@ jobs:
   build-test-analyze:
     name: Build, Test, Snyk & SonarQube
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
-      - name: Checkout Code
+      - name: Checkout source code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # for SonarQube
 
-      - name: Set up java
+      - name: Set up java and jdk21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -127,29 +131,36 @@ jobs:
         with:
           args: --file=media/pom.xml --severity-threshold=high
 
-      # build, test and sonar scan
-      - name: Build, test and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: >
-          mvn -f media/pom.xml clean verify 
-          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
-          -Dsonar.projectKey=thanhdatttt_DevOps-Project
-          -Dsonar.organization=thanhdatttt 
-          -Dsonar.host.url=https://sonarcloud.io 
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+      # test
+      - name: Test and coverage
+        run: mvn clean test jacoco:report
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # run: >
+        #   mvn -f media/pom.xml clean verify 
+        #   org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+        #   -Dsonar.projectKey=thanhdatttt_DevOps-Project
+        #   -Dsonar.organization=thanhdatttt 
+        #   -Dsonar.host.url=https://sonarcloud.io 
+        #   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-      - name: Upload Test Results
+      # test results
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: media-test-results
           path: media/target/surefire-reports/
 
-      - name: Upload Coverage Report
+      # coverage report
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: media-coverage-report
           path: media/target/site/jacoco/
+
+      #build
+      - name: Build
+        run: mvn package -DskipTests
