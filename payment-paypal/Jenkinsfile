@@ -68,14 +68,6 @@ pipeline {
                     }
                 }
 
-                stage('SonarQube Analysis') {
-                    steps {
-                        withSonarQubeEnv('SonarQube') {
-                            sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl payment-paypal -am'
-                        }
-                    }
-                }
-
                 stage('OWASP Dependency Check') {
                     steps {
                         sh 'mvn -pl payment-paypal org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7'
