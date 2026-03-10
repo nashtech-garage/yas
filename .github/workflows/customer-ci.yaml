@@ -23,6 +23,7 @@ jobs:
     permissions:
       checks: write
       contents: read
+      packages: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
@@ -78,6 +79,13 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Customer Coverage Report'
           update-comment: true
+      - name: Build Docker image (PR check)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./customer
+          push: false
+          tags: ghcr.io/danzgne/yas-customer:latest
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -91,4 +99,4 @@ jobs:
         with:
           context: ./customer
           push: true
-          tags: ghcr.io/nashtech-garage/yas-customer:latest
+          tags: ghcr.io/danzgne/yas-customer:latest
