@@ -1,0 +1,22 @@
+name: Media Lab - Hello DevOps
+
+on:
+  push:
+    branches:
+      - '**' # Chạy trên mọi nhánh
+    paths:
+      - 'media/**' # QUAN TRỌNG: Chỉ kích hoạt nếu thư mục media có thay đổi
+      - '.github/workflows/media-lab.yml'
+
+jobs:
+  Lab-Run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy mã nguồn về máy ảo
+        uses: actions/checkout@v4
+
+      - name: In lời chào
+        run: |
+          echo "Hello DevOps!"
+          echo "Pipeline đang chạy trên nhánh: $GITHUB_REF_NAME"
+          echo "Trạng thái: XANH LÁ CÂY 🟢"
