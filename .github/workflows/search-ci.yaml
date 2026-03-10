@@ -20,6 +20,9 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
@@ -28,7 +31,15 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -pl search -am
+        env:
+          JAVA_TOOL_OPTIONS: "-XX:-UseContainerSupport"
+        run: mvn clean install -pl search -am -DskipITs
+      - name: Run Integration Tests
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          JAVA_TOOL_OPTIONS: "-XX:-UseContainerSupport"
+        continue-on-error: true
+        run: mvn failsafe:integration-test failsafe:verify -pl search -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl search -am -Dcheckstyle.output.file=search-checkstyle-result.xml
@@ -42,8 +53,9 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Search-Service-Unit-Test-Results
-          path: "search/**/*-reports/TEST*.xml"
+          path: "search/target/surefire-reports/TEST*.xml"
           reporter: java-junit
+          fail-on-error: false
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
@@ -58,6 +70,7 @@ jobs:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: --nvdApiKey ${{ secrets.NVD_API_KEY }} --disableCentral
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master

@@ -20,6 +20,9 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
@@ -58,6 +61,7 @@ jobs:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: --nvdApiKey ${{ secrets.NVD_API_KEY }} --disableCentral
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master

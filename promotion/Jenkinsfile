@@ -1,0 +1,112 @@
+pipeline {
+    agent any
+
+    environment {
+        SERVICE_NAME    = 'promotion'
+        DOCKER_REGISTRY = 'ghcr.io'
+        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/nashtech-garage/yas-${SERVICE_NAME}"
+    }
+
+    tools {
+        jdk   'jdk-21'
+        maven 'maven-3'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+        // Guard: skip this pipeline entirely if nothing in this service changed.
+        // changeSets is empty on the first scan of a new branch — build in that case.
+        // For PR builds Jenkins compares against the target branch automatically.
+        stage('CI') {
+            when {
+                anyOf {
+                    changeset 'promotion/**'
+                    changeset 'pom.xml'
+                    expression { return currentBuild.changeSets.isEmpty() }
+                }
+            }
+            stages {
+                stage('Checkout') {
+                    steps {
+                        checkout scm
+                    }
+                }
+
+                stage('Build') {
+                    steps {
+                        sh 'mvn clean install -pl promotion -am -DskipTests'
+                    }
+                }
+
+                stage('Test') {
+                    steps {
+                        sh 'mvn test jacoco:report -pl promotion -am'
+                    }
+                    post {
+                        always {
+                            junit testResults: 'promotion/**/surefire-reports/TEST*.xml',
+                                  allowEmptyResults: true
+                            jacoco(
+                                execPattern: 'promotion/target/jacoco.exec',
+                                classPattern: 'promotion/target/classes',
+                                sourcePattern: 'promotion/src/main/java',
+                                inclusionPattern: '**/*.class',
+                                changeBuildStatus: false
+                            )
+                        }
+                    }
+                }
+
+                stage('Checkstyle') {
+                    steps {
+                        sh 'mvn checkstyle:checkstyle -pl promotion -am -Dcheckstyle.output.file=promotion-checkstyle-result.xml'
+                    }
+                }
+
+                stage('OWASP Dependency Check') {
+                    steps {
+                        sh 'mvn -pl promotion org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7'
+                    }
+                    post {
+                        always {
+                            dependencyCheckPublisher pattern: 'promotion/target/dependency-check-report.xml'
+                        }
+                    }
+                }
+
+                stage('Docker Build & Push') {
+                    when { branch 'main' }
+                    steps {
+                        withCredentials([usernamePassword(
+                            credentialsId: 'docker-registry-credentials',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh """
+                                echo "\$DOCKER_PASS" | docker login ${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
+                                docker build -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ./promotion
+                                docker push ${DOCKER_IMAGE}:latest
+                                docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                                docker logout ${DOCKER_REGISTRY}
+                            """
+                        }
+                    }
+                }
+            } // end nested stages
+        } // end stage('CI')
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            echo "Build failed for service: ${SERVICE_NAME}"
+        }
+    }
+}
