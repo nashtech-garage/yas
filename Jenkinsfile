@@ -132,6 +132,12 @@ pipeline {
                     when { changeset "sampledata/**" }; 
                     steps { runServiceCI('sampledata') } 
                 }
+
+                // Service payment-paypal
+                stage('Service: payment-paypal') { 
+                    when { changeset "payment-paypal/**" }; 
+                    steps { runServiceCI('payment-paypal') } 
+                }
             }
         }
     }
