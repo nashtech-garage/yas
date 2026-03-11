@@ -2,12 +2,11 @@ pipeline {
     agent any
     
     tools {
-        maven 'maven'  // Tên Maven đã config trong Global Tool Configuration
-        jdk 'JDK21'    // Tên JDK đã config
+        maven 'maven'
+        jdk 'JDK21'
     }
     
     environment {
-        // Cập nhật danh sách các services của dự án YAS
         SERVICES = 'product,cart,media'
     }
     
@@ -19,30 +18,33 @@ pipeline {
             }
         }
         
+        stage('Build Common Dependencies') {
+            steps {
+                echo "=== Building common-library ==="
+                sh 'mvn clean install -pl common-library -am -DskipTests'
+            }
+        }
+        
         stage('Detect Changes') {
             steps {
                 script {
                     echo "=== Detecting which services changed ==="
                     
-                    // Lấy danh sách file thay đổi
                     def changes = ""
                     try {
                         changes = sh(
-                            script: 'git diff --name-only HEAD~1 HEAD || git diff --name-only HEAD',
+                            script: 'git diff --name-only HEAD~1 HEAD || echo "all"',
                             returnStdout: true
                         ).trim()
                     } catch (Exception e) {
-                        // Nếu là commit đầu tiên hoặc có lỗi, build tất cả
                         changes = "all"
                     }
                     
                     echo "Changed files:\n${changes}"
                     
-                    // Set biến môi trường cho 3 service của bạn
-                    // Lưu ý: Đảm bảo 'product/', 'cart/', 'media/' khớp với tên thư mục trên GitHub
-                    env.BUILD_PRODUCT = changes.contains('product/') || changes == 'all' ? 'true' : 'false'
-                    env.BUILD_CART    = changes.contains('cart/')    || changes == 'all' ? 'true' : 'false'
-                    env.BUILD_MEDIA   = changes.contains('media/')   || changes == 'all' ? 'true' : 'false'
+                    env.BUILD_PRODUCT = (changes.contains('product/') || changes == 'all') ? 'true' : 'false'
+                    env.BUILD_CART = (changes.contains('cart/') || changes == 'all') ? 'true' : 'false'
+                    env.BUILD_MEDIA = (changes.contains('media/') || changes == 'all') ? 'true' : 'false'
                     
                     echo "Build Product: ${env.BUILD_PRODUCT}"
                     echo "Build Cart: ${env.BUILD_CART}"
@@ -61,7 +63,7 @@ pipeline {
                     steps {
                         dir('product') {
                             echo "=== Running tests for Product Service ==="
-                            sh 'mvn clean test'
+                            sh 'mvn test'
                         }
                     }
                 }
@@ -89,13 +91,10 @@ pipeline {
                     // Upload test results
                     junit allowEmptyResults: true, testResults: '**/product/target/surefire-reports/*.xml'
                     
-                    // Upload coverage
-                    jacoco(
-                        execPattern: '**/product/target/jacoco.exec',
-                        classPattern: '**/product/target/classes',
-                        sourcePattern: '**/product/src/main/java',
-                        exclusionPattern: '**/*Test*.class'
-                    )
+                    // Upload coverage - SỬ DỤNG COVERAGE PLUGIN
+                    publishCoverage adapters: [
+                        jacocoAdapter('**/product/target/site/jacoco/jacoco.xml')
+                    ]
                 }
             }
         }
@@ -110,7 +109,7 @@ pipeline {
                     steps {
                         dir('cart') {
                             echo "=== Running tests for Cart Service ==="
-                            sh 'mvn clean test'
+                            sh 'mvn test'
                         }
                     }
                 }
@@ -118,7 +117,6 @@ pipeline {
                 stage('Cart: Coverage Report') {
                     steps {
                         dir('cart') {
-                            echo "=== Generating coverage report ==="
                             sh 'mvn jacoco:report'
                         }
                     }
@@ -136,12 +134,9 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: '**/cart/target/surefire-reports/*.xml'
-                    jacoco(
-                        execPattern: '**/cart/target/jacoco.exec',
-                        classPattern: '**/cart/target/classes',
-                        sourcePattern: '**/cart/src/main/java',
-                        exclusionPattern: '**/*Test*.class'
-                    )
+                    publishCoverage adapters: [
+                        jacocoAdapter('**/cart/target/site/jacoco/jacoco.xml')
+                    ]
                 }
             }
         }
@@ -156,7 +151,7 @@ pipeline {
                     steps {
                         dir('media') {
                             echo "=== Running tests for Media Service ==="
-                            sh 'mvn clean test'
+                            sh 'mvn test'
                         }
                     }
                 }
@@ -164,7 +159,6 @@ pipeline {
                 stage('Media: Coverage Report') {
                     steps {
                         dir('media') {
-                            echo "=== Generating coverage report ==="
                             sh 'mvn jacoco:report'
                         }
                     }
@@ -182,12 +176,9 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: '**/media/target/surefire-reports/*.xml'
-                    jacoco(
-                        execPattern: '**/media/target/jacoco.exec',
-                        classPattern: '**/media/target/classes',
-                        sourcePattern: '**/media/src/main/java',
-                        exclusionPattern: '**/*Test*.class'
-                    )
+                    publishCoverage adapters: [
+                        jacocoAdapter('**/media/target/site/jacoco/jacoco.xml')
+                    ]
                 }
             }
         }
@@ -196,7 +187,7 @@ pipeline {
     post {
         always {
             echo "=== Pipeline completed ==="
-            cleanWs()  // Clean workspace
+            cleanWs()
         }
         success {
             echo "✅ Build SUCCESS - All tests passed!"
