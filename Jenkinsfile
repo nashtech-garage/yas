@@ -191,13 +191,15 @@ pipeline {
                 withSonarQubeEnv('SonarCloud') {
                     script {
                         env.CHANGED_SERVICES.tokenize(',').each { svc ->
-                            sh """
-                                mvn sonar:sonar -pl ${svc} -am \
-                                    -Dsonar.projectKey=com.yas:${svc} \
-                                    -Dsonar.projectName=${svc} \
-                                    -Dsonar.host.url=\${SONAR_HOST_URL} \
-                                    -Dsonar.token=\${SONAR_AUTH_TOKEN}
-                            """
+                            dir(svc) {
+                                sh """
+                                    mvn sonar:sonar \
+                                        -Dsonar.projectKey=com.yas:${svc} \
+                                        -Dsonar.projectName=${svc} \
+                                        -Dsonar.host.url=\${SONAR_HOST_URL} \
+                                        -Dsonar.token=\${SONAR_AUTH_TOKEN}
+                                """
+                            }
                         }
                     }
                 }
