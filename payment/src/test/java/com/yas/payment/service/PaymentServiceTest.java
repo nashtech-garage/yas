@@ -7,7 +7,6 @@ import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.provider.handler.PaymentHandler;
-import com.yas.payment.service.provider.handler.PaypalHandler;
 import com.yas.payment.viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +20,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -122,6 +122,91 @@ class PaymentServiceTest {
         assertEquals(capturedPayment.getPaymentMethod(), responseVm.paymentMethod());
         assertEquals(capturedPayment.getPaymentStatus(), responseVm.paymentStatus());
         assertEquals(capturedPayment.getFailureMessage(), responseVm.failureMessage());
+    }
+
+    @Test
+    void initPayment_WhenInvalidProvider_ThrowsIllegalArgumentException() {
+        InitPaymentRequestVm initPaymentRequestVm = InitPaymentRequestVm.builder()
+                .paymentMethod("UNKNOWN_PROVIDER")
+                .totalPrice(BigDecimal.TEN)
+                .checkoutId("123")
+                .build();
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> paymentService.initPayment(initPaymentRequestVm));
+
+        assertThat(exception.getMessage())
+                .contains("No payment handler found for provider: UNKNOWN_PROVIDER");
+    }
+
+    @Test
+    void capturePayment_WhenInvalidProvider_ThrowsIllegalArgumentException() {
+        CapturePaymentRequestVm capturePaymentRequestVm = CapturePaymentRequestVm.builder()
+                .paymentMethod("INVALID_METHOD")
+                .token("token123")
+                .build();
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> paymentService.capturePayment(capturePaymentRequestVm));
+
+        assertThat(exception.getMessage())
+                .contains("No payment handler found for provider: INVALID_METHOD");
+    }
+
+    @Test
+    void capturePayment_WithFailureMessage_ReturnsCorrectResponse() {
+        CapturePaymentRequestVm capturePaymentRequestVM = CapturePaymentRequestVm.builder()
+                .paymentMethod(PaymentMethod.PAYPAL.name())
+                .token("123")
+                .build();
+        CapturedPayment capturedPayment = CapturedPayment.builder()
+                .orderId(2L)
+                .checkoutId("secretCheckoutId")
+                .amount(BigDecimal.valueOf(100.0))
+                .paymentFee(BigDecimal.valueOf(500))
+                .gatewayTransactionId("gatewayId")
+                .paymentMethod(PaymentMethod.BANKING)
+                .paymentStatus(PaymentStatus.CANCELLED)
+                .failureMessage("Payment declined by bank")
+                .build();
+        Long orderId = 999L;
+
+        when(paymentHandler.capturePayment(capturePaymentRequestVM)).thenReturn(capturedPayment);
+        when(orderService.updateCheckoutStatus(capturedPayment)).thenReturn(orderId);
+        when(paymentRepository.save(any())).thenReturn(payment);
+
+        CapturePaymentResponseVm result = paymentService.capturePayment(capturePaymentRequestVM);
+
+        assertThat(result.failureMessage()).isEqualTo("Payment declined by bank");
+        assertThat(result.paymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
+    }
+
+    @Test
+    void initializeProviders_WithMultipleHandlers_RegistersAll() {
+        PaymentHandler paypalHandler = mock(PaymentHandler.class);
+        PaymentHandler bankingHandler = mock(PaymentHandler.class);
+        when(paypalHandler.getProviderId()).thenReturn(PaymentMethod.PAYPAL.name());
+        when(bankingHandler.getProviderId()).thenReturn(PaymentMethod.BANKING.name());
+
+        List<PaymentHandler> handlers = List.of(paypalHandler, bankingHandler);
+        PaymentService serviceWithMultipleHandlers = new PaymentService(
+                paymentRepository, orderService, handlers);
+        serviceWithMultipleHandlers.initializeProviders();
+
+        InitPaymentRequestVm paypalRequest = InitPaymentRequestVm.builder()
+                .paymentMethod(PaymentMethod.PAYPAL.name())
+                .totalPrice(BigDecimal.TEN)
+                .checkoutId("paypal-123")
+                .build();
+        InitiatedPayment paypalResponse = InitiatedPayment.builder()
+                .paymentId("p1")
+                .status("success")
+                .redirectUrl("http://paypal.com")
+                .build();
+        when(paypalHandler.initPayment(paypalRequest)).thenReturn(paypalResponse);
+
+        InitPaymentResponseVm result = serviceWithMultipleHandlers.initPayment(paypalRequest);
+        assertThat(result.paymentId()).isEqualTo("p1");
     }
 
 }
