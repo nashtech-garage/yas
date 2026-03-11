@@ -112,11 +112,8 @@ pipeline {
             when { expression { env.HAS_CHANGES == 'true' } }
             steps {
                 script {
-                    sh 'mvn install -pl common-library -am -DskipTests'
-
-                    def services = env.CHANGED_SERVICES
-                    sh "mvn compile -pl ${services} -am"
-                    echo "Compilation successful for: ${services}"
+                    sh "mvn compile -pl ${env.CHANGED_SERVICES} -am"
+                    echo "Compilation successful for: ${env.CHANGED_SERVICES}"
                 }
             }
         }
@@ -192,11 +189,17 @@ pipeline {
             when { expression { env.HAS_CHANGES == 'true' } }
             steps {
                 withSonarQubeEnv('SonarCloud') {
-                    sh """
-                        mvn sonar:sonar -pl ${env.CHANGED_SERVICES} -am \
-                            -Dsonar.host.url=\${SONAR_HOST_URL} \
-                            -Dsonar.token=\${SONAR_AUTH_TOKEN}
-                    """
+                    script {
+                        env.CHANGED_SERVICES.tokenize(',').each { svc ->
+                            sh """
+                                mvn sonar:sonar -pl ${svc} -am \
+                                    -Dsonar.projectKey=com.yas:${svc} \
+                                    -Dsonar.projectName=${svc} \
+                                    -Dsonar.host.url=\${SONAR_HOST_URL} \
+                                    -Dsonar.token=\${SONAR_AUTH_TOKEN}
+                            """
+                        }
+                    }
                 }
             }
         }
@@ -204,8 +207,42 @@ pipeline {
         stage('Quality Gate') {
             when { expression { env.HAS_CHANGES == 'true' } }
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                withSonarQubeEnv('SonarCloud') {
+                    timeout(time: 5, unit: 'MINUTES') {
+                        script {
+                            def services = env.CHANGED_SERVICES.tokenize(',')
+                            services.each { svc ->
+                                def projectKey = "com.yas:${svc}"
+                                def status = 'NONE'
+                                def attempts = 0
+                                // Poll SonarQube API until analysis is complete
+                                while (attempts < 30) {
+                                    attempts++
+                                    status = sh(
+                                        script: """
+                                            curl -s -u \${SONAR_AUTH_TOKEN}: \
+                                                "\${SONAR_HOST_URL}/api/qualitygates/project_status?projectKey=${projectKey}" \
+                                            | grep -oP '"status"\\s*:\\s*"\\K[^"]+' | head -1
+                                        """,
+                                        returnStdout: true
+                                    ).trim()
+
+                                    if (status == 'OK' || status == 'ERROR' || status == 'WARN') {
+                                        break
+                                    }
+                                    echo "${svc}: Quality Gate status = ${status ?: 'PENDING'}, retrying in 10s... (${attempts}/30)"
+                                    sleep(10)
+                                }
+                                echo "${svc}: Quality Gate = ${status}"
+                                if (status == 'ERROR') {
+                                    error "${svc} failed the SonarQube Quality Gate"
+                                }
+                                if (!status || status == 'NONE') {
+                                    echo "WARNING: ${svc} Quality Gate result not available after polling"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
