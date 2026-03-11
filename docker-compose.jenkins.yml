@@ -1,0 +1,67 @@
+services:
+  jenkins:
+    build:
+      context: ./docker/jenkins
+      dockerfile: Dockerfile
+    container_name: jenkins_local
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    extra_hosts:
+      # Resolve host.docker.internal to the actual host IP on Linux
+      - "host.docker.internal:host-gateway"
+    mem_limit: 4g
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/var/jenkins_home/local-repo
+    networks:
+      - devops_net
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube_local
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://sonar_db:5432/sonar
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    depends_on:
+      sonar_db:
+        condition: service_healthy
+    networks:
+      - devops_net
+
+  sonar_db:
+    image: postgres:15
+    container_name: postgres_sonar
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
+    networks:
+      - devops_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  devops_net:
+    driver: bridge
+
+volumes:
+  jenkins_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonar_db_data:

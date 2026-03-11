@@ -1,2 +1,5 @@
 # fix line ending
 * text=auto
+*.sh text eol=lf
+*.bash text eol=lf
+Dockerfile text eol=lf
