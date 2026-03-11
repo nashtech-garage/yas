@@ -16,8 +16,11 @@ import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
 import com.yas.media.service.MediaService;
 import com.yas.media.viewmodel.MediaVm;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
+import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
@@ -43,8 +46,14 @@ class MediaControllerTest {
 
     @Test
     void create_whenValidFile_thenReturn200() throws Exception {
+        // Create a real 1x1 PNG so FileTypeValidator's ImageIO.read() succeeds
+        BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        byte[] pngBytes = baos.toByteArray();
+
         MockMultipartFile file = new MockMultipartFile(
-            "multipartFile", "photo.png", "image/png", "fake-image".getBytes()
+            "multipartFile", "photo.png", "image/png", pngBytes
         );
 
         Media saved = new Media();
