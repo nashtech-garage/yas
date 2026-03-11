@@ -27,7 +27,8 @@ class CustomerServiceTest {
     @BeforeEach
     void setUp() {
         restClient = mock(RestClient.class);
-        ServiceUrlConfig serviceUrlConfig = new ServiceUrlConfig("http://product-service", "http://customer-service", "http://order-service");
+        ServiceUrlConfig serviceUrlConfig = new ServiceUrlConfig("http://product-service", "http://customer-service",
+                "http://order-service");
         customerService = new CustomerService(restClient, serviceUrlConfig);
     }
 
