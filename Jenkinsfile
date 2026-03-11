@@ -192,15 +192,11 @@ pipeline {
             when { expression { env.HAS_CHANGES == 'true' } }
             steps {
                 withSonarQubeEnv('SonarCloud') {
-                    script {
-                        env.CHANGED_SERVICES.tokenize(',').each { svc ->
-                            sh """
-                                mvn sonar:sonar -pl ${svc} \
-                                    -Dsonar.host.url=\${SONAR_HOST_URL} \
-                                    -Dsonar.token=\${SONAR_AUTH_TOKEN}
-                            """
-                        }
-                    }
+                    sh """
+                        mvn sonar:sonar -pl ${env.CHANGED_SERVICES} -am \
+                            -Dsonar.host.url=\${SONAR_HOST_URL} \
+                            -Dsonar.token=\${SONAR_AUTH_TOKEN}
+                    """
                 }
             }
         }
