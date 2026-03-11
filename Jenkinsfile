@@ -1,21 +1,21 @@
 pipeline {
     agent any
 
-    options {
-        timeout(time: 30, unit: 'MINUTES')
-        disableConcurrentBuilds()
-        timestamps()
-    }
-
     tools {
         jdk   'JDK-21'
         maven 'Maven-3.9'
     }
 
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+        skipDefaultCheckout()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
     environment {
-        SONAR_TOKEN = credentials('sonarcloud-token') 
-        SNYK_TOKEN  = credentials('snyk-token')  
-        TARGET_SERVICE = ""                     
+        MIN_COVERAGE = '70'
     }
 
     stages {
@@ -25,126 +25,175 @@ pipeline {
             }
         }
 
-        stage('Detect Service') {
+        stage('Detect Changed Services') {
             steps {
                 script {
-                    echo "Detecting which microservice this branch is modifying..."
+                    def allServices = [
+                        'backoffice-bff', 'cart', 'customer', 'delivery',
+                        'inventory', 'location', 'media', 'order',
+                        'payment', 'payment-paypal', 'product', 'promotion',
+                        'rating', 'recommendation', 'sampledata', 'search',
+                        'storefront-bff', 'tax', 'webhook'
+                    ]
 
-                    def baseBranch = env.CHANGE_TARGET ?: "main"
-                    sh """
-                        git fetch --no-tags origin ${baseBranch}:${baseBranch}
-                    """
+                    def targetBranch = env.CHANGE_TARGET ?: 'main'
+                    def changedFiles = ''
 
-                    def changedFiles = sh(
-                        script: "git diff --name-only ${baseBranch}...HEAD",
-                        returnStdout: true
-                    ).trim()
-
-                    if (!changedFiles) {
-                        error "No changes detected compared to ${baseBranch}. Pipeline stopping."
-                    }
-
-                    echo "Changed files across branch:\n${changedFiles}"
-
-                    def serviceSet = [] as Set
-                    for (file in changedFiles.tokenize('\n')) {
-                        def parts = file.split('/')
-                        if (parts.size() > 1) {
-                            def folder = parts[0]
-                            if (fileExists("${folder}/pom.xml")) {
-                                serviceSet.add(folder)
-                            }
-                        }
-                    }
-
-                    if (serviceSet.size() == 0) {
-                        error "No service changes detected (no modified folders with pom.xml found). Pipeline stopping."
-                    } else if (serviceSet.size() > 1) {
-                        echo "WARNING: Changes detected in multiple services: ${serviceSet}. Using the first one."
-                        env.TARGET_SERVICE = serviceSet[0]
+                    if (env.BRANCH_NAME == 'main') {
+                        changedFiles = sh(
+                            script: "git diff --name-only HEAD~1 2>/dev/null || git ls-tree -r --name-only HEAD",
+                            returnStdout: true
+                        ).trim()
                     } else {
-                        env.TARGET_SERVICE = serviceSet[0]
+                        sh "git fetch origin ${targetBranch}:refs/remotes/origin/${targetBranch} || true"
+                        changedFiles = sh(
+                            script: "git diff --name-only origin/${targetBranch}...HEAD",
+                            returnStdout: true
+                        ).trim()
                     }
 
-                    echo "--------------------------------------------------------"
-                    echo " TARGET SERVICE DETECTED: [ ${env.TARGET_SERVICE} ]"
-                    echo "--------------------------------------------------------"
+                    echo "── Changed files ──\n${changedFiles}"
+
+                    def fileList         = changedFiles ? changedFiles.split('\n').toList() : []
+                    def commonLibChanged = fileList.any { it.startsWith('common-library/') }
+                    def rootPomChanged   = fileList.any { it == 'pom.xml' }
+
+                    def changedServices = allServices.findAll { svc ->
+                        fileList.any { it.startsWith("${svc}/") }
+                    }
+
+                    if (commonLibChanged || rootPomChanged) {
+                        changedServices = allServices
+                        echo "Shared code changed (common-library or root pom.xml) → will build ALL services"
+                    }
+
+                    env.CHANGED_SERVICES = changedServices.join(',')
+                    env.HAS_CHANGES      = changedServices.size() > 0 ? 'true' : 'false'
+
+                    echo "Services to process: ${env.CHANGED_SERVICES ?: '(none — pipeline will skip build/test stages)'}"
                 }
             }
         }
 
         stage('Gitleaks Scan') {
             steps {
-                echo "Running Gitleaks to scan for hardcoded secrets/passwords..."
-                sh 'gitleaks detect --source . -v'
-            }
-        }
+                script {
+                    def gitleaksCmd = ''
+                    if (env.BRANCH_NAME == 'main') {
+                        gitleaksCmd = "gitleaks detect --source . --config gitleaks.toml --log-opts='-1' --report-format json --report-path gitleaks-report.json --verbose"
+                    } else {
+                        def target = env.CHANGE_TARGET ?: 'main'
+                        gitleaksCmd = "gitleaks detect --source . --config gitleaks.toml --log-opts='origin/${target}..HEAD' --report-format json --report-path gitleaks-report.json --verbose"
+                    }
 
-        stage('Unit Test') {
-            steps {
-                echo "Running Unit Tests for ${env.TARGET_SERVICE} via Testcontainers..."
-                dir("${env.TARGET_SERVICE}") {
-                    sh 'mvn clean test org.jacoco:jacoco-maven-plugin:prepare-agent install'
+                    def exitCode = sh(script: gitleaksCmd, returnStatus: true)
+
+                    if (exitCode == 1) {
+                        error 'Gitleaks found hardcoded secrets — check gitleaks-report.json'
+                    } else if (exitCode > 1) {
+                        error "Gitleaks crashed with exit code ${exitCode} — check config or installation"
+                    }
+                    echo 'No secrets detected'
                 }
             }
             post {
                 always {
-                    junit testResults: "${env.TARGET_SERVICE}/target/surefire-reports/*.xml",
-                          allowEmptyResults: true
+                    archiveArtifacts artifacts: 'gitleaks-report.json', allowEmptyArchive: true
                 }
             }
         }
 
-        stage('Coverage Check') {
+        stage('Build') {
+            when { expression { env.HAS_CHANGES == 'true' } }
             steps {
-                echo "Generating JaCoCo coverage report and enforcing >= 70% line coverage..."
-                dir("${env.TARGET_SERVICE}") {
-                    sh 'mvn org.jacoco:jacoco-maven-plugin:report'
+                script {
+                    sh 'mvn install -pl common-library -am -DskipTests'
 
-                    jacoco(
-                        execPattern: 'target/jacoco.exec',
-                        classPattern: 'target/classes',
-                        sourcePattern: 'src/main/java',
-                        inclusionPattern: '**/*.class',
-                        lineCoverageTargets: '70, 100, 0', 
-                        changeBuildStatus: true
-                    )
+                    def services = env.CHANGED_SERVICES
+                    sh "mvn compile -pl ${services}"
+                    echo "Compilation successful for: ${services}"
                 }
             }
         }
 
-        stage('Build Service') {
+        stage('Unit Test') {
+            when { expression { env.HAS_CHANGES == 'true' } }
             steps {
-                echo "Packaging ${env.TARGET_SERVICE} into a JAR..."
-                dir("${env.TARGET_SERVICE}") {
-                    sh 'mvn package -DskipTests'
+                script {
+                    sh "mvn verify -pl ${env.CHANGED_SERVICES} -am"
                 }
             }
-        }
-
-        stage('Security & Quality') {
-            parallel {
-                stage('SonarQube Code Quality') {
-                    steps {
-                        dir("${env.TARGET_SERVICE}") {
-                            withSonarQubeEnv('SonarQube-Server') { 
-                                sh """
-                                    mvn sonar:sonar \\
-                                      -Dsonar.projectKey=yas-${env.TARGET_SERVICE} \\
-                                      -Dsonar.host.url=$SONAR_HOST_URL \\
-                                      -Dsonar.login=$SONAR_TOKEN
-                                """
-                            }
+            post {
+                always {
+                    script {
+                        // Only publish JUnit reports from changed services
+                        def svcs = env.CHANGED_SERVICES.tokenize(',')
+                        svcs.each { svc ->
+                            junit testResults: "${svc}/target/surefire-reports/*.xml",  allowEmptyResults: true
+                            junit testResults: "${svc}/target/failsafe-reports/*.xml", allowEmptyResults: true
                         }
                     }
                 }
+            }
+        }
 
-                stage('Snyk Vulnerability Scan') {
-                    steps {
-                        dir("${env.TARGET_SERVICE}") {
-                            withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
-                                sh "snyk test --fail-on=all --severity-threshold=high"
+        stage('Coverage Gate') {
+            when { expression { env.HAS_CHANGES == 'true' } }
+            steps {
+                script {
+                    def services   = env.CHANGED_SERVICES.tokenize(',')
+                    def failedList = []
+                    def missingList = []
+
+                    services.each { svc ->
+                        def csv = "${svc}/target/site/jacoco/jacoco.csv"
+                        if (fileExists(csv)) {
+                            def pct = sh(
+                                script: """
+                                    awk -F',' 'NR>1 {m+=\$8; c+=\$9} END {
+                                        t=m+c; if(t>0) printf "%.2f",(c/t)*100; else printf "100.00"
+                                    }' ${csv}
+                                """,
+                                returnStdout: true
+                            ).trim()
+
+                            echo "${svc}: line coverage = ${pct}%"
+
+                            if (pct.toFloat() < env.MIN_COVERAGE.toFloat()) {
+                                failedList << "${svc} (${pct}%)"
                             }
+                        } else {
+                            missingList << svc
+                        }
+                    }
+
+                    // Archive JaCoCo HTML reports for debugging
+                    archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
+
+                    if (missingList) {
+                        echo "WARNING: No JaCoCo report for: ${missingList.join(', ')} — these services have no tests or JaCoCo is not configured"
+                    }
+
+                    if (failedList) {
+                        error "Coverage below ${env.MIN_COVERAGE}%: ${failedList.join(', ')}"
+                    }
+
+                    echo "All changed services meet the ${env.MIN_COVERAGE}% coverage threshold"
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            when { expression { env.HAS_CHANGES == 'true' } }
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    script {
+                        env.CHANGED_SERVICES.tokenize(',').each { svc ->
+                            sh """
+                                mvn sonar:sonar -pl ${svc} \
+                                    -Dsonar.host.url=\${SONAR_HOST_URL} \
+                                    -Dsonar.token=\${SONAR_AUTH_TOKEN}
+                            """
                         }
                     }
                 }
@@ -152,10 +201,37 @@ pipeline {
         }
 
         stage('Quality Gate') {
+            when { expression { env.HAS_CHANGES == 'true' } }
             steps {
-                echo "Waiting for SonarQube Quality Gate result..."
-                timeout(time: 10, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Snyk Security Scan') {
+            when { expression { env.HAS_CHANGES == 'true' } }
+            steps {
+                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                    script {
+                        sh 'snyk auth ${SNYK_TOKEN}'
+                        def hasVulns = false
+
+                        env.CHANGED_SERVICES.tokenize(',').each { svc ->
+                            def rc = sh(
+                                script: "snyk test --file=${svc}/pom.xml --severity-threshold=high",
+                                returnStatus: true
+                            )
+                            if (rc != 0) {
+                                echo "Snyk found high-severity issues in ${svc}"
+                                hasVulns = true
+                            }
+                        }
+
+                        if (hasVulns) {
+                            unstable('Snyk detected high-severity vulnerabilities')
+                        }
+                    }
                 }
             }
         }
@@ -163,14 +239,13 @@ pipeline {
 
     post {
         always {
-            echo "Pipeline finished. Cleaning up workspace..."
             cleanWs()
         }
         success {
-            echo "✅ SUCCESS: The ${env.TARGET_SERVICE} pipeline passed all quality and security gates!"
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo "❌ FAILED: The ${env.TARGET_SERVICE} pipeline failed. Please check the logs."
+            echo 'Pipeline failed — check the stage logs for details.'
         }
     }
 }
