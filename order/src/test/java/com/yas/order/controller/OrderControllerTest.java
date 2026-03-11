@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
@@ -33,7 +34,6 @@ import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,8 +51,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@WebMvcTest(controllers = OrderController.class,
-    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
+@WebMvcTest(controllers = OrderController.class, excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @AutoConfigureMockMvc(addFilters = false)
 class OrderControllerTest {
 
@@ -80,27 +79,25 @@ class OrderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
     }
 
     @Test
     void testUpdateOrderPaymentStatus_whenRequestIsValid_thenReturnPaymentOrderStatusVm()
-        throws Exception {
+            throws Exception {
 
         PaymentOrderStatusVm request = new PaymentOrderStatusVm(
-            1001L,
-            "Completed",
-            5001L,
-            "Paid"
-        );
+                1001L,
+                "Completed",
+                5001L,
+                "Paid");
 
         PaymentOrderStatusVm response = new PaymentOrderStatusVm(
-            12345L,
-            "Shipped",
-            67890L,
-            "Completed"
-        );
+                12345L,
+                "Shipped",
+                67890L,
+                "Completed");
 
         when(orderService.updateOrderPaymentStatus(request)).thenReturn(response);
 
@@ -108,24 +105,23 @@ class OrderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(response)));
     }
 
     @Test
     void testCheckOrder_whenRequestIsValid_thenReturnOrderExistsByProductAndUserGetVm() throws Exception {
 
         Long productId = 1L;
-        OrderExistsByProductAndUserGetVm orderExistsByProductAndUserGetVm
-            = new OrderExistsByProductAndUserGetVm(false);
+        OrderExistsByProductAndUserGetVm orderExistsByProductAndUserGetVm = new OrderExistsByProductAndUserGetVm(false);
         when(orderService.isOrderCompletedWithUserIdAndProductId(productId))
-            .thenReturn(orderExistsByProductAndUserGetVm);
+                .thenReturn(orderExistsByProductAndUserGetVm);
 
         mockMvc.perform(get("/storefront/orders/completed").param("productId", productId.toString())
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content()
-                .json(objectWriter.writeValueAsString(orderExistsByProductAndUserGetVm)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content()
+                        .json(objectWriter.writeValueAsString(orderExistsByProductAndUserGetVm)));
     }
 
     @Test
@@ -135,34 +131,32 @@ class OrderControllerTest {
         OrderStatus orderStatus = OrderStatus.COMPLETED;
 
         OrderGetVm order1 = new OrderGetVm(
-            1L,
-            OrderStatus.COMPLETED,
-            new BigDecimal("100.00"),
-            DeliveryStatus.CANCELLED,
-            DeliveryMethod.GRAB_EXPRESS,
-            List.of(),
-            null
-        );
+                1L,
+                OrderStatus.COMPLETED,
+                new BigDecimal("100.00"),
+                DeliveryStatus.CANCELLED,
+                DeliveryMethod.GRAB_EXPRESS,
+                List.of(),
+                null);
         OrderGetVm order2 = new OrderGetVm(
-            2L,
-            OrderStatus.COMPLETED,
-            new BigDecimal("150.00"),
-            DeliveryStatus.DELIVERED,
-            DeliveryMethod.GRAB_EXPRESS,
-            List.of(),
-            null
-        );
+                2L,
+                OrderStatus.COMPLETED,
+                new BigDecimal("150.00"),
+                DeliveryStatus.DELIVERED,
+                DeliveryMethod.GRAB_EXPRESS,
+                List.of(),
+                null);
 
         when(orderService.getMyOrders(productName, orderStatus))
-            .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
 
         mockMvc.perform(get("/storefront/orders/my-orders")
                 .param("productName", productName)
                 .param("orderStatus", orderStatus.toString())
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content()
-                .json(objectWriter.writeValueAsString(List.of(order1, order2))));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content()
+                        .json(objectWriter.writeValueAsString(List.of(order1, order2))));
     }
 
     @Test
@@ -171,40 +165,37 @@ class OrderControllerTest {
         long productId = 1L;
         OrderVm orderVm = getOrderVm();
         when(orderService.getOrderWithItemsById(productId))
-            .thenReturn(orderVm);
+                .thenReturn(orderVm);
 
         mockMvc.perform(get("/backoffice/orders/{id}", productId)
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content()
-                .json(objectWriter.writeValueAsString(orderVm)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content()
+                        .json(objectWriter.writeValueAsString(orderVm)));
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Date parameter conversion requires full Spring Boot context")
+    @org.junit.jupiter.api.Disabled("WebMvcTest fails on default ZonedDateTime param expression")
     void testGetOrders_whenRequestIsValid_thenReturnOrderListVm() throws Exception {
 
         OrderListVm orderListVm = new OrderListVm(
-            null,
-            2L,
-            1
-        );
+                null,
+                2L,
+                1);
         when(orderService.getAllOrder(
-            any(),
-            anyString(),
-            anyList(),
-            any(),
-            anyString(),
-            any()
-        )).thenReturn(orderListVm);
+                any(),
+                anyString(),
+                anyList(),
+                any(),
+                anyString(),
+                any())).thenReturn(orderListVm);
 
         mockMvc.perform(get("/backoffice/orders")
-                .param("createdFrom", "1970-01-01T00:00:00Z")
-                .param("createdTo", ZonedDateTime.now().toString())
+                .param("productName", "")
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content()
-                .json(objectWriter.writeValueAsString(orderListVm)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content()
+                        .json(objectWriter.writeValueAsString(orderListVm)));
     }
 
     @Test
@@ -215,16 +206,14 @@ class OrderControllerTest {
 
         mockMvc.perform(get("/backoffice/orders/latest/1")
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content()
-                .json(objectWriter.writeValueAsString(list)));
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content()
+                        .json(objectWriter.writeValueAsString(list)));
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Flaky assertion based on current time")
     void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        // Note: JavaTimeModule registration removed - not used for this test
         OrderRequest orderRequest = new OrderRequest();
         byte[] csvBytes = "ID,Name,Tags\n1,Alice,tag1,tag2\n2,Bob,tag3,tag4\n".getBytes();
 
@@ -234,96 +223,109 @@ class OrderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(orderRequest)))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=Orders_" +
-                    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss")) + ".csv"))
-            .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
+                        org.hamcrest.Matchers.matchesPattern("attachment; filename=Orders_.*\\.csv")))
+                .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
+    }
+
+    @Test
+    void testGetOrderWithCheckoutId_whenRequestIsValid_thenReturnOrderGetVm() throws Exception {
+        String checkoutId = "checkout-id-123";
+        OrderGetVm order = new OrderGetVm(
+                10L,
+                OrderStatus.ACCEPTED,
+                new BigDecimal("99.99"),
+                DeliveryStatus.PREPARING,
+                DeliveryMethod.YAS_EXPRESS,
+                List.of(),
+                ZonedDateTime.parse("2026-03-11T00:00:00Z"));
+        when(orderService.findOrderVmByCheckoutId(checkoutId)).thenReturn(order);
+
+        mockMvc.perform(get("/storefront/orders/checkout/{id}", checkoutId)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(order)));
     }
 
     private OrderVm getOrderVm() {
 
         OrderAddressVm shippingAddress = new OrderAddressVm(
-            1L,
-            "John Doe",
-            "+1234567890",
-            "123 Elm Street",
-            "Apt 3B",
-            "Springfield",
-            "62704",
-            10L,
-            "Downtown",
-            20L,
-            "Illinois",
-            30L,
-            "United States"
-        );
+                1L,
+                "John Doe",
+                "+1234567890",
+                "123 Elm Street",
+                "Apt 3B",
+                "Springfield",
+                "62704",
+                10L,
+                "Downtown",
+                20L,
+                "Illinois",
+                30L,
+                "United States");
 
         OrderAddressVm billingAddress = new OrderAddressVm(
-            1L,
-            "Jane Smith",
-            "+1987654321",
-            "789 Pine Street",
-            "Suite 202",
-            "Metropolis",
-            "12345",
-            102L,
-            "North District",
-            202L,
-            "California",
-            302L,
-            "United States"
-        );
+                1L,
+                "Jane Smith",
+                "+1987654321",
+                "789 Pine Street",
+                "Suite 202",
+                "Metropolis",
+                "12345",
+                102L,
+                "North District",
+                202L,
+                "California",
+                302L,
+                "United States");
 
         Set<OrderItemVm> items = getOrderItemVms();
 
         return new OrderVm(
-            1001L,
-            "alice.johnson@example.com",
-            shippingAddress,
-            billingAddress,
-            "Please deliver by next week.",
-            7.50f,
-            15.00f,
-            3,
-            new BigDecimal("159.97"),
-            new BigDecimal("7.99"),
-            "WINTER2024",
-            OrderStatus.COMPLETED,
-            DeliveryMethod.GRAB_EXPRESS,
-            DeliveryStatus.PREPARING,
-            PaymentStatus.COMPLETED,
-            items,
-            UUID.randomUUID().toString()
-        );
+                1001L,
+                "alice.johnson@example.com",
+                shippingAddress,
+                billingAddress,
+                "Please deliver by next week.",
+                7.50f,
+                15.00f,
+                3,
+                new BigDecimal("159.97"),
+                new BigDecimal("7.99"),
+                "WINTER2024",
+                OrderStatus.COMPLETED,
+                DeliveryMethod.GRAB_EXPRESS,
+                DeliveryStatus.PREPARING,
+                PaymentStatus.COMPLETED,
+                items,
+                UUID.randomUUID().toString());
     }
 
     private Set<OrderItemVm> getOrderItemVms() {
         OrderItemVm item1 = new OrderItemVm(
-            1L,
-            101L,
-            "Smartphone",
-            2,
-            new BigDecimal("299.99"),
-            "Latest model with extended warranty",
-            new BigDecimal("20.00"),
-            new BigDecimal("24.00"),
-            new BigDecimal("8.00"),
-            1001L
-        );
+                1L,
+                101L,
+                "Smartphone",
+                2,
+                new BigDecimal("299.99"),
+                "Latest model with extended warranty",
+                new BigDecimal("20.00"),
+                new BigDecimal("24.00"),
+                new BigDecimal("8.00"),
+                1001L);
 
         OrderItemVm item2 = new OrderItemVm(
-            12L,
-            102L,
-            "Smartphone 2",
-            2,
-            new BigDecimal("299.99"),
-            "Latest model with extended warranty",
-            new BigDecimal("20.00"),
-            new BigDecimal("24.00"),
-            new BigDecimal("8.00"),
-            1001L
-        );
+                12L,
+                102L,
+                "Smartphone 2",
+                2,
+                new BigDecimal("299.99"),
+                "Latest model with extended warranty",
+                new BigDecimal("20.00"),
+                new BigDecimal("24.00"),
+                new BigDecimal("8.00"),
+                1001L);
 
         Set<OrderItemVm> items = new HashSet<>();
         items.add(item1);
@@ -334,78 +336,73 @@ class OrderControllerTest {
     private OrderPostVm getOrderPostVm() {
 
         OrderAddressPostVm shippingAddress = new OrderAddressPostVm(
-            "John Doe",
-            "+123456789",
-            "123 Main St",
-            "Apt 4B",
-            "Springfield",
-            "62701",
-            101L,
-            "Downtown",
-            201L,
-            "Illinois",
-            301L,
-            "USA"
-        );
+                "John Doe",
+                "+123456789",
+                "123 Main St",
+                "Apt 4B",
+                "Springfield",
+                "62701",
+                101L,
+                "Downtown",
+                201L,
+                "Illinois",
+                301L,
+                "USA");
 
         OrderAddressPostVm billingAddress = new OrderAddressPostVm(
-            "Jane Smith",
-            "+1987654321",
-            "789 Elm Street",
-            "Suite 5A",
-            "Greenville",
-            "29601",
-            102L,
-            "North District",
-            202L,
-            "South Carolina",
-            302L,
-            "United States"
-        );
+                "Jane Smith",
+                "+1987654321",
+                "789 Elm Street",
+                "Suite 5A",
+                "Greenville",
+                "29601",
+                102L,
+                "North District",
+                202L,
+                "South Carolina",
+                302L,
+                "United States");
 
         List<OrderItemPostVm> items = getOrderItemPostVms();
 
         return new OrderPostVm(
-            "checkoutId123",
-            "customer@example.com",
-            shippingAddress,
-            billingAddress,
-            "Please handle with care.",
-            5.00f,
-            10.00f,
-            2,
-            new BigDecimal("89.97"),
-            new BigDecimal("5.00"),
-            "COUPON2024",
-            DeliveryMethod.YAS_EXPRESS,
-            PaymentMethod.BANKING,
-            PaymentStatus.COMPLETED,
-            items
-        );
+                "checkoutId123",
+                "customer@example.com",
+                shippingAddress,
+                billingAddress,
+                "Please handle with care.",
+                5.00f,
+                10.00f,
+                2,
+                new BigDecimal("89.97"),
+                new BigDecimal("5.00"),
+                "COUPON2024",
+                DeliveryMethod.YAS_EXPRESS,
+                PaymentMethod.BANKING,
+                PaymentStatus.COMPLETED,
+                items);
     }
 
     private List<OrderItemPostVm> getOrderItemPostVms() {
         OrderItemPostVm item1 = new OrderItemPostVm(
-            123L,
-            "Wireless Mouse",
-            2,
-            new BigDecimal("25.99"),
-            "Includes batteries",
-            new BigDecimal("5.00"),
-            new BigDecimal("2.00"),
-            new BigDecimal("8.00")
-        );
+                123L,
+                "Wireless Mouse",
+                2,
+                new BigDecimal("25.99"),
+                "Includes batteries",
+                new BigDecimal("5.00"),
+                new BigDecimal("2.00"),
+                new BigDecimal("8.00"));
 
         OrderItemPostVm item2 = new OrderItemPostVm(
-            1234L,
-            "Wireless Mouse 2",
-            3,
-            new BigDecimal("25.99"),
-            "Includes batteries",
-            new BigDecimal("5.00"),
-            new BigDecimal("2.00"),
-            new BigDecimal("8.00")
-        );
+                1234L,
+                "Wireless Mouse 2",
+                3,
+                new BigDecimal("25.99"),
+                "Includes batteries",
+                new BigDecimal("5.00"),
+                new BigDecimal("2.00"),
+                new BigDecimal("8.00"));
 
         return List.of(item1, item2);
     }
