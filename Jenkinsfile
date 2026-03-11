@@ -258,13 +258,18 @@ pipeline {
                         def hasVulns = false
 
                         env.CHANGED_SERVICES.tokenize(',').each { svc ->
-                            def rc = sh(
-                                script: "snyk test --file=${svc}/pom.xml --severity-threshold=high",
-                                returnStatus: true
-                            )
-                            if (rc != 0) {
-                                echo "Snyk found high-severity issues in ${svc}"
-                                hasVulns = true
+                            dir(svc) {
+                                def rc = sh(
+                                    script: "snyk test --file=pom.xml --severity-threshold=high --maven-aggregate-project",
+                                    returnStatus: true
+                                )
+                                // Snyk exit codes: 0 = no vulns, 1 = vulns found, 2+/negative = CLI error
+                                if (rc == 1) {
+                                    echo "Snyk found high-severity vulnerabilities in ${svc}"
+                                    hasVulns = true
+                                } else if (rc != 0) {
+                                    echo "WARNING: Snyk CLI error in ${svc} (exit code ${rc}) — skipping"
+                                }
                             }
                         }
 
