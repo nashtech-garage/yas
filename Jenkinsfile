@@ -16,6 +16,9 @@ pipeline {
 
     environment {
         MIN_COVERAGE = '70'
+        // Testcontainers needs matching Docker API version and Ryuk disabled in DinD
+        DOCKER_API_VERSION = '1.44'
+        TESTCONTAINERS_RYUK_DISABLED = 'true'
     }
 
     stages {

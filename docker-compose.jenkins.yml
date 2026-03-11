@@ -8,12 +8,6 @@ services:
     ports:
       - "8080:8080"
       - "50000:50000"
-    environment:
-      # Testcontainers: containers are created on HOST Docker (via socket mount).
-      # Jenkins container must reach them via host.docker.internal instead of 172.17.0.1
-      - TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal
-      - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
-      - DOCKER_HOST=unix:///var/run/docker.sock
     extra_hosts:
       # Resolve host.docker.internal to the actual host IP on Linux
       - "host.docker.internal:host-gateway"
