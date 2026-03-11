@@ -110,7 +110,7 @@ pipeline {
                     sh 'mvn install -pl common-library -am -DskipTests'
 
                     def services = env.CHANGED_SERVICES
-                    sh "mvn compile -pl ${services}"
+                    sh "mvn compile -pl ${services} -am"
                     echo "Compilation successful for: ${services}"
                 }
             }
