@@ -1,9 +1,0 @@
-# Jenkins plugins to install via the UI (Manage Jenkins → Plugins → Available)
-# These are the minimum required plugins for this project
-
-workflow-aggregator   # Pipeline support
-git                   # Git SCM integration
-sonar                 # SonarQube Scanner
-junit                 # JUnit test result publisher
-credentials           # Credentials store
-credentials-binding   # withCredentials() step in pipelines
