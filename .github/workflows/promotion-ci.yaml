@@ -26,13 +26,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Directory
-        run: pwd
+      - name: List
+        run: ls
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -pl promotion -am
-      - name: Directory
-        run: pwd
+      - name: List
+        run: ls
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
         continue-on-error: true
@@ -40,8 +40,8 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --sarif-file-output=snyk.sarif
-      - name: Directory
-        run: pwd
+      - name: List
+        run: ls
 
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
