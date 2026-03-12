@@ -26,11 +26,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - name: List
-        run: ls
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl promotion -am
+      # - name: List
+      #   run: ls
+      # - uses: ./.github/workflows/actions
+      # - name: Run Maven Build Command
+      #   run: mvn clean install -pl promotion -am
       - name: List
         run: ls
       - name: Run Snyk to check for vulnerabilities
