@@ -144,13 +144,12 @@ def runServiceCI(String serviceName) {
                 inclusionPattern: "**/*.class",
                 minimumInstructionCoverage: '70',
                 maximumInstructionCoverage: '70',
-                
-                minimumdeltaInstruction: '-100', 
-                minimumdeltaBranch: '-100',
-                minimumdeltaComplexity: '-100',
-                minimumdeltaLine: '-100',
-                minimumdeltaMethod: '-100',
-                minimumdeltaClass: '-100',
+                 
+                deltaInstructionCoverage: '-100',
+                deltaBranchCoverage: '-100',
+                deltaLineCoverage: '-100',
+                deltaMethodCoverage: '-100',
+                deltaClassCoverage: '-100',
                 
                 buildOverBuild: true,
                 changeBuildStatus: true,
