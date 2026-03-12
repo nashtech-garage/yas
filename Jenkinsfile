@@ -153,6 +153,7 @@ def runServiceCI(String serviceName) {
 
         echo "=== Phase: Build Docker Image cho ${serviceName} ==="
         dir(serviceName) {
+            sh "rm -f target/*-tests.jar target/*.jar.original || true"
             sh "docker build -t yas-${serviceName}:${BUILD_ID} ."
         }
     }
