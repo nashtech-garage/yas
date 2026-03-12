@@ -64,6 +64,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         min-coverage-overall: 70
         title: "search coverage"
+        fail_on_min_coverage: true
 
     - name: public results
       uses: mikepenz/action-junit-report@v4
@@ -72,3 +73,22 @@ jobs:
         report_paths: search/target/*-reports/TEST-*.xml
         detailed_summary: true
         github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cache OWASP NVD DB
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository/org/owasp/dependency-check-data
+        key: owasp-nvd-${{ runner.os }}
+
+    - name: Checkstyle
+      run: mvn checkstyle:check -pl search -am
+
+    - name: OWASP Dependency Check
+      run: mvn org.owasp:dependency-check-maven:check -pl search -am
+
+    - name: Upload OWASP Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: search-owasp-report
+        path: search/target/dependency-check-report.html

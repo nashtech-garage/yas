@@ -57,3 +57,23 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         min-coverage-overall: 70
         title: "recommendation coverage"
+        fail_on_min_coverage: true
+
+    - name: Cache OWASP NVD DB
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository/org/owasp/dependency-check-data
+        key: owasp-nvd-${{ runner.os }}
+
+    - name: Checkstyle
+      run: mvn checkstyle:check -pl recommendation -am
+
+    - name: OWASP Dependency Check
+      run: mvn org.owasp:dependency-check-maven:check -pl recommendation -am
+
+    - name: Upload OWASP Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: recommendation-owasp-report
+        path: recommendation/target/dependency-check-report.html

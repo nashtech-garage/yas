@@ -24,6 +24,10 @@ jobs:
     - name: Install dependencies
       working-directory: ./backoffice
       run: npm ci
+
+    - name: ESLint
+      working-directory: ./backoffice
+      run: npm run lint
         
     - name: Build Next.js app
       working-directory: ./backoffice
