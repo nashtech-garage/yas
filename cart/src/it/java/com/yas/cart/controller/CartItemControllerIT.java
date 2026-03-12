@@ -91,6 +91,21 @@ class CartItemControllerIT extends AbstractControllerIT {
                 .body("quantity", equalTo(expectedQuantity))
                 .log().ifValidationFails();
         }
+
+        @Test
+        void testAddCartItem_whenProductNotFound_shouldReturnNotFound() {
+            CartItemPostVm cartItemPostVm = new CartItemPostVm(existingProduct.id(), 1);
+
+            when(productService.existsById(cartItemPostVm.productId())).thenReturn(false);
+
+            givenLoggedInAsAdmin()
+                .body(cartItemPostVm)
+                .when()
+                .post("/v1/storefront/cart/items")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().ifValidationFails();
+        }
     }
 
     @Nested
@@ -129,6 +144,14 @@ class CartItemControllerIT extends AbstractControllerIT {
                 .body("size()", equalTo(1))
                 .body("[0].productId", equalTo(cartItemPostVm.productId()))
                 .body("[0].quantity", equalTo(cartItemPostVm.quantity()))
+                .log().ifValidationFails();
+        }
+
+        @Test
+        void testGetCartItems_whenNoCartItemsExist_shouldReturnEmptyList() {
+            performGetCartItemsThenExpect()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(0))
                 .log().ifValidationFails();
         }
 
