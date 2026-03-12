@@ -1,58 +1,65 @@
 /**
- * Root Jenkinsfile — CI Change Detector
+ * Master CI/CD Pipeline — Unified Orchestrator
  *
- * This pipeline runs on every push to the repo.
- * It detects which service directories changed and triggers the corresponding
- * per-service build jobs in parallel.
+ * Single Multibranch Pipeline for all services.
+ * - Detects which services changed on each branch push
+ * - Builds all affected services in parallel
+ * - No per-service jobs needed on Jenkins server
  *
- * Prerequisites on Jenkins controller:
- *   - Each service job must be created and named exactly as listed in SERVICE_JOBS below.
- *   - This pipeline job must be configured with SCM polling or a webhook trigger.
+ * Prerequisites:
+ *   - Create ONE Multibranch Pipeline job ("yas-master" or "yas-ci")
+ *   - Point to this Jenkinsfile at repo root
+ *   - Configure GitHub webhook to trigger on push/PR
  */
 
-// ─── Service registry ────────────────────────────────────────────────────────
-// Maps a top-level directory in the repo to the Jenkins job name for that service.
-// Adjust job names to match what you create on the Jenkins server.
-def SERVICE_JOBS = [
-    'backoffice'    : 'yas-backoffice-ci',
-    'backoffice-bff': 'yas-backoffice-bff-ci',
-    'cart'          : 'yas-cart-ci',
-    'customer'      : 'yas-customer-ci',
-    'delivery'      : 'yas-delivery-ci',
-    'inventory'     : 'yas-inventory-ci',
-    'location'      : 'yas-location-ci',
-    'media'         : 'yas-media-ci',
-    'order'         : 'yas-order-ci',
-    'payment'       : 'yas-payment-ci',
-    'payment-paypal': 'yas-payment-paypal-ci',
-    'product'       : 'yas-product-ci',
-    'promotion'     : 'yas-promotion-ci',
-    'rating'        : 'yas-rating-ci',
-    'recommendation': 'yas-recommendation-ci',
-    'sampledata'    : 'yas-sampledata-ci',
-    'search'        : 'yas-search-ci',
-    'storefront'    : 'yas-storefront-ci',
-    'storefront-bff': 'yas-storefront-bff-ci',
-    'tax'           : 'yas-tax-ci',
-    'webhook'       : 'yas-webhook-ci',
+// ─── Service Configuration ──────────────────────────────────────────────────────
+def SERVICE_CONFIG = [
+    // Java services
+    'backoffice-bff': [type: 'java', port: 8080],
+    'cart'          : [type: 'java', port: 8080],
+    'customer'      : [type: 'java', port: 8080],
+    'delivery'      : [type: 'java', port: 8080],
+    'inventory'     : [type: 'java', port: 8080],
+    'location'      : [type: 'java', port: 8080],
+    'media'         : [type: 'java', port: 8080],
+    'order'         : [type: 'java', port: 8080],
+    'payment'       : [type: 'java', port: 8080],
+    'payment-paypal': [type: 'java', port: 8080],
+    'product'       : [type: 'java', port: 8080],
+    'promotion'     : [type: 'java', port: 8080],
+    'rating'        : [type: 'java', port: 8080],
+    'recommendation': [type: 'java', port: 8080],
+    'sampledata'    : [type: 'java', port: 8080],
+    'search'        : [type: 'java', port: 8080],
+    'storefront-bff': [type: 'java', port: 8080],
+    'tax'           : [type: 'java', port: 8080],
+    'webhook'       : [type: 'java', port: 8080],
+    // Node.js services
+    'backoffice'    : [type: 'nodejs', port: 3000],
+    'storefront'    : [type: 'nodejs', port: 3000],
 ]
 
-// ─── Root pom.xml affects all Java services ───────────────────────────────────
-def JAVA_SERVICES = [
-    'backoffice-bff', 'cart', 'customer', 'delivery', 'inventory',
-    'location', 'media', 'order', 'payment', 'payment-paypal',
-    'product', 'promotion', 'rating', 'recommendation', 'sampledata',
-    'search', 'storefront-bff', 'tax', 'webhook'
-]
+def JAVA_SERVICES = SERVICE_CONFIG.findAll { k, v -> v.type == 'java' }.keySet()
+def NODEJS_SERVICES = SERVICE_CONFIG.findAll { k, v -> v.type == 'nodejs' }.keySet()
 
 // ─── Pipeline ─────────────────────────────────────────────────────────────────
 pipeline {
     agent any
 
+    environment {
+        DOCKER_REGISTRY = 'ghcr.io'
+    }
+
+    tools {
+        jdk   'jdk-21'
+        maven 'maven-3'
+        nodejs 'nodejs-20'
+    }
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         timestamps()
-        timeout(time: 10, unit: 'MINUTES')
+        timeout(time: 120, unit: 'MINUTES')
         skipDefaultCheckout()
     }
 
@@ -70,9 +77,6 @@ pipeline {
 
                     if (env.CHANGE_ID) {
                         // ── PR build ──────────────────────────────────────────────────
-                        // CHANGE_TARGET is the base branch (e.g. 'main').
-                        // Diff against the merge-base so we see ALL changes in the PR,
-                        // not just the last commit.
                         sh "git fetch origin ${env.CHANGE_TARGET}:refs/remotes/origin/${env.CHANGE_TARGET} --no-tags || true"
                         changedFiles = sh(
                             script: "git diff --name-only \$(git merge-base HEAD refs/remotes/origin/${env.CHANGE_TARGET})",
@@ -89,7 +93,7 @@ pipeline {
                             ).trim()
                         } catch (Exception e) {
                             echo "No previous commit found, treating all files as changed."
-                            previousCommit = '4b825dc642cb6eb9a060e54bf8d69288fbee4904' // empty-tree SHA
+                            previousCommit = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
                         }
                         changedFiles = sh(
                             script: "git diff --name-only ${previousCommit} HEAD",
@@ -107,11 +111,10 @@ pipeline {
                     changedFiles.split('\n').each { file ->
                         if (!file || file.trim().isEmpty()) return
 
-                        // Extract the top-level directory (= service name)
                         def parts = file.trim().split('/')
                         def topDir = parts[0]
 
-                        if (SERVICE_JOBS.containsKey(topDir)) {
+                        if (SERVICE_CONFIG.containsKey(topDir)) {
                             servicesToBuild << topDir
                         }
                     }
@@ -134,42 +137,18 @@ pipeline {
             }
         }
 
-        stage('Trigger Service Builds') {
+        stage('Build Services') {
             when {
                 expression { return env.SERVICES_TO_BUILD?.trim() != null && env.SERVICES_TO_BUILD.trim() != '' }
             }
             steps {
                 script {
                     def services = env.SERVICES_TO_BUILD.split(',')
-
-                    // Build all affected service jobs in parallel
                     def parallelJobs = [:]
 
                     services.each { svc ->
-                        def jobName = SERVICE_JOBS[svc]
-                        if (!jobName) {
-                            echo "WARNING: No Jenkins job mapping found for service '${svc}'. Skipping."
-                            return
-                        }
-
-                        parallelJobs["Build ${svc}"] = {
-                            // For Multibranch Pipeline jobs the target path is:
-                            //   <job-name>/<url-encoded-branch>
-                            // For regular pushes: BRANCH_NAME = 'main', 'feature/xyz', etc.
-                            // For PR builds:      BRANCH_NAME = 'PR-1', 'PR-2', etc.
-                            //   (service Multibranch jobs must also discover PRs)
-                            def branchName = env.BRANCH_NAME ?: 'main'
-                            def encodedBranch = branchName.replaceAll('/', '%2F')
-                            def fullJobPath = "${jobName}/${encodedBranch}"
-                            echo "Triggering Multibranch job: ${fullJobPath}"
-                            try {
-                                build job: fullJobPath,
-                                      wait: true,
-                                      propagate: true
-                            } catch (Exception e) {
-                                // Branch/PR may not yet exist in child job (first scan pending)
-                                echo "WARNING: Could not trigger ${fullJobPath}: ${e.message}"
-                            }
+                        parallelJobs["${svc}"] = {
+                            loadAndBuildService(svc)
                         }
                     }
 
@@ -181,13 +160,47 @@ pipeline {
 
     post {
         success {
-            echo "All triggered service builds completed successfully."
+            echo "✓ All services built successfully."
         }
         failure {
-            echo "One or more service builds failed. Check triggered jobs for details."
+            echo "✗ One or more services failed. Check logs above."
         }
         always {
             cleanWs()
         }
+    }
+}
+
+// ─── Service Build Loader ───────────────────────────────────────────────────────
+/**
+ * Load and execute service-specific Jenkinsfile
+ */
+void loadAndBuildService(String serviceName) {
+    try {
+        echo "========== Building Service: ${serviceName} =========="
+        
+        def jenkinsfilePath = "${serviceName}/Jenkinsfile"
+        
+        if (fileExists(jenkinsfilePath)) {
+            echo "Loading Jenkinsfile from ${jenkinsfilePath}"
+            
+            // Set flag to indicate this is loaded by master orchestrator
+            env.LOADED_BY_MASTER = 'true'
+            
+            // Load the service Jenkinsfile
+            def serviceScript = load(jenkinsfilePath)
+            
+            // Execute the service build logic
+            serviceScript.runBuild(serviceName)
+            
+        } else {
+            echo "WARNING: No Jenkinsfile found at ${jenkinsfilePath}"
+            echo "Skipping ${serviceName} build"
+        }
+        
+        echo "✓ ${serviceName} build completed"
+    } catch (Exception e) {
+        echo "✗ ${serviceName} build failed: ${e.message}"
+        throw e
     }
 }
