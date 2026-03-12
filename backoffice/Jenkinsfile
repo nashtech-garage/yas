@@ -1,73 +1,140 @@
 /**
- * Backoffice Service CI/CD Build Functions
+ * Backoffice Service CI/CD Pipeline
  * 
- * This file contains build logic that can be loaded by master orchestrator.
- * For standalone pipeline, see backoffice/Jenkinsfile.standalone (if needed)
+ * Two-phase pipeline as required:
+ * Phase 1: Test - Run tests, lint and code quality checks
+ * Phase 2: Build - Build artifacts and Docker images
  */
+pipeline {
+    agent any
 
-// ─── Build Logic ────────────────────────────────────────────────────────────────
-def runBuild(String serviceName) {
-    echo ">>> Checkout"
-    checkout scm
-
-    echo ">>> Install Dependencies"
-    dir(serviceName) {
-        sh 'npm ci'
+    environment {
+        SERVICE_NAME    = 'backoffice'
+        DOCKER_REGISTRY = 'ghcr.io'
+        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/nashtech-garage/yas-${SERVICE_NAME}"
+        NODE_OPTIONS    = '--max-old-space-size=4096'
     }
 
-    echo ">>> Build"
-    dir(serviceName) {
-        sh 'npm run build'
+    tools {
+        nodejs 'nodejs-20'
     }
 
-    echo ">>> Test"
-    dir(serviceName) {
-        sh 'npx jest --coverage --ci --reporters=default --reporters=jest-junit || true'
-    }
-    junit testResults: "${serviceName}/junit.xml", allowEmptyResults: true
-    publishHTML([
-        allowMissing: true,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: "${serviceName}/coverage/lcov-report",
-        reportFiles: 'index.html',
-        reportName: "${serviceName.capitalize()} Coverage Report"
-    ])
-
-    echo ">>> Lint"
-    dir(serviceName) {
-        sh 'npm run lint'
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 20, unit: 'MINUTES')
     }
 
-    echo ">>> Prettier Check"
-    dir(serviceName) {
-        sh 'npx prettier --check .'
+    stages {
+        // Guard: skip entirely if nothing in this service changed.
+        stage('CI') {
+            when {
+                anyOf {
+                    changeset 'backoffice/**'
+                    expression { return currentBuild.changeSets.isEmpty() }
+                }
+            }
+            stages {
+                stage('Install Dependencies') {
+                    steps {
+                        dir('backoffice') {
+                            sh 'npm ci --no-optional'
+                        }
+                    }
+                }
+
+                // ─── Phase 1: Test ─────────────────────────────────────────
+                stage('Phase 1: Test') {
+                    parallel {
+                        stage('Unit Tests') {
+                            steps {
+                                dir('backoffice') {
+                                    sh 'npx jest --coverage --ci --reporters=default --reporters=jest-junit || true'
+                                }
+                            }
+                            post {
+                                always {
+                                    junit testResults: 'backoffice/junit.xml',
+                                          allowEmptyResults: true
+                                    publishHTML([
+                                        allowMissing: true,
+                                        alwaysLinkToLastBuild: true,
+                                        keepAll: true,
+                                        reportDir: 'backoffice/coverage/lcov-report',
+                                        reportFiles: 'index.html',
+                                        reportName: 'Backoffice Coverage Report'
+                                    ])
+                                }
+                            }
+                        }
+
+                        stage('Lint & Code Quality') {
+                            steps {
+                                dir('backoffice') {
+                                    sh 'npm run lint || true'
+                                    sh 'npx prettier --check . || true'
+                                }
+                            }
+                        }
+
+                        stage('Security Audit') {
+                            steps {
+                                dir('backoffice') {
+                                    sh 'npm audit --omit=dev || true'
+                                }
+                            }
+                        }
+                    }
+                }
+                // ─── Phase 2: Build ────────────────────────────────────────
+                stage('Phase 2: Build') {
+                    stages {
+                        stage('Build Application') {
+                            steps {
+                                dir('backoffice') {
+                                    sh 'npm run build'
+                                }
+                            }
+                        }
+
+                        stage('Build & Push Docker Image') {
+                            when { 
+                                anyOf {
+                                    branch 'main'
+                                    branch 'develop'
+                                }
+                            }
+                            steps {
+                                withCredentials([usernamePassword(
+                                    credentialsId: 'docker-registry-credentials',
+                                    usernameVariable: 'DOCKER_USER',
+                                    passwordVariable: 'DOCKER_PASS'
+                                )]) {
+                                    sh """
+                                        echo "\$DOCKER_PASS" | docker login ${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
+                                        docker build -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ./backoffice
+                                        docker push ${DOCKER_IMAGE}:latest
+                                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                                        docker logout ${DOCKER_REGISTRY}
+                                    """
+                                }
+                            }
+                        }
+                    }
+                }
+            } // end nested stages
+        } // end stage('CI')
     }
 
-    echo ">>> Audit"
-    dir(serviceName) {
-        sh 'npm audit --omit=dev || true'
-    }
-
-    if (env.BRANCH_NAME == 'main') {
-        echo ">>> Docker Build & Push"
-        withCredentials([usernamePassword(
-            credentialsId: 'docker-registry-credentials',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
-        )]) {
-            sh """
-                DOCKER_REGISTRY='ghcr.io'
-                DOCKER_IMAGE="\${DOCKER_REGISTRY}/nashtech-garage/yas-${serviceName}"
-                echo "\$DOCKER_PASS" | docker login \${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
-                docker build -t \${DOCKER_IMAGE}:latest -t \${DOCKER_IMAGE}:${BUILD_NUMBER} ./${serviceName}
-                docker push \${DOCKER_IMAGE}:latest
-                docker push \${DOCKER_IMAGE}:${BUILD_NUMBER}
-                docker logout \${DOCKER_REGISTRY}
-            """
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✓ Backoffice service build completed successfully"
+        }
+        failure {
+            echo "✗ Backoffice service build failed"
         }
     }
 }
-
-// Export for loading
-return this

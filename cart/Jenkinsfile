@@ -1,55 +1,136 @@
 /**
- * Cart Service CI/CD Build Functions
+ * Cart Service CI/CD Pipeline
  * 
- * This file contains build logic that can be loaded by master orchestrator.
- * For standalone pipeline, see cart/Jenkinsfile.standalone (if needed)
+ * Two-phase pipeline as required:
+ * Phase 1: Test - Run tests and code quality checks
+ * Phase 2: Build - Build artifacts and Docker images
  */
+pipeline {
+    agent any
 
-// ─── Build Logic ────────────────────────────────────────────────────────────────
-def runBuild(String serviceName) {
-    echo ">>> Checkout"
-    checkout scm
+    environment {
+        SERVICE_NAME    = 'cart'
+        DOCKER_REGISTRY = 'ghcr.io'
+        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/nashtech-garage/yas-${SERVICE_NAME}"
+    }
 
-    echo ">>> Build"
-    sh "mvn clean install -pl ${serviceName} -am -DskipTests"
+    tools {
+        jdk   'jdk-21'
+        maven 'maven-3'
+    }
 
-    echo ">>> Test"
-    sh "mvn test jacoco:report -pl ${serviceName} -am"
-    junit testResults: "${serviceName}/**/surefire-reports/TEST*.xml", allowEmptyResults: true
-    jacoco(
-        execPattern: "${serviceName}/target/jacoco.exec",
-        classPattern: "${serviceName}/target/classes",
-        sourcePattern: "${serviceName}/src/main/java",
-        inclusionPattern: '**/*.class',
-        changeBuildStatus: false
-    )
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+    stages {
+        // Guard: skip this pipeline entirely if nothing in this service changed.
+        stage('CI') {
+            when {
+                anyOf {
+                    changeset 'cart/**'
+                    changeset 'pom.xml'
+                    expression { return currentBuild.changeSets.isEmpty() }
+                }
+            }
+            stages {
+                // ─── Phase 1: Test ─────────────────────────────────────────
+                stage('Phase 1: Test') {
+                    parallel {
+                        stage('Unit Tests') {
+                            steps {
+                                sh 'mvn test jacoco:report -pl cart -am'
+                            }
+                            post {
+                                always {
+                                    junit testResults: 'cart/**/surefire-reports/TEST*.xml',
+                                          allowEmptyResults: true
+                                    jacoco(
+                                        execPattern: 'cart/target/jacoco.exec',
+                                        classPattern: 'cart/target/classes',
+                                        sourcePattern: 'cart/src/main/java',
+                                        inclusionPattern: '**/*.class',
+                                        changeBuildStatus: false
+                                    )
+                                }
+                            }
+                        }
 
-    echo ">>> Checkstyle"
-    sh "mvn checkstyle:checkstyle -pl ${serviceName} -am -Dcheckstyle.output.file=${serviceName}-checkstyle-result.xml"
+                        stage('Code Quality') {
+                            steps {
+                                sh 'mvn checkstyle:checkstyle -pl cart -am -DskipTests'
+                                echo 'Checkstyle report generated at: cart/target/checkstyle-result.xml'
+                            }
+                        }
 
-    echo ">>> OWASP Dependency Check"
-    sh "mvn -pl ${serviceName} org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 || true"
-    dependencyCheckPublisher pattern: "${serviceName}/target/dependency-check-report.xml", allowEmptyResults: true
+                        stage('Security Scan') {
+                            steps {
+                                sh 'mvn -pl cart org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 || true'
+                            }
+                            post {
+                                always {
+                                    publishHTML target: [
+                                        allowMissing: true,
+                                        alwaysLinkToLastBuild: false,
+                                        keepAll: true,
+                                        reportDir: 'cart/target',
+                                        reportFiles: 'dependency-check-report.html',
+                                        reportName: 'OWASP Dependency-Check Report'
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
 
-    if (env.BRANCH_NAME == 'main') {
-        echo ">>> Docker Build & Push"
-        withCredentials([usernamePassword(
-            credentialsId: 'docker-registry-credentials',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
-        )]) {
-            sh """
-                DOCKER_REGISTRY='ghcr.io'
-                DOCKER_IMAGE="\${DOCKER_REGISTRY}/nashtech-garage/yas-${serviceName}"
-                echo "\$DOCKER_PASS" | docker login \${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
-                docker build -t \${DOCKER_IMAGE}:latest -t \${DOCKER_IMAGE}:${BUILD_NUMBER} ./${serviceName}
-                docker push \${DOCKER_IMAGE}:latest
-                docker push \${DOCKER_IMAGE}:${BUILD_NUMBER}
-                docker logout \${DOCKER_REGISTRY}
-            """
+                // ─── Phase 2: Build ────────────────────────────────────────
+                stage('Phase 2: Build') {
+                    stages {
+                        stage('Compile & Package') {
+                            steps {
+                                sh 'mvn clean install -pl cart -am -DskipTests'
+                            }
+                        }
+
+                        stage('Build & Push Docker Image') {
+                            when { 
+                                anyOf {
+                                    branch 'main'
+                                    branch 'develop'
+                                }
+                            }
+                            steps {
+                                withCredentials([usernamePassword(
+                                    credentialsId: 'docker-registry-credentials',
+                                    usernameVariable: 'DOCKER_USER',
+                                    passwordVariable: 'DOCKER_PASS'
+                                )]) {
+                                    sh """
+                                        echo "\$DOCKER_PASS" | docker login ${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
+                                        docker build -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ./cart
+                                        docker push ${DOCKER_IMAGE}:latest
+                                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                                        docker logout ${DOCKER_REGISTRY}
+                                    """
+                                }
+                            }
+                        }
+                    }
+                }
+            } // end nested stages
+        } // end stage('CI')
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✓ Cart service build completed successfully"
+        }
+        failure {
+            echo "✗ Cart service build failed"
         }
     }
 }
-
-// Export for loading
-return this
