@@ -15,7 +15,7 @@ pipeline {
                     // Quét toàn bộ để lấy kết quả tổng quan trước khi đi vào từng service
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                         docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=delivery,recommendation,backoffice,storefront || true'
+                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
                         }
                     }
                 }
