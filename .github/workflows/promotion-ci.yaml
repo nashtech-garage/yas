@@ -50,20 +50,25 @@ jobs:
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       #   run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f customer
-      - name: Analyze with SonarCloud
+      # - name: Analyze with SonarCloud
 
-        # You can pin the exact commit or the version.
-        # uses: SonarSource/sonarcloud-github-action@v2.2.0
-        uses: SonarSource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
+      #   # You can pin the exact commit or the version.
+      #   # uses: SonarSource/sonarcloud-github-action@v2.2.0
+      #   uses: SonarSource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+      #   with:
+      #     # Additional arguments for the SonarScanner CLI
+      #     args:
+      #       # Unique keys of your project and organization. You can find them in SonarCloud > Information (bottom-left menu)
+      #       # mandatory
+      #       -Dsonar.projectKey="Simpolette_yas_test"
+      #       -Dsonar.organization="simpolette"
+      - name: Analyze with sonar cloud
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
-        with:
-          # Additional arguments for the SonarScanner CLI
-          args:
-            # Unique keys of your project and organization. You can find them in SonarCloud > Information (bottom-left menu)
-            # mandatory
-            -Dsonar.projectKey="Simpolette_yas_test"
-            -Dsonar.organization="simpolette"
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f promotion
       # - uses: ./.github/workflows/actions
       # - name: Run Maven Build Command
       #   run: mvn clean install -pl promotion -am
