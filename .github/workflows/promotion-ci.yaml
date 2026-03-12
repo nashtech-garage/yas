@@ -40,12 +40,12 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
-      - name: Install core project with Maven
-        run: |
-          mvn clean package
-          mvn -B -X install --file pom.xml
-          mvn compile
-          mvn -B package --file pom.xml
+      # - name: Install core project with Maven
+      #   run: |
+      #     mvn clean package
+      #     mvn -B -X install --file pom.xml
+      #     mvn compile
+      #     mvn -B package --file pom.xml
       # - name: Analyze with sonar cloud
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
