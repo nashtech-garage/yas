@@ -132,4 +132,22 @@ class ProductOptionServiceTest {
         assertEquals(0, result.pageNo());
         assertEquals(2, result.pageSize());
     }
+
+    @Test
+    void test_update_product_option_same_name_same_id() {
+        ProductOption existingProductOption = new ProductOption();
+        existingProductOption.setId(1L);
+        existingProductOption.setName("KeepName");
+
+        ProductOptionPostVm postVm = new ProductOptionPostVm("KeepName");
+        when(productOptionRepository.findById(1L)).thenReturn(Optional.of(existingProductOption));
+        // Khi check name bị trùng nhưng id bằng chính id đang update thì findExistedName sẽ trả về null (hoặc không văng lỗi)
+        when(productOptionRepository.findExistedName(anyString(), eq(1L))).thenReturn(null);
+        when(productOptionRepository.save(any(ProductOption.class))).thenReturn(existingProductOption);
+
+        ProductOption result = productOptionService.update(postVm, 1L);
+
+        assertNotNull(result);
+        assertEquals("KeepName", result.getName());
+    }
 }

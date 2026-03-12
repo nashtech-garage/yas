@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.DuplicatedException;
@@ -144,5 +146,16 @@ class ProductAttributeServiceTest {
 
         ProductAttributePostVm vm = new ProductAttributePostVm("Duplicate Name", null);
         assertThrows(DuplicatedException.class, () -> productAttributeService.update(vm, 1L));
+    }
+
+    @Test
+    void test_update_product_attribute_not_found() {
+        ProductAttributePostVm postVm = new ProductAttributePostVm("New Name", null);
+        when(productAttributeRepository.findExistedName(anyString(), anyLong())).thenReturn(null);
+        when(productAttributeRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(com.yas.commonlibrary.exception.NotFoundException.class, () -> {
+            productAttributeService.update(postVm, 999L);
+        });
     }
 }

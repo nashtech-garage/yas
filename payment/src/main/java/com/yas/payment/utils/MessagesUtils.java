@@ -8,7 +8,7 @@ import org.slf4j.helpers.MessageFormatter;
 
 public class MessagesUtils {
 
-    static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages", Locale.getDefault());
+    public static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages", Locale.getDefault());
 
     public static String getMessage(String errorCode, Object... var2) {
         String message;

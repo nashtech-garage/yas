@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = ProductApplication.class)
+@Transactional
 class ProductTemplateServiceTest {
     ProductAttribute productAttribute1;
     ProductAttribute productAttribute2;
@@ -149,4 +150,51 @@ class ProductTemplateServiceTest {
         assertEquals(Constants.ErrorCode.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
     }
 
+    @Test
+    void updateProductTemplate_WhenValidData_ThenSuccess() {
+        // Cập nhật template1 với attribute2
+        ProductTemplatePostVm postVm = new ProductTemplatePostVm("Updated Template 1",
+                List.of(new ProductAttributeTemplatePostVm(productAttribute2.getId(), 1)));
+
+        productTemplateService.updateProductTemplate(productTemplate1.getId(), postVm);
+
+        ProductTemplate updatedTemplate = productTemplateRepository.findById(productTemplate1.getId()).get();
+        assertEquals("Updated Template 1", updatedTemplate.getName());
+        
+        // Verify attribute template đã thay đổi
+        List<ProductAttributeTemplate> attrs = productAttributeTemplateRepository
+                .findAllByProductTemplateId(productTemplate1.getId());
+        assertEquals(1, attrs.size());
+        assertEquals(productAttribute2.getId(), attrs.getFirst().getProductAttribute().getId());
+    }
+
+    @Test
+    void updateProductTemplate_WhenAttributeIdNotFound_ThenThrowBadRequestException() {
+        // Cố tình truyền vào một Attribute ID không tồn tại trong DB (9999L)
+        ProductTemplatePostVm postVm = new ProductTemplatePostVm("Updated Template",
+                List.of(new ProductAttributeTemplatePostVm(9999L, 1)));
+
+        assertThrows(BadRequestException.class, () -> 
+            productTemplateService.updateProductTemplate(productTemplate1.getId(), postVm));
+    }
+
+    @Test
+    void updateProductTemplate_WhenPartialAttributeIdsNotFound_ThenThrowBadRequestException() {
+        // Truyền vào 1 Attribute ID hợp lệ và 1 ID KHÔNG hợp lệ
+        ProductTemplatePostVm postVm = new ProductTemplatePostVm("Updated Template",
+                List.of(
+                    new ProductAttributeTemplatePostVm(productAttribute1.getId(), 1),
+                    new ProductAttributeTemplatePostVm(9999L, 2)
+                ));
+
+        assertThrows(BadRequestException.class, () -> 
+            productTemplateService.updateProductTemplate(productTemplate1.getId(), postVm));
+    }
+
+    @Test
+    void checkExistedName_ShouldReturnTrue_WhenNameExistsAndDifferentId() {
+        // productTemplate2 đã tồn tại trong DB, thử check xem nếu truyền id của template1 vào thì có báo trùng không
+        boolean isExisted = productTemplateService.checkExistedName("productTemplate2", productTemplate1.getId());
+        assertTrue(isExisted);
+    }
 }
