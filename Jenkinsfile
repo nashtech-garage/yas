@@ -173,7 +173,7 @@ pipeline {
 
 // ─── Service Build Loader ───────────────────────────────────────────────────────
 /**
- * Load and execute service-specific Jenkinsfile
+ * Load and execute service-specific Jenkinsfile functions
  */
 void loadAndBuildService(String serviceName) {
     try {
@@ -184,10 +184,7 @@ void loadAndBuildService(String serviceName) {
         if (fileExists(jenkinsfilePath)) {
             echo "Loading Jenkinsfile from ${jenkinsfilePath}"
             
-            // Set flag to indicate this is loaded by master orchestrator
-            env.LOADED_BY_MASTER = 'true'
-            
-            // Load the service Jenkinsfile
+            // Load the service Jenkinsfile (function-only, no pipeline block)
             def serviceScript = load(jenkinsfilePath)
             
             // Execute the service build logic

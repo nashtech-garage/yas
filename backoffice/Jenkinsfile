@@ -1,12 +1,11 @@
 /**
- * Backoffice Service CI/CD
+ * Backoffice Service CI/CD Build Functions
  * 
- * Dual-mode Jenkinsfile:
- * 1. Can run standalone as a pipeline
- * 2. Can be loaded by master orchestrator pipeline
+ * This file contains build logic that can be loaded by master orchestrator.
+ * For standalone pipeline, see backoffice/Jenkinsfile.standalone (if needed)
  */
 
-// ─── Shared Build Logic ─────────────────────────────────────────────────────────
+// ─── Build Logic ────────────────────────────────────────────────────────────────
 def runBuild(String serviceName) {
     echo ">>> Checkout"
     checkout scm
@@ -70,55 +69,5 @@ def runBuild(String serviceName) {
     }
 }
 
-// ─── Check if loaded by master orchestrator ─────────────────────────────────────
-if (binding.hasVariable('LOADED_BY_MASTER')) {
-    // Called from master pipeline - just return this for loading
-    return this
-}
-
-// ─── Standalone Pipeline Mode ───────────────────────────────────────────────────
-pipeline {
-    agent any
-
-    environment {
-        SERVICE_NAME    = 'backoffice'
-        DOCKER_REGISTRY = 'ghcr.io'
-        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/nashtech-garage/yas-${SERVICE_NAME}"
-        NODE_OPTIONS    = '--max-old-space-size=4096'
-    }
-
-    tools {
-        nodejs 'nodejs-20'
-    }
-
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        timestamps()
-        timeout(time: 20, unit: 'MINUTES')
-    }
-
-    stages {
-        stage('CI') {
-            when {
-                anyOf {
-                    changeset 'backoffice/**'
-                    expression { return currentBuild.changeSets.isEmpty() }
-                }
-            }
-            steps {
-                script {
-                    runBuild('backoffice')
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
-        }
-        failure {
-            echo "Build failed for service: ${SERVICE_NAME}"
-        }
-    }
-}
+// Export for loading
+return this
