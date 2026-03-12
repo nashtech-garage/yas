@@ -127,4 +127,18 @@ class ProductAttributeGroupServiceTest {
 
         assertThrows(DuplicatedException.class, () -> service.save(group));
     }
+
+    @Test
+    void test_save_product_attribute_group_with_null_name() {
+        ProductAttributeGroup group = new ProductAttributeGroup();
+        group.setId(1L);
+        group.setName(null);
+
+        // Giả lập database không tìm thấy duplicate vì name null
+        when(repository.findExistedName(null, 1L)).thenReturn(null);
+        
+        service.save(group);
+        
+        verify(repository, times(1)).save(group);
+    }
 }
