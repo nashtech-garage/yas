@@ -37,7 +37,7 @@ jobs:
     - name: Build and Test rating Service
       # -pl rating: Only build rating project
       # -am: Also make dependencies (build common-library if needed)
-      run: mvn -B clean verify -pl rating -am # switching to system maven
+      run: mvn -B clean install -pl rating -am # switching to system maven
       
     - name: Upload Test Results
       if: always()

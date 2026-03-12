@@ -37,7 +37,7 @@ jobs:
     - name: Build and Test promotion Service
       # -pl promotion: Only build promotion project
       # -am: Also make dependencies (build common-library if needed)
-      run: mvn -B clean verify -pl promotion -am # switching to system maven
+      run: mvn -B clean install -pl promotion -am # switching to system maven
       
     - name: Upload Test Results
       if: always()

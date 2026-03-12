@@ -37,7 +37,7 @@ jobs:
     - name: Build and Test webhook Service
       # -pl webhook: Only build webhook project
       # -am: Also make dependencies (build common-library if needed)
-      run: mvn -B clean verify -pl webhook -am # switching to system maven
+      run: mvn -B clean install -pl webhook -am # switching to system maven
       
     - name: Upload Test Results
       if: always()

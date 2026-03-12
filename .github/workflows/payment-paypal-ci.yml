@@ -37,7 +37,7 @@ jobs:
     - name: Build and Test payment-paypal Service
       # -pl payment-paypal: Only build payment-paypal project
       # -am: Also make dependencies (build common-library if needed)
-      run: mvn -B clean verify -pl payment-paypal -am # switching to system maven
+      run: mvn -B clean install -pl payment-paypal -am # switching to system maven
       
     - name: Upload Test Results
       if: always()

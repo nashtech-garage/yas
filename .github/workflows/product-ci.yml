@@ -35,7 +35,7 @@ jobs:
     - name: Build and Test product Service
       # -pl product: Only build product project
       # -am: Also make dependencies (build common-library if needed)
-      run: mvn -B clean verify -pl product -am
+      run: mvn -B clean install -pl product -am
             
     - name: Upload Test Results
       if: always()

@@ -37,7 +37,7 @@ jobs:
     - name: Build and Test storefront-bff Service
       # -pl storefront-bff: Only build storefront-bff project
       # -am: Also make dependencies (build common-library if needed)
-      run: mvn -B clean verify -pl storefront-bff -am # switching to system maven
+      run: mvn -B clean install -pl storefront-bff -am # switching to system maven
       
     - name: Upload Test Results
       if: always()

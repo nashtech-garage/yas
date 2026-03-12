@@ -37,7 +37,7 @@ jobs:
     - name: Build and Test tax Service
       # -pl tax: Only build tax project
       # -am: Also make dependencies (build common-library if needed)
-      run: mvn -B clean verify -pl tax -am # switching to system maven
+      run: mvn -B clean install -pl tax -am # switching to system maven
       
     - name: Upload Test Results
       if: always()
