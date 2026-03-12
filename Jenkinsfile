@@ -29,8 +29,9 @@ pipeline {
                 script {
                     docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
                         // Quan trọng: Cài đặt tệp POM cha vào .m2 để các module con không bị lỗi dependency
-                        sh 'mvn install -N -Drevision=1.0-SNAPSHOT'
-                        sh 'mvn clean install -DskipTests -Drevision=1.0-SNAPSHOT -pl common-library -am'
+                        // sh 'mvn install -N -Drevision=1.0-SNAPSHOT'
+                        // sh 'mvn clean install -DskipTests -Drevision=1.0-SNAPSHOT -pl common-library -am'
+                        sh 'mvn install -DskipTests -Drevision=1.0-SNAPSHOT -pl .,common-library -am'
                     }
                 }
             }
