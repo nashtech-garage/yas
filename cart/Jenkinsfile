@@ -57,7 +57,6 @@ if (binding.hasVariable('LOADED_BY_MASTER')) {
     // Called from master pipeline - just return this for loading
     return this
 }
-
 // ─── Standalone Pipeline Mode ───────────────────────────────────────────────────
 pipeline {
     agent any
