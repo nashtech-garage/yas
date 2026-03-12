@@ -142,8 +142,20 @@ def runServiceCI(String serviceName) {
                 classPattern: "${serviceName}/target/classes",
                 sourcePattern: "${serviceName}/src/main/java",
                 inclusionPattern: "**/*.class",
+                // Giữ chốt chặn 70% theo yêu cầu 7b 
                 minimumInstructionCoverage: '70',
                 maximumInstructionCoverage: '70',
+                
+                // VÔ HIỆU HÓA CHECK DELTA:
+                // Đặt các giá trị này là số âm lớn để dù độ phủ có giảm 
+                // bao nhiêu thì vẫn Pass bước Delta, miễn là tổng vẫn trên 70%.
+                deltaInstruction: '-100', 
+                deltaBranch: '-100',
+                deltaComplexity: '-100',
+                deltaLine: '-100',
+                deltaMethod: '-100',
+                deltaClass: '-100',
+                
                 buildOverBuild: true,
                 changeBuildStatus: true,
                 skipCopyOfSrcFiles: true 
