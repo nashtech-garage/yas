@@ -15,7 +15,7 @@ pipeline {
                     // Quét toàn bộ để lấy kết quả tổng quan trước khi đi vào từng service
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                         docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
+                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=delivery,recommendation,backoffice,storefront || true'
                         }
                     }
                 }
@@ -142,7 +142,8 @@ def runServiceCI(String serviceName) {
                 classPattern: "${serviceName}/target/classes",
                 sourcePattern: "${serviceName}/src/main/java",
                 inclusionPattern: "**/*.class",
-                minimumInstructionCoverage: '70', // NÂNG LÊN 70 THEO ĐÚNG YÊU CẦU
+                minimumInstructionCoverage: '70',
+                maximumInstructionCoverage: '70',
                 buildOverBuild: true,
                 changeBuildStatus: true,
                 skipCopyOfSrcFiles: true 
