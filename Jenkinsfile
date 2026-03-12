@@ -132,7 +132,7 @@ def runServiceCI(String serviceName) {
                 -DskipITs=true \
                 -Dsonar.token=\$SONAR_TOKEN \
                 -Dsonar.organization=longlee0 \
-                -Dsonar.projectKey=LongLee0_yas_${serviceName} || true"""
+                -Dsonar.projectKey=LongLee0_yas_Project1_Devops || true"""
             }
             
             echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
