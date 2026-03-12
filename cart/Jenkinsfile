@@ -1,3 +1,63 @@
+/**
+ * Cart Service CI/CD
+ * 
+ * Dual-mode Jenkinsfile:
+ * 1. Can run standalone as a pipeline
+ * 2. Can be loaded by master orchestrator pipeline
+ */
+
+// ─── Shared Build Logic ─────────────────────────────────────────────────────────
+def runBuild(String serviceName) {
+    echo ">>> Checkout"
+    checkout scm
+
+    echo ">>> Build"
+    sh "mvn clean install -pl ${serviceName} -am -DskipTests"
+
+    echo ">>> Test"
+    sh "mvn test jacoco:report -pl ${serviceName} -am"
+    junit testResults: "${serviceName}/**/surefire-reports/TEST*.xml", allowEmptyResults: true
+    jacoco(
+        execPattern: "${serviceName}/target/jacoco.exec",
+        classPattern: "${serviceName}/target/classes",
+        sourcePattern: "${serviceName}/src/main/java",
+        inclusionPattern: '**/*.class',
+        changeBuildStatus: false
+    )
+
+    echo ">>> Checkstyle"
+    sh "mvn checkstyle:checkstyle -pl ${serviceName} -am -Dcheckstyle.output.file=${serviceName}-checkstyle-result.xml"
+
+    echo ">>> OWASP Dependency Check"
+    sh "mvn -pl ${serviceName} org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 || true"
+    dependencyCheckPublisher pattern: "${serviceName}/target/dependency-check-report.xml", allowEmptyResults: true
+
+    if (env.BRANCH_NAME == 'main') {
+        echo ">>> Docker Build & Push"
+        withCredentials([usernamePassword(
+            credentialsId: 'docker-registry-credentials',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+        )]) {
+            sh """
+                DOCKER_REGISTRY='ghcr.io'
+                DOCKER_IMAGE="\${DOCKER_REGISTRY}/nashtech-garage/yas-${serviceName}"
+                echo "\$DOCKER_PASS" | docker login \${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
+                docker build -t \${DOCKER_IMAGE}:latest -t \${DOCKER_IMAGE}:${BUILD_NUMBER} ./${serviceName}
+                docker push \${DOCKER_IMAGE}:latest
+                docker push \${DOCKER_IMAGE}:${BUILD_NUMBER}
+                docker logout \${DOCKER_REGISTRY}
+            """
+        }
+    }
+}
+
+// ─── Check if loaded by master orchestrator ─────────────────────────────────────
+if (binding.hasVariable('LOADED_BY_MASTER')) {
+    // Called from master pipeline - just return this for loading
+    return this
+}
+// ─── Standalone Pipeline Mode ───────────────────────────────────────────────────
 pipeline {
     agent any
 
@@ -19,9 +79,6 @@ pipeline {
     }
 
     stages {
-        // Guard: skip this pipeline entirely if nothing in this service changed.
-        // changeSets is empty on the first scan of a new branch — build in that case.
-        // For PR builds Jenkins compares against the target branch automatically.
         stage('CI') {
             when {
                 anyOf {
@@ -30,75 +87,12 @@ pipeline {
                     expression { return currentBuild.changeSets.isEmpty() }
                 }
             }
-            stages {
-                stage('Checkout') {
-                    steps {
-                        checkout scm
-                    }
+            steps {
+                script {
+                    runBuild('cart')
                 }
-
-                stage('Build') {
-                    steps {
-                        sh 'mvn clean install -pl cart -am -DskipTests'
-                    }
-                }
-
-                stage('Test') {
-                    steps {
-                        sh 'mvn test jacoco:report -pl cart -am'
-                    }
-                    post {
-                        always {
-                            junit testResults: 'cart/**/surefire-reports/TEST*.xml',
-                                  allowEmptyResults: true
-                            jacoco(
-                                execPattern: 'cart/target/jacoco.exec',
-                                classPattern: 'cart/target/classes',
-                                sourcePattern: 'cart/src/main/java',
-                                inclusionPattern: '**/*.class',
-                                changeBuildStatus: false
-                            )
-                        }
-                    }
-                }
-
-                stage('Checkstyle') {
-                    steps {
-                        sh 'mvn checkstyle:checkstyle -pl cart -am -Dcheckstyle.output.file=cart-checkstyle-result.xml'
-                    }
-                }
-
-                stage('OWASP Dependency Check') {
-                    steps {
-                        sh 'mvn -pl cart org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7'
-                    }
-                    post {
-                        always {
-                            dependencyCheckPublisher pattern: 'cart/target/dependency-check-report.xml'
-                        }
-                    }
-                }
-
-                stage('Docker Build & Push') {
-                    when { branch 'main' }
-                    steps {
-                        withCredentials([usernamePassword(
-                            credentialsId: 'docker-registry-credentials',
-                            usernameVariable: 'DOCKER_USER',
-                            passwordVariable: 'DOCKER_PASS'
-                        )]) {
-                            sh """
-                                echo "\$DOCKER_PASS" | docker login ${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
-                                docker build -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ./cart
-                                docker push ${DOCKER_IMAGE}:latest
-                                docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                                docker logout ${DOCKER_REGISTRY}
-                            """
-                        }
-                    }
-                }
-            } // end nested stages
-        } // end stage('CI')
+            }
+        }
     }
 
     post {
