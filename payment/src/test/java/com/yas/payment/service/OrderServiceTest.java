@@ -2,6 +2,7 @@ package com.yas.payment.service;
 
 import static com.yas.payment.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,14 +11,18 @@ import com.yas.payment.config.ServiceUrlConfig;
 import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
-import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.function.Consumer;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -43,7 +48,13 @@ class OrderServiceTest {
         when(serviceUrlConfig.order()).thenReturn(ORDER_URL);
     }
 
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void testUpdateCheckoutStatus_whenNormalCase_returnLong() {
 
         CapturedPayment capturedPayment = CapturedPayment.builder()
@@ -67,7 +78,13 @@ class OrderServiceTest {
         when(restClient.put()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(url)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(any(CheckoutStatusVm.class))).thenReturn(requestBodyUriSpec);
-        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
+        
+        when(requestBodyUriSpec.headers(any())).thenAnswer(invocation -> {
+            Consumer<HttpHeaders> headersConsumer = invocation.getArgument(0);
+            headersConsumer.accept(new HttpHeaders());
+            return requestBodyUriSpec;
+        });
+        
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(Long.class)).thenReturn(1L);
 
@@ -78,8 +95,8 @@ class OrderServiceTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void testUpdateOrderStatus_whenNormalCase_returnPaymentOrderStatusVm() {
-
 
         PaymentOrderStatusVm statusVm = PaymentOrderStatusVm.builder()
             .orderId(123456L)
@@ -98,7 +115,13 @@ class OrderServiceTest {
         when(restClient.put()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(url)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.body(statusVm)).thenReturn(requestBodyUriSpec);
-        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
+        
+        when(requestBodyUriSpec.headers(any())).thenAnswer(invocation -> {
+            Consumer<HttpHeaders> headersConsumer = invocation.getArgument(0);
+            headersConsumer.accept(new HttpHeaders());
+            return requestBodyUriSpec;
+        });
+        
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(PaymentOrderStatusVm.class)).thenReturn(statusVm);
 
@@ -107,5 +130,17 @@ class OrderServiceTest {
         assertThat(result.orderStatus()).isEqualTo("COMPLETED");
         assertThat(result.paymentId()).isEqualTo(78910L);
         assertThat(result.paymentStatus()).isEqualTo("SUCCESS");
+    }
+
+    @Test
+    void handleLongFallback_shouldThrowException() {
+        Throwable t = new RuntimeException("test error");
+        assertThrows(Throwable.class, () -> orderService.handleLongFallback(t));
+    }
+
+    @Test
+    void handlePaymentOrderStatusFallback_shouldThrowException() {
+        Throwable t = new RuntimeException("test error");
+        assertThrows(Throwable.class, () -> orderService.handlePaymentOrderStatusFallback(t));
     }
 }
