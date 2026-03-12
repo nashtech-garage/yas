@@ -64,6 +64,8 @@ jobs:
       #       # mandatory
       #       -Dsonar.projectKey="Simpolette_yas_test"
       #       -Dsonar.organization="simpolette"
+      - name: Run Maven Build Command
+        run: mvn clean install -pl promotion -am
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
