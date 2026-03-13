@@ -74,6 +74,15 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Webhook Coverage Report'
           update-comment: true
+      - name: Set up Snyk CLI
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+      - name: Run Snyk Open Source scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --all-projects --severity-threshold=high
+        working-directory: webhook
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -88,3 +97,4 @@ jobs:
           context: ./webhook
           push: true
           tags: ghcr.io/obiwan1805/yas-webhook:latest
+
