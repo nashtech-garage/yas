@@ -84,7 +84,7 @@ jobs:
           SNYK_CFG_MAVEN: /usr/bin/mvn
         run: |
           if [ -f mvnw ]; then chmod +x mvnw; fi
-          snyk test --file=pom.xml --package-manager=maven --severity-threshold=high
+          snyk test --file=pom.xml --package-manager=maven --severity-threshold=high -- -Drevision=1.0-SNAPSHOT
           exit_code=$?
           if [ $exit_code -eq 1 ]; then
             echo 'Snyk found vulnerabilities (exit code 1). Skipping debug rerun.'
@@ -92,7 +92,7 @@ jobs:
           fi
           if [ $exit_code -ne 0 ]; then
             echo 'Snyk scan failed unexpectedly. Re-running with debug (-d) for diagnostics...'
-            snyk test --file=pom.xml --package-manager=maven --severity-threshold=high -d
+            snyk test --file=pom.xml --package-manager=maven --severity-threshold=high -d -- -Drevision=1.0-SNAPSHOT
             exit $?
           fi
         working-directory: cart
