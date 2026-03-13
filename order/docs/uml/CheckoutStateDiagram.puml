@@ -1,0 +1,18 @@
+@startuml Checkout states
+[*] --> PENDING: After client click "Proceed to check out"
+note on link
+After step 2.3 Overall sequence diagram
+end note
+
+PENDING --> COMPLETED: User request capture paypal payment, payment result is COMPLETED
+note on link
+After step 5.9.1.16 Overall sequence diagram
+end note
+PENDING --> CANCELLED: User request capture paypal payment, payment result is CANCELLED
+note on link
+After step 5.9.1.16 Overall sequence diagram
+end note
+
+COMPLETED -->[*]
+CANCELLED -->[*]
+@enduml

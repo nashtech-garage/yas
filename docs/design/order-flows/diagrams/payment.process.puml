@@ -1,0 +1,63 @@
+@startuml Payment Flow: Init Payment Checkout on Paypal
+
+title Payment Flow Init External Checkout object 
+
+box YAS
+  participant "Storefront" as storefront #fdf2e9   
+  participant "Order Service" as order_service #3498db    
+  entity "Checkout" as checkout #3498db
+  participant "Payment Service" as payment_service #73c6b6
+  entity "Checkout Payment" as checkout_payment #73c6b6
+  queue "Payment.Events.Topic" as payment_topic #73c6b6
+  participant "Payment Provider" as payment_provider #73c6b6
+end box 
+
+box "Paypal" #eafaf1
+  participant "Paypal" as paypal #73c6b6
+  entity "Paypal: Order Checkout" as paypal_provider_checkout #73c6b6
+end box
+
+
+payment_topic --> payment_service: Event: CDC_EVENT_PAYMENT_CREATED \n{ checkout_id, payment_id }
+activate payment_service #73c6b6
+  payment_service -> checkout_payment: find (payment_id)
+  alt payment_type is NOT COD:
+    payment_service  -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+    activate payment_provider #73c6b6       
+      payment_provider -> paypal: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+      activate paypal #73c6b6
+        paypal -> paypal_provider_checkout: create checkout
+        paypal <-- paypal_provider_checkout: { paypal_provider_checkout_id }
+        paypal -> payment_provider: { checkout_id, paypal_provider_checkout_id }
+      deactivate paypal
+      payment_provider -> payment_service: { checkout_id, payment_provider_checkout_id }
+    deactivate payment_provider
+    payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
+    activate checkout_payment #73c6b6 
+      checkout_payment -> payment_topic: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
+    deactivate checkout_payment    
+  end 
+deactivate payment_service
+payment_topic --> order_service: Event: CDC_EVENT_PAYMENT_UPDATED \n{ checkout_id, payment_id, payment_provider_checkout_id }
+activate order_service #3498db
+  order_service -> checkout: update { checkout_id, status=PAYMENT_PROCESSING, progress=PAYMENT_CREATED, attributes { payment_id, payment_provider_checkout_id } }
+deactivate order_service
+ 
+loop reload to get checkout status PAYMENT_PROCESSING and progress=PAYMENT_CREATED
+  storefront -> order_service: GET /order/checkouts/{checkout_id}
+  activate order_service #3498db
+    order_service -> checkout: find by checkout_id
+    storefront <-- order_service: { status=PAYMENT_PROCESSING, progress=PAYMENT_CREATED. checkout_id, \nattributes { payment_id, payment_provider_checkout_id } }
+  deactivate order_service
+end 
+
+loop reload to get payment information util payment status is PROCESSING and payment_provider_checkout_id existing (if not COD)
+  storefront -> payment_service: GET /payment/payments/{payment_id} 
+  activate payment_service #73c6b6
+    payment_service -> checkout_payment: find by payment_id
+    storefront <-- payment_service: { status=PROCESSING, payment_provider_checkout_id }
+  deactivate payment_service
+end 
+
+
+@enduml
