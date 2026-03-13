@@ -27,6 +27,12 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
       - name: Build root project
         run: mvn -B clean install -DskipTests
       - name: Run Maven Build Command
