@@ -38,12 +38,16 @@ jobs:
       - name: Run Maven Verify
         run: mvn clean verify -f backoffice-bff
       - name: Analyze with sonar cloud
+        uses: SonarSource/sonarcloud-github-action@master
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f backoffice-bff \
-         -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-         -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
-         -Dsonar.projectkey=23127077_backoffice-bff
+        with:
+          projectBaseDir: backoffice-bff
+          args: >
+            -Dsonar.organization=${{ secrets.ORGANIZATION }}
+            -Dsonar.projectKey=${{ github.repository_owner }}_backoffice-bff
+            -Dsonar.java.binaries=target/classes
       - name: OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         env:
