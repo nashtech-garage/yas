@@ -33,10 +33,8 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: maven
-      - name: Build root project
-        run: mvn -B clean install -DskipTests
-      - name: Run Maven Build Command
-        run: mvn clean install -pl cart -am
+      - name: Build cart module
+        run: mvn -B clean install -pl cart -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl cart -am -Dcheckstyle.output.file=cart-checkstyle-result.xml
@@ -59,7 +57,7 @@ jobs:
           JAVA_HOME: /opt/jdk
         with:
           project: 'yas'
-          path: '.'
+          path: './cart'
           format: 'HTML'
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -88,7 +86,8 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
       - name: Snyk Scan
-        run: snyk test --maven-aggregate-project --severity-threshold=high
+        # run: snyk test --maven-aggregate-project --severity-threshold=high
+        run: snyk test --file=cart/pom.xml --severity-threshold=high
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
