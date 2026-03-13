@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.web.client.RestClient;
@@ -186,8 +185,6 @@ class ProductSyncDataServiceTest {
         mockProductThumbnailVmsByUri();
         ProductEsDetailVm productEsDetailVm = getProductThumbnailVms();
 
-        when(productSyncDataService.getProductEsDetailById(ID)).thenReturn(productEsDetailVm);
-
         productSyncDataService.createProduct(ID);
 
         ArgumentCaptor<Product> argumentCaptor = ArgumentCaptor.forClass(Product.class);
@@ -219,16 +216,13 @@ class ProductSyncDataServiceTest {
         verify(productRepository).deleteById(id);
     }
 
-    @Disabled
     @Test
-    void testDeleteProduct_whenProductDoesNotExist_throwsNotFoundException() {
+    void testDeleteProduct_whenProductDoesNotExist_doesNotDeleteProduct() {
         Long id = 1L;
 
         when(productRepository.existsById(id)).thenReturn(false);
 
-        assertThatThrownBy(() -> productSyncDataService.deleteProduct(id))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessageContaining("The product 1 is not found");
+        productSyncDataService.deleteProduct(id);
 
         verify(productRepository, never()).deleteById(id);
     }

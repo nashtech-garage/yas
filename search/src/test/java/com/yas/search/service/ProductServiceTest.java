@@ -1,6 +1,7 @@
 package com.yas.search.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,21 +11,26 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import com.yas.search.constant.enums.SortType;
 import com.yas.search.model.Product;
 import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameGetVm;
 import com.yas.search.viewmodel.ProductNameListVm;
+import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.AggregationsContainer;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -161,6 +167,77 @@ class ProductServiceTest {
         verify(elasticsearchOperations).search(any(NativeQuery.class), eq(Product.class));
     }
 
+    @Test
+    void testFindProductAdvance_whenSortTypeIsNull_usesDefaultCreatedOnDescSort() {
+
+        SearchHits<Product> searchHits = getSearchHits();
+        ArgumentCaptor<NativeQuery> captor = ArgumentCaptor.forClass(NativeQuery.class);
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "test", 0, 10, "", "",
+            "", null, null, null);
+
+        ProductListGetVm result = productService.findProductAdvance(criteriaDto);
+
+        verify(elasticsearchOperations).search(captor.capture(), eq(Product.class));
+        assertEquals("createdOn: DESC", Objects.requireNonNull(captor.getValue().getSort()).toString());
+        assertEquals(1, result.products().size());
+    }
+
+    @Test
+    void testAutoCompleteProductName_whenNoProducts_returnEmptyList() {
+
+        SearchHits<Product> emptySearchHits = getEmptySearchHits();
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class)))
+            .thenReturn(emptySearchHits);
+
+        ProductNameListVm result = productService.autoCompleteProductName("unknown");
+
+        assertNotNull(result);
+        assertTrue(result.productNames().isEmpty());
+        verify(elasticsearchOperations).search(any(NativeQuery.class), eq(Product.class));
+    }
+
+    @Test
+    void testGetAggregations_whenAggregationsExist_returnParsedAggregationMap() throws Exception {
+
+        SearchHits<Product> searchHits = mock(SearchHits.class);
+        @SuppressWarnings("unchecked")
+        AggregationsContainer<List<ElasticsearchAggregation>> aggregationsContainer =
+            mock(AggregationsContainer.class);
+        ElasticsearchAggregation elasticsearchAggregation = mock(ElasticsearchAggregation.class);
+        org.springframework.data.elasticsearch.client.elc.Aggregation springAggregation =
+            mock(org.springframework.data.elasticsearch.client.elc.Aggregation.class);
+        Aggregate aggregate = mock(Aggregate.class);
+        StringTermsAggregate stringTermsAggregate = mock(StringTermsAggregate.class);
+        StringTermsBucket stringTermsBucket = mock(StringTermsBucket.class);
+        FieldValue fieldValue = mock(FieldValue.class);
+
+        when(searchHits.hasAggregations()).thenReturn(true);
+        when(searchHits.getAggregations()).thenReturn(aggregationsContainer);
+        when(aggregationsContainer.aggregations()).thenReturn(List.of(elasticsearchAggregation));
+        when(elasticsearchAggregation.aggregation()).thenReturn(springAggregation);
+        when(springAggregation.getName()).thenReturn("categories");
+        when(springAggregation.getAggregate()).thenReturn(aggregate);
+        when(aggregate._get()).thenReturn(stringTermsAggregate);
+        when(stringTermsAggregate.buckets()._get()).thenReturn(List.of(stringTermsBucket));
+        when(stringTermsBucket.key()).thenReturn(fieldValue);
+        when(fieldValue._get()).thenReturn("Electronics");
+        when(stringTermsBucket.docCount()).thenReturn(3L);
+
+        Method getAggregationsMethod = ProductService.class.getDeclaredMethod("getAggregations", SearchHits.class);
+        getAggregationsMethod.setAccessible(true);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Map<String, Long>> result =
+            (Map<String, Map<String, Long>>) getAggregationsMethod.invoke(productService, searchHits);
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.containsKey("categories"));
+        assertEquals(3L, result.get("categories").get("Electronics"));
+    }
+
     private static SearchHits<Product> getSearchHits() {
 
         Product product = Product.builder()
@@ -218,6 +295,57 @@ class ProductServiceTest {
             @Override
             public long getTotalHits() {
                 return 1;
+            }
+
+            @Override
+            public @NotNull TotalHitsRelation getTotalHitsRelation() {
+                return TotalHitsRelation.EQUAL_TO;
+            }
+
+            @Override
+            public Suggest getSuggest() {
+                return null;
+            }
+
+            @Override
+            public String getPointInTimeId() {
+                return "";
+            }
+
+            @Override
+            public SearchShardStatistics getSearchShardStatistics() {
+                return null;
+            }
+        };
+    }
+
+    private static SearchHits<Product> getEmptySearchHits() {
+
+        return new SearchHits<>() {
+
+            @Override
+            public @NotNull SearchHit<Product> getSearchHit(int index) {
+                throw new IndexOutOfBoundsException("No search hits available");
+            }
+
+            @Override
+            public AggregationsContainer<?> getAggregations() {
+                return null;
+            }
+
+            @Override
+            public float getMaxScore() {
+                return 0;
+            }
+
+            @Override
+            public @NotNull List<SearchHit<Product>> getSearchHits() {
+                return List.of();
+            }
+
+            @Override
+            public long getTotalHits() {
+                return 0;
             }
 
             @Override
