@@ -2,13 +2,14 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
 
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import type { Country } from '@locationModels/Country';
 import { deleteCountry, getPageableCountries } from '@locationServices/CountryService';
 import { COUNTRY_URL, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
 
 const CountryList: NextPage = () => {
   const [countryIdWantToDelete, setCountryIdWantToDelete] = useState<number>(-1);
@@ -16,8 +17,10 @@ const CountryList: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
+
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination();
+
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -28,14 +31,14 @@ const CountryList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, countryNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListCountry();
       })
       .catch((error) => console.log(error));
   };
 
   const getListCountry = () => {
-    getPageableCountries(pageNo, DEFAULT_PAGE_SIZE)
+    getPageableCountries(pageNo, itemsPerPage)
       .then((data) => {
         setTotalPage(data.totalPages);
         setCountries(data.countryContent);
@@ -47,15 +50,11 @@ const CountryList: NextPage = () => {
   useEffect(() => {
     setLoading(true);
     getListCountry();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageNo]);
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
+  }, [pageNo, itemsPerPage]);
 
   if (isLoading) return <p>Loading...</p>;
   if (!countries) return <p>No country</p>;
+
   return (
     <>
       <div className="row mt-5">
@@ -111,18 +110,12 @@ const CountryList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+      {totalPage > 0 && (
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
         />
       )}
     </>

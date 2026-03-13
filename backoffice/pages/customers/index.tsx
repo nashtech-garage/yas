@@ -1,15 +1,16 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Button, Stack, Table, Form } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
+import { Button, Stack, Table } from 'react-bootstrap';
 import { deleteCustomer, getCustomers } from '../../modules/customer/services/CustomerService';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { Customer } from '../../modules/customer/models/Customer';
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
-import { DEFAULT_PAGE_NUMBER } from '@constants/Common';
 
 const Customers: NextPage = () => {
   const [userIdWantToDelete, setUserIdWantToDelete] = useState<string>('');
@@ -17,9 +18,9 @@ const Customers: NextPage = () => {
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [pageNo, setPageNo] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(0);
   const [totalUser, setTotalUser] = useState<number>(0);
+
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -31,7 +32,7 @@ const Customers: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, userNameWantToDelete);
-        setPageNo(DEFAULT_PAGE_NUMBER);
+        changePage({ selected: DEFAULT_PAGE_NUMBER });
         getListCustomer();
       })
       .catch((error) => {
@@ -40,7 +41,7 @@ const Customers: NextPage = () => {
   };
 
   const getListCustomer = () => {
-    getCustomers(pageNo)
+    getCustomers(pageNo, DEFAULT_PAGE_SIZE)
       .then((data) => {
         setCustomers(data.customers);
         setTotalPage(data.totalPage);
@@ -57,10 +58,6 @@ const Customers: NextPage = () => {
     getListCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNo]);
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
 
   if (isLoading) return <p>Loading...</p>;
   if (!customers) return <p>No Customer</p>;
@@ -131,19 +128,8 @@ const Customers: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
-          onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
-        />
+      {totalPage > 0 && (
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

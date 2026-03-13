@@ -1,10 +1,8 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import { useEffect, useState, useRef } from 'react';
-import { Button, InputGroup, Stack, Table } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Button, Stack, Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
-import { FaSearch } from 'react-icons/fa';
-import ReactPaginate from 'react-paginate';
 
 import type { Country } from '@locationModels/Country';
 import type { StateOrProvince } from '@locationModels/StateOrProvince';
@@ -14,24 +12,26 @@ import { deleteStateOrProvince } from '@locationServices/StateOrProvinceService'
 import styles from 'styles/Filter.module.css';
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
-import moment from 'moment';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER } from 'constants/Common';
 import { STATE_OR_PROVINCE_URL } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
 
 const StateOrProvinceList: NextPage = () => {
   const [stateOrProvinces, setStateOrProvinces] = useState<StateOrProvince[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
   const [countries, setCountries] = useState<Country[]>([]);
   const [countryName, setCountryName] = useState<string>('');
   const [countryId, setCountryId] = useState<number>(0);
-  const [stateOrProvinceName, setStateOrProvinceName] = useState<string>('');
 
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [stateOrProvinceNameWantToDelete, setStateOrProvinceNameWantToDelete] =
     useState<string>('');
   const [stateOrProvinceIdWantToDelete, setStateOrProvinceIdWantToDelete] = useState<number>(-1);
+
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination();
+
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PAGE_SIZE;
 
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
@@ -42,7 +42,7 @@ const StateOrProvinceList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, stateOrProvinceNameWantToDelete);
-        getPageableStateOrProvinces(pageNo, DEFAULT_PAGE_SIZE, countryId).then((data) => {
+        getPageableStateOrProvinces(pageNo, itemsPerPage, countryId).then((data) => {
           setTotalPage(data.totalPages);
           setStateOrProvinces(data.stateOrProvinceContent);
           setLoading(false);
@@ -56,13 +56,13 @@ const StateOrProvinceList: NextPage = () => {
   useEffect(() => {
     setLoading(true);
 
-    getPageableStateOrProvinces(pageNo, DEFAULT_PAGE_SIZE, countryId).then((data) => {
+    getPageableStateOrProvinces(pageNo, itemsPerPage, countryId).then((data) => {
       console.log(data.stateOrProvinceContent);
       setTotalPage(data.totalPages);
       setStateOrProvinces(data.stateOrProvinceContent);
       setLoading(false);
     });
-  }, [pageNo, countryId]);
+  }, [pageNo, itemsPerPage, countryId]);
 
   useEffect(() => {
     setLoading(true);
@@ -72,10 +72,6 @@ const StateOrProvinceList: NextPage = () => {
       setLoading(false);
     });
   }, []);
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
-  };
 
   if (isLoading) return <p>Loading...</p>;
   if (!stateOrProvinces) return <p>No State Or Province</p>;
@@ -100,7 +96,7 @@ const StateOrProvinceList: NextPage = () => {
           <Form.Select
             id="country-filter"
             onChange={(e) => {
-              setPageNo(DEFAULT_PAGE_NUMBER);
+              changePage({ selected: DEFAULT_PAGE_NUMBER });
               setCountryId(parseInt(e.target.value));
               setCountryName(e.target.value);
             }}
@@ -164,18 +160,12 @@ const StateOrProvinceList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+      {totalPage > 0 && (
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
         />
       )}
     </>
