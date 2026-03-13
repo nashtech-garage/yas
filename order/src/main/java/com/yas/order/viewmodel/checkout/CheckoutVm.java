@@ -1,6 +1,9 @@
 package com.yas.order.viewmodel.checkout;
 
+import com.yas.order.model.CheckoutAddress;
 import com.yas.order.model.enumeration.CheckoutState;
+import com.yas.order.viewmodel.customer.ActiveAddressVm;
+import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import java.math.BigDecimal;
 import java.util.Set;
 import lombok.Builder;
@@ -19,8 +22,9 @@ public record CheckoutVm(
         BigDecimal totalTax,
         BigDecimal totalDiscountAmount,
         String shipmentMethodId,
+        String shipmentServiceId,
         String paymentMethodId,
         Long shippingAddressId,
+        ActiveAddressVm shippingAddressDetail,
         Set<CheckoutItemVm> checkoutItemVms) {
-
 }

@@ -4,7 +4,7 @@ import com.yas.order.model.OrderAddress;
 import lombok.Builder;
 
 
-@Builder
+@Builder(toBuilder = true)
 public record OrderAddressVm(
         Long id,
         String contactName,

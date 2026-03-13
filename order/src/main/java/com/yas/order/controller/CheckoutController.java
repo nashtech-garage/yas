@@ -3,6 +3,7 @@ package com.yas.order.controller;
 import com.yas.commonlibrary.constants.ApiConstant;
 import com.yas.order.service.CheckoutService;
 import com.yas.order.viewmodel.ErrorVm;
+import com.yas.order.viewmodel.checkout.CheckoutPatchVm;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
@@ -12,9 +13,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -55,5 +58,19 @@ public class CheckoutController {
                                                     final CheckoutPaymentMethodPutVm checkoutPaymentMethodPutVm) {
         checkoutService.updateCheckoutPaymentMethod(id, checkoutPaymentMethodPutVm);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/storefront/checkouts/{id}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = ApiConstant.CODE_200, description = ApiConstant.OK,
+            content = @Content()),
+        @ApiResponse(responseCode = ApiConstant.CODE_404, description = ApiConstant.NOT_FOUND,
+            content = @Content(schema = @Schema(implementation = ErrorVm.class))),
+        @ApiResponse(responseCode = ApiConstant.CODE_400, description = ApiConstant.BAD_REQUEST,
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+    public ResponseEntity<CheckoutVm> updateCheckout(@PathVariable final String id,
+                                                     @Valid @RequestBody
+                                                     CheckoutPatchVm checkoutPatchVm) {
+        return ResponseEntity.ok(checkoutService.updateCheckoutByFields(id, checkoutPatchVm));
     }
 }
