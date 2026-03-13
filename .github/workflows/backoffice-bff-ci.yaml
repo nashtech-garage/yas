@@ -62,7 +62,7 @@ jobs:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
       - name: Setup Snyk CLI
-        uses: snyk/actions/maven@master
+        uses: snyk/actions/setup@master
       - name: Run Snyk to check for vulnerabilities
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
