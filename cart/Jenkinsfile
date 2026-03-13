@@ -73,7 +73,27 @@ pipeline {
 
                         stage('Security Scan') {
                             steps {
-                                sh 'mvn -pl cart -am org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 || true'
+                                script {
+                                    try {
+                                        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                                            sh '''
+                                                mvn -pl cart -am org.owasp:dependency-check-maven:check \
+                                                  -DfailBuildOnCVSS=7 \
+                                                  -DnvdApiKey=$NVD_API_KEY \
+                                                  -DdataDirectory=$JENKINS_HOME/dependency-check-data \
+                                                  || true
+                                            '''
+                                        }
+                                    } catch (Exception e) {
+                                        echo "NVD API key credential not found. Running dependency-check without API key (slower)."
+                                        sh '''
+                                            mvn -pl cart -am org.owasp:dependency-check-maven:check \
+                                              -DfailBuildOnCVSS=7 \
+                                              -DdataDirectory=$JENKINS_HOME/dependency-check-data \
+                                              || true
+                                        '''
+                                    }
+                                }
                             }
                             post {
                                 always {
