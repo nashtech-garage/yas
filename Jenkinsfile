@@ -11,13 +11,13 @@ pipeline {
                         sh 'gitleaks detect --source="." --no-git --verbose || true'
                     }
 
-                    echo '=== 1.2 Quét lỗ hổng thư viện (Snyk Full Project) ==='
-                    // Quét toàn bộ để lấy kết quả tổng quan trước khi đi vào từng service
-                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                        docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
-                        }
-                    }
+                    // echo '=== 1.2 Quét lỗ hổng thư viện (Snyk Full Project) ==='
+                    // // Quét toàn bộ để lấy kết quả tổng quan trước khi đi vào từng service
+                    // withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                    //     docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
+                    //         sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
+                    //     }
+                    // }
                 }
             }
         }
@@ -132,7 +132,7 @@ def runServiceCI(String serviceName) {
                 -DskipITs=true \
                 -Dsonar.token=\$SONAR_TOKEN \
                 -Dsonar.organization=longlee0 \
-                -Dsonar.projectKey=LongLee0_yas_Project1_Devops || true"""
+                -Dsonar.projectKey=LongLee0_yas_Project1_Devops"""
             }
             
             echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
