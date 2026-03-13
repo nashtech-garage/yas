@@ -49,7 +49,13 @@ pipeline {
                         stage('Unit Tests') {
                             steps {
                                 dir('backoffice') {
-                                    sh 'npx jest --coverage --ci --reporters=default --reporters=jest-junit || true'
+                                    sh '''
+                                        if node -e "const p=require('./package.json'); const hasJest=Boolean((p.devDependencies&&p.devDependencies.jest)||(p.dependencies&&p.dependencies.jest)||(p.scripts&&p.scripts.test)); process.exit(hasJest?0:1)"; then
+                                            npx jest --coverage --ci --reporters=default --reporters=jest-junit
+                                        else
+                                            echo 'No Jest configuration found in backoffice/package.json. Skipping unit tests.'
+                                        fi
+                                    '''
                                 }
                             }
                             post {

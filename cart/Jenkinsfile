@@ -35,6 +35,13 @@ pipeline {
                 }
             }
             stages {
+                stage('Prepare Build Dependencies') {
+                    steps {
+                        // Match GitHub Actions flow: install module and internal deps first.
+                        sh 'mvn clean install -pl cart -am -DskipTests'
+                    }
+                }
+
                 // ─── Phase 1: Test ─────────────────────────────────────────
                 stage('Phase 1: Test') {
                     parallel {
@@ -59,8 +66,8 @@ pipeline {
 
                         stage('Code Quality') {
                             steps {
-                                sh 'mvn checkstyle:checkstyle -pl cart -am -DskipTests'
-                                echo 'Checkstyle report generated at: cart/target/checkstyle-result.xml'
+                                sh 'mvn checkstyle:checkstyle -pl cart -am -Dcheckstyle.output.file=cart-checkstyle-result.xml'
+                                echo 'Checkstyle report generated at: cart-checkstyle-result.xml'
                             }
                         }
 
