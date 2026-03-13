@@ -11,7 +11,7 @@ pipeline {
     environment {
         SERVICE_NAME    = 'cart'
         DOCKER_REGISTRY = 'ghcr.io'
-        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/nashtech-garage/yas-${SERVICE_NAME}"
+        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/danzgne/yas-${SERVICE_NAME}"
     }
 
     tools {
