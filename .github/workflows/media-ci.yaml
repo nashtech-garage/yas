@@ -15,7 +15,7 @@ on:
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/media-ci.yaml"
       - "pom.xml"
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   Build:

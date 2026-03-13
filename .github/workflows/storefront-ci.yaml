@@ -13,7 +13,7 @@ on:
       - "storefront/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/storefront-ci.yaml"
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   Build:
