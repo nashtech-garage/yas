@@ -15,11 +15,13 @@ import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.order.mapper.CheckoutMapperImpl;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
+import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.product.ProductCheckoutListVm;
 import com.yas.order.viewmodel.product.ProductGetCheckoutListVm;
 import java.util.List;
@@ -241,5 +243,51 @@ class CheckoutServiceTest {
         // Assert
         verify(checkoutRepository).save(checkout);
         assertThat(checkout.getPaymentMethodId()).isNull();
+    }
+
+    @Test
+    void testUpdateCheckoutStatus_whenOwnedByCurrentUser_thenUpdateSuccessfully() {
+        // checkoutCreated.getCreatedBy() == "test-create-by" (set in @BeforeEach)
+        // security context user also == "test-create-by" (set in @BeforeEach)
+        when(checkoutRepository.findById(checkoutId)).thenReturn(Optional.of(checkoutCreated));
+
+        Order order = new Order();
+        order.setId(42L);
+        when(orderService.findOrderByCheckoutId(checkoutId)).thenReturn(order);
+
+        Long result = checkoutService.updateCheckoutStatus(
+            new CheckoutStatusPutVm(checkoutId, "PENDING"));
+
+        assertThat(result).isEqualTo(42L);
+        verify(checkoutRepository).save(checkoutCreated);
+    }
+
+    @Test
+    void testUpdateCheckoutStatus_whenNotOwnedByCurrentUser_thenThrowForbidden() {
+        when(checkoutRepository.findById(checkoutId)).thenReturn(Optional.of(checkoutCreated));
+        // set a different user in the security context
+        setSubjectUpSecurityContext("different-user");
+
+        assertThrows(ForbiddenException.class,
+            () -> checkoutService.updateCheckoutStatus(
+                new CheckoutStatusPutVm(checkoutId, "PENDING")));
+    }
+
+    @Test
+    void testUpdateCheckoutStatus_whenCheckoutNotFound_thenThrowNotFoundException() {
+        when(checkoutRepository.findById("nonexistent")).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+            () -> checkoutService.updateCheckoutStatus(
+                new CheckoutStatusPutVm("nonexistent", "PENDING")));
+    }
+
+    @Test
+    void testGetCheckoutPendingStateWithItemsById_whenCheckoutNotFound_thenThrowNotFoundException() {
+        when(checkoutRepository.findByIdAndCheckoutState(anyString(), eq(CheckoutState.PENDING)))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> checkoutService.getCheckoutPendingStateWithItemsById("nonexistent-id"));
     }
 }

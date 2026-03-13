@@ -3,6 +3,7 @@ package com.yas.order.service;
 import static com.yas.order.utils.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,6 +71,14 @@ class CustomerServiceTest {
         assertThat(result.firstName()).isEqualTo("John");
         assertThat(result.lastName()).isEqualTo("Doe");
 
+    }
+
+    @Test
+    void testHandleCustomerFallback_shouldRethrowException() {
+        RuntimeException cause = new RuntimeException("circuit breaker open");
+
+        assertThrows(RuntimeException.class,
+                () -> customerService.handleCustomerFallback(cause));
     }
 
 }

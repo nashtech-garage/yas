@@ -2,6 +2,7 @@ package com.yas.order.service;
 
 import static com.yas.order.utils.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -65,5 +66,13 @@ class TaxServiceTest {
             countryId, stateOrProvinceId, zipCode);
 
         assertThat(result).isEqualTo(1.1);
+    }
+
+    @Test
+    void testHandleDoubleFallback_shouldRethrowException() {
+        RuntimeException cause = new RuntimeException("circuit breaker open");
+
+        assertThrows(RuntimeException.class,
+                () -> taxService.handleDoubleFallback(cause));
     }
 }

@@ -4,6 +4,7 @@ import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
 import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import java.math.BigDecimal;
 import org.assertj.core.api.Assertions;
 import org.instancio.Instancio;
 import static org.instancio.Select.field;
@@ -89,5 +90,18 @@ class CheckoutMapperTest {
                 .hasFieldOrPropertyWithValue("shipmentFee", checkoutItem.getShipmentFee())
                 .hasFieldOrPropertyWithValue("shipmentTax", checkoutItem.getShipmentTax())
                 .hasFieldOrPropertyWithValue("checkoutId", checkoutItem.getCheckout().getId());
+    }
+
+    @Test
+    void testMap_whenValueIsNull_returnsZero() {
+        BigDecimal result = checkoutMapper.map(null);
+        Assertions.assertThat(result).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    void testMap_whenValueIsNonNull_returnsValue() {
+        BigDecimal value = new BigDecimal("42.50");
+        BigDecimal result = checkoutMapper.map(value);
+        Assertions.assertThat(result).isEqualByComparingTo(value);
     }
 }
