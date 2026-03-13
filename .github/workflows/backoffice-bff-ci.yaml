@@ -43,7 +43,7 @@ jobs:
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f backoffice-bff \
          -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
-         -Dsonar.projectkey=${{ secrets.SONAR_PROJECT }}
+         -Dsonar.projectkey=${{ secrets.SONAR_PROJECT }}-backoffice-bff
       - name: OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         env:
