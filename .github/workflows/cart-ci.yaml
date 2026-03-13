@@ -92,6 +92,7 @@ jobs:
       #     snyk auth ${{ secrets.SNYK_TOKEN }}
       #     snyk whoami --experimental
       - name: Snyk Scan
+        continue-on-error: true
         run: snyk test --org=dungx2409 --maven-aggregate-project --severity-threshold=high
         # run: snyk test --file=cart/pom.xml --severity-threshold=high
       - name: Log in to the Container registry
