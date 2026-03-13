@@ -62,7 +62,7 @@ jobs:
           JAVA_HOME: /opt/jdk
         with:
           project: 'yas'
-          path: '.'
+          path: './search'
           format: 'HTML'
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
