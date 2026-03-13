@@ -56,6 +56,9 @@ server {
     set $docker_recommendation_host "recommendation";
     proxy_pass http://$docker_recommendation_host;
   }
+  location /delivery/ {
+    proxy_pass http://host.docker.internal:8095; # temporary value for current development, will be replaced once the delivery service is dockerized
+  }
 }
 
 server {
