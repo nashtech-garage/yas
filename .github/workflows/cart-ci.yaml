@@ -88,7 +88,7 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
       - name: Snyk Scan
-        run: snyk test --file=cart/pom.xml --maven-wrapper
+        run: snyk test --maven-aggregate-project --severity-threshold=high
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
