@@ -45,7 +45,7 @@ jobs:
         with:
           projectBaseDir: backoffice-bff
           args: >
-            -Dsonar.organization=${{ secrets.ORGANIZATION }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ github.repository_owner }}_backoffice-bff
             -Dsonar.java.binaries=target/classes
       - name: OWASP Dependency Check
