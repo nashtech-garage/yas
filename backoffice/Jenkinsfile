@@ -11,7 +11,7 @@ pipeline {
     environment {
         SERVICE_NAME    = 'backoffice'
         DOCKER_REGISTRY = 'ghcr.io'
-        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/nashtech-garage/yas-${SERVICE_NAME}"
+        DOCKER_IMAGE    = "${DOCKER_REGISTRY}/danzgne/yas-${SERVICE_NAME}"
         NODE_OPTIONS    = '--max-old-space-size=4096'
     }
 
