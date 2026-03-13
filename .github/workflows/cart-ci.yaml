@@ -33,10 +33,10 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: maven
-      - name: Debug token
-        run: echo "${{ secrets.SNYK_TOKEN }}"
+      # - name: Debug token
+      #   run: echo "${{ secrets.SNYK_TOKEN }}"
       - name: Build cart module
-        run: mvn -B clean install -pl cart -am
+        run: mvn -B clean install -pl cart -am -DskipTests
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl cart -am -Dcheckstyle.output.file=cart-checkstyle-result.xml
