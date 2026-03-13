@@ -33,6 +33,10 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: maven
+      - name: Verify Snyk auth
+        run: |
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+          snyk whoami --experimental
       - name: Debug token
         run: echo "${{ secrets.SNYK_TOKEN }}"
       - name: Run Maven Checkstyle
