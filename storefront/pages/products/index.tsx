@@ -210,8 +210,8 @@ const ProductList = () => {
               <div className="products-list" style={{ marginTop: 10 }}>
                 {/* PRODUCT VIEW */}
                 <Row xs={5} style={{ padding: '0 10px' }}>
-                  {products.length > 0 &&
-                    products.map((product) => (
+                  {products?.length > 0 &&
+                    products?.map((product) => (
                       <ProductCard
                         className={['products-page']}
                         product={product}
