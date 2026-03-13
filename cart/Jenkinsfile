@@ -41,6 +41,7 @@ pipeline {
                         sh 'mvn clean install -pl cart -am -DskipTests'
                     }
                 }
+                
                 // ─── Phase 1: Test ─────────────────────────────────────────
                 stage('Phase 1: Test') {
                     parallel {
