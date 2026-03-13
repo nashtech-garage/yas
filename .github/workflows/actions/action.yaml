@@ -5,7 +5,7 @@ runs:
       uses: actions/setup-java@v4
       with:
         java-version: '21'
-        distribution: 'adopt'
+        distribution: 'temurin'
     - name: Cache SonarCloud packages
       uses: actions/cache@v4
       with:

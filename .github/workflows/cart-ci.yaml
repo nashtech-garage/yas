@@ -74,13 +74,12 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Cart Coverage Report'
           update-comment: true
-      - name: Run Snyk to check for vulnerabilities
+      - name: Snyk Open Source Analysis
         uses: snyk/actions/maven@master
-        continue-on-error: true # Cho phép workflow tiếp tục nếu phát hiện lỗi (tùy chọn)
+        with:
+          args: --severity-threshold=high -pl cart -am
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --file=pom.xml
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
