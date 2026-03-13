@@ -53,9 +53,14 @@ jobs:
         run: |
           snyk test --all-projects --severity-threshold=high
           exit_code=$?
+          if [ $exit_code -eq 1 ]; then
+            echo 'Snyk found vulnerabilities (exit code 1). Skipping debug rerun.'
+            exit 1
+          fi
           if [ $exit_code -ne 0 ]; then
-            echo 'Snyk scan failed. Re-running with debug (-d) for diagnostics...'
+            echo 'Snyk scan failed unexpectedly. Re-running with debug (-d) for diagnostics...'
             snyk test --all-projects --severity-threshold=high -d
+            exit $?
           fi
         working-directory: storefront
       - name: Log in to the Container registry
@@ -72,6 +77,7 @@ jobs:
           context: ./storefront
           push: true
           tags: ghcr.io/obiwan1805/yas-storefront:latest
+
 
 
 
