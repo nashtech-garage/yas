@@ -65,6 +65,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
+          if [ -f sampledata/mvnw ]; then chmod +x sampledata/mvnw; fi
           snyk test --file=sampledata/pom.xml --package-manager=maven --severity-threshold=high
           exit_code=$?
           if [ $exit_code -ne 0 ]; then
@@ -85,6 +86,7 @@ jobs:
           context: ./sampledata
           push: true
           tags: ghcr.io/obiwan1805/yas-sampledata:latest
+
 
 
 

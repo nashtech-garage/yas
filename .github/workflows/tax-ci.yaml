@@ -82,6 +82,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
+          if [ -f tax/mvnw ]; then chmod +x tax/mvnw; fi
           snyk test --file=tax/pom.xml --package-manager=maven --severity-threshold=high
           exit_code=$?
           if [ $exit_code -ne 0 ]; then
@@ -102,6 +103,7 @@ jobs:
           context: ./tax
           push: true
           tags: ghcr.io/obiwan1805/yas-tax:latest
+
 
 
 

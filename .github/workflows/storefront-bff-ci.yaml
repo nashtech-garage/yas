@@ -75,6 +75,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
+          if [ -f storefront-bff/mvnw ]; then chmod +x storefront-bff/mvnw; fi
           snyk test --file=storefront-bff/pom.xml --package-manager=maven --severity-threshold=high
           exit_code=$?
           if [ $exit_code -ne 0 ]; then
@@ -95,6 +96,7 @@ jobs:
           context: ./storefront-bff
           push: true
           tags: ghcr.io/obiwan1805/yas-storefront-bff:latest
+
 
 
 
