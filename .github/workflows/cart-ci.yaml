@@ -87,10 +87,10 @@ jobs:
         run: npm install -g snyk
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
-      - name: Verify Snyk auth
-        run: |
-          snyk auth ${{ secrets.SNYK_TOKEN }}
-          snyk whoami --experimental
+      # - name: Verify Snyk auth
+      #   run: |
+      #     snyk auth ${{ secrets.SNYK_TOKEN }}
+      #     snyk whoami --experimental
       - name: Snyk Scan
         run: snyk test --org=dungx2409 --maven-aggregate-project --severity-threshold=high
         # run: snyk test --file=cart/pom.xml --severity-threshold=high

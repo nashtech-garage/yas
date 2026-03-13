@@ -27,8 +27,14 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl inventory -am
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Build inventory module
+        run: mvn -B clean install -pl inventory -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
@@ -74,37 +80,15 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Inventory Coverage Report'
           update-comment: true
-      - name: Set up Snyk CLI
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: snyk/actions/setup@master
-      - name: Run Snyk Open Source scan
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          SNYK_CFG_MAVEN: /usr/bin/mvn
-        run: |
-          if [ -f mvnw ]; then chmod +x mvnw; fi
-          snyk test --file=pom.xml --package-manager=maven --severity-threshold=high
-          exit_code=$?
-      - name: Run Snyk Open Source scan
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          SNYK_CFG_MAVEN: /usr/bin/mvn
-        run: |
-          if [ -f mvnw ]; then chmod +x mvnw; fi
-          snyk test --file=pom.xml --package-manager=maven --severity-threshold=high -- -Drevision=1.0-SNAPSHOT
-          exit_code=$?
-          if [ $exit_code -eq 1 ]; then
-            echo 'Snyk found vulnerabilities (exit code 1). Skipping debug rerun.'
-            exit 1
-          fi
-          if [ $exit_code -ne 0 ]; then
-            echo 'Snyk scan failed unexpectedly. Re-running with debug (-d) for diagnostics...'
-            snyk test --file=pom.xml --package-manager=maven --severity-threshold=high -d -- -Drevision=1.0-SNAPSHOT
-            exit $?
-          fi
-        working-directory: inventory
+      - name: Install Snyk
+        run: npm install -g snyk
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Scan
+        run: snyk test --org=dungx2409 --maven-aggregate-project --severity-threshold=high
+      - name: Log in to the Container registry
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
