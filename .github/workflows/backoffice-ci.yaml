@@ -45,14 +45,22 @@ jobs:
           scan-ref: './backoffice'
           format: 'sarif'
           output: 'trivy-results.sarif'
-      - name: SonarCloud Scan
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          projectBaseDir: backoffice
+      # - name: SonarCloud Scan
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   uses: SonarSource/sonarcloud-github-action@master
+      #   with:
+      #     projectBaseDir: backoffice
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          directory: backoffice
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -65,12 +73,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backoffice
-          tags: ghcr.io/nashtech-garage/yas-backoffice:latest
+          tags: ghcr.io/obiwan1805/yas-backoffice:latest
       - name: Run Trivy vulnerability scanner
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: 'ghcr.io/nashtech-garage/yas-backoffice:latest'
+          image-ref: 'ghcr.io/obiwan1805/yas-backoffice:latest'
           format: 'sarif'
           output: 'trivy-results.sarif'
       - name: Push Docker image
@@ -79,8 +87,12 @@ jobs:
         with:
           push: true
           context: ./backoffice
-          tags: ghcr.io/nashtech-garage/yas-backoffice:latest
+          tags: ghcr.io/obiwan1805/yas-backoffice:latest
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
+
+
+
+

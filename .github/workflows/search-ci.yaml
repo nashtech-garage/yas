@@ -44,11 +44,11 @@ jobs:
           name: Search-Service-Unit-Test-Results
           path: "search/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f search
+      # - name: Analyze with sonar cloud
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f search
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
@@ -74,6 +74,28 @@ jobs:
           min-coverage-changed-files: 60
           title: 'Search Coverage Report'
           update-comment: true
+      - name: Set up Snyk CLI
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+      - name: Run Snyk Open Source scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_CFG_MAVEN: /usr/bin/mvn
+        run: |
+          if [ -f mvnw ]; then chmod +x mvnw; fi
+          snyk test --file=pom.xml --package-manager=maven --severity-threshold=high
+          exit_code=$?
+          if [ $exit_code -eq 1 ]; then
+            echo 'Snyk found vulnerabilities (exit code 1). Skipping debug rerun.'
+            exit 1
+          fi
+          if [ $exit_code -ne 0 ]; then
+            echo 'Snyk scan failed unexpectedly. Re-running with debug (-d) for diagnostics...'
+            snyk test --file=pom.xml --package-manager=maven --severity-threshold=high -d
+            exit $?
+          fi
+        working-directory: search
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -87,4 +109,13 @@ jobs:
         with:
           context: ./search
           push: true
-          tags: ghcr.io/nashtech-garage/yas-search:latest
+          tags: ghcr.io/obiwan1805/yas-search:latest
+
+
+
+
+
+
+
+
+

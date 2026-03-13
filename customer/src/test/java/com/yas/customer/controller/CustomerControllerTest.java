@@ -75,7 +75,7 @@ class CustomerControllerTest {
     void testGetCustomerByEmail_whenNormalCase_responseCustomerAdminVm() throws Exception {
 
         CustomerAdminVm customerAdminVm = new CustomerAdminVm(
-            "12345",
+            "12345678",
             "john_doe",
             "john.doe@example.com",
             "John",
