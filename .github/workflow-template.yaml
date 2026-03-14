@@ -20,8 +20,6 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,13 +31,13 @@ jobs:
         run: mvn test -f {{SERVICE_NAME}}
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        if: ${{ (success() || failure()) }}
         with:
           name: Unit-Test-Results
           path: "{{SERVICE_NAME}}/**/surefire-reports/*.xml"
           reporter: java-junit
       - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f {{SERVICE_NAME}}
@@ -56,4 +54,4 @@ jobs:
         with:
           context: ./{{SERVICE_NAME}}
           push: true
-          tags: ghcr.io/nashtech-garage/yas-{{SERVICE_NAME}}:latest
+          tags: ghcr.io/powerstomp/yas-{{SERVICE_NAME}}:latest

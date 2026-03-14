@@ -50,12 +50,6 @@ jobs:
                   registry: ghcr.io
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
-            # - name: Build Docker image
-            #   if: ${{ github.ref == 'refs/heads/main' }}
-            #   uses: docker/build-push-action@v6
-            #   with:
-            #       context: ./backoffice
-            #       tags: ghcr.io/powerstomp/yas-backoffice:latest
             - name: Build and push Docker images
               if: ${{ github.ref == 'refs/heads/main' }}
               uses: docker/build-push-action@v6
