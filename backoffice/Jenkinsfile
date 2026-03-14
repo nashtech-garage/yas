@@ -109,6 +109,7 @@ pipeline {
                                     branch 'develop'
                                 }
                             }
+                            
                             steps {
                                 withCredentials([usernamePassword(
                                     credentialsId: 'docker-registry-credentials',
