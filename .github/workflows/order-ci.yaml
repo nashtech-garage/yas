@@ -95,7 +95,6 @@ jobs:
         with:
           organization: nguyenthanhtien539
           projectKey: NguyenThanhTien539_yas
-          token: ${{ secrets.SONAR_TOKEN }}
   # ─────────────────────────────────────────────
   # PHASE 2 – BUILD
   # Build artifact, OWASP scan, đóng gói Docker
