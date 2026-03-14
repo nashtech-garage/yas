@@ -91,10 +91,15 @@ jobs:
 
       # 4. SonarCloud - phân tích chất lượng code
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          organization: nguyenthanhtien539
-          projectKey: NguyenThanhTien539_yas
+          projectBaseDir: order               # nếu bạn chỉ muốn scan module 'order', bỏ hoặc thay nếu cần
+          args: >
+            -Dsonar.organization=nguyenthanhtien539
+            -Dsonar.projectKey=NguyenThanhTien539_yas
+            -Dsonar.login=${{ env.SONAR_TOKEN }}
   # ─────────────────────────────────────────────
   # PHASE 2 – BUILD
   # Build artifact, OWASP scan, đóng gói Docker
