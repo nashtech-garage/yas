@@ -71,10 +71,14 @@ jobs:
           path: "**/media-checkstyle-result.xml"
 
       - name: Analyze with sonar cloud
-        # if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f media
+        run: |
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -pl common-library,media -am \
+            -Dsonar.projectKey=JuzHarii_yas \
+            -Dsonar.organization=juzharii \
+            -Dsonar.host.url=https://sonarcloud.io
 
       - name: Snyk Scan
         uses: snyk/actions/maven@master
