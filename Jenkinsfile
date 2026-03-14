@@ -42,7 +42,9 @@ pipeline {
                     ).trim()
 
                     List<String> changedFiles = rawChangedFiles
-                        ? rawChangedFiles.split('\n') as List<String>
+                        ? (rawChangedFiles.split('\n') as List<String>)
+                            .collect { it?.trim()?.replaceFirst('^\\./', '') }
+                            .findAll { it }
                         : []
 
                     echo "Changed files:\n${changedFiles.join('\n')}"
@@ -53,13 +55,32 @@ pipeline {
                         }
                     }
 
-                    List<String> impactedModules = shouldRunAll
-                        ? modules
-                        : modules.findAll { module ->
-                            changedFiles.any { file ->
-                                file.startsWith("${module}/") || file.startsWith("services/${module}-service/")
+                    List<String> impactedModules = shouldRunAll ? modules : []
+
+                    if (!shouldRunAll) {
+                        Set<String> detectedModules = new LinkedHashSet<>()
+
+                        changedFiles.each { file ->
+                            String topLevel = file.tokenize('/')[0]
+                            if (topLevel && modules.contains(topLevel)) {
+                                detectedModules.add(topLevel)
+                            }
+
+                            if (file.startsWith('services/')) {
+                                def matcher = (file =~ /^services\/([a-z0-9-]+)-service\//)
+                                if (matcher.find()) {
+                                    String serviceModule = matcher.group(1)
+                                    if (modules.contains(serviceModule)) {
+                                        detectedModules.add(serviceModule)
+                                    }
+                                }
                             }
                         }
+
+                        impactedModules = modules.findAll { detectedModules.contains(it) }
+                    }
+
+                    echo "Detected modules: ${impactedModules.join(',')}"
 
                     env.CHANGED_MODULES = impactedModules.join(',')
                     env.RUN_PIPELINE = impactedModules ? 'true' : 'false'
