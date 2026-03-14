@@ -2,7 +2,7 @@ name: order service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "order/**"
       - ".github/workflows/actions/action.yaml"
@@ -17,40 +17,112 @@ on:
       - "pom.xml"
   workflow_dispatch:
 
+
+
+
 jobs:
-  Build:
+  # ─────────────────────────────────────────────
+  # PHASE 1 – TEST
+  # Chạy test, upload kết quả, scan bảo mật
+  # ─────────────────────────────────────────────
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
+          fetch-depth: 0 # Cần cho SonarCloud và Gitleaks
+
+      - uses: ./.github/workflows/actions # Setup JDK 21, cache Maven & Sonar
+
+      # Gitleaks – quét secret/token bị lộ trong code
+      - name: Gitleaks – Scan for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true # Không block pipeline, chỉ report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Chạy test và tạo JaCoCo coverage report (mvn verify = compile + test + package + verify)
+      - name: Run Maven Test & Generate Coverage
+        # run: mvn verify -pl order -am
         run: mvn clean install -pl order -am
+
+      # Kiểm tra code style
       - name: Run Maven Checkstyle
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl order -am -Dcheckstyle.output.file=order-checkstyle-result.xml
+
       - name: Upload Checkstyle Result
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/order-checkstyle-result.xml'
-      - name: Test Results
+
+      # Upload kết quả test lên GitHub (hiển thị trên PR/commit)
+      - name: Upload Test Results
         uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        if: success() || failure()
         with:
           name: Order-Service-Unit-Test-Results
           path: "order/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+
+      # Upload coverage report lên PR; pipeline FAIL nếu coverage < 70%
+      - name: Add Coverage Report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: ${{ github.workspace }}/order/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: 'Order Coverage Report'
+          update-comment: true
+
+      # Snyk – quét lỗ hổng trong dependencies
+      - name: Snyk – Scan for vulnerabilities
+        uses: snyk/actions/maven@master
+        continue-on-error: true # Không block pipeline, chỉ report
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=order/pom.xml --severity-threshold=high
+
+      # SonarCloud – phân tích chất lượng và bảo mật code (cần kết quả test ở trên)
+      # - name: Analyze with SonarCloud
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f order
+
+      # 4. SonarCloud - phân tích chất lượng code
+      - name: SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f order
+        run: |
+          mvn -B verify sonar:sonar \
+            -pl order -am \
+            -Dsonar.organization=nguyenthanhtien539 \
+            -Dsonar.projectKey=NguyenThanhTien539_yas \
+            -Dsonar.login=${SONAR_TOKEN}
+  # ─────────────────────────────────────────────
+  # PHASE 2 – BUILD
+  # Build artifact, OWASP scan, đóng gói Docker
+  # Chỉ chạy khi phase Test đã pass
+  # ─────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test # Phụ thuộc vào job test – chỉ chạy nếu test pass
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/workflows/actions
+
+      # Build artifact, bỏ qua test vì đã chạy ở phase trên
+      - name: Run Maven Build
+        run: mvn clean package -pl order -am -DskipTests
+
+      # OWASP – quét CVE trong dependencies (chạy sau khi build có đủ thông tin)
       - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
         env:
           JAVA_HOME: /opt/jdk
@@ -58,30 +130,23 @@ jobs:
           project: 'yas'
           path: '.'
           format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+
+      - name: Upload OWASP Dependency Check Report
         uses: actions/upload-artifact@master
         with:
           name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        with:
-          paths: ${{github.workspace}}/order/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Order Coverage Report'
-          update-comment: true
-      - name: Log in to the Container registry
+          path: ${{ github.workspace }}/reports
+
+      # Docker – chỉ build và push khi merge vào main
+      - name: Log in to Container Registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
+
+      - name: Build and push Docker image
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:

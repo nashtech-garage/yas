@@ -1,0 +1,2 @@
+--- Ahihi API leak 
+"STRIPE_SECRET_KEY=sk_live_51H8x9aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789abcdefg" 
