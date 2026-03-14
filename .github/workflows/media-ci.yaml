@@ -86,7 +86,9 @@ jobs:
       - name: Run Snyk Security Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --file=media/pom.xml
+        run: |
+          chmod +x mvnw
+          snyk test --file=media/pom.xml
 
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
