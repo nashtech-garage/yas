@@ -1,10 +1,5 @@
 def IMPACTED_MODULES = []
-def MODULES_PATH = [
-    'cart'          : 'cart/',
-    'order'         : 'order/',
-    'payment'       : 'payment/',
-    'common-library': 'common-library/'
-]
+def MODULES_PATH = ['order/', 'cart/', 'payment/', 'common-library/']
 
 pipeline {
     agent any
@@ -20,11 +15,11 @@ pipeline {
                 script{
                     // Get the list of changed files in the last commit
                     def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split("\n")
-
+                    echo "Changed Files: ${changedFiles}"
                     // Check which modules are impacted based on the changed files
                     for (file in changedFiles) {
-                        for (module in MODULES_PATH.keySet()) {
-                            if (file.startsWith(MODULES_PATH[module])) {
+                        for (module in MODULES_PATH) {
+                            if (file.startsWith(module)) {
                                 IMPACTED_MODULES.add(module)
                                 break
                             }
