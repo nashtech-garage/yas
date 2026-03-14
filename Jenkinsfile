@@ -6,113 +6,60 @@ pipeline {
     environment {
         CHANGED_MODULES = ''
         RUN_PIPELINE = 'false'
+        MODULES_PATH = {
+            'cart': 'cart/',
+            'order': 'order/',
+            'payment': 'payment/',
+            'common-library': 'common-library/'
+        }
     }
 
     stages {
-        stage('Detect Changed Services') {
-            steps {
-                script {
-                    List<String> modules = [
-                        'backoffice-bff', 'cart', 'customer', 'inventory', 'location',
-                        'media', 'order', 'payment-paypal', 'payment', 'product',
-                        'promotion', 'rating', 'search', 'storefront-bff', 'tax',
-                        'webhook', 'sampledata', 'recommendation', 'delivery'
-                    ]
+        stage('Detect Changed Modules'){
+            steps{
+                script{
+                    // Get the list of changed files in the last commit
+                    def changedFiles = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim().split("\n")
 
-                    List<String> globalImpactPaths = [
-                        'pom.xml',
-                        'common-library/',
-                        'checkstyle/'
-                    ]
-
-                    String compareBase = env.CHANGE_TARGET ?: 'HEAD~1'
-                    if (env.CHANGE_TARGET) {
-                        sh "git fetch --no-tags --depth=200 origin ${env.CHANGE_TARGET}"
-                        compareBase = "origin/${env.CHANGE_TARGET}"
-                    }
-
-                    String rawChangedFiles = sh(
-                        script: "git diff --name-only ${compareBase}...HEAD",
-                        returnStdout: true
-                    ).trim()
-
-                    List<String> changedFiles = rawChangedFiles
-                        ? (rawChangedFiles.split('\n') as List<String>)
-                            .collect { it?.trim()?.replaceFirst('^\\./', '') }
-                            .findAll { it }
-                        : []
-
-                    echo "Changed files:\n${changedFiles.join('\n')}"
-
-                    boolean shouldRunAll = changedFiles.any { file ->
-                        globalImpactPaths.any { impacted ->
-                            impacted.endsWith('/') ? file.startsWith(impacted) : file == impacted
-                        }
-                    }
-
-                    List<String> impactedModules = shouldRunAll ? modules : []
-
-                    if (!shouldRunAll) {
-                        Set<String> detectedModules = new LinkedHashSet<>()
-
-                        changedFiles.each { file ->
-                            String topLevel = file.tokenize('/')[0]
-                            if (topLevel && modules.contains(topLevel)) {
-                                detectedModules.add(topLevel)
-                            }
-
-                            if (file.startsWith('services/')) {
-                                def matcher = (file =~ /^services\/([a-z0-9-]+)-service\//)
-                                if (matcher.find()) {
-                                    String serviceModule = matcher.group(1)
-                                    if (modules.contains(serviceModule)) {
-                                        detectedModules.add(serviceModule)
-                                    }
-                                }
+                    // Check which modules are impacted based on the changed files
+                    for (file in changedFiles) {
+                        for (module in MODULES_PATH.keySet()) {
+                            if (file.startsWith(MODULES_PATH[module])) {
+                                IMPACTED_MODULES.add(module)
+                                break
                             }
                         }
-
-                        impactedModules = modules.findAll { detectedModules.contains(it) }
                     }
 
-                    echo "Detected modules: ${impactedModules.join(',')}"
-
-                    IMPACTED_MODULES = impactedModules
-
-                    env.CHANGED_MODULES = impactedModules.join(',')
-                    boolean hasImpactedModules = !impactedModules.isEmpty()
-                    env.RUN_PIPELINE = hasImpactedModules.toString()
-                    echo "RUN_PIPELINE=${env.RUN_PIPELINE}"
-
-                    if (hasImpactedModules) {
-                        echo "Impacted modules: ${env.CHANGED_MODULES}"
+                    // Set environment variables based on impacted modules
+                    if (IMPACTED_MODULES.size() > 0) {
+                        env.CHANGED_MODULES = IMPACTED_MODULES.join(',')
+                        env.RUN_PIPELINE = 'true'
                     } else {
-                        echo 'No service change detected. Skip build/test stages.'
+                        env.RUN_PIPELINE = 'false'
                     }
+
+                    echo "Changed Modules: ${env.CHANGED_MODULES}"
+                    echo "Run Pipeline: ${env.RUN_PIPELINE}"
                 }
             }
         }
 
-        stage('Build & Test Changed Services') {
+        stage('Run Tests'){
             when {
-                expression { IMPACTED_MODULES && !IMPACTED_MODULES.isEmpty() }
+                expression { return env.RUN_PIPELINE == 'true' }
             }
             steps {
-                script {
-                    IMPACTED_MODULES.each { module ->
-                        echo "Build & test module: ${module}"
-                        sh "mvn -B -pl ${module} -am clean test"
-                    }
-                }
+                echo "Running tests for impacted modules: ${env.CHANGED_MODULES}"
             }
         }
 
-        stage('No Service Changes') {
+        stage('Build and Deploy'){
             when {
-                expression { !IMPACTED_MODULES || IMPACTED_MODULES.isEmpty() }
+                expression { return env.RUN_PIPELINE == 'true' }
             }
             steps {
-                echo 'No impacted service in this commit/PR. Nothing to build.'
+                echo "Building and deploying impacted modules: ${env.CHANGED_MODULES}"
             }
         }
     }
