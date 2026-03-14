@@ -9,7 +9,7 @@ on:
       - ".github/workflows/order-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: ["**"]
+    branches: ["main"]
     paths:
       - "order/**"
       - ".github/workflows/actions/action.yaml"
@@ -84,11 +84,21 @@ jobs:
           args: --file=order/pom.xml --severity-threshold=high
 
       # SonarCloud – phân tích chất lượng và bảo mật code (cần kết quả test ở trên)
-      - name: Analyze with SonarCloud
+      # - name: Analyze with SonarCloud
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f order
+
+      # 4. SonarCloud - phân tích chất lượng code
+      - name: Analyze with Sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f order
-
+        run: |
+          mvn -B verify sonar:sonar \
+            -pl media -am \
+            -Dsonar.organization=nguyenthanhtien539 \
+            -Dsonar.projectKey=NguyenThanhTien539_yas \
+            -Dsonar.login=${SONAR_TOKEN}
   # ─────────────────────────────────────────────
   # PHASE 2 – BUILD
   # Build artifact, OWASP scan, đóng gói Docker
