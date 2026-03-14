@@ -76,9 +76,11 @@ pipeline {
                     echo "Detected modules: ${impactedModules.join(',')}"
 
                     env.CHANGED_MODULES = impactedModules.join(',')
-                    env.RUN_PIPELINE = impactedModules ? 'true' : 'false'
+                    boolean hasImpactedModules = !impactedModules.isEmpty()
+                    env.RUN_PIPELINE = hasImpactedModules.toString()
+                    echo "RUN_PIPELINE=${env.RUN_PIPELINE}"
 
-                    if (env.RUN_PIPELINE == 'true') {
+                    if (hasImpactedModules) {
                         echo "Impacted modules: ${env.CHANGED_MODULES}"
                     } else {
                         echo 'No service change detected. Skip build/test stages.'
@@ -89,7 +91,7 @@ pipeline {
 
         stage('Build & Test Changed Services') {
             when {
-                expression { env.RUN_PIPELINE == 'true' }
+                expression { env.RUN_PIPELINE?.toBoolean() }
             }
             steps {
                 script {
@@ -103,7 +105,7 @@ pipeline {
 
         stage('No Service Changes') {
             when {
-                expression { env.RUN_PIPELINE != 'true' }
+                expression { !env.RUN_PIPELINE?.toBoolean() }
             }
             steps {
                 echo 'No impacted service in this commit/PR. Nothing to build.'
