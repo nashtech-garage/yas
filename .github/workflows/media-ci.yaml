@@ -79,16 +79,11 @@ jobs:
             -Dsonar.organization=juzharii \
             -Dsonar.host.url=https://sonarcloud.io
 
-      - name: Setup Snyk
-        uses: snyk/actions/setup@master
-
       - name: Run Snyk Security Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          find . -type f -name "mvnw" -exec chmod +x {} \;
-
-          snyk test --file=media/pom.xml --command=mvn
+        working-directory: ./media
+        run: snyk test --command=mvn
 
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
