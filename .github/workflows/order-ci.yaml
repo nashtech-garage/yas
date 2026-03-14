@@ -36,10 +36,11 @@ jobs:
       - uses: ./.github/workflows/actions # Setup JDK 21, cache Maven & Sonar
 
       # Gitleaks – quét secret/token bị lộ trong code
-      # - name: Gitleaks – Scan for leaked secrets
-      #   uses: gitleaks/gitleaks-action@v2
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gitleaks – Scan for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true # Không block pipeline, chỉ report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Chạy test và tạo JaCoCo coverage report (mvn verify = compile + test + package + verify)
       - name: Run Maven Test & Generate Coverage
@@ -91,15 +92,14 @@ jobs:
 
       # 4. SonarCloud - phân tích chất lượng code
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: order               # nếu bạn chỉ muốn scan module 'order', bỏ hoặc thay nếu cần
-          args: >
-            -Dsonar.organization=nguyenthanhtien539
-            -Dsonar.projectKey=NguyenThanhTien539_yas
-            -Dsonar.login=${{ env.SONAR_TOKEN }}
+        run: |
+          mvn -B verify sonar:sonar \
+            -pl order -am \
+            -Dsonar.organization=nguyenthanhtien539 \
+            -Dsonar.projectKey=NguyenThanhTien539_yas \
+            -Dsonar.login=${SONAR_TOKEN}
   # ─────────────────────────────────────────────
   # PHASE 2 – BUILD
   # Build artifact, OWASP scan, đóng gói Docker
