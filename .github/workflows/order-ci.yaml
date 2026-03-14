@@ -90,15 +90,12 @@ jobs:
       #   run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f order
 
       # 4. SonarCloud - phân tích chất lượng code
-      - name: Analyze with Sonar
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn -B verify sonar:sonar \
-            -pl media -am \
-            -Dsonar.organization=nguyenthanhtien539 \
-            -Dsonar.projectKey=NguyenThanhTien539_yas \
-            -Dsonar.login=${SONAR_TOKEN}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: nguyenthanhtien539
+          projectKey: NguyenThanhTien539_yas
+          token: ${{ secrets.SONAR_TOKEN }}
   # ─────────────────────────────────────────────
   # PHASE 2 – BUILD
   # Build artifact, OWASP scan, đóng gói Docker
