@@ -1,0 +1,14 @@
+name: Dummy
+on:
+    pull_request:
+        branches: ["main"]
+
+jobs: # Create dummy jobs so ruleset check has at least one job to check
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - run: exit 0
+    Build:
+        runs-on: ubuntu-latest
+        steps:
+            - run: exit 0
