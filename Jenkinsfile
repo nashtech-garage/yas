@@ -6,9 +6,6 @@ pipeline {
     agent any
 
     // Removed the variables from here because we want to update them dynamically
-    environment {
-        // You can keep other static env vars here if needed
-    }
 
     stages {
         stage('Detect Changed Modules'){
