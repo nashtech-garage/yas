@@ -23,14 +23,16 @@ pipeline {
                     // Check which modules are impacted based on the changed files
                     Set<String> impactedModules = new LinkedHashSet<>()
                     for (file in changedFiles) {
+                        echo "Checking file: ${file}"
                         for (modulePath in modulesPaths) {
+                            echo "Comparing with module path: ${modulePath}"
                             if (file.startsWith(modulePath)) {
+                                echo "File ${file} impacts module ${modulePath}"
                                 impactedModules.add(modulePath.replaceAll('/$', ''))
                                 break
                             }
                         }
                     }
-
                     // Set environment variables based on impacted modules
                     if (!impactedModules.isEmpty()) {
                         env.CHANGED_MODULES = impactedModules.join(',')
