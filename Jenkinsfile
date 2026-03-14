@@ -1,3 +1,5 @@
+def IMPACTED_MODULES = []
+
 pipeline {
     agent any
 
@@ -75,6 +77,8 @@ pipeline {
 
                     echo "Detected modules: ${impactedModules.join(',')}"
 
+                    IMPACTED_MODULES = impactedModules
+
                     env.CHANGED_MODULES = impactedModules.join(',')
                     boolean hasImpactedModules = !impactedModules.isEmpty()
                     env.RUN_PIPELINE = hasImpactedModules.toString()
@@ -91,11 +95,11 @@ pipeline {
 
         stage('Build & Test Changed Services') {
             when {
-                expression { env.RUN_PIPELINE?.toBoolean() }
+                expression { IMPACTED_MODULES && !IMPACTED_MODULES.isEmpty() }
             }
             steps {
                 script {
-                    env.CHANGED_MODULES.split(',').findAll { it?.trim() }.each { module ->
+                    IMPACTED_MODULES.each { module ->
                         echo "Build & test module: ${module}"
                         sh "mvn -B -pl ${module} -am clean test"
                     }
@@ -105,7 +109,7 @@ pipeline {
 
         stage('No Service Changes') {
             when {
-                expression { !env.RUN_PIPELINE?.toBoolean() }
+                expression { !IMPACTED_MODULES || IMPACTED_MODULES.isEmpty() }
             }
             steps {
                 echo 'No impacted service in this commit/PR. Nothing to build.'
