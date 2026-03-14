@@ -1,4 +1,10 @@
 def IMPACTED_MODULES = []
+def MODULES_PATH = [
+    'cart'          : 'cart/',
+    'order'         : 'order/',
+    'payment'       : 'payment/',
+    'common-library': 'common-library/'
+]
 
 pipeline {
     agent any
@@ -6,12 +12,6 @@ pipeline {
     environment {
         CHANGED_MODULES = ''
         RUN_PIPELINE = 'false'
-        MODULES_PATH = {
-            'cart': 'cart/',
-            'order': 'order/',
-            'payment': 'payment/',
-            'common-library': 'common-library/'
-        }
     }
 
     stages {
