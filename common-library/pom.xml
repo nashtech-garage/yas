@@ -11,7 +11,10 @@
     <artifactId>common-library</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
-
+<!-- 
+    This is changes for test
+    1 2 3
+ -->
     <name>Common Library</name>
     <description>YAS Common Library service</description>
 
