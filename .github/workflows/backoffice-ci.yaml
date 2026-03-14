@@ -62,4 +62,4 @@ jobs:
               with:
                   push: true
                   context: ./backoffice
-                  tags: ghcr.io/nashtech-garage/yas-backoffice:latest
+                  tags: ghcr.io/powerstomp/yas-backoffice:latest
