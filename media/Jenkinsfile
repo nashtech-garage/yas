@@ -137,11 +137,12 @@ pipeline {
                                     passwordVariable: 'DOCKER_PASS'
                                 )]) {
                                     sh """
-                                        echo "\$DOCKER_PASS" | docker login ${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
-                                        docker build -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ./media
-                                        docker push ${DOCKER_IMAGE}:latest
-                                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                                        docker logout ${DOCKER_REGISTRY}
+                                        mkdir -p \$WORKSPACE/.docker
+                                        echo "\$DOCKER_PASS" | docker --config \$WORKSPACE/.docker login ${DOCKER_REGISTRY} -u "\$DOCKER_USER" --password-stdin
+                                        docker --config \$WORKSPACE/.docker build -t ${DOCKER_IMAGE}:latest -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ./media
+                                        docker --config \$WORKSPACE/.docker push ${DOCKER_IMAGE}:latest
+                                        docker --config \$WORKSPACE/.docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                                        docker --config \$WORKSPACE/.docker logout ${DOCKER_REGISTRY}
                                     """
                                 }
                             }
