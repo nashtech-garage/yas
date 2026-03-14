@@ -17,9 +17,6 @@ on:
       - "pom.xml"
   workflow_dispatch:
 
-env:
-  REVISION: 1.0-SNAPSHOT
-
 jobs:
   Test:
     name: Test Phase
@@ -30,11 +27,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-
       - uses: ./.github/workflows/actions
 
       - name: Run Maven Test Command
-        run: mvn clean test jacoco:report -pl media -am -Drevision=${{ env.REVISION }}
+        run: mvn clean test jacoco:report -pl media -am
 
       - name: Test Results
         uses: dorny/test-reporter@v1
@@ -64,11 +60,8 @@ jobs:
 
       - uses: ./.github/workflows/actions
 
-      - name: Make Maven Wrapper executable
-        run: chmod +x ./mvnw
-
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -pl common-library,media -am -Drevision=${{ env.REVISION }}
+        run: mvn clean install -DskipTests -pl common-library,media -am
 
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -77,13 +70,11 @@ jobs:
           path: "**/media-checkstyle-result.xml"
 
       - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -pl common-library,media -am \
-            -Drevision=${{ env.REVISION }} \
             -Dsonar.projectKey=JuzHarii_yas \
             -Dsonar.organization=juzharii \
             -Dsonar.host.url=https://sonarcloud.io
@@ -94,16 +85,12 @@ jobs:
       - name: Run Snyk Security Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          snyk test \
-            --command=./mvnw \
-            --file=pom.xml \
-            --maven-aggregate-project \
-            -- -Drevision=${{ env.REVISION }} -pl common-library,media -am
+        run: snyk test --command=./mvnw --file=pom.xml --maven-aggregate-project -- -Drevision=1.0-SNAPSHOT
 
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
+
         with:
           project: "yas"
           path: "."
@@ -114,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OWASP Dependency Check Report
-          path: ${{ github.workspace }}/reports
+          path: ${{github.workspace}}/reports
 
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
