@@ -2,14 +2,14 @@ name: order service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "order/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/order-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "order/**"
       - ".github/workflows/actions/action.yaml"
