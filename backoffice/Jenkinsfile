@@ -57,6 +57,7 @@ pipeline {
                                     '''
                                 }
                             }
+                            
                             post {
                                 always {
                                     junit testResults: 'backoffice/junit.xml',
@@ -109,7 +110,7 @@ pipeline {
                                     branch 'develop'
                                 }
                             }
-                            
+
                             steps {
                                 withCredentials([usernamePassword(
                                     credentialsId: 'docker-registry-credentials',
