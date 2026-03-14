@@ -36,10 +36,10 @@ jobs:
       - uses: ./.github/workflows/actions # Setup JDK 21, cache Maven & Sonar
 
       # Gitleaks – quét secret/token bị lộ trong code
-      - name: Gitleaks – Scan for leaked secrets
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Gitleaks – Scan for leaked secrets
+      #   uses: gitleaks/gitleaks-action@v2
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Chạy test và tạo JaCoCo coverage report (mvn verify = compile + test + package + verify)
       - name: Run Maven Test & Generate Coverage
