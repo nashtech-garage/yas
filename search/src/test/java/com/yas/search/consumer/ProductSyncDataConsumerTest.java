@@ -63,7 +63,6 @@ class ProductSyncDataConsumerTest {
         verify(productSyncDataService, times(1)).updateProduct(productId);
     }
 
-    @Disabled("Handle later once elasticsearch sync delete complete")
     @Test
     void testSync_whenDeleteAction_deleteProduct() {
         // When
