@@ -7,13 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Init') {
-            steps {
-                echo 'CI Pipeline for YAS monorepo!'
-                sh 'mvn --version'
-            }
-        }
-
         stage('Detect Changed Services') {
             steps {
                 script {
