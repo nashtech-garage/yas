@@ -17,7 +17,7 @@ jobs:
                   fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
             - uses: snyk/actions/setup@master
             - name: Snyk test
-              run: snyk test --sarif-file-output=snyk.sarif --severity-threshold=high
+              run: snyk test --all-projects --sarif-file-output=snyk.sarif --severity-threshold=high
               continue-on-error: true # To make sure that SARIF upload gets called
               env:
                   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
