@@ -16,9 +16,6 @@ jobs:
               with:
                   fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
             - uses: snyk/actions/setup@master
-            - uses: actions/setup-go@v1
-              with:
-                  go-version: "1.13"
             - name: Snyk test
               run: snyk test --sarif-file-output=snyk.sarif --severity-threshold=high
               continue-on-error: true # To make sure that SARIF upload gets called
