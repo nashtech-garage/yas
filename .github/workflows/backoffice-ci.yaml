@@ -57,6 +57,8 @@ jobs:
           args: >
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ github.repository_owner }}_backoffice
+            -Dsonar.pullrequest.provider=github
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
 
       - name: Setup Snyk CLI
         uses: snyk/actions/setup@master

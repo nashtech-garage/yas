@@ -68,6 +68,8 @@ jobs:
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ github.repository_owner }}_cart
             -Dsonar.java.binaries=target/classes
+            -Dsonar.pullrequest.provider=github
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
 
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1

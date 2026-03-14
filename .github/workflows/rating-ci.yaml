@@ -51,6 +51,8 @@ jobs:
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ github.repository_owner }}_rating
             -Dsonar.java.binaries=target/classes
+            -Dsonar.pullrequest.provider=github
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
 
       - name: OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
