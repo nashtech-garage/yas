@@ -13,6 +13,8 @@ public class OrderApplication {
         System.out.println("Starting Order Service"); // Sonar sẽ cảnh báo
         SpringApplication.run(OrderApplication.class, args);
     }
+
+    
     
     public void implementOrderService() {
         // Implement order service logic here
