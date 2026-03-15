@@ -26,6 +26,7 @@ pipeline {
         stage('Prepare Root & Commons') {
             steps {
                 sh 'find . -name "*.exec" -type f -delete || true'
+                sh 'rm -rf */target || true'
                 echo '=== Cài đặt cấu hình gốc và thư viện dùng chung ==='
                 script {
                     docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
@@ -104,6 +105,7 @@ pipeline {
                 sh 'docker ps -aq --filter label=org.testcontainers=true | xargs -r docker rm -f || true'
                 sh 'docker network prune -f || true'
 
+                sh 'rm -rf common-library/target/classes || true'
                 echo "=== Tổng hợp báo cáo JaCoCo toàn dự án ==="
                 jacoco(
                     execPattern: "*/target/*.exec",       // Lấy tất cả file exec
