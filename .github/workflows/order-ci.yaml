@@ -48,12 +48,16 @@ jobs:
       # Bước 2/2 Maven: chỉ chạy verify cho riêng order (không -am vì dep đã có trong ~/.m2).
       # verify = compile → test → jacoco:report → jacoco:check
       # Kết quả: surefire-reports/ + site/jacoco/jacoco.xml
+      # -Drevision: project dùng Maven CI Friendly Versions (${revision}) nhưng không có
+      # flatten-maven-plugin. Khi không có -am, Maven đọc POM của dep từ ~/.m2 và gặp
+      # <parent><version>${revision}</version></parent> nhưng đã mất reactor context nên
+      # không resolve được → cố tìm trên Central → fail. Truyền -Drevision thủ công để fix.
       - name: Run Tests & Generate Coverage (order only)
-        run: mvn -B verify -pl order
+        run: mvn -B verify -pl order -Drevision=1.0-SNAPSHOT
 
       # Checkstyle chỉ cho order, bỏ -am vì deps đã build ở bước trên
       - name: Run Maven Checkstyle
-        run: mvn checkstyle:checkstyle -pl order -Dcheckstyle.output.file=order-checkstyle-result.xml
+        run: mvn checkstyle:checkstyle -pl order -Drevision=1.0-SNAPSHOT -Dcheckstyle.output.file=order-checkstyle-result.xml
 
       - name: Upload Checkstyle Result
         uses: jwgmeligmeyling/checkstyle-github-action@master
@@ -102,6 +106,7 @@ jobs:
           mvn -B sonar:sonar \
             -pl order \
             -DskipTests \
+            -Drevision=1.0-SNAPSHOT \
             -Dsonar.organization=nguyenthanhtien539 \
             -Dsonar.projectKey=NguyenThanhTien539_yas \
             -Dsonar.login=${SONAR_TOKEN} \
