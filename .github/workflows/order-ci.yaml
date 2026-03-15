@@ -149,10 +149,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./order
-          push: true
-          tags: ghcr.io/nashtech-garage/yas-order:latest
+      # - name: Build and push Docker image
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./order
+      #     push: true
+      #     tags: ghcr.io/nashtech-garage/yas-order:latest
