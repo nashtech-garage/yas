@@ -90,7 +90,9 @@ def call() {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh """
-                        find ./${serviceName}/target -maxdepth 1 -type f \( -name '*-tests.jar' -o -name '*-sources.jar' -o -name '*-javadoc.jar' \) -delete
+                        find ./${serviceName}/target -maxdepth 1 -type f -name '*-tests.jar' -delete
+                        find ./${serviceName}/target -maxdepth 1 -type f -name '*-sources.jar' -delete
+                        find ./${serviceName}/target -maxdepth 1 -type f -name '*-javadoc.jar' -delete
 
                         mkdir -p \$WORKSPACE/.docker
                         echo "\$DOCKER_PASS" | docker --config \$WORKSPACE/.docker login ${dockerRegistry} -u "\$DOCKER_USER" --password-stdin
