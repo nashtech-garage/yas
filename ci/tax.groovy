@@ -1,30 +1,110 @@
 /**
- * Tax Service CI — placeholder script.
- * TODO: Replace with full CI pipeline (tests, checkstyle, OWASP, Docker) when ready.
+ * Tax Service CI — loaded and executed by the master Jenkinsfile.
+ *
+ * Tech stack : Java / Maven (multi-module, uses -pl tax -am)
+ * Phases     : Phase 1 — Test (unit tests w/ 80% coverage gate, checkstyle, OWASP dependency-check)
+ *              Phase 2 — Build artifacts + Docker image
  */
 
-def call() { 
-    def serviceName = 'tax'
+def call() {
+    def serviceName    = 'tax'
+    def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
+    def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"
 
     try {
-        stage("${serviceName}: Build") {
+        stage("${serviceName}: Prepare Build Dependencies") {
             sh "mvn clean install -pl ${serviceName} -am -DskipTests"
         }
 
-        stage("${serviceName}: Unit Tests") {
+        // ─── Phase 1: Test ─────────────────────────────────────────────────────
+        stage("${serviceName}: Phase 1 - Unit Tests") {
             try {
                 sh "mvn test jacoco:report -pl ${serviceName} -am"
             } finally {
                 junit testResults: "${serviceName}/**/surefire-reports/TEST*.xml",
                       allowEmptyResults: true
+                jacoco(
+                    execPattern              : "${serviceName}/target/jacoco.exec",
+                    classPattern             : "${serviceName}/target/classes",
+                    sourcePattern            : "${serviceName}/src/main/java",
+                    inclusionPattern         : "**/*.class",
+                    changeBuildStatus        : true,
+                    minimumInstructionCoverage: '80',
+                    minimumBranchCoverage    : '80',
+                    minimumComplexityCoverage: '80',
+                    minimumLineCoverage      : '80',
+                    minimumMethodCoverage    : '80'
+                )
             }
         }
 
-        echo "✓ ${serviceName} placeholder build completed"
+        stage("${serviceName}: Phase 1 - Code Quality") {
+            sh "mvn checkstyle:checkstyle -pl ${serviceName} -am -Dcheckstyle.output.file=${serviceName}-checkstyle-result.xml"
+            echo "Checkstyle report generated at: ${serviceName}-checkstyle-result.xml"
+        }
+
+        stage("${serviceName}: Phase 1 - Security Scan") {
+            try {
+                try {
+                    withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                        sh '''
+                            mvn -pl tax -am org.owasp:dependency-check-maven:check \
+                              -DfailBuildOnCVSS=7 \
+                              -DnvdApiKey=$NVD_API_KEY \
+                              -DdataDirectory=$JENKINS_HOME/dependency-check-data \
+                              || true
+                        '''
+                    }
+                } catch (Exception e) {
+                    echo "NVD API key credential not found. Running dependency-check without API key (slower)."
+                    sh '''
+                        mvn -pl tax -am org.owasp:dependency-check-maven:check \
+                          -DfailBuildOnCVSS=7 \
+                          -DdataDirectory=$JENKINS_HOME/dependency-check-data \
+                          || true
+                    '''
+                }
+            } finally {
+                publishHTML target: [
+                    allowMissing         : true,
+                    alwaysLinkToLastBuild: false,
+                    keepAll              : true,
+                    reportDir            : 'tax/target',
+                    reportFiles          : 'dependency-check-report.html',
+                    reportName           : 'OWASP Dependency-Check Report'
+                ]
+            }
+        }
+
+        // ─── Phase 2: Build ─────────────────────────────────────────────────────
+        stage("${serviceName}: Phase 2 - Compile & Package") {
+            sh "mvn clean install -pl ${serviceName} -am -DskipTests"
+        }
+
+        if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
+            stage("${serviceName}: Phase 2 - Build & Push Docker Image") {
+                withCredentials([usernamePassword(
+                    credentialsId   : 'docker-registry-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        mkdir -p $WORKSPACE/.docker
+                        echo "$DOCKER_PASS" | docker --config $WORKSPACE/.docker login ${dockerRegistry} -u "$DOCKER_USER" --password-stdin
+                        docker --config $WORKSPACE/.docker build -t ${dockerImage}:latest -t ${dockerImage}:${env.BUILD_NUMBER} ./${serviceName}
+                        docker --config $WORKSPACE/.docker push ${dockerImage}:latest
+                        docker --config $WORKSPACE/.docker push ${dockerImage}:${env.BUILD_NUMBER}
+                        docker --config $WORKSPACE/.docker logout ${dockerRegistry}
+                    """
+                }
+            }
+        }
+
+        echo "Tax service build completed successfully"
     } catch (Exception e) {
-        echo "✗ ${serviceName} build failed"
+        echo "Tax service build failed"
         throw e
     }
 }
 
-return this 
+return this
