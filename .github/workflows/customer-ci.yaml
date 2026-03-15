@@ -73,7 +73,7 @@ jobs:
           path: "**/customer-checkstyle-result.xml"
 
       - name: Test Results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2.6.0
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Customer-Service-Unit-Test-Results
@@ -94,7 +94,7 @@ jobs:
           -Dsonar.coverage.jacoco.xmlReportPaths=${{github.workspace}}/customer/target/site/jacoco/jacoco.xml
 
       - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
+        uses: madrapps/jacoco-report@v1.7.2
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
           paths: ${{github.workspace}}/customer/target/site/jacoco/jacoco.xml
