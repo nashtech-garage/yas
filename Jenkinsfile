@@ -16,16 +16,28 @@ pipeline {
         stage('Security Scan: Gitleaks') {
             steps {
                 script {
-                    // Xác định phạm vi scan theo branch
+                    // Fetch origin/main để có base so sánh
+                    sh 'git fetch origin main:refs/remotes/origin/main || true'
+        
                     def scanRange = ''
                     if (env.BRANCH_NAME == 'main') {
                         scanRange = 'HEAD~1..HEAD'
                     } else {
-                        scanRange = 'origin/main..HEAD'
+                        // Kiểm tra origin/main có tồn tại không
+                        def mainExists = sh(
+                            script: 'git rev-parse --verify origin/main > /dev/null 2>&1',
+                            returnStatus: true
+                        )
+                        if (mainExists == 0) {
+                            scanRange = 'origin/main..HEAD'
+                        } else {
+                            // Fallback: chỉ scan commit mới nhất
+                            scanRange = 'HEAD~1..HEAD'
+                        }
                     }
-
+        
                     echo "Scanning range: ${scanRange}"
-
+        
                     def result = sh(
                         script: """
                             gitleaks detect \
@@ -38,7 +50,7 @@ pipeline {
                         """,
                         returnStatus: true
                     )
-
+        
                     if (result == 0) {
                         echo "✅ Gitleaks: No secrets found in range [${scanRange}]"
                     } else {
