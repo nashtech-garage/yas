@@ -12,6 +12,50 @@ pipeline {
             }
         }
 
+        // ─── GITLEAKS ───────────────────────────────────────────
+        stage('Security Scan: Gitleaks') {
+            steps {
+                script {
+                    // Xác định phạm vi scan theo branch
+                    def scanRange = ''
+                    if (env.BRANCH_NAME == 'main') {
+                        scanRange = 'HEAD~1..HEAD'
+                    } else {
+                        scanRange = 'origin/main..HEAD'
+                    }
+
+                    echo "Scanning range: ${scanRange}"
+
+                    def result = sh(
+                        script: """
+                            gitleaks detect \
+                                --source=. \
+                                --log-opts="${scanRange}" \
+                                --report-format=json \
+                                --report-path=gitleaks-report.json \
+                                --exit-code=1 \
+                                --redact
+                        """,
+                        returnStatus: true
+                    )
+
+                    if (result == 0) {
+                        echo "✅ Gitleaks: No secrets found in range [${scanRange}]"
+                    } else {
+                        def report = readFile('gitleaks-report.json')
+                        echo "❌ Gitleaks detected secrets!\n${report}"
+                        error("Pipeline failed: secrets found in code!")
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'gitleaks-report.json',
+                                     allowEmptyArchive: true
+                }
+            }
+        }
+
         // ─── DETECT CHANGES ─────────────────────────────────────
         stage('Detect Changes') {
             steps {
@@ -19,28 +63,23 @@ pipeline {
                     def changedFiles = ''
 
                     try {
-                        // Trường hợp branch cũ: so sánh với commit trước đó
                         changedFiles = sh(
                             script: "git diff --name-only HEAD~1 HEAD",
                             returnStdout: true
                         ).trim()
                     } catch (Exception e) {
-                        // Trường hợp branch mới từ local: fallback so sánh với main
                         changedFiles = sh(
                             script: "git diff --name-only origin/main...HEAD",
                             returnStdout: true
                         ).trim()
                     }
 
-                    // Nếu vẫn rỗng (ví dụ tạo branch trên GitHub UI lần đầu)
-                    // thì coi như không có gì thay đổi
                     if (changedFiles == '') {
                         echo "No changed files detected."
                     }
 
                     echo "Changed files:\n${changedFiles}"
 
-                    // Set env variable cho từng service
                     env.CART_CHANGED      = changedFiles.contains('cart/')      ? 'true' : 'false'
                     env.CUSTOMER_CHANGED  = changedFiles.contains('customer/')  ? 'true' : 'false'
                     env.ORDER_CHANGED     = changedFiles.contains('order/')     ? 'true' : 'false'
@@ -448,10 +487,10 @@ pipeline {
             cleanWs()
         }
         success {
-            echo "Pipeline completed — only affected services were built."
+            echo "✅ Pipeline completed — only affected services were built."
         }
         failure {
-            echo "Pipeline failed. Check logs above."
+            echo "❌ Pipeline failed. Check logs above."
         }
     }
 }
