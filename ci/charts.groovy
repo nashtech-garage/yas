@@ -10,8 +10,8 @@
 
 def call() { 
     def chartsDir      = 'k8s/charts'
-    def owner          = 'danzgne'
-    def repo           = 'devops'
+    def owner          = 'devops-hcmus'
+    def repo           = 'yas'
     def crPackagePath  = '.cr-release-packages'
     def crIndexPath    = '.cr-index'
     // Guard: chart releases only happen on main

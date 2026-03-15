@@ -94,7 +94,7 @@ jobs:
         with:
           context: ./search
           push: false
-          tags: ghcr.io/danzgne/yas-search:latest
+          tags: ghcr.io/devops-hcmus/yas-search:latest
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -108,4 +108,4 @@ jobs:
         with:
           context: ./search
           push: true
-          tags: ghcr.io/danzgne/yas-search:latest
+          tags: ghcr.io/devops-hcmus/yas-search:latest

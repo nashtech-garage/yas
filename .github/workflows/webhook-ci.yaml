@@ -85,7 +85,7 @@ jobs:
         with:
           context: ./webhook
           push: false
-          tags: ghcr.io/danzgne/yas-webhook:latest
+          tags: ghcr.io/devops-hcmus/yas-webhook:latest
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -99,4 +99,4 @@ jobs:
         with:
           context: ./webhook
           push: true
-          tags: ghcr.io/danzgne/yas-webhook:latest
+          tags: ghcr.io/devops-hcmus/yas-webhook:latest

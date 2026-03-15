@@ -13,7 +13,7 @@
     <name>backoffice-bff</name>
     <description>Backend for backoffice</description>
     <properties>
-        <sonar.projectKey>danzgne_devops</sonar.projectKey>
+        <sonar.projectKey>devops-hcmus_yas</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>
