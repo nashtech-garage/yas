@@ -1,82 +1,284 @@
 package com.yas.product.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import com.yas.product.ProductApplication;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
-import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import com.yas.product.viewmodel.category.CategoryListGetVm;
+import com.yas.product.viewmodel.category.CategoryPostVm;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-@SpringBootTest(classes = ProductApplication.class)
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
-    @Autowired
+
+    @Mock
     private CategoryRepository categoryRepository;
-    @Autowired
-    private ProductCategoryRepository productCategoryRepository;
-    @MockBean
+
+    @Mock
     private MediaService mediaService;
-    @Autowired
+
+    @InjectMocks
     private CategoryService categoryService;
+
     private Category category;
-    private NoFileMediaVm noFileMediaVm;
+    private Category parentCategory;
 
     @BeforeEach
     void setUp() {
-
+        // Khởi tạo Category mẫu với đầy đủ field để tránh NPE khi unboxing
         category = new Category();
-        category.setName("name");
-        category.setSlug("slug");
-        category.setDescription("description");
-        category.setMetaKeyword("metaKeyword");
-        category.setMetaDescription("metaDescription");
-        category.setDisplayOrder((short) 1);
+        category.setId(1L);
+        category.setName("Electronics");
+        category.setSlug("electronics");
+        category.setDescription("Description");
+        category.setImageId(10L);
+        category.setDisplayOrder((short) 1); // Fix lỗi ép kiểu int sang Short
         category.setIsPublished(true);
-        category.setImageId(1L);
-        categoryRepository.save(category);
+        category.setMetaKeyword("key");
+        category.setMetaDescription("desc");
 
-        noFileMediaVm = new NoFileMediaVm(1L, "caption", "fileName", "mediaType", "url");
-    }
-
-    @AfterEach
-    void tearDown() {
-        productCategoryRepository.deleteAll();
-        categoryRepository.deleteAll();
+        parentCategory = new Category();
+        parentCategory.setId(2L);
+        parentCategory.setName("Parent Category");
+        parentCategory.setDisplayOrder((short) 0);
     }
 
     @Test
+    @DisplayName("Lấy danh sách phân trang - Thành công")
+    void getPageableCategories_Success() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Category> categoryPage = new PageImpl<>(List.of(category));
+        when(categoryRepository.findAll(pageable)).thenReturn(categoryPage);
+
+        CategoryListGetVm result = categoryService.getPageableCategories(0, 10);
+
+        assertThat(result.categoryContent()).hasSize(1);
+        assertThat(result.totalElements()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Tạo Category - Thành công")
+    void create_Success() {
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+        when(postVm.name()).thenReturn("New Category");
+        when(postVm.parentId()).thenReturn(null);
+        
+        when(categoryRepository.findExistedName(anyString(), any())).thenReturn(null);
+        when(categoryRepository.save(any(Category.class))).thenReturn(category);
+
+        Category result = categoryService.create(postVm);
+
+        assertThat(result).isNotNull();
+        verify(categoryRepository).save(any(Category.class));
+    }
+
+    @Test
+    @DisplayName("Cập nhật Category - Thành công (Dirty Checking)")
+    void update_Success() {
+        // Arrange
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+        when(postVm.name()).thenReturn("Updated Name");
+        when(postVm.slug()).thenReturn("updated-slug");
+        when(postVm.parentId()).thenReturn(null);
+        
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        // Code gọi validateDuplicateName(name, id) -> repository.findExistedName(name, id)
+        when(categoryRepository.findExistedName("Updated Name", 1L)).thenReturn(null);
+
+        // Act
+        categoryService.update(postVm, 1L);
+
+        // Assert
+        // Vì code dùng @Transactional, ta kiểm tra giá trị của object đã thay đổi
+        assertThat(category.getName()).isEqualTo("Updated Name");
+        assertThat(category.getSlug()).isEqualTo("updated-slug");
+        
+        // Kiểm tra tương tác thay vì lệnh save() nếu code không gọi save() tường minh
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).findExistedName("Updated Name", 1L);
+    }
+
+    @Test
+    @DisplayName("Cập nhật Category - Lỗi trùng tên")
+    void update_DuplicateName_ThrowsException() {
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+        when(postVm.name()).thenReturn("Existing Name");
+        
+        when(categoryRepository.findExistedName("Existing Name", 1L)).thenReturn(new Category());
+
+        assertThatThrownBy(() -> categoryService.update(postVm, 1L))
+                .isInstanceOf(DuplicatedException.class);
+    }
+
+    @Test
+    @DisplayName("Cập nhật Category - Lỗi chọn chính mình làm cha")
+    void update_CircularReference_ThrowsBadRequest() {
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+        when(postVm.parentId()).thenReturn(1L); 
+        
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+
+        assertThatThrownBy(() -> categoryService.update(postVm, 1L))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("Lấy chi tiết Category - Thành công")
     void getCategoryById_Success() {
-        when(mediaService.getMedia(category.getImageId())).thenReturn(noFileMediaVm);
-        CategoryGetDetailVm categoryGetDetailVm = categoryService.getCategoryById(category.getId());
-        assertNotNull(categoryGetDetailVm);
-        assertEquals("name", categoryGetDetailVm.name());
+        category.setParent(parentCategory);
+        NoFileMediaVm mockMedia = mock(NoFileMediaVm.class);
+        when(mockMedia.url()).thenReturn("http://image.url");
+        
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(mediaService.getMedia(10L)).thenReturn(mockMedia);
+
+        CategoryGetDetailVm result = categoryService.getCategoryById(1L);
+
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.parentId()).isEqualTo(2L);
+        assertThat(result.displayOrder()).isEqualTo((short) 1);
+        assertThat(result.categoryImage().url()).isEqualTo("http://image.url");
     }
 
     @Test
-    void getCategories_Success() {
-        when(mediaService.getMedia(any())).thenReturn(noFileMediaVm);
-        Assertions.assertEquals(1, categoryService.getCategories("name").size());
-        CategoryGetVm categoryGetVm = categoryService.getCategories("name").getFirst();
-        assertEquals("name", categoryGetVm.name());
+    @DisplayName("Tìm kiếm theo tên - Thành công")
+    void getCategories_ByName_Success() {
+        when(categoryRepository.findByNameContainingIgnoreCase("Elec")).thenReturn(List.of(category));
+        NoFileMediaVm mockMedia = mock(NoFileMediaVm.class);
+        when(mockMedia.url()).thenReturn("url");
+        when(mediaService.getMedia(anyLong())).thenReturn(mockMedia);
+
+        List<CategoryGetVm> result = categoryService.getCategories("Elec");
+
+        assertThat(result).isNotEmpty();
+        assertThat(result.get(0).name()).isEqualTo("Electronics");
     }
 
     @Test
-    void getCategoriesPageable_Success() {
-        when(mediaService.getMedia(category.getImageId())).thenReturn(noFileMediaVm);
-        Assertions.assertEquals(1, categoryService.getPageableCategories(0, 1).categoryContent().size());
-        CategoryGetVm categoryGetVm = categoryService.getCategories("a").getFirst();
-        assertEquals("name", categoryGetVm.name());
+    @DisplayName("Lấy danh sách theo IDs - Thành công")
+    void getCategoryByIds_Success() {
+        when(categoryRepository.findAllById(anyList())).thenReturn(List.of(category));
+
+        List<CategoryGetVm> result = categoryService.getCategoryByIds(List.of(1L));
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("Lấy Top Category - Thành công")
+    void getTopNthCategories_Success() {
+        Pageable pageable = PageRequest.of(0, 5);
+        when(categoryRepository.findCategoriesOrderedByProductCount(pageable))
+                .thenReturn(List.of("Cat1", "Cat2"));
+
+        List<String> result = categoryService.getTopNthCategories(5);
+
+        assertThat(result).hasSize(2);
+        verify(categoryRepository).findCategoriesOrderedByProductCount(pageable);
+    }
+    @Test
+    @DisplayName("Tạo Category - Trùng tên")
+    void create_DuplicateName_ThrowsException() {
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+        when(postVm.name()).thenReturn("Electronics");
+
+        when(categoryRepository.findExistedName("Electronics", null))
+                .thenReturn(new Category());
+
+        assertThatThrownBy(() -> categoryService.create(postVm))
+                .isInstanceOf(DuplicatedException.class);
+    }
+    @Test
+    @DisplayName("Tạo Category - Có parent")
+    void create_WithParent_Success() {
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+
+        when(postVm.name()).thenReturn("Child Category");
+        when(postVm.parentId()).thenReturn(2L);
+
+        when(categoryRepository.findExistedName(anyString(), any()))
+                .thenReturn(null);
+
+        when(categoryRepository.findById(2L))
+                .thenReturn(Optional.of(parentCategory));
+
+        when(categoryRepository.save(any(Category.class)))
+                .thenReturn(category);
+
+        Category result = categoryService.create(postVm);
+
+        assertThat(result).isNotNull();
+        verify(categoryRepository).findById(2L);
+    }
+    @Test
+    @DisplayName("Tạo Category - Parent không tồn tại")
+    void create_ParentNotFound() {
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+
+        when(postVm.name()).thenReturn("Child Category");
+        when(postVm.parentId()).thenReturn(99L);
+
+        when(categoryRepository.findExistedName(anyString(), any()))
+                .thenReturn(null);
+
+        when(categoryRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> categoryService.create(postVm))
+                .isInstanceOf(BadRequestException.class);
+    }
+    @Test
+    @DisplayName("Update Category - Không tìm thấy")
+    void update_CategoryNotFound() {
+        CategoryPostVm postVm = mock(CategoryPostVm.class);
+
+        when(categoryRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> categoryService.update(postVm, 1L))
+                .isInstanceOf(NotFoundException.class);
+    }
+    @Test
+    @DisplayName("Lấy chi tiết Category - Không tồn tại")
+    void getCategoryById_NotFound() {
+
+        when(categoryRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> categoryService.getCategoryById(1L))
+                .isInstanceOf(NotFoundException.class);
+    }
+    @Test
+    @DisplayName("Lấy Category theo IDs - List rỗng")
+    void getCategoryByIds_EmptyList() {
+
+        when(categoryRepository.findAllById(anyList()))
+                .thenReturn(List.of());
+
+        List<CategoryGetVm> result = categoryService.getCategoryByIds(List.of());
+
+        assertThat(result).isEmpty();
     }
 }

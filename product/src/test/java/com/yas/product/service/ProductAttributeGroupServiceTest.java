@@ -3,10 +3,12 @@ package com.yas.product.service;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +20,8 @@ import com.yas.product.viewmodel.productattribute.ProductAttributeGroupListGetVm
 import com.yas.product.viewmodel.productattribute.ProductAttributeGroupVm;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -126,5 +130,41 @@ class ProductAttributeGroupServiceTest {
         when(repository.findExistedName(anyString(), anyLong())).thenReturn(group);
 
         assertThrows(DuplicatedException.class, () -> service.save(group));
+    }
+
+    @Test
+    @DisplayName("Update: Giữ nguyên tên cũ của chính bản ghi đó - Thành công")
+    void test_save_existing_group_with_same_name_success() {
+        // GIVEN
+        ProductAttributeGroup existingGroup = new ProductAttributeGroup();
+        existingGroup.setId(1L);
+        existingGroup.setName("Old Name");
+
+        // Giả lập: findExistedName không tìm thấy bản ghi NÀO KHÁC trùng tên
+        when(repository.findExistedName("Old Name", 1L)).thenReturn(null);
+
+        // WHEN
+        assertDoesNotThrow(() -> service.save(existingGroup));
+
+        // THEN
+        verify(repository, times(1)).save(existingGroup);
+    }
+
+    @Test
+    void test_save_existing_group_with_duplicate_name_throws_exception() {
+        ProductAttributeGroup currentGroup = new ProductAttributeGroup();
+        currentGroup.setId(1L);
+        currentGroup.setName("Existed Name");
+
+        ProductAttributeGroup anotherGroup = new ProductAttributeGroup();
+        anotherGroup.setId(2L); // ID khác 1L
+        
+        when(repository.findExistedName("Existed Name", 1L)).thenReturn(anotherGroup);
+
+        // Kiểm tra ném ra đúng loại Exception
+        assertThrows(DuplicatedException.class, () -> service.save(currentGroup));
+        
+        // Đảm bảo không bao giờ gọi đến hàm save của repository
+        verify(repository, never()).save(any());
     }
 }
