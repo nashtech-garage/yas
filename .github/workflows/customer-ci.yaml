@@ -31,8 +31,8 @@ jobs:
 
       - name: Gitleaks check
         run: |
-          docker pull zricethezav/gitleaks:v8.18.4
-          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="./customer" --config="/work/gitleaks.toml" --verbose --no-git
+          docker pull zricethezav/gitleaks:latest
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:latest detect --source="./customer" --config="/work/gitleaks.toml" --verbose --no-git
 
   build:
     runs-on: ubuntu-latest
