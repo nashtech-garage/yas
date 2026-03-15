@@ -180,7 +180,7 @@ pipeline {
                             // ── Inline: load and run the service Groovy script ────────
                             parallelBuilds["Build ${localSvc}"] = {
                                 def svcScript = load("ci/${localSvc}.groovy")
-                                svcScript.run()
+                                svcScript.call()
                             }
                         } else {
                             // ── External: trigger the service's Multibranch job ───────

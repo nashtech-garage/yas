@@ -6,7 +6,7 @@
  *              Phase 2 — Build artifacts + Docker image
  */
 
-def run() {
+def call() {
     def serviceName    = 'location'
     def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
     def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"
