@@ -102,6 +102,19 @@ pipeline {
                 echo "=== BẮT ĐẦU DỌN DẸP TÀI NGUYÊN (RESET) ==="
                 sh 'docker ps -aq --filter label=org.testcontainers=true | xargs -r docker rm -f || true'
                 sh 'docker network prune -f || true'
+
+                echo "=== Tổng hợp báo cáo JaCoCo toàn dự án ==="
+                jacoco(
+                    execPattern: "*/target/*.exec",       // Lấy tất cả file exec
+                    classPattern: "*/target/classes",     
+                    sourcePattern: "*/src/main/java",     
+                    inclusionPattern: "**/*.class",
+                    minimumInstructionCoverage: '70',     // Chốt chặn 70% tổng
+                    maximumInstructionCoverage: '70',
+                    buildOverBuild: false,
+                    changeBuildStatus: true,
+                    skipCopyOfSrcFiles: true 
+                )
             }
         }
     }
@@ -156,26 +169,3 @@ def publishTestResults(String serviceName) {
     }
 }
 
-post {
-    always {
-        script {
-            echo "=== BẮT ĐẦU DỌN DẸP TÀI NGUYÊN (RESET) ==="
-            sh 'docker ps -aq --filter label=org.testcontainers=true | xargs -r docker rm -f || true'
-            sh 'docker network prune -f || true'
-            
-            // THÊM VÀO ĐÂY: QUÉT TỔNG HỢP JACOCO CHO TẤT CẢ SERVICE
-            echo "=== Tổng hợp báo cáo JaCoCo toàn dự án ==="
-            jacoco(
-                execPattern: "*/target/*.exec",       // Quét tất cả file exec ở mọi service
-                classPattern: "*/target/classes",     // Quét tất cả thư mục classes
-                sourcePattern: "*/src/main/java",     // Quét tất cả source code
-                inclusionPattern: "**/*.class",
-                minimumInstructionCoverage: '70',     // Vẫn giữ chốt chặn 70%
-                maximumInstructionCoverage: '70',
-                buildOverBuild: false,
-                changeBuildStatus: true,
-                skipCopyOfSrcFiles: true 
-            )
-        }
-    }
-}
