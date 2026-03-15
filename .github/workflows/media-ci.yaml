@@ -82,7 +82,7 @@ jobs:
 
       - name: Setup Snyk
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: snyk/actions/setup@v4
+        uses: snyk/actions/setup@master
 
       - name: Run Snyk Security Scan
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
