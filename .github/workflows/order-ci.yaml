@@ -35,7 +35,7 @@ jobs:
       # Gitleaks – quét secret/token bị lộ trong code
       - name: Gitleaks – Scan for leaked secrets
         uses: gitleaks/gitleaks-action@v2
-        continue-on-error: true # Không block pipeline, chỉ report
+        # continue-on-error: true # Không block pipeline, chỉ report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -43,7 +43,7 @@ jobs:
       - name: Run Maven Test & Generate Coverage
         # run: mvn verify -pl order -am
         run: mvn -B clean install -pl order -am
-    
+
       # Kiểm tra code stylex
       - name: Run Maven Checkstyle
         run: mvn checkstyle:checkstyle -pl order -am -Dcheckstyle.output.file=order-checkstyle-result.xml
