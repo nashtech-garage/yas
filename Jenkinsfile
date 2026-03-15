@@ -88,18 +88,6 @@ pipeline {
                     when { changeset "promotion/**" }
                     steps { runServiceCI('promotion') }
                 }
-                stage('Service: Backoffice-BFF') {
-                    when { changeset "backoffice-bff/**" }
-                    steps { runServiceCI('backoffice-bff') }
-                }
-                stage('Service: Storefront-BFF') {
-                    when { changeset "storefront-bff/**" }
-                    steps { runServiceCI('storefront-bff') }
-                }
-                stage('Service: Sampledata') {
-                    when { changeset "sampledata/**" }
-                    steps { runServiceCI('sampledata') }
-                }
                 stage('Service: payment-paypal') {
                     when { changeset "payment-paypal/**" }
                     steps { runServiceCI('payment-paypal') }
