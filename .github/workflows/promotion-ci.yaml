@@ -76,11 +76,29 @@ jobs:
       #     -Dsonar.host.url=https://sonarcloud.io \
       #     -Dsonar.token=$SONAR_TOKEN \
       #     -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Build Command
+        run: mvn clean install -pl promotion -am
+      - name: Run Maven Checkstyle
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: mvn checkstyle:checkstyle -pl promotion -am -Dcheckstyle.output.file=promotion-checkstyle-result.xml
+      # - name: Upload Checkstyle Result
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   uses: jwgmeligmeyling/checkstyle-github-action@master
+      #   with:
+      #     path: '**/promotion-checkstyle-result.xml'
+      - name: Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Promotion-Service-Unit-Test-Results
+          path: "promotion/**/*-reports/TEST*.xml"
+          reporter: java-junit
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl promotion -am
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f promotion 
           -Dsonar.projectKey=Simpolette_yas_test 
           -Dsonar.organization=simpolette 
           -Dsonar.host.url=https://sonarcloud.io
