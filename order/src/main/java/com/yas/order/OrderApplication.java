@@ -28,6 +28,10 @@ public class OrderApplication {
             // intentionally swallowed to trigger empty-catch warning (S1166)
         }
 
+
+
+        
+
         SpringApplication.run(OrderApplication.class, args);
     }
 
