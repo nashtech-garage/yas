@@ -13,9 +13,9 @@
     <name>inventory</name>
     <description>YAS Inventory Service</description>
     <properties>
-        <sonar.organization>danzgne</sonar.organization>
+        <sonar.organization>devops-hcmus</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>danzgne_devops</sonar.projectKey>
+        <sonar.projectKey>devops-hcmus_yas</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>

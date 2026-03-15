@@ -85,7 +85,7 @@ jobs:
         with:
           context: ./media
           push: false
-          tags: ghcr.io/danzgne/yas-media:latest
+          tags: ghcr.io/devops-hcmus/yas-media:latest
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -99,4 +99,4 @@ jobs:
         with:
           context: ./media
           push: true
-          tags: ghcr.io/danzgne/yas-media:latest
+          tags: ghcr.io/devops-hcmus/yas-media:latest

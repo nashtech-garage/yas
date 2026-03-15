@@ -85,7 +85,7 @@ jobs:
         with:
           context: ./product
           push: false
-          tags: ghcr.io/danzgne/yas-product:latest
+          tags: ghcr.io/devops-hcmus/yas-product:latest
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -99,4 +99,4 @@ jobs:
         with:
           context: ./product
           push: true
-          tags: ghcr.io/danzgne/yas-product:latest
+          tags: ghcr.io/devops-hcmus/yas-product:latest

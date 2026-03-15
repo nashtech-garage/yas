@@ -68,7 +68,7 @@ jobs:
         with:
           context: ./sampledata
           push: false
-          tags: ghcr.io/danzgne/yas-sampledata:latest
+          tags: ghcr.io/devops-hcmus/yas-sampledata:latest
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -82,4 +82,4 @@ jobs:
         with:
           context: ./sampledata
           push: true
-          tags: ghcr.io/danzgne/yas-sampledata:latest
+          tags: ghcr.io/devops-hcmus/yas-sampledata:latest

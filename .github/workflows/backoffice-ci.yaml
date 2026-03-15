@@ -59,7 +59,7 @@ jobs:
         with:
           context: ./backoffice
           push: false
-          tags: ghcr.io/danzgne/yas-backoffice:latest
+          tags: ghcr.io/devops-hcmus/yas-backoffice:latest
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -72,12 +72,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backoffice
-          tags: ghcr.io/danzgne/yas-backoffice:latest
+          tags: ghcr.io/devops-hcmus/yas-backoffice:latest
       - name: Run Trivy vulnerability scanner
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: 'ghcr.io/danzgne/yas-backoffice:latest'
+          image-ref: 'ghcr.io/devops-hcmus/yas-backoffice:latest'
           format: 'sarif'
           output: 'trivy-results.sarif'
       - name: Push Docker image
@@ -86,7 +86,7 @@ jobs:
         with:
           push: true
           context: ./backoffice
-          tags: ghcr.io/danzgne/yas-backoffice:latest
+          tags: ghcr.io/devops-hcmus/yas-backoffice:latest
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:

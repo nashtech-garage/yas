@@ -45,9 +45,9 @@
         <yas.version>1.0-SNAPSHOT</yas.version>
         <revision>1.0-SNAPSHOT</revision>
 
-        <sonar.organization>danzgne</sonar.organization>
+        <sonar.organization>devops-hcmus</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>danzgne_devops</sonar.projectKey>
+        <sonar.projectKey>devops-hcmus_yas</sonar.projectKey>
         <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <org.mapstruct.version>	1.6.2</org.mapstruct.version>
         <org.lombok.version>1.18.34</org.lombok.version>

@@ -9,7 +9,7 @@
 def call() {
     def serviceName    = 'webhook'
     def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
-    def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"
+    def dockerImage    = "${dockerRegistry}/devops-hcmus/yas-${serviceName}"
 
     try {
         stage("${serviceName}: Prepare Build Dependencies") {
