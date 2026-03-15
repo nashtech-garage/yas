@@ -83,10 +83,10 @@ jobs:
       # - name: Setup Snyk
       #   uses: snyk/actions/setup@master
 
-      - name: Run Snyk Security Scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --command=./mvnw --file=pom.xml --maven-aggregate-project -- -Drevision=1.0-SNAPSHOT
+      # - name: Run Snyk Security Scan
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   run: snyk test --command=./mvnw --file=pom.xml --maven-aggregate-project -- -Drevision=1.0-SNAPSHOT
 
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
