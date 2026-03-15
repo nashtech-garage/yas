@@ -155,12 +155,19 @@ pipeline {
                 script {
                     def services = env.SERVICES_TO_BUILD.split(',')
                     def parallelBuilds = [:]
+                    def baseNode = env.NODE_NAME
+                    def baseWorkspace = env.WORKSPACE
 
                     services.each { svc ->
                         def localSvc = svc.trim()
                         parallelBuilds["Build ${localSvc}"] = {
-                            def svcScript = load("ci/${localSvc}.groovy")
-                            svcScript.call()
+                            node(baseNode) {
+                                ws("${baseWorkspace}@${localSvc}") {
+                                    checkout scm
+                                    def svcScript = load("ci/${localSvc}.groovy")
+                                    svcScript.call()
+                                }
+                            }
                         }
                     }
 
