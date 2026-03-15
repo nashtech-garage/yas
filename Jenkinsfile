@@ -108,11 +108,11 @@ pipeline {
                 sh 'rm -rf common-library/target/classes || true'
                 echo "=== Tổng hợp báo cáo JaCoCo toàn dự án ==="
                 jacoco(
-                    execPattern: "*/target/*.exec",       // Lấy tất cả file exec
+                    execPattern: "*/target/*.exec",      
                     classPattern: "*/target/classes",     
                     sourcePattern: "*/src/main/java",     
                     inclusionPattern: "**/*.class",
-                    minimumInstructionCoverage: '70',     // Chốt chặn 70% tổng
+                    minimumInstructionCoverage: '70',     
                     maximumInstructionCoverage: '70',
                     buildOverBuild: false,
                     changeBuildStatus: true,
