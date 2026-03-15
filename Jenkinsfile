@@ -25,6 +25,7 @@ pipeline {
         // --- STAGE 2: CHUẨN BỊ POM GỐC (Để fix lỗi ${revision}) ---
         stage('Prepare Root & Commons') {
             steps {
+                sh 'find . -name "*.exec" -type f -delete || true'
                 echo '=== Cài đặt cấu hình gốc và thư viện dùng chung ==='
                 script {
                     docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
