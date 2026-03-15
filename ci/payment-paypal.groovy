@@ -82,7 +82,7 @@ def call() {
             sh 'mvn clean install -pl payment-paypal -am -DskipTests'
         }
 
-        if (1 == 1 || env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
+        if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
             stage("${serviceName}: Phase 2 - Build & Push Docker Image") {
                 withCredentials([usernamePassword(
                     credentialsId   : 'docker-registry-credentials',
