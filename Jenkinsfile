@@ -16,8 +16,8 @@ def SERVICE_JOBS = [
     'backoffice'    : 'yas-backoffice-ci',
     'backoffice-bff': 'yas-backoffice-bff-ci',
     'cart'          : 'yas-cart-ci',
+    'charts'        : 'yas-charts-ci',
     'customer'      : 'yas-customer-ci',
-    'delivery'      : 'yas-delivery-ci',
     'inventory'     : 'yas-inventory-ci',
     'location'      : 'yas-location-ci',
     'media'         : 'yas-media-ci',
@@ -38,7 +38,7 @@ def SERVICE_JOBS = [
 
 // ─── Root pom.xml affects all Java services ───────────────────────────────────
 def JAVA_SERVICES = [
-    'backoffice-bff', 'cart', 'customer', 'delivery', 'inventory',
+    'backoffice-bff', 'cart', 'customer', 'inventory',
     'location', 'media', 'order', 'payment', 'payment-paypal',
     'product', 'promotion', 'rating', 'recommendation', 'sampledata',
     'search', 'storefront-bff', 'tax', 'webhook'
@@ -119,6 +119,11 @@ pipeline {
                         if (SERVICE_JOBS.containsKey(topDir)) {
                             servicesToBuild << topDir
                         }
+
+                        // Special handling: k8s/charts/** changes should trigger 'charts' service
+                        if (topDir == 'k8s' && parts.length > 1 && parts[1] == 'charts') {
+                            servicesToBuild << 'charts'
+                        }
                     }
 
                     // If root pom.xml changed, trigger all Java services
@@ -136,6 +141,16 @@ pipeline {
                     echo "=== Services to build: ${servicesToBuild.join(', ')} ==="
                     env.SERVICES_TO_BUILD = servicesToBuild.join(',')
                 }
+            }
+        }
+
+        stage('Wait for Branch Scan') {
+            when {
+                expression { return env.SERVICES_TO_BUILD?.trim() }
+            }
+            steps {
+                echo "Waiting 5s for Multibranch Pipeline branch scans to complete..."
+                sleep(time: 5, unit: 'SECONDS')
             }
         }
 
