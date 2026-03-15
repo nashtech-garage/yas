@@ -19,7 +19,7 @@ pipeline {
         stage('Release Charts') {
             when {
                 allOf {
-                    branch 'main'
+                    // branch 'main'
                     anyOf {
                         changeset 'k8s/charts/**'
                         expression { return currentBuild.changeSets.isEmpty() }
@@ -29,7 +29,12 @@ pipeline {
             stages {
                 stage('Checkout') {
                     steps {
-                        checkout scm
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: scm.branches,
+                            userRemoteConfigs: scm.userRemoteConfigs,
+                            extensions: [[$class: 'CloneOption', depth: 0, noTags: false]]
+                        ])
                     }
                 }
 
@@ -60,6 +65,7 @@ pipeline {
                             tar -xzf cr.tar.gz cr
                             mv cr "\$WORKSPACE/cr"
                             chmod +x "\$WORKSPACE/cr"
+                            rm -f cr.tar.gz
                         """
                     }
                 }
