@@ -85,7 +85,11 @@ pipeline {
                         sh """
                             export PATH=\"\$WORKSPACE/.tools:\$PATH\"
                             mkdir -p ${CR_PACKAGE_PATH}
-                            cr package k8s/charts/* --package-path ${CR_PACKAGE_PATH}
+                            for chart in k8s/charts/*/; do
+                                if [ -f \"\${chart}Chart.yaml\" ]; then
+                                    cr package \"\$chart\" --package-path ${CR_PACKAGE_PATH}
+                                fi
+                            done
                         """
                     }
                 }
