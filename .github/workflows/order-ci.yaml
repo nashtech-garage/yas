@@ -82,6 +82,7 @@ jobs:
           name: order-jacoco-report
           path: order/target/site/jacoco
 
+
       # Snyk – quét lỗ hổng trong dependencies
       - name: Snyk – Scan for vulnerabilities
         uses: snyk/actions/maven@master
