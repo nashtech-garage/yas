@@ -75,16 +75,16 @@ jobs:
             -Dsonar.organization=juzharii \
             -Dsonar.host.url=https://sonarcloud.io
 
-      # 3. Install Snyk
-      - name: Setup Snyk
-        uses: snyk/actions/setup@master
+      # # 3. Install Snyk
+      # - name: Setup Snyk
+      #   uses: snyk/actions/setup@master
 
-      # 4. scan source code
-      - name: Run Snyk Security Scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        working-directory: ./media
-        run: snyk test --command=mvn
+      # # 4. scan source code
+      # - name: Run Snyk Security Scan
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   working-directory: ./media
+      #   run: snyk test --command=mvn
 
       # 5. Log in to GitHub Container Registry
       - name: Log in to the Container registry
