@@ -105,20 +105,6 @@ pipeline {
                 sh 'docker ps -aq --filter label=org.testcontainers=true | xargs -r docker rm -f || true'
                 sh 'docker network prune -f || true'
                 
-                echo "=== Quét SonarCloud tổng hợp cho TOÀN BỘ dự án ==="
-                docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                    withCredentials([
-                        string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN'),
-                        string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION'),
-                        string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')
-                    ]) {
-                        sh """mvn sonar:sonar \
-                        -Dsonar.token=\$SONAR_TOKEN \
-                        -Dsonar.organization=\$SONAR_ORGANIZATION \
-                        -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
-                    }
-                }
-                
                 sh 'rm -rf common-library/target/classes || true'
                 echo "=== Tổng hợp báo cáo JaCoCo toàn dự án ==="
                 jacoco(
@@ -132,7 +118,21 @@ pipeline {
                     changeBuildStatus: true,
                     skipCopyOfSrcFiles: true 
                 )
-
+                
+                echo "=== Quét SonarCloud tổng hợp cho TOÀN BỘ dự án ==="
+                docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
+                    withCredentials([
+                        string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN'),
+                        string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION'),
+                        string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')
+                    ]) {
+                        sh """mvn compile sonar:sonar \
+                        -Drevision=1.0-SNAPSHOT \
+                        -Dsonar.token=\$SONAR_TOKEN \
+                        -Dsonar.organization=\$SONAR_ORGANIZATION \
+                        -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
+                    }
+                }
             }
         }
     }
