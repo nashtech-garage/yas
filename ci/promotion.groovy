@@ -8,12 +8,12 @@ def call() {
 
     try {
         stage("${serviceName}: Build") {
-            sh "mvn clean install -pl ${serviceName} -DskipTests"
+            sh "mvn clean install -pl ${serviceName} -am -DskipTests"
         }
 
         stage("${serviceName}: Unit Tests") {
             try {
-                sh "mvn test jacoco:report -pl ${serviceName}"
+                sh "mvn test jacoco:report -pl ${serviceName} -am"
             } finally {
                 junit testResults: "${serviceName}/**/surefire-reports/TEST*.xml",
                       allowEmptyResults: true
@@ -27,4 +27,4 @@ def call() {
     }
 }
 
-return this
+return this 
