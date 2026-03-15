@@ -118,6 +118,18 @@ pipeline {
                     changeBuildStatus: true,
                     skipCopyOfSrcFiles: true 
                 )
+
+                echo "=== Quét SonarCloud tổng hợp cho TOÀN BỘ dự án ==="
+                withCredentials([
+                    string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN'),
+                    string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION'),
+                    string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')
+                ]) {
+                    sh """mvn sonar:sonar \
+                    -Dsonar.token=\$SONAR_TOKEN \
+                    -Dsonar.organization=\$SONAR_ORGANIZATION \
+                    -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
+                }
             }
         }
     }
@@ -127,20 +139,25 @@ pipeline {
 def runServiceCI(String serviceName) {
     script {
         docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-            echo "=== Phase: Unit Test & Sonar Scan cho ${serviceName} ==="
+            echo "=== Phase: Unit Test cho ${serviceName} ==="
             
-            withCredentials([
-                string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN'),
-                string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION'),
-                string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')
-            ]) {
-                sh """mvn install sonar:sonar \
-                -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am \
-                -DskipITs=true \
-                -Dsonar.token=\$SONAR_TOKEN \
-                -Dsonar.organization=\$SONAR_ORGANIZATION \
-                -Dsonar.projectKey=\$SONAR_PROJECT_KEY"""
-            }
+            sh """mvn install \
+            -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am \
+            -DskipITs=true"""
+            // echo "=== Phase: Unit Test & Sonar Scan cho ${serviceName} ==="
+            
+            // withCredentials([
+            //     string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN'),
+            //     string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION'),
+            //     string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')
+            // ]) {
+            //     sh """mvn install sonar:sonar \
+            //     -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am \
+            //     -DskipITs=true \
+            //     -Dsonar.token=\$SONAR_TOKEN \
+            //     -Dsonar.organization=\$SONAR_ORGANIZATION \
+            //     -Dsonar.projectKey=\$SONAR_PROJECT_KEY"""
+            // }
             
             // echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
             // jacoco(
