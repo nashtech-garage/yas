@@ -20,7 +20,6 @@ def call() {
         echo "Charts: skipping release (branch '${env.BRANCH_NAME}' is not 'main')"
         return
     }
-
     try {
         stage('charts: Checkout') {
             // Full-depth checkout with tags so chart-releaser can read history

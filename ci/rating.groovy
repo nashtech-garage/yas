@@ -5,6 +5,7 @@
 
 def call() {
     def serviceName = 'rating'
+    
     try {
         stage("${serviceName}: Build") {
             sh "mvn clean install -pl ${serviceName} -DskipTests"
