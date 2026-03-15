@@ -2,7 +2,7 @@ name: Snyk security scan
 
 on:
   push:
-    branches: ["main, chore/snyk-integration-20260315"]
+    branches: ["main", "chore/snyk-integration-20260315"]
   pull_request:
     branches: ["main"]
   schedule:
