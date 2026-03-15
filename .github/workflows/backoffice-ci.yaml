@@ -48,7 +48,7 @@ jobs:
               uses: snyk/actions/node@master
               continue-on-error: true # To make sure that SARIF upload gets called
               with:
-                  args: --file=backoffice/package.json --sarif-file-output=snyk.sarif --severity-threshold=high
+                  args: -d --file=backoffice/package.json --sarif-file-output=snyk.sarif --severity-threshold=high
               env:
                   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
             - name: Upload Snyk test result to GitHub Code Scanning
