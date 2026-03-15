@@ -18,4 +18,10 @@ class MessagesUtilsTest {
         String result = MessagesUtils.getMessage("invalid.code");
         assertEquals("invalid.code", result);
     }
+
+    @Test
+    void testGetMessageWithMultipleArguments() {
+        String result = MessagesUtils.getMessage("WRONG_EMAIL_FORMAT", "val1", "val2");
+        assertEquals("Wrong email format for val1", result);
+    }
 }

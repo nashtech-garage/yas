@@ -50,6 +50,7 @@ jobs:
     needs: build
     permissions:
       pull-requests: write
+      checks: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
 
