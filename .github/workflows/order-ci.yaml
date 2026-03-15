@@ -17,9 +17,6 @@ on:
       - "pom.xml"
   workflow_dispatch:
 
-
-
-
 jobs:
   # ─────────────────────────────────────────────
   # PHASE 1 – TEST
@@ -54,7 +51,7 @@ jobs:
       - name: Upload Checkstyle Result
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/order-checkstyle-result.xml'
+          path: "**/order-checkstyle-result.xml"
 
       # Upload kết quả test lên GitHub (hiển thị trên PR/commit)
       - name: Upload Test Results
@@ -73,8 +70,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
           min-coverage-changed-files: 70
-          title: 'Order Coverage Report'
+          title: "Order Coverage Report"
           update-comment: true
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: order-jacoco-report
+          path: order/target/site/jacoco
 
       # Snyk – quét lỗ hổng trong dependencies
       - name: Snyk – Scan for vulnerabilities
@@ -127,9 +130,9 @@ jobs:
         env:
           JAVA_HOME: /opt/jdk
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
+          project: "yas"
+          path: "."
+          format: "HTML"
 
       - name: Upload OWASP Dependency Check Report
         uses: actions/upload-artifact@master
