@@ -36,8 +36,6 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --sarif-file-output=snyk.sarif
-      - name: List
-        run: ls
 
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
@@ -68,6 +66,16 @@ jobs:
       #       # mandatory
       #       -Dsonar.projectKey="Simpolette_yas_test"
       #       -Dsonar.organization="simpolette"
+      # - name: Analyze with sonar cloud
+      #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f promotion/pom.xml \
+      #     -Dsonar.projectKey=Simpolette_yas_test \
+      #     -Dsonar.organization=simpolette \
+      #     -Dsonar.host.url=https://sonarcloud.io \
+      #     -Dsonar.token=$SONAR_TOKEN \
+      #     -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
@@ -77,7 +85,7 @@ jobs:
           -Dsonar.organization=simpolette \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.token=$SONAR_TOKEN \
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          # -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
       # - name: Analyze with sonar cloud
       #   if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
