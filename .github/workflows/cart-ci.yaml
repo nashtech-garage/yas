@@ -95,7 +95,12 @@ jobs:
       #   continue-on-error: true
       #   run: snyk test --org=dungx2409 --maven-aggregate-project --severity-threshold=high
         # run: snyk test --file=cart/pom.xml --severity-threshold=high
-        
+      - name: Snyk Scan
+        uses: docker://snyk/snyk:maven # Image này đã có sẵn cả Snyk và Java
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=cart/pom.xml --severity-threshold=high
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
