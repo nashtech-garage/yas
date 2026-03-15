@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(EmbeddingQueryController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class EmbeddingQueryControllerTest {
+class EmbeddingQueryControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
