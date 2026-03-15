@@ -22,4 +22,10 @@ class MessagesUtilsTest {
         assertEquals(errorCode, result);
     }
 
+    @Test
+    void testPrivateConstructor() throws Exception {
+        java.lang.reflect.Constructor<MessagesUtils> constructor = MessagesUtils.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        org.junit.jupiter.api.Assertions.assertNotNull(constructor.newInstance());
+    }
 }

@@ -42,4 +42,10 @@ class AuthenticationUtilsTest {
         assertThrows(SignInRequiredException.class, AuthenticationUtils::getCurrentUserId);
     }
 
+    @Test
+    void testPrivateConstructor() throws Exception {
+        java.lang.reflect.Constructor<AuthenticationUtils> constructor = AuthenticationUtils.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        org.junit.jupiter.api.Assertions.assertNotNull(constructor.newInstance());
+    }
 }
