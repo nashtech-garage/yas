@@ -1,0 +1,89 @@
+name: Snyk security scan
+
+on:
+  push:
+    branches: ["main", "chore/snyk-integration-20260315"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  dependency-scan:
+    name: Snyk OSS dependency scan
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    env:
+      SNYK_API_KEY: ${{ secrets.snyk_api_key }}
+      SNYK_TOKEN: ${{ secrets.snyk_api_key }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Validate required snyk_api_key secret
+        if: ${{ env.SNYK_API_KEY == '' }}
+        run: |
+          echo "snyk_api_key is empty. Add it in Settings > Secrets and variables > Actions."
+          exit 1
+      - name: Run Snyk dependency scan (high and critical)
+        continue-on-error: true
+        run: |
+          snyk test \
+            --all-projects \
+            --detection-depth=4 \
+            --severity-threshold=high \
+            --sarif-file-output=snyk-oss.sarif
+      - name: Upload Snyk dependency SARIF to GitHub Security
+        if: ${{ always() && hashFiles('snyk-oss.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-oss.sarif
+      - name: Monitor dependencies in Snyk on main
+        if: ${{ github.ref == 'refs/heads/main' }}
+        continue-on-error: true
+        run: |
+          snyk monitor --all-projects --detection-depth=4
+
+  code-scan:
+    name: Snyk code scan
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    env:
+      SNYK_API_KEY: ${{ secrets.snyk_api_key }}
+      SNYK_TOKEN: ${{ secrets.snyk_api_key }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Validate required snyk_api_key secret
+        if: ${{ env.SNYK_API_KEY == '' }}
+        run: |
+          echo "snyk_api_key is empty. Add it in Settings > Secrets and variables > Actions."
+          exit 1
+      - name: Run Snyk code scan (high and critical)
+        continue-on-error: true
+        run: |
+          snyk code test \
+            --severity-threshold=high \
+            --sarif-file-output=snyk-code.sarif
+      - name: Upload Snyk code SARIF to GitHub Security
+        if: ${{ always() && hashFiles('snyk-code.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-code.sarif
