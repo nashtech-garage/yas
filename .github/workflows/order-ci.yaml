@@ -73,6 +73,7 @@ jobs:
           title: "Order Coverage Report"
           update-comment: true
 
+      # Export coverage report để dùng cho SonarCloud ở phase sau
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -109,6 +110,7 @@ jobs:
   # Build artifact, OWASP scan, đóng gói Docker
   # Chỉ chạy khi phase Test đã pass
   # ─────────────────────────────────────────────
+
   build:
     name: Build
     runs-on: ubuntu-latest
