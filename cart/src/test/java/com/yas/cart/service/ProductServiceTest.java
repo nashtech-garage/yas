@@ -64,6 +64,78 @@ class ProductServiceTest {
         assertThat(result.get(2).id()).isEqualTo(3);
     }
 
+    @Test
+    void getProductById_WhenProductExists_ShouldReturnProduct() {
+        Long productId = 1L;
+        ProductThumbnailVm mockProduct = new ProductThumbnailVm(
+            productId, "Product 1", "product-1", "http://example.com/product1.jpg"
+        );
+
+        when(serviceUrlConfig.product()).thenReturn("http://api.yas.local/product");
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(Mockito.any(URI.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        
+        // Bí mật đã được bật mí: Ép kiểu Mock trả về một List chứa sản phẩm!
+        when(responseSpec.toEntity(Mockito.<ParameterizedTypeReference<List<ProductThumbnailVm>>>any()))
+            .thenReturn(ResponseEntity.ok(List.of(mockProduct)));
+
+        ProductThumbnailVm result = productService.getProductById(productId);
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(productId);
+    }
+
+    @Test
+    void existsById_WhenProductExists_ShouldReturnTrue() {
+        Long productId = 1L;
+        ProductThumbnailVm mockProduct = new ProductThumbnailVm(
+            productId, "Product 1", "product-1", "http://example.com/product1.jpg"
+        );
+
+        when(serviceUrlConfig.product()).thenReturn("http://api.yas.local/product");
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(Mockito.any(URI.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        
+        // Giả lập trả về một List có chứa sản phẩm (tức là sản phẩm CÓ tồn tại)
+        when(responseSpec.toEntity(Mockito.<ParameterizedTypeReference<List<ProductThumbnailVm>>>any()))
+            .thenReturn(ResponseEntity.ok(List.of(mockProduct)));
+
+        boolean exists = productService.existsById(productId);
+
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    void existsById_WhenProductDoesNotExist_ShouldReturnFalse() {
+        Long productId = 99L;
+
+        when(serviceUrlConfig.product()).thenReturn("http://api.yas.local/product");
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(Mockito.any(URI.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        
+        // Giả lập trả về một List RỖNG (tức là KHÔNG TÌM THẤY sản phẩm nào)
+        when(responseSpec.toEntity(Mockito.<ParameterizedTypeReference<List<ProductThumbnailVm>>>any()))
+            .thenReturn(ResponseEntity.ok(List.of()));
+
+        boolean exists = productService.existsById(productId);
+
+        assertThat(exists).isFalse();
+    }
+
+    @Test
+    void handleProductThumbnailFallback_ShouldThrowException() {
+        // Sửa lại: Bắt lỗi thay vì assert kết quả trả về
+        Throwable mockException = new RuntimeException("Circuit Breaker Fallback Triggered");
+        
+        // Vì hàm fallback thực tế ném lỗi ra ngoài, ta dùng assertThrows để kiểm tra
+        org.junit.jupiter.api.Assertions.assertThrows(Throwable.class, () -> {
+            productService.handleProductThumbnailFallback(mockException);
+        });
+    }
+
     private List<ProductThumbnailVm> getProductThumbnailVms() {
 
         ProductThumbnailVm product1 = new ProductThumbnailVm(

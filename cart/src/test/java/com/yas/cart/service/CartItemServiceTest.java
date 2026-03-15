@@ -247,6 +247,41 @@ class CartItemServiceTest {
             assertEquals(1, cartItemGetVms.size());
             assertEquals(expectedQuantity, cartItemGetVms.getFirst().quantity());
         }
+        @Test
+        void testDeleteOrAdjustCartItem_whenCartItemDeleteVmsIsEmpty_shouldReturnEmptyList() {
+            // 1. Giả lập user đang đăng nhập (vì service luôn lấy userId)
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            List<CartItemDeleteVm> emptyList = List.of();
+            
+            // 2. Giả lập kết quả trả về từ DB là các list rỗng
+            when(cartItemRepository.findByCustomerIdAndProductIdIn(any(), any())).thenReturn(List.of());
+            when(cartItemRepository.saveAll(any())).thenReturn(List.of());
+            
+            // 3. Thực thi
+            List<CartItemGetVm> result = cartItemService.deleteOrAdjustCartItem(emptyList);
+            
+            // 4. Kiểm tra: Kết quả trả về rỗng, và repo được gọi với list rỗng
+            assertEquals(0, result.size());
+            verify(cartItemRepository).saveAll(List.of());
+            verify(cartItemRepository).deleteAll(List.of());
+        }
+    }
+
+    @Nested
+    class DeleteCartItemTest {
+
+        @Test
+        void testDeleteCartItem_shouldDeleteSuccessfully() {
+            // 1. Giả lập user đang đăng nhập
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+
+            // 2. Thực thi hàm cần test
+            cartItemService.deleteCartItem(PRODUCT_ID_SAMPLE);
+
+            // 3. Xác minh hàm xóa của repository đã được gọi đúng với User ID và Product ID
+            // (Lưu ý: Nếu trong repository của bạn đặt tên hàm khác, hãy đổi lại tên hàm ở dòng verify này cho khớp nhé)
+            verify(cartItemRepository).deleteByCustomerIdAndProductId(CURRENT_USER_ID_SAMPLE, PRODUCT_ID_SAMPLE);
+        }
     }
 
     private void mockCurrentUserId(String userIdToMock) {
