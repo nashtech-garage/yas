@@ -1,4 +1,4 @@
-name: payment service ci/cd
+name: payment service ci
 
 on:
   push:
@@ -44,12 +44,6 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Build
         run: mvn clean package -DskipTests -pl payment -am
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: payment-jar
-          path: payment/target/*.jar
-          retention-days: 1
 
   test:
     runs-on: ubuntu-latest
@@ -102,6 +96,7 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
+
     permissions:
       security-events: write
 
@@ -119,29 +114,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk.sarif
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [test, security]
-    if: ${{ github.ref == 'refs/heads/main' }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: payment-jar
-          path: payment/target
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v6
-        with:
-          context: ./payment
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/yas-payment:latest
