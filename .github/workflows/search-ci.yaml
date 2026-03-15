@@ -2,7 +2,6 @@ name: search service ci
 
 on:
     push:
-        branches: ["main"]
         paths:
             - "search/**"
             - ".github/workflows/actions/action.yaml"

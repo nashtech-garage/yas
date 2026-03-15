@@ -2,7 +2,6 @@ name: webhook service ci
 
 on:
     push:
-        branches: ["main"]
         paths:
             - "webhook/**"
             - ".github/workflows/actions/action.yaml"
@@ -28,10 +27,10 @@ jobs:
             - name: Run Maven Build Command
               run: mvn clean install -pl webhook -am
             - name: Run Maven Checkstyle
-              
+
               run: mvn checkstyle:checkstyle -pl webhook -am -Dcheckstyle.output.file=webhook-checkstyle-result.xml
             - name: Upload Checkstyle Result
-              
+
               uses: jwgmeligmeyling/checkstyle-github-action@master
               with:
                   path: "**/webhook-checkstyle-result.xml"
@@ -43,12 +42,12 @@ jobs:
                   path: "webhook/**/*-reports/TEST*.xml"
                   reporter: java-junit
             - name: Analyze with sonar cloud
-              
+
               env:
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
               run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f webhook
             - name: OWASP Dependency Check
-              
+
               uses: dependency-check/Dependency-Check_Action@main
               env:
                   JAVA_HOME: /opt/jdk
@@ -57,14 +56,14 @@ jobs:
                   path: "."
                   format: "HTML"
             - name: Upload OWASP Dependency Check results
-              
+
               uses: actions/upload-artifact@master
               with:
                   name: OWASP Dependency Check Report
                   path: ${{github.workspace}}/reports
             - name: Add coverage report to PR
               uses: madrapps/jacoco-report@v1.6.1
-              
+
               with:
                   paths: ${{github.workspace}}/webhook/target/site/jacoco/jacoco.xml
                   token: ${{secrets.GITHUB_TOKEN}}

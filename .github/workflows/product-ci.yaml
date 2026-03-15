@@ -2,7 +2,6 @@ name: product service ci
 
 on:
     push:
-        branches: ["main"]
         paths:
             - "product/**"
             - ".github/workflows/actions/action.yaml"

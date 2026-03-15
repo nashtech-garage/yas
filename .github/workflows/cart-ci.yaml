@@ -2,7 +2,6 @@ name: cart service ci
 
 on:
     push:
-        branches: ["main"]
         paths:
             - "cart/**"
             - ".github/workflows/actions/action.yaml"

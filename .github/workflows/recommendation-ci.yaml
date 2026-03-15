@@ -2,7 +2,6 @@ name: recommendation service ci
 
 on:
     push:
-        branches: ["main"]
         paths:
             - "recommendation/**"
             - ".github/workflows/actions/action.yaml"
