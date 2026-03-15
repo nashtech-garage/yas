@@ -56,7 +56,12 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn sonar:sonar -pl customer -am -Dsonar.projectKey=thanhdatttt_DevOps-Project -Dsonar.organization=thanhdatttt -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.jacoco.xmlReportPaths=customer/target/site/jacoco/jacoco.xml
+        run: mvn sonar:sonar
+          -pl customer -am
+          -Dsonar.projectKey=thanhdatttt_DevOps-Project
+          -Dsonar.organization=thanhdatttt
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.coverage.jacoco.xmlReportPaths=${{github.workspace}}/customer/target/site/jacoco/jacoco.xml
 
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
