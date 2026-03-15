@@ -14,13 +14,18 @@ import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Brand;
 import com.yas.product.model.Product;
+import com.yas.product.model.ProductOption;
+import com.yas.product.model.ProductOptionValue;
 import com.yas.product.model.ProductRelated;
 import com.yas.product.repository.*;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.product.ProductDetailVm;
 import com.yas.product.viewmodel.product.ProductGetDetailVm;
+import com.yas.product.viewmodel.product.ProductOptionValueDisplay;
 import com.yas.product.viewmodel.product.ProductPostVm;
 import com.yas.product.viewmodel.product.ProductPutVm;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +39,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import com.yas.product.viewmodel.product.ProductQuantityPutVm;
+import com.yas.product.viewmodel.product.ProductVariationPutVm;
 
 import org.springframework.data.domain.Page;
 
@@ -836,5 +842,5 @@ void getRelatedProductsBackoffice_ShouldCoverLambda() {
         assertNotNull(result);
         assertFalse(result.productContent().isEmpty());
         assertEquals("Related Product", result.productContent().get(0).name());
-    }
+    }    
 }
