@@ -91,10 +91,11 @@ jobs:
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
-
+        env:
+          JAVA_HOME: ""
         with:
-          project: "yas"
-          path: "."
+          project: "media"
+          path: "./media"
           format: "HTML"
 
       - name: Upload OWASP Dependency Check results
