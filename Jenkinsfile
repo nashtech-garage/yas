@@ -10,10 +10,10 @@
 def INLINE_SERVICES = [
     'backoffice', 'backoffice-bff', 'cart', 'charts',
     'customer', 'inventory', 'location', 'media',
-    'order', 'payment', 'payment-paypal', 'product', 'promotion',
-    'rating', 'recommendation', 'sampledata', 'search',
-    'storefront', 'storefront-bff', 'tax', 'webhook'
 ]
+//    'order', 'payment', 'payment-paypal', 'product', 'promotion',
+//     'rating', 'recommendation', 'sampledata', 'search',
+//     'storefront', 'storefront-bff', 'tax', 'webhook'
 
 // ─── Root pom.xml affects all Java services ───────────────────────────────────
 def JAVA_SERVICES = [

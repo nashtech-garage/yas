@@ -15,7 +15,6 @@ def call() {
             // Match GitHub Actions flow: install module and internal deps first.
             sh 'mvn clean install -pl cart -DskipTests'
         }
-
         // ─── Phase 1: Test ─────────────────────────────────────────────────────
         stage("${serviceName}: Phase 1 - Unit Tests") {
             try {

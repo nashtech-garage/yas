@@ -14,7 +14,6 @@ def call() {
     def repo           = 'devops'
     def crPackagePath  = '.cr-release-packages'
     def crIndexPath    = '.cr-index'
-
     // Guard: chart releases only happen on main
     if (env.BRANCH_NAME != 'main') {
         echo "Charts: skipping release (branch '${env.BRANCH_NAME}' is not 'main')"

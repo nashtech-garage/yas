@@ -10,6 +10,7 @@ def call() {
     def serviceName    = 'inventory'
     def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
     def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"
+    
     try {
         stage("${serviceName}: Prepare Build Dependencies") {
             // Match GitHub Actions flow: install module and internal deps first.

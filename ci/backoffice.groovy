@@ -10,7 +10,6 @@ def call() {
     def serviceName    = 'backoffice'
     def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
     def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"
-
     try {
         stage("${serviceName}: Install Dependencies") {
             dir(serviceName) {

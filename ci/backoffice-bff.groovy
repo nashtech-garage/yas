@@ -10,7 +10,6 @@ def call() {
     def serviceName    = 'backoffice-bff'
     def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
     def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"
-
     try {
         stage("${serviceName}: Prepare Build Dependencies") {
             // Use -f flag since backoffice-bff has its own pom.xml
