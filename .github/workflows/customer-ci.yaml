@@ -18,15 +18,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks check
+        run: |
+          docker pull zricethezav/gitleaks:v8.18.4
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="./customer" --config="/work/gitleaks.toml" --verbose --no-git
+
   build:
     runs-on: ubuntu-latest
+    needs: gitleaks
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: ./.github/workflows/actions
-
       - name: Build
         run: mvn clean package -DskipTests -pl customer -am
 
@@ -40,9 +52,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: ./.github/workflows/actions
-
       - name: Run Tests
         run: mvn test -pl customer -am
 
@@ -87,19 +97,6 @@ jobs:
           min-coverage-changed-files: 70
           title: "Customer Coverage Report"
           update-comment: true
-
-  gitleaks:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Gitleaks check
-        run: |
-          docker pull zricethezav/gitleaks:v8.18.4
-          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="./customer" --config="/work/gitleaks.toml" --verbose --no-git
 
   security:
     runs-on: ubuntu-latest
