@@ -96,7 +96,7 @@ pipeline {
 
                 stage('Upload Releases') {
                     steps {
-                        withCredentials([string(credentialsId: 'github-credentials', variable: 'CR_TOKEN')]) {
+                        withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
                             sh """
                                 export PATH=\"\$WORKSPACE/.tools:\$PATH\"
                                 cr upload \\
@@ -112,7 +112,7 @@ pipeline {
 
                 stage('Update Index') {
                     steps {
-                        withCredentials([string(credentialsId: 'github-credentials', variable: 'CR_TOKEN')]) {
+                        withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
                             sh """
                                 export PATH=\"\$WORKSPACE/.tools:\$PATH\"
                                 mkdir -p ${CR_INDEX_PATH}
