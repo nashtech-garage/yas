@@ -45,20 +45,21 @@ pipeline {
                 stage('Install Tools') {
                     steps {
                         sh """
-                            # Install Helm manually (no sudo)
+                            # Install Helm into workspace
                             HELM_VERSION="v3.20.1"
                             curl -sSLo helm.tar.gz "https://get.helm.sh/helm-\${HELM_VERSION}-linux-amd64.tar.gz"
                             tar -xzf helm.tar.gz
-                            mv linux-amd64/helm /usr/local/bin/helm
-                            chmod +x /usr/local/bin/helm
+                            mv linux-amd64/helm "\$WORKSPACE/helm"
+                            chmod +x "\$WORKSPACE/helm"
                             rm -rf helm.tar.gz linux-amd64
 
-                            # Install chart-releaser (cr)
+                            # Install chart-releaser (cr) into workspace
                             CR_VERSION="1.6.1"
                             curl -sSLo cr.tar.gz \\
                               "https://github.com/helm/chart-releaser/releases/download/v\${CR_VERSION}/chart-releaser_\${CR_VERSION}_linux_amd64.tar.gz"
                             tar -xzf cr.tar.gz cr
-                            chmod +x cr && mv cr /usr/local/bin/cr
+                            mv cr "\$WORKSPACE/cr"
+                            chmod +x "\$WORKSPACE/cr"
                         """
                     }
                 }
@@ -66,6 +67,7 @@ pipeline {
                 stage('Add Helm Repo') {
                     steps {
                         sh """
+                            export PATH="\$WORKSPACE:\$PATH"
                             helm repo add stakater https://stakater.github.io/stakater-charts
                             helm repo update
                         """
@@ -75,6 +77,7 @@ pipeline {
                 stage('Package Charts') {
                     steps {
                         sh """
+                            export PATH="\$WORKSPACE:\$PATH"
                             mkdir -p ${CR_PACKAGE_PATH}
                             cr package k8s/charts/* --package-path ${CR_PACKAGE_PATH}
                         """
@@ -85,6 +88,7 @@ pipeline {
                     steps {
                         withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
                             sh """
+                                export PATH="\$WORKSPACE:\$PATH"
                                 cr upload \\
                                   --owner ${OWNER} \\
                                   --git-repo ${REPO} \\
@@ -100,6 +104,7 @@ pipeline {
                     steps {
                         withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
                             sh """
+                                export PATH="\$WORKSPACE:\$PATH"
                                 mkdir -p ${CR_INDEX_PATH}
                                 cr index \\
                                   --owner ${OWNER} \\
