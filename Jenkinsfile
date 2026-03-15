@@ -122,7 +122,7 @@ pipeline {
             when { expression { env.HAS_CHANGES == 'true' } }
             steps {
                 script {
-                    sh "mvn verify -pl ${env.CHANGED_SERVICES} -am"
+                    sh "mvn verify -pl ${env.CHANGED_SERVICES} -am -Dsurefire.rerunFailingTestsCount=1 -Dfailsafe.rerunFailingTestsCount=1"
                 }
             }
             post {

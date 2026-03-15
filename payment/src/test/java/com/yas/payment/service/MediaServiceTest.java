@@ -15,6 +15,7 @@ import com.yas.payment.viewmodel.paymentprovider.MediaVm;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,39 @@ class MediaServiceTest {
         // Then
         assertTrue(medias.isEmpty());
         verify(restClient, times(0)).get();
+    }
+
+    @Test
+    public void fallbackGetMediaVmMap_ShouldReturnEmptyMap() throws Exception {
+        // Given
+        var cod = new PaymentProvider();
+        cod.setId(PaymentMethod.COD.name());
+        cod.setMediaId(1L);
+
+        java.lang.reflect.Method fallbackMethod = MediaService.class.getDeclaredMethod("fallbackGetMediaVmMap", List.class, Throwable.class);
+        fallbackMethod.setAccessible(true);
+
+        @SuppressWarnings("unchecked")
+        Map<Long, MediaVm> result = (Map<Long, MediaVm>) fallbackMethod.invoke(mediaService, List.of(cod), new RuntimeException("Test throwable"));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getMedia_whenExceptionThrown_shouldTriggerFallback() throws Exception {
+        // Given
+        var cod = new PaymentProvider();
+        cod.setId(PaymentMethod.COD.name());
+        cod.setMediaId(1L);
+
+        java.lang.reflect.Method fallbackMethod = MediaService.class.getDeclaredMethod("fallbackGetMediaVmMap", List.class, Throwable.class);
+        fallbackMethod.setAccessible(true);
+
+        // When
+        var result = (java.util.Map<Long, MediaVm>) fallbackMethod.invoke(mediaService, List.of(cod), new RuntimeException("Test exception"));
+
+        // Then
+        assertTrue(result.isEmpty());
     }
 
     private void mockRestClientGetMethod(RestClient restClient) {

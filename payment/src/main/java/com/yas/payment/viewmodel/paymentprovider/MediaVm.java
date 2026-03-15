@@ -20,4 +20,6 @@ public class MediaVm {
         this.url = url;
     }
 
+    public MediaVm() {}
+
 }
