@@ -12,10 +12,70 @@ pipeline {
             }
         }
 
+        // ─── DETECT CHANGES ─────────────────────────────────────
+        stage('Detect Changes') {
+            steps {
+                script {
+                    def changedFiles = ''
+
+                    try {
+                        // Trường hợp branch cũ: so sánh với commit trước đó
+                        changedFiles = sh(
+                            script: "git diff --name-only HEAD~1 HEAD",
+                            returnStdout: true
+                        ).trim()
+                    } catch (Exception e) {
+                        // Trường hợp branch mới từ local: fallback so sánh với main
+                        changedFiles = sh(
+                            script: "git diff --name-only origin/main...HEAD",
+                            returnStdout: true
+                        ).trim()
+                    }
+
+                    // Nếu vẫn rỗng (ví dụ tạo branch trên GitHub UI lần đầu)
+                    // thì coi như không có gì thay đổi
+                    if (changedFiles == '') {
+                        echo "No changed files detected."
+                    }
+
+                    echo "Changed files:\n${changedFiles}"
+
+                    // Set env variable cho từng service
+                    env.CART_CHANGED      = changedFiles.contains('cart/')      ? 'true' : 'false'
+                    env.CUSTOMER_CHANGED  = changedFiles.contains('customer/')  ? 'true' : 'false'
+                    env.ORDER_CHANGED     = changedFiles.contains('order/')     ? 'true' : 'false'
+                    env.PRODUCT_CHANGED   = changedFiles.contains('product/')   ? 'true' : 'false'
+                    env.RATING_CHANGED    = changedFiles.contains('rating/')    ? 'true' : 'false'
+                    env.INVENTORY_CHANGED = changedFiles.contains('inventory/') ? 'true' : 'false'
+                    env.MEDIA_CHANGED     = changedFiles.contains('media/')     ? 'true' : 'false'
+                    env.TAX_CHANGED       = changedFiles.contains('tax/')       ? 'true' : 'false'
+                    env.LOCATION_CHANGED  = changedFiles.contains('location/')  ? 'true' : 'false'
+                    env.PROMOTION_CHANGED = changedFiles.contains('promotion/') ? 'true' : 'false'
+
+                    echo """
+                    ┌─────────────────────────────────┐
+                    │        SERVICES TO BUILD         │
+                    ├─────────────────────────────────┤
+                    │ cart:      ${env.CART_CHANGED}
+                    │ customer:  ${env.CUSTOMER_CHANGED}
+                    │ order:     ${env.ORDER_CHANGED}
+                    │ product:   ${env.PRODUCT_CHANGED}
+                    │ rating:    ${env.RATING_CHANGED}
+                    │ inventory: ${env.INVENTORY_CHANGED}
+                    │ media:     ${env.MEDIA_CHANGED}
+                    │ tax:       ${env.TAX_CHANGED}
+                    │ location:  ${env.LOCATION_CHANGED}
+                    │ promotion: ${env.PROMOTION_CHANGED}
+                    └─────────────────────────────────┘
+                    """
+                }
+            }
+        }
+
         // ─── CART ───────────────────────────────────────────────
         stage('Test & Build: cart') {
             when {
-                changeset "cart/**"
+                environment name: 'CART_CHANGED', value: 'true'
             }
             stages {
                 stage('cart - Unit Test + Coverage') {
@@ -52,7 +112,7 @@ pipeline {
         // ─── CUSTOMER ───────────────────────────────────────────
         stage('Test & Build: customer') {
             when {
-                changeset "customer/**"
+                environment name: 'CUSTOMER_CHANGED', value: 'true'
             }
             stages {
                 stage('customer - Unit Test + Coverage') {
@@ -89,7 +149,7 @@ pipeline {
         // ─── ORDER ──────────────────────────────────────────────
         stage('Test & Build: order') {
             when {
-                changeset "order/**"
+                environment name: 'ORDER_CHANGED', value: 'true'
             }
             stages {
                 stage('order - Unit Test + Coverage') {
@@ -126,7 +186,7 @@ pipeline {
         // ─── PRODUCT ────────────────────────────────────────────
         stage('Test & Build: product') {
             when {
-                changeset "product/**"
+                environment name: 'PRODUCT_CHANGED', value: 'true'
             }
             stages {
                 stage('product - Unit Test + Coverage') {
@@ -163,7 +223,7 @@ pipeline {
         // ─── RATING ─────────────────────────────────────────────
         stage('Test & Build: rating') {
             when {
-                changeset "rating/**"
+                environment name: 'RATING_CHANGED', value: 'true'
             }
             stages {
                 stage('rating - Unit Test + Coverage') {
@@ -200,7 +260,7 @@ pipeline {
         // ─── INVENTORY ──────────────────────────────────────────
         stage('Test & Build: inventory') {
             when {
-                changeset "inventory/**"
+                environment name: 'INVENTORY_CHANGED', value: 'true'
             }
             stages {
                 stage('inventory - Unit Test + Coverage') {
@@ -237,7 +297,7 @@ pipeline {
         // ─── MEDIA ──────────────────────────────────────────────
         stage('Test & Build: media') {
             when {
-                changeset "media/**"
+                environment name: 'MEDIA_CHANGED', value: 'true'
             }
             stages {
                 stage('media - Unit Test + Coverage') {
@@ -274,7 +334,7 @@ pipeline {
         // ─── TAX ────────────────────────────────────────────────
         stage('Test & Build: tax') {
             when {
-                changeset "tax/**"
+                environment name: 'TAX_CHANGED', value: 'true'
             }
             stages {
                 stage('tax - Unit Test + Coverage') {
@@ -308,10 +368,10 @@ pipeline {
             }
         }
 
-        // ─── LOCATION ────────────────────────────────────────────────
+        // ─── LOCATION ───────────────────────────────────────────
         stage('Test & Build: location') {
             when {
-                changeset "location/**"
+                environment name: 'LOCATION_CHANGED', value: 'true'
             }
             stages {
                 stage('location - Unit Test + Coverage') {
@@ -348,7 +408,7 @@ pipeline {
         // ─── PROMOTION ──────────────────────────────────────────
         stage('Test & Build: promotion') {
             when {
-                changeset "promotion/**"
+                environment name: 'PROMOTION_CHANGED', value: 'true'
             }
             stages {
                 stage('promotion - Unit Test + Coverage') {
@@ -381,7 +441,6 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
