@@ -60,7 +60,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/workflows/actions
       - name: Run Tests
-        run: mvn test -pl customer -am
+        run: mvn verify -pl customer -am
 
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
