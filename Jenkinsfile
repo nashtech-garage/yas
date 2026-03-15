@@ -1,40 +1,20 @@
 /**
- * Root Jenkinsfile — CI Change Detector
+ * Root Jenkinsfile — CI Change Detector & Inline Builder
  *
- * This pipeline runs on every push to the repo.
- * It detects which service directories changed and triggers the corresponding
- * per-service build jobs in parallel.
- *
- * Prerequisites on Jenkins controller:
- *   - Each service job must be created and named exactly as listed in SERVICE_JOBS below.
- *   - This pipeline job must be configured with SCM polling or a webhook trigger.
+ * This pipeline runs on every push to the repo (single Multibranch Pipeline).
+ * It detects which service directories changed, then loads the service's Groovy
+ * script from ci/<service>.groovy and runs all affected services in parallel.
  */
 
-// ─── Service registry ────────────────────────────────────────────────────────
-// Maps a top-level directory in the repo to the Jenkins job name for that service.
-def SERVICE_JOBS = [
-    'backoffice'    : 'yas-backoffice-ci',
-    'backoffice-bff': 'yas-backoffice-bff-ci',
-    'cart'          : 'yas-cart-ci',
-    'charts'        : 'yas-charts-ci',
-    'customer'      : 'yas-customer-ci',
-    'inventory'     : 'yas-inventory-ci',
-    'location'      : 'yas-location-ci',
-    'media'         : 'yas-media-ci',
-    'order'         : 'yas-order-ci',
-    'payment'       : 'yas-payment-ci',
-    'payment-paypal': 'yas-payment-paypal-ci',
-    'product'       : 'yas-product-ci',
-    'promotion'     : 'yas-promotion-ci',
-    'rating'        : 'yas-rating-ci',
-    'recommendation': 'yas-recommendation-ci',
-    'sampledata'    : 'yas-sampledata-ci',
-    'search'        : 'yas-search-ci',
-    'storefront'    : 'yas-storefront-ci',
-    'storefront-bff': 'yas-storefront-bff-ci',
-    'tax'           : 'yas-tax-ci',
-    'webhook'       : 'yas-webhook-ci',
+// ─── All services — scripts live in ci/ ──────────────────────────────────────
+def INLINE_SERVICES = [
+    'backoffice', 'backoffice-bff', 'cart', 'charts',
+    'customer', 'inventory', 'location', 'media',
+    'order', 'payment', 'payment-paypal', 'product', 'promotion',
+    'rating', 'recommendation', 'sampledata', 'search',
+    'storefront', 'storefront-bff', 'tax', 'webhook'
 ]
+   
 
 // ─── Root pom.xml affects all Java services ───────────────────────────────────
 def JAVA_SERVICES = [
@@ -50,18 +30,19 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY = 'ghcr.io'
+        MAVEN_OPTS      = '-Drevision=1.0-SNAPSHOT'
     }
 
     tools {
-        jdk   'jdk-21'
-        maven 'maven-3'
+        jdk    'jdk-21'
+        maven  'maven-3'
         nodejs 'nodejs-20'
     }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         timestamps()
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 60, unit: 'MINUTES')
         skipDefaultCheckout()
     }
 
@@ -105,8 +86,7 @@ pipeline {
 
                     echo "=== Changed files ===\n${changedFiles}"
 
-                    def rootPomChanged = changedFiles.contains('pom.xml') &&
-                                        !changedFiles.split('\n').any { it.contains('/pom.xml') && it.split('/').length > 1 }
+                    def rootPomChanged = changedFiles.split('\n').any { it.trim() == 'pom.xml' }
 
                     Set<String> servicesToBuild = []
 
@@ -116,13 +96,21 @@ pipeline {
                         def parts = file.trim().split('/')
                         def topDir = parts[0]
 
-                        if (SERVICE_JOBS.containsKey(topDir)) {
+                        if (INLINE_SERVICES.contains(topDir)) {
                             servicesToBuild << topDir
                         }
 
                         // Special handling: k8s/charts/** changes should trigger 'charts' service
                         if (topDir == 'k8s' && parts.length > 1 && parts[1] == 'charts') {
                             servicesToBuild << 'charts'
+                        }
+
+                        // Special handling: ci/<service>.groovy changes should trigger that service
+                        if (topDir == 'ci' && parts.length > 1) {
+                            def scriptName = parts[1].replaceAll('\\.groovy$', '')
+                            if (INLINE_SERVICES.contains(scriptName)) {
+                                servicesToBuild << scriptName
+                            }
                         }
                     }
 
@@ -144,49 +132,47 @@ pipeline {
             }
         }
 
-        stage('Wait for Branch Scan') {
+        stage('Build Shared Modules') {
+            when {
+                expression {
+                    if (!env.SERVICES_TO_BUILD?.trim()) return false
+                    return env.SERVICES_TO_BUILD.split(',').any { svc ->
+                        JAVA_SERVICES.contains(svc.trim())
+                    }
+                }
+            }
+            steps {
+                sh 'rm -rf ~/.m2/repository/com/yas/'
+                sh 'mvn install -N -DskipTests'
+                sh 'mvn clean install -pl common-library -DskipTests'
+            }
+        }
+
+        stage('Build Services') {
             when {
                 expression { return env.SERVICES_TO_BUILD?.trim() }
             }
             steps {
-                echo "Waiting 5s for Multibranch Pipeline branch scans to complete..."
-                sleep(time: 5, unit: 'SECONDS')
-            }
-        }
-
-        stage('Trigger Service Builds') {
-            when {
-                expression { return env.SERVICES_TO_BUILD?.trim() != null && env.SERVICES_TO_BUILD.trim() != '' }
-            }
-            steps {
                 script {
                     def services = env.SERVICES_TO_BUILD.split(',')
-                    def parallelJobs = [:]
+                    def parallelBuilds = [:]
+                    def baseNode = env.NODE_NAME
+                    def baseWorkspace = env.WORKSPACE
 
                     services.each { svc ->
-                        def jobName = SERVICE_JOBS[svc]
-                        if (!jobName) {
-                            echo "WARNING: No Jenkins job mapping found for service '${svc}'. Skipping."
-                            return
-                        }
-
-                        parallelJobs["Build ${svc}"] = {
-                            def branchName = env.BRANCH_NAME ?: 'main'
-                            def encodedBranch = branchName.replaceAll('/', '%2F')
-                            def fullJobPath = "${jobName}/${encodedBranch}"
-                            echo "Triggering Multibranch job: ${fullJobPath}"
-                            try {
-                                build job: fullJobPath,
-                                      wait: true,
-                                      propagate: true
-                            } catch (Exception e) {
-                                echo "ERROR: Failed to trigger ${fullJobPath}: ${e.message}"
-                                throw e  // Re-throw to fail master pipeline
+                        def localSvc = svc.trim()
+                        parallelBuilds["Build ${localSvc}"] = {
+                            node(baseNode) {
+                                ws("${baseWorkspace}@${localSvc}") {
+                                    checkout scm
+                                    def svcScript = load("ci/${localSvc}.groovy")
+                                    svcScript.call()
+                                }
                             }
                         }
                     }
 
-                    parallel parallelJobs
+                    parallel parallelBuilds
                 }
             }
         }
@@ -194,10 +180,10 @@ pipeline {
 
     post {
         success {
-            echo "All triggered service builds completed successfully."
+            echo "All service builds completed successfully."
         }
         failure {
-            echo "One or more service builds failed. Check triggered jobs for details."
+            echo "One or more service builds failed."
         }
         always {
             cleanWs()
