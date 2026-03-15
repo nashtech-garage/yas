@@ -29,7 +29,12 @@ pipeline {
             stages {
                 stage('Checkout') {
                     steps {
-                        checkout scm
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: scm.branches,
+                            userRemoteConfigs: scm.userRemoteConfigs,
+                            extensions: [[$class: 'CloneOption', depth: 0, noTags: false]]
+                        ])
                     }
                 }
 
@@ -45,21 +50,22 @@ pipeline {
                 stage('Install Tools') {
                     steps {
                         sh """
-                            # Install Helm into workspace
+                            # Install Helm into workspace .tools directory
+                            mkdir -p \"\$WORKSPACE/.tools\"
                             HELM_VERSION="v3.20.1"
                             curl -sSLo helm.tar.gz "https://get.helm.sh/helm-\${HELM_VERSION}-linux-amd64.tar.gz"
                             tar -xzf helm.tar.gz
-                            mv linux-amd64/helm "\$WORKSPACE/helm"
-                            chmod +x "\$WORKSPACE/helm"
+                            mv linux-amd64/helm \"\$WORKSPACE/.tools/helm\"
+                            chmod +x \"\$WORKSPACE/.tools/helm\"
                             rm -rf helm.tar.gz linux-amd64
 
-                            # Install chart-releaser (cr) into workspace
+                            # Install chart-releaser (cr) into workspace .tools directory
                             CR_VERSION="1.6.1"
                             curl -sSLo cr.tar.gz \\
                               "https://github.com/helm/chart-releaser/releases/download/v\${CR_VERSION}/chart-releaser_\${CR_VERSION}_linux_amd64.tar.gz"
-                            tar -xzf cr.tar.gz cr
-                            mv cr "\$WORKSPACE/cr"
-                            chmod +x "\$WORKSPACE/cr"
+                            tar -xzf cr.tar.gz -C \"\$WORKSPACE/.tools\" cr
+                            chmod +x \"\$WORKSPACE/.tools/cr\"
+                            rm -f cr.tar.gz
                         """
                     }
                 }
@@ -67,7 +73,7 @@ pipeline {
                 stage('Add Helm Repo') {
                     steps {
                         sh """
-                            export PATH="\$WORKSPACE:\$PATH"
+                            export PATH=\"\$WORKSPACE/.tools:\$PATH\"
                             helm repo add stakater https://stakater.github.io/stakater-charts
                             helm repo update
                         """
@@ -77,9 +83,13 @@ pipeline {
                 stage('Package Charts') {
                     steps {
                         sh """
-                            export PATH="\$WORKSPACE:\$PATH"
+                            export PATH=\"\$WORKSPACE/.tools:\$PATH\"
                             mkdir -p ${CR_PACKAGE_PATH}
-                            cr package k8s/charts/* --package-path ${CR_PACKAGE_PATH}
+                            for chart in k8s/charts/*/; do
+                                if [ -f \"\${chart}Chart.yaml\" ]; then
+                                    cr package \"\$chart\" --package-path ${CR_PACKAGE_PATH}
+                                fi
+                            done
                         """
                     }
                 }
@@ -88,7 +98,7 @@ pipeline {
                     steps {
                         withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
                             sh """
-                                export PATH="\$WORKSPACE:\$PATH"
+                                export PATH=\"\$WORKSPACE/.tools:\$PATH\"
                                 cr upload \\
                                   --owner ${OWNER} \\
                                   --git-repo ${REPO} \\
@@ -104,7 +114,7 @@ pipeline {
                     steps {
                         withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
                             sh """
-                                export PATH="\$WORKSPACE:\$PATH"
+                                export PATH=\"\$WORKSPACE/.tools:\$PATH\"
                                 mkdir -p ${CR_INDEX_PATH}
                                 cr index \\
                                   --owner ${OWNER} \\
