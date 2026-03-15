@@ -140,6 +140,7 @@ pipeline {
                 }
             }
             steps {
+                sh 'mvn install -N -DskipTests'
                 sh 'mvn clean install -pl common-library -DskipTests'
             }
         }
