@@ -2,34 +2,17 @@
  * Root Jenkinsfile — CI Change Detector & Inline Builder
  *
  * This pipeline runs on every push to the repo (single Multibranch Pipeline).
- * It detects which service directories changed, then either:
- *   • Loads the service's Groovy script from ci/<service>.groovy and runs it
- *     inline in parallel  (for the 8 services listed in INLINE_SERVICES), or
- *   • Triggers the corresponding per-service Multibranch Pipeline job
- *     (for all remaining services).
+ * It detects which service directories changed, then loads the service's Groovy
+ * script from ci/<service>.groovy and runs all affected services in parallel.
  */
 
-// ─── Inline services (scripts live in ci/) ────────────────────────────────────
+// ─── All services — scripts live in ci/ ──────────────────────────────────────
 def INLINE_SERVICES = [
     'backoffice', 'backoffice-bff', 'cart', 'charts',
-    'customer', 'inventory', 'location', 'media'
-]
-
-// ─── Remaining services — still trigger separate Multibranch jobs ─────────────
-def SERVICE_JOBS = [
-    'order'         : 'yas-order-ci',
-    'payment'       : 'yas-payment-ci',
-    'payment-paypal': 'yas-payment-paypal-ci',
-    'product'       : 'yas-product-ci',
-    'promotion'     : 'yas-promotion-ci',
-    'rating'        : 'yas-rating-ci',
-    'recommendation': 'yas-recommendation-ci',
-    'sampledata'    : 'yas-sampledata-ci',
-    'search'        : 'yas-search-ci',
-    'storefront'    : 'yas-storefront-ci',
-    'storefront-bff': 'yas-storefront-bff-ci',
-    'tax'           : 'yas-tax-ci',
-    'webhook'       : 'yas-webhook-ci',
+    'customer', 'inventory', 'location', 'media',
+    'order', 'payment', 'payment-paypal', 'product', 'promotion',
+    'rating', 'recommendation', 'sampledata', 'search',
+    'storefront', 'storefront-bff', 'tax', 'webhook'
 ]
 
 // ─── Root pom.xml affects all Java services ───────────────────────────────────
@@ -101,8 +84,7 @@ pipeline {
 
                     echo "=== Changed files ===\n${changedFiles}"
 
-                    def rootPomChanged = changedFiles.contains('pom.xml') &&
-                                        !changedFiles.split('\n').any { it.contains('/pom.xml') && it.split('/').length > 1 }
+                    def rootPomChanged = changedFiles.split('\n').any { it.trim() == 'pom.xml' }
 
                     Set<String> servicesToBuild = []
 
@@ -112,8 +94,7 @@ pipeline {
                         def parts = file.trim().split('/')
                         def topDir = parts[0]
 
-                        def allServices = INLINE_SERVICES + SERVICE_JOBS.keySet().toList()
-                        if (allServices.contains(topDir)) {
+                        if (INLINE_SERVICES.contains(topDir)) {
                             servicesToBuild << topDir
                         }
 
@@ -149,18 +130,17 @@ pipeline {
             }
         }
 
-        stage('Wait for Branch Scan') {
+        stage('Build Shared Modules') {
             when {
                 expression {
-                    // Only needed when there are job-triggered (non-inline) services to build
                     if (!env.SERVICES_TO_BUILD?.trim()) return false
-                    def services = env.SERVICES_TO_BUILD.split(',').toList()
-                    return services.any { svc -> SERVICE_JOBS.containsKey(svc.trim()) }
+                    return env.SERVICES_TO_BUILD.split(',').any { svc ->
+                        JAVA_SERVICES.contains(svc.trim())
+                    }
                 }
             }
             steps {
-                echo "Waiting 5s for Multibranch Pipeline branch scans to complete..."
-                sleep(time: 5, unit: 'SECONDS')
+                sh 'mvn clean install -pl common-library -DskipTests'
             }
         }
 
@@ -175,34 +155,9 @@ pipeline {
 
                     services.each { svc ->
                         def localSvc = svc.trim()
-
-                        if (INLINE_SERVICES.contains(localSvc)) {
-                            // ── Inline: load and run the service Groovy script ────────
-                            parallelBuilds["Build ${localSvc}"] = {
-                                def svcScript = load("ci/${localSvc}.groovy")
-                                svcScript.call()
-                            }
-                        } else {
-                            // ── External: trigger the service's Multibranch job ───────
-                            def jobName = SERVICE_JOBS[localSvc]
-                            if (!jobName) {
-                                echo "WARNING: No Jenkins job mapping found for service '${localSvc}'. Skipping."
-                                return
-                            }
-                            parallelBuilds["Build ${localSvc}"] = {
-                                def branchName    = env.BRANCH_NAME ?: 'main'
-                                def encodedBranch = branchName.replaceAll('/', '%2F')
-                                def fullJobPath   = "${jobName}/${encodedBranch}"
-                                echo "Triggering Multibranch job: ${fullJobPath}"
-                                try {
-                                    build job: fullJobPath,
-                                          wait: true,
-                                          propagate: true
-                                } catch (Exception e) {
-                                    echo "ERROR: Failed to trigger ${fullJobPath}: ${e.message}"
-                                    throw e
-                                }
-                            }
+                        parallelBuilds["Build ${localSvc}"] = {
+                            def svcScript = load("ci/${localSvc}.groovy")
+                            svcScript.call()
                         }
                     }
 
@@ -214,10 +169,10 @@ pipeline {
 
     post {
         success {
-            echo "All triggered service builds completed successfully."
+            echo "All service builds completed successfully."
         }
         failure {
-            echo "One or more service builds failed. Check triggered jobs for details."
+            echo "One or more service builds failed."
         }
         always {
             cleanWs()

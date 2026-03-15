@@ -14,13 +14,13 @@ def call() {
     try {
         stage("${serviceName}: Prepare Build Dependencies") {
             // Match GitHub Actions flow: install module and internal deps first.
-            sh 'mvn clean install -pl media -am -DskipTests'
+            sh 'mvn clean install -pl media -DskipTests'
         }
 
         // ─── Phase 1: Test ─────────────────────────────────────────────────────
         stage("${serviceName}: Phase 1 - Unit Tests") {
             try {
-                sh 'mvn test jacoco:report -pl media -am'
+                sh 'mvn test jacoco:report -pl media'
             } finally {
                 junit testResults: 'media/**/surefire-reports/TEST*.xml',
                       allowEmptyResults: true
@@ -40,7 +40,7 @@ def call() {
         }
 
         stage("${serviceName}: Phase 1 - Code Quality") {
-            sh 'mvn checkstyle:checkstyle -pl media -am -Dcheckstyle.output.file=media-checkstyle-result.xml'
+            sh 'mvn checkstyle:checkstyle -pl media -Dcheckstyle.output.file=media-checkstyle-result.xml'
             echo 'Checkstyle report generated at: media-checkstyle-result.xml'
         }
 
@@ -49,7 +49,7 @@ def call() {
                 try {
                     withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
                         sh '''
-                            mvn -pl media -am org.owasp:dependency-check-maven:check \
+                            mvn -pl media org.owasp:dependency-check-maven:check \
                               -DfailBuildOnCVSS=7 \
                               -DnvdApiKey=$NVD_API_KEY \
                               -DdataDirectory=$JENKINS_HOME/dependency-check-data \
@@ -59,7 +59,7 @@ def call() {
                 } catch (Exception e) {
                     echo "NVD API key credential not found. Running dependency-check without API key (slower)."
                     sh '''
-                        mvn -pl media -am org.owasp:dependency-check-maven:check \
+                        mvn -pl media org.owasp:dependency-check-maven:check \
                           -DfailBuildOnCVSS=7 \
                           -DdataDirectory=$JENKINS_HOME/dependency-check-data \
                           || true
@@ -79,7 +79,7 @@ def call() {
 
         // ─── Phase 2: Build ─────────────────────────────────────────────────────
         stage("${serviceName}: Phase 2 - Compile & Package") {
-            sh 'mvn clean install -pl media -am -DskipTests'
+            sh 'mvn clean install -pl media -DskipTests'
         }
 
         if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
