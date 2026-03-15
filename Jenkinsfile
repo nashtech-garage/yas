@@ -1,26 +1,22 @@
 /**
- * Root Jenkinsfile — CI Change Detector
+ * Root Jenkinsfile — CI Change Detector & Inline Builder
  *
- * This pipeline runs on every push to the repo.
- * It detects which service directories changed and triggers the corresponding
- * per-service build jobs in parallel.
- *
- * Prerequisites on Jenkins controller:
- *   - Each service job must be created and named exactly as listed in SERVICE_JOBS below.
- *   - This pipeline job must be configured with SCM polling or a webhook trigger.
+ * This pipeline runs on every push to the repo (single Multibranch Pipeline).
+ * It detects which service directories changed, then either:
+ *   • Loads the service's Groovy script from ci/<service>.groovy and runs it
+ *     inline in parallel  (for the 8 services listed in INLINE_SERVICES), or
+ *   • Triggers the corresponding per-service Multibranch Pipeline job
+ *     (for all remaining services).
  */
 
-// ─── Service registry ────────────────────────────────────────────────────────
-// Maps a top-level directory in the repo to the Jenkins job name for that service.
+// ─── Inline services (scripts live in ci/) ────────────────────────────────────
+def INLINE_SERVICES = [
+    'backoffice', 'backoffice-bff', 'cart', 'charts',
+    'customer', 'inventory', 'location', 'media'
+]
+
+// ─── Remaining services — still trigger separate Multibranch jobs ─────────────
 def SERVICE_JOBS = [
-    'backoffice'    : 'yas-backoffice-ci',
-    'backoffice-bff': 'yas-backoffice-bff-ci',
-    'cart'          : 'yas-cart-ci',
-    'charts'        : 'yas-charts-ci',
-    'customer'      : 'yas-customer-ci',
-    'inventory'     : 'yas-inventory-ci',
-    'location'      : 'yas-location-ci',
-    'media'         : 'yas-media-ci',
     'order'         : 'yas-order-ci',
     'payment'       : 'yas-payment-ci',
     'payment-paypal': 'yas-payment-paypal-ci',
@@ -53,15 +49,15 @@ pipeline {
     }
 
     tools {
-        jdk   'jdk-21'
-        maven 'maven-3'
+        jdk    'jdk-21'
+        maven  'maven-3'
         nodejs 'nodejs-20'
     }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         timestamps()
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 60, unit: 'MINUTES')
         skipDefaultCheckout()
     }
 
@@ -116,13 +112,22 @@ pipeline {
                         def parts = file.trim().split('/')
                         def topDir = parts[0]
 
-                        if (SERVICE_JOBS.containsKey(topDir)) {
+                        def allServices = INLINE_SERVICES + SERVICE_JOBS.keySet().toList()
+                        if (allServices.contains(topDir)) {
                             servicesToBuild << topDir
                         }
 
                         // Special handling: k8s/charts/** changes should trigger 'charts' service
                         if (topDir == 'k8s' && parts.length > 1 && parts[1] == 'charts') {
                             servicesToBuild << 'charts'
+                        }
+
+                        // Special handling: ci/<service>.groovy changes should trigger that service
+                        if (topDir == 'ci' && parts.length > 1) {
+                            def scriptName = parts[1].replaceAll('\\.groovy$', '')
+                            if (INLINE_SERVICES.contains(scriptName)) {
+                                servicesToBuild << scriptName
+                            }
                         }
                     }
 
@@ -146,7 +151,12 @@ pipeline {
 
         stage('Wait for Branch Scan') {
             when {
-                expression { return env.SERVICES_TO_BUILD?.trim() }
+                expression {
+                    // Only needed when there are job-triggered (non-inline) services to build
+                    if (!env.SERVICES_TO_BUILD?.trim()) return false
+                    def services = env.SERVICES_TO_BUILD.split(',').toList()
+                    return services.any { svc -> SERVICE_JOBS.containsKey(svc.trim()) }
+                }
             }
             steps {
                 echo "Waiting 5s for Multibranch Pipeline branch scans to complete..."
@@ -154,39 +164,49 @@ pipeline {
             }
         }
 
-        stage('Trigger Service Builds') {
+        stage('Build Services') {
             when {
-                expression { return env.SERVICES_TO_BUILD?.trim() != null && env.SERVICES_TO_BUILD.trim() != '' }
+                expression { return env.SERVICES_TO_BUILD?.trim() }
             }
             steps {
                 script {
                     def services = env.SERVICES_TO_BUILD.split(',')
-                    def parallelJobs = [:]
+                    def parallelBuilds = [:]
 
                     services.each { svc ->
-                        def jobName = SERVICE_JOBS[svc]
-                        if (!jobName) {
-                            echo "WARNING: No Jenkins job mapping found for service '${svc}'. Skipping."
-                            return
-                        }
+                        def localSvc = svc.trim()
 
-                        parallelJobs["Build ${svc}"] = {
-                            def branchName = env.BRANCH_NAME ?: 'main'
-                            def encodedBranch = branchName.replaceAll('/', '%2F')
-                            def fullJobPath = "${jobName}/${encodedBranch}"
-                            echo "Triggering Multibranch job: ${fullJobPath}"
-                            try {
-                                build job: fullJobPath,
-                                      wait: true,
-                                      propagate: true
-                            } catch (Exception e) {
-                                echo "ERROR: Failed to trigger ${fullJobPath}: ${e.message}"
-                                throw e  // Re-throw to fail master pipeline
+                        if (INLINE_SERVICES.contains(localSvc)) {
+                            // ── Inline: load and run the service Groovy script ────────
+                            parallelBuilds["Build ${localSvc}"] = {
+                                def svcScript = load("ci/${localSvc}.groovy")
+                                svcScript.run()
+                            }
+                        } else {
+                            // ── External: trigger the service's Multibranch job ───────
+                            def jobName = SERVICE_JOBS[localSvc]
+                            if (!jobName) {
+                                echo "WARNING: No Jenkins job mapping found for service '${localSvc}'. Skipping."
+                                return
+                            }
+                            parallelBuilds["Build ${localSvc}"] = {
+                                def branchName    = env.BRANCH_NAME ?: 'main'
+                                def encodedBranch = branchName.replaceAll('/', '%2F')
+                                def fullJobPath   = "${jobName}/${encodedBranch}"
+                                echo "Triggering Multibranch job: ${fullJobPath}"
+                                try {
+                                    build job: fullJobPath,
+                                          wait: true,
+                                          propagate: true
+                                } catch (Exception e) {
+                                    echo "ERROR: Failed to trigger ${fullJobPath}: ${e.message}"
+                                    throw e
+                                }
                             }
                         }
                     }
 
-                    parallel parallelJobs
+                    parallel parallelBuilds
                 }
             }
         }
