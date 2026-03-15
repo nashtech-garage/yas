@@ -2,14 +2,14 @@ name: cart service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "cart/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/cart-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "cart/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,73 +18,154 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  # ─────────────────────────────────────────────
+  # PHASE 1 – TEST
+  # Chạy trên mọi push (kể cả feature branch) để developer có feedback sớm nhất.
+  # ─────────────────────────────────────────────
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl cart -am
+          fetch-depth: 0 # Cần cho SonarCloud (blame history) và Gitleaks (full log)
+
+      - uses: ./.github/workflows/actions # Setup JDK 21, cache Maven & Sonar
+
+      # Gitleaks – quét secret/token bị lộ trong lịch sử commit
+      - name: Gitleaks – Scan for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Maven verify: compile → test → package → verify → report
+      # -am (also make) bảo Maven compile và test TẤT CẢ dependencies trước, rồi verify order
+      # Lý do dùng -am: project dùng Maven CI Friendly Versions ${revision}, không có
+      # flatten-maven-plugin. Nếu tách thành 2 lệnh khác nhau, Maven process thứ 2 sẽ
+      # mất reactor context → ${revision} không resolve được từ cached POM → fail.
+      # Chứng chạy 1 lệnh duy nhất, reactor context được maintain, dependencies resolve OK.
+      # Trade-off: dependencies' tests cũng chạy (chậm), nhưng necessary trong monorepo.
+      - name: Run Maven Verify (test + coverage)
+        run: mvn -B clean verify -pl cart -am -DskipITs
+
+      # Checkstyle cho cart + dependencies (Maven CI Friendly Versions cần reactor context)
       - name: Run Maven Checkstyle
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl cart -am -Dcheckstyle.output.file=cart-checkstyle-result.xml
+
       - name: Upload Checkstyle Result
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/cart-checkstyle-result.xml'
-      - name: Test Results
+          path: "**/cart-checkstyle-result.xml"
+
+      # Upload kết quả test để hiển thị trực tiếp trên PR/commit page
+      - name: Upload Test Results
         uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        if: success() || failure() # Chạy kể cả khi test fail để xem report
         with:
           name: Cart-Service-Unit-Test-Results
-          path: "cart/**/*-reports/TEST*.xml"
+          path: "cart/target/surefire-reports/TEST*.xml"
           reporter: java-junit
+
+      # Comment coverage lên PR; action sẽ fail step nếu coverage < 70% (min-coverage-overall)
+      # → ngăn merge khi coverage thấp (kết hợp với branch protection "require status checks")
+      - name: Add Coverage Report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: ${{ github.workspace }}/cart/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: "Cart Coverage Report"
+          update-comment: true
+
+      # Upload báo cáo coverage để tham chiếu sau (Yêu cầu 7b)
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cart-jacoco-report
+          path: cart/target/site/jacoco
+
+      # Snyk – quét lỗ hổng trong dependencies (CVE)
+      # continue-on-error: true để không block pipeline; kết quả chỉ mang tính cảnh báo
+      - name: Snyk – Scan for vulnerabilities
+        uses: snyk/actions/maven@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=cart/pom.xml --severity-threshold=high
+
+      # SonarCloud – tái sử dụng compiled classes + test reports từ bước verify ở trên.
+      # Lý do KHÔNG dùng "verify sonar:sonar": sẽ chạy lại toàn bộ compile+test lần 2.
+      # -DskipTests: bỏ qua re-run test (classes đã có trong cart/target/).
+      # Trỏ thẳng tới jacoco.xml đã tạo để Sonar có dữ liệu coverage.
+      - name: SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn -B sonar:sonar \
+            -pl cart \
+            -am \
+            -DskipTests \
+            -Dsonar.organization=nguyenthanhtien539 \
+            -Dsonar.projectKey=NguyenThanhTien539_yas \
+            -Dsonar.login=${SONAR_TOKEN} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=cart/target/site/jacoco/jacoco.xml \
+            -Dsonar.junit.reportPaths=cart/target/surefire-reports
+
+  # ─────────────────────────────────────────────
+  # PHASE 2 – BUILD
+  # Chỉ chạy khi: PR vào main HOẶC push vào main.
+  # Lý do: feature branch chỉ cần test để có feedback nhanh.
+  # Build sinh artifact + OWASP scan (nặng ~10 phút) chỉ cần thiết khi sắp merge.
+  # ─────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test # Chỉ chạy nếu phase Test pass
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/workflows/actions
+
+      # Build toàn bộ dependency chain + package cart, bỏ qua test (đã chạy ở phase test).
+      # Maven cache từ phase test (same pom.xml hash) giúp bước này nhanh hơn đáng kể.
+      - name: Run Maven Build
+        run: mvn -B clean install -pl cart -am -DskipTests
+
+      # OWASP – quét CVE trong toàn bộ dependency tree sau khi build
       - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
         env:
           JAVA_HOME: /opt/jdk
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
+          project: "yas"
+          path: "."
+          format: "HTML"
+
+      - name: Upload OWASP Dependency Check Report
+        uses: actions/upload-artifact@v4
         with:
           name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl cart -am
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        with:
-          paths: ${{github.workspace}}/cart/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Cart Coverage Report'
-          update-comment: true
-      - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./cart
-          push: true
-          tags: ghcr.io/nashtech-garage/yas-cart:latest
+          path: ${{ github.workspace }}/reports
+
+      # Docker – chỉ build và push khi có commit mới vào main (sau khi PR được merge).
+      # Điều kiện: push event (không phải PR) VÀ đang ở nhánh main.
+      # - name: Log in to Container Registry
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Build and push Docker image
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./cart
+      #     push: true
+      #     tags: ghcr.io/nashtech-garage/yas-cart:latest

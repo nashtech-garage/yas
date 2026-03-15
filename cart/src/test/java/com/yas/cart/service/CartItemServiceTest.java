@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,7 @@ import com.yas.commonlibrary.exception.InternalServerErrorException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,6 +55,11 @@ class CartItemServiceTest {
     @BeforeEach
     void setUp() {
         Mockito.reset(cartItemRepository, productService);
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     private static final String CURRENT_USER_ID_SAMPLE = "userId";
@@ -246,6 +253,35 @@ class CartItemServiceTest {
             verify(cartItemRepository).saveAll(List.of(existingCartItem));
             assertEquals(1, cartItemGetVms.size());
             assertEquals(expectedQuantity, cartItemGetVms.getFirst().quantity());
+        }
+
+        @Test
+        void testDeleteOrAdjustCartItem_whenCartItemsNotFound_shouldReturnEmptyResult() {
+            CartItemDeleteVm cartItemDeleteVm = new CartItemDeleteVm(PRODUCT_ID_SAMPLE, 1);
+
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            when(cartItemRepository.findByCustomerIdAndProductIdIn(any(), any())).thenReturn(List.of());
+
+            List<CartItemGetVm> cartItemGetVms = cartItemService.deleteOrAdjustCartItem(List.of(cartItemDeleteVm));
+
+            verify(cartItemRepository).deleteAll(List.of());
+            verify(cartItemRepository).saveAll(List.of());
+            assertEquals(0, cartItemGetVms.size());
+        }
+    }
+
+    @Nested
+    class DeleteCartItemTest {
+
+        @Test
+        void testDeleteCartItem_whenRequestIsValid_shouldDeleteByCustomerIdAndProductId() {
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+
+            cartItemService.deleteCartItem(PRODUCT_ID_SAMPLE);
+
+            verify(cartItemRepository).deleteByCustomerIdAndProductId(CURRENT_USER_ID_SAMPLE, PRODUCT_ID_SAMPLE);
+            verify(cartItemRepository, never()).deleteAll(any());
+            verify(cartItemRepository, never()).saveAll(any());
         }
     }
 

@@ -2,6 +2,8 @@ package com.yas.cart.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.config.ServiceUrlConfig;
@@ -62,6 +64,57 @@ class ProductServiceTest {
         assertThat(result.get(0).id()).isEqualTo(1);
         assertThat(result.get(1).id()).isEqualTo(2);
         assertThat(result.get(2).id()).isEqualTo(3);
+    }
+
+    @Test
+    void getProductById_whenProductExists_shouldReturnFirstProduct() {
+        ProductService spyProductService = Mockito.spy(productService);
+        ProductThumbnailVm product = new ProductThumbnailVm(9L, "Product 9", "product-9", "http://example.com/p9.jpg");
+        doReturn(List.of(product)).when(spyProductService).getProducts(List.of(9L));
+
+        ProductThumbnailVm result = spyProductService.getProductById(9L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(9L);
+    }
+
+    @Test
+    void getProductById_whenNoProductReturned_shouldReturnNull() {
+        ProductService spyProductService = Mockito.spy(productService);
+        doReturn(List.of()).when(spyProductService).getProducts(List.of(99L));
+
+        ProductThumbnailVm result = spyProductService.getProductById(99L);
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void existsById_whenProductExists_shouldReturnTrue() {
+        ProductService spyProductService = Mockito.spy(productService);
+        ProductThumbnailVm product = new ProductThumbnailVm(7L, "Product 7", "product-7", "http://example.com/p7.jpg");
+        doReturn(product).when(spyProductService).getProductById(7L);
+
+        boolean result = spyProductService.existsById(7L);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void existsById_whenProductNotExists_shouldReturnFalse() {
+        ProductService spyProductService = Mockito.spy(productService);
+        doReturn(null).when(spyProductService).getProductById(8L);
+
+        boolean result = spyProductService.existsById(8L);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void handleProductThumbnailFallback_whenThrowableProvided_shouldRethrowSameThrowable() {
+        RuntimeException rootCause = new RuntimeException("fallback error");
+
+        assertThatThrownBy(() -> productService.handleProductThumbnailFallback(rootCause))
+            .isSameAs(rootCause);
     }
 
     private List<ProductThumbnailVm> getProductThumbnailVms() {

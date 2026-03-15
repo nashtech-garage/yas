@@ -201,6 +201,12 @@ class CartItemControllerTest {
         }
 
         @Test
+        void testDeleteOrAdjustCartItem_whenProductIdIsNull_shouldReturnBadRequest() throws Exception {
+            cartItemPutVm = new CartItemDeleteVm(null, 1);
+            performDeleteOrAdjustCartItemAndExpectBadRequest(cartItemPutVm);
+        }
+
+        @Test
         void testDeleteOrAdjustCartItem_whenRequestIsValid_shouldReturnUpdatedCartItems() throws Exception {
             CartItemDeleteVm cartItemDeleteVm = new CartItemDeleteVm(PRODUCT_ID_SAMPLE, 1);
             CartItemGetVm expectedCartItemGetVm = CartItemGetVm
