@@ -46,7 +46,7 @@ jobs:
 
             - uses: snyk/actions/setup@master
             - name: Snyk test
-              run: snyk test -d --file=backoffice/package.json --sarif-file-output=snyk.sarif --severity-threshold=high
+              run: snyk test --file=backoffice/package.json --sarif-file-output=snyk.sarif --severity-threshold=high
               continue-on-error: true # To make sure that SARIF upload gets called
               env:
                   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
