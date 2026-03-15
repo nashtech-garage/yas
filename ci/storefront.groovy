@@ -4,7 +4,7 @@
  * TODO: Replace with full CI pipeline (tests, lint, audit, Docker) when ready.
  */
 
-def call() {
+def call() { 
     def serviceName    = 'storefront'
     def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
     def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"

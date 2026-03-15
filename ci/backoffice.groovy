@@ -2,7 +2,7 @@
  * Backoffice Service CI — loaded and executed by the master Jenkinsfile.
  *
  * Tech stack : Node.js (npm / Jest / ESLint / Prettier)
- * Phases     : Phase 1 — Test (unit tests, lint, security audit)
+ * Phases     : Phase 1 — Test (unit tests, lint, security audit) 
  *              Phase 2 — Build application + Docker image
  */
 
@@ -10,7 +10,7 @@ def call() {
     def serviceName    = 'backoffice'
     def dockerRegistry = env.DOCKER_REGISTRY ?: 'ghcr.io'
     def dockerImage    = "${dockerRegistry}/danzgne/yas-${serviceName}"
-    
+
     try {
         stage("${serviceName}: Install Dependencies") {
             dir(serviceName) {

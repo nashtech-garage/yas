@@ -4,7 +4,7 @@
  * Tech stack : Java / Maven (multi-module, uses -pl cart -am)
  * Phases     : Phase 1 — Test (unit tests, checkstyle, OWASP dependency-check)
  *              Phase 2 — Build artifacts + Docker image
- */
+ */ 
 
 def call() {
     def serviceName    = 'cart'

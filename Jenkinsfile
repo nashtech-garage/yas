@@ -29,6 +29,7 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY = 'ghcr.io'
+        MAVEN_OPTS      = '-Drevision=1.0-SNAPSHOT'
     }
 
     tools {
@@ -140,6 +141,7 @@ pipeline {
                 }
             }
             steps {
+                sh 'rm -rf ~/.m2/repository/com/yas/'
                 sh 'mvn install -N -DskipTests'
                 sh 'mvn clean install -pl common-library -DskipTests'
             }

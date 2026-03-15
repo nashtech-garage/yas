@@ -3,9 +3,9 @@
  * TODO: Replace with full CI pipeline (tests, checkstyle, OWASP, Docker) when ready.
  */
 
-def call() {
+def call() { 
     def serviceName = 'storefront-bff'
-    
+
     try {
         stage("${serviceName}: Build") {
             sh "mvn clean install -pl ${serviceName} -DskipTests"

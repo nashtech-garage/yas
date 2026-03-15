@@ -8,7 +8,7 @@
  *   github-token  — GitHub personal access token with repo scope
  */
 
-def call() {
+def call() { 
     def chartsDir      = 'k8s/charts'
     def owner          = 'danzgne'
     def repo           = 'devops'
