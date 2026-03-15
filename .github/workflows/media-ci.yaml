@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: Test
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,17 +60,12 @@ jobs:
 
       - uses: ./.github/workflows/actions
 
+      # 1. Build project
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -pl common-library,media -am
 
-      - name: Upload Checkstyle Result
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          path: "**/media-checkstyle-result.xml"
-
+      # 2. Analyze code quality with SonarCloud
       - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -80,31 +75,18 @@ jobs:
             -Dsonar.organization=juzharii \
             -Dsonar.host.url=https://sonarcloud.io
 
-      # - name: Setup Snyk
-      #   uses: snyk/actions/setup@master
+      # 3. Install Snyk
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
 
-      # - name: Run Snyk Security Scan
-      #   env:
-      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      #   run: snyk test --command=./mvnw --file=pom.xml --maven-aggregate-project -- -Drevision=1.0-SNAPSHOT
-
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
+      # 4. scan source code
+      - name: Run Snyk Security Scan
         env:
-          JAVA_HOME: ""
-        with:
-          project: "media"
-          path: "./media"
-          format: "HTML"
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        working-directory: ./media
+        run: snyk test --command=mvn
 
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
-
+      # 5. Log in to GitHub Container Registry
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -113,6 +95,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # 6. Build and push Docker images
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
