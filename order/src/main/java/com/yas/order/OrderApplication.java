@@ -10,14 +10,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class OrderApplication {
 
     public static void main(String[] args) {
-        System.out.println("Starting Order Service"); // Sonar sẽ cảnh báo
         SpringApplication.run(OrderApplication.class, args);
     }
 
-    
-    
-    public void implementOrderService() {
-        // Implement order service logic here
-    }
+
 
 }
