@@ -115,13 +115,15 @@ pipeline {
                         withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
                             sh """
                                 export PATH=\"\$WORKSPACE/.tools:\$PATH\"
-                                git fetch origin gh-pages || git fetch origin
+                                git fetch origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+                                git show-ref --verify --quiet refs/remotes/origin/gh-pages
                                 mkdir -p ${CR_INDEX_PATH}
                                 cr index \\
                                   --owner ${OWNER} \\
                                   --git-repo ${REPO} \\
                                   --package-path ${CR_PACKAGE_PATH} \\
                                   --index-path ${CR_INDEX_PATH} \\
+                                  --pages-branch gh-pages \\
                                   --token \$CR_TOKEN \\
                                   --push
                             """
