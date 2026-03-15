@@ -45,8 +45,13 @@ pipeline {
                 stage('Install Tools') {
                     steps {
                         sh """
-                            # Install Helm
-                            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+                            # Install Helm manually (no sudo)
+                            HELM_VERSION="v3.20.1"
+                            curl -sSLo helm.tar.gz "https://get.helm.sh/helm-\${HELM_VERSION}-linux-amd64.tar.gz"
+                            tar -xzf helm.tar.gz
+                            mv linux-amd64/helm /usr/local/bin/helm
+                            chmod +x /usr/local/bin/helm
+                            rm -rf helm.tar.gz linux-amd64
 
                             # Install chart-releaser (cr)
                             CR_VERSION="1.6.1"
