@@ -38,26 +38,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Bước 1/2 Maven: build TẤT CẢ module mà order phụ thuộc (-am), bỏ qua test của chúng.
-      # Lý do tách riêng: nếu gộp chung (-am + test), Maven sẽ chạy test của dependency
-      # modules (inventory-client, cart, ...) – không cần thiết và rất chậm.
-      # Sau bước này các jar dependency được install vào ~/.m2 (cached giữa các job).
-      - name: Build Dependencies (no tests)
-        run: mvn -B clean install -pl order -am -DskipTests
+      # Maven verify: compile → test → package → verify → report
+      # -am (also make) bảo Maven compile và test TẤT CẢ dependencies trước, rồi verify order
+      # Lý do dùng -am: project dùng Maven CI Friendly Versions ${revision}, không có
+      # flatten-maven-plugin. Nếu tách thành 2 lệnh khác nhau, Maven process thứ 2 sẽ
+      # mất reactor context → ${revision} không resolve được từ cached POM → fail.
+      # Chứng chạy 1 lệnh duy nhất, reactor context được maintain, dependencies resolve OK.
+      # Trade-off: dependencies' tests cũng chạy (chậm), nhưng necessary trong monorepo.
+      - name: Run Maven Verify (test + coverage)
+        run: mvn -B clean verify -pl order -am
 
-      # Bước 2/2 Maven: chỉ chạy verify cho riêng order (không -am vì dep đã có trong ~/.m2).
-      # verify = compile → test → jacoco:report → jacoco:check
-      # Kết quả: surefire-reports/ + site/jacoco/jacoco.xml
-      # -Drevision: project dùng Maven CI Friendly Versions (${revision}) nhưng không có
-      # flatten-maven-plugin. Khi không có -am, Maven đọc POM của dep từ ~/.m2 và gặp
-      # <parent><version>${revision}</version></parent> nhưng đã mất reactor context nên
-      # không resolve được → cố tìm trên Central → fail. Truyền -Drevision thủ công để fix.
-      - name: Run Tests & Generate Coverage (order only)
-        run: mvn -B verify -pl order -Drevision=1.0-SNAPSHOT
-
-      # Checkstyle chỉ cho order, bỏ -am vì deps đã build ở bước trên
+      # Checkstyle cho order + dependencies (Maven CI Friendly Versions cần reactor context)
       - name: Run Maven Checkstyle
-        run: mvn checkstyle:checkstyle -pl order -Drevision=1.0-SNAPSHOT -Dcheckstyle.output.file=order-checkstyle-result.xml
+        run: mvn checkstyle:checkstyle -pl order -am -Dcheckstyle.output.file=order-checkstyle-result.xml
 
       - name: Upload Checkstyle Result
         uses: jwgmeligmeyling/checkstyle-github-action@master
@@ -105,8 +98,8 @@ jobs:
         run: |
           mvn -B sonar:sonar \
             -pl order \
+            -am \
             -DskipTests \
-            -Drevision=1.0-SNAPSHOT \
             -Dsonar.organization=nguyenthanhtien539 \
             -Dsonar.projectKey=NguyenThanhTien539_yas \
             -Dsonar.login=${SONAR_TOKEN} \
