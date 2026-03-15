@@ -44,10 +44,11 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-            - uses: snyk/actions/setup@master
             - name: Snyk test
-              run: snyk test -d --file=backoffice/package.json --sarif-file-output=snyk.sarif --severity-threshold=high
+              uses: snyk/actions/node@master
               continue-on-error: true # To make sure that SARIF upload gets called
+              with:
+                  run: -d --file=backoffice/package.json --sarif-file-output=snyk.sarif --severity-threshold=high
               env:
                   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
             - name: Upload Snyk test result to GitHub Code Scanning
