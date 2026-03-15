@@ -80,7 +80,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f promotion/pom.xml 
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl promotion -am
           -Dsonar.projectKey=Simpolette_yas_test 
           -Dsonar.organization=simpolette 
           -Dsonar.host.url=https://sonarcloud.io
