@@ -141,18 +141,18 @@ jobs:
           path: ${{ github.workspace }}/reports
 
       # Docker – chỉ build và push khi merge vào main
-      - name: Log in to Container Registry
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to Container Registry
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./order
-          push: true
-          tags: ghcr.io/nashtech-garage/yas-order:latest
+      # - name: Build and push Docker image
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./order
+      #     push: true
+      #     tags: ghcr.io/nashtech-garage/yas-order:latest
