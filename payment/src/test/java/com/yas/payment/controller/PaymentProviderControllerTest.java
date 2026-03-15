@@ -40,6 +40,7 @@ class PaymentProviderControllerTest {
         CreatePaymentVm request = new CreatePaymentVm();
         request.setId("test-id");
         request.setName("Test Provider");
+        request.setConfigureUrl("http://test.com");
 
         when(paymentProviderService.create(any(CreatePaymentVm.class))).thenReturn(new PaymentProviderVm());
 
@@ -54,6 +55,7 @@ class PaymentProviderControllerTest {
         UpdatePaymentVm request = new UpdatePaymentVm();
         request.setId("test-id");
         request.setName("Updated Provider");
+        request.setConfigureUrl("http://test.com");
 
         when(paymentProviderService.update(any(UpdatePaymentVm.class))).thenReturn(new PaymentProviderVm());
 
