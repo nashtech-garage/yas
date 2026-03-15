@@ -19,7 +19,7 @@ pipeline {
         stage('Release Charts') {
             when {
                 allOf {
-                    // branch 'main'
+                    branch 'main'
                     anyOf {
                         changeset 'k8s/charts/**'
                         expression { return currentBuild.changeSets.isEmpty() }
