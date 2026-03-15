@@ -126,19 +126,19 @@ def runServiceCI(String serviceName) {
             //     -Dsonar.projectKey=\$SONAR_PROJECT_KEY"""
             // }
             
-            echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
-            jacoco(
-                execPattern: "${serviceName}/target/*.exec",
-                classPattern: "${serviceName}/target/classes",
-                sourcePattern: "${serviceName}/src/main/java",
-                inclusionPattern: "**/*.class",
-                minimumInstructionCoverage: '70',
-                maximumInstructionCoverage: '70',
+            // echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
+            // jacoco(
+            //     execPattern: "${serviceName}/target/*.exec",
+            //     classPattern: "${serviceName}/target/classes",
+            //     sourcePattern: "${serviceName}/src/main/java",
+            //     inclusionPattern: "**/*.class",
+            //     minimumInstructionCoverage: '70',
+            //     maximumInstructionCoverage: '70',
                 
-                buildOverBuild: false,
-                changeBuildStatus: true,
-                skipCopyOfSrcFiles: true 
-            )
+            //     buildOverBuild: false,
+            //     changeBuildStatus: true,
+            //     skipCopyOfSrcFiles: true 
+            // )
         }
 
         echo "=== Phase: Build Docker Image cho ${serviceName} ==="
@@ -153,5 +153,29 @@ def runServiceCI(String serviceName) {
 def publishTestResults(String serviceName) {
     dir(serviceName) {
         junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+    }
+}
+
+post {
+    always {
+        script {
+            echo "=== BẮT ĐẦU DỌN DẸP TÀI NGUYÊN (RESET) ==="
+            sh 'docker ps -aq --filter label=org.testcontainers=true | xargs -r docker rm -f || true'
+            sh 'docker network prune -f || true'
+            
+            // THÊM VÀO ĐÂY: QUÉT TỔNG HỢP JACOCO CHO TẤT CẢ SERVICE
+            echo "=== Tổng hợp báo cáo JaCoCo toàn dự án ==="
+            jacoco(
+                execPattern: "*/target/*.exec",       // Quét tất cả file exec ở mọi service
+                classPattern: "*/target/classes",     // Quét tất cả thư mục classes
+                sourcePattern: "*/src/main/java",     // Quét tất cả source code
+                inclusionPattern: "**/*.class",
+                minimumInstructionCoverage: '70',     // Vẫn giữ chốt chặn 70%
+                maximumInstructionCoverage: '70',
+                buildOverBuild: false,
+                changeBuildStatus: true,
+                skipCopyOfSrcFiles: true 
+            )
+        }
     }
 }
