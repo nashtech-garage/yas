@@ -88,7 +88,21 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --command=mvn --file=pom.xml --maven-aggregate-project
+          SNYK_ORG_ID: ${{ secrets.SNYK_ORG_ID }}
+        run: |
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "SNYK_TOKEN is not configured in GitHub secrets."
+            exit 1
+          fi
+
+          if [ -z "$SNYK_ORG_ID" ]; then
+            echo "SNYK_ORG_ID is not configured in GitHub secrets."
+            echo "Create a secret named SNYK_ORG_ID with your Snyk Organization ID (not display name)."
+            exit 1
+          fi
+
+          snyk whoami
+          snyk test --org="$SNYK_ORG_ID" --command=mvn --file=pom.xml --maven-aggregate-project
 
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
