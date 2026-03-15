@@ -2,6 +2,8 @@ package com.yas.promotion.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.DuplicatedException;
@@ -13,11 +15,15 @@ import com.yas.promotion.model.enumeration.ApplyTo;
 import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;
 import com.yas.promotion.repository.PromotionRepository;
+import com.yas.promotion.repository.PromotionUsageRepository;
+import com.yas.promotion.utils.AuthenticationUtils;
 import com.yas.promotion.utils.Constants;
 import com.yas.promotion.viewmodel.ProductVm;
 import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
+import com.yas.promotion.viewmodel.PromotionPutVm;
+import com.yas.promotion.viewmodel.PromotionUsageVm;
 import com.yas.promotion.viewmodel.PromotionVerifyVm;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -28,6 +34,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,13 +42,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest(classes = PromotionApplication.class)
 class PromotionServiceTest {
+
     @Autowired
     private PromotionRepository promotionRepository;
+    
+    @Autowired
+    private PromotionUsageRepository promotionUsageRepository;
+    
     @MockBean
     private ProductService productService;
+    
     @Autowired
     private PromotionService promotionService;
-
+    
+    private Promotion promotion2;
     private Promotion promotion1;
     private Promotion wrongRangeDatePromotion;
     private PromotionPostVm promotionPostVm;
@@ -70,7 +84,7 @@ class PromotionServiceTest {
 
         promotion1 = promotionRepository.save(promotion1);
 
-        Promotion promotion2 = Promotion.builder()
+        promotion2 = Promotion.builder()
                 .name("Promotion 2")
                 .slug("promotion-2")
                 .description("Description 2")
@@ -108,7 +122,7 @@ class PromotionServiceTest {
             .build();
 
         var promotionApply3 = PromotionApply.builder()
-            .promotion(promotion2)
+            .promotion(promotion2) // Note: From your original code
             .productId(1L).build();
         promotion3.setPromotionApplies(List.of(promotionApply3));
 
@@ -135,6 +149,7 @@ class PromotionServiceTest {
 
     @AfterEach
     void tearDown() {
+        promotionUsageRepository.deleteAll();
         promotionRepository.deleteAll();
     }
 
@@ -237,7 +252,6 @@ class PromotionServiceTest {
     void testVerifyPromotion_PromotionNotFound() {
         var promotionVerifyVm = new PromotionVerifyVm("COUPON123", 150L, List.of(1L, 2L, 3L));
 
-        // Expect a NotFoundException to be thrown
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -247,10 +261,8 @@ class PromotionServiceTest {
 
     @Test
     void testVerifyPromotion_ExhaustedUsageQuantity() {
-        // Mock the repository to return the promotion
         var promotionVerifyVm = new PromotionVerifyVm("codeWrong", 130L, List.of(1L));
 
-        // Expect a BadRequestException due to exhausted usage quantity
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -261,7 +273,7 @@ class PromotionServiceTest {
     @Test
     void testVerifyPromotion_InvalidOrderPrice() {
         var promotionVerifyVm = new PromotionVerifyVm("code2", 10L, List.of(1L));
-        // Expect a BadRequestException due to invalid order price
+        
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -274,7 +286,6 @@ class PromotionServiceTest {
         var promotionVerifyVm = new PromotionVerifyVm("code2", 1000L, List.of(1L,2L,3L));
         Mockito.when(productService.getProductByCategoryIds(ArgumentMatchers.anyList())).thenReturn(List.of());
 
-        // Expect a NotFoundException due to no products found for promotion
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -314,6 +325,94 @@ class PromotionServiceTest {
         assertEquals(1L, result.productId());
         assertEquals(DiscountType.PERCENTAGE, result.discountType());
         assertEquals(20L, result.discountValue().longValue());
+    }
+
+    @Test
+    void updatePromotion_ThenSuccess() {
+        PromotionPutVm putVm = PromotionPutVm.builder()
+            .id(promotion1.getId())
+            .name("Updated Promotion")
+            .slug("updated-promo")
+            .description("Updated Desc")
+            .couponCode("codeUpdated")
+            .discountType(DiscountType.FIXED)
+            .discountAmount(500L)
+            .discountPercentage(0L)
+            .isActive(true)
+            .startDate(Date.from(Instant.now()))
+            .endDate(Date.from(Instant.now().plus(10, ChronoUnit.DAYS)))
+            .applyTo(ApplyTo.BRAND)
+            .brandIds(List.of(2L))
+            .build();
+
+        PromotionDetailVm result = promotionService.updatePromotion(putVm);
+
+        assertEquals("Updated Promotion", result.name());
+        assertEquals("updated-promo", result.slug());
+        assertEquals(500L, result.discountAmount());
+    }
+
+    @Test
+    void updatePromotion_WhenNotFound_ThenThrowsException() {
+        PromotionPutVm putVm = PromotionPutVm.builder().id(999L).build();
+        assertThrows(NotFoundException.class, () -> promotionService.updatePromotion(putVm));
+    }
+
+    @Test
+    void deletePromotion_ThenSuccess() {
+        promotionService.deletePromotion(promotion2.getId());
+        assertTrue(promotionRepository.findById(promotion2.getId()).isEmpty());
+    }
+
+    @Test
+    void deletePromotion_WhenInUse_ThenThrowsException() {
+        try (MockedStatic<AuthenticationUtils> utilities = Mockito.mockStatic(AuthenticationUtils.class)) {
+            utilities.when(AuthenticationUtils::extractUserId).thenReturn("test-user-id");
+            
+            // Đã đổi 1L cuối cùng thành kiểu String "1" để khớp constructor
+            PromotionUsageVm usageVm = new PromotionUsageVm("code1", 1L, "1", null);
+            promotionService.updateUsagePromotion(List.of(usageVm));
+        }
+
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> 
+            promotionService.deletePromotion(promotion1.getId())
+        );
+        assertEquals(String.format("Can't delete promotion %s because it is in use", promotion1.getId()), exception.getMessage());    }
+
+    @Test
+    void updateUsagePromotion_ThenSuccess() {
+        try (MockedStatic<AuthenticationUtils> utilities = Mockito.mockStatic(AuthenticationUtils.class)) {
+            utilities.when(AuthenticationUtils::extractUserId).thenReturn("test-user-id");
+
+            // Đã đổi 1L cuối cùng thành kiểu String "1" để khớp constructor
+            PromotionUsageVm usageVm = new PromotionUsageVm("code1", 1L, "1", null);
+            promotionService.updateUsagePromotion(List.of(usageVm));
+
+            Promotion updatedPromotion = promotionRepository.findById(promotion1.getId()).orElseThrow();
+            assertEquals(1, updatedPromotion.getUsageCount());
+        }
+    }
+
+    @Test
+    void updateUsagePromotion_WhenNotFound_ThenThrowsException() {
+        // SỬA Ở ĐÂY: Thêm Mock AuthenticationUtils để không bị lỗi NullPointer
+        try (MockedStatic<AuthenticationUtils> utilities = Mockito.mockStatic(AuthenticationUtils.class)) {
+            utilities.when(AuthenticationUtils::extractUserId).thenReturn("test-user-id");
+
+            // Đổi mã code thành invalidCode để đảm bảo ném ra NotFoundException
+            PromotionUsageVm usageVm = new PromotionUsageVm("invalidCode", 1L, "1", null);
+            assertThrows(NotFoundException.class, () -> promotionService.updateUsagePromotion(List.of(usageVm)));
+        }
+    }
+
+    @Test
+    void verifyPromotion_WhenOrderPriceIsZero_ThenThrowsException() {
+        PromotionVerifyVm vm = new PromotionVerifyVm("code1", 0L, List.of(1L));
+        
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> 
+            promotionService.verifyPromotion(vm)
+        );
+        assertEquals("Invalid minimum order purchase amount", exception.getMessage());
     }
 
     @Test
