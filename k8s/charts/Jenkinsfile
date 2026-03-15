@@ -1,0 +1,125 @@
+pipeline {
+    agent any
+
+    environment {
+        CHARTS_DIR          = 'k8s/charts'
+        OWNER               = 'danzgne'
+        REPO                = 'devops'
+        CR_PACKAGE_PATH     = '.cr-release-packages'
+        CR_INDEX_PATH       = '.cr-index'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Release Charts') {
+            when {
+                allOf {
+                    branch 'main'
+                    anyOf {
+                        changeset 'k8s/charts/**'
+                        expression { return currentBuild.changeSets.isEmpty() }
+                    }
+                }
+            }
+            stages {
+                stage('Checkout') {
+                    steps {
+                        checkout scm
+                    }
+                }
+
+                stage('Configure Git') {
+                    steps {
+                        sh """
+                            git config user.email "jenkins@yas.local"
+                            git config user.name "Jenkins"
+                        """
+                    }
+                }
+
+                stage('Install Tools') {
+                    steps {
+                        sh """
+                            # Install Helm
+                            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+                            # Install chart-releaser (cr)
+                            CR_VERSION="1.6.1"
+                            curl -sSLo cr.tar.gz \\
+                              "https://github.com/helm/chart-releaser/releases/download/v\${CR_VERSION}/chart-releaser_\${CR_VERSION}_linux_amd64.tar.gz"
+                            tar -xzf cr.tar.gz cr
+                            chmod +x cr && mv cr /usr/local/bin/cr
+                        """
+                    }
+                }
+
+                stage('Add Helm Repo') {
+                    steps {
+                        sh """
+                            helm repo add stakater https://stakater.github.io/stakater-charts
+                            helm repo update
+                        """
+                    }
+                }
+
+                stage('Package Charts') {
+                    steps {
+                        sh """
+                            mkdir -p ${CR_PACKAGE_PATH}
+                            cr package k8s/charts/* --package-path ${CR_PACKAGE_PATH}
+                        """
+                    }
+                }
+
+                stage('Upload Releases') {
+                    steps {
+                        withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
+                            sh """
+                                cr upload \\
+                                  --owner ${OWNER} \\
+                                  --git-repo ${REPO} \\
+                                  --package-path ${CR_PACKAGE_PATH} \\
+                                  --token \$CR_TOKEN \\
+                                  --skip-existing
+                            """
+                        }
+                    }
+                }
+
+                stage('Update Index') {
+                    steps {
+                        withCredentials([string(credentialsId: 'github-token', variable: 'CR_TOKEN')]) {
+                            sh """
+                                mkdir -p ${CR_INDEX_PATH}
+                                cr index \\
+                                  --owner ${OWNER} \\
+                                  --git-repo ${REPO} \\
+                                  --package-path ${CR_PACKAGE_PATH} \\
+                                  --index-path ${CR_INDEX_PATH} \\
+                                  --token \$CR_TOKEN \\
+                                  --push
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Charts released successfully'
+        }
+        failure {
+            echo 'Chart release failed'
+        }
+    }
+}
