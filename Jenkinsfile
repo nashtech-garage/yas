@@ -113,14 +113,16 @@ def runServiceCI(String serviceName) {
         docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
             echo "=== Phase: Unit Test & Sonar Scan cho ${serviceName} ==="
             
-            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]
+                            [string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION')]
+                            [string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')]) {
                 // Tối ưu: Dùng install thay vì verify, skipITs để chạy nhanh hơn
                 sh """mvn install sonar:sonar \
                 -Drevision=1.0-SNAPSHOT -pl ${serviceName} -am \
                 -DskipITs=true \
                 -Dsonar.token=\$SONAR_TOKEN \
-                -Dsonar.organization=longlee0 \
-                -Dsonar.projectKey=LongLee0_yas_Project1_Devops"""
+                -Dsonar.organization=\$SONAR_ORGANIZATION \
+                -Dsonar.projectKey=\$SONAR_PROJECT_KEY"""
             }
             
             echo "=== Phase: Kiểm tra độ phủ Test > 70% (Yêu cầu 7b) ==="
