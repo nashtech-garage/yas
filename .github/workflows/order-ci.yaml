@@ -42,9 +42,9 @@ jobs:
       # Chạy test và tạo JaCoCo coverage report (mvn verify = compile + test + package + verify)
       - name: Run Maven Test & Generate Coverage
         # run: mvn verify -pl order -am
-        run: mvn -B clean install -pl order -am
+        run: mvn -B clean install -pl order
 
-      # Kiểm tra code style
+      # Kiểm tra code stylex
       - name: Run Maven Checkstyle
         run: mvn checkstyle:checkstyle -pl order -am -Dcheckstyle.output.file=order-checkstyle-result.xml
 
