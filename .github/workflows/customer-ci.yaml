@@ -47,6 +47,18 @@ jobs:
               env:
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
               run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f customer
+
+            - uses: snyk/actions/setup@master
+            - name: Snyk test
+              run: snyk test --file=customer/pom.xml --sarif-file-output=snyk.sarif --severity-threshold=high
+              continue-on-error: true # To make sure that SARIF upload gets called
+              env:
+                  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+            - name: Upload Snyk test result to GitHub Code Scanning
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                  sarif_file: snyk.sarif
+
             - name: OWASP Dependency Check
 
               uses: dependency-check/Dependency-Check_Action@main
