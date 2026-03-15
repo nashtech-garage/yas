@@ -82,7 +82,7 @@ def call() {
             sh 'mvn clean install -pl payment-paypal -am -DskipTests'
         }
 
-        if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
+        if (1 == 1 || env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
             stage("${serviceName}: Phase 2 - Build & Push Docker Image") {
                 withCredentials([usernamePassword(
                     credentialsId   : 'docker-registry-credentials',
@@ -90,6 +90,8 @@ def call() {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh """
+                        find ./${serviceName}/target -maxdepth 1 -type f \( -name '*-tests.jar' -o -name '*-sources.jar' -o -name '*-javadoc.jar' \) -delete
+
                         mkdir -p \$WORKSPACE/.docker
                         echo "\$DOCKER_PASS" | docker --config \$WORKSPACE/.docker login ${dockerRegistry} -u "\$DOCKER_USER" --password-stdin
                         docker --config \$WORKSPACE/.docker build -t ${dockerImage}:latest -t ${dockerImage}:${env.BUILD_NUMBER} ./${serviceName}
