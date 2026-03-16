@@ -1,17 +1,75 @@
 name: GitLeaks check nightly
 on:
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
 jobs:
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-    - name: Checkout 
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-    - name: Gitleaks check
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Gitleaks check
+        id: gitleaks
+        continue-on-error: true
+        run: |
+          docker pull zricethezav/gitleaks:v8.18.4
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="." --config="/work/gitleaks.toml" --verbose --no-git --report-format json --report-path /work/gitleaks-report.json
+      - name: Upload Gitleaks report artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+          if-no-files-found: ignore
+      - name: Build PR summary body
+        if: ${{ github.event_name == 'pull_request' && always() }}
+        id: summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let findings = [];
+            if (fs.existsSync('gitleaks-report.json')) {
+              findings = JSON.parse(fs.readFileSync('gitleaks-report.json', 'utf8'));
+            }
+            const total = findings.length;
+            const status = total === 0 ? 'PASS' : 'FAIL';
+            const body = [
+              '### Gitleaks Report',
+              `- Status: **${status}**`,
+              `- Findings: **${total}**`,
+              '',
+              '_This comment is auto-updated on every run._'
+            ].join('\n');
+            core.setOutput('body', body);
+      - name: Comment Gitleaks summary on PR
+        if: ${{ github.event_name == 'pull_request' && always() }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: gitleaks-report
+          message: ${{ steps.summary.outputs.body }}
+      - name: Fail workflow when leaks found
+        if: ${{ steps.gitleaks.outcome == 'failure' }}
+        run: |
+          echo "Gitleaks found potential secrets."
+          exit 1
+
+  ci-pass:
+    runs-on: ubuntu-latest
+    needs: [check]
+    if: ${{ always() }}
+    steps:
+    - name: Verify all required jobs passed
       run: |
-        docker pull zricethezav/gitleaks:v8.18.4
-        docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="." --config="/work/gitleaks.toml" --verbose --no-git
+        if [ "${{ needs.check.result }}" != "success" ]; then
+          echo "check=${{ needs.check.result }}"
+          exit 1
+        fi

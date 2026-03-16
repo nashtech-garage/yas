@@ -9,7 +9,7 @@ on:
       - ".github/workflows/inventory-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
     paths:
       - "inventory/**"
       - ".github/workflows/actions/action.yaml"
@@ -31,6 +31,20 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
+      - name: Setup Snyk CLI
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+      - name: Fix All Execute Permissions
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: chmod -R +x . || true
+      - name: Run Snyk to check for vulnerabilities
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        working-directory: inventory
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk config set org=giahuytechie
+          snyk monitor --file=pom.xml --project-name=yas-inventory -- -U
       - name: Run Maven Build Command
         run: mvn clean install -pl inventory -am
       - name: Run Maven Checkstyle
@@ -48,23 +62,6 @@ jobs:
           name: Inventory-Service-Test-Results
           path: "inventory/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f inventory
-      - name: Setup Snyk CLI
-        uses: snyk/actions/setup@master
-      - name: Fix All Execute Permissions
-        run: chmod -R +x . || true
-      - name: Run Snyk to check for vulnerabilities
-        working-directory: inventory
-        continue-on-error: true
-        env:
-            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-            snyk config set org=giahuytechie
-            snyk monitor --file=pom.xml --project-name=yas-inventory -- -U
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -75,6 +72,11 @@ jobs:
           min-coverage-changed-files: 70
           title: 'Inventory Coverage Report'
           update-comment: true
+      - name: Analyze with sonar cloud
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f inventory
 
   build:
     needs: test
@@ -110,6 +112,7 @@ jobs:
           context: ./inventory
           push: true
           tags: ghcr.io/devops-hcmus/yas-inventory:latest
+
   ci-pass:
     runs-on: ubuntu-latest
     needs: [test, build]
