@@ -128,6 +128,7 @@ pipeline {
                     ]) {
                         sh """mvn compile sonar:sonar \
                         -Drevision=1.0-SNAPSHOT \
+                        -Dsonar.coverage.jacoco.xmlReportPaths="**/target/site/jacoco/jacoco.xml" \
                         -Dsonar.token=\$SONAR_TOKEN \
                         -Dsonar.organization=\$SONAR_ORGANIZATION \
                         -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
