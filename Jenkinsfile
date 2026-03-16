@@ -126,9 +126,8 @@ pipeline {
                         string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION'),
                         string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')
                     ]) {
-                        sh """mvn compile sonar:sonar \
+                        sh """mvn org.jacoco:jacoco-maven-plugin:0.8.11:report compile sonar:sonar \
                         -Drevision=1.0-SNAPSHOT \
-                        -Dsonar.coverage.jacoco.xmlReportPaths="**/target/site/jacoco/jacoco.xml" \
                         -Dsonar.token=\$SONAR_TOKEN \
                         -Dsonar.organization=\$SONAR_ORGANIZATION \
                         -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
