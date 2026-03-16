@@ -32,6 +32,27 @@ jobs:
       - name: Run Maven Test Command
         run: mvn clean test jacoco:report -pl media -am
 
+      # Analyze code quality with SonarCloud
+      - name: Analyze with sonar cloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -pl common-library,media -am \
+            -Dsonar.projectKey=JuzHarii_yas \
+            -Dsonar.organization=juzharii \
+            -Dsonar.host.url=https://sonarcloud.io
+
+      # Install Snyk
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+
+      # Scan source code
+      - name: Run Snyk Security Scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --command=mvn
+
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
@@ -60,32 +81,16 @@ jobs:
 
       - uses: ./.github/workflows/actions
 
+      - name: Run Gitleaks Scan
+        run: |
+          docker pull zricethezav/gitleaks:v8.18.4
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="." --config="/work/gitleaks.toml" --verbose --no-git
+
       # 1. Build project
       - name: Run Maven Build Command
         run: mvn clean install -DskipTests -pl common-library,media -am
 
-      # 2. Analyze code quality with SonarCloud
-      - name: Analyze with sonar cloud
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -pl common-library,media -am \
-            -Dsonar.projectKey=JuzHarii_yas \
-            -Dsonar.organization=juzharii \
-            -Dsonar.host.url=https://sonarcloud.io
-
-      # 3. Install Snyk
-      - name: Setup Snyk
-        uses: snyk/actions/setup@master
-
-      # 4. scan source code
-      - name: Run Snyk Security Scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --command=mvn
-
-      # 5. Log in to GitHub Container Registry
+      # 2. Log in to GitHub Container Registry
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -94,7 +99,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 6. Build and push Docker images
+      # 3. Build and push Docker images
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
