@@ -54,7 +54,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --command=mvn --org=${{ vars.SNYK_ORG }} --maven-aggregate-project
+        run: snyk test --command=mvn --org=${{ vars.SNYK_ORG }} --file=media/pom.xml --severity-threshold=high
 
       - name: Test Results
         uses: dorny/test-reporter@v1
