@@ -1,3 +1,5 @@
+def changedModules = []
+
 pipeline {
     agent any
     
@@ -126,12 +128,20 @@ pipeline {
                         string(credentialsId: 'sonar-organization', variable: 'SONAR_ORGANIZATION'),
                         string(credentialsId: 'sonar-project-key', variable: 'SONAR_PROJECT_KEY')
                     ]) {
+                        def moduleList = changedModules.join(',')
                         
-                        sh """mvn org.jacoco:jacoco-maven-plugin:0.8.11:report compile sonar:sonar \
-                        -Drevision=1.0-SNAPSHOT \
-                        -Dsonar.token=\$SONAR_TOKEN \
-                        -Dsonar.organization=\$SONAR_ORGANIZATION \
-                        -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
+                        if (moduleList != "") {
+                            echo "Đang quét SonarCloud cho các service: ${moduleList}"
+                            
+                            sh """mvn org.jacoco:jacoco-maven-plugin:0.8.11:report compile sonar:sonar \
+                            -Drevision=1.0-SNAPSHOT \
+                            -pl ${moduleList} -am \
+                            -Dsonar.token=\$SONAR_TOKEN \
+                            -Dsonar.organization=\$SONAR_ORGANIZATION \
+                            -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
+                        } else {
+                            echo "Không có service nào thay đổi, bỏ qua SonarCloud!"
+                        }
                     }
                 }
             }
@@ -142,6 +152,7 @@ pipeline {
 // --- HÀM HỖ TRỢ XỬ LÝ TỪNG SERVICE ---
 def runServiceCI(String serviceName) {
     script {
+        changedModules.add(serviceName)
         docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
             echo "=== Phase: Unit Test cho ${serviceName} ==="
             
