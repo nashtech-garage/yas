@@ -86,12 +86,22 @@ jobs:
             print(f"ERROR: Coverage report not found: {report_path}")
             sys.exit(1)
 
-          line_rate = root.attrib.get("line-rate")
-          if line_rate is None:
-            print("ERROR: Cannot find line-rate attribute in jacoco.xml")
+          # JaCoCo XML không có thuộc tính line-rate ở root như Cobertura.
+          # Coverage tổng được lấy từ counter type="LINE" (missed, covered).
+          line_counter = root.find("./counter[@type='LINE']")
+          if line_counter is None:
+            print("ERROR: Cannot find LINE counter in jacoco.xml")
             sys.exit(1)
 
-          coverage = float(line_rate) * 100
+          missed = int(line_counter.attrib.get("missed", "0"))
+          covered = int(line_counter.attrib.get("covered", "0"))
+          total = missed + covered
+
+          if total == 0:
+            print("ERROR: Invalid coverage data (missed + covered = 0)")
+            sys.exit(1)
+
+          coverage = (covered / total) * 100
           threshold = 70.0
 
           print(f"Overall line coverage: {coverage:.2f}%")
