@@ -53,22 +53,18 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f customer
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Fix All Execute Permissions
+        run: chmod -R +x . || true
+      - name: Run Snyk to check for vulnerabilities
+        working-directory: customer
+        continue-on-error: true
         env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-          args: --nvdApiKey ${{ secrets.NVD_API_KEY }} --disableCentral
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+            snyk config set org=giahuytechie
+            snyk monitor --file=pom.xml --project-name=yas-customer -- -U
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}

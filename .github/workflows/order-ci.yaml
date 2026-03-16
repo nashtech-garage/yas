@@ -51,22 +51,20 @@ jobs:
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f order
       - name: Setup Snyk CLI
         uses: snyk/actions/setup@master
-
       - name: Fix All Execute Permissions
         run: chmod -R +x . || true
-
       - name: Run Snyk to check for vulnerabilities
         working-directory: order
         continue-on-error: true
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          snyk config set org=giahuytechie
-          snyk monitor --file=pom.xml --project-name=yas-order
+            snyk config set org=giahuytechie
+            snyk monitor --file=pom.xml --project-name=yas-order -- -U
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}

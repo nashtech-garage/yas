@@ -53,6 +53,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Fix All Execute Permissions
+        run: chmod -R +x . || true
+      - name: Run Snyk to check for vulnerabilities
+        working-directory: backoffice
+        continue-on-error: true
+        env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+            snyk config set org=giahuytechie
+            snyk monitor --file=package.json --project-name=yas-backoffice
 
   build:
     needs: test
