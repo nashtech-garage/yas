@@ -136,7 +136,7 @@ pipeline {
                             sh """mvn org.jacoco:jacoco-maven-plugin:0.8.11:report compile sonar:sonar \
                             -Drevision=1.0-SNAPSHOT \
                             -pl ${moduleList} -am \
-                            -Dsonar.coverage.exclusions="common-library/**" \ 
+                            -Dsonar.coverage.exclusions="common-library/**" \
                             -Dsonar.token=\$SONAR_TOKEN \
                             -Dsonar.organization=\$SONAR_ORGANIZATION \
                             -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
