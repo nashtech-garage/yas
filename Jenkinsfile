@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        SONAR_HOST_URL = 'http://192.168.23.135:9000'  // ← đổi thành IP SonarQube server của bạn
+        SONAR_HOST_URL = 'http://192.168.23.135:9000' 
     }
 
     stages {
@@ -153,9 +153,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl cart \
+                                mvn sonar:sonar -pl cart -am \
                                     -Dsonar.projectKey=yas-cart \
                                     -Dsonar.projectName="YAS - Cart" \
+                                    -Dsonar.inclusions=cart/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=cart/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -209,9 +210,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl customer \
+                                mvn sonar:sonar -pl customer -am \
                                     -Dsonar.projectKey=yas-customer \
                                     -Dsonar.projectName="YAS - Customer" \
+                                    -Dsonar.inclusions=customer/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=customer/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -265,9 +267,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl order \
+                                mvn sonar:sonar -pl order -am \
                                     -Dsonar.projectKey=yas-order \
                                     -Dsonar.projectName="YAS - Order" \
+                                    -Dsonar.inclusions=order/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=order/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -321,9 +324,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl product \
+                                mvn sonar:sonar -pl product -am \
                                     -Dsonar.projectKey=yas-product \
                                     -Dsonar.projectName="YAS - Product" \
+                                    -Dsonar.inclusions=product/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=product/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -377,9 +381,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl rating \
+                                mvn sonar:sonar -pl rating -am \
                                     -Dsonar.projectKey=yas-rating \
                                     -Dsonar.projectName="YAS - Rating" \
+                                    -Dsonar.inclusions=rating/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=rating/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -433,9 +438,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl inventory \
+                                mvn sonar:sonar -pl inventory -am \
                                     -Dsonar.projectKey=yas-inventory \
                                     -Dsonar.projectName="YAS - Inventory" \
+                                    -Dsonar.inclusions=inventory/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=inventory/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -489,9 +495,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl media \
+                                mvn sonar:sonar -pl media -am \
                                     -Dsonar.projectKey=yas-media \
                                     -Dsonar.projectName="YAS - Media" \
+                                    -Dsonar.inclusions=media/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=media/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -545,9 +552,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl tax \
+                                mvn sonar:sonar -pl tax -am \
                                     -Dsonar.projectKey=yas-tax \
                                     -Dsonar.projectName="YAS - Tax" \
+                                    -Dsonar.inclusions=tax/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=tax/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -601,9 +609,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl location \
+                                mvn sonar:sonar -pl location -am \
                                     -Dsonar.projectKey=yas-location \
                                     -Dsonar.projectName="YAS - Location" \
+                                    -Dsonar.inclusions=location/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=location/target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -657,9 +666,10 @@ pipeline {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                mvn sonar:sonar -pl promotion \
+                                mvn sonar:sonar -pl promotion -am \
                                     -Dsonar.projectKey=yas-promotion \
                                     -Dsonar.projectName="YAS - Promotion" \
+                                    -Dsonar.inclusions=promotion/**/* \
                                     -Dsonar.coverage.jacoco.xmlReportPaths=promotion/target/site/jacoco/jacoco.xml
                             '''
                         }
