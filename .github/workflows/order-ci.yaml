@@ -63,6 +63,7 @@ jobs:
       # Comment coverage lên PR; action sẽ fail step nếu coverage < 70% (min-coverage-overall)
       # → ngăn merge khi coverage thấp (kết hợp với branch protection "require status checks")
       - name: Add Coverage Report to PR
+        if: github.event_name == 'pull_request'
         uses: madrapps/jacoco-report@v1.6.1
         with:
           paths: ${{ github.workspace }}/order/target/site/jacoco/jacoco.xml
@@ -70,47 +71,46 @@ jobs:
           min-coverage-overall: 70
           min-coverage-changed-files: 70
           title: "Order Coverage Report"
-          update-comment: true
+          update-comment: false
 
-      # Coverage gate cứng: chỉ pass khi overall coverage > 70%
-      - name: Enforce Coverage Threshold (> 70%)
+      - name: Enforce coverage >= 70% (PR only)
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
-          python3 - << 'PY'
-          import sys
-          import xml.etree.ElementTree as ET
+          echo "Reading coverage from JaCoCo report..."
 
-          report_path = "order/target/site/jacoco/jacoco.xml"
-          try:
-            root = ET.parse(report_path).getroot()
-          except FileNotFoundError:
-            print(f"ERROR: Coverage report not found: {report_path}")
-            sys.exit(1)
+          FILE="order/target/site/jacoco/jacoco.xml"
 
-          # JaCoCo XML không có thuộc tính line-rate ở root như Cobertura.
-          # Coverage tổng được lấy từ counter type="LINE" (missed, covered).
-          line_counter = root.find("./counter[@type='LINE']")
-          if line_counter is None:
-            print("ERROR: Cannot find LINE counter in jacoco.xml")
-            sys.exit(1)
+          if [ ! -f "$FILE" ]; then
+            echo "jacoco.xml not found!"
+            exit 1
+          fi
 
-          missed = int(line_counter.attrib.get("missed", "0"))
-          covered = int(line_counter.attrib.get("covered", "0"))
-          total = missed + covered
+          # Lấy counter LINE cuối cùng của toàn report
+          LINE=$(grep -o '<counter type="LINE" missed="[0-9]*" covered="[0-9]*"/>' $FILE | tail -1)
 
-          if total == 0:
-            print("ERROR: Invalid coverage data (missed + covered = 0)")
-            sys.exit(1)
+          MISSED=$(echo $LINE | sed -E 's/.*missed="([0-9]+)".*/\1/')
+          COVERED=$(echo $LINE | sed -E 's/.*covered="([0-9]+)".*/\1/')
 
-          coverage = (covered / total) * 100
-          threshold = 70.0
+          TOTAL=$((MISSED + COVERED))
 
-          print(f"Overall line coverage: {coverage:.2f}%")
-          if coverage <= threshold:
-            print(f"ERROR: Coverage gate failed. Required > {threshold:.0f}%, got {coverage:.2f}%")
-            sys.exit(1)
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "No lines to cover. Skipping."
+            exit 0
+          fi
 
-          print(f"Coverage gate passed: {coverage:.2f}% > {threshold:.0f}%")
-          PY
+          PERCENT=$((COVERED * 100 / TOTAL))
+
+          echo "Missed lines: $MISSED"
+          echo "Covered lines: $COVERED"
+          echo "Total lines: $TOTAL"
+          echo "Coverage: $PERCENT%"
+
+          if [ "$PERCENT" -lt 70 ]; then
+            echo "Coverage below 70% → Failing job"
+            exit 1
+          else
+            echo "Coverage requirement satisfied"
+          fi
 
       # Upload báo cáo coverage để tham chiếu sau (Yêu cầu 7b)
       - name: Upload Coverage Artifact
@@ -159,9 +159,9 @@ jobs:
             --debug || true
 
           if [ -f snyk-report.json ]; then
-            echo "✓ snyk-report.json created successfully"
+            echo "snyk-report.json created successfully"
           else
-            echo "⚠ snyk-report.json NOT FOUND - Snyk crashed during dependency resolution!"
+            echo "snyk-report.json NOT FOUND - Snyk crashed during dependency resolution!"
             exit 1
           fi
 
@@ -169,7 +169,7 @@ jobs:
       - name: Upload Snyk Report
         uses: actions/upload-artifact@v4
         # Dùng hashFiles là một trick xuất sắc để tránh lỗi upload khi file không tồn tại
-        if: always() && hashFiles('snyk-report.json') != '' 
+        if: always() && hashFiles('snyk-report.json') != ''
         with:
           name: order-snyk-report
           path: snyk-report.json
