@@ -19,7 +19,7 @@ pipeline {
                     docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
                         for (service in services) {
                             echo "--- Quét Snyk cho service: ${service} ---"
-                            sh "snyk test --token=$SNYK_TOKEN --file=${service}/pom.xml || true"
+                            sh "snyk test --token=\$SNYK_TOKEN --file=${service}/pom.xml"
                             }
                         }
                     }
