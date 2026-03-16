@@ -144,6 +144,19 @@ class OrderServiceTest {
     }
 
     @Test
+    void updateOrderPaymentStatus_whenOrderNotFound_thenThrowNotFoundException() {
+        when(orderRepository.findById(99L)).thenReturn(Optional.empty());
+
+        PaymentOrderStatusVm request = PaymentOrderStatusVm.builder()
+                .orderId(99L)
+                .paymentId(9900L)
+                .paymentStatus(PaymentStatus.PENDING.name())
+                .build();
+
+        assertThrows(NotFoundException.class, () -> orderService.updateOrderPaymentStatus(request));
+    }
+
+    @Test
     void rejectOrder_whenOrderExists_thenSetRejectStatusAndReason() {
         Order order = buildOrder(30L);
         when(orderRepository.findById(30L)).thenReturn(Optional.of(order));
@@ -164,6 +177,20 @@ class OrderServiceTest {
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.ACCEPTED);
         verify(orderRepository).save(order);
+    }
+
+    @Test
+    void rejectOrder_whenOrderMissing_thenThrowNotFoundException() {
+        when(orderRepository.findById(33L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> orderService.rejectOrder(33L, "not-found"));
+    }
+
+    @Test
+    void acceptOrder_whenOrderMissing_thenThrowNotFoundException() {
+        when(orderRepository.findById(34L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> orderService.acceptOrder(34L));
     }
 
     private static Order buildOrder(Long id) {
