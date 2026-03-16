@@ -21,6 +21,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -69,6 +70,18 @@ class PaymentServiceTest {
     }
 
     @Test
+    void initPayment_ProviderNotFound_ThrowsException() {
+        InitPaymentRequestVm initPaymentRequestVm = InitPaymentRequestVm.builder()
+                .paymentMethod(PaymentMethod.BANKING.name()).totalPrice(BigDecimal.TEN).checkoutId("123").build();
+
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> paymentService.initPayment(initPaymentRequestVm));
+
+        assertEquals("No payment handler found for provider: BANKING", exception.getMessage());
+        verify(paymentHandler, never()).initPayment(any());
+    }
+
+    @Test
     void capturePayment_Success() {
         CapturePaymentRequestVm capturePaymentRequestVM = CapturePaymentRequestVm.builder()
                 .paymentMethod(PaymentMethod.PAYPAL.name()).token("123").build();
@@ -81,6 +94,20 @@ class PaymentServiceTest {
         verifyPaymentCreation(capturePaymentResponseVm);
         verifyOrderServiceInteractions(capturedPayment);
         verifyResult(capturedPayment, capturePaymentResponseVm);
+    }
+
+    @Test
+    void capturePayment_ProviderNotFound_ThrowsException() {
+        CapturePaymentRequestVm capturePaymentRequestVM = CapturePaymentRequestVm.builder()
+                .paymentMethod(PaymentMethod.BANKING.name()).token("123").build();
+
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> paymentService.capturePayment(capturePaymentRequestVM));
+
+        assertEquals("No payment handler found for provider: BANKING", exception.getMessage());
+        verify(paymentHandler, never()).capturePayment(any());
+        verifyNoInteractions(orderService);
+        verifyNoInteractions(paymentRepository);
     }
 
     private CapturedPayment prepareCapturedPayment() {
