@@ -1,0 +1,6 @@
+version: v1.25.0
+ignore:
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-15365924:
+    - '*':
+        reason: Introduced only through inherited testcontainers-keycloak test dependency; not part of recommendation runtime artifact.
+        expires: 2026-06-30T23:59:59.000Z
