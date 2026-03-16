@@ -1,4 +1,4 @@
-def changedModules = []
+changedModules = []
 
 pipeline {
     agent any
