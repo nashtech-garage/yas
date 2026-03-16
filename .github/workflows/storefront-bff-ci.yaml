@@ -33,6 +33,21 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -pl storefront-bff -am
+      - name: Setup Snyk CLI
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+      - name: Fix All Execute Permissions
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: chmod -R +x . || true
+      - name: Run Snyk to check for vulnerabilities
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        working-directory: storefront-bff
+        continue-on-error: true
+        env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+            snyk config set org=giahuytechie
+            snyk monitor --file=pom.xml --project-name=yas-storefront-bff -- -U
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl storefront-bff -am -Dcheckstyle.output.file=storefront-bff-checkstyle-result.xml
@@ -41,23 +56,6 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/storefront-bff-checkstyle-result.xml'
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f storefront-bff
-      - name: Setup Snyk CLI
-        uses: snyk/actions/setup@master
-      - name: Fix All Execute Permissions
-        run: chmod -R +x . || true
-      - name: Run Snyk to check for vulnerabilities
-        working-directory: storefront-bff
-        continue-on-error: true
-        env:
-            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-            snyk config set org=giahuytechie
-            snyk monitor --file=pom.xml --project-name=yas-storefront-bff -- -U
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -69,6 +67,11 @@ jobs:
           title: 'Storefront BFF Coverage Report'
           update-comment: true
 
+      - name: Analyze with sonar cloud
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f storefront-bff
   build:
     needs: test
     runs-on: ubuntu-latest

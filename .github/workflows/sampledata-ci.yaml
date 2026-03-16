@@ -32,6 +32,22 @@ jobs:
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -pl sampledata -am
+      - name: Setup Snyk CLI
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+      - name: Fix All Execute Permissions
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: chmod -R +x . || true
+      - name: Run Snyk to check for vulnerabilities
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        working-directory: sampledata
+        continue-on-error: true
+        env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+            snyk config set org=giahuytechie
+            snyk monitor --file=pom.xml --project-name=yas-sampledata -- -U
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl sampledata -am -Dcheckstyle.output.file=sampledata-checkstyle-result.xml
@@ -45,19 +61,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f sampledata
-      - name: Setup Snyk CLI
-        uses: snyk/actions/setup@master
-      - name: Fix All Execute Permissions
-        run: chmod -R +x . || true
-      - name: Run Snyk to check for vulnerabilities
-        working-directory: sampledata
-        continue-on-error: true
-        env:
-            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-            snyk config set org=giahuytechie
-            snyk monitor --file=pom.xml --project-name=yas-sampledata -- -U
-
   build:
     needs: test
     runs-on: ubuntu-latest

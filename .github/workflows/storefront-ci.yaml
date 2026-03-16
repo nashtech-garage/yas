@@ -44,10 +44,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Setup Snyk CLI
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: snyk/actions/setup@master
       - name: Fix All Execute Permissions
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: chmod -R +x . || true
       - name: Run Snyk to check for vulnerabilities
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         working-directory: storefront
         continue-on-error: true
         env:
