@@ -12,7 +12,7 @@ credentials:
   redis:
     password: redis
   openai:
-    apiKey: update-me
+    apiKey: gitleaks-test-9xK2vLmP7qRs1TnB4wYc8HdJ6mZp3F
 
 #Genneral application.yaml for all microservice
 applicationConfig:
