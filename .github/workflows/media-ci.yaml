@@ -34,6 +34,7 @@ jobs:
 
       # Analyze code quality with SonarCloud
       - name: Analyze with sonar cloud
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -45,13 +46,15 @@ jobs:
 
       # Install Snyk
       - name: Setup Snyk
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: snyk/actions/setup@master
 
       # Scan source code
       - name: Run Snyk Security Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --command=mvn
+        run: snyk test --command=mvn --org=${{ vars.SNYK_ORG }} --maven-aggregate-project
 
       - name: Test Results
         uses: dorny/test-reporter@v1
