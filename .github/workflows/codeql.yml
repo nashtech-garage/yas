@@ -92,3 +92,16 @@ jobs:
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
+
+  ci-pass:
+    name: ci-pass
+    runs-on: ubuntu-latest
+    needs: [analyze]
+    if: ${{ always() }}
+    steps:
+    - name: Verify all required jobs passed
+      run: |
+        if [ "${{ needs.analyze.result }}" != "success" ]; then
+          echo "analyze=${{ needs.analyze.result }}"
+          exit 1
+        fi
