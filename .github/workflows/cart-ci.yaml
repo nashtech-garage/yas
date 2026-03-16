@@ -89,10 +89,10 @@ jobs:
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/actions
       - name: Build Maven package for Docker
         run: mvn clean package -DskipTests -pl cart -am
-      - uses: actions/checkout@v4
       - name: Build Docker image (PR check)
         if: ${{ github.event_name == 'pull_request' }}
         uses: docker/build-push-action@v6
