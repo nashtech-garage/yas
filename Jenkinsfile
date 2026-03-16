@@ -272,22 +272,15 @@ pipeline {
                         //                 def isMainOrPR = (env.BRANCH_NAME == 'main' || (env.CHANGE_ID && env.CHANGE_TARGET == 'main'))
 
                         //                 if (IS_ROOT_CHANGED) {
-                        //                     if (isMainOrPR) {
-                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high --command=mvn"
-                        //                     } else {
-                        //                         sh "${snykCmd} test --all-projects --severity-threshold=high --command=mvn || true"
-                        //                     }
+                        //                     sh "${snykCmd} test --all-projects --severity-threshold=high --command=mvn"
                         //                 } else {
                         //                     def services = CHANGED_SERVICES.split(',')
                         //                     for (service in services) {
                         //                         echo ">>> Snyk scanning: ${service}"
                         //                         dir(service) {
                         //                             sh 'chmod +x ./mvnw'
-                        //                             if (isMainOrPR) {
-                        //                                 sh "${snykCmd} test --severity-threshold=high --command=mvn"
-                        //                             } else {
-                        //                                 sh "${snykCmd} test --severity-threshold=high --command=mvn || true"
-                        //                             }
+
+                        //                             sh "${snykCmd} test --severity-threshold=high --command=mvn"
                         //                         }
                         //                     }
                         //                 }
