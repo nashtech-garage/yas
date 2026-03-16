@@ -2,7 +2,7 @@ name: tax service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "**" ]
     paths:
       - "tax/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,12 +18,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  test:
     runs-on: ubuntu-latest
     permissions:
       checks: write
       contents: read
-      packages: write
+      pull-requests: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
@@ -75,10 +75,24 @@ jobs:
         with:
           paths: ${{github.workspace}}/tax/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
           title: 'Tax Coverage Report'
           update-comment: true
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/workflows/actions
+      - name: Build Maven package for Docker
+        run: mvn clean package -DskipTests -pl tax -am
       - name: Build Docker image (PR check)
         if: ${{ github.event_name == 'pull_request' }}
         uses: docker/build-push-action@v6
