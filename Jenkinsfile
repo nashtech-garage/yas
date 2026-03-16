@@ -13,18 +13,17 @@ pipeline {
                         sh 'gitleaks detect --source="." --no-git --verbose || true'
                     }
 
-                    // echo '=== 1.2 Quét lỗ hổng thư viện (Snyk Full Project) ==='
-                    // // Quét toàn bộ để lấy kết quả tổng quan trước khi đi vào từng service
-                    // withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    //     docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                    //         sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
-                    //     }
-                    // }
+                    echo '=== 1.2 Quét lỗ hổng thư viện (Snyk Full Project) ==='
+                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                        docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
+                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
+                        }
+                    }
                 }
             }
         }
 
-        // --- STAGE 2: CHUẨN BỊ POM GỐC (Để fix lỗi ${revision}) ---
+        // --- STAGE 2: CHUẨN BỊ POM GỐC ---
         stage('Prepare Root & Commons') {
             steps {
                 sh 'find . -name "*.exec" -type f -delete || true'
@@ -32,7 +31,6 @@ pipeline {
                 echo '=== Cài đặt cấu hình gốc và thư viện dùng chung ==='
                 script {
                     docker.image('maven:3.9.6-eclipse-temurin-21').inside('-v /root/.m2:/root/.m2') {
-                        // Quan trọng: Cài đặt tệp POM cha vào .m2 để các module con không bị lỗi dependency
                         sh 'mvn install -N -Drevision=1.0-SNAPSHOT'
                         sh 'mvn clean install -DskipTests -Drevision=1.0-SNAPSHOT -pl common-library -am'
                     }
@@ -43,7 +41,6 @@ pipeline {
         // --- STAGE 3: QUY TRÌNH CI TUẦN TỰ ---
         stage('Business Services CI') {
             stages {
-                // Chạy tuần tự từng service để tránh quá tải RAM và xung đột file
                 stage('Service: Customer') {
                     when { changeset "customer/**" }
                     steps { runServiceCI('customer') }
