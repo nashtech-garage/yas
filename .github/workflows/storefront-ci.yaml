@@ -1,78 +1,86 @@
 name: storefront service ci
 
 on:
-    push:
-        branches: ["main"]
-        paths:
-            - "storefront/**"
-            - ".github/workflows/actions/action.yaml"
-            - ".github/workflows/storefront-ci.yaml"
-    pull_request:
-        branches: ["main"]
-        paths:
-            - "storefront/**"
-            - ".github/workflows/actions/action.yaml"
-            - ".github/workflows/storefront-ci.yaml"
-    workflow_dispatch:
+  push:
+    branches: [ "**" ]
+    paths:
+      - "storefront/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/storefront-ci.yaml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "storefront/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/storefront-ci.yaml"
+  workflow_dispatch:
 
 jobs:
-    Build:
-        runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-latest
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: storefront
+      - run: npm run build
+        working-directory: storefront
+      - run: npm run lint
+        working-directory: storefront
+      - run: npx prettier --check .
+        working-directory: storefront
+      - name: SonarCloud Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: storefront
         env:
-            FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-            - run: npm ci
-              working-directory: storefront
-            - run: npm run build
-              working-directory: storefront
-            - run: npm run lint
-              working-directory: storefront
-            - run: npx prettier --check .
-              working-directory: storefront
-            - name: SonarCloud Scan
-              if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-              uses: SonarSource/sonarcloud-github-action@master
-              with:
-                  projectBaseDir: storefront
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            - name: Setup Snyk CLI
-              uses: snyk/actions/setup@master
-            - name: Fix All Execute Permissions
-              run: chmod -R +x . || true
-            - name: Run Snyk to check for vulnerabilities
-              working-directory: storefront
-              continue-on-error: true
-              env:
-                  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-              run: |
-                  snyk config set org=giahuytechie
-                  snyk monitor --file=package.json --project-name=yas-storefront
-            - name: Build Docker image (PR check)
-              if: ${{ github.event_name == 'pull_request' }}
-              uses: docker/build-push-action@v6
-              with:
-                  context: ./storefront
-                  push: false
-                  tags: ghcr.io/devops-hcmus/yas-storefront:latest
-            - name: Log in to the Container registry
-              if: ${{ github.ref == 'refs/heads/main' }}
-              uses: docker/login-action@v3
-              with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-            - name: Build and push Docker images
-              if: ${{ github.ref == 'refs/heads/main' }}
-              uses: docker/build-push-action@v6
-              with:
-                  context: ./storefront
-                  push: true
-                  tags: ghcr.io/devops-hcmus/yas-storefront:latest
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Fix All Execute Permissions
+        run: chmod -R +x . || true
+      - name: Run Snyk to check for vulnerabilities
+        working-directory: storefront
+        continue-on-error: true
+        env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+            snyk config set org=giahuytechie
+            snyk monitor --file=package.json --project-name=yas-storefront
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image (PR check)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./storefront
+          push: false
+          tags: ghcr.io/devops-hcmus/yas-storefront:latest
+      - name: Log in to the Container registry
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker images
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./storefront
+          push: true
+          tags: ghcr.io/devops-hcmus/yas-storefront:latest

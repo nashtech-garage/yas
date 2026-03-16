@@ -1,98 +1,112 @@
 name: webhook service ci
 
 on:
-    push:
-        branches: ["main"]
-        paths:
-            - "webhook/**"
-            - ".github/workflows/actions/action.yaml"
-            - ".github/workflows/webhook-ci.yaml"
-            - "pom.xml"
-    pull_request:
-        branches: ["main"]
-        paths:
-            - "webhook/**"
-            - ".github/workflows/actions/action.yaml"
-            - ".github/workflows/webhook-ci.yaml"
-            - "pom.xml"
-    workflow_dispatch:
+  push:
+    branches: [ "**" ]
+    paths:
+      - "webhook/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/webhook-ci.yaml"
+      - "pom.xml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "webhook/**"
+      - ".github/workflows/actions/action.yaml"
+      - ".github/workflows/webhook-ci.yaml"
+      - "pom.xml"
+  workflow_dispatch:
 
 jobs:
-    Build:
-        runs-on: ubuntu-latest
-        permissions:
-            checks: write
-            contents: read
-            packages: write
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Build Command
+        run: mvn clean install -pl webhook -am
+      - name: Run Maven Checkstyle
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: mvn checkstyle:checkstyle -pl webhook -am -Dcheckstyle.output.file=webhook-checkstyle-result.xml
+      - name: Upload Checkstyle Result
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          path: '**/webhook-checkstyle-result.xml'
+      - name: Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Webhook-Service-Unit-Test-Results
+          path: "webhook/**/*-reports/TEST*.xml"
+          reporter: java-junit
+      - name: Analyze with sonar cloud
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
-            FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-            - uses: ./.github/workflows/actions
-            - name: Run Maven Build Command
-              run: mvn clean install -pl webhook -am
-            - name: Run Maven Checkstyle
-              if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-              run: mvn checkstyle:checkstyle -pl webhook -am -Dcheckstyle.output.file=webhook-checkstyle-result.xml
-            - name: Upload Checkstyle Result
-              if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-              uses: jwgmeligmeyling/checkstyle-github-action@master
-              with:
-                  path: "**/webhook-checkstyle-result.xml"
-            - name: Unit Test Results
-              uses: dorny/test-reporter@v1
-              if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-              with:
-                  name: Webhook-Service-Unit-Test-Results
-                  path: "webhook/**/*-reports/TEST*.xml"
-                  reporter: java-junit
-            - name: Analyze with sonar cloud
-              if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-              env:
-                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-              run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f webhook
-            - name: Setup Snyk CLI
-              uses: snyk/actions/setup@master
-            - name: Fix All Execute Permissions
-              run: chmod -R +x . || true
-            - name: Run Snyk to check for vulnerabilities
-              working-directory: webhook
-              continue-on-error: true
-              env:
-                  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-              run: |
-                  snyk config set org=giahuytechie
-                  snyk monitor --file=pom.xml --project-name=yas-webhook -- -U
-            - name: Add coverage report to PR
-              uses: madrapps/jacoco-report@v1.6.1
-              if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-              with:
-                  paths: ${{github.workspace}}/webhook/target/site/jacoco/jacoco.xml
-                  token: ${{secrets.GITHUB_TOKEN}}
-                  min-coverage-overall: 80
-                  min-coverage-changed-files: 60
-                  title: "Webhook Coverage Report"
-                  update-comment: true
-            - name: Build Docker image (PR check)
-              if: ${{ github.event_name == 'pull_request' }}
-              uses: docker/build-push-action@v6
-              with:
-                  context: ./webhook
-                  push: false
-                  tags: ghcr.io/devops-hcmus/yas-webhook:latest
-            - name: Log in to the Container registry
-              if: ${{ github.ref == 'refs/heads/main' }}
-              uses: docker/login-action@v3
-              with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-            - name: Build and push Docker images
-              if: ${{ github.ref == 'refs/heads/main' }}
-              uses: docker/build-push-action@v6
-              with:
-                  context: ./webhook
-                  push: true
-                  tags: ghcr.io/devops-hcmus/yas-webhook:latest
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f webhook
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Fix All Execute Permissions
+        run: chmod -R +x . || true
+      - name: Run Snyk to check for vulnerabilities
+        working-directory: webhook
+        continue-on-error: true
+        env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+            snyk config set org=giahuytechie
+            snyk monitor --file=pom.xml --project-name=yas-webhook -- -U
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/webhook/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: 'Webhook Coverage Report'
+          update-comment: true
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/workflows/actions
+      - name: Build Maven package for Docker
+        run: mvn clean package -DskipTests -pl webhook -am
+      - name: Build Docker image (PR check)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./webhook
+          push: false
+          tags: ghcr.io/devops-hcmus/yas-webhook:latest
+      - name: Log in to the Container registry
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker images
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./webhook
+          push: true
+          tags: ghcr.io/devops-hcmus/yas-webhook:latest

@@ -1,3 +1,6 @@
+name: Setup Java and Maven caches
+description: Reusable composite action to configure JDK 21 and restore Sonar/Maven caches for CI jobs.
+
 runs:
   using: "composite"
   steps:
