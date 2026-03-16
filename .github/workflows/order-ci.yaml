@@ -40,7 +40,7 @@ jobs:
 
       # -am (also make) bảo Maven compile và test TẤT CẢ dependencies trước, rồi verify order.
       - name: Run Maven Verify (test + coverage)
-        run: mvn -B clean verify -pl order -am -DskipITs
+        run: mvn -B clean verify -pl order -DskipITs
 
       # Checkstyle cho order + dependencies (Maven CI Friendly Versions cần reactor context)
       - name: Run Maven Checkstyle

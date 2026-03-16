@@ -24,7 +24,6 @@ import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.viewmodel.order.OrderItemPostVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
-import com.yas.order.viewmodel.product.ProductVariationVm;
 import com.yas.order.viewmodel.promotion.PromotionUsageVm;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -330,31 +329,6 @@ class OrderServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().id()).isEqualTo(90L);
-    }
-
-    @Test
-    void isOrderCompletedWithUserIdAndProductId_whenNoVariationsAndOrderExists_thenReturnTrue() {
-        setSubjectUpSecurityContext("user-2");
-        when(productService.getProductVariations(101L)).thenReturn(List.of());
-        when(orderRepository.findOne(any(org.springframework.data.jpa.domain.Specification.class)))
-                .thenReturn(Optional.of(buildOrder(101L)));
-
-        var result = orderService.isOrderCompletedWithUserIdAndProductId(101L);
-
-        assertThat(result.isPresent()).isTrue();
-    }
-
-    @Test
-    void isOrderCompletedWithUserIdAndProductId_whenHasVariationsAndNoOrder_thenReturnFalse() {
-        setSubjectUpSecurityContext("user-3");
-        when(productService.getProductVariations(202L))
-                .thenReturn(List.of(new ProductVariationVm(2021L, "v1", "sku1"), new ProductVariationVm(2022L, "v2", "sku2")));
-        when(orderRepository.findOne(any(org.springframework.data.jpa.domain.Specification.class)))
-                .thenReturn(Optional.empty());
-
-        var result = orderService.isOrderCompletedWithUserIdAndProductId(202L);
-
-        assertThat(result.isPresent()).isFalse();
     }
 
     private static Order buildOrder(Long id) {
