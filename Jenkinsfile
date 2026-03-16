@@ -8,6 +8,8 @@ pipeline {
         JAVA_HOME = "${WORKSPACE}/.tools/jdk-21"
         MAVEN_HOME = "${WORKSPACE}/.tools/maven"
         PATH = "${WORKSPACE}/.tools/jdk-21/bin:${WORKSPACE}/.tools/maven/bin:${env.PATH}"
+        SONAR_HOST_URL = "http://127.0.0.1:9000"
+
     }
 
     parameters {
@@ -283,6 +285,33 @@ pipeline {
                         reportName:  'Backoffice Coverage',
                         allowMissing: true
                     ])
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
+            when {
+                expression { env.CHANGED_BACKEND_SERVICES }
+            }
+            steps {
+                script {
+                    def services = env.CHANGED_BACKEND_SERVICES.split(',')
+                    def skipList = ['sampledata', 'delivery']
+                    def servicesToScan = services.findAll { !(it in skipList) }
+
+                    withSonarQubeEnv('jenkin-sonarsonar') { // Tên phải khớp với cấu hình ở Manage Jenkins
+                        for (svc in servicesToScan) {
+                            echo "SonarQube analyzing: ${svc}"
+                            dir(svc) {
+                                sh """
+                                    mvn sonar:sonar \
+                                        -Dsonar.projectKey=yas-${svc} \
+                                        -Dsonar.projectName=yas-${svc} \
+                                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                                        -DskipTests
+                                """
+                            }
+                        }
+                    }
                 }
             }
         }
