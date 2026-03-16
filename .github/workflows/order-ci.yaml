@@ -72,6 +72,36 @@ jobs:
           title: "Order Coverage Report"
           update-comment: true
 
+      # Coverage gate cứng: chỉ pass khi overall coverage > 70%
+      - name: Enforce Coverage Threshold (> 70%)
+        run: |
+          python3 - << 'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+
+          report_path = "order/target/site/jacoco/jacoco.xml"
+          try:
+            root = ET.parse(report_path).getroot()
+          except FileNotFoundError:
+            print(f"ERROR: Coverage report not found: {report_path}")
+            sys.exit(1)
+
+          line_rate = root.attrib.get("line-rate")
+          if line_rate is None:
+            print("ERROR: Cannot find line-rate attribute in jacoco.xml")
+            sys.exit(1)
+
+          coverage = float(line_rate) * 100
+          threshold = 70.0
+
+          print(f"Overall line coverage: {coverage:.2f}%")
+          if coverage <= threshold:
+            print(f"ERROR: Coverage gate failed. Required > {threshold:.0f}%, got {coverage:.2f}%")
+            sys.exit(1)
+
+          print(f"Coverage gate passed: {coverage:.2f}% > {threshold:.0f}%")
+          PY
+
       # Upload báo cáo coverage để tham chiếu sau (Yêu cầu 7b)
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v4
