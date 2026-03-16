@@ -14,9 +14,13 @@ pipeline {
                     }
 
                     echo '=== 1.2 Quét lỗ hổng thư viện (Snyk Full Project) ==='
+                    def services = ["customer", "product", "cart", "order", "media", "rating", "location", "inventory", "tax", "search", "payment", "promotion", "payment-paypal", "common-library"]
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                        docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
-                            sh 'snyk test --all-projects --token=$SNYK_TOKEN --exclude=recommendation,backoffice,storefront || true'
+                    docker.image('snyk/snyk:maven').inside('--entrypoint=""') {
+                        for (service in services) {
+                            echo "--- Quét Snyk cho service: ${service} ---"
+                            sh "snyk test --token=$SNYK_TOKEN --file=${service}/pom.xml || true"
+                            }
                         }
                     }
                 }
@@ -201,4 +205,5 @@ def publishTestResults(String serviceName) {
         junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
     }
 }
+
 
