@@ -1,4 +1,4 @@
-package com.yas.payment.service;
+package com.yas.payment.service
 
 import static com.yas.payment.util.SecurityContextUtils.setUpSecurityContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
