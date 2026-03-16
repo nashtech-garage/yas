@@ -138,7 +138,6 @@ pipeline {
                             -pl ${moduleList} -am \
                             -Dsonar.coverage.exclusions="common-library/**" \ 
                             -Dsonar.token=\$SONAR_TOKEN \
-                            -Dsonar.token=\$SONAR_TOKEN \
                             -Dsonar.organization=\$SONAR_ORGANIZATION \
                             -Dsonar.projectKey=\$SONAR_PROJECT_KEY || true"""
                         } else {
