@@ -156,6 +156,13 @@ pipeline {
                     reportName: 'JaCoCo Coverage Report',
                     reportTitles: 'Code Coverage'
                 ])
+                jacoco(
+                    execPattern: '**/target/jacoco.exec',
+                    classPattern: '**/target/classes',
+                    sourcePattern: '**/src/main/java',
+                    inclusionPattern: '**/*.class',
+                    exclusionPattern: '**/*Application.class,**/config/**,**/exception/**,**/constants/**'
+                )
             }
         }
 
