@@ -5,6 +5,10 @@ pipeline {
         jdk 'JDK21'
     }
 
+    environment {
+        SONAR_HOST_URL = 'http://192.168.23.135:9000'  // ← đổi thành IP SonarQube server của bạn
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -16,28 +20,21 @@ pipeline {
         stage('Security Scan: Gitleaks') {
             steps {
                 script {
-                    // Fetch origin/main để có base so sánh
                     sh 'git fetch origin main:refs/remotes/origin/main || true'
-        
+
                     def scanRange = ''
                     if (env.BRANCH_NAME == 'main') {
                         scanRange = 'HEAD~1..HEAD'
                     } else {
-                        // Kiểm tra origin/main có tồn tại không
                         def mainExists = sh(
                             script: 'git rev-parse --verify origin/main > /dev/null 2>&1',
                             returnStatus: true
                         )
-                        if (mainExists == 0) {
-                            scanRange = 'origin/main..HEAD'
-                        } else {
-                            // Fallback: chỉ scan commit mới nhất
-                            scanRange = 'HEAD~1..HEAD'
-                        }
+                        scanRange = (mainExists == 0) ? 'origin/main..HEAD' : 'HEAD~1..HEAD'
                     }
-        
+
                     echo "Scanning range: ${scanRange}"
-        
+
                     def result = sh(
                         script: """
                             gitleaks detect \
@@ -50,7 +47,7 @@ pipeline {
                         """,
                         returnStatus: true
                     )
-        
+
                     if (result == 0) {
                         echo "✅ Gitleaks: No secrets found in range [${scanRange}]"
                     } else {
@@ -152,6 +149,25 @@ pipeline {
                         )
                     }
                 }
+                stage('cart - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl cart \
+                                    -Dsonar.projectKey=yas-cart \
+                                    -Dsonar.projectName="YAS - Cart" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=cart/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('cart - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
                 stage('cart - Build') {
                     steps {
                         sh 'mvn package -pl cart -am -DskipTests'
@@ -187,6 +203,25 @@ pipeline {
                             ]],
                             sourceDirectories: [[path: 'customer/src/main/java']]
                         )
+                    }
+                }
+                stage('customer - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl customer \
+                                    -Dsonar.projectKey=yas-customer \
+                                    -Dsonar.projectName="YAS - Customer" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=customer/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('customer - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
                     }
                 }
                 stage('customer - Build') {
@@ -226,6 +261,25 @@ pipeline {
                         )
                     }
                 }
+                stage('order - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl order \
+                                    -Dsonar.projectKey=yas-order \
+                                    -Dsonar.projectName="YAS - Order" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=order/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('order - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
                 stage('order - Build') {
                     steps {
                         sh 'mvn package -pl order -am -DskipTests'
@@ -261,6 +315,25 @@ pipeline {
                             ]],
                             sourceDirectories: [[path: 'product/src/main/java']]
                         )
+                    }
+                }
+                stage('product - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl product \
+                                    -Dsonar.projectKey=yas-product \
+                                    -Dsonar.projectName="YAS - Product" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=product/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('product - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
                     }
                 }
                 stage('product - Build') {
@@ -300,6 +373,25 @@ pipeline {
                         )
                     }
                 }
+                stage('rating - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl rating \
+                                    -Dsonar.projectKey=yas-rating \
+                                    -Dsonar.projectName="YAS - Rating" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=rating/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('rating - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
                 stage('rating - Build') {
                     steps {
                         sh 'mvn package -pl rating -am -DskipTests'
@@ -335,6 +427,25 @@ pipeline {
                             ]],
                             sourceDirectories: [[path: 'inventory/src/main/java']]
                         )
+                    }
+                }
+                stage('inventory - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl inventory \
+                                    -Dsonar.projectKey=yas-inventory \
+                                    -Dsonar.projectName="YAS - Inventory" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=inventory/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('inventory - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
                     }
                 }
                 stage('inventory - Build') {
@@ -374,6 +485,25 @@ pipeline {
                         )
                     }
                 }
+                stage('media - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl media \
+                                    -Dsonar.projectKey=yas-media \
+                                    -Dsonar.projectName="YAS - Media" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=media/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('media - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
                 stage('media - Build') {
                     steps {
                         sh 'mvn package -pl media -am -DskipTests'
@@ -409,6 +539,25 @@ pipeline {
                             ]],
                             sourceDirectories: [[path: 'tax/src/main/java']]
                         )
+                    }
+                }
+                stage('tax - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl tax \
+                                    -Dsonar.projectKey=yas-tax \
+                                    -Dsonar.projectName="YAS - Tax" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=tax/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('tax - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
                     }
                 }
                 stage('tax - Build') {
@@ -448,6 +597,25 @@ pipeline {
                         )
                     }
                 }
+                stage('location - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl location \
+                                    -Dsonar.projectKey=yas-location \
+                                    -Dsonar.projectName="YAS - Location" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=location/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('location - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
                 stage('location - Build') {
                     steps {
                         sh 'mvn package -pl location -am -DskipTests'
@@ -483,6 +651,25 @@ pipeline {
                             ]],
                             sourceDirectories: [[path: 'promotion/src/main/java']]
                         )
+                    }
+                }
+                stage('promotion - SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                mvn sonar:sonar -pl promotion \
+                                    -Dsonar.projectKey=yas-promotion \
+                                    -Dsonar.projectName="YAS - Promotion" \
+                                    -Dsonar.coverage.jacoco.xmlReportPaths=promotion/target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
+                stage('promotion - Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
                     }
                 }
                 stage('promotion - Build') {
