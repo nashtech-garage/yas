@@ -121,9 +121,11 @@ public class ProductService {
         if (min != null || max != null) {
             bool.must(m -> m
                     .range(r -> r
-                            .field(ProductField.PRICE)
-                            .from(min != null ? min.toString() : null)
-                            .to(max != null ? max.toString() : null)
+                            .untyped(u -> u
+                                    .field(ProductField.PRICE)
+                                    .from(min != null ? min.toString() : null)
+                                    .to(max != null ? max.toString() : null)
+                            )
                     )
             );
         }
