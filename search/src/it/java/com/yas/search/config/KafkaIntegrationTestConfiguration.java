@@ -30,8 +30,11 @@ public class KafkaIntegrationTestConfiguration {
     }
 
     @Bean
-    public DynamicPropertyRegistrar elasticProperties(ElasticTestContainer elastic) {
-        return registry -> registry.add("elasticsearch.url", elastic::getHttpHostAddress);
+    public DynamicPropertyRegistrar elasticProperties(ElasticTestContainer elastic, KafkaContainer kafka) {
+        return registry -> {
+            registry.add("elasticsearch.url", elastic::getHttpHostAddress);
+            registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        };
     }
 
 }
