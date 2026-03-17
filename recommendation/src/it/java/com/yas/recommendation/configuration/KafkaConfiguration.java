@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -19,14 +18,14 @@ public class KafkaConfiguration {
 
     @Bean
     @ServiceConnection
-    public KafkaContainer kafkaContainer(DynamicPropertyRegistry registry) {
-        return ContainerFactory.kafkaContainer(registry, kafkaVersion);
+    public KafkaContainer kafkaContainer() {
+        return ContainerFactory.kafkaContainer(kafkaVersion);
     }
 
     @Bean
     @ServiceConnection
-    public PostgreSQLContainer pgvectorContainer(DynamicPropertyRegistry registry) {
-        return ContainerFactory.pgvector(registry, pgVectorVersion);
+    public PostgreSQLContainer pgvectorContainer() {
+        return ContainerFactory.pgvector(pgVectorVersion);
     }
 
 

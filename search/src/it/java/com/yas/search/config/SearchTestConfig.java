@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 
 @TestConfiguration
 public class SearchTestConfig extends IntegrationTestConfiguration {
@@ -15,9 +15,12 @@ public class SearchTestConfig extends IntegrationTestConfiguration {
 
     @Bean(destroyMethod = "stop")
     @ServiceConnection
-    public ElasticTestContainer elasticTestContainer(DynamicPropertyRegistry registry) {
-        ElasticTestContainer container = new ElasticTestContainer(elasticSearchVersion);
-        registry.add("elasticsearch.url", container::getHttpHostAddress);
-        return container;
+    public ElasticTestContainer elasticTestContainer() {
+        return new ElasticTestContainer(elasticSearchVersion);
+    }
+
+    @Bean
+    public DynamicPropertyRegistrar elasticProperties(ElasticTestContainer elastic) {
+        return registry -> registry.add("elasticsearch.url", elastic::getHttpHostAddress);
     }
 }
