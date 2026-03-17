@@ -20,13 +20,15 @@ class WarehouseRepositoryIT {
     @Autowired
     private WarehouseRepository warehouseRepository;
 
+    private Warehouse warehouse1;
+    private Warehouse warehouse2;
+
     @BeforeEach
     public void insertTestData() {
-        Warehouse warehouse = Warehouse.builder().id(1L).name("test_warehouse").addressId(1L).build();
-        Warehouse duplicateNameWarehouse = Warehouse.builder().id(2L).name("test_warehouse").addressId(2L).build();
-
-        warehouseRepository.save(warehouse);
-        warehouseRepository.save(duplicateNameWarehouse);
+        warehouse1 = warehouseRepository.save(
+            Warehouse.builder().name("test_warehouse").addressId(1L).build());
+        warehouse2 = warehouseRepository.save(
+            Warehouse.builder().name("test_warehouse").addressId(2L).build());
     }
 
     @AfterEach
@@ -46,7 +48,7 @@ class WarehouseRepositoryIT {
 
     @Test
     void testExistsByNameWithDifferentId_ifWarehouseWithSameNameExistsWithDifferentId_shouldReturnTrue() {
-        assertThat(warehouseRepository.existsByNameWithDifferentId("test_warehouse", 1L)).isTrue();
+        assertThat(warehouseRepository.existsByNameWithDifferentId("test_warehouse", warehouse1.getId())).isTrue();
     }
 
     @Test
