@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.json.JsonData;
 import com.yas.search.constant.ProductField;
 import com.yas.search.constant.enums.SortType;
 import com.yas.search.model.Product;
@@ -123,8 +124,8 @@ public class ProductService {
                     .range(r -> r
                             .untyped(u -> u
                                     .field(ProductField.PRICE)
-                                    .from(min != null ? min.toString() : null)
-                                    .to(max != null ? max.toString() : null)
+                                    .from(min != null ? JsonData.of(min.toString()) : null)
+                                    .to(max != null ? JsonData.of(max.toString()) : null)
                             )
                     )
             );
