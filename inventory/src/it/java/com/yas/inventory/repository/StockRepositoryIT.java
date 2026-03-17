@@ -41,6 +41,7 @@ class StockRepositoryIT {
 
         stock = stockRepository.save(
             Instancio.of(Stock.class)
+                .ignore(field(Stock::getId))
                 .set(field(Stock::getWarehouse), warehouse)
                 .create()
         );
