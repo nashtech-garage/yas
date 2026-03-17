@@ -16,6 +16,7 @@ import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameGetVm;
 import com.yas.search.viewmodel.ProductNameListVm;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -238,6 +239,11 @@ class ProductServiceTest {
             @Override
             public SearchShardStatistics getSearchShardStatistics() {
                 return null;
+            }
+
+            @Override
+            public Duration getExecutionDuration() {
+                return Duration.ZERO;
             }
         };
     }
