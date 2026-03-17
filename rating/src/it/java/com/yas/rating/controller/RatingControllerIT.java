@@ -12,6 +12,8 @@ import com.yas.rating.service.OrderService;
 import com.yas.rating.viewmodel.CustomerVm;
 import com.yas.rating.viewmodel.OrderExistsByProductAndUserGetVm;
 import com.yas.rating.viewmodel.RatingPostVm;
+import static org.instancio.Select.field;
+
 import java.util.HashSet;
 import java.util.Set;
 import org.hamcrest.Matchers;
@@ -49,11 +51,13 @@ public class RatingControllerIT extends AbstractControllerIT {
     @BeforeEach
     public void setUp() {
         rating = ratingRepository.save(Instancio.of(Rating.class)
+                .ignore(field(Rating::getId))
                 .generate(Select.field((Rating::getRatingStar)), gen -> gen.ints().min(0).max(5))
                 .create());
         Set<Rating> set = new HashSet();
         for (int i = 0; i <= 5; i++) {
             set.add(Instancio.of(Rating.class)
+                    .ignore(field(Rating::getId))
                     .generate(
                             Select.field((Rating::getRatingStar)),
                             gen -> gen.ints().min(0).max(5)
