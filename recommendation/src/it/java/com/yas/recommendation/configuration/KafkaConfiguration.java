@@ -31,7 +31,11 @@ public class KafkaConfiguration {
 
     @Bean
     public DynamicPropertyRegistrar kafkaProperties(KafkaContainer kafka) {
-        return registry -> registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        return registry -> {
+            registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+            registry.add("spring.kafka.consumer.bootstrap-servers", kafka::getBootstrapServers);
+            registry.add("spring.kafka.producer.bootstrap-servers", kafka::getBootstrapServers);
+        };
     }
 
 }
