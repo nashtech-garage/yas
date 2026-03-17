@@ -36,8 +36,11 @@ pipeline {
         stage('Detect Changed Services') {
             steps {
                 script {
+                    def targetBranch = env.CHANGE_TARGET ?: 'main'
+                    sh "git fetch origin ${targetBranch}:refs/remotes/origin/${targetBranch} || true"
+
                     def changedFiles = sh(
-                        script: "git diff --name-only origin/${env.CHANGE_TARGET ?: 'main'} 2>/dev/null || echo 'all'",
+                        script: "git diff --name-only origin/${targetBranch} 2>/dev/null || echo 'all'",
                         returnStdout: true
                     ).trim()
 
@@ -53,7 +56,9 @@ pipeline {
 
                     def services = []
 
-                    if (changedFiles == 'all' || changedFiles.contains('pom.xml')) {
+                    def changedFilesList = changedFiles.split('\n').collect { it.trim() }.findAll { it }
+
+                    if (changedFiles == 'all' || changedFilesList.contains('pom.xml')) {
                         services = allServices
                         echo "Building all services due to root pom.xml change or initial build"
                     } else {
@@ -151,6 +156,13 @@ pipeline {
                     reportName: 'JaCoCo Coverage Report',
                     reportTitles: 'Code Coverage'
                 ])
+                jacoco(
+                    execPattern: '**/target/jacoco.exec',
+                    classPattern: '**/target/classes',
+                    sourcePattern: '**/src/main/java',
+                    inclusionPattern: '**/*.class',
+                    exclusionPattern: '**/*Application.class,**/config/**,**/exception/**,**/constants/**'
+                )
             }
         }
 
