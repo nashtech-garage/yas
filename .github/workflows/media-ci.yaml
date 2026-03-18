@@ -120,7 +120,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=media/pom.xml --sarif-file-output=snyk.sarif
+          args: --sarif-file-output=snyk.sarif
 
       # Upload result to GitHub Security tab
       - name: Upload Snyk SARIF
