@@ -126,7 +126,7 @@ class ProductControllerIT extends AbstractControllerIT {
     }
 
     void initProductRelativeData() {
-        productRelatedRepository.saveAll(List.of(new ProductRelated(3L, productOne, productTwo)));
+        productRelatedRepository.saveAll(List.of(new ProductRelated(null, productOne, productTwo)));
     }
 
     void initProductOption() {

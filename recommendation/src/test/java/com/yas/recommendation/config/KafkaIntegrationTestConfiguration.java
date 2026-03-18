@@ -5,10 +5,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration
 public class KafkaIntegrationTestConfiguration {
@@ -21,13 +20,22 @@ public class KafkaIntegrationTestConfiguration {
 
     @Bean
     @ServiceConnection
-    public KafkaContainer kafkaContainer(DynamicPropertyRegistry registry) {
-        return ContainerFactory.kafkaContainer(registry, kafkaVersion);
+    public KafkaContainer kafkaContainer() {
+        return ContainerFactory.kafkaContainer(kafkaVersion);
     }
 
     @Bean
     @ServiceConnection
-    public PostgreSQLContainer pgvectorContainer(DynamicPropertyRegistry registry) {
-        return ContainerFactory.pgvector(registry, pgVectorVersion);
+    public PostgreSQLContainer pgvectorContainer() {
+        return ContainerFactory.pgvector(pgVectorVersion);
+    }
+
+    @Bean
+    public DynamicPropertyRegistrar kafkaProperties(KafkaContainer kafka) {
+        return registry -> {
+            registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+            registry.add("spring.kafka.consumer.bootstrap-servers", kafka::getBootstrapServers);
+            registry.add("spring.kafka.producer.bootstrap-servers", kafka::getBootstrapServers);
+        };
     }
 }

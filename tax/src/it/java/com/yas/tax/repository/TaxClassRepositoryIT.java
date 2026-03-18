@@ -20,10 +20,13 @@ class TaxClassRepositoryIT {
     @Autowired
     private TaxClassRepository taxClassRepository;
 
+    private TaxClass testTaxClass;
+    private TaxClass anotherTaxClass;
+
     @BeforeEach
     void insertTestData(){
-        taxClassRepository.save(TaxClass.builder().name("test_tax_class").id(1L).build());
-        taxClassRepository.save(TaxClass.builder().name("another_tax_class").id(2L).build());
+        testTaxClass = taxClassRepository.save(TaxClass.builder().name("test_tax_class").build());
+        anotherTaxClass = taxClassRepository.save(TaxClass.builder().name("another_tax_class").build());
     }
 
     @AfterEach
@@ -43,11 +46,11 @@ class TaxClassRepositoryIT {
 
     @Test
     void test_existsByNameNotUpdatingTaxClass_shouldReturnTrue_whenThereIsAClassWithSameNameAndDiffID(){
-        assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("test_tax_class", 2L)).isTrue();
+        assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("test_tax_class", anotherTaxClass.getId())).isTrue();
     }
 
     @Test
     void test_existsByNameNotUpdatingTaxClass_shouldReturnFalse_whenThereIsNoClassWithSameName(){
-        assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("dummy_class", 1L)).isFalse();
+        assertThat(taxClassRepository.existsByNameNotUpdatingTaxClass("dummy_class", testTaxClass.getId())).isFalse();
     }
 }

@@ -50,9 +50,9 @@ class UserAddressServiceIT {
     @BeforeEach
     void setUp() {
         List<UserAddress> userAddressList = new ArrayList<>();
-        userAddressList.add(createUserAddress(1L, USER_ID_1, 101L, true));
-        userAddressList.add(createUserAddress(2L, USER_ID_2, 102L, false));
-        userAddressList.add(createUserAddress(3L, USER_ID_2, 103L, true));
+        userAddressList.add(createUserAddress(USER_ID_1, 101L, true));
+        userAddressList.add(createUserAddress(USER_ID_2, 102L, false));
+        userAddressList.add(createUserAddress(USER_ID_2, 103L, true));
         userAddressRepository.saveAll(userAddressList);
     }
 
@@ -229,9 +229,8 @@ class UserAddressServiceIT {
         );
     }
 
-    private UserAddress createUserAddress(Long id, String userId, Long addressId, Boolean isActive) {
+    private UserAddress createUserAddress(String userId, Long addressId, Boolean isActive) {
         UserAddress userAddress = new UserAddress();
-        userAddress.setId(id);
         userAddress.setUserId(userId);
         userAddress.setAddressId(addressId);
         userAddress.setIsActive(isActive);

@@ -16,6 +16,7 @@ import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameGetVm;
 import com.yas.search.viewmodel.ProductNameListVm;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,6 +144,38 @@ class ProductServiceTest {
     }
 
     @Test
+    void testFindProductAdvance_whenMinIsNull_ReturnProductListGetVm() {
+
+        SearchHits<Product> searchHits = getSearchHits();
+
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "test", 0, 10, "testBrand", "testCategory",
+            "testAttribute", null, 100.0, SortType.DEFAULT);
+        ProductListGetVm result = productService.findProductAdvance(criteriaDto);
+
+        assertNotNull(result);
+        assertEquals(1, result.products().size());
+    }
+
+    @Test
+    void testFindProductAdvance_whenMaxIsNull_ReturnProductListGetVm() {
+
+        SearchHits<Product> searchHits = getSearchHits();
+
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "test", 0, 10, "testBrand", "testCategory",
+            "testAttribute", 10.0, null, SortType.DEFAULT);
+        ProductListGetVm result = productService.findProductAdvance(criteriaDto);
+
+        assertNotNull(result);
+        assertEquals(1, result.products().size());
+    }
+
+    @Test
     void testAutoCompleteProductName_whenExistsProducts_returnProductNameListVm() {
 
         SearchHits<Product> searchHits =
@@ -238,6 +271,11 @@ class ProductServiceTest {
             @Override
             public SearchShardStatistics getSearchShardStatistics() {
                 return null;
+            }
+
+            @Override
+            public Duration getExecutionDuration() {
+                return Duration.ZERO;
             }
         };
     }

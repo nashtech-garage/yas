@@ -33,12 +33,13 @@ class StockHistoryRepositoryIT {
     void insertTestData() {
         warehouse = warehouseRepository.save(
             Instancio.of(Warehouse.class)
-                .set(field(Warehouse::getId), 1L)
+                .ignore(field(Warehouse::getId))
                 .create()
         );
 
         stockHistory = stockHistoryRepository.save(
             Instancio.of(StockHistory.class)
+                .ignore(field(StockHistory::getId))
                 .set(field(StockHistory::getWarehouse), warehouse)
                 .create()
         );

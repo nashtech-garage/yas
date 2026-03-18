@@ -321,14 +321,14 @@ pipeline {
                         // Scan root pom.xml and frontend projects
                         sh '''
                             echo "Scanning root Maven project..."
-                            snyk test --file=pom.xml --severity-threshold=high || echo "Maven scan completed with issues"
+                            snyk test --file=pom.xml --severity-threshold=high 
                             
                             echo "Scanning Storefront..."
-                            cd storefront && snyk test --severity-threshold=high || echo "Storefront scan completed with issues"
+                            cd storefront && snyk test --severity-threshold=high
                             cd ..
                             
                             echo "Scanning Backoffice..."
-                            cd backoffice && snyk test --severity-threshold=high || echo "Backoffice scan completed with issues"
+                            cd backoffice && snyk test --severity-threshold=high
                         '''
                     }
                 }

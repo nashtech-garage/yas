@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.4.10</version> 
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yas</groupId>
@@ -54,7 +54,7 @@
         <logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
         <opentelemetry-logback.vesion>2.9.0-alpha</opentelemetry-logback.vesion>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.8.11</springdoc-openapi-starter-webmvc-ui.version>
         <keycloak-spring-security-adapter.version>25.0.3</keycloak-spring-security-adapter.version>
         <org.keycloak.version>26.0.1</org.keycloak.version>
         <keycloak-spring-boot-starter.version>25.0.3</keycloak-spring-boot-starter.version>
@@ -65,6 +65,8 @@
         <testcontainers.version>1.20.4</testcontainers.version>
         <testcontainers-keycloak.version>3.5.1</testcontainers-keycloak.version>
         <rest-assured.version>5.5.6</rest-assured.version>
+        <jackson-core.version>2.18.6</jackson-core.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
         <instancio-junit.version>5.0.2</instancio-junit.version>
         <opencsv.version>5.9</opencsv.version>
         <postgresql.version>42.7.7</postgresql.version>
@@ -163,6 +165,16 @@
                 <artifactId>instancio-junit</artifactId>
                 <version>${instancio-junit.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.rest-assured</groupId>

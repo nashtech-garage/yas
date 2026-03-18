@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.KafkaContainer;
 
 @TestConfiguration
@@ -19,16 +19,22 @@ public class KafkaIntegrationTestConfiguration {
 
     @Bean
     @ServiceConnection
-    public KafkaContainer kafkaContainer(DynamicPropertyRegistry registry) {
-        return ContainerFactory.kafkaContainer(registry, kafkaVersion);
+    public KafkaContainer kafkaContainer() {
+        return ContainerFactory.kafkaContainer(kafkaVersion);
     }
 
     @Bean
     @ServiceConnection
-    public ElasticTestContainer elasticTestContainer(DynamicPropertyRegistry registry) {
-        ElasticTestContainer container = new ElasticTestContainer(elasticSearchVersion);
-        registry.add("elasticsearch.url", container::getHttpHostAddress);
-        return container;
+    public ElasticTestContainer elasticTestContainer() {
+        return new ElasticTestContainer(elasticSearchVersion);
+    }
+
+    @Bean
+    public DynamicPropertyRegistrar elasticProperties(ElasticTestContainer elastic, KafkaContainer kafka) {
+        return registry -> {
+            registry.add("elasticsearch.url", elastic::getHttpHostAddress);
+            registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        };
     }
 
 }
