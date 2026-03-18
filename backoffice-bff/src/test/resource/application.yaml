@@ -1,0 +1,35 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: backoffice-bff-test
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+      - org.springframework.session.data.redis.config.annotation.web.server.EnableRedisIndexedWebSession
+      - org.springframework.boot.autoconfigure.session.SessionAutoConfiguration
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9999/realms/Yas
+            authorization-uri: http://localhost:9999/realms/Yas/protocol/openid-connect/auth
+            token-uri: http://localhost:9999/realms/Yas/protocol/openid-connect/token
+            user-info-uri: http://localhost:9999/realms/Yas/protocol/openid-connect/userinfo
+            jwk-set-uri: http://localhost:9999/realms/Yas/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
+        registration:
+          api-client:
+            provider: keycloak
+            client-id: backoffice-bff-test
+            client-secret: test-secret
+            scope: openid, profile, email, roles
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+management:
+  tracing:
+    enabled: false
