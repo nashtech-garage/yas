@@ -33,20 +33,49 @@ pipeline {
             }
         }
 
-        stage('Select Services') {
+        stage('Detect Changed Services') {
             steps {
                 script {
+                    def targetBranch = env.CHANGE_TARGET ?: 'main'
+                    sh "git fetch origin ${targetBranch}:refs/remotes/origin/${targetBranch} || true"
+
+                    def changedFiles = sh(
+                        script: "git diff --name-only origin/${targetBranch} 2>/dev/null || echo 'all'",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed files:\n${changedFiles}"
+
                     def allServices = [
-                        'common-library', 'backoffice-bff', 'cart', 'customer',
-                        'inventory', 'location', 'media', 'order', 'payment-paypal',
-                        'payment', 'product', 'promotion', 'rating', 'search',
-                        'storefront-bff', 'tax', 'webhook', 'sampledata',
+                        'common-library', 'backoffice-bff', 'cart', 'customer', 
+                        'inventory', 'location', 'media', 'order', 'payment-paypal', 
+                        'payment', 'product', 'promotion', 'rating', 'search', 
+                        'storefront-bff', 'tax', 'webhook', 'sampledata', 
                         'recommendation', 'delivery'
                     ]
 
-                    env.HAS_SERVICES = 'true'
-                    env.SERVICES = allServices.join(',')
-                    echo "Running all services: ${env.SERVICES}"
+                    def services = []
+
+                    def changedFilesList = changedFiles.split('\n').collect { it.trim() }.findAll { it }
+
+                    if (changedFiles == 'all' || changedFilesList.contains('pom.xml')) {
+                        services = allServices
+                        echo "Building all services due to root pom.xml change or initial build"
+                    } else {
+                        allServices.each { service ->
+                            if (changedFiles.contains("${service}/")) {
+                                services.add(service)
+                            }
+                        }
+
+                        if (services.isEmpty()) {
+                            echo "No backend services changed, skipping build and test"
+                        }
+                    }
+
+                    env.HAS_SERVICES = services.isEmpty() ? 'false' : 'true'
+                    env.SERVICES = services.join(",")
+                    echo "Services to build: ${env.SERVICES ?: 'none'}"
                 }
             }
         }
@@ -87,8 +116,6 @@ pipeline {
                         echo "DOCKER_API_VERSION=1.44" >> ~/.docker-java.properties
                         cat ~/.docker-java.properties
                     '''
-
-                    sh 'docker pull quay.io/keycloak/keycloak:26.0 || true'
                 }
                 withEnv([
                     'DOCKER_API_VERSION=1.44',
@@ -294,14 +321,14 @@ pipeline {
                         // Scan root pom.xml and frontend projects
                         sh '''
                             echo "Scanning root Maven project..."
-                            snyk test --file=pom.xml --severity-threshold=high || echo "Maven scan completed with issues"
+                            snyk test --file=pom.xml --severity-threshold=high 
                             
                             echo "Scanning Storefront..."
-                            cd storefront && snyk test --severity-threshold=high || echo "Storefront scan completed with issues"
+                            cd storefront && snyk test --severity-threshold=high
                             cd ..
                             
                             echo "Scanning Backoffice..."
-                            cd backoffice && snyk test --severity-threshold=high || echo "Backoffice scan completed with issues"
+                            cd backoffice && snyk test --severity-threshold=high
                         '''
                     }
                 }
