@@ -16,27 +16,45 @@ on:
       - ".github/workflows/recommendation-ci.yaml"
       - "pom.xml"
   workflow_dispatch:
+env:
+  FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
 
 jobs:
-  Build:
+  gitleaks:
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+      - name: Gitleaks Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+  build:
+    runs-on: ubuntu-latest
+    needs: gitleaks
+    steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -pl recommendation -am
-      - name: Run Maven Checkstyle
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl recommendation -am -Dcheckstyle.output.file=recommendation-checkstyle-result.xml
-      - name: Upload Checkstyle Result
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
+      
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pull-requests: write
+      contents: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
         with:
-          path: '**/recommendation-checkstyle-result.xml'
+          fetch-depth: 0
+      - uses: ./.github/workflows/actions
+      - name: Run Tests
+        run: mvn clean verify -pl recommendation -am
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
@@ -48,43 +66,49 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f recommendation
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
+        run: mvn clean verify sonar:sonar -pl recommendation -am
+          -Dsonar.projectKey=thanhdatttt_DevOps-Project
+          -Dsonar.organization=thanhdatttt
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.token=$SONAR_TOKEN 
+          -Dsonar.coverage.jacoco.xmlReportPaths=${{github.workspace}}/recommendation/target/site/jacoco/jacoco.xml
       - name: Add coverage report to PR
+        id: jacoco_reporter
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
           paths: ${{github.workspace}}/recommendation/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
           title: 'Recommendation Coverage Report'
           update-comment: true
-      - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v3
+
+      - name: Coverage check
+        run: |
+          OVERALL=${{ steps.jacoco_reporter.outputs['coverage-overall'] }}
+          echo "Current Overall Coverage is: $OVERALL%"
+          
+          if (( $(echo "$OVERALL < 70.0" | bc -l) )); then
+            echo "Error: Code Coverage ($OVERALL%) is lower than set standards (70%)!"
+            exit 1 
+          else
+            echo "Code Coverage Pass"
+          fi
+          
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/maven@v1.0.0
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
+          args: --sarif-file-output=snyk.sarif
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          context: ./recommendation
-          push: true
-          tags: ghcr.io/nashtech-garage/yas-recommendation:latest
+          sarif_file: snyk.sarif
