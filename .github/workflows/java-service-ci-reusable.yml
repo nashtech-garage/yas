@@ -1,0 +1,116 @@
+name: Java Service CI Reusable
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      service_label:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  test:
+    name: ${{ inputs.service_label }} Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/workflows/actions
+
+      - name: Run Checkstyle
+        run: mvn -B -ntp checkstyle:checkstyle -pl ${{ inputs.service }} -am -Dcheckstyle.output.file=${{ inputs.service }}-checkstyle-result.xml
+
+      - name: Upload Checkstyle Result
+        if: always()
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          path: "**/${{ inputs.service }}-checkstyle-result.xml"
+
+      - name: Run Maven tests with JaCoCo quality gate
+        run: mvn -B -ntp -pl ${{ inputs.service }} -am clean verify
+
+      - name: Publish JUnit test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: ${{ inputs.service_label }} Test Results
+          path: |
+            ${{ inputs.service }}/target/surefire-reports/*.xml
+            ${{ inputs.service }}/target/failsafe-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload JUnit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.service }}-test-reports
+          path: |
+            ${{ inputs.service }}/target/surefire-reports/*.xml
+            ${{ inputs.service }}/target/failsafe-reports/*.xml
+          if-no-files-found: warn
+
+      - name: Upload JaCoCo reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.service }}-jacoco-report
+          path: |
+            ${{ inputs.service }}/target/site/jacoco/**
+            ${{ inputs.service }}/target/jacoco.exec
+          if-no-files-found: warn
+
+      - name: Set up Snyk CLI
+        if: ${{ secrets.SNYK_TOKEN != '' }}
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk dependency scan
+        if: ${{ secrets.SNYK_TOKEN != '' }}
+        working-directory: ${{ inputs.service }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --file=pom.xml --package-manager=maven --severity-threshold=high --json-file-output=snyk-report.json
+
+      - name: Upload Snyk report
+        if: ${{ always() && secrets.SNYK_TOKEN != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.service }}-snyk-report
+          path: ${{ inputs.service }}/snyk-report.json
+          if-no-files-found: warn
+
+      - name: Run Sonar analysis
+        if: ${{ secrets.SONAR_TOKEN != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B -ntp -f ${{ inputs.service }}/pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+
+  build:
+    name: ${{ inputs.service_label }} Build
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/workflows/actions
+
+      - name: Build JAR
+        run: mvn -B -ntp -pl ${{ inputs.service }} -am clean package -DskipTests
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.service }}-jar
+          path: ${{ inputs.service }}/target/*.jar
+          if-no-files-found: warn
