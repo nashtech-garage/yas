@@ -1,0 +1,54 @@
+name: snyk
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Snyk test
+        run: snyk test --all-projects --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Export SARIF results
+        if: always()
+        run: snyk test --all-projects --sarif-file-output=snyk.sarif || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Upload Snyk scan results to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
+
+      - name: Monitor project on Snyk
+        if: github.ref == 'refs/heads/main'
+        run: snyk monitor --all-projects
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
