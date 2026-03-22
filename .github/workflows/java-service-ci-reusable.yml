@@ -9,6 +9,11 @@ on:
       service_label:
         required: true
         type: string
+    secrets:
+      SNYK_TOKEN:
+        required: false
+      SONAR_TOKEN:
+        required: false
 
 permissions:
   contents: read
@@ -90,7 +95,7 @@ jobs:
       - name: Run Sonar analysis
         if: ${{ secrets.SONAR_TOKEN != '' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B -ntp -f ${{ inputs.service }}/pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
