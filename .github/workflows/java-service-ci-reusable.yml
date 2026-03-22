@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   test:
-    name: ${{ inputs.service_label }} Test
+    name: Phase Test - ${{ inputs.service_label }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -100,7 +100,7 @@ jobs:
         run: mvn -B -ntp -f ${{ inputs.service }}/pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
   build:
-    name: ${{ inputs.service_label }} Build
+    name: Phase Build - ${{ inputs.service_label }}
     runs-on: ubuntu-latest
     needs: test
     steps:
