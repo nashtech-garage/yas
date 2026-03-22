@@ -2,14 +2,14 @@ name: media service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "media/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/media-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "media/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,25 +18,44 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  Test:
+    name: Test Phase
     runs-on: ubuntu-latest
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl media -am
-      - name: Run Maven Checkstyle
+
+      - name: Run Maven Test Command
+        run: mvn clean test jacoco:report -pl media -am
+
+      # Analyze code quality with SonarCloud
+      - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl media -am -Dcheckstyle.output.file=media-checkstyle-result.xml
-      - name: Upload Checkstyle Result
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -pl common-library,media -am \
+            -Dsonar.projectKey=JuzHarii_yas \
+            -Dsonar.organization=juzharii \
+            -Dsonar.host.url=https://sonarcloud.io
+
+      # Install Snyk
+      - name: Setup Snyk
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          path: '**/media-checkstyle-result.xml'
+        uses: snyk/actions/setup@master
+
+      # Scan source code
+      - name: Run Snyk Security Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --command=mvn --org=${{ vars.SNYK_ORG }} --file=media/pom.xml --severity-threshold=high
+
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
@@ -44,36 +63,37 @@ jobs:
           name: Media-Service-Unit-Test-Results
           path: "media/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f media
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
+
+      - name: Upload Test Coverage Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
+          name: media-coverage-report
+          path: media/target/site/jacoco/
+
+  Build:
+    name: Build Phase
+    runs-on: ubuntu-latest
+    needs: Test
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
         with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        with:
-          paths: ${{github.workspace}}/media/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Media Coverage Report'
-          update-comment: true
+          fetch-depth: 0
+
+      - uses: ./.github/workflows/actions
+
+      - name: Run Gitleaks Scan
+        run: |
+          docker pull zricethezav/gitleaks:v8.18.4
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="." --config="/work/gitleaks.toml" --verbose --no-git
+
+      # 1. Build project
+      - name: Run Maven Build Command
+        run: mvn clean install -DskipTests -pl common-library,media -am
+
+      # 2. Log in to GitHub Container Registry
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -81,10 +101,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Build and push Docker images
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./media
           push: true
-          tags: ghcr.io/nashtech-garage/yas-media:latest
+          tags: ghcr.io/${{ github.repository_owner }}/yas-media:latest

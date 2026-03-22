@@ -1,5 +1,8 @@
 name: GitLeaks check nightly
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
@@ -12,6 +15,6 @@ jobs:
       with:
         fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
     - name: Gitleaks check
-      run: |
+      run: 
         docker pull zricethezav/gitleaks:v8.18.4
         docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="." --config="/work/gitleaks.toml" --verbose --no-git
