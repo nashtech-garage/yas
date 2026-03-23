@@ -136,6 +136,35 @@ ensure_customer_user_exists
 | `promotion` | `/promotion` | Discount rules and coupons |
 | `search` | `/search` | Elasticsearch-based product search |
 
+### Why we don't run EvoMaster for `/backoffice` and `/storefront`
+
+In YAS there are two different things:
+
+1. **Backoffice and Storefront BFFs** — Java apps (`backoffice-bff`, `storefront-bff`) exposed as hostnames `backoffice` and `storefront` in nginx. They are session-based BFFs for the UIs and expose only a couple of endpoints (e.g. `/authentication/user`). They **do not** expose OpenAPI (`/v3/api-docs`), so EvoMaster black-box cannot target them.
+
+2. **API gateway** — `api.yas.local` routes only by **microservice** path: `/product/`, `/cart/`, `/customer/`, etc. There are no routes `/backoffice/` or `/storefront/` on the gateway; those prefixes live **inside** each microservice (e.g. `/product/backoffice/brands`, `/product/storefront/products`, `/cart/storefront/carts`).
+
+We already cover the backoffice and storefront **API surface** by running EvoMaster per microservice with the right role: **admin** hits both `/backoffice/**` and `/storefront/**` endpoints, and **customer** hits `/storefront/**` only. So the same endpoints that the BFFs call are the ones we exercise.
+
+### Mapping of selected endpoints
+
+Endpoints you care about map to services and full URLs on `api.yas.local` as follows. All are covered when running EvoMaster for the given service with the indicated role(s).
+
+| Your endpoint | Service | Full URL on api.yas.local | Role(s) |
+|---|---|---|---|
+| GET /backoffice/ratings/latest/{count} | `rating` | `GET /rating/backoffice/ratings/latest/{count}` | admin |
+| GET /storefront/customer/profile | `customer` | `GET /customer/storefront/customer/profile` | admin, customer |
+| GET /storefront/cart/items | `cart` | `GET /cart/storefront/cart/items` | admin, customer |
+| POST /backoffice/products | `product` | `POST /product/backoffice/products` | admin |
+| POST /storefront/ratings | `rating` | `POST /rating/storefront/ratings` | admin, customer |
+| POST /storefront/sampledata | `sampledata` | `POST /sampledata/storefront/sampledata` | storefront (no auth or customer) — **not in default service list** |
+| DELETE /backoffice/ratings/{id} | `rating` | `DELETE /rating/backoffice/ratings/{id}` | admin |
+| DELETE /backoffice/warehouses/{id} | `inventory` | `DELETE /inventory/backoffice/warehouses/{id}` | admin |
+| PUT /backoffice/products/subtract-quantity | `product` | `PUT /product/backoffice/products/subtract-quantity` | admin |
+| PUT /backoffice/state-or-provinces/{id} | `location` | `PUT /location/backoffice/state-or-provinces/{id}` | admin |
+
+**Note:** `sampledata` is not in the default list of services in `run-all.sh`. The nginx gateway exposes `api.yas.local/sampledata/`. To run EvoMaster for it, add `sampledata` to the service map in `evomaster-blackbox.sh` and to the `SERVICES` array in `run-all.sh`, then run `./evomaster-blackbox.sh sampledata none` (or the role that matches the app’s security rules).
+
 ---
 
 ## Environment variables

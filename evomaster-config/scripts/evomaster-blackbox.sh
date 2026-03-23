@@ -71,6 +71,7 @@ declare -A SERVICE_PATHS=(
     [tax]="tax"
     [promotion]="promotion"
     [search]="search"
+    [sampledata]="sampledata"
 )
 
 # =============================================================================

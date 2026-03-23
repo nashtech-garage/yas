@@ -1,0 +1,19 @@
+{
+  "service": "sampledata",
+  "role": "none",
+  "timestamp": "20260323_144051",
+  "max_time_seconds": 60,
+  "rate_per_minute": 60,
+  "seed": "random",
+  "swagger_url": "http://127.0.0.1/sampledata/v3/api-docs",
+  "api_url": "http://127.0.0.1",
+  "keycloak_url": "http://127.0.0.1",
+  "authenticated": false,
+  "evomaster_image": "webfuzzing/evomaster",
+  "results": {
+    "covered_targets": "8",
+    "endpoints_2xx": "1 endpoints out of 2",
+    "tests_generated": "3",
+    "exit_code": 0
+  }
+}
