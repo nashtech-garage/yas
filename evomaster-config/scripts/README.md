@@ -28,6 +28,9 @@
 
 # Extended budget (1 hour per service)
 EVOMASTER_MAX_TIME=3600 EVOMASTER_SEED=42 ./run-all.sh
+
+# Pin EvoMaster Docker image / recorded version (defaults: webfuzzing/evomaster:4.0.0, 4.0.0)
+EVOMASTER_IMAGE=webfuzzing/evomaster:4.0.0 EVOMASTER_VERSION=4.0.0 ./evomaster-blackbox.sh product admin
 ```
 
 ## Output location

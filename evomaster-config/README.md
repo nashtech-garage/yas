@@ -54,8 +54,10 @@ Both the host and the EvoMaster Docker container need to reach YAS services by h
 
 ### 3. Docker with EvoMaster image
 
+The scripts default to **`webfuzzing/evomaster:4.0.0`** (matches the version line in `evomaster.log`). Pull explicitly so you are not stuck on an old cached `latest`:
+
 ```bash
-docker pull webfuzzing/evomaster
+docker pull webfuzzing/evomaster:4.0.0
 ```
 
 ---
@@ -176,6 +178,8 @@ All variables are optional and apply to both `run-all.sh` and `evomaster-blackbo
 | `EVOMASTER_MAX_TIME` | `60` | Max search time per service in seconds |
 | `EVOMASTER_RATE` | `60` | Max requests per minute sent to the SUT |
 | `EVOMASTER_SEED` | *(random)* | Fixed seed for reproducible runs |
+| `EVOMASTER_IMAGE` | `webfuzzing/evomaster:4.0.0` | Docker image (pin a tag to avoid stale `latest` cache) |
+| `EVOMASTER_VERSION` | `4.0.0` | Recorded in `run-info.json`; should match `* EvoMaster version:` in `evomaster.log` |
 | `YAS_API_URL` | `http://api.yas.local` | Base URL of the API gateway |
 | `KEYCLOAK_URL` | `http://identity` | Keycloak base URL |
 

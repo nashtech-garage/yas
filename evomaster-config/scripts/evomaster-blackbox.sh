@@ -24,6 +24,8 @@
 #   EVOMASTER_MAX_TIME   Max time in seconds (default: 60)
 #   EVOMASTER_RATE       Requests per minute (default: 60)
 #   EVOMASTER_SEED       Seed for reproducibility (default: random)
+#   EVOMASTER_IMAGE      Docker image (default: webfuzzing/evomaster:4.0.0)
+#   EVOMASTER_VERSION    Version string for run-info.json (default: 4.0.0; matches "* EvoMaster version:" in evomaster.log)
 #   YAS_API_URL          API base URL (default: http://api.yas.local)
 #   KEYCLOAK_URL         Keycloak URL (default: http://identity)
 # =============================================================================
@@ -33,7 +35,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_BASE_DIR="$SCRIPT_DIR/../generated-tests/blackbox"
 
-# EvoMaster parameters
+# EvoMaster parameters (default version matches evomaster.log: * EvoMaster version: 4.0.0)
+EVOMASTER_VERSION="${EVOMASTER_VERSION:-4.0.0}"
+EVOMASTER_IMAGE="${EVOMASTER_IMAGE:-webfuzzing/evomaster:${EVOMASTER_VERSION}}"
 MAX_TIME="${EVOMASTER_MAX_TIME:-60}"
 RATE_PER_MINUTE="${EVOMASTER_RATE:-60}"
 SEED="${EVOMASTER_SEED:-}"
@@ -95,6 +99,8 @@ show_usage() {
     echo -e "  EVOMASTER_MAX_TIME   Max time in seconds (default: 60)"
     echo -e "  EVOMASTER_RATE       Requests per minute (default: 60)"
     echo -e "  EVOMASTER_SEED       Seed for reproducibility (default: random)"
+    echo -e "  EVOMASTER_IMAGE      Docker image (default: webfuzzing/evomaster:4.0.0)"
+    echo -e "  EVOMASTER_VERSION    Version in run-info.json (default: 4.0.0)"
     echo -e "  YAS_API_URL          API base URL (default: http://api.yas.local)"
     echo -e "  KEYCLOAK_URL         Keycloak URL (default: http://identity)"
 }
@@ -137,6 +143,7 @@ echo -e "${YELLOW}Max time:${NC}   ${MAX_TIME}s"
 echo -e "${YELLOW}Rate:${NC}       ${RATE_PER_MINUTE} req/min"
 echo -e "${YELLOW}Timestamp:${NC}  $RUN_TIMESTAMP"
 echo -e "${YELLOW}API URL:${NC}    ${YAS_API_URL}"
+echo -e "${YELLOW}EvoMaster:${NC}  ${EVOMASTER_IMAGE} (v${EVOMASTER_VERSION})"
 if [ -n "$SEED" ]; then
     echo -e "${YELLOW}Seed:${NC}       $SEED"
 fi
@@ -216,7 +223,8 @@ cat > "$OUTPUT_DIR/run-info.json" <<EOF
   "api_url": "$YAS_API_URL",
   "keycloak_url": "$KEYCLOAK_URL",
   "authenticated": $([ "$USER_ROLE" != "none" ] && echo "true" || echo "false"),
-  "evomaster_image": "webfuzzing/evomaster"
+  "evomaster_version": "$EVOMASTER_VERSION",
+  "evomaster_image": "$EVOMASTER_IMAGE"
 }
 EOF
 
@@ -238,7 +246,7 @@ DOCKER_ARGS=(
     "-v" "$OUTPUT_DIR:/output"
     "--add-host=identity:host-gateway"
     "--add-host=api.yas.local:host-gateway"
-    "webfuzzing/evomaster"
+    "$EVOMASTER_IMAGE"
     "--blackBox" "true"
     "--bbSwaggerUrl" "$SWAGGER_URL"
     "--maxTime" "${MAX_TIME}s"
@@ -273,10 +281,21 @@ if [ $EXIT_CODE -eq 0 ] && [ -f "$LOG_FILE" ]; then
     ENDPOINTS_2XX=$(grep -oP "Successfully executed \(HTTP code 2xx\) \K[0-9]+ endpoints out of [0-9]+" "$LOG_FILE" | tail -1 || echo "unknown")
     TESTS_GENERATED=$(grep -oP "Going to save \K[0-9]+" "$LOG_FILE" | tail -1 || echo "unknown")
 
-    # Update run-info.json with results
+    # Append results after evomaster_image line (avoid sed escaping issues with image names)
     TMP=$(mktemp)
-    cat "$OUTPUT_DIR/run-info.json" | sed \
-        "s/\"evomaster_image\": \"webfuzzing\/evomaster\"/\"evomaster_image\": \"webfuzzing\/evomaster\",\n  \"results\": {\n    \"covered_targets\": \"$COVERED\",\n    \"endpoints_2xx\": \"$ENDPOINTS_2XX\",\n    \"tests_generated\": \"$TESTS_GENERATED\",\n    \"exit_code\": $EXIT_CODE\n  }/" > "$TMP"
+    while IFS= read -r line || [ -n "$line" ]; do
+        if [[ "$line" == *"\"evomaster_image\""* ]]; then
+            printf '%s,\n' "$line"
+            printf '%s\n' '  "results": {'
+            printf '%s\n' "    \"covered_targets\": \"$COVERED\","
+            printf '%s\n' "    \"endpoints_2xx\": \"$ENDPOINTS_2XX\","
+            printf '%s\n' "    \"tests_generated\": \"$TESTS_GENERATED\","
+            printf '%s\n' "    \"exit_code\": $EXIT_CODE"
+            printf '%s\n' '  }'
+        else
+            printf '%s\n' "$line"
+        fi
+    done < "$OUTPUT_DIR/run-info.json" > "$TMP"
     mv "$TMP" "$OUTPUT_DIR/run-info.json"
 fi
 
