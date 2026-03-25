@@ -1,7 +1,7 @@
 {
   "service": "tax",
   "role": "admin",
-  "timestamp": "20260308_212750",
+  "timestamp": "20260324_193739",
   "max_time_seconds": 60,
   "rate_per_minute": 60,
   "seed": "random",
@@ -9,11 +9,12 @@
   "api_url": "http://api.yas.local",
   "keycloak_url": "http://identity",
   "authenticated": true,
-  "evomaster_image": "webfuzzing/evomaster",
+  "evomaster_version": "5.1.0",
+  "evomaster_image": "webfuzzing/evomaster:v5.1.0",
   "results": {
-    "covered_targets": "147",
-    "endpoints_2xx": "5 endpoints out of 14",
-    "tests_generated": "29",
+    "covered_targets": "156",
+    "endpoints_2xx": "5 endpoints out of 13",
+    "tests_generated": "32",
     "exit_code": 0
   }
 }

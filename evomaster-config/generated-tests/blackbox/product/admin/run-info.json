@@ -1,7 +1,7 @@
 {
   "service": "product",
   "role": "admin",
-  "timestamp": "20260308_211427",
+  "timestamp": "20260324_192259",
   "max_time_seconds": 60,
   "rate_per_minute": 60,
   "seed": "random",
@@ -9,11 +9,12 @@
   "api_url": "http://api.yas.local",
   "keycloak_url": "http://identity",
   "authenticated": true,
-  "evomaster_image": "webfuzzing/evomaster",
+  "evomaster_version": "5.1.0",
+  "evomaster_image": "webfuzzing/evomaster:v5.1.0",
   "results": {
-    "covered_targets": "342",
-    "endpoints_2xx": "31 endpoints out of 79",
-    "tests_generated": "57",
+    "covered_targets": "354",
+    "endpoints_2xx": "31 endpoints out of 78",
+    "tests_generated": "54",
     "exit_code": 0
   }
 }

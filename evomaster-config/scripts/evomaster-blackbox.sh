@@ -24,10 +24,12 @@
 #   EVOMASTER_MAX_TIME   Max time in seconds (default: 60)
 #   EVOMASTER_RATE       Requests per minute (default: 60)
 #   EVOMASTER_SEED       Seed for reproducibility (default: random)
-#   EVOMASTER_IMAGE      Docker image (default: webfuzzing/evomaster:4.0.0)
-#   EVOMASTER_VERSION    Version string for run-info.json (default: 4.0.0; matches "* EvoMaster version:" in evomaster.log)
+#   EVOMASTER_IMAGE      Docker image (default: webfuzzing/evomaster:v5.1.0; Hub tag includes leading v)
+#   EVOMASTER_VERSION    Version string for run-info.json (default: 5.1.0; matches "* EvoMaster version:" in evomaster.log)
 #   YAS_API_URL          API base URL (default: http://api.yas.local)
 #   KEYCLOAK_URL         Keycloak URL (default: http://identity)
+#   EVOMASTER_HOST_RESOLVE  If set (e.g. 127.0.0.1), curl uses --resolve for api.yas.local and identity.
+#   EVOMASTER_NO_AUTO_HOST_RESOLVE  If 1, do not auto-add --resolve when api.yas.local is missing from /etc/hosts
 # =============================================================================
 
 set -e
@@ -35,9 +37,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_BASE_DIR="$SCRIPT_DIR/../generated-tests/blackbox"
 
-# EvoMaster parameters (default version matches evomaster.log: * EvoMaster version: 4.0.0)
-EVOMASTER_VERSION="${EVOMASTER_VERSION:-4.0.0}"
-EVOMASTER_IMAGE="${EVOMASTER_IMAGE:-webfuzzing/evomaster:${EVOMASTER_VERSION}}"
+# EvoMaster parameters (default version matches evomaster.log: * EvoMaster version: 5.1.0)
+EVOMASTER_VERSION="${EVOMASTER_VERSION:-5.1.0}"
+EVOMASTER_IMAGE="${EVOMASTER_IMAGE:-webfuzzing/evomaster:v${EVOMASTER_VERSION}}"
 MAX_TIME="${EVOMASTER_MAX_TIME:-60}"
 RATE_PER_MINUTE="${EVOMASTER_RATE:-60}"
 SEED="${EVOMASTER_SEED:-}"
@@ -58,6 +60,21 @@ NC='\033[0m'
 
 # Load authentication configuration
 source "$SCRIPT_DIR/auth-config.sh"
+
+# When api.yas.local is not in /etc/hosts, curl cannot resolve it; map hostnames to loopback for local Docker.
+_evomaster_resolve_ip=""
+if [ "${EVOMASTER_NO_AUTO_HOST_RESOLVE:-}" != "1" ]; then
+    if [ -n "${EVOMASTER_HOST_RESOLVE:-}" ]; then
+        _evomaster_resolve_ip="$EVOMASTER_HOST_RESOLVE"
+    elif ! getent hosts api.yas.local 2>/dev/null | grep -q .; then
+        _evomaster_resolve_ip="127.0.0.1"
+    fi
+fi
+if [ -n "$_evomaster_resolve_ip" ]; then
+    CURL_HOST_RESOLVE=(--resolve "api.yas.local:80:${_evomaster_resolve_ip}" --resolve "identity:80:${_evomaster_resolve_ip}")
+    echo -e "${YELLOW}Using curl --resolve for api.yas.local and identity → ${_evomaster_resolve_ip} (no /etc/hosts entries)${NC}"
+fi
+unset _evomaster_resolve_ip
 
 # =============================================================================
 # Service map: name -> context path on api.yas.local
@@ -99,10 +116,12 @@ show_usage() {
     echo -e "  EVOMASTER_MAX_TIME   Max time in seconds (default: 60)"
     echo -e "  EVOMASTER_RATE       Requests per minute (default: 60)"
     echo -e "  EVOMASTER_SEED       Seed for reproducibility (default: random)"
-    echo -e "  EVOMASTER_IMAGE      Docker image (default: webfuzzing/evomaster:4.0.0)"
-    echo -e "  EVOMASTER_VERSION    Version in run-info.json (default: 4.0.0)"
+    echo -e "  EVOMASTER_IMAGE      Docker image (default: webfuzzing/evomaster:v5.1.0)"
+    echo -e "  EVOMASTER_VERSION    Version in run-info.json (default: 5.1.0)"
     echo -e "  YAS_API_URL          API base URL (default: http://api.yas.local)"
     echo -e "  KEYCLOAK_URL         Keycloak URL (default: http://identity)"
+    echo -e "  EVOMASTER_HOST_RESOLVE  IP for curl --resolve (default: auto 127.0.0.1 if api.yas.local not in hosts)"
+    echo -e "  EVOMASTER_NO_AUTO_HOST_RESOLVE  Set to 1 to disable automatic --resolve"
 }
 
 # =============================================================================
@@ -165,13 +184,15 @@ LOG_FILE="$OUTPUT_DIR/evomaster.log"
 # =============================================================================
 
 echo -e "\n${YELLOW}Checking OpenAPI spec at ${SWAGGER_URL}...${NC}"
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$SWAGGER_URL")
+HTTP_STATUS=$(curl -s "${CURL_HOST_RESOLVE[@]}" -o /dev/null -w "%{http_code}" "$SWAGGER_URL")
 
 if [ "$HTTP_STATUS" = "200" ]; then
     echo -e "${GREEN}✓ OpenAPI spec available (HTTP 200)${NC}"
 else
     echo -e "${RED}✗ OpenAPI spec not available (HTTP $HTTP_STATUS)${NC}"
-    echo -e "${YELLOW}Check that service '${SERVICE_NAME}' is running at ${YAS_API_URL}${NC}"
+    echo -e "${YELLOW}Check that YAS is up and '${SERVICE_NAME}' is reachable at ${YAS_API_URL}${NC}"
+    echo -e "${YELLOW}If the hostname does not resolve, add to /etc/hosts (host / WSL):${NC}"
+    echo -e "  ${BLUE}127.0.0.1  identity api.yas.local${NC}"
     exit 1
 fi
 

@@ -46,18 +46,39 @@ Wait until all containers are healthy before running EvoMaster.
 
 ### 2. `/etc/hosts` entries
 
-Both the host and the EvoMaster Docker container need to reach YAS services by hostname:
+The API gateway and Keycloak are meant to be called with **specific hostnames** (virtual hosts). You do **not** replace `localhost` with another name; you add **aliases on `127.0.0.1`** so that `api.yas.local` and `identity` resolve to the same machine where Docker publishes the ports.
+
+Add this line (edit as root) in the **same environment where you run `docker compose` and the EvoMaster scripts** — on **WSL2**, that is Linux `/etc/hosts` inside the distro, not only Windows `C:\Windows\System32\drivers\etc\hosts`:
 
 ```
 127.0.0.1  identity api.yas.local
 ```
 
-### 3. Docker with EvoMaster image
+The EvoMaster container gets `identity` and `api.yas.local` via `--add-host=…:host-gateway`, but the **pre-check** (`curl` to the OpenAPI URL) runs on the **host**, so the host must resolve those names too.
 
-The scripts default to **`webfuzzing/evomaster:4.0.0`** (matches the version line in `evomaster.log`). Pull explicitly so you are not stuck on an old cached `latest`:
+**Alternative (no `/etc/hosts`):** if `api.yas.local` is **not** listed in `/etc/hosts`, `evomaster-blackbox.sh` automatically adds `curl --resolve` for `api.yas.local:80` and `identity:80` pointing at `127.0.0.1` (local Docker on port 80). Set `EVOMASTER_HOST_RESOLVE` to another IP if the stack is not on loopback, or `EVOMASTER_NO_AUTO_HOST_RESOLVE=1` to disable this behaviour.
+
+Idempotent one-liner (Linux / WSL):
 
 ```bash
-docker pull webfuzzing/evomaster:4.0.0
+grep -q '[[:space:]]api\.yas\.local' /etc/hosts || echo '127.0.0.1 identity api.yas.local' | sudo tee -a /etc/hosts
+```
+
+**WSL2:** If Microsoft’s template **regenerates** `/etc/hosts` on each start, either append the line after every reboot or disable generation and maintain the file yourself — in `/etc/wsl.conf`:
+
+```ini
+[network]
+generateHosts = false
+```
+
+Then merge the default loopback lines with `127.0.0.1 identity api.yas.local` as needed (see [WSL networking docs](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)).
+
+### 3. Docker with EvoMaster image
+
+The scripts default to **`webfuzzing/evomaster:v5.1.0`** (Docker Hub uses a `v` prefix on tags). Pull explicitly so you are not stuck on an old cached `latest`:
+
+```bash
+docker pull webfuzzing/evomaster:v5.1.0
 ```
 
 ---
@@ -178,10 +199,12 @@ All variables are optional and apply to both `run-all.sh` and `evomaster-blackbo
 | `EVOMASTER_MAX_TIME` | `60` | Max search time per service in seconds |
 | `EVOMASTER_RATE` | `60` | Max requests per minute sent to the SUT |
 | `EVOMASTER_SEED` | *(random)* | Fixed seed for reproducible runs |
-| `EVOMASTER_IMAGE` | `webfuzzing/evomaster:4.0.0` | Docker image (pin a tag to avoid stale `latest` cache) |
-| `EVOMASTER_VERSION` | `4.0.0` | Recorded in `run-info.json`; should match `* EvoMaster version:` in `evomaster.log` |
+| `EVOMASTER_IMAGE` | `webfuzzing/evomaster:v5.1.0` | Docker image (pin a tag to avoid stale `latest` cache) |
+| `EVOMASTER_VERSION` | `5.1.0` | Recorded in `run-info.json`; should match `* EvoMaster version:` in `evomaster.log` |
 | `YAS_API_URL` | `http://api.yas.local` | Base URL of the API gateway |
 | `KEYCLOAK_URL` | `http://identity` | Keycloak base URL |
+| `EVOMASTER_HOST_RESOLVE` | *(auto `127.0.0.1` when `api.yas.local` is missing from hosts)* | IP used in `curl --resolve` for `api.yas.local` and `identity` (port 80) |
+| `EVOMASTER_NO_AUTO_HOST_RESOLVE` | unset | If `1`, never add automatic `--resolve` (fail unless names resolve) |
 
 ### Example — longer budget for scientific runs
 

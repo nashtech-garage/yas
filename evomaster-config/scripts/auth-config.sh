@@ -19,6 +19,9 @@ export KEYCLOAK_CLIENT_SECRET="TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF"
 # API base URL
 export YAS_API_URL="${YAS_API_URL:-http://api.yas.local}"
 
+# Optional --resolve flags for curl (set by evomaster-blackbox.sh)
+declare -a CURL_HOST_RESOLVE=()
+
 # ============================================
 # USER CREDENTIALS
 # ============================================
@@ -47,7 +50,7 @@ get_token() {
     local password="$2"
 
     local response
-    response=$(curl -s -X POST "$KEYCLOAK_TOKEN_URL" \
+    response=$(curl -s "${CURL_HOST_RESOLVE[@]}" -X POST "$KEYCLOAK_TOKEN_URL" \
         -H "Content-Type: application/x-www-form-urlencoded" \
         -d "grant_type=password" \
         -d "client_id=${KEYCLOAK_CLIENT_ID}" \
@@ -86,7 +89,7 @@ ensure_customer_user_exists() {
 
     # Obtain admin token from master realm
     local kc_admin_token
-    kc_admin_token=$(curl -s -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
+    kc_admin_token=$(curl -s "${CURL_HOST_RESOLVE[@]}" -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
         -H "Content-Type: application/x-www-form-urlencoded" \
         -d "grant_type=password" \
         -d "client_id=admin-cli" \
@@ -100,7 +103,7 @@ ensure_customer_user_exists() {
 
     # Check if user already exists
     local users_response
-    users_response=$(curl -s \
+    users_response=$(curl -s "${CURL_HOST_RESOLVE[@]}" \
         -H "Authorization: Bearer $kc_admin_token" \
         "${KEYCLOAK_ADMIN_URL}/users?username=${CUSTOMER_USERNAME}&exact=true")
 
@@ -115,7 +118,7 @@ ensure_customer_user_exists() {
     echo "Creating user '${CUSTOMER_USERNAME}' with CUSTOMER role..."
 
     local http_code
-    http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+    http_code=$(curl -s "${CURL_HOST_RESOLVE[@]}" -o /dev/null -w "%{http_code}" \
         -X POST "${KEYCLOAK_ADMIN_URL}/users" \
         -H "Authorization: Bearer $kc_admin_token" \
         -H "Content-Type: application/json" \

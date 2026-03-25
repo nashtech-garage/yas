@@ -1,7 +1,7 @@
 {
   "service": "customer",
   "role": "none",
-  "timestamp": "20260308_215337",
+  "timestamp": "20260324_200258",
   "max_time_seconds": 60,
   "rate_per_minute": 60,
   "seed": "random",
@@ -9,10 +9,11 @@
   "api_url": "http://api.yas.local",
   "keycloak_url": "http://identity",
   "authenticated": false,
-  "evomaster_image": "webfuzzing/evomaster",
+  "evomaster_version": "5.1.0",
+  "evomaster_image": "webfuzzing/evomaster:v5.1.0",
   "results": {
-    "covered_targets": "46",
-    "endpoints_2xx": "0 endpoints out of 14",
+    "covered_targets": "47",
+    "endpoints_2xx": "0 endpoints out of 13",
     "tests_generated": "15",
     "exit_code": 0
   }

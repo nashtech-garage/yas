@@ -1,7 +1,7 @@
 {
   "service": "cart",
   "role": "customer",
-  "timestamp": "20260308_213736",
+  "timestamp": "20260324_194724",
   "max_time_seconds": 60,
   "rate_per_minute": 60,
   "seed": "random",
@@ -9,11 +9,12 @@
   "api_url": "http://api.yas.local",
   "keycloak_url": "http://identity",
   "authenticated": true,
-  "evomaster_image": "webfuzzing/evomaster",
+  "evomaster_version": "5.1.0",
+  "evomaster_image": "webfuzzing/evomaster:v5.1.0",
   "results": {
-    "covered_targets": "40",
-    "endpoints_2xx": "3 endpoints out of 6",
-    "tests_generated": "11",
+    "covered_targets": "44",
+    "endpoints_2xx": "4 endpoints out of 5",
+    "tests_generated": "12",
     "exit_code": 0
   }
 }
