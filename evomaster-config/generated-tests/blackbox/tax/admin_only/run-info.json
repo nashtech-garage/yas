@@ -1,0 +1,20 @@
+{
+  "service": "tax",
+  "role": "admin_only",
+  "timestamp": "20260325_015914",
+  "max_time_seconds": 60,
+  "rate_per_minute": 60,
+  "seed": "random",
+  "swagger_url": "http://api.yas.local/tax/v3/api-docs",
+  "api_url": "http://api.yas.local",
+  "keycloak_url": "http://identity",
+  "authenticated": true,
+  "evomaster_version": "5.1.0",
+  "evomaster_image": "webfuzzing/evomaster:v5.1.0",
+  "results": {
+    "covered_targets": "144",
+    "endpoints_2xx": "5 endpoints out of 13",
+    "tests_generated": "27",
+    "exit_code": 0
+  }
+}

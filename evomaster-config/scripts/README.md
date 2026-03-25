@@ -13,7 +13,7 @@
 ## Common commands
 
 ```bash
-# Full experiment — all 12 services × 3 roles (admin, customer, none)
+# Full experiment — all 13 services × 3 roles (admin, customer, none)
 ./run-all.sh
 
 # Single role only
@@ -29,7 +29,7 @@
 # Extended budget (1 hour per service)
 EVOMASTER_MAX_TIME=3600 EVOMASTER_SEED=42 ./run-all.sh
 
-# Pin EvoMaster Docker image / recorded version (defaults: webfuzzing/evomaster:v5.1.0, 5.1.0)
+# Pin EvoMaster Docker image / recorded version (defaults: webfuzzing/evomaster:v5.1.0, 5.1.0 on evomaster-run-5)
 EVOMASTER_IMAGE=webfuzzing/evomaster:v5.1.0 EVOMASTER_VERSION=5.1.0 ./evomaster-blackbox.sh product admin
 ```
 

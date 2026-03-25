@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Web Fuzzing Commons" />
+    <title>WFC Reports</title>
+    <script type="module" crossorigin src="/assets/report.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/report.css">
+  </head>
+  <body>
+    <div id="root">
+      <h2>WARNING</h2>
+      <p>
+        If you see this message, it means the web app was not properly started.
+        For example, if you opened the index.html file directly, that would be loaded with file:// protocol
+        in your browser.
+        By default, modern browsers block loading local files due to CORS issues.
+        You need to open the web app via an HTTP server.
+      </p>
+
+      <p>
+        To simplify the visualization of the web report, we provide a webreport.py script to start a HTTP server,
+        and automatically open your browser on the starting page of the report.
+        To simplify its use, we also provide a webreport.command (for Mac) and webreport.bat (for Windows) to easily start the
+        Python script with a simple mouse double-click.
+      </p>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{"service": "product", "role": "admin_only", "status": "success", "elapsed_seconds": 126}
+{"service": "media", "role": "admin_only", "status": "success", "elapsed_seconds": 89}
+{"service": "customer", "role": "admin_only", "status": "success", "elapsed_seconds": 106}
+{"service": "cart", "role": "admin_only", "status": "success", "elapsed_seconds": 78}
+{"service": "rating", "role": "admin_only", "status": "success", "elapsed_seconds": 119}
+{"service": "order", "role": "admin_only", "status": "success", "elapsed_seconds": 110}
+{"service": "payment", "role": "admin_only", "status": "failed", "elapsed_seconds": 0}
+{"service": "location", "role": "admin_only", "status": "success", "elapsed_seconds": 139}
+{"service": "inventory", "role": "admin_only", "status": "success", "elapsed_seconds": 133}
+{"service": "tax", "role": "admin_only", "status": "success", "elapsed_seconds": 95}
+{"service": "promotion", "role": "admin_only", "status": "success", "elapsed_seconds": 105}
+{"service": "search", "role": "admin_only", "status": "failed", "elapsed_seconds": 5}
+{"service": "sampledata", "role": "admin_only", "status": "success", "elapsed_seconds": 67}
