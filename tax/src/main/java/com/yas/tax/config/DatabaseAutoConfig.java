@@ -10,6 +10,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+
+
+
 @Configuration
 @EnableJpaRepositories("com.yas.tax.repository")
 @EntityScan("com.yas.tax.model")
