@@ -112,9 +112,16 @@ ls -la .github/workflows/*.yaml .github/workflows/*.yml 2>/dev/null | wc -l
 
 Jenkinsfile là file cấu hình pipeline cho Jenkins, tương tự như `.github/workflows/ci.yml` cho GitHub Actions.
 
+**✅ Jenkinsfile đã cover tất cả 23 services:**
+- **19 Java/Maven Services**: cart, customer, delivery, inventory, location, media, order, payment, payment-paypal, product, promotion, rating, recommendation, search, tax, webhook, backoffice-bff, storefront-bff, sampledata, automation-ui
+- **2 Node.js/npm Services**: backoffice, storefront
+- **Monorepo Optimization**: Tự động detect thay đổi trong từng service folder
+
 ### 3.1 Tạo Jenkinsfile ở root repository
 
-Tạo file `Jenkinsfile` tại `/workspaces/yas/Jenkinsfile` với nội dung sau:
+Tạo file `Jenkinsfile` tại `/workspaces/yas/Jenkinsfile` hoặc copy từ repository (file đã được tạo sẵn). 
+
+**Nội dung chính của Jenkinsfile:**
 
 ```groovy
 pipeline {
