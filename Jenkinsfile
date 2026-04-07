@@ -47,18 +47,17 @@ pipeline {
         success {
             echo 'Pipeline chạy thành công! Đang upload báo cáo Test và Coverage...'
             
-            // Upload báo cáo Pass/Fail của Unit Test
-            junit '**/media/target/surefire-reports/*.xml'
+            // Tìm tất cả các file XML báo cáo Test ở bất cứ đâu trong project
+            junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
             
-            // Upload báo cáo độ phủ code của JaCoCo
-            jacoco execPattern: '**/media/target/jacoco.exec',
-                   classPattern: '**/media/target/classes',
-                   sourcePattern: '**/media/src/main/java'
+            // Tìm tất cả các file JaCoCo ở bất cứ đâu
+            jacoco execPattern: '**/jacoco.exec',
+                   classPattern: '**/classes',
+                   sourcePattern: '**/src/main/java'
         }
         failure {
             echo 'Pipeline có lỗi! Đang kéo báo cáo Test về xem bị fail ở đâu (nếu có)...'
-            // allowEmptyResults giúp Jenkins không bị crash nếu lỗi xảy ra trước khi test kịp chạy
-            junit allowEmptyResults: true, testResults: '**/media/target/surefire-reports/*.xml'
+            junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
         }
     }
 }
