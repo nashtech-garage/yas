@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     tools {
-        maven 'Maven3'
-        jdk 'Java21'   
+        maven 'Maven3' // Nhớ đảm bảo tên này vẫn đúng với cấu hình trên Jenkins của bạn nhé
+        jdk 'Java21'
     }
 
     stages {
@@ -15,33 +15,34 @@ pipeline {
 
         stage('Test & Coverage') {
             steps {
-                echo 'Đang chạy Unit Test cho Media Service...'
-                // Chuyển vào thư mục service và chạy test
-                dir('media') {
-                    sh 'mvn clean test jacoco:report'
-                }
+                echo 'Đang build các dependencies nội bộ và chạy Unit Test cho Media Service...'
+                // Đứng ở thư mục gốc, dùng cờ -pl (chỉ định module) và -am (build luôn các module phụ thuộc)
+                sh 'mvn clean test jacoco:report -pl media -am'
             }
         }
 
         stage('Build') {
             steps {
                 echo 'Đang đóng gói ứng dụng...'
-                dir('media') {
-                    sh 'mvn clean package -DskipTests'
-                }
+                sh 'mvn clean package -DskipTests -pl media -am'
             }
         }
     }
 
     post {
-        always {
-            // Yêu cầu 5: Upload kết quả Test
-            junit '**/target/surefire-reports/*.xml'
+        // Chỉ upload nếu test thành công để tránh lỗi missing file
+        success {
+            echo 'Pipeline chạy thành công! Đang upload báo cáo...'
+            junit '**/media/target/surefire-reports/*.xml'
             
-            // Yêu cầu 5: Upload báo cáo độ phủ JaCoCo
-            jacoco execPattern: '**/target/jacoco.exec',
-                   classPattern: '**/target/classes',
-                   sourcePattern: '**/src/main/java'
+            jacoco execPattern: '**/media/target/jacoco.exec',
+                   classPattern: '**/media/target/classes',
+                   sourcePattern: '**/media/src/main/java'
+        }
+        // Nếu test rớt (ví dụ code sai) thì vẫn ráng lôi báo cáo về xem
+        failure {
+            echo 'Pipeline có lỗi! Đang kéo báo cáo Test về xem bị fail ở đâu...'
+            junit allowEmptyResults: true, testResults: '**/media/target/surefire-reports/*.xml'
         }
     }
 }
