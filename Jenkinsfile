@@ -33,21 +33,5 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    // Sử dụng file config để ra lệnh cho máy ảo K8s
-                    sh "kubectl --kubeconfig=${KUBECONFIG_FILE} set image deployment/identity-service container-name=${IMAGE_NAME}:${IMAGE_TAG} -n yas-namespace"
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            // Dọn dẹp image sau khi build để tránh đầy ổ cứng máy thật
-            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-        }
     }
 }
