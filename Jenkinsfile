@@ -50,14 +50,14 @@ pipeline {
             // Tìm tất cả các file XML báo cáo Test ở bất cứ đâu trong project
             junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
             
-            // Tìm tất cả các file JaCoCo ở bất cứ đâu
-            jacoco execPattern: '**/jacoco.exec',
-                   classPattern: '**/classes',
-                   sourcePattern: '**/src/main/java'
+            // Tìm thẻ JaCoCo cho đúng module media để không bị loãng báo cáo bởi các service khác
+            jacoco execPattern: 'media/target/jacoco.exec',
+                   classPattern: 'media/target/classes',
+                   sourcePattern: 'media/src/main/java'
         }
         failure {
             echo 'Pipeline có lỗi! Đang kéo báo cáo Test về xem bị fail ở đâu (nếu có)...'
             junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
         }
     }
-}
+}   
