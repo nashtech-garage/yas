@@ -37,7 +37,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Đang đóng gói ứng dụng (Bỏ qua test vì đã chạy ở stage trước)...'
-                sh 'mvn clean package -DskipTests -pl media -am'
+                sh 'mvn package -DskipTests -pl media -am'
             }
         }
     }
@@ -51,9 +51,9 @@ pipeline {
             junit allowEmptyResults: true, testResults: '**/surefire-reports/*.xml'
             
             // Tìm thẻ JaCoCo cho đúng module media để không bị loãng báo cáo bởi các service khác
-            jacoco execPattern: 'media/target/jacoco.exec',
-                   classPattern: 'media/target/classes',
-                   sourcePattern: 'media/src/main/java'
+            jacoco execPattern: '**/media/target/jacoco.exec',
+                   classPattern: '**/media/target/classes',
+                   sourcePattern: '**/media/src/main/java'
         }
         failure {
             echo 'Pipeline có lỗi! Đang kéo báo cáo Test về xem bị fail ở đâu (nếu có)...'
