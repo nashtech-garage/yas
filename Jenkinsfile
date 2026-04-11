@@ -44,15 +44,17 @@ pipeline {
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
                                 echo "--- Running Tests for ${svc} ---"
-                                // Ép tham số H2 vào để không cần Docker/Postgres
+                                // Ép H2 và VÔ HIỆU HÓA Testcontainers Scanner
                                 sh """
                                     mvn clean verify -U -DskipTests=false \
-                                    -Dspring.datasource.url=jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH \
+                                    -Dspring.datasource.url=jdbc:h2:mem:testdb;MODE=PostgreSQL \
                                     -Dspring.datasource.driverClassName=org.h2.Driver \
                                     -Dspring.datasource.username=sa \
                                     -Dspring.datasource.password= \
                                     -Dspring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect \
-                                    -Dspring.autoconfigure.exclude=org.springframework.boot.testcontainers.service.connection.ServiceConnectionAutoConfiguration
+                                    -Dtestcontainers.enabled=false \
+                                    -Dspring.boot.testcontainers.enabled=false \
+                                    -Dspring.autoconfigure.exclude=org.springframework.boot.testcontainers.service.connection.ServiceConnectionAutoConfiguration,org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
                                 """
                             }
                         }
