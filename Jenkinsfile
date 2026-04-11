@@ -13,6 +13,15 @@ pipeline {
     }
 
     stages {
+        stage('Vạch mặt JDK') {
+            steps {
+                script {
+                    echo "--- Đang lùng sục file java trong thư mục jdk25 ---"
+                    // Lệnh này sẽ quét toàn bộ folder tool và hiện đường dẫn đến file java
+                    sh 'find /var/jenkins_home/tools/hudson.model.JDK/jdk25 -name java'
+                }
+            }
+        }
         stage('Phase 1: Scan & Detect') {
             steps {
                 script {
