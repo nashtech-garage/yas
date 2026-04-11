@@ -58,22 +58,26 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
-                    // BƯỚC QUAN TRỌNG: Build thằng thư viện dùng chung trước
-                    echo "--- Installing Common Library ---"
-                    dir('common-library') {
-                        // Thêm JAVA_HOME vào lệnh sh cho chắc cú
-                        sh "export JAVA_HOME=${env.JAVA_HOME} && mvn clean install -DskipTests"
-                    }
+                    // Lấy lại path chuẩn đã tìm thấy ở stage trước
+                    def jdkPath = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25"
+                    
+                    // Cưỡng chế môi trường cho toàn bộ block bên trong
+                    withEnv(["JAVA_HOME=${jdkPath}", "PATH=${jdkPath}/bin:${env.PATH}"]) {
+                        
+                        echo "--- Installing Common Library ---"
+                        dir('common-library') {
+                            // Bây giờ chỉ cần gọi mvn, không cần export nữa
+                            sh 'mvn clean install -DskipTests'
+                        }
 
-                    def list = env.CHANGED_SERVICES.split(",")
-                    for (svc in list) {
-                        // Nếu svc là common-library thì mình đã build ở trên rồi, bỏ qua
-                        if (svc == 'common-library') continue
-
-                        stage("Testing ${svc}") {
-                            dir(svc) {
-                                echo "--- Running Tests for ${svc} ---"
-                                sh 'mvn clean test'
+                        def list = env.CHANGED_SERVICES.split(",")
+                        for (svc in list) {
+                            if (svc == 'common-library') continue
+                            stage("Testing ${svc}") {
+                                dir(svc) {
+                                    echo "--- Running Tests for ${svc} ---"
+                                    sh 'mvn clean test'
+                                }
                             }
                         }
                     }
