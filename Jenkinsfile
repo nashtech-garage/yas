@@ -2,54 +2,30 @@ pipeline {
     agent any
 
     tools {
-        // Bạn PHẢI vào Manage Jenkins -> Tools đặt tên đúng như này
-        jdk 'jdk25'
         maven 'maven3'
     }
 
     environment {
-        // List các service Java của YAS
+        // Cố định đường dẫn JDK 25 mà Jenkins đã tải về
+        JAVA_HOME = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25"
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
         SERVICES = "backoffice-bff,cart,customer,inventory,location,media,order,payment,payment-paypal,product,promotion,rating,recommendation,search,storefront-bff,tax"
     }
 
     stages {
-        stage('Fix JAVA_HOME') {
-            steps {
-                script {
-                    // Lệnh này giúp Jenkins tự tìm thư mục thực sự của JDK vừa tải về
-                    def jdkPath = tool name: 'jdk25', type: 'jdk'
-                    echo "JDK Path found at: ${jdkPath}"
-                    
-                    // Gán JAVA_HOME vào môi trường
-                    env.JAVA_HOME = "${jdkPath}"
-                    // Cập nhật PATH để lệnh 'mvn' thấy 'java'
-                    env.PATH = "${jdkPath}/bin:${env.PATH}"
-                }
-            }
-        }
         stage('Phase 1: Scan & Detect') {
             steps {
                 script {
-                    echo "--- Đang kiểm tra các thay đổi trong Monorepo ---"
-                    
-                    // Kéo code mới nhất của main về
                     sh "git fetch origin main"
-                    
-                    // Dùng FETCH_HEAD thay cho origin/main
                     def changedFiles = sh(script: "git diff --name-only FETCH_HEAD...HEAD", returnStdout: true).trim()
-                    echo "Files changed: \n${changedFiles}"
-
                     def toBuild = []
                     def serviceList = SERVICES.split(',')
-                    // Dùng logic split chuẩn để check folder
                     def lines = changedFiles.split("\n")
                     for (svc in serviceList) {
-                        if (lines.any { it.startsWith("${svc}/") }) {
-                            toBuild.add(svc)
-                        }
+                        if (lines.any { it.startsWith("${svc}/") }) { toBuild.add(svc) }
                     }
                     env.CHANGED_SERVICES = toBuild.join(",")
-                    echo "Services to build: ${env.CHANGED_SERVICES}"
+                    echo "Services detected: ${env.CHANGED_SERVICES}"
                 }
             }
         }
@@ -58,26 +34,21 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
-                    // Lấy lại path chuẩn đã tìm thấy ở stage trước
-                    def jdkPath = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25"
-                    
-                    // Cưỡng chế môi trường cho toàn bộ block bên trong
-                    withEnv(["JAVA_HOME=${jdkPath}", "PATH=${jdkPath}/bin:${env.PATH}"]) {
-                        
-                        echo "--- Installing Common Library ---"
-                        dir('common-library') {
-                            // Bây giờ chỉ cần gọi mvn, không cần export nữa
-                            sh 'mvn clean install -DskipTests'
-                        }
+                    // 1. Phải install common-library trước để các service khác thấy
+                    echo "--- Installing Common Library ---"
+                    dir('common-library') {
+                        sh 'mvn clean install -DskipTests'
+                    }
 
-                        def list = env.CHANGED_SERVICES.split(",")
-                        for (svc in list) {
-                            if (svc == 'common-library') continue
-                            stage("Testing ${svc}") {
-                                dir(svc) {
-                                    echo "--- Running Tests for ${svc} ---"
-                                    sh 'mvn clean test'
-                                }
+                    // 2. Chạy Test và Coverage cho các service thay đổi
+                    def list = env.CHANGED_SERVICES.split(",")
+                    for (svc in list) {
+                        if (svc == 'common-library') continue
+                        stage("Test & Coverage: ${svc}") {
+                            dir(svc) {
+                                echo "--- Running Tests for ${svc} ---"
+                                // Lệnh verify sẽ kích hoạt jacoco:report trong pom.xml của Sỹ
+                                sh 'mvn clean verify'
                             }
                         }
                     }
@@ -85,18 +56,16 @@ pipeline {
             }
         }
 
-        stage('Phase 3: Build Artifact') {
+        stage('Phase 3: Package') {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
                     def list = env.CHANGED_SERVICES.split(",")
                     for (svc in list) {
-                        stage("Building ${svc}") {
-                            dir(svc) {
-                                echo "--- Packaging ${svc} ---"
-                                // Build ra file jar (skip test vì đã chạy ở phase 2 rồi)
-                                sh 'mvn package -DskipTests'
-                            }
+                        if (svc == 'common-library') continue
+                        dir(svc) {
+                            echo "--- Packaging ${svc} ---"
+                            sh 'mvn package -DskipTests'
                         }
                     }
                 }
@@ -106,11 +75,11 @@ pipeline {
 
     post {
         always {
-            echo "--- Generating Reports ---"
-            // JUnit thì dùng allowEmptyResults được
+            echo "--- Collecting All Reports ---"
+            // Hiển thị kết quả Test Case
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
             
-            // JaCoCo: Chỉ cần liệt kê các pattern, nếu không có nó sẽ tự log warning chứ không làm tèo cả build
+            // Hiển thị biểu đồ độ phủ Code Coverage (Yêu cầu 7b)
             jacoco (
                 execPattern: '**/target/*.exec',
                 classPattern: '**/target/classes',
