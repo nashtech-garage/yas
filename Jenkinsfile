@@ -6,22 +6,13 @@ pipeline {
     }
 
     environment {
-        // Cố định đường dẫn JDK 25 mà Jenkins đã tải về
-        JAVA_HOME = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25"
+        // ĐƯỜNG DẪN VỪA TÌM THẤY - CHUẨN 100%
+        JAVA_HOME = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25.0.2"
         PATH = "${JAVA_HOME}/bin:${env.PATH}"
         SERVICES = "backoffice-bff,cart,customer,inventory,location,media,order,payment,payment-paypal,product,promotion,rating,recommendation,search,storefront-bff,tax"
     }
 
     stages {
-        stage('Vạch mặt JDK') {
-            steps {
-                script {
-                    echo "--- Đang lùng sục file java trong thư mục jdk25 ---"
-                    // Lệnh này sẽ quét toàn bộ folder tool và hiện đường dẫn đến file java
-                    sh 'find /var/jenkins_home/tools/hudson.model.JDK/jdk25 -name java'
-                }
-            }
-        }
         stage('Phase 1: Scan & Detect') {
             steps {
                 script {
@@ -34,7 +25,7 @@ pipeline {
                         if (lines.any { it.startsWith("${svc}/") }) { toBuild.add(svc) }
                     }
                     env.CHANGED_SERVICES = toBuild.join(",")
-                    echo "Services detected: ${env.CHANGED_SERVICES}"
+                    echo "Services to build: ${env.CHANGED_SERVICES}"
                 }
             }
         }
@@ -43,13 +34,10 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
-                    // Khai báo lại path ở đây cho chắc
-                    def jdkBin = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25/bin"
-                    
                     echo "--- Installing Common Library ---"
                     dir('common-library') {
-                        // Ép Maven dùng Java ở đường dẫn này, bỏ qua luôn JAVA_HOME hệ thống
-                        sh "${jdkBin}/java -Dmaven.multiModuleProjectDirectory=. -jar /var/jenkins_home/tools/hudson.tasks.Maven_MavenInstallation/maven3/boot/plexus-classworlds-*.jar clean install -DskipTests"
+                        // Dùng mvn trực tiếp vì JAVA_HOME ở trên đã chuẩn rồi
+                        sh 'mvn clean install -DskipTests'
                     }
 
                     def list = env.CHANGED_SERVICES.split(",")
@@ -58,8 +46,7 @@ pipeline {
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
                                 echo "--- Running Tests for ${svc} ---"
-                                // Dùng lệnh tương tự để ép nó chạy
-                                sh "${jdkBin}/java -Dmaven.multiModuleProjectDirectory=. -jar /var/jenkins_home/tools/hudson.tasks.Maven_MavenInstallation/maven3/boot/plexus-classworlds-*.jar clean verify"
+                                sh 'mvn clean verify'
                             }
                         }
                     }
@@ -75,7 +62,6 @@ pipeline {
                     for (svc in list) {
                         if (svc == 'common-library') continue
                         dir(svc) {
-                            echo "--- Packaging ${svc} ---"
                             sh 'mvn package -DskipTests'
                         }
                     }
@@ -87,10 +73,7 @@ pipeline {
     post {
         always {
             echo "--- Collecting All Reports ---"
-            // Hiển thị kết quả Test Case
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
-            
-            // Hiển thị biểu đồ độ phủ Code Coverage (Yêu cầu 7b)
             jacoco (
                 execPattern: '**/target/*.exec',
                 classPattern: '**/target/classes',
