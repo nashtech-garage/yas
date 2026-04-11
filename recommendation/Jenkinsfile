@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven'   // phải config trong Jenkins Global Tool
+        jdk 'JDK11'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('recommendation') {
+                    sh 'mvn clean test'
+                }
+            }
+            post {
+                always {
+                    // Upload test result
+                    junit 'recommendation/target/surefire-reports/*.xml'
+
+                    // Upload coverage (JaCoCo)
+                    publishCoverage adapters: [
+                        jacocoAdapter('media-service/target/site/jacoco/jacoco.xml')
+                    ]
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('recommendation') {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+    }
+}
