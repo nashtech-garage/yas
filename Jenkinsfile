@@ -73,17 +73,16 @@ pipeline {
     post {
         always {
             echo "--- Generating Reports ---"
-            // Yêu cầu số 5: Upload kết quả test
+            // JUnit thì dùng allowEmptyResults được
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
             
-            // Yêu cầu số 7b: Độ phủ JaCoCo (nếu đã cài plugin JaCoCo trên Jenkins)
-            jacoco execPattern: '**/target/*.exec', allowEmptyResults: true
-        }
-        success {
-            echo "Pipeline hoàn thành rực rỡ!"
-        }
-        failure {
-            echo "Build oẹo rồi, check log đi Sỹ!"
+            // JaCoCo: Chỉ cần liệt kê các pattern, nếu không có nó sẽ tự log warning chứ không làm tèo cả build
+            jacoco (
+                execPattern: '**/target/*.exec',
+                classPattern: '**/target/classes',
+                sourcePattern: '**/src/main/java',
+                inclusionPattern: '**/*.class'
+            )
         }
     }
 }
