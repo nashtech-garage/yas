@@ -4,24 +4,19 @@ pipeline {
     environment {
         // Khai báo các ID mà bạn đã đặt trong Manage Credentials
         DOCKER_HUB_CREDS = credentials('docker-hub-id')
-        KUBECONFIG_FILE = credentials('k8s-config-id')
+        // KUBECONFIG_FILE = credentials('k8s-config-id')
         IMAGE_NAME = "thoai2312/yas-identity-service" // Thay bằng tên của bạn
         IMAGE_TAG = "${env.BUILD_NUMBER}" // Dùng số lần build làm tag
     }
 
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/yas-identity.git'
+                git branch: 'develop', url: 'https://github.com/your-repo/yas-identity.git'
             }
         }
 
-        stage('Build Artifact') {
-            steps {
-                // Build file .jar bằng Maven
-                sh 'mvn clean package -DskipTests'
-            }
-        }
 
         stage('Build & Push Docker Image') {
             steps {
