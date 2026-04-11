@@ -5,12 +5,9 @@ pipeline {
         JAVA_HOME = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25.0.2"
         PATH = "${JAVA_HOME}/bin:${env.PATH}"
         SERVICES = "backoffice-bff,cart,customer,inventory,location,media,order,payment,payment-paypal,product,promotion,rating,recommendation,search,storefront-bff,tax"
-        // Cấu hình để Testcontainers biết chỗ tìm Docker
-        DOCKER_HOST = "unix:///var/run/docker.sock"
-        TESTCONTAINERS_RYUK_DISABLED = "true" 
     }
     stages {
-        stage('Phase 0: Kill The Variable') {
+        stage('Phase 0: Fix Pom & Versions') {
             steps {
                 script {
                     sh "find . -name 'pom.xml' -exec sed -i 's/\\\${revision}/1.0-SNAPSHOT/g' {} +"
@@ -46,8 +43,10 @@ pipeline {
                         if (svc == 'common-library') continue
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
-                                // CHỖ NÀY LÀ QUAN TRỌNG NHẤT: Ép dùng Java 25 để chạy test
-                                sh "mvn clean verify -U -DskipTests=false"
+                                echo "--- Running Tests for ${svc} ---"
+                                // SỬA Ở ĐÂY: Thêm -Ptest để dùng profile test của YAS
+                                // Thêm -Dspring.profiles.active=test để ép Spring dùng cấu hình test
+                                sh "mvn clean verify -U -DskipTests=false -Ptest -Dspring.profiles.active=test"
                             }
                         }
                     }
