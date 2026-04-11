@@ -44,12 +44,20 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
+                    // BƯỚC QUAN TRỌNG: Build thằng thư viện dùng chung trước
+                    echo "--- Installing Common Library ---"
+                    dir('common-library') {
+                        sh 'mvn clean install -DskipTests'
+                    }
+
                     def list = env.CHANGED_SERVICES.split(",")
                     for (svc in list) {
+                        // Nếu svc là common-library thì mình đã build ở trên rồi, bỏ qua
+                        if (svc == 'common-library') continue
+
                         stage("Testing ${svc}") {
                             dir(svc) {
                                 echo "--- Running Tests for ${svc} ---"
-                                // Chạy test và tạo báo cáo JaCoCo
                                 sh 'mvn clean test'
                             }
                         }
