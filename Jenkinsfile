@@ -13,6 +13,20 @@ pipeline {
     }
 
     stages {
+        stage('Fix JAVA_HOME') {
+            steps {
+                script {
+                    // Lệnh này giúp Jenkins tự tìm thư mục thực sự của JDK vừa tải về
+                    def jdkPath = tool name: 'jdk25', type: 'jdk'
+                    echo "JDK Path found at: ${jdkPath}"
+                    
+                    // Gán JAVA_HOME vào môi trường
+                    env.JAVA_HOME = "${jdkPath}"
+                    // Cập nhật PATH để lệnh 'mvn' thấy 'java'
+                    env.PATH = "${jdkPath}/bin:${env.PATH}"
+                }
+            }
+        }
         stage('Phase 1: Scan & Detect') {
             steps {
                 script {
@@ -47,7 +61,8 @@ pipeline {
                     // BƯỚC QUAN TRỌNG: Build thằng thư viện dùng chung trước
                     echo "--- Installing Common Library ---"
                     dir('common-library') {
-                        sh 'mvn clean install -DskipTests'
+                        // Thêm JAVA_HOME vào lệnh sh cho chắc cú
+                        sh "export JAVA_HOME=${env.JAVA_HOME} && mvn clean install -DskipTests"
                     }
 
                     def list = env.CHANGED_SERVICES.split(",")
