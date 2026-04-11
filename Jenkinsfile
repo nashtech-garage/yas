@@ -34,25 +34,25 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
-                    // 1. Cài đặt file POM gốc (Parent) - BƯỚC MỚI CỰC KỲ QUAN TRỌNG
-                    echo "--- Installing Parent POM ---"
-                    // Lệnh này cài cái file pom.xml ngay thư mục root vào kho
-                    sh 'mvn install -N -DskipTests' 
+                    // Định nghĩa version chuẩn của dự án YAS (thường là 1.0-SNAPSHOT)
+                    def VERSION = "1.0-SNAPSHOT"
 
-                    // 2. Install common-library (như cũ)
+                    echo "--- Installing Parent POM ---"
+                    sh "mvn install -N -Drevision=${VERSION} -DskipTests" 
+
                     echo "--- Installing Common Library ---"
                     dir('common-library') {
-                        sh 'mvn clean install -DskipTests'
+                        sh "mvn clean install -Drevision=${VERSION} -DskipTests"
                     }
 
-                    // 3. Chạy Test cho service (Thêm flag -U để nó ép cập nhật library mới cài)
                     def list = env.CHANGED_SERVICES.split(",")
                     for (svc in list) {
                         if (svc == 'common-library') continue
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
                                 echo "--- Running Tests for ${svc} ---"
-                                sh 'mvn clean verify -U -DskipTests=false'
+                                // Thêm -Drevision vào đây để nó không đi tìm biến ${revision} nữa
+                                sh "mvn clean verify -U -Drevision=${VERSION} -DskipTests=false"
                             }
                         }
                     }
