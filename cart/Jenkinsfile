@@ -22,7 +22,7 @@ pipeline {
             post {
                 always {
                     // Upload test result
-                    junit 'media-service/target/surefire-reports/*.xml'
+                    junit 'cart/target/surefire-reports/*.xml'
 
                     // Upload coverage (JaCoCo)
                     publishCoverage adapters: [
