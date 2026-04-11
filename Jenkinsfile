@@ -34,21 +34,23 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
-                    // 1. Phải install common-library trước để các service khác thấy
+                    // Khai báo lại path ở đây cho chắc
+                    def jdkBin = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25/bin"
+                    
                     echo "--- Installing Common Library ---"
                     dir('common-library') {
-                        sh 'mvn clean install -DskipTests'
+                        // Ép Maven dùng Java ở đường dẫn này, bỏ qua luôn JAVA_HOME hệ thống
+                        sh "${jdkBin}/java -Dmaven.multiModuleProjectDirectory=. -jar /var/jenkins_home/tools/hudson.tasks.Maven_MavenInstallation/maven3/boot/plexus-classworlds-*.jar clean install -DskipTests"
                     }
 
-                    // 2. Chạy Test và Coverage cho các service thay đổi
                     def list = env.CHANGED_SERVICES.split(",")
                     for (svc in list) {
                         if (svc == 'common-library') continue
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
                                 echo "--- Running Tests for ${svc} ---"
-                                // Lệnh verify sẽ kích hoạt jacoco:report trong pom.xml của Sỹ
-                                sh 'mvn clean verify'
+                                // Dùng lệnh tương tự để ép nó chạy
+                                sh "${jdkBin}/java -Dmaven.multiModuleProjectDirectory=. -jar /var/jenkins_home/tools/hudson.tasks.Maven_MavenInstallation/maven3/boot/plexus-classworlds-*.jar clean verify"
                             }
                         }
                     }
