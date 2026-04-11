@@ -7,6 +7,15 @@ pipeline {
         SERVICES = "backoffice-bff,cart,customer,inventory,location,media,order,payment,payment-paypal,product,promotion,rating,recommendation,search,storefront-bff,tax"
     }
     stages {
+        stage('Phase 0: Kill The Variable') {
+            steps {
+                script {
+                    echo "--- Đang tiêu diệt biến revision trong tất cả file pom.xml ---"
+                    // Lệnh này sẽ tìm và thay thế trực tiếp chuỗi ${revision} thành 1.0-SNAPSHOT
+                    sh "find . -name 'pom.xml' -exec sed -i 's/\\\${revision}/1.0-SNAPSHOT/g' {} +"
+                }
+            }
+        }
         stage('Phase 1: Scan & Detect') {
             steps {
                 script {
@@ -22,28 +31,25 @@ pipeline {
                 }
             }
         }
-        stage('Phase 2: Build & Fix Versions') {
+        stage('Phase 2: Build & Coverage') {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
-                    def VERSION = "1.0-SNAPSHOT"
-                    
-                    // LỆNH QUAN TRỌNG: Flatten toàn bộ project để xóa bỏ biến ${revision}
-                    echo "--- Flattening and Installing All Modules ---"
-                    sh "mvn clean install -N -Drevision=${VERSION} -DskipTests"
-                    
+                    echo "--- Installing Parent POM ---"
+                    sh "mvn install -N -DskipTests" 
+
+                    echo "--- Installing Common Library ---"
                     dir('common-library') {
-                        // Dùng lệnh flatten để nó ghi đè file POM chuẩn vào kho
-                        sh "mvn clean install -Drevision=${VERSION} -DskipTests"
+                        sh "mvn clean install -DskipTests"
                     }
 
                     def list = env.CHANGED_SERVICES.split(",")
                     for (svc in list) {
                         if (svc == 'common-library') continue
-                        stage("Test: ${svc}") {
+                        stage("Test & Coverage: ${svc}") {
                             dir(svc) {
-                                // Ép Maven dùng file POM đã được flatten
-                                sh "mvn clean verify -Drevision=${VERSION} -DskipTests=false -U"
+                                echo "--- Running Tests for ${svc} ---"
+                                sh "mvn clean verify -U -DskipTests=false"
                             }
                         }
                     }
