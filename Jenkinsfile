@@ -33,10 +33,10 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
+                    def VERSION = "1.0-SNAPSHOT"
+                    sh "find . -name 'pom.xml' -exec sed -i 's/\\\${revision}/1.0-SNAPSHOT/g' {} +"
                     sh "mvn install -N -DskipTests" 
-                    dir('common-library') {
-                        sh "mvn clean install -DskipTests"
-                    }
+                    dir('common-library') { sh "mvn clean install -DskipTests" }
 
                     def list = env.CHANGED_SERVICES.split(",")
                     for (svc in list) {
@@ -44,9 +44,15 @@ pipeline {
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
                                 echo "--- Running Tests for ${svc} ---"
-                                // SỬA Ở ĐÂY: Thêm -Ptest để dùng profile test của YAS
-                                // Thêm -Dspring.profiles.active=test để ép Spring dùng cấu hình test
-                                sh "mvn clean verify -U -DskipTests=false -Ptest -Dspring.profiles.active=test"
+                                // SỬA DÒNG NÀY: Bỏ -Ptest, thay bằng ép tham số H2 Database
+                                sh """
+                                    mvn clean verify -U -DskipTests=false \
+                                    -Dspring.datasource.url=jdbc:h2:mem:testdb;MODE=PostgreSQL \
+                                    -Dspring.datasource.driverClassName=org.h2.Driver \
+                                    -Dspring.datasource.username=sa \
+                                    -Dspring.datasource.password= \
+                                    -Dspring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+                                """
                             }
                         }
                     }
