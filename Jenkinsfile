@@ -44,14 +44,15 @@ pipeline {
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
                                 echo "--- Running Tests for ${svc} ---"
-                                // SỬA DÒNG NÀY: Bỏ -Ptest, thay bằng ép tham số H2 Database
+                                // Ép tham số H2 vào để không cần Docker/Postgres
                                 sh """
                                     mvn clean verify -U -DskipTests=false \
-                                    -Dspring.datasource.url=jdbc:h2:mem:testdb;MODE=PostgreSQL \
+                                    -Dspring.datasource.url=jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH \
                                     -Dspring.datasource.driverClassName=org.h2.Driver \
                                     -Dspring.datasource.username=sa \
                                     -Dspring.datasource.password= \
-                                    -Dspring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+                                    -Dspring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect \
+                                    -Dspring.autoconfigure.exclude=org.springframework.boot.testcontainers.service.connection.ServiceConnectionAutoConfiguration
                                 """
                             }
                         }
