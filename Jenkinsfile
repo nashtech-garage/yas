@@ -5,13 +5,14 @@ pipeline {
         JAVA_HOME = "/var/jenkins_home/tools/hudson.model.JDK/jdk25/jdk-25.0.2"
         PATH = "${JAVA_HOME}/bin:${env.PATH}"
         SERVICES = "backoffice-bff,cart,customer,inventory,location,media,order,payment,payment-paypal,product,promotion,rating,recommendation,search,storefront-bff,tax"
+        // Cấu hình để Testcontainers biết chỗ tìm Docker
+        DOCKER_HOST = "unix:///var/run/docker.sock"
+        TESTCONTAINERS_RYUK_DISABLED = "true" 
     }
     stages {
         stage('Phase 0: Kill The Variable') {
             steps {
                 script {
-                    echo "--- Đang tiêu diệt biến revision trong tất cả file pom.xml ---"
-                    // Lệnh này sẽ tìm và thay thế trực tiếp chuỗi ${revision} thành 1.0-SNAPSHOT
                     sh "find . -name 'pom.xml' -exec sed -i 's/\\\${revision}/1.0-SNAPSHOT/g' {} +"
                 }
             }
@@ -35,10 +36,7 @@ pipeline {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
-                    echo "--- Installing Parent POM ---"
                     sh "mvn install -N -DskipTests" 
-
-                    echo "--- Installing Common Library ---"
                     dir('common-library') {
                         sh "mvn clean install -DskipTests"
                     }
@@ -48,7 +46,7 @@ pipeline {
                         if (svc == 'common-library') continue
                         stage("Test & Coverage: ${svc}") {
                             dir(svc) {
-                                echo "--- Running Tests for ${svc} ---"
+                                // CHỖ NÀY LÀ QUAN TRỌNG NHẤT: Ép dùng Java 25 để chạy test
                                 sh "mvn clean verify -U -DskipTests=false"
                             }
                         }
