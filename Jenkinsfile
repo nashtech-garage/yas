@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Bạn PHẢI vào Manage Jenkins -> Tools đặt tên đúng như này
-        jdk 'jdk21'
+        jdk 'jdk25'
         maven 'maven3'
     }
 
