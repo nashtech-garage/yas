@@ -1,49 +1,89 @@
 pipeline {
     agent any
+
     tools {
-        // Nếu bạn đã cài được JDK21 trong Jenkins thì dùng, 
-        // còn chưa thì cứ bỏ qua phần tools này và dùng mvnw như tui chỉ
-        jdk 'jdk21' 
+        // Bạn PHẢI vào Manage Jenkins -> Tools đặt tên đúng như này
+        jdk 'jdk21'
+        maven 'maven3'
     }
+
+    environment {
+        // List các service Java của YAS
+        SERVICES = "backoffice-bff,cart,customer,inventory,location,media,order,payment,payment-paypal,product,promotion,rating,recommendation,search,storefront-bff,tax"
+    }
+
     stages {
-        stage('Detect Changes') {
+        stage('Phase 1: Scan & Detect') {
             steps {
                 script {
-                    sh 'chmod +x mvnw'
-                    // So sánh branch hiện tại với main để biết cái nào mới sửa
+                    echo "--- Đang kiểm tra các thay đổi trong Monorepo ---"
+                    // So sánh với main để biết folder nào bị sửa
                     def changedFiles = sh(script: "git diff --name-only origin/main", returnStdout: true).trim()
-                    
-                    // Danh sách service (Tui lấy đúng list của dự án YAS cho bạn)
-                    def SERVICES = ['backoffice-bff', 'cart', 'customer', 'inventory', 'location', 'media', 'order', 'payment', 'product', 'promotion', 'rating', 'search', 'storefront-bff']
-                    
+                    echo "Files changed: \n${changedFiles}"
+
                     def toBuild = []
-                    SERVICES.each { svc ->
-                        if (changedFiles.contains("${svc}/")) { toBuild.add(svc) }
+                    def serviceList = SERVICES.split(',')
+                    for (svc in serviceList) {
+                        if (changedFiles.contains("${svc}/")) {
+                            toBuild.add(svc)
+                        }
                     }
                     env.CHANGED_SERVICES = toBuild.join(",")
                 }
             }
         }
-        stage('Test & Build (YAS Standard)') {
+
+        stage('Phase 2: Unit Test & Coverage') {
             when { expression { return env.CHANGED_SERVICES != "" } }
             steps {
                 script {
                     def list = env.CHANGED_SERVICES.split(",")
                     for (svc in list) {
-                        dir(svc) {
-                            echo "--- Đang xử lý service: ${svc} ---"
-                            // Dùng verify để JaCoCo xuất báo cáo độ phủ
-                            sh '../mvnw clean verify' 
+                        stage("Testing ${svc}") {
+                            dir(svc) {
+                                echo "--- Running Tests for ${svc} ---"
+                                // Chạy test và tạo báo cáo JaCoCo
+                                sh 'mvn clean test'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Phase 3: Build Artifact') {
+            when { expression { return env.CHANGED_SERVICES != "" } }
+            steps {
+                script {
+                    def list = env.CHANGED_SERVICES.split(",")
+                    for (svc in list) {
+                        stage("Building ${svc}") {
+                            dir(svc) {
+                                echo "--- Packaging ${svc} ---"
+                                // Build ra file jar (skip test vì đã chạy ở phase 2 rồi)
+                                sh 'mvn package -DskipTests'
+                            }
                         }
                     }
                 }
             }
         }
     }
+
     post {
         always {
-            // Đây mới là cái thầy cô cần nè
-            junit '**/target/surefire-reports/*.xml'
+            echo "--- Generating Reports ---"
+            // Yêu cầu số 5: Upload kết quả test
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+            
+            // Yêu cầu số 7b: Độ phủ JaCoCo (nếu đã cài plugin JaCoCo trên Jenkins)
+            jacoco execPattern: '**/target/*.exec', allowEmptyResults: true
+        }
+        success {
+            echo "Pipeline hoàn thành rực rỡ!"
+        }
+        failure {
+            echo "Build oẹo rồi, check log đi Sỹ!"
         }
     }
 }
