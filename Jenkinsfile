@@ -17,18 +17,24 @@ pipeline {
             steps {
                 script {
                     echo "--- Đang kiểm tra các thay đổi trong Monorepo ---"
-                    // So sánh với main để biết folder nào bị sửa
-                    def changedFiles = sh(script: "git diff --name-only origin/main", returnStdout: true).trim()
+                    
+                    // Lệnh quan trọng: Kéo thông tin branch main về để có cái mà so sánh
+                    sh "git fetch origin main"
+                    
+                    // So sánh giữa branch hiện tại và branch main trên server
+                    def changedFiles = sh(script: "git diff --name-only origin/main...HEAD", returnStdout: true).trim()
                     echo "Files changed: \n${changedFiles}"
 
                     def toBuild = []
                     def serviceList = SERVICES.split(',')
                     for (svc in serviceList) {
-                        if (changedFiles.contains("${svc}/")) {
+                        // Dùng \n để split chính xác từng dòng file
+                        if (changedFiles.split("\n").any { it.startsWith("${svc}/") }) {
                             toBuild.add(svc)
                         }
                     }
                     env.CHANGED_SERVICES = toBuild.join(",")
+                    echo "Services to build: ${env.CHANGED_SERVICES}"
                 }
             }
         }
