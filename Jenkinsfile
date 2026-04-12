@@ -228,7 +228,9 @@ Time: ${env.BUILD_TIMESTAMP}
                     reportDir: 'target/site/jacoco',
                     reportFiles: 'index.html',
                     reportName: 'Coverage Report',
-                    allowMissing: true
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true
                 ])
 
                 archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
