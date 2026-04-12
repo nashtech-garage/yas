@@ -69,17 +69,42 @@ Time: ${env.BUILD_TIMESTAMP}
                         else
                             git fetch origin main || true
 
+                            CHANGED_FILES="$(git diff --name-only origin/main...HEAD || true)"
                             CHANGED_SERVICES=""
+                            NON_SERVICE_CHANGE="false"
 
                             for SERVICE in $SERVICES; do
                                 if [ -d "$SERVICE" ] && [ -f "$SERVICE/pom.xml" ]; then
-                                    if git diff --name-only origin/main...HEAD | grep -q "^$SERVICE/"; then
+                                    if printf '%s\n' "$CHANGED_FILES" | grep -q "^$SERVICE/"; then
                                         CHANGED_SERVICES="$CHANGED_SERVICES $SERVICE"
                                     fi
                                 fi
                             done
 
-                            if [ -z "$CHANGED_SERVICES" ]; then
+                            if [ -n "$CHANGED_FILES" ]; then
+                                while IFS= read -r FILE; do
+                                    [ -z "$FILE" ] && continue
+                                    IS_SERVICE_FILE="false"
+
+                                    for SERVICE in $SERVICES; do
+                                        if printf '%s\n' "$FILE" | grep -q "^$SERVICE/"; then
+                                            IS_SERVICE_FILE="true"
+                                            break
+                                        fi
+                                    done
+
+                                    if [ "$IS_SERVICE_FILE" = "false" ]; then
+                                        NON_SERVICE_CHANGE="true"
+                                        break
+                                    fi
+                                done <<EOF
+$CHANGED_FILES
+EOF
+                            fi
+
+                            if [ "$NON_SERVICE_CHANGE" = "true" ]; then
+                                echo "CHANGED_SERVICES=all" > build.properties
+                            elif [ -z "$CHANGED_SERVICES" ]; then
                                 echo "CHANGED_SERVICES=none" > build.properties
                             else
                                 echo "CHANGED_SERVICES=$CHANGED_SERVICES" > build.properties
