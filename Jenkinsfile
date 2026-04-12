@@ -263,14 +263,25 @@ PY
                 expression { env.CHANGED_SERVICES != 'none' }
             }
             steps {
-                publishHTML([
-                    reportDir: 'target/site/jacoco',
-                    reportFiles: 'index.html',
-                    reportName: 'Coverage Report',
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true
-                ])
+                script {
+                    env.CHANGED_SERVICES.split(',').collect { it.trim() }.findAll { it }.each { service ->
+                        def reportDir = "${service}/target/site/jacoco"
+                        def reportIndex = "${reportDir}/index.html"
+
+                        if (fileExists(reportIndex)) {
+                            publishHTML([
+                                reportDir: reportDir,
+                                reportFiles: 'index.html',
+                                reportName: "Coverage Report - ${service}",
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true
+                            ])
+                        } else {
+                            echo "No JaCoCo report found for ${service} at ${reportDir}"
+                        }
+                    }
+                }
 
                 archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
             }
