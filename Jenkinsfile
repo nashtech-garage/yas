@@ -35,10 +35,12 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    def pom = new XmlSlurper().parseText(readFile('pom.xml'))
-                    env.ALL_SERVICES = pom.modules.module.collect { it.text().trim() }
-                        .findAll { it }
-                        .join(' ')
+                    // Use shell instead of XmlSlurper to avoid script security issues
+                    def pomContent = readFile('pom.xml')
+                    env.ALL_SERVICES = sh(
+                        script: "grep -oP '(?<=<module>)[^<]+' <<'EOF'\n${pomContent}\nEOF | tr '\\n' ' '",
+                        returnStdout: true
+                    ).trim()
 
                     echo """
 ╔════════════════════════════════════════╗
@@ -264,21 +266,24 @@ PY
             }
             steps {
                 script {
-                    env.CHANGED_SERVICES.split(',').collect { it.trim() }.findAll { it }.each { service ->
+                    def services = []
+                    if (env.CHANGED_SERVICES == 'all') {
+                        services = env.ALL_SERVICES.split(' ')
+                    } else {
+                        services = env.CHANGED_SERVICES.split(' ')
+                    }
+                    
+                    services.collect { it.trim() }.findAll { it }.each { service ->
                         def reportDir = "${service}/target/site/jacoco"
-                        def reportIndex = "${reportDir}/index.html"
-
-                        if (fileExists(reportIndex)) {
+                        if (fileExists("${reportDir}/index.html")) {
                             publishHTML([
                                 reportDir: reportDir,
                                 reportFiles: 'index.html',
                                 reportName: "Coverage Report - ${service}",
-                                allowMissing: false,
+                                allowMissing: true,
                                 alwaysLinkToLastBuild: true,
                                 keepAll: true
                             ])
-                        } else {
-                            echo "No JaCoCo report found for ${service} at ${reportDir}"
                         }
                     }
                 }
