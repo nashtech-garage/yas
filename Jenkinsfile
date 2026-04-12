@@ -176,10 +176,10 @@ Time: ${env.BUILD_TIMESTAMP}
                                 COVERED=$(grep -oP '(?<=<counter type="LINE" missed=")[0-9]+(?=" covered=")[0-9]+' "$REPORT" | awk -F'covered="' '{print $2}' | awk '{s+=$1} END {print s}')
                                 MISSED=$(grep -oP '(?<=<counter type="LINE" missed=")[0-9]+(?=" covered=")[0-9]+' "$REPORT" | awk -F'missed="' '{print $2}' | awk '{s+=$1} END {print s}')
                                 
-                                # Fallback if regex fails (simplified extraction)
+                                # Fallback if regex fails (simplified extraction using cut)
                                 if [ -z "$COVERED" ]; then
-                                    COVERED=$(grep 'counter type="LINE"' "$REPORT" | head -1 | sed 's/.*covered="\([^"]*\)".*/\1/')
-                                    MISSED=$(grep 'counter type="LINE"' "$REPORT" | head -1 | sed 's/.*missed="\([^"]*\)".*/\1/')
+                                    COVERED=$(grep 'counter type="LINE"' "$REPORT" | head -1 | cut -d' ' -f5 | cut -d'"' -f2)
+                                    MISSED=$(grep 'counter type="LINE"' "$REPORT" | head -1 | cut -d' ' -f4 | cut -d'"' -f2)
                                 fi
 
                                 TOTAL_COVERED=$((TOTAL_COVERED + COVERED))
