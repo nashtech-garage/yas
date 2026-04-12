@@ -8,8 +8,8 @@ pipeline {
     }
 
     environment {
-        // List of all services in the monorepo for easier maintenance
-        ALL_SERVICES = "cart customer delivery inventory location media order payment payment-paypal product promotion rating recommendation search sampledata tax backoffice-bff storefront-bff common-library"
+        // Populated from the root pom.xml during initialization to avoid drift
+        ALL_SERVICES = ""
     }
 
     stages {
@@ -34,6 +34,11 @@ pipeline {
                         script: "date '+%Y%m%d_%H%M%S'",
                         returnStdout: true
                     ).trim()
+
+                    def pom = new XmlSlurper().parseText(readFile('pom.xml'))
+                    env.ALL_SERVICES = pom.modules.module.collect { it.text().trim() }
+                        .findAll { it }
+                        .join(' ')
 
                     echo """
 ╔════════════════════════════════════════╗
