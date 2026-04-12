@@ -135,12 +135,12 @@ EOF
                         echo "Building services..."
 
                         if [ "$CHANGED_SERVICES" = "all" ]; then
-                            mvn clean package -DskipTests
+                            ./mvnw clean package -DskipTests
                         else
                             for SERVICE in $CHANGED_SERVICES; do
                                 if [ -f "$SERVICE/pom.xml" ]; then
                                     echo "Building $SERVICE"
-                                    mvn -pl $SERVICE clean package -DskipTests
+                                    ./mvnw -pl $SERVICE clean package -DskipTests
                                 fi
                             done
                         fi
