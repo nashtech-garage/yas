@@ -27,7 +27,7 @@ pipeline {
                 sh 'java -version'
                 
                 echo 'Đang chạy Unit Test và tạo report Coverage cho toàn bộ dự án...'
-                sh 'mvn clean test jacoco:report'
+                sh 'mvn clean test jacoco:report -DskipITs'
             }
         }
 
