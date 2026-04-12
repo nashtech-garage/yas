@@ -189,28 +189,37 @@ EOF
                     // This logic parses target/site/jacoco/jacoco.xml after Maven verify
                     // In a monorepo, we'll aggregate or check service-by-service
                     sh '''
-                        #!/bin/bash
                         # Simple script to aggregate coverage from all changed services
                         TOTAL_COVERED=0
                         TOTAL_MISSED=0
                         
                         SERVICES_TO_CHECK="$CHANGED_SERVICES"
-                        if [ "$CHANGED_SERVICES" == "all" ]; then
+                        if [ "$CHANGED_SERVICES" = "all" ]; then
                             SERVICES_TO_CHECK="$ALL_SERVICES"
                         fi
 
                         for SERVICE in $SERVICES_TO_CHECK; do
                             REPORT="$SERVICE/target/site/jacoco/jacoco.xml"
                             if [ -f "$REPORT" ]; then
-                                # Extract metrics using grep/sed for speed without specialized XML parsers
-                                COVERED=$(grep -oP '(?<=<counter type="LINE" missed=")[0-9]+(?=" covered=")[0-9]+' "$REPORT" | awk -F'covered="' '{print $2}' | awk '{s+=$1} END {print s}')
-                                MISSED=$(grep -oP '(?<=<counter type="LINE" missed=")[0-9]+(?=" covered=")[0-9]+' "$REPORT" | awk -F'missed="' '{print $2}' | awk '{s+=$1} END {print s}')
-                                
-                                # Fallback if regex fails (simplified extraction using cut)
-                                if [ -z "$COVERED" ]; then
-                                    COVERED=$(grep 'counter type="LINE"' "$REPORT" | head -1 | cut -d' ' -f5 | cut -d'"' -f2)
-                                    MISSED=$(grep 'counter type="LINE"' "$REPORT" | head -1 | cut -d' ' -f4 | cut -d'"' -f2)
-                                fi
+                                COVERAGE_VALUES=$(python3 - "$REPORT" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+report = sys.argv[1]
+covered = 0
+missed = 0
+
+tree = ET.parse(report)
+for counter in tree.iter('counter'):
+    if counter.get('type') == 'LINE':
+        covered += int(counter.get('covered', '0'))
+        missed += int(counter.get('missed', '0'))
+
+print(f"{covered} {missed}")
+PY
+)
+                                COVERED=$(printf '%s\n' "$COVERAGE_VALUES" | awk '{print $1}')
+                                MISSED=$(printf '%s\n' "$COVERAGE_VALUES" | awk '{print $2}')
 
                                 TOTAL_COVERED=$((TOTAL_COVERED + COVERED))
                                 TOTAL_MISSED=$((TOTAL_MISSED + MISSED))
