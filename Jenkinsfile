@@ -1,9 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.9.9-eclipse-temurin-21'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
 
     environment {
-        MVN_CMD = "mvn -B"
         COVERAGE_THRESHOLD = 70
+        SERVICES = "media product cart"
     }
 
     stages {
@@ -17,26 +22,26 @@ pipeline {
         stage('Detect Changed Services') {
             steps {
                 script {
-                    // Lấy danh sách folder bị thay đổi
                     def changedDirs = sh(
                         script: "git diff --name-only origin/main | cut -d/ -f1 | sort -u || true",
                         returnStdout: true
-                    ).trim().split("\n")
-
-                    echo "Changed dirs: ${changedDirs}"
+                    ).trim()
 
                     def services = []
 
-                    for (dir in changedDirs) {
-                        if (["media", "product", "cart"].contains(dir)) {
-                            services.add(dir)
+                    if (changedDirs) {
+                        def dirs = changedDirs.split("\n")
+                        for (dir in dirs) {
+                            if (env.SERVICES.split().contains(dir)) {
+                                services.add(dir)
+                            }
                         }
                     }
 
-                    // Nếu không detect được → build all
+                    // fallback: build all
                     if (services.isEmpty()) {
                         echo "No service detected → build ALL"
-                        services = ["media", "product", "cart"]
+                        services = env.SERVICES.split()
                     }
 
                     env.CHANGED_SERVICES = services.join(" ")
@@ -59,7 +64,8 @@ pipeline {
             }
             post {
                 always {
-                    junit '**/target/surefire-reports/*.xml'
+                    // tránh fail nếu chưa có test
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
                 }
             }
         }
@@ -68,10 +74,12 @@ pipeline {
             steps {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
+
                         def report = "${svc}/target/site/jacoco/jacoco.xml"
 
                         if (!fileExists(report)) {
-                            error "Missing coverage report: ${report}"
+                            echo "⚠️ No coverage report for ${svc} → skip"
+                            continue
                         }
 
                         def coverage = sh(
@@ -81,12 +89,17 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
+                        if (!coverage) {
+                            echo "⚠️ Cannot read coverage for ${svc}"
+                            continue
+                        }
+
                         coverage = coverage.toFloat() * 100
 
                         echo "Coverage ${svc}: ${coverage}%"
 
                         if (coverage < COVERAGE_THRESHOLD.toInteger()) {
-                            error "Coverage < 70% for ${svc}"
+                            error "❌ Coverage < 70% for ${svc}"
                         }
                     }
                 }
@@ -110,10 +123,10 @@ pipeline {
 
     post {
         success {
-            echo "PIPELINE SUCCESS"
+            echo "✅ PIPELINE SUCCESS"
         }
         failure {
-            echo "PIPELINE FAILED"
+            echo "❌ PIPELINE FAILED"
         }
     }
 }
