@@ -49,24 +49,24 @@ pipeline {
             }
         }
 
-        // ✅ FIX QUAN TRỌNG
+        // ✅ Build toàn bộ để resolve dependency + ${revision}
         stage('Prepare Dependencies') {
             steps {
-                echo "Building shared modules (common-library, etc)..."
-                sh '''
+                echo "Building full project to resolve dependencies..."
+                sh """
                 mvn clean install -DskipTests
-                '''
+                """
             }
         }
 
+        // ✅ FIX: dùng -pl thay vì cd
         stage('Test') {
             steps {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
                         echo "Testing ${svc}"
                         sh """
-                        cd ${svc}
-                        mvn test
+                        mvn -pl ${svc} -am test
                         """
                     }
                 }
@@ -114,14 +114,14 @@ pipeline {
             }
         }
 
+        // ✅ FIX: build đúng cách
         stage('Build') {
             steps {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
                         echo "Building ${svc}"
                         sh """
-                        cd ${svc}
-                        mvn clean package -DskipTests
+                        mvn -pl ${svc} -am package -DskipTests
                         """
                     }
                 }
