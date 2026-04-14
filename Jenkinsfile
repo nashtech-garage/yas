@@ -38,7 +38,6 @@ pipeline {
                         }
                     }
 
-                    // fallback: build all
                     if (services.isEmpty()) {
                         echo "No service detected → build ALL"
                         services = env.SERVICES.split()
@@ -50,6 +49,16 @@ pipeline {
             }
         }
 
+        // ✅ FIX QUAN TRỌNG
+        stage('Prepare Dependencies') {
+            steps {
+                echo "Building shared modules (common-library, etc)..."
+                sh '''
+                mvn clean install -DskipTests
+                '''
+            }
+        }
+
         stage('Test') {
             steps {
                 script {
@@ -57,14 +66,13 @@ pipeline {
                         echo "Testing ${svc}"
                         sh """
                         cd ${svc}
-                        mvn clean test
+                        mvn test
                         """
                     }
                 }
             }
             post {
                 always {
-                    // tránh fail nếu chưa có test
                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
                 }
             }
