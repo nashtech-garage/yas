@@ -17,29 +17,26 @@ pipeline {
         stage('Detect Changed Services') {
             steps {
                 script {
-                    def changedFiles = sh(
-                        script: "git diff --name-only origin/main || true",
+                    // Lấy danh sách folder bị thay đổi
+                    def changedDirs = sh(
+                        script: "git diff --name-only origin/main | cut -d/ -f1 | sort -u || true",
                         returnStdout: true
-                    ).trim()
+                    ).trim().split("\n")
 
-                    echo "Changed files: ${changedFiles}"
+                    echo "Changed dirs: ${changedDirs}"
 
                     def services = []
 
-                    if (changedFiles.contains("media-service")) {
-                        services.add("media-service")
-                    }
-                    if (changedFiles.contains("product-service")) {
-                        services.add("product-service")
-                    }
-                    if (changedFiles.contains("cart-service")) {
-                        services.add("cart-service")
+                    for (dir in changedDirs) {
+                        if (["media", "product", "cart"].contains(dir)) {
+                            services.add(dir)
+                        }
                     }
 
-                    // Nếu không detect được (ví dụ commit đầu)
+                    // Nếu không detect được → build all
                     if (services.isEmpty()) {
-                        echo "No specific service detected → build all"
-                        services = ["media-service", "product-service", "cart-service"]
+                        echo "No service detected → build ALL"
+                        services = ["media", "product", "cart"]
                     }
 
                     env.CHANGED_SERVICES = services.join(" ")
@@ -53,7 +50,10 @@ pipeline {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
                         echo "Testing ${svc}"
-                        sh "cd ${svc} && ${MVN_CMD} test"
+                        sh """
+                        cd ${svc}
+                        mvn clean test
+                        """
                     }
                 }
             }
@@ -68,22 +68,20 @@ pipeline {
             steps {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
-                        echo "Checking coverage for ${svc}"
+                        def report = "${svc}/target/site/jacoco/jacoco.xml"
 
-                        def reportPath = "${svc}/target/site/jacoco/jacoco.xml"
-
-                        if (!fileExists(reportPath)) {
-                            error "Coverage report not found for ${svc}"
+                        if (!fileExists(report)) {
+                            error "Missing coverage report: ${report}"
                         }
 
                         def coverage = sh(
                             script: """
-                            grep -o 'line-rate="[^"]*"' ${reportPath} | head -1 | cut -d'"' -f2
+                            grep -o 'line-rate="[^"]*"' ${report} | head -1 | cut -d'"' -f2
                             """,
                             returnStdout: true
                         ).trim()
 
-                        coverage = (coverage.toFloat() * 100)
+                        coverage = coverage.toFloat() * 100
 
                         echo "Coverage ${svc}: ${coverage}%"
 
@@ -100,7 +98,10 @@ pipeline {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
                         echo "Building ${svc}"
-                        sh "cd ${svc} && ${MVN_CMD} clean package -DskipTests"
+                        sh """
+                        cd ${svc}
+                        mvn clean package -DskipTests
+                        """
                     }
                 }
             }
@@ -109,10 +110,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline SUCCESS"
+            echo "PIPELINE SUCCESS"
         }
         failure {
-            echo "Pipeline FAILED"
+            echo "PIPELINE FAILED"
         }
     }
 }
