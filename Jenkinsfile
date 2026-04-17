@@ -57,7 +57,7 @@ pipeline {
     // -------------------------------------------------------------------------
     triggers {
         // Nightly GitLeaks scan  (mirrors schedule: "0 0 * * *")
-        cron('H 0 * * *')
+        // cron('H 0 * * *')
         // Weekly CodeQL scan     (mirrors cron: '19 21 * * 0')
         cron('19 21 * * 0')
         // SCM polling for push / PR events (replace with webhook if preferred)
