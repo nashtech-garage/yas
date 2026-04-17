@@ -12,6 +12,11 @@ pipeline {
         pollSCM('* * * * *')
     }
 
+    tools {
+        jdk 'JDK-21'
+        maven 'Maven-3'
+    }
+
     stages {
         stage('Services CI') {
             parallel {
