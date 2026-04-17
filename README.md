@@ -1,4 +1,5 @@
 # YAS: Yet Another Shop
+# For testing purpose
 
 YAS is a pet project aim to practice building a typical microservice application in Java
 
