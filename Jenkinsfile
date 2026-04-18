@@ -13,7 +13,7 @@ pipeline {
     }
 
     tools {
-        jdk 'JDK-25'
+        jdk 'jdk-25'
         maven 'Maven-3'
     }
 
