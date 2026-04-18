@@ -22,7 +22,8 @@ pipeline {
             steps {
                 script {
                     setGitHubPullRequestStatus context: 'ci/jenkins',
-                                 status: 'PENDING'
+                                               state: 'PENDING',
+                                               message: 'Build started'
                 }
             }
         }
@@ -297,13 +298,15 @@ pipeline {
         success {
             script {
                 setGitHubPullRequestStatus context: 'ci/jenkins',
-                             status: 'SUCCESS'
+                             state: 'SUCCESS',
+                            message: 'Build success'
             }
         }
         failure {
             script {
                 setGitHubPullRequestStatus context: 'ci/jenkins',
-                             status: 'FAILURE'
+                             state: 'FAILURE',
+                            message: 'Build failed'
             }
         }
     }
