@@ -18,6 +18,15 @@ pipeline {
     }
 
     stages {
+        stage('Notify Start') {
+            steps {
+                script {
+                    githubNotify context: 'ci/jenkins',
+                                 status: 'PENDING'
+                }
+            }
+        }
+        
         stage('Services CI') {
             parallel {
                 
@@ -281,6 +290,20 @@ pipeline {
                     }
                 }
 
+            }
+        }
+    }
+    post {
+        success {
+            script {
+                githubNotify context: 'ci/jenkins',
+                             status: 'SUCCESS'
+            }
+        }
+        failure {
+            script {
+                githubNotify context: 'ci/jenkins',
+                             status: 'FAILURE'
             }
         }
     }
