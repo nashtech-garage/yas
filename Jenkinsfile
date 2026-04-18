@@ -7,11 +7,6 @@ pipeline {
         disableConcurrentBuilds()
     }
 
-    triggers {
-        // Scan and run the pipeline for each branch automatically
-        pollSCM('* * * * *')
-    }
-
     tools {
         jdk 'jdk-25'
         maven 'Maven-3'
