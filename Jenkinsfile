@@ -21,7 +21,7 @@ pipeline {
         stage('Notify Start') {
             steps {
                 script {
-                    githubNotify context: 'ci/jenkins',
+                    setGitHubPullRequestStatus context: 'ci/jenkins',
                                  status: 'PENDING'
                 }
             }
@@ -296,13 +296,13 @@ pipeline {
     post {
         success {
             script {
-                githubNotify context: 'ci/jenkins',
+                setGitHubPullRequestStatus context: 'ci/jenkins',
                              status: 'SUCCESS'
             }
         }
         failure {
             script {
-                githubNotify context: 'ci/jenkins',
+                setGitHubPullRequestStatus context: 'ci/jenkins',
                              status: 'FAILURE'
             }
         }
