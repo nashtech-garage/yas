@@ -1,9 +1,12 @@
 package com.yas.product.viewmodel.product;
 
 import com.yas.product.model.Category;
+import com.yas.product.model.enumeration.DimensionUnit;
 import com.yas.product.viewmodel.ImageVm;
 import java.util.List;
+import lombok.Builder;
 
+@Builder(toBuilder = true)
 public record ProductDetailVm(
         long id,
         String name,
@@ -18,6 +21,11 @@ public record ProductDetailVm(
         Boolean isFeatured,
         Boolean isVisible,
         Boolean stockTrackingEnabled,
+        Double weight,
+        DimensionUnit dimensionUnit,
+        Double length,
+        Double width,
+        Double height,
         Double price,
         Long brandId,
         List<Category> categories,
@@ -26,5 +34,6 @@ public record ProductDetailVm(
         String metaDescription,
         ImageVm thumbnailMedia,
         List<ImageVm> productImageMedias,
-        Long taxClassId) {
+        Long taxClassId,
+        Long parentId) {
 }

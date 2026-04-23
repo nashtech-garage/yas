@@ -1,29 +1,26 @@
 package com.yas.order.viewmodel.checkout;
 
-import com.yas.order.model.Checkout;
+import com.yas.order.model.enumeration.CheckoutState;
+import java.math.BigDecimal;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Builder;
 
-@Builder
+@Builder(toBuilder = true)
 public record CheckoutVm(
         String id,
         String email,
         String note,
-        String couponCode,
-        Set<CheckoutItemVm> checkoutItemVms
+        String promotionCode,
+        CheckoutState checkoutState,
+        String progress,
+        BigDecimal totalAmount,
+        BigDecimal totalShipmentFee,
+        BigDecimal totalShipmentTax, 
+        BigDecimal totalTax,
+        BigDecimal totalDiscountAmount,
+        String shipmentMethodId,
+        String paymentMethodId,
+        Long shippingAddressId,
+        Set<CheckoutItemVm> checkoutItemVms) {
 
-) {
-    public static CheckoutVm fromModel(Checkout checkout) {
-        Set<CheckoutItemVm> checkoutItemVms = checkout.getCheckoutItem().stream().map(
-                        item -> CheckoutItemVm.fromModel(item))
-                .collect(Collectors.toSet());
-        return CheckoutVm.builder()
-                .id(checkout.getId())
-                .email(checkout.getEmail())
-                .note(checkout.getNote())
-                .couponCode(checkout.getCouponCode())
-                .checkoutItemVms(checkoutItemVms)
-                .build();
-    }
 }

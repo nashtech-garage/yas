@@ -1,26 +1,5 @@
 package com.yas.rating.service;
 
-import com.yas.rating.RatingApplication;
-import com.yas.rating.exception.AccessDeniedException;
-import com.yas.rating.exception.NotFoundException;
-import com.yas.rating.exception.ResourceExistedException;
-import com.yas.rating.model.Rating;
-import com.yas.rating.repository.RatingRepository;
-import com.yas.rating.viewmodel.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,47 +7,71 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.ResourceExistedException;
+import com.yas.rating.RatingApplication;
+import com.yas.rating.model.Rating;
+import com.yas.rating.repository.RatingRepository;
+import com.yas.rating.viewmodel.CustomerVm;
+import com.yas.rating.viewmodel.OrderExistsByProductAndUserGetVm;
+import com.yas.rating.viewmodel.RatingListVm;
+import com.yas.rating.viewmodel.RatingPostVm;
+import com.yas.rating.viewmodel.RatingVm;
+import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+
 @SpringBootTest(classes = RatingApplication.class)
 class RatingServiceTest {
 
     private final String userId = "user1";
     @Autowired
     private RatingRepository ratingRepository;
-    @MockBean
+    @MockitoBean
     private CustomerService customerService;
-    @MockBean
+    @MockitoBean
     private OrderService orderService;
     @Autowired
     private RatingService ratingService;
-    private List<Rating> ratingList;
 
     @BeforeEach
     void setUp() {
-        ratingList = List.of(
-                Rating.builder()
-                        .content("comment 1")
-                        .ratingStar(4)
-                        .productId(1L)
-                        .productName("product1")
-                        .firstName("Duy")
-                        .lastName("Nguyen")
-                        .build(),
-                Rating.builder()
-                        .content("comment 2")
-                        .ratingStar(2)
-                        .productId(1L)
-                        .productName("product1")
-                        .firstName("Hai")
-                        .lastName("Le")
-                        .build(),
-                Rating.builder()
-                        .content("comment 3")
-                        .ratingStar(3)
-                        .productId(2L)
-                        .productName("product2")
-                        .firstName("Cuong")
-                        .lastName("Tran")
-                        .build()
+        List<Rating> ratingList = List.of(
+            Rating.builder()
+                .content("comment 1")
+                .ratingStar(4)
+                .productId(1L)
+                .productName("product1")
+                .firstName("Duy")
+                .lastName("Nguyen")
+                .build(),
+            Rating.builder()
+                .content("comment 2")
+                .ratingStar(2)
+                .productId(1L)
+                .productName("product1")
+                .firstName("Hai")
+                .lastName("Le")
+                .build(),
+            Rating.builder()
+                .content("comment 3")
+                .ratingStar(3)
+                .productId(2L)
+                .productName("product2")
+                .firstName("Cuong")
+                .lastName("Tran")
+                .build()
         );
         ratingRepository.saveAll(ratingList);
     }
@@ -204,5 +207,38 @@ class RatingServiceTest {
     void calculateAverageStar_InvalidProductId_ShouldReturnZero() {
         Double averageStar = ratingService.calculateAverageStar(0L);
         assertEquals(0, averageStar);
+    }
+
+    @Test
+    void testGetLatestProducts_WhenHasListProductListVm_returnListProductListVm() {
+        List<Rating> list = ratingRepository.findAll();
+        list.sort(Comparator
+            .comparing(Rating::getCreatedOn, Comparator.reverseOrder())
+            .thenComparing(Rating::getId, Comparator.reverseOrder())
+        );
+
+        List<RatingVm> ratingList = ratingService.getLatestRatings(2);
+        assertEquals(2, ratingList.size());
+        assertEquals(list.getFirst().getContent(), ratingList.getFirst().content());
+        assertEquals(list.get(1).getContent(), ratingList.get(1).content());
+    }
+
+    @Test
+    void testGetLatestRatings_WhenCountLessThen1_returnEmpty() {
+        List<RatingVm>  newResponse = ratingService.getLatestRatings(-1);
+        assertEquals(0, newResponse.size());
+    }
+
+    @Test
+    void testGetLatestRatings_WhenCountIs0_returnEmpty() {
+        List<RatingVm>  newResponse = ratingService.getLatestRatings(0);
+        assertEquals(0, newResponse.size());
+    }
+
+    @Test
+    void testGetLatestRatings_WhenProductsEmpty_returnEmpty() {
+        ratingRepository.deleteAll();
+        List<RatingVm>  newResponse = ratingService.getLatestRatings(5);
+        assertEquals(0, newResponse.size());
     }
 }

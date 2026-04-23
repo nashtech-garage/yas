@@ -4,19 +4,23 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { ProductImageGallery } from '@/common/components/ProductImageGallery';
 import { useCartContext } from '@/context/CartContext';
-import { AddToCartModel } from '@/modules/cart/models/AddToCartModel';
-import { addToCart } from '@/modules/cart/services/CartService';
 import { formatPrice } from '@/utils/formatPrice';
 import { ProductDetail } from '../models/ProductDetail';
 import { ProductOptions } from '../models/ProductOptions';
 import { ProductVariation } from '../models/ProductVariation';
 import { toastError, toastSuccess } from '../services/ToastService';
 import DetailHeader from './DetailHeader';
+import { CartItemPostVm } from '@/modules/cart/models/CartItemPostVm';
+import { YasError } from '@/common/services/errors/YasError';
+import { addCartItem } from '@/modules/cart/services/CartService';
+import { ProductOptionValueDisplay } from '../models/ProductOptionValueGet';
+import { Button } from 'react-bootstrap';
 
 type ProductDetailProps = {
   product: ProductDetail;
   productOptions?: ProductOptions[];
   productVariations?: ProductVariation[];
+  productOptionValueGet?: ProductOptionValueDisplay[];
   pvid: string | null;
   averageStar: number;
   totalRating: number;
@@ -30,40 +34,57 @@ export default function ProductDetails({
   product,
   productOptions,
   productVariations,
+  productOptionValueGet,
   pvid,
   averageStar,
   totalRating,
 }: ProductDetailProps) {
+  const [listImages, setListImages] = useState<string[]>([]);
+
+  const getColorId = (options: ProductOptions[]) => {
+    return options.find((attr) => attr.name === 'COLOR')?.id;
+  };
+
   const initCurrentSelectedOption = useMemo(() => {
-    if (
-      productOptions &&
-      productOptions.length > 0 &&
-      productVariations &&
-      productVariations.length > 0
-    ) {
-      if (pvid) {
-        const productVariation = productVariations?.find((item) => item.id.toString() === pvid);
-        if (productVariation) {
-          return Object.keys(productVariation.options).reduce((acc, cur) => {
-            return {
-              ...acc,
-              [cur]: productVariation.options[cur],
-            };
-          }, {});
-        }
-      }
-      return productVariations[0].options;
-    } else {
+    if (!productOptions?.length || !productVariations?.length) {
+      setListImages([
+        ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
+        ...product.productImageMediaUrls,
+      ]);
       return {};
     }
+
+    const productVariation = pvid && productVariations.find((item) => item.id.toString() === pvid);
+    if (productVariation) {
+      return productVariation.options;
+    }
+
+    const colorId = getColorId(productOptions);
+    const productWithColor = productVariations.find(
+      (variant) => String(colorId) in variant.options
+    );
+
+    setListImages(
+      productWithColor
+        ? [
+            ...(productWithColor.thumbnail?.url ? [productWithColor.thumbnail.url] : []),
+            ...productWithColor.productImages.map((image) => image.url),
+          ]
+        : [
+            ...(product.thumbnailMediaUrl ? [product.thumbnailMediaUrl] : []),
+            ...product.productImageMediaUrls,
+          ]
+    );
+    return productWithColor ? productWithColor.options : productVariations[0].options;
   }, [productOptions, productVariations, pvid]);
 
   const router = useRouter();
   const [currentSelectedOption, setCurrentSelectedOption] =
     useState<CurrentSelectedOption>(initCurrentSelectedOption);
+  const [optionSelected, setOptionSelected] = useState<CurrentSelectedOption>({});
+  const [isUnchecking, setIsUnchecking] = useState<boolean>(false);
   const [currentProduct, setCurrentProduct] = useState<ProductDetail | ProductVariation>(product);
   const { fetchNumberCartItems } = useCartContext();
-
   useEffect(() => {
     if (
       productOptions &&
@@ -78,55 +99,111 @@ export default function ProductDetails({
   }, [productOptions, productVariations, pvid, currentProduct.id]);
 
   useEffect(() => {
-    if (
-      productOptions &&
-      productOptions.length > 0 &&
-      productVariations &&
-      productVariations.length > 0
-    ) {
-      const productVariation = productVariations.find((item) => {
+    const isOptionSelected = (
+      key: string,
+      currentSelectedOption: CurrentSelectedOption,
+      item: ProductVariation
+    ) => {
+      return currentSelectedOption[+key] === item.options[+key];
+    };
+
+    const areAllOptionsSelected = (
+      optionKeys: string[],
+      currentSelectedOption: CurrentSelectedOption,
+      item: ProductVariation
+    ) => {
+      return optionKeys.every((key: string) => isOptionSelected(key, currentSelectedOption, item));
+    };
+
+    const findProductVariationMatchAllOptions = () => {
+      return productVariations?.find((item) => {
+        const optionKeys = Object.keys(item.options);
         return (
-          Object.keys(item.options).length === Object.keys(currentSelectedOption).length &&
-          Object.keys(item.options).every((key) => currentSelectedOption[key] === item.options[key])
+          optionKeys.length === Object.keys(currentSelectedOption).length &&
+          areAllOptionsSelected(optionKeys, currentSelectedOption, item)
         );
       });
-      if (productVariation) {
-        setCurrentProduct(productVariation);
+    };
+
+    const updateListImagesByProductVariationMatchAllOptions = (variation: ProductVariation) => {
+      const urls = [
+        ...(variation.thumbnail?.url ? [variation.thumbnail.url] : []),
+        ...variation.productImages.map((image) => image.url),
+      ];
+      setListImages(urls);
+      setCurrentProduct(variation);
+      setCurrentSelectedOption(variation.options);
+    };
+
+    const updateListImagesBySelectedOption = (productVariations: ProductVariation[]) => {
+      const productSelected = productVariations.find((item) => {
+        return item.options[+Object.keys(optionSelected)[0]] == Object.values(optionSelected)[0];
+      });
+
+      if (productSelected) {
+        const urlList = productSelected.productImages.map((image) => image.url);
+        setListImages([
+          ...(productSelected.thumbnail?.url ? [productSelected.thumbnail.url] : []),
+          ...urlList,
+        ]);
+        setCurrentSelectedOption(productSelected.options);
+        setCurrentProduct(productSelected);
+      }
+    };
+
+    if (productOptions?.length && productVariations?.length) {
+      const productVariationMatchAllOptions = findProductVariationMatchAllOptions();
+      if (productVariationMatchAllOptions) {
+        updateListImagesByProductVariationMatchAllOptions(productVariationMatchAllOptions);
+      } else if (!isUnchecking) {
+        updateListImagesBySelectedOption(productVariations);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(currentSelectedOption)]);
 
   const handleAddToCart = async () => {
-    let payload: AddToCartModel[] = [
-      {
-        productId: currentProduct.id,
-        quantity: 1,
-        parentProductId: product.hasOptions ? product.id : null,
-      },
-    ];
-    await addToCart(payload)
-      .then((_response) => {
-        toastSuccess('Add to cart success');
-        fetchNumberCartItems();
-      })
-      .catch((error) => {
-        if (error.status === 403) toastError('You need to log in before add to cart');
-        else toastError('Add to cart failed. Try again');
-      });
+    const payload: CartItemPostVm = {
+      productId: currentProduct.id,
+      quantity: 1,
+    };
+    try {
+      await addCartItem(payload);
+    } catch (error) {
+      if (error instanceof YasError && error.status === 403) {
+        toastError('You need to login first before adding to cart');
+      } else {
+        toastError('Add to cart failed. Try again');
+      }
+      return;
+    }
+    toastSuccess('Add to cart success');
+    fetchNumberCartItems();
   };
 
-  const handleSelectOption = (optionName: string, optionValue: string) => {
+  const handleSelectOption = (optionId: number, optionValue: string) => {
     if (
       productOptions &&
       productOptions.length > 0 &&
       productVariations &&
       productVariations.length > 0
     ) {
-      setCurrentSelectedOption({ ...currentSelectedOption, [optionName]: optionValue });
+      if (currentSelectedOption[+optionId] === optionValue) {
+        if (Object.keys(currentSelectedOption).length > 1) {
+          setCurrentSelectedOption((prev) => {
+            const newOption = { ...prev };
+            delete newOption[+optionId];
+            return newOption;
+          });
+          setIsUnchecking(true);
+        }
+      } else {
+        setCurrentSelectedOption({ ...currentSelectedOption, [optionId]: optionValue });
+        setOptionSelected({ [optionId]: optionValue });
+        setIsUnchecking(false);
+      }
     }
   };
-
   return (
     <>
       <DetailHeader
@@ -137,7 +214,7 @@ export default function ProductDetails({
 
       <div className="row justify-content-center">
         <div className="col-6">
-          <ProductImageGallery listImages={product.productImageMediaUrls} />
+          <ProductImageGallery listImages={listImages} />
         </div>
 
         <div className="col-6">
@@ -149,24 +226,62 @@ export default function ProductDetails({
           </div>
 
           {/* product options */}
-          {(productOptions || []).map((productOption) => (
-            <div className="mb-3" key={productOption.name}>
-              <h5 className="mb-2 fs-6">{productOption.name}:</h5>
-              {(productOption.value || []).map((productOptionValue) => (
-                <button
-                  key={productOptionValue}
-                  className={`btn me-2 py-1 px-2 ${
-                    currentSelectedOption[productOption.name] === productOptionValue
-                      ? 'btn-primary'
-                      : 'btn-outline-primary'
-                  }`}
-                  onClick={() => handleSelectOption(productOption.name, productOptionValue)}
-                >
-                  {productOptionValue}
-                </button>
-              ))}
-            </div>
-          ))}
+          {(productOptions || []).map((productOption) => {
+            const productOptionPost = productOptionValueGet?.find(
+              (productOptionPost) => productOptionPost.productOptionId === productOption.id
+            );
+            const parsedValue = productOptionPost?.productOptionValue
+              ? JSON.parse(productOptionPost.productOptionValue)
+              : [];
+            return productOptionPost ? (
+              <div className="mb-3" key={productOption.name}>
+                <h5 className="mb-2 fs-6">{productOption.name}:</h5>
+                {productOptionPost.displayType === 'color' ? (
+                  <div className="d-flex">
+                    {Object.entries(parsedValue).map(([key, value]: any, id: any) => (
+                      <Button
+                        key={key}
+                        className={`color-swatch me-2 py-1 px-2 ${
+                          currentSelectedOption[productOptionPost.productOptionId] === key
+                            ? 'border border-2 border-primary opacity-100'
+                            : 'btn-outline-primary opacity-25'
+                        }`}
+                        style={{
+                          backgroundColor: value,
+                          width: '30px',
+                          height: '30px',
+                          borderRadius: '50%',
+                        }}
+                        onClick={() => handleSelectOption(productOptionPost.productOptionId, key)}
+                        aria-label={`Color option ${value}`}
+                      ></Button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="d-flex gap-2">
+                    {Object.entries(parsedValue).map(([key, value]: any, id: any) => (
+                      <Button
+                        key={key}
+                        className={`${
+                          currentSelectedOption[productOptionPost.productOptionId] === key
+                            ? 'btn btn-primary text-white'
+                            : 'text-dark btn-outline-primary'
+                        }`}
+                        onClick={() => handleSelectOption(productOptionPost.productOptionId, key)}
+                        aria-label={`Color option ${value}`}
+                        variant="outline-secondary"
+                      >
+                        {key}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              productOption.name
+            );
+          })}
+
           <h4 className="fs-3" style={{ color: 'red' }}>
             {formatPrice(currentProduct.price)}
           </h4>

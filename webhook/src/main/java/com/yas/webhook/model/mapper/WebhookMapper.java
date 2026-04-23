@@ -24,19 +24,19 @@ public interface WebhookMapper {
     @Named("toWebhookEventVms")
     default List<EventVm> toWebhookEventVms(List<WebhookEvent> webhookEvents) {
         return CollectionUtils.isEmpty(webhookEvents) ? Collections.emptyList() : webhookEvents.stream().map(
-                webhookEvent -> EventVm.builder()
+            webhookEvent -> EventVm.builder()
                 .id(webhookEvent.getEventId())
                 .build()).toList();
     }
 
     default WebhookListGetVm toWebhookListGetVm(Page<Webhook> webhooks, int pageNo, int pageSize) {
         return WebhookListGetVm.builder()
-                .webhooks(webhooks.stream().map(this::toWebhookVm).toList())
-                .pageNo(pageNo)
-                .pageSize(pageSize)
-                .totalPages(webhooks.getTotalPages())
-                .totalElements(webhooks.getTotalElements())
-                .isLast(webhooks.isLast()).build();
+            .webhooks(webhooks.stream().map(this::toWebhookVm).toList())
+            .pageNo(pageNo)
+            .pageSize(pageSize)
+            .totalPages(webhooks.getTotalPages())
+            .totalElements(webhooks.getTotalElements())
+            .isLast(webhooks.isLast()).build();
     }
 
     @Mapping(target = "id", ignore = true)

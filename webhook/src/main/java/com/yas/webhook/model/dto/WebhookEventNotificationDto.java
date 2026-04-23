@@ -1,6 +1,6 @@
 package com.yas.webhook.model.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,8 +8,8 @@ import lombok.Getter;
 @Builder
 public class WebhookEventNotificationDto {
 
-  private Long notificationId;
-  private String url;
-  private String secret;
-  private JsonNode payload;
+    private Long notificationId;
+    private String url;
+    private String secret;
+    private JsonNode payload;
 }

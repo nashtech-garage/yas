@@ -2,18 +2,19 @@ import {
   COUNTRY_URL,
   INVENTORY_WAREHOUSE_PRODUCTS_URL,
   INVENTORY_WAREHOUSE_STOCKS_URL,
+  MANAGER_PROMOTIONS_URL,
+  SALES_GIFT_CARDS_URL,
+  SALES_ORDERS_URL,
+  SALES_RECURRING_PAYMENTS_URL,
+  SALES_RETURN_REQUESTS_URL,
+  SALES_SHIPMENTS_URL,
+  SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
   STATE_OR_PROVINCE_URL,
+  SYSTEM_PAYMENT_PROVIDERS,
+  SYSTEM_SETTINGS,
   TAX_CLASS_URL,
   TAX_RATE_URL,
   WAREHOUSE_URL,
-  SALES_ORDERS_URL,
-  SALES_SHIPMENTS_URL,
-  SALES_RETURN_REQUESTS_URL,
-  SALES_RECURRING_PAYMENTS_URL,
-  SALES_GIFT_CARDS_URL,
-  SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
-  SYSTEM_PAYMENT_PROVIDERS,
-  SYSTEM_SETTINGS,
   WEBHOOKS_URL,
 } from '@constants/Common';
 
@@ -139,7 +140,7 @@ export const menu_sale_item_data = [
     link: SALES_GIFT_CARDS_URL,
   },
   {
-    id: 5,
+    id: 6,
     name: 'Shopping carts and wishlists',
     link: SALES_SHOPPING_CARTS_AND_WISHLISTS_URL,
   },
@@ -160,5 +161,13 @@ export const menu_system_item_data = [
     id: 3,
     name: 'Webhooks',
     link: WEBHOOKS_URL,
+  },
+];
+
+export const menu_promotion_item_data = [
+  {
+    id: 1,
+    name: 'Manager Promotions',
+    link: MANAGER_PROMOTIONS_URL,
   },
 ];

@@ -131,7 +131,7 @@ const ProductAttributes: NextPage = () => {
         if (productAttributes1.id === parseInt(createProductAttribute.valueOf())) {
           if (id) {
             let productAttributeValuePost: ProductAttributeValuePost = {
-              ProductId: +id,
+              productId: +id,
               productAttributeId: productAttributes1.id,
               value: productAttributes1.value,
             };
@@ -145,7 +145,7 @@ const ProductAttributes: NextPage = () => {
         if (parseInt(list.valueOf()) === productAttributes1.id) {
           if (id) {
             let productAttributeValuePost: ProductAttributeValuePost = {
-              ProductId: 0,
+              productId: 0,
               productAttributeId: 0,
               value: productAttributes1.value,
             };

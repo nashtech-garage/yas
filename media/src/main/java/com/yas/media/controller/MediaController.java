@@ -1,7 +1,7 @@
 package com.yas.media.controller;
 
 import com.yas.media.model.Media;
-import com.yas.media.repository.MediaRepository;
+import com.yas.media.model.dto.MediaDto;
 import com.yas.media.service.MediaService;
 import com.yas.media.viewmodel.ErrorVm;
 import com.yas.media.viewmodel.MediaPostVm;
@@ -13,6 +13,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,19 +27,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
+@RequiredArgsConstructor
 public class MediaController {
     private final MediaService mediaService;
-    private final MediaRepository mediaRepository;
-
-    public MediaController(MediaService mediaService, MediaRepository mediaRepository) {
-        this.mediaService = mediaService;
-        this.mediaRepository = mediaRepository;
-    }
 
     @PostMapping(path = "/medias", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiResponses(value = {
@@ -73,16 +74,26 @@ public class MediaController {
         return ResponseEntity.ok().body(media);
     }
 
-    @Hidden
-    @GetMapping("/medias/{id}/file/{fileName}")
-    public ResponseEntity<byte[]> getFile(@PathVariable Long id, @PathVariable String fileName) {
-        Media media = mediaRepository.findById(id).orElse(null);
-        if (media == null || !fileName.equalsIgnoreCase(media.getFileName())) {
+    @GetMapping("/medias")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Ok",
+            content = @Content(schema = @Schema(implementation = MediaVm.class)))})
+    public ResponseEntity<List<MediaVm>> getByIds(@RequestParam @NotEmpty List<Long> ids) {
+        var medias = mediaService.getMediaByIds(ids);
+        if (medias.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        MediaType mediaType = MediaType.valueOf(media.getMediaType());
+        return ResponseEntity.ok().body(medias);
+    }
+
+    @Hidden
+    @GetMapping("/medias/{id}/file/{fileName}")
+    public ResponseEntity<InputStreamResource> getFile(@PathVariable Long id, @PathVariable String fileName) {
+        MediaDto mediaDto = mediaService.getFile(id, fileName);
+
         return ResponseEntity.ok()
-            .contentType(mediaType)
-            .body(media.getData());
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+            .contentType(mediaDto.getMediaType())
+            .body(new InputStreamResource(mediaDto.getContent()));
     }
 }

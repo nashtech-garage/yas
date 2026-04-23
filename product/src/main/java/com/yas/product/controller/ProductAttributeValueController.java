@@ -1,7 +1,7 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Product;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeValue;
@@ -81,7 +81,7 @@ public class ProductAttributeValueController {
             .findById(id)
             .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.PRODUCT_ATTRIBUTE_VALUE_IS_NOT_FOUND, id));
         productAttributeValue.setValue(productAttributeValuePostVm.value());
-        productAttributeValueRepository.saveAndFlush(productAttributeValue);
+        productAttributeValueRepository.save(productAttributeValue);
         return ResponseEntity.noContent().build();
     }
 
@@ -112,7 +112,7 @@ public class ProductAttributeValueController {
         }
         productAttributeValue.setValue(productAttributeValuePostVm.value());
         ProductAttributeValue savedProductAttributeValue
-            = productAttributeValueRepository.saveAndFlush(productAttributeValue);
+            = productAttributeValueRepository.save(productAttributeValue);
         ProductAttributeValueGetVm productAttributeValueGetVm
             = ProductAttributeValueGetVm.fromModel(savedProductAttributeValue);
         return ResponseEntity.created(uriComponentsBuilder.replacePath("/product-attribute-value/{id}")

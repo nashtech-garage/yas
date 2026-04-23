@@ -1,10 +1,10 @@
 package com.yas.inventory.service;
 
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.StockExistingException;
 import com.yas.inventory.constants.ApiConstant;
 import com.yas.inventory.constants.MessageCode;
-import com.yas.inventory.exception.BadRequestException;
-import com.yas.inventory.exception.NotFoundException;
-import com.yas.inventory.exception.StockExistingException;
 import com.yas.inventory.model.Stock;
 import com.yas.inventory.model.Warehouse;
 import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
@@ -133,7 +133,7 @@ public class StockService {
 
             stock.setQuantity(stock.getQuantity() + adjustedQuantity);
         }
-        stockRepository.saveAllAndFlush(stocks);
+        stockRepository.saveAll(stocks);
         stockHistoryService.createStockHistories(stocks, stockQuantityVms);
 
         //Update stock quantity for product

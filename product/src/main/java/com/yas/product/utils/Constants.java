@@ -19,7 +19,6 @@ public final class Constants {
         public static final String THIS_PROD_ATTRI_NOT_EXIST_IN_ANY_PROD_ATTRI
                 = "THIS_PROD_ATTRI_NOT_EXIST_IN_ANY_PROD_ATTRI";
         public static final String PRODUCT_ATTRIBUTE_IS_NOT_FOUND = "PRODUCT_ATTRIBUTE_IS_NOT_FOUND";
-        public static final String PRODUCT_OPTION_IS_NOT_FOUND = "PRODUCT_OPTION_IS_NOT_FOUND";
         public static final String SLUG_IS_DUPLICATED = "SLUG_IS_DUPLICATED";
         public static final String PRODUCT_TEMPlATE_IS_NOT_FOUND = "PRODUCT_TEMPLATE_IS_NOT_FOUND";
 
@@ -32,5 +31,9 @@ public final class Constants {
         public static final String SLUG_ALREADY_EXISTED_OR_DUPLICATED = "SLUG_ALREADY_EXISTED_OR_DUPLICATED";
         public static final String SKU_ALREADY_EXISTED_OR_DUPLICATED = "SKU_ALREADY_EXISTED_OR_DUPLICATED";
         public static final String GTIN_ALREADY_EXISTED_OR_DUPLICATED = "GTIN_ALREADY_EXISTED_OR_DUPLICATED";
+        public static final String PRODUCT_OPTION_VALUE_IS_NOT_FOUND = "PRODUCT_OPTION_VALUE_IS_NOT_FOUND";
+        public static final String PRODUCT_COMBINATION_PROCESSING_FAILED = "PRODUCT_COMBINATION_PROCESSING_FAILED";
+        public static final String NO_MATCHING_PRODUCT_OPTIONS = "NO_MATCHING_PRODUCT_OPTIONS";
+        public static final String MAKE_SURE_LENGTH_GREATER_THAN_WIDTH = "MAKE_SURE_LENGTH_GREATER_THAN_WIDTH";
     }
 }

@@ -1,12 +1,14 @@
 import { Address } from '@/modules/address/models/AddressModel';
 
 type Props = {
-  address: Address;
+  address: Address | undefined;
   isDisplay: boolean;
 };
 
 const CheckOutAddress = ({ address, isDisplay }: Props) => {
-  const addressString = `${address?.addressLine1!}, ${address?.districtName!}, ${address?.city!}, ${address?.countryName!}`;
+  const addressString = address
+    ? `${address.addressLine1}, ${address.districtName}, ${address.city}, ${address.countryName}`
+    : 'Please choose address';
 
   return (
     <div className={`address ${isDisplay ? `` : `d-none`}`}>
@@ -20,7 +22,7 @@ const CheckOutAddress = ({ address, isDisplay }: Props) => {
               <input
                 type="text"
                 className={`form-control`}
-                value={address?.contactName}
+                value={address?.contactName ?? ''}
                 disabled={true}
               />
             </div>
@@ -35,7 +37,7 @@ const CheckOutAddress = ({ address, isDisplay }: Props) => {
               <input
                 type="text"
                 className={`form-control`}
-                value={address?.phone}
+                value={address?.phone ?? ''}
                 disabled={true}
               />
             </div>
@@ -47,12 +49,7 @@ const CheckOutAddress = ({ address, isDisplay }: Props) => {
           <label className="form-label" htmlFor="firstName">
             Address <span className="text-danger">*</span>
           </label>
-          <input
-            type="text"
-            className={`form-control`}
-            value={addressString ?? 'Please choose address'}
-            disabled={true}
-          />
+          <input type="text" className={`form-control`} value={addressString} disabled={true} />
         </div>
       </div>
     </div>

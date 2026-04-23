@@ -50,6 +50,8 @@ const CategoryImage = ({ id, image, setValue }: CategoryImageProps) => {
 
   const onDeleteImage = () => {
     setImageURL(null);
+    setValue('categoryImage', undefined);
+    setValue('imageId', undefined);
   };
 
   return (

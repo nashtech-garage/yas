@@ -1,7 +1,7 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.ProductOption;
 import com.yas.product.repository.ProductOptionRepository;
 import com.yas.product.utils.Constants;
@@ -51,7 +51,7 @@ public class ProductOptionService {
         ProductOption productOption = new ProductOption();
         productOption.setName(productOptionPostVm.name());
 
-        return productOptionRepository.saveAndFlush(productOption);
+        return productOptionRepository.save(productOption);
     }
 
     private boolean checkExistedName(String name, Long id) {
@@ -69,6 +69,6 @@ public class ProductOptionService {
         }
         productOption.setName(productOptionPostVm.name());
 
-        return productOptionRepository.saveAndFlush(productOption);
+        return productOptionRepository.save(productOption);
     }
 }

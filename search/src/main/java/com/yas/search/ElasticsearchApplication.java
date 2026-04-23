@@ -6,9 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-
 @EnableConfigurationProperties(ServiceUrlConfig.class)
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.yas.search", "com.yas.commonlibrary"})
 @Configuration
 public class ElasticsearchApplication {
 

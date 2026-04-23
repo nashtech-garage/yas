@@ -1,6 +1,6 @@
 package com.yas.location.service;
 
-import com.yas.location.exception.NotFoundException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.location.model.Address;
 import com.yas.location.model.Country;
 import com.yas.location.repository.AddressRepository;
@@ -50,7 +50,7 @@ public class AddressService {
         stateOrProvinceRepository.findById(dto.stateOrProvinceId()).ifPresent(address::setStateOrProvince);
         countryRepository.findById(dto.countryId()).ifPresent(address::setCountry);
         districtRepository.findById(dto.districtId()).ifPresent(address::setDistrict);
-        addressRepository.saveAndFlush(address);
+        addressRepository.save(address);
     }
 
     public List<AddressDetailVm> getAddressList(List<Long> ids) {

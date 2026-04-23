@@ -1,6 +1,6 @@
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Container, Table } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -8,12 +8,13 @@ import Tabs from 'react-bootstrap/Tabs';
 import BreadcrumbComponent from '../../common/components/BreadcrumbComponent';
 
 import { BreadcrumbModel } from '../../modules/breadcrumb/model/BreadcrumbModel';
-import { ProductDetails, RelatedProduct } from '../../modules/catalog/components';
+import { ProductDetails, RelatedProduct, SimilarProducts } from '../../modules/catalog/components';
 import { ProductDetail } from '../../modules/catalog/models/ProductDetail';
 import { ProductOptions } from '../../modules/catalog/models/ProductOptions';
 import { ProductVariation } from '../../modules/catalog/models/ProductVariation';
 import {
   getProductDetail,
+  getProductOptionValueByProductId,
   getProductOptionValues,
   getProductVariationsByParentId,
 } from '../../modules/catalog/services/ProductService';
@@ -26,12 +27,29 @@ import {
   getAverageStarByProductId,
   getRatingsByProductId,
 } from '../../modules/rating/services/RatingService';
+import { ProductOptionValueDisplay } from '@/modules/catalog/models/ProductOptionValueGet';
 
 type Props = {
   product: ProductDetail;
   productOptions?: ProductOptions[];
   productVariations?: ProductVariation[];
   pvid: string | null;
+};
+
+// Function to fetch and sort product variations
+const fetchAndSortProductVariations = async (productId: number): Promise<ProductVariation[]> => {
+  try {
+    let productVariations = await getProductVariationsByParentId(productId);
+    if (productVariations && productVariations.length > 0) {
+      productVariations = productVariations.sort((a, b) => {
+        return Object.keys(a.options).length - Object.keys(b.options).length;
+      });
+    }
+    return productVariations;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 };
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -49,18 +67,19 @@ export const getServerSideProps: GetServerSideProps = async (
   if (product.hasOptions) {
     // fetch product options
     try {
-      const productOptionValue = await getProductOptionValues(product.id);
+      const productOptionValues = await getProductOptionValues(product.id);
 
-      for (const option of productOptionValue) {
+      for (const optionValue of productOptionValues) {
         const index = productOptions.findIndex(
-          (productOption) => productOption.name === option.productOptionName
+          (productOption) => productOption.name === optionValue.productOptionName
         );
         if (index > -1) {
-          productOptions.at(index)?.value.push(option.productOptionValue);
+          productOptions.at(index)?.value.push(optionValue.productOptionValue);
         } else {
           const newProductOption: ProductOptions = {
-            name: option.productOptionName,
-            value: [option.productOptionValue],
+            id: optionValue.productOptionId,
+            name: optionValue.productOptionName,
+            value: [optionValue.productOptionValue],
           };
 
           productOptions.push(newProductOption);
@@ -71,11 +90,7 @@ export const getServerSideProps: GetServerSideProps = async (
     }
 
     // fetch product variations
-    try {
-      productVariations = await getProductVariationsByParentId(product.id);
-    } catch (error) {
-      console.error(error);
-    }
+    productVariations = await fetchAndSortProductVariations(product.id);
   }
 
   return {
@@ -100,11 +115,18 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
   const [isPost, setIsPost] = useState<boolean>(false);
 
   const [averageStar, setAverageStar] = useState<number>(0);
+  const [productOptionValueGet, setProductOptionValueGet] = useState<ProductOptionValueDisplay[]>(
+    []
+  );
 
   useEffect(() => {
-    getAverageStarByProductId(product.id).then((res) => {
-      setAverageStar(res);
-    });
+    getAverageStarByProductId(product.id)
+      .then((res) => {
+        setAverageStar(res);
+      })
+      .catch((error) => {
+        console.error('Error fetching average star:', error);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -113,6 +135,9 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
       setRatingList(res.ratingList);
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);
+    });
+    getProductOptionValueByProductId(product.id).then((res) => {
+      setProductOptionValueGet(res);
     });
   }, [pageNo, pageSize, product.id, isPost]);
 
@@ -181,6 +206,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
         product={product}
         productOptions={productOptions}
         productVariations={productVariations}
+        productOptionValueGet={productOptionValueGet}
         pvid={pvid}
         averageStar={averageStar}
         totalRating={totalElements}
@@ -190,7 +216,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
       <div className="container" style={{ marginTop: '70px' }}>
         <Table>
           {product.productAttributeGroups.map((attributeGroup) => (
-            <>
+            <Fragment key={attributeGroup.name}>
               <thead key={attributeGroup.name}>
                 <tr className="product_detail_tr">
                   <th className="product_detail_th">{attributeGroup.name} :</th>
@@ -206,7 +232,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
                   </tr>
                 ))}
               </tbody>
-            </>
+            </Fragment>
           ))}
         </Table>
       </div>
@@ -247,6 +273,7 @@ const ProductDetailsPage = ({ product, productOptions, productVariations, pvid }
 
       {/* Related products */}
       <RelatedProduct productId={product.id} />
+      <SimilarProducts productId={product.id} />
     </Container>
   );
 };

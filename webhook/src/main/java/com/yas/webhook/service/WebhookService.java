@@ -1,7 +1,7 @@
 package com.yas.webhook.service;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.webhook.config.constants.MessageCode;
-import com.yas.webhook.config.exception.NotFoundException;
 import com.yas.webhook.integration.api.WebhookApi;
 import com.yas.webhook.model.Webhook;
 import com.yas.webhook.model.WebhookEvent;
@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 @Service
@@ -51,7 +52,7 @@ public class WebhookService {
 
     public WebhookDetailVm findById(Long id) {
         return webhookMapper.toWebhookDetailVm(webhookRepository.findById(id).orElseThrow(
-                () -> new NotFoundException(MessageCode.WEBHOOK_NOT_FOUND, id)));
+            () -> new NotFoundException(MessageCode.WEBHOOK_NOT_FOUND, id)));
     }
 
     public WebhookDetailVm create(WebhookPostVm webhookPostVm) {
@@ -59,7 +60,7 @@ public class WebhookService {
         createdWebhook = webhookRepository.save(createdWebhook);
         if (!CollectionUtils.isEmpty(webhookPostVm.getEvents())) {
             List<WebhookEvent> webhookEvents
-                    = initializeWebhookEvents(createdWebhook.getId(), webhookPostVm.getEvents());
+                = initializeWebhookEvents(createdWebhook.getId(), webhookPostVm.getEvents());
             webhookEvents = webhookEventRepository.saveAll(webhookEvents);
             createdWebhook.setWebhookEvents(webhookEvents);
         }
@@ -68,7 +69,7 @@ public class WebhookService {
 
     public void update(WebhookPostVm webhookPostVm, Long id) {
         Webhook existedWebHook = webhookRepository.findById(id).orElseThrow(
-                () -> new NotFoundException(MessageCode.WEBHOOK_NOT_FOUND, id));
+            () -> new NotFoundException(MessageCode.WEBHOOK_NOT_FOUND, id));
         Webhook updatedWebhook = webhookMapper.toUpdatedWebhook(existedWebHook, webhookPostVm);
         webhookRepository.save(updatedWebhook);
         webhookEventRepository.deleteAll(existedWebHook.getWebhookEvents().stream().toList());
@@ -78,6 +79,7 @@ public class WebhookService {
         }
     }
 
+    @Transactional
     public void delete(Long id) {
         if (!webhookRepository.existsById(id)) {
             throw new NotFoundException(MessageCode.WEBHOOK_NOT_FOUND, id);
@@ -91,7 +93,7 @@ public class WebhookService {
 
         webHookApi.notify(notificationDto.getUrl(), notificationDto.getSecret(), notificationDto.getPayload());
         WebhookEventNotification notification = webhookEventNotificationRepository.findById(
-            notificationDto.getNotificationId())
+                notificationDto.getNotificationId())
             .orElseThrow();
         notification.setNotificationStatus(NotificationStatus.NOTIFIED);
         webhookEventNotificationRepository.save(notification);
@@ -103,7 +105,7 @@ public class WebhookService {
             webhookEvent.setWebhookId(webhookId);
             long eventId = hookEventVm.getId();
             eventRepository.findById(eventId)
-                    .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, eventId));
+                .orElseThrow(() -> new NotFoundException(MessageCode.EVENT_NOT_FOUND, eventId));
             webhookEvent.setEventId(eventId);
             return webhookEvent;
         }).toList();

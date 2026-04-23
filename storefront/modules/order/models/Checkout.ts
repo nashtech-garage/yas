@@ -5,5 +5,7 @@ export type Checkout = {
   email: string;
   note?: string;
   couponCode?: string;
+  totalAmount: number;
+  totalDiscountAmount: number;
   checkoutItemPostVms: CheckoutItem[];
 };

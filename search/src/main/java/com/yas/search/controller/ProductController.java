@@ -1,6 +1,7 @@
 package com.yas.search.controller;
 
 import com.yas.search.constant.enums.SortType;
+import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.service.ProductService;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameListVm;
@@ -29,7 +30,8 @@ public class ProductController {
                                                                @RequestParam(defaultValue = "DEFAULT")
                                                                SortType sortType) {
         return ResponseEntity.ok(productService.findProductAdvance(
-                keyword, page, size, brand, category, attribute, minPrice, maxPrice, sortType));
+            new ProductCriteriaDto(keyword, page, size, brand, category, attribute, minPrice, maxPrice, sortType)
+        ));
     }
 
     @GetMapping("/storefront/search_suggest")

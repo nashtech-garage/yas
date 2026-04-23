@@ -4,7 +4,7 @@ package com.yas.cart.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.yas.cart.config.ServiceUrlConfig;
+import com.yas.commonlibrary.config.ServiceUrlConfig;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
 import java.net.URI;
 import java.util.List;
@@ -42,7 +42,7 @@ class ProductServiceTest {
 
         List<Long> ids = List.of(1L, 2L, 3L);
         URI url = UriComponentsBuilder
-            .fromHttpUrl("http://api.yas.local/media")
+            .fromUriString("http://api.yas.local/media")
             .path("/storefront/products/list-featured")
             .queryParam("productId", ids)
             .build()
@@ -52,7 +52,8 @@ class ProductServiceTest {
         when(restClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri(url)).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductThumbnailVm>>() {}))
+        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductThumbnailVm>>() {
+        }))
             .thenReturn(ResponseEntity.ok(getProductThumbnailVms()));
 
         List<ProductThumbnailVm> result = productService.getProducts(ids);

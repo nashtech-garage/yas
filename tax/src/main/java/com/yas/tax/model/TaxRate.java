@@ -8,6 +8,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
+import com.yas.commonlibrary.model.AbstractAuditEntity;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,7 +37,7 @@ public class TaxRate extends AbstractAuditEntity {
     @Column(length = 25)
     private String zipCode;
 
-    @Column(nullable = false)
+    @Column
     private Long stateOrProvinceId;
 
     @Column(nullable = false)

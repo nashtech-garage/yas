@@ -25,12 +25,12 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleAddressDetailListFallback")
     public List<AddressDetailVm> getAddressesByIdList(List<Long> ids) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.location())
+            .fromUriString(serviceUrlConfig.location())
             .path("/storefront/addresses")
             .queryParam("ids", ids)
             .buildAndExpand()
@@ -45,12 +45,12 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleAddressDetailFallback")
     public AddressDetailVm getAddressById(Long id) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.location())
+            .fromUriString(serviceUrlConfig.location())
             .path("/storefront/addresses/{id}")
             .buildAndExpand(id)
             .toUri();
@@ -63,12 +63,12 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
     }
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleAddressFallback")
     public AddressVm createAddress(AddressPostVm addressPostVm) {
         final String jwt =
             ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
         final URI url = UriComponentsBuilder
-            .fromHttpUrl(serviceUrlConfig.location())
+            .fromUriString(serviceUrlConfig.location())
             .path("/storefront/addresses")
             .buildAndExpand()
             .toUri();
@@ -79,5 +79,17 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             .body(addressPostVm)
             .retrieve()
             .body(AddressVm.class);
+    }
+
+    private List<AddressDetailVm> handleAddressDetailListFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
+    }
+
+    private AddressDetailVm handleAddressDetailFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
+    }
+
+    private AddressVm handleAddressFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
     }
 }

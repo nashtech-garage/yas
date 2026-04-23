@@ -1,12 +1,14 @@
 package com.yas.order.viewmodel.order;
 
 import com.yas.order.model.Order;
+import com.yas.order.model.OrderItem;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.enumeration.DeliveryStatus;
 import com.yas.order.model.enumeration.OrderStatus;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
 
 public record OrderGetVm(
         Long id,
@@ -18,14 +20,14 @@ public record OrderGetVm(
 
         ZonedDateTime createdOn
 ) {
-    public static OrderGetVm fromModel(Order order) {
+    public static OrderGetVm fromModel(Order order, Set<OrderItem> orderItems) {
         return new OrderGetVm(
                 order.getId(),
                 order.getOrderStatus(),
                 order.getTotalPrice(),
                 order.getDeliveryStatus(),
                 order.getDeliveryMethod(),
-                OrderItemGetVm.fromModels(order.getOrderItems()),
+                OrderItemGetVm.fromModels(orderItems),
                 order.getCreatedOn());
     }
 }

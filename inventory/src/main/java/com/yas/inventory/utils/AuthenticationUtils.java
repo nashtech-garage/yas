@@ -1,7 +1,7 @@
 package com.yas.inventory.utils;
 
+import com.yas.commonlibrary.exception.AccessDeniedException;
 import com.yas.inventory.constants.ApiConstant;
-import com.yas.inventory.exception.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

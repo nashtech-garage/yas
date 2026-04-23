@@ -22,6 +22,28 @@ data:
   gateway-routes-config.yaml: |
     {{- toYaml .Values.gatewayRoutesConfig | nindent 4 }}
 ---
+#Configmap for backoffice-bff extra
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backoffice-bff-extra-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  backoffice-bff-extra-config.yaml: |
+    {{- toYaml .Values.backofficeBffExtraConfig | nindent 4 }}
+---
+#Configmap for storefront-bff extra
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-bff-extra-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  storefront-bff-extra-config.yaml: |
+    {{- toYaml .Values.storefrontBffExtraConfig | nindent 4 }}
+---
 # Configmap for media application config custom
 apiVersion: v1
 kind: ConfigMap
@@ -109,3 +131,27 @@ metadata:
 data:
   product-application.yaml: |
     {{ toYaml .Values.productApplicationConfig | nindent 4 }}
+
+---
+# Configmap of recommendation application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recommendation-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  recommendation-application.yaml: |
+    {{ toYaml .Values.recommendationApplicationConfig | nindent 4 }}
+
+---
+# Configmap of sampledata application config custom
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sampledata-application-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  sampledata-application.yaml: |
+    {{ toYaml .Values.sampledataApplicationConfig | nindent 4 }}

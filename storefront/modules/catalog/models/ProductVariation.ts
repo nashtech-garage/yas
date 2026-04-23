@@ -10,6 +10,6 @@ export type ProductVariation = {
   thumbnail: Media;
   productImages: Media[];
   options: {
-    [key: string]: string;
+    [key: number]: string;
   };
 };

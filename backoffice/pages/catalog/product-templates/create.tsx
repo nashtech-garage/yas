@@ -42,17 +42,17 @@ const ProductTemplateCreate = () => {
     if (attName === '0') {
       toast.info('No attribute has been selected yet');
     } else {
-      let attributes = getValues('ProductAttributeTemplates') || [];
+      let attributes = getValues('productAttributeTemplates') || [];
       if (selectedAttributes.indexOf(attName) === -1) {
         setSelectedAttributes([...selectedAttributes, attName]);
         let attribute = productAttributes.find((attribute) => attribute.name === attName);
         if (attribute) {
           let newAttr: ProductAttributeOfTemplate = {
-            ProductAttributeId: attribute.id,
+            productAttributeId: attribute.id,
             displayOrder: 0,
           };
           attributes.push(newAttr);
-          setValue('ProductAttributeTemplates', attributes);
+          setValue('productAttributeTemplates', attributes);
         }
       } else {
         toast.info(`${attName} is selected`);
@@ -61,18 +61,18 @@ const ProductTemplateCreate = () => {
   };
   const onDeleteSelectedAttribute = (event: React.MouseEvent<HTMLElement>, attName: string) => {
     event.preventDefault();
-    let attributes = getValues('ProductAttributeTemplates') || [];
+    let attributes = getValues('productAttributeTemplates') || [];
     const attribute = productAttributes.find((attribute) => attribute.name === attName);
     let filter = selectedAttributes.filter((item) => item !== attName);
-    let attFilter = attributes.filter((_att) => _att.ProductAttributeId !== attribute?.id);
+    let attFilter = attributes.filter((_att) => _att.productAttributeId !== attribute?.id);
     setSelectedAttributes(filter);
-    setValue('ProductAttributeTemplates', attFilter);
+    setValue('productAttributeTemplates', attFilter);
   };
   const handleSubmitProductTemplate = async (event: FromProductTemplate) => {
     setValue('name', event.name);
     let fromProductTemplate: FromProductTemplate = {
       name: event.name,
-      ProductAttributeTemplates: getValues('ProductAttributeTemplates'),
+      productAttributeTemplates: getValues('productAttributeTemplates') || [],
     };
     let response = await createProductTemplate(fromProductTemplate);
 

@@ -4,9 +4,11 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import com.yas.search.constant.documentations.ProductField;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import com.yas.search.constant.ProductField;
 import com.yas.search.constant.enums.SortType;
-import com.yas.search.document.Product;
+import com.yas.search.model.Product;
+import com.yas.search.model.ProductCriteriaDto;
 import com.yas.search.viewmodel.ProductGetVm;
 import com.yas.search.viewmodel.ProductListGetVm;
 import com.yas.search.viewmodel.ProductNameGetVm;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.elasticsearch.common.unit.Fuzziness;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
@@ -32,20 +34,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductService {
     private final ElasticsearchOperations elasticsearchOperations;
+    private static final String FUZZINESS_ONE = "1";
 
     public ProductService(ElasticsearchOperations elasticsearchOperations) {
         this.elasticsearchOperations = elasticsearchOperations;
     }
 
-    public ProductListGetVm findProductAdvance(String keyword,
-                                               Integer page,
-                                               Integer size,
-                                               String brand,
-                                               String category,
-                                               String attribute,
-                                               Double minPrice,
-                                               Double maxPrice,
-                                               SortType sortType) {
+    public ProductListGetVm findProductAdvance(ProductCriteriaDto productCriteria) {
         NativeQueryBuilder nativeQuery = NativeQuery.builder()
                 .withAggregation("categories", Aggregation.of(a -> a
                         .terms(ta -> ta.field(ProductField.CATEGORIES))))
@@ -57,29 +52,30 @@ public class ProductService {
                         .bool(b -> b
                                 .should(s -> s
                                         .multiMatch(m -> m
-                                                .fields(ProductField.NAME, ProductField.BRAND)
-                                                .query(keyword)
-                                                .fuzziness(Fuzziness.ONE.asString())
+                                                .fields(ProductField.NAME, ProductField.BRAND, ProductField.CATEGORIES)
+                                                .query(productCriteria.keyword())
+                                                .fuzziness(FUZZINESS_ONE)
                                         )
                                 )
                         )
                 )
-                .withPageable(PageRequest.of(page, size));
+                .withPageable(PageRequest.of(productCriteria.page(), productCriteria.size()));
 
 
         nativeQuery.withFilter(f -> f
                 .bool(b -> {
-                    extractedStr(brand, ProductField.BRAND, b);
-                    extractedStr(category, ProductField.CATEGORIES, b);
-                    extractedStr(attribute, ProductField.ATTRIBUTES, b);
-                    extractedRange(minPrice, maxPrice, ProductField.PRICE, b);
+                    extractedTermsFilter(productCriteria.brand(), ProductField.BRAND, b);
+                    extractedTermsFilter(productCriteria.category(), ProductField.CATEGORIES, b);
+                    extractedTermsFilter(productCriteria.attribute(), ProductField.ATTRIBUTES, b);
+                    extractedRange(productCriteria.minPrice(), productCriteria.maxPrice(), b);
+                    b.must(m -> m.term(t -> t.field(ProductField.IS_PUBLISHED).value(true)));
                     return b;
                 })
         );
 
-        if (sortType == SortType.PRICE_ASC) {
+        if (productCriteria.sortType() == SortType.PRICE_ASC) {
             nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.PRICE));
-        } else if (sortType == SortType.PRICE_DESC) {
+        } else if (productCriteria.sortType() == SortType.PRICE_DESC) {
             nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
         } else {
             nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.CREATE_ON));
@@ -101,30 +97,35 @@ public class ProductService {
                 getAggregations(searchHitsResult));
     }
 
-    private void extractedStr(String strField, String productField, BoolQuery.Builder b) {
-        if (strField != null && !strField.isBlank()) {
-            String[] strFields = strField.split(",");
-            for (String str : strFields) {
-                b.should(s -> s
-                        .term(t -> t
-                                .field(productField)
-                                .value(str)
-                                .caseInsensitive(true)
-                        )
+    private void extractedTermsFilter(String fieldValues, String productField, BoolQuery.Builder b) {
+        if (StringUtils.isBlank(fieldValues)) {
+            return;
+        }
+        String[] valuesArray = fieldValues.split(",");
+        b.must(m -> {
+            BoolQuery.Builder innerBool = new BoolQuery.Builder();
+            for (String value : valuesArray) {
+                innerBool.should(s -> s
+                    .term(t -> t
+                        .field(productField)
+                        .value(value)
+                        .caseInsensitive(true)
+                    )
                 );
             }
-        }
+            return new Query.Builder().bool(innerBool.build());
+        });
     }
 
-    private void extractedRange(Number min, Number max, String productField, BoolQuery.Builder b) {
+    private void extractedRange(Number min, Number max, BoolQuery.Builder bool) {
         if (min != null || max != null) {
-            b.must(m -> m
-                    .range(r -> r
-                            .field(productField)
-                            .from(min != null ? min.toString() : null)
-                            .to(max != null ? max.toString() : null)
+            bool.must(m -> m.range(r -> r
+                    .number(n -> n
+                        .field(ProductField.PRICE)
+                        .gte(min != null ? min.doubleValue() : null)
+                        .lte(max != null ? max.doubleValue() : null)
                     )
-            );
+            ));
         }
     }
 
@@ -156,6 +157,7 @@ public class ProductService {
                         )
                 )
                 .withSourceFilter(new FetchSourceFilter(
+                        true,
                         new String[]{"name"},
                         null)
                 )

@@ -10,4 +10,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductOptionValueRepository extends JpaRepository<ProductOptionValue, Long> {
     List<ProductOptionValue> findAllByProduct(Product product);
+
+    void deleteByProductIdAndValue(Long productId, String value);
+    
+    void deleteAllByProductId(Long productId);
+
 }

@@ -312,3 +312,11 @@ a {
 .btn-create-address:hover {
   color: #0070f3;
 }
+
+.coupon-code-apply {
+  border-radius: 10px;
+  padding: 9px;
+  background-color: #0070f3;
+  color: #fff;
+  cursor: pointer;
+}

@@ -23,6 +23,7 @@ export const ADD_PRODUCT_INTO_WAREHOUSE_SUCCESSFULLY = 'Add product(s) into ware
 export const TOAST_DURATION = 4000;
 export const CATEGORIES_URL = '/catalog/categories';
 export const BRAND_URL = '/catalog/brands';
+export const CUSTOMER_URL = '/customers';
 export const PRODUCT_ATTRIBUTE_GROUPS_URL = '/catalog/product-attribute-groups';
 export const PRODUCT_OPTIONS_URL = '/catalog/product-options';
 export const PRODUCT_ATTRIBUTE_URL = '/catalog/product-attributes';
@@ -42,6 +43,7 @@ export const SALES_RETURN_REQUESTS_URL = '/sales/return-requests';
 export const SALES_RECURRING_PAYMENTS_URL = '/sales/recurring-payments';
 export const SALES_GIFT_CARDS_URL = '/sales/gift-cards';
 export const SALES_SHOPPING_CARTS_AND_WISHLISTS_URL = '/sales/shopping-carts-and-wishlists';
+export const MANAGER_PROMOTIONS_URL = '/promotion/manager-promotion';
 
 export const SYSTEM_PAYMENT_PROVIDERS = '/system/payment-providers';
 export const SYSTEM_SETTINGS = '/system/settings';

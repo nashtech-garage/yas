@@ -1,6 +1,6 @@
 package com.yas.product.model.attribute;
 
-import com.yas.product.model.AbstractAuditEntity;
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -7,6 +7,7 @@ import com.yas.rating.viewmodel.RatingVm;
 import com.yas.rating.viewmodel.ResponeStatusVm;
 import jakarta.validation.Valid;
 import java.time.ZonedDateTime;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RatingController {
+
     private final RatingService ratingService;
 
     public RatingController(RatingService ratingService) {
@@ -30,15 +32,24 @@ public class RatingController {
             @RequestParam(value = "productName", defaultValue = "", required = false) String productName,
             @RequestParam(value = "customerName", defaultValue = "", required = false) String cusName,
             @RequestParam(value = "message", defaultValue = "", required = false) String message,
-            @RequestParam(value = "createdFrom", defaultValue = "#{new java.util.Date(1970-01-01)}", required = false)
+            @RequestParam(value = "createdFrom", defaultValue = "1970-01-01T00:00:00.000Z", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdFrom,
-            @RequestParam(value = "createdTo", defaultValue = "#{new java.util.Date()}", required = false)
+            @RequestParam(
+                    value = "createdTo",
+                    defaultValue = "#{T(java.time.ZonedDateTime).now().toString()}",
+                    required = false
+            )
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime createdTo,
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "5", required = false) int pageSize) {
         return ResponseEntity.ok(ratingService.getRatingListWithFilter(productName, cusName,
                 message, createdFrom, createdTo,
                 pageNo, pageSize));
+    }
+
+    @GetMapping("/backoffice/ratings/latest/{count}")
+    public ResponseEntity<List<RatingVm>> getLatestRatings(@PathVariable int count) {
+        return ResponseEntity.ok(ratingService.getLatestRatings(count));
     }
 
     @DeleteMapping("/backoffice/ratings/{id}")

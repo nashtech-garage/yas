@@ -1,7 +1,7 @@
 package com.yas.product.model.attribute;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.yas.product.model.AbstractAuditEntity;
+import com.yas.commonlibrary.model.AbstractAuditEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

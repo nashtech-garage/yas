@@ -27,7 +27,6 @@ public class Event {
     private Long id;
     @Enumerated(EnumType.STRING)
     private EventName name;
-    private String description;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event")
     private List<WebhookEvent> webhookEvents;

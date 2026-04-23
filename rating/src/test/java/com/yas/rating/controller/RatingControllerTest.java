@@ -1,49 +1,51 @@
 package com.yas.rating.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.yas.rating.RatingApplication;
-import com.yas.rating.exception.NotFoundException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.rating.service.RatingService;
 import com.yas.rating.utils.Constants;
 import com.yas.rating.viewmodel.RatingListVm;
 import com.yas.rating.viewmodel.RatingPostVm;
 import com.yas.rating.viewmodel.RatingVm;
 import com.yas.rating.viewmodel.ResponeStatusVm;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = RatingController.class)
-@ContextConfiguration(classes = RatingApplication.class)
+@WebMvcTest(controllers = RatingController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @AutoConfigureMockMvc(addFilters = false)
 class RatingControllerTest {
 
-    @MockBean
+    @MockitoBean
     private RatingService ratingService;
 
     @Autowired
@@ -117,7 +119,7 @@ class RatingControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.statusCode", Matchers.is("404 NOT_FOUND")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("NotFound")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("Not Found")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.detail", Matchers.is("RATING 1 is not found")));
 
         verify(ratingService, times(1)).deleteRating(anyLong());
@@ -137,7 +139,7 @@ class RatingControllerTest {
     }
 
     @Test
-    void TestCreateRating_WhenValid_ShouldSuccess() throws Exception {
+    void testCreateRating_WhenValid_ShouldSuccess() throws Exception {
         RatingPostVm vm = new RatingPostVm("rating1", 5, 1L, "product1");
 
         when(ratingService.createRating(any(RatingPostVm.class))).thenReturn(ratingVm);
@@ -151,13 +153,24 @@ class RatingControllerTest {
     }
 
     @Test
-    void TestGetAverageStarOfProduct_ShouldReturnSuccess() throws Exception {
+    void testGetAverageStarOfProduct_ShouldReturnSuccess() throws Exception {
         when(ratingService.calculateAverageStar(anyLong())).thenReturn(0.0D);
         this.mockMvc.perform(get("/storefront/ratings/product/{productId}/average-star", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().string("0.0"));
+    }
+
+    @Test
+    void testGetLatestRatings_WhenDataIsExisted_returnListRatingVm() throws Exception {
+
+        when(ratingService.getLatestRatings(1))
+            .thenReturn(List.of());
+
+        this.mockMvc.perform(get("/backoffice/ratings/latest/1")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andExpect(status().isOk());
     }
 
 }

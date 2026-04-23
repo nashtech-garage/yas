@@ -13,6 +13,11 @@ export type FormProduct = {
   specification?: string;
   sku?: string;
   gtin?: string;
+  weight?: number;
+  dimensionUnit?: string;
+  length?: number;
+  width?: number;
+  height?: number;
   price?: number;
   isAllowedToOrder?: boolean;
   isPublished?: boolean;
@@ -29,6 +34,6 @@ export type FormProduct = {
   crossSell?: number[]; // product id
   productAttributes?: ProductAttributeValue[];
   productVariations?: ProductVariation[];
-  productOptions?: ProductOptionValuePost[];
+  productOptionValuePost?: ProductOptionValuePost[];
   taxClassId?: number;
 };

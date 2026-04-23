@@ -7,9 +7,7 @@ backend:
   fullnameOverride: product
   databaseName: product
   ingress:
-    enabled: true
-    host: api.yas.local.com
-    path: /product
+    enabled: false
   extraVolumes:
     - name: product-application-config
       configMap:

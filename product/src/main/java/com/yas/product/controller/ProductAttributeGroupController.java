@@ -1,7 +1,7 @@
 package com.yas.product.controller;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.constants.PageableConstant;
-import com.yas.product.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
 import com.yas.product.service.ProductAttributeGroupService;

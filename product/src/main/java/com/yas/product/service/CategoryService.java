@@ -1,8 +1,8 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.utils.Constants;
@@ -66,7 +66,7 @@ public class CategoryService {
             category.setParent(parentCategory);
         }
 
-        return categoryRepository.saveAndFlush(category);
+        return categoryRepository.save(category);
     }
 
     public void update(CategoryPostVm categoryPostVm, Long id) {
@@ -124,15 +124,13 @@ public class CategoryService {
         );
     }
 
-    public List<CategoryGetVm> getCategories() {
-        List<Category> category = categoryRepository.findAll();
+    public List<CategoryGetVm> getCategories(String categoryName) {
+        List<Category> category = categoryRepository.findByNameContainingIgnoreCase(categoryName);
         List<CategoryGetVm> categoryGetVms = new ArrayList<>();
-        category.stream().forEach(cate -> {
+        category.forEach(cate -> {
             ImageVm categoryImage = null;
             if (cate.getImageId() != null) {
-                if (cate.getImageId() != null) {
-                    categoryImage = new ImageVm(cate.getImageId(), mediaService.getMedia(cate.getImageId()).url());
-                }
+                categoryImage = new ImageVm(cate.getImageId(), mediaService.getMedia(cate.getImageId()).url());
             }
             Category parent = cate.getParent();
             long parentId = parent == null ? -1 : parent.getId();
@@ -167,5 +165,15 @@ public class CategoryService {
         } else {
             return true;
         }
+    }
+
+    public List<CategoryGetVm> getCategoryByIds(List<Long> ids) {
+        return categoryRepository.findAllById(ids).stream().map(CategoryGetVm::fromModel).toList();
+    }
+
+    public List<String> getTopNthCategories(int limit) {
+        // Use PageRequest.of(0, n) to limit the number of categories fetched to 'n'
+        Pageable pageable = PageRequest.of(0, limit);
+        return categoryRepository.findCategoriesOrderedByProductCount(pageable);
     }
 }

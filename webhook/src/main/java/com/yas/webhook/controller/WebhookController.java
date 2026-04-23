@@ -66,15 +66,15 @@ public class WebhookController {
         @ApiResponse(responseCode = ApiConstant.CODE_400, description = ApiConstant.BAD_REQUEST,
             content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
     public ResponseEntity<WebhookDetailVm> createWebhook(
-            @Valid @RequestBody final WebhookPostVm webhookPostVm,
-            final UriComponentsBuilder uriComponentsBuilder) {
+        @Valid @RequestBody final WebhookPostVm webhookPostVm,
+        final UriComponentsBuilder uriComponentsBuilder) {
         WebhookDetailVm webhook = webhookService.create(webhookPostVm);
         return ResponseEntity.created(
-                        uriComponentsBuilder
-                                .replacePath("/webhooks/{id}")
-                                .buildAndExpand(webhook)
-                                .toUri())
-                .body(webhook);
+                uriComponentsBuilder
+                    .replacePath("/webhooks/{id}")
+                    .buildAndExpand(webhook)
+                    .toUri())
+            .body(webhook);
     }
 
     @PutMapping("/{id}")

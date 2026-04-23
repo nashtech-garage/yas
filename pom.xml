@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
+        <version>4.0.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yas</groupId>
@@ -15,6 +15,7 @@
     <name>yas</name>
 
     <modules>
+        <module>common-library</module>
         <module>backoffice-bff</module>
         <module>cart</module>
         <module>customer</module>
@@ -22,8 +23,8 @@
         <module>location</module>
         <module>media</module>
         <module>order</module>
-        <module>payment</module>
         <module>payment-paypal</module>
+        <module>payment</module>
         <module>product</module>
         <module>promotion</module>
         <module>rating</module>
@@ -32,35 +33,42 @@
         <module>tax</module>
         <module>webhook</module>
         <module>sampledata</module>
+        <module>recommendation</module>
+        <module>delivery</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <java.version>25</java.version>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <yas.version>1.0-SNAPSHOT</yas.version>
         <revision>1.0-SNAPSHOT</revision>
 
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>23120049</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-yas-parent</sonar.projectKey>
-        <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
-        <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
-        <org.lombok.version>1.18.30</org.lombok.version>
+        <sonar.projectKey>23120049_yas_parent</sonar.projectKey>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+        <org.lombok.version>1.18.42</org.lombok.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
-        <opentelemetry-logback.vesion>1.30.0-alpha</opentelemetry-logback.vesion>
-        <spring-cloud.version>2023.0.3</spring-cloud.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
-        <keycloak-spring-security-adapter.version>21.0.2</keycloak-spring-security-adapter.version>
-        <org.keycloak.version>16.1.0</org.keycloak.version>
-        <commons-validator.version>1.7</commons-validator.version>
-        <org.elasticsearch.version>8.14.0</org.elasticsearch.version>
+        <logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
+        <opentelemetry-logback.vesion>2.9.0-alpha</opentelemetry-logback.vesion>
+        <opentelemetry-semconv.version>1.37.0</opentelemetry-semconv.version>
+        <spring-cloud.version>2025.1.1</spring-cloud.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
+        <keycloak-spring-security-adapter.version>25.0.3</keycloak-spring-security-adapter.version>
+        <org.keycloak.version>26.0.1</org.keycloak.version>
+        <keycloak-spring-boot-starter.version>25.0.3</keycloak-spring-boot-starter.version>
+        <commons-validator.version>1.9.0</commons-validator.version>
+        <org.elasticsearch.version>9.2.3</org.elasticsearch.version>
         <paypal-checkout-sdk.version>2.0.0</paypal-checkout-sdk.version>
-        <testcontainers-keycloak.version>3.3.0</testcontainers-keycloak.version>
-        <rest-assured.version>5.4.0</rest-assured.version>
-        <instancio-junit.version>4.8.1</instancio-junit.version>
+        <testcontainers-keycloak.version>3.5.1</testcontainers-keycloak.version>
+        <testcontainers.version>2.0.3</testcontainers.version>
+        <rest-assured.version>6.0.0</rest-assured.version>
+        <instancio-junit.version>5.0.2</instancio-junit.version>
+        <opencsv.version>5.9</opencsv.version>
+        <spring-retry.version>2.0.12</spring-retry.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -78,6 +86,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -104,7 +119,7 @@
             <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-spring-boot-starter</artifactId>
-                <version>${org.keycloak.version}</version>
+                <version>${keycloak-spring-boot-starter.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>
@@ -120,6 +135,11 @@
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>elasticsearch</artifactId>
                 <version>${org.elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.semconv</groupId>
+                <artifactId>opentelemetry-semconv</artifactId>
+                <version>${opentelemetry-semconv.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.paypal.sdk</groupId>
@@ -144,6 +164,11 @@
                 <version>${testcontainers-keycloak.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.retry</groupId>
+                <artifactId>spring-retry</artifactId>
+                <version>${spring-retry.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -153,7 +178,30 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-restclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jackson-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-restclient-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -163,7 +211,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
+            <artifactId>testcontainers-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -183,7 +231,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
@@ -289,20 +337,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.4.0</version>
-
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.11</version>
+                    <version>${jacoco-maven-plugin.version}</version>
                     <executions>
                         <execution>
                             <goals>
                                 <goal>prepare-agent</goal>
                             </goals>
                         </execution>
-                        <!-- attached to Maven test phase -->
                         <execution>
                             <id>report</id>
                             <phase>verify</phase>
@@ -311,6 +356,14 @@
                             </goals>
                         </execution>
                     </executions>
+                    <configuration>
+                        <excludes>
+                            <exclude>com/yas/**/*Application.class</exclude>
+                            <exclude>com/yas/**/config/**</exclude>
+                            <exclude>com/yas/**/exception/**</exclude>
+                            <exclude>com/yas/**/constants/**</exclude>
+                        </excludes>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

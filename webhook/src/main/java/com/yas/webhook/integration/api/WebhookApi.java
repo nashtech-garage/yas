@@ -1,6 +1,6 @@
 package com.yas.webhook.integration.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.yas.webhook.utils.HmacUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -21,7 +21,7 @@ public class WebhookApi {
     public void notify(String url, String secret, JsonNode jsonNode) {
 
         RequestBodySpec requestBodySpec = restClient.post()
-                .uri(url);
+            .uri(url);
 
         if (StringUtils.isNoneEmpty(secret)) {
             String secretToken = HmacUtils.hash(jsonNode.toString(), secret);
@@ -29,7 +29,7 @@ public class WebhookApi {
         }
 
         requestBodySpec.body(jsonNode)
-                .retrieve()
-                .toBodilessEntity();
+            .retrieve()
+            .toBodilessEntity();
     }
 }

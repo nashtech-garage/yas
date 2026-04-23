@@ -3,6 +3,9 @@ kind: Keycloak
 metadata:
   name: keycloak
 spec:
+  bootstrapAdmin:
+    user:
+      secret: keycloak-credentials
   db:
     vendor: postgres
     usernameSecret:
@@ -16,13 +19,16 @@ spec:
     port: 5432
   http:
     httpEnabled: true
-    httpPort: 8180
+    httpPort: 80
   hostname:
-    hostname: {{ .Values.hostname }}
+    hostname: http://{{ .Values.hostname }}
+    backchannelDynamic: true
     strict: false
-    strictBackchannel: false
+  proxy:
+    headers: xforwarded
   ingress:
-    enabled: false
+    enabled: true
+    className: nginx
   unsupported:
     podTemplate:
       spec:
@@ -32,9 +38,6 @@ spec:
               name: yas-themes-configmap
         containers:
           - name: keycloak
-            env:
-              - name: KC_HOSTNAME_STRICT_HTTPS
-                value: "false"
             volumeMounts:
               - name: yas-themes
                 mountPath: /opt/keycloak/providers

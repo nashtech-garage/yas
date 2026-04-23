@@ -1,13 +1,15 @@
 package com.yas.search.service;
 
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.search.config.ServiceUrlConfig;
-import com.yas.search.constants.MessageCode;
-import com.yas.search.document.Product;
-import com.yas.search.exception.NotFoundException;
+import com.yas.search.constant.MessageCode;
+import com.yas.search.model.Product;
 import com.yas.search.repository.ProductRepository;
 import com.yas.search.viewmodel.ProductEsDetailVm;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,12 +17,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 public class ProductSyncDataService {
+
+    private final Logger log = LoggerFactory.getLogger(ProductSyncDataService.class);
+
     private final RestClient restClient;
     private final ServiceUrlConfig serviceUrlConfig;
     private final ProductRepository productRepository;
 
     public ProductEsDetailVm getProductEsDetailById(Long id) {
-        final URI url = UriComponentsBuilder.fromHttpUrl(
+        final URI url = UriComponentsBuilder.fromUriString(
                 serviceUrlConfig.product()).path("/storefront/products-es/{id}").buildAndExpand(id).toUri();
         return restClient.get()
                 .uri(url)
@@ -33,10 +38,15 @@ public class ProductSyncDataService {
         Product product = productRepository.findById(id).orElseThrow(()
                 -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
 
+        if (!productEsDetailVm.isPublished()) {
+            productRepository.deleteById(id);
+            return;
+        }
+
         product.setName(productEsDetailVm.name());
         product.setSlug(productEsDetailVm.slug());
         product.setPrice(productEsDetailVm.price());
-        product.setIsPublished(productEsDetailVm.isPublished());
+        product.setIsPublished(true);
         product.setIsVisibleIndividually(productEsDetailVm.isVisibleIndividually());
         product.setIsAllowedToOrder(productEsDetailVm.isAllowedToOrder());
         product.setIsFeatured(productEsDetailVm.isFeatured());
@@ -70,10 +80,10 @@ public class ProductSyncDataService {
 
     public void deleteProduct(Long id) {
         final boolean isProductExisted = productRepository.existsById(id);
-        if (!isProductExisted) {
-            throw new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id);
+        if (isProductExisted) {
+            productRepository.deleteById(id);
+        } else {
+            log.warn("Product {} doesn't exist in Elasticsearch.", id);
         }
-
-        productRepository.deleteById(id);
     }
 }

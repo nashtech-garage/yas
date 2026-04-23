@@ -1,19 +1,21 @@
 package com.yas.order.viewmodel.orderaddress;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
 public record OrderAddressPostVm(
-        String contactName,
-        String phone,
-        String addressLine1,
+        @NotBlank String contactName,
+        @NotBlank String phone,
+        @NotBlank String addressLine1,
         String addressLine2,
-        String city,
-        String zipCode,
-        Long districtId,
-        String districtName,
-        Long stateOrProvinceId,
-        String stateOrProvinceName,
-        Long countryId,
-        String countryName) {
+        @NotBlank String city,
+        @NotBlank String zipCode,
+        @NotNull Long districtId,
+        @NotBlank String districtName,
+        @NotNull Long stateOrProvinceId,
+        @NotBlank String stateOrProvinceName,
+        @NotNull Long countryId,
+        @NotBlank String countryName) {
 }

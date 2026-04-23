@@ -6,14 +6,25 @@ import Modal from 'react-bootstrap/Modal';
 
 type Props = {
   showModal: boolean;
-  handleClose: () => void;
+  handleModalClose: (isSelectionMade?: boolean) => void;
   handleSelectAddress: (address: Address) => any;
+  defaultUserAddress?: Address;
+  selectedAddressId?: number;
 };
 
-const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props) => {
+const ModalAddressList = ({
+  showModal,
+  handleModalClose,
+  handleSelectAddress,
+  defaultUserAddress,
+  selectedAddressId,
+}: Props) => {
   const [addresses, setAddresses] = useState<Address[]>([]);
 
   useEffect(() => {
+    if (!showModal) {
+      return;
+    }
     getUserAddress()
       .then((res) => {
         setAddresses(res);
@@ -21,10 +32,25 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
       .catch((err) => {
         console.log('Load address fail: ', err.message);
       });
-  }, []);
+  }, [showModal]);
+
+  const handleAddressClick = (address: Address) => {
+    handleSelectAddress(address);
+    handleModalClose(true);
+  };
+
+  const isAddressSelected = (address: Address) => {
+    if (selectedAddressId) {
+      return selectedAddressId == address.id;
+    }
+    if (defaultUserAddress?.id) {
+      return defaultUserAddress.id == address.id;
+    }
+    return false;
+  };
 
   return (
-    <Modal show={showModal} onHide={handleClose} size="lg" centered>
+    <Modal show={showModal} onHide={() => handleModalClose()} size="lg" centered>
       <Modal.Header closeButton>
         <Modal.Title className="text-dark fw-bold">Select address</Modal.Title>
       </Modal.Header>
@@ -38,12 +64,11 @@ const ModalAddressList = ({ showModal, handleClose, handleSelectAddress }: Props
                 <div
                   className="col-lg-6 mb-2"
                   onClick={() => {
-                    handleSelectAddress(address);
-                    handleClose();
+                    handleAddressClick(address);
                   }}
                   key={address.id}
                 >
-                  <AddressCard address={address} />
+                  <AddressCard address={address} isSelected={isAddressSelected(address)} />
                 </div>
               ))
             )}

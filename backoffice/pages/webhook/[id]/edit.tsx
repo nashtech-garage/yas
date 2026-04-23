@@ -62,7 +62,7 @@ const WebhookEdit: NextPage = () => {
         })
         .catch((error) => console.log(error));
     }
-  }, [id]);
+  }, [id, router]);
 
   if (isLoading) return <p>Loading...</p>;
   if (!webhook) return <></>;

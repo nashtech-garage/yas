@@ -1,8 +1,8 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeGroup;
 import com.yas.product.repository.ProductAttributeGroupRepository;
@@ -64,7 +64,7 @@ public class ProductAttributeService {
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
 
-        return productAttributeRepository.saveAndFlush(productAttribute);
+        return productAttributeRepository.save(productAttribute);
     }
 
     public ProductAttribute update(ProductAttributePostVm productAttributePostVm, Long id) {
@@ -85,7 +85,7 @@ public class ProductAttributeService {
             productAttribute.setProductAttributeGroup(productAttributeGroup);
         }
 
-        return productAttributeRepository.saveAndFlush(productAttribute);
+        return productAttributeRepository.save(productAttribute);
     }
 
     private void validateExistedName(String name, Long id) {

@@ -42,4 +42,8 @@ public interface StateOrProvinceRepository extends JpaRepository<StateOrProvince
                                                       final Pageable pageable);
 
     List<StateOrProvince> findAllByCountryIdOrderByNameAsc(Long countryId);
+
+    boolean existsByNameIgnoreCaseAndCountryId(final String name, final Long countryId);
+
+    boolean existsByNameIgnoreCaseAndCountryIdAndIdNot(final String name, final Long countryId, final Long excludedId);
 }

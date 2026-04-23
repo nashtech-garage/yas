@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { EOrderStatus } from '../models/EOrderStatus';
 import { OrderGetVm } from '../models/OrderGetVm';
 import { getMyOrders } from '../services/OrderService';
-import { getCartProductThumbnail } from '@/modules/cart/services/CartService';
 import OrderCard from './OrderCard';
+import { getProductsByIds } from '@/modules/catalog/services/ProductService';
 
 type Props = {
   orderStatus: EOrderStatus | null;
@@ -14,7 +14,7 @@ const OrderStatusTab = ({ orderStatus }: Props) => {
   const [productName, setProductName] = useState('');
 
   const getProductThumbnails = (ids: number[]) => {
-    return getCartProductThumbnail(ids);
+    return getProductsByIds(ids);
   };
 
   useEffect(() => {

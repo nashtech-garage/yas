@@ -66,20 +66,14 @@ const CreateAddress: NextPage = () => {
 
   return (
     <ProfileLayout breadcrumb={crumb} title="Create Address" menuActive="address">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <AddressForm
-          isDisplay={true}
-          register={register}
-          errors={errors}
-          address={undefined}
-          setValue={() => {}}
-        />
-        <div className="container p-0" style={{ textAlign: 'end' }}>
-          <button className="btn btn-primary" type="submit">
-            Save
-          </button>
-        </div>
-      </form>
+      <AddressForm
+        handleSubmit={handleSubmit(onSubmit)}
+        isDisplay={true}
+        register={register}
+        errors={errors}
+        address={undefined}
+        setValue={() => {}}
+      />
     </ProfileLayout>
   );
 };

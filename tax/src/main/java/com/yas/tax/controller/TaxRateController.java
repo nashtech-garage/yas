@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -103,5 +104,14 @@ public class TaxRateController {
         @RequestParam(value = "stateOrProvinceId", required = false) final Long stateOrProvinceId,
         @RequestParam(value = "zipCode", required = false) final String zipCode) {
         return ResponseEntity.ok(taxRateService.getTaxPercent(taxClassId, countryId, stateOrProvinceId, zipCode));
+    }
+
+    @GetMapping("/location-based-batch")
+    public ResponseEntity<List<TaxRateVm>> getBatchTaxPercentsByAddress(
+        @RequestParam(value = "taxClassIds", required = true) final List<Long> taxClassIds,
+        @RequestParam(value = "countryId", required = true) final Long countryId,
+        @RequestParam(value = "stateOrProvinceId", required = false) final Long stateOrProvinceId,
+        @RequestParam(value = "zipCode", required = false) final String zipCode) {
+        return ResponseEntity.ok(taxRateService.getBulkTaxRate(taxClassIds, countryId, stateOrProvinceId, zipCode));
     }
 }

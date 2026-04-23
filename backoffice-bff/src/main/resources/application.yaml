@@ -18,8 +18,14 @@ spring:
           api-client:
             provider: keycloak
             client-id: backoffice-bff
-            client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
+            client-secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF #gitleaks:allow
             scope: openid, profile, email, roles
+  data:
+    redis:
+      host: redis
+      port: 6379
+  session:
+    store-type: redis
 management:
   tracing:
     sampling:
@@ -35,50 +41,3 @@ management:
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
----
-spring:
-  config:
-    activate:
-      on-profile: "dev"
-  cloud:
-    gateway:
-      routes:
-        # Changes for your local development should not be committed
-        - id: api_servicename_local
-          uri: http://localhost:8085
-          predicates:
-            - Path=/api/servicename/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: api
-          uri: http://api.yas.local
-          predicates:
-            - Path=/api/**
-          filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
-            - TokenRelay=
-        - id: nextjs
-          uri: http://localhost:3000
-          predicates:
-            - Path=/**
----
-spring:
-  config:
-    activate:
-      on-profile: "prod"
-  cloud:
-    gateway:
-      routes:
-        - id: api
-          uri: http://nginx
-          predicates:
-            - Path=/api/**
-          filters:
-            - DedupeResponseHeader=Origin Access-Control-Request-Method Access-Control-Request-Headers
-            - TokenRelay=
-            - StripPrefix=1
-        - id: nextjs
-          uri: http://backoffice-nextjs:3000
-          predicates:
-            - Path=/**

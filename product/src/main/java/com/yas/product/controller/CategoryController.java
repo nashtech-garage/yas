@@ -1,6 +1,7 @@
 package com.yas.product.controller;
 
-import com.yas.product.exception.BadRequestException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.product.constants.PageableConstant;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
 import com.yas.product.service.CategoryService;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -37,8 +39,16 @@ public class CategoryController {
     }
 
     @GetMapping({"/backoffice/categories", "/storefront/categories"})
-    public ResponseEntity<List<CategoryGetVm>> listCategories() {
-        return ResponseEntity.ok(categoryService.getCategories());
+    public ResponseEntity<List<CategoryGetVm>> listCategories(
+        @RequestParam(required = false, defaultValue = "") String categoryName) {
+        return ResponseEntity.ok(categoryService.getCategories(categoryName));
+    }
+
+    @GetMapping("/storefront/categories/suggestions")
+    public ResponseEntity<List<String>> listTopNthCategories(
+        @RequestParam(value = "limit", defaultValue = PageableConstant.DEFAULT_PAGE_SIZE, required = false)
+        final int limit) {
+        return ResponseEntity.ok(categoryService.getTopNthCategories(limit));
     }
 
     @GetMapping("/backoffice/categories/{id}")
@@ -105,5 +115,16 @@ public class CategoryController {
         }
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/backoffice/categories/by-ids")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Ok",
+            content = @Content(schema = @Schema(implementation = CategoryGetDetailVm.class))),
+        @ApiResponse(responseCode = "404", description = "Not found",
+            content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+    })
+    public ResponseEntity<List<CategoryGetVm>> getCategoriesByIds(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok(categoryService.getCategoryByIds(ids));
     }
 }

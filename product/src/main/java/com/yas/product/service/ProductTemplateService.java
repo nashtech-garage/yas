@@ -1,8 +1,8 @@
 package com.yas.product.service;
 
-import com.yas.product.exception.BadRequestException;
-import com.yas.product.exception.DuplicatedException;
-import com.yas.product.exception.NotFoundException;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.attribute.ProductAttribute;
 import com.yas.product.model.attribute.ProductAttributeTemplate;
 import com.yas.product.model.attribute.ProductTemplate;
@@ -88,7 +88,7 @@ public class ProductTemplateService {
         List<ProductAttributeTemplate> productAttributeTemplates
             = setAttributeTemplates(productTemplatePostVm.productAttributeTemplates(), productTemplate);
         ProductTemplate mainSavedProductTemplate = productTemplateRepository.save(productTemplate);
-        productAttributeTemplateRepository.saveAllAndFlush(productAttributeTemplates);
+        productAttributeTemplateRepository.saveAll(productAttributeTemplates);
         return getProductTemplate(mainSavedProductTemplate.getId());
     }
 
@@ -103,7 +103,7 @@ public class ProductTemplateService {
             = setAttributeTemplates(productTemplatePostVm.productAttributeTemplates(), productTemplate);
         productTemplate.setName(productTemplatePostVm.name());
         productTemplateRepository.save(productTemplate);
-        productAttributeTemplateRepository.saveAllAndFlush(productAttributeTemplates);
+        productAttributeTemplateRepository.saveAll(productAttributeTemplates);
     }
 
     private List<ProductAttributeTemplate> setAttributeTemplates(

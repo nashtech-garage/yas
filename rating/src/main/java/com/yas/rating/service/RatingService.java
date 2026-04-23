@@ -1,8 +1,8 @@
 package com.yas.rating.service;
 
-import com.yas.rating.exception.AccessDeniedException;
-import com.yas.rating.exception.NotFoundException;
-import com.yas.rating.exception.ResourceExistedException;
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.ResourceExistedException;
 import com.yas.rating.model.Rating;
 import com.yas.rating.repository.RatingRepository;
 import com.yas.rating.utils.AuthenticationUtils;
@@ -23,20 +23,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 @Slf4j
 @Service
 @Transactional
 public class RatingService {
+
     private final RatingRepository ratingRepository;
     private final CustomerService customerService;
 
     private final OrderService orderService;
 
     public RatingService(RatingRepository ratingRepository,
-                         CustomerService customerService,
-                         OrderService orderService) {
+            CustomerService customerService,
+            OrderService orderService) {
         this.ratingRepository = ratingRepository;
         this.customerService = customerService;
         this.orderService = orderService;
@@ -55,10 +57,9 @@ public class RatingService {
     }
 
     public RatingListVm getRatingListWithFilter(String proName, String cusName,
-                                                String message, ZonedDateTime createdFrom,
-                                                ZonedDateTime createdTo, int pageNo, int pageSize) {
+            String message, ZonedDateTime createdFrom,
+            ZonedDateTime createdTo, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdOn").descending());
-
         Page<Rating> ratings = ratingRepository.getRatingListWithFilter(
                 proName.toLowerCase(),
                 cusName.toLowerCase(), message.toLowerCase(),
@@ -72,6 +73,24 @@ public class RatingService {
         return new RatingListVm(ratingVmList, ratings.getTotalElements(), ratings.getTotalPages());
     }
 
+    public List<RatingVm> getLatestRatings(int count) {
+
+        if (count <= 0) {
+            return List.of();
+        }
+
+        Pageable pageable = PageRequest.of(0, count);
+        List<Rating> ratings =  ratingRepository.getLatestRatings(pageable);
+
+        if (CollectionUtils.isEmpty(ratings)) {
+            return List.of();
+        }
+
+        return ratings.stream()
+                .map(RatingVm::fromModel)
+                .toList();
+    }
+
     public RatingVm createRating(RatingPostVm ratingPostVm) {
         String userId = AuthenticationUtils.extractUserId();
 
@@ -80,8 +99,14 @@ public class RatingService {
         ).isPresent()) {
             throw new AccessDeniedException(Constants.ErrorCode.ACCESS_DENIED);
         }
+
         if (ratingRepository.existsByCreatedByAndProductId(userId, ratingPostVm.productId())) {
             throw new ResourceExistedException(Constants.ErrorCode.RESOURCE_ALREADY_EXISTED);
+        }
+
+        CustomerVm customerVm = customerService.getCustomer();
+        if (customerVm == null) {
+            throw new NotFoundException(Constants.ErrorCode.CUSTOMER_NOT_FOUND, userId);
         }
 
         Rating rating = new Rating();
@@ -90,11 +115,10 @@ public class RatingService {
         rating.setProductId(ratingPostVm.productId());
         rating.setProductName(ratingPostVm.productName());
 
-        CustomerVm customerVm = customerService.getCustomer();
         rating.setLastName(customerVm.lastName());
         rating.setFirstName(customerVm.firstName());
 
-        Rating savedRating = ratingRepository.saveAndFlush(rating);
+        Rating savedRating = ratingRepository.save(rating);
         return RatingVm.fromModel(savedRating);
     }
 
@@ -113,9 +137,6 @@ public class RatingService {
         }
         int totalStars = (Integer.parseInt(totalStarsAndRatings.get(0)[0].toString()));
         int totalRatings = (Integer.parseInt(totalStarsAndRatings.get(0)[1].toString()));
-
-        Double averageStars = (totalStars * 1.0) / totalRatings;
-        log.info("Average Star: " + averageStars);
-        return averageStars;
+        return (totalStars * 1.0) / totalRatings;
     }
 }

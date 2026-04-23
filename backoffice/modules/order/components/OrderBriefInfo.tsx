@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Order } from '../models/Order';
-import { formatPriceVND } from 'utils/formatPrice';
+import { formatPriceUSD } from 'utils/formatPrice';
 type Props = {
   order: Order;
 };
@@ -92,7 +92,7 @@ const OrderBriefInfo = ({ order }: Props) => {
                       Order total:
                     </h6>
 
-                    <p className="col-8 ms-3">{formatPriceVND(order.totalPrice)}</p>
+                    <p className="col-8 ms-3">{formatPriceUSD(order.totalPrice)}</p>
                   </div>
                   <div className="flex-row">
                     <h6 className="col-4 d-flex flex-row-reverse text-dark font-weight-bold mb-3">

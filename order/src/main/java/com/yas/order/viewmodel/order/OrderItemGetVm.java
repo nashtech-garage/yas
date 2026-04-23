@@ -12,7 +12,9 @@ public record OrderItemGetVm(
         Long productId,
         String productName,
         Integer quantity,
-        BigDecimal productPrice
+        BigDecimal productPrice,
+        BigDecimal discountAmount,
+        BigDecimal taxAmount
 ) {
     public static OrderItemGetVm fromModel(OrderItem orderItem) {
         return new OrderItemGetVm(
@@ -20,7 +22,9 @@ public record OrderItemGetVm(
                 orderItem.getProductId(),
                 orderItem.getProductName(),
                 orderItem.getQuantity(),
-                orderItem.getProductPrice());
+                orderItem.getProductPrice(),
+                orderItem.getDiscountAmount(),
+                orderItem.getTaxAmount());
     }
 
     public static List<OrderItemGetVm> fromModels(Collection<OrderItem> orderItems) {

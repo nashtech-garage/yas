@@ -1,15 +1,11 @@
 package com.yas.order.viewmodel.checkout;
 
-import java.math.BigDecimal;
+import jakarta.validation.constraints.Positive;
 
 public record CheckoutItemPostVm(
         Long productId,
-        String productName,
-        int quantity,
-        BigDecimal productPrice,
-        String note,
-        BigDecimal discountAmount,
-        BigDecimal taxAmount,
-        BigDecimal taxPercent
-) {
+        String description,
+        @Positive
+        int quantity) {
+
 }

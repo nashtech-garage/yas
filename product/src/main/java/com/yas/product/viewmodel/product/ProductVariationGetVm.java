@@ -13,6 +13,6 @@ public record ProductVariationGetVm(
         Double price,
         ImageVm thumbnail,
         List<ImageVm> productImages,
-        Map<String, String> options
+        Map<Long, String> options
 ) {
 }

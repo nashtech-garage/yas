@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.location.LocationApplication;
-import com.yas.location.exception.DuplicatedException;
-import com.yas.location.exception.NotFoundException;
 import com.yas.location.model.Country;
 import com.yas.location.repository.CountryRepository;
 

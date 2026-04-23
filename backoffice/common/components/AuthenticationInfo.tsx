@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
 import apiClientService from '@commonServices/ApiClientService';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 const baseUrl = '/authentication/user';
 
@@ -24,7 +24,7 @@ export default function AuthenticationInfo() {
   return (
     <>
       Signed in as: <Link href="/profile">{authenticatedUser.username}</Link>{' '}
-      <Link href="#">Logout</Link>
+      <Link href="/logout">Logout</Link>
     </>
   );
 }

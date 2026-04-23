@@ -19,12 +19,12 @@ public class CustomerService extends AbstractCircuitBreakFallbackHandler {
     private final ServiceUrlConfig serviceUrlConfig;
 
     @Retry(name = "restApi")
-    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleFallback")
+    @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleCustomerFallback")
     public CustomerVm getCustomer() {
         final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
             .getTokenValue();
         final URI url = UriComponentsBuilder
-                .fromHttpUrl(serviceUrlConfig.customer())
+                .fromUriString(serviceUrlConfig.customer())
                 .path("/storefront/customer/profile")
                 .buildAndExpand()
                 .toUri();
@@ -33,5 +33,9 @@ public class CustomerService extends AbstractCircuitBreakFallbackHandler {
                 .headers(h -> h.setBearerAuth(jwt))
                 .retrieve()
                 .body(CustomerVm.class);
+    }
+
+    protected CustomerVm handleCustomerFallback(Throwable throwable) throws Throwable {
+        return handleTypedFallback(throwable);
     }
 }
