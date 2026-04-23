@@ -15,13 +15,31 @@ pipeline {
             steps {
                 script {
                     sh 'git fetch origin main --prune'
-                    def baseCommit = sh(script: 'git merge-base HEAD origin/main', returnStdout: true).trim()
+
+                    // Fallback logic: if origin/main doesn't exit, compare with HEAD~1
+                    def baseCommit = sh(
+                        script: '''
+                            if git rev-parse --verify origin/main >/dev/null 2>&1; then
+                                git merge-base HEAD origin/main
+                            elif git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+                                echo "origin/main not found, comparing with HEAD~1"
+                                git rev-parse HEAD~1
+                            else
+                                git rev-parse HEAD
+                            fi
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
                     def changedFiles = sh(script: "git diff --name-only ${baseCommit} HEAD", returnStdout: true).trim()
 
+                    echo "Base commit: ${baseCommit}"
                     echo "Files changed:\n${changedFiles}"
 
                     env.MEDIA_CHANGED = changedFiles.contains('media/') ? 'true' : 'false'
                     env.PRODUCT_CHANGED = changedFiles.contains('product/') ? 'true' : 'false'
+
+                    echo "Media changed: ${env.MEDIA_CHANGED}, Product changed: ${env.PRODUCT_CHANGED}"
                 }
             }
         }
