@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+    }
+
     tools {
         jdk 'jdk21'
         maven 'maven-3'
@@ -10,11 +14,14 @@ pipeline {
         stage('Detect Changes') {
             steps {
                 script {
-                    def changedFiles = sh(script: "git diff --name-only origin/main", returnStdout: true).trim()
-                    echo "Files changed: ${changedFiles}"
+                    sh 'git fetch origin main --prune'
+                    def baseCommit = sh(script: 'git merge-base HEAD origin/main', returnStdout: true).trim()
+                    def changedFiles = sh(script: "git diff --name-only ${baseCommit} HEAD", returnStdout: true).trim()
 
-                    env.MEDIA_CHANGED = changedFiles.contains("services/media")
-                    env.PRODUCT_CHANGED = changedFiles.contains("services/product")
+                    echo "Files changed:\n${changedFiles}"
+
+                    env.MEDIA_CHANGED = changedFiles.contains('media/') ? 'true' : 'false'
+                    env.PRODUCT_CHANGED = changedFiles.contains('product/') ? 'true' : 'false'
                 }
             }
         }
@@ -22,9 +29,15 @@ pipeline {
         stage('Test & Build Media Service') {
             when { expression { return env.MEDIA_CHANGED == 'true' } }
             steps {
-                dir('services/media') {
-                    echo 'Running tests for Media Service...'
-                    sh 'mvn test'
+                dir('media') {
+                    echo 'Running tests for Media service...'
+                    sh 'mvn clean test jacoco:report'
+                    junit 'target/surefire-reports/*.xml'
+                    jacoco execPattern: 'target/jacoco.exec',
+                           classPattern: 'target/classes',
+                           sourcePattern: 'src/main/java',
+                           inclusionPattern: '**/*.class'
+                    sh 'mvn -DskipTests package'
                 }
             }
         }
@@ -32,11 +45,23 @@ pipeline {
         stage('Test & Build Product Service') {
             when { expression { return env.PRODUCT_CHANGED == 'true' } }
             steps {
-                dir('services/product') {
-                    echo 'Running tests for Product Service...'
-                    sh 'mvn test'
+                dir('product') {
+                    echo 'Running tests for Product service...'
+                    sh 'mvn clean test jacoco:report'
+                    junit 'target/surefire-reports/*.xml'
+                    jacoco execPattern: 'target/jacoco.exec',
+                           classPattern: 'target/classes',
+                           sourcePattern: 'src/main/java',
+                           inclusionPattern: '**/*.class'
+                    sh 'mvn -DskipTests package'
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished.'
         }
     }
 }
