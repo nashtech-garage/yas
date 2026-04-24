@@ -173,6 +173,32 @@ pipeline {
                 }
             }
         }
+
+        stage('Snyk Scan') {
+            steps {
+                script {
+                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
+
+                    if (changedServices.isEmpty()) {
+                        echo 'No service changes detected. Skipping Snyk scan.'
+                        return
+                    }
+
+                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                        sh 'snyk auth "$SNYK_TOKEN"'
+
+                        changedServices.each { serviceName ->
+                            def serviceDir = serviceName.trim()
+                            echo "Running Snyk scan for ${serviceDir}..."
+
+                            dir(serviceDir) {
+                                sh 'snyk test --all-projects --severity-threshold=high'
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
