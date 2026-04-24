@@ -1,3 +1,6 @@
+pipeline {
+    agent any
+
 options {
     timestamps()
 }
@@ -99,4 +102,6 @@ post {
     always {
         echo 'Pipeline finished.'
     }
+}
+
 }
