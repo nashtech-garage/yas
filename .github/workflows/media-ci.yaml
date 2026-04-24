@@ -72,7 +72,10 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --file=media/pom.xml --severity-threshold=high
+        run: |
+          chmod +x mvnw || true
+          chmod +x media/mvnw || true
+          snyk test --file=media/pom.xml --severity-threshold=high
         
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
