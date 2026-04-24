@@ -91,6 +91,12 @@ pipeline {
             }
         }
 
+        stage('Gitleaks Scan') {
+            steps {
+                sh 'gitleaks detect --config gitleaks.toml --source . --no-banner'
+            }
+        }
+
         stage('Test & Build Changed Services') {
             steps {
                 script {
@@ -138,6 +144,28 @@ pipeline {
                                 PY
                             '''
                             sh 'mvn -DskipTests package'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                script {
+                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
+
+                    if (changedServices.isEmpty()) {
+                        echo 'No service changes detected. Skipping SonarQube scan.'
+                        return
+                    }
+
+                    changedServices.each { serviceName ->
+                        def serviceDir = serviceName.trim()
+                        echo "Running SonarQube scan for ${serviceDir}..."
+
+                        dir(serviceDir) {
+                            sh 'mvn sonar:sonar -DskipTests'
                         }
                     }
                 }
