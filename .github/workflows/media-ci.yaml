@@ -35,6 +35,9 @@ jobs:
       - name: Run Maven Test Command
         run: mvn clean test -pl media -am
 
+      - name: Pre-build common library
+        run: mvn clean install -DskipTests -am -pl media
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl media -am -Dcheckstyle.output.file=media-checkstyle-result.xml
