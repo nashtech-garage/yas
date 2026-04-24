@@ -91,6 +91,13 @@ pipeline {
             }
         }
 
+        stage('Check Tools') {
+            steps {
+                sh 'which gitleaks && gitleaks version'
+                sh 'which snyk && snyk --version'
+            }
+        }
+
         stage('Gitleaks Scan') {
             steps {
                 sh 'gitleaks detect --config gitleaks.toml --source . --no-banner'
