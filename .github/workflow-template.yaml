@@ -2,7 +2,7 @@ name: {{SERVICE_NAME}} service ci
 
 on:
   push:
-    branches: [ "**" ] # Sửa thành "**" để chạy CI trên mọi branch (Yêu cầu 4)
+    branches: [ "**" ] # Chạy CI trên mọi branch (Yêu cầu 4)
     paths:
       - "{{SERVICE_NAME}}/**"
       - ".github/workflows/actions/action.yaml"
@@ -30,22 +30,27 @@ jobs:
         with:
           fetch-depth: 0 
       
-      - uses: ./.github/workflows/actions
+      - name: Set up JDK 21
+        uses: ./.github/workflows/actions
       
-      # Chạy Test (sẽ tự động sinh ra report của Jacoco)
-      - name: Run Maven Test
-        run: mvn clean test -f {{SERVICE_NAME}}
+      # Chạy Test cho service cụ thể
+      - name: Run Maven Test Command
+        run: mvn clean test -pl {{SERVICE_NAME}} -am
 
-      # Upload Test Results
+      # Build library cần thiết để tránh lỗi phụ thuộc (dependency)
+      - name: Pre-build dependencies
+        run: mvn clean install -DskipTests -am -pl {{SERVICE_NAME}}
+
+      # Upload Test Results đẹp mắt lên PR
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: {{SERVICE_NAME}}-Unit-Test-Results
-          path: "{{SERVICE_NAME}}/**/surefire-reports/*.xml"
+          path: "{{SERVICE_NAME}}/**/surefire-reports/TEST-*.xml"
           reporter: java-junit
-
-      # Phân tích code với SonarCloud
+          
+      # Phân tích chất lượng code với SonarCloud (Yêu cầu 7c)
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
@@ -62,7 +67,25 @@ jobs:
           file: {{SERVICE_NAME}}/pom.xml
           args: --severity-threshold=high
 
-      # Kiểm tra và upload Coverage Report, chặn nếu < 70% (Yêu cầu 7b)
+      # Quét thư viện lỗi thời với OWASP (Yêu cầu 7c)
+      - name: OWASP Dependency Check
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: dependency-check/Dependency-Check_Action@main
+        env:
+          JAVA_HOME: /opt/jdk
+        with:
+          project: 'yas'
+          path: '.'
+          format: 'HTML'
+          
+      - name: Upload OWASP results
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: {{SERVICE_NAME}}-OWASP-Report
+          path: ${{github.workspace}}/reports
+
+      # Báo cáo độ phủ Test và chặn PR nếu < 70% (Yêu cầu 7b)
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -78,16 +101,17 @@ jobs:
   # PHASE 2: BUILD
   # ==========================================
   Build:
-    needs: Test # Ràng buộc: Phase Build chỉ chạy khi Phase Test thành công
+    needs: Test # Chỉ chạy khi Phase Test thành công (Yêu cầu 5)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - uses: ./.github/workflows/actions
+      - name: Set up JDK 21
+        uses: ./.github/workflows/actions
       
-      # Build source code (Bỏ qua test vì đã chạy ở trên)
+      # Đóng gói ứng dụng
       - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f {{SERVICE_NAME}}
+        run: mvn clean package -DskipTests -pl {{SERVICE_NAME}} -am
 
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
