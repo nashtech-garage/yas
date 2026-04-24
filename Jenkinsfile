@@ -49,6 +49,8 @@ pipeline {
 
                     echo "Base commit: ${baseCommit}"
                     echo "Files changed:\n${changedFiles}"
+                    env.BASE_COMMIT = baseCommit
+                    env.CHANGED_FILES = changedFiles
 
                     def servicePaths = [
                         'backoffice-bff': 'backoffice-bff/',
@@ -109,7 +111,14 @@ pipeline {
 
         stage('Gitleaks Scan') {
             steps {
-                sh 'gitleaks detect --config gitleaks.toml --source . --no-banner'
+                script {
+                    if (!env.CHANGED_FILES?.trim()) {
+                        echo 'No file changes detected. Skipping Gitleaks scan.'
+                        return
+                    }
+
+                    sh 'gitleaks git --config gitleaks.toml --log-opts="${BASE_COMMIT}..HEAD" --no-banner'
+                }
             }
         }
 
