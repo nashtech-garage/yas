@@ -2,7 +2,7 @@ name: {{SERVICE_NAME}} service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ] # Sửa thành "**" để chạy CI trên mọi branch (Yêu cầu 4)
     paths:
       - "{{SERVICE_NAME}}/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,31 +18,77 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  # ==========================================
+  # PHASE 1: TEST
+  # ==========================================
+  Test:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 
+      
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -DskipTests -f {{SERVICE_NAME}}
+      
+      # Chạy Test (sẽ tự động sinh ra report của Jacoco)
       - name: Run Maven Test
-        run: mvn test -f {{SERVICE_NAME}}
+        run: mvn clean test -f {{SERVICE_NAME}}
+
+      # Upload Test Results
       - name: Unit Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
-          name: Unit-Test-Results
+          name: {{SERVICE_NAME}}-Unit-Test-Results
           path: "{{SERVICE_NAME}}/**/surefire-reports/*.xml"
           reporter: java-junit
+
+      # Phân tích code với SonarCloud
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f {{SERVICE_NAME}}
+
+      # Quét lỗ hổng bảo mật với Snyk (Yêu cầu 7c)
+      - name: Snyk Security Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/maven@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          file: {{SERVICE_NAME}}/pom.xml
+          args: --severity-threshold=high
+
+      # Kiểm tra và upload Coverage Report, chặn nếu < 70% (Yêu cầu 7b)
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/{{SERVICE_NAME}}/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 60
+          title: '{{SERVICE_NAME}} Coverage Report'
+          update-comment: true
+
+  # ==========================================
+  # PHASE 2: BUILD
+  # ==========================================
+  Build:
+    needs: Test # Ràng buộc: Phase Build chỉ chạy khi Phase Test thành công
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: ./.github/workflows/actions
+      
+      # Build source code (Bỏ qua test vì đã chạy ở trên)
+      - name: Run Maven Build Command
+        run: mvn clean install -DskipTests -f {{SERVICE_NAME}}
+
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -50,10 +96,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./{{SERVICE_NAME}}
           push: true
-          tags: ghcr.io/nashtech-garage/yas-{{SERVICE_NAME}}:latest
+          tags: ghcr.io/${{ github.repository_owner }}/yas-{{SERVICE_NAME}}:latest
