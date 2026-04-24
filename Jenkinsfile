@@ -117,7 +117,7 @@ pipeline {
                         return
                     }
 
-                    sh 'gitleaks git --config gitleaks.toml --log-opts="${BASE_COMMIT}..HEAD" --no-banner'
+                    sh 'gitleaks detect --config gitleaks.toml --source . --log-opts="${BASE_COMMIT}..HEAD" --no-banner'
                 }
             }
         }
