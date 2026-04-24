@@ -33,10 +33,10 @@ jobs:
       - uses: ./.github/workflows/actions
       
       - name: Run Maven Test Command
-        run: mvn clean test -pl media -am
+        run: mvn clean install -pl media -am
 
       - name: Pre-build common library
-        run: mvn clean install -DskipTests -am -pl media
+        run: mvn install -DskipTests -am -pl media
 
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -49,7 +49,7 @@ jobs:
           path: '**/media-checkstyle-result.xml'
       - name: Find where the reports are
         run: find media -name "*.xml" | grep surefire-reports
-        
+
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
