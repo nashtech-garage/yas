@@ -93,8 +93,17 @@ pipeline {
 
         stage('Check Tools') {
             steps {
-                sh 'which gitleaks && gitleaks version'
-                sh 'which snyk && snyk --version'
+                script {
+                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
+
+                    if (changedServices.isEmpty()) {
+                        echo 'No service changes detected. Skipping tool checks.'
+                        return
+                    }
+
+                    sh 'which gitleaks && gitleaks version'
+                    sh 'which snyk && snyk --version'
+                }
             }
         }
 
