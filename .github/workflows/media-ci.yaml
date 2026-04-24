@@ -47,7 +47,9 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/media-checkstyle-result.xml'
-          
+      - name: Find where the reports are
+        run: find media -name "*.xml" | grep surefire-reports
+        
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
