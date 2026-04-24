@@ -1,4 +1,4 @@
-name: media service ci
+﻿name: media service ci
 
 on:
   push:
@@ -20,12 +20,17 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      packages: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
         run: mvn clean install -pl media -am
@@ -44,7 +49,7 @@ jobs:
           name: Media-Service-Unit-Test-Results
           path: "media/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
+      - name: Analyze with SonarCloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -60,9 +65,9 @@ jobs:
           format: 'HTML'
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
-          name: OWASP Dependency Check Report
+          name: OWASP-media-Report
           path: ${{github.workspace}}/reports
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
@@ -70,21 +75,21 @@ jobs:
         with:
           paths: ${{github.workspace}}/media/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
           title: 'Media Coverage Report'
           update-comment: true
-      - name: Log in to the Container registry
+      - name: Log in to Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
+      - name: Build and push Docker image
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./media
           push: true
-          tags: ghcr.io/nashtech-garage/yas-media:latest
+          tags: ghcr.io/nat90711/yas-media:latest

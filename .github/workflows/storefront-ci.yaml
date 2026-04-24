@@ -1,4 +1,4 @@
-name: storefront service ci
+﻿name: storefront service ci
 
 on:
   push:
@@ -18,6 +18,11 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      packages: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
@@ -56,4 +61,4 @@ jobs:
         with:
           context: ./storefront
           push: true
-          tags: ghcr.io/nashtech-garage/yas-storefront:latest
+          tags: ghcr.io/nat90711/yas-storefront:latest

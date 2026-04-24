@@ -1,19 +1,19 @@
-﻿name: tax service ci
+﻿name: delivery service ci
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - "tax/**"
+      - "delivery/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/tax-ci.yaml"
+      - ".github/workflows/delivery-ci.yaml"
       - "pom.xml"
   pull_request:
     branches: [ "main" ]
     paths:
-      - "tax/**"
+      - "delivery/**"
       - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/tax-ci.yaml"
+      - ".github/workflows/delivery-ci.yaml"
       - "pom.xml"
   workflow_dispatch:
 
@@ -33,27 +33,27 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/workflows/actions
       - name: Run Maven Build Command
-        run: mvn clean install -pl tax -am
+        run: mvn clean install -pl delivery -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl tax -am -Dcheckstyle.output.file=tax-checkstyle-result.xml
+        run: mvn checkstyle:checkstyle -pl delivery -am -Dcheckstyle.output.file=delivery-checkstyle-result.xml
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/tax-checkstyle-result.xml'
+          path: '**/delivery-checkstyle-result.xml'
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
-          name: Tax-Service-Unit-Test-Results
-          path: "tax/**/*-reports/TEST*.xml"
+          name: Delivery-Service-Unit-Test-Results
+          path: "delivery/**/*-reports/TEST*.xml"
           reporter: java-junit
       - name: Analyze with SonarCloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl tax -am
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl delivery -am
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
@@ -67,17 +67,17 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: OWASP-tax-Report
+          name: OWASP-delivery-Report
           path: ${{github.workspace}}/reports
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
-          paths: ${{github.workspace}}/tax/target/site/jacoco/jacoco.xml
+          paths: ${{github.workspace}}/delivery/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
           min-coverage-overall: 70
           min-coverage-changed-files: 70
-          title: 'Tax Coverage Report'
+          title: 'Delivery Coverage Report'
           update-comment: true
       - name: Log in to Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -90,6 +90,6 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
-          context: ./tax
+          context: ./delivery
           push: true
-          tags: ghcr.io/nat90711/yas-tax:latest
+          tags: ghcr.io/nat90711/yas-delivery:latest

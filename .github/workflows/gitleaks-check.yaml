@@ -1,17 +1,26 @@
-name: GitLeaks check nightly
+name: GitLeaks Secret Scan
+
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
   schedule:
     - cron: "0 0 * * *"
+
 jobs:
-  check:
+  gitleaks:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-    - name: Checkout 
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-    - name: Gitleaks check
-      run: |
-        docker pull zricethezav/gitleaks:v8.18.4
-        docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="." --config="/work/gitleaks.toml" --verbose --no-git
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks Check
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
