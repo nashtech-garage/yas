@@ -1,40 +1,34 @@
 pipeline {
     agent any
 
-options {
-    timestamps()
-}
+    options {
+        timestamps()
+    }
 
-tools {
-    jdk 'jdk21'
-    maven 'maven-3'
-}
+    tools {
+        jdk 'jdk21'
+        maven 'maven-3'
+    }
 
-stages {
-    stage('Detect Changes') {
-        steps {
-            script {
-                sh 'git fetch origin +refs/heads/main:refs/remotes/origin/main --prune'
+    stages {
+        stage('Detect Changes') {
+            steps {
+                script {
+                    sh 'git fetch origin +refs/heads/main:refs/remotes/origin/main --prune'
 
-                def baseCommit = ''
-                def hasOriginMain = (sh(
-                    script: 'git rev-parse --verify refs/remotes/origin/main >/dev/null 2>&1',
-                    returnStatus: true
-                ) == 0)
-
-                if (hasOriginMain) {
-                    baseCommit = sh(
-                        script: 'git merge-base HEAD refs/remotes/origin/main',
-                        returnStdout: true
-                    ).trim()
-                    echo 'Using refs/remotes/origin/main as base'
-                } else {
-                    def hasHeadPrev = (sh(
-                        script: 'git rev-parse --verify HEAD~1 >/dev/null 2>&1',
+                    def baseCommit = ''
+                    def hasOriginMain = (sh(
+                        script: 'git rev-parse --verify refs/remotes/origin/main >/dev/null 2>&1',
                         returnStatus: true
                     ) == 0)
 
-                    if (hasHeadPrev) {
+                    if (hasOriginMain) {
+                        baseCommit = sh(
+                            script: 'git merge-base HEAD refs/remotes/origin/main',
+                            returnStdout: true
+                        ).trim()
+                        echo 'Using refs/remotes/origin/main as base'
+                    } else if (sh(script: 'git rev-parse --verify HEAD~1 >/dev/null 2>&1', returnStatus: true) == 0) {
                         baseCommit = sh(
                             script: 'git rev-parse HEAD~1',
                             returnStdout: true
@@ -47,61 +41,113 @@ stages {
                         ).trim()
                         echo 'Single-commit branch, fallback to HEAD'
                     }
+
+                    def changedFiles = sh(
+                        script: "git diff --name-only ${baseCommit} HEAD",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Base commit: ${baseCommit}"
+                    echo "Files changed:\n${changedFiles}"
+
+                    def servicePaths = [
+                        'backoffice-bff': 'backoffice-bff/',
+                        'cart': 'cart/',
+                        'customer': 'customer/',
+                        'delivery': 'delivery/',
+                        'inventory': 'inventory/',
+                        'location': 'location/',
+                        'media': 'media/',
+                        'order': 'order/',
+                        'payment-paypal': 'payment-paypal/',
+                        'payment': 'payment/',
+                        'product': 'product/',
+                        'promotion': 'promotion/',
+                        'rating': 'rating/',
+                        'recommendation': 'recommendation/',
+                        'sampledata': 'sampledata/',
+                        'search': 'search/',
+                        'storefront-bff': 'storefront-bff/',
+                        'tax': 'tax/',
+                        'webhook': 'webhook/'
+                    ]
+
+                    def changedServices = []
+
+                    if (changedFiles.contains('common-library/')) {
+                        changedServices.addAll(servicePaths.keySet())
+                        echo 'common-library changed, scheduling all services'
+                    } else {
+                        servicePaths.each { serviceName, servicePath ->
+                            if (changedFiles.contains(servicePath)) {
+                                changedServices << serviceName
+                            }
+                        }
+                    }
+
+                    env.CHANGED_SERVICES = changedServices.unique().join(',')
+                    echo "Changed services: ${env.CHANGED_SERVICES}"
                 }
+            }
+        }
 
-                def changedFiles = sh(
-                    script: "git diff --name-only ${baseCommit} HEAD",
-                    returnStdout: true
-                ).trim()
+        stage('Test & Build Changed Services') {
+            steps {
+                script {
+                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
 
-                echo "Base commit: ${baseCommit}"
-                echo "Files changed:\n${changedFiles}"
+                    if (changedServices.isEmpty()) {
+                        echo 'No service changes detected. Skipping build.'
+                        return
+                    }
 
-                env.MEDIA_CHANGED = changedFiles.contains('media/') ? 'true' : 'false'
-                env.PRODUCT_CHANGED = changedFiles.contains('product/') ? 'true' : 'false'
+                    changedServices.each { serviceName ->
+                        def serviceDir = serviceName.trim()
+                        echo "Running tests and build for ${serviceDir}..."
 
-                echo "Media changed: ${env.MEDIA_CHANGED}, Product changed: ${env.PRODUCT_CHANGED}"
+                        dir(serviceDir) {
+                            sh 'mvn clean test jacoco:report'
+                            junit 'target/surefire-reports/*.xml'
+                            jacoco execPattern: 'target/jacoco.exec',
+                                   classPattern: 'target/classes',
+                                   sourcePattern: 'src/main/java',
+                                   inclusionPattern: '**/*.class'
+                            sh '''
+                                python3 - <<'PY'
+                                import sys
+                                import xml.etree.ElementTree as ET
+
+                                report_path = 'target/site/jacoco/jacoco.xml'
+                                tree = ET.parse(report_path)
+                                root = tree.getroot()
+
+                                missed = 0
+                                covered = 0
+                                for counter in root.findall('.//counter[@type="LINE"]'):
+                                    missed += int(counter.attrib.get('missed', 0))
+                                    covered += int(counter.attrib.get('covered', 0))
+
+                                total = missed + covered
+                                coverage = 100.0 * covered / total if total else 0.0
+
+                                print(f'Line coverage: {coverage:.2f}%')
+
+                                if coverage < 70.0:
+                                    print('Coverage is below the required 70% threshold.')
+                                    sys.exit(1)
+                                PY
+                            '''
+                            sh 'mvn -DskipTests package'
+                        }
+                    }
+                }
             }
         }
     }
 
-    stage('Test & Build Media Service') {
-        when { expression { return env.MEDIA_CHANGED == 'true' } }
-        steps {
-            dir('media') {
-                echo 'Running tests for Media service...'
-                sh 'mvn clean test jacoco:report'
-                junit 'target/surefire-reports/*.xml'
-                jacoco execPattern: 'target/jacoco.exec',
-                       classPattern: 'target/classes',
-                       sourcePattern: 'src/main/java',
-                       inclusionPattern: '**/*.class'
-                sh 'mvn -DskipTests package'
-            }
+    post {
+        always {
+            echo 'Pipeline finished.'
         }
     }
-
-    stage('Test & Build Product Service') {
-        when { expression { return env.PRODUCT_CHANGED == 'true' } }
-        steps {
-            dir('product') {
-                echo 'Running tests for Product service...'
-                sh 'mvn clean test jacoco:report'
-                junit 'target/surefire-reports/*.xml'
-                jacoco execPattern: 'target/jacoco.exec',
-                       classPattern: 'target/classes',
-                       sourcePattern: 'src/main/java',
-                       inclusionPattern: '**/*.class'
-                sh 'mvn -DskipTests package'
-            }
-        }
-    }
-}
-
-post {
-    always {
-        echo 'Pipeline finished.'
-    }
-}
-
 }
