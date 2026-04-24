@@ -160,12 +160,14 @@ pipeline {
                         return
                     }
 
-                    changedServices.each { serviceName ->
-                        def serviceDir = serviceName.trim()
-                        echo "Running SonarQube scan for ${serviceDir}..."
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        changedServices.each { serviceName ->
+                            def serviceDir = serviceName.trim()
+                            echo "Running SonarQube scan for ${serviceDir}..."
 
-                        dir(serviceDir) {
-                            sh 'mvn sonar:sonar -DskipTests'
+                            dir(serviceDir) {
+                                sh 'mvn sonar:sonar -DskipTests -Dsonar.login=${SONAR_TOKEN}'
+                            }
                         }
                     }
                 }
