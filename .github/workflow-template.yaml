@@ -47,7 +47,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: {{SERVICE_NAME}}-Unit-Test-Results
-          path: "{{SERVICE_NAME}}/**/surefire-reports/TEST-*.xml"
+          path: "{{SERVICE_NAME}}/target/surefire-reports/TEST-*.xml"
           reporter: java-junit
           
       # Phân tích chất lượng code với SonarCloud (Yêu cầu 7c)

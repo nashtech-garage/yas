@@ -53,7 +53,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Media-Service-Unit-Test-Results
-          path: "media/**/*-reports/TEST*.xml"
+          path: "media/target/surefire-reports/TEST-*.xml"
           reporter: java-junit
           
       - name: Analyze with sonar cloud
