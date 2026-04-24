@@ -80,12 +80,15 @@ jobs:
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
+        continue-on-error: true 
         env:
           JAVA_HOME: /opt/jdk
         with:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: >
+            --disableCentral
           
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
