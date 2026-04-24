@@ -1,4 +1,4 @@
-name: sampledata service ci
+﻿name: sampledata service ci
 
 on:
   push:
@@ -20,6 +20,11 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      packages: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
@@ -70,4 +75,4 @@ jobs:
         with:
           context: ./sampledata
           push: true
-          tags: ghcr.io/nashtech-garage/yas-sampledata:latest
+          tags: ghcr.io/nat90711/yas-sampledata:latest
