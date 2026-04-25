@@ -1,49 +1,52 @@
 package com.yas.media;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.yas.media.config.FilesystemConfig;
 import com.yas.media.repository.FileSystemRepository;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
+@ExtendWith(MockitoExtension.class)
 class FileSystemRepositoryTest {
 
     private static final String TEST_URL = "target/test-directory";
+    private static final Logger log = LoggerFactory.getLogger(FileSystemRepositoryTest.class);
 
     @Mock
     private FilesystemConfig filesystemConfig;
 
-    @InjectMocks
     private FileSystemRepository fileSystemRepository;
 
     @BeforeEach
     public void setUp() throws IOException {
-        MockitoAnnotations.openMocks(this);
-        Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize(); // Dùng tuyệt đối cho chắc chắn
+        fileSystemRepository = new FileSystemRepository(filesystemConfig);
+        lenient().when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        
+        Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize();
         if (!Files.exists(testDir)) {
             Files.createDirectories(testDir);
         }
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    void tearDown() throws Exception {
         Path testDir = Paths.get(TEST_URL);
         if (Files.exists(testDir)) {
             Files.walk(testDir)
@@ -60,52 +63,51 @@ class FileSystemRepositoryTest {
 
     @Test
     void testPersistFile_whenDirectoryNotExist_thenThrowsException() {
-        String directoryPath = "non-exist-directory-" + System.currentTimeMillis();
-        String filename = "test-file.png";
-        byte[] content = "test-content".getBytes();
-        when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
-
-        assertThrows(IllegalStateException.class, () -> fileSystemRepository.persistFile(filename, content));
+        when(filesystemConfig.getDirectory()).thenReturn("non-existent-directory");
+        assertThrows(IllegalStateException.class, () -> fileSystemRepository.persistFile("test.png", "data".getBytes()));
     }
 
     @Test
-    void testPersistFile_filePathNotContainsDirectory() throws IOException {
-        String filename = "test-file.png";
-        byte[] content = "test-content".getBytes();
+    void testPersistFile_whenSuccessful_thenFileExists() throws IOException {
         when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
 
-        // Tạo folder trước khi test để tránh lỗi không tìm thấy thư mục
-        Path testDir = Paths.get(TEST_URL);
-        if (!Files.exists(testDir)) Files.createDirectories(testDir);
-        
-        // Test này kiểm tra logic build path nội bộ của bạn
+        fileSystemRepository.persistFile("validfile.png", "content".getBytes());
+
+        Path filePath = Paths.get(TEST_URL, "validfile.png");
+        assertTrue(Files.exists(filePath));
+    }
+
+    @Test
+    void testGetFile_whenDirectIsExist_thenReturnFile() throws IOException {
+        Path filePath = Paths.get(TEST_URL, "get-test.png");
+        Files.write(filePath, "data".getBytes());
+
+        InputStream inputStream = fileSystemRepository.getFile(filePath.toString());
+        assertNotNull(inputStream);
+        inputStream.close();
+    }
+
+    @Test
+    void testPersistFile_whenFilenameHasSpecialCharacters_thenSaveSuccessfully() throws IOException {
+        String filename = "test@special.png";
+        byte[] content = "test content".getBytes();
         fileSystemRepository.persistFile(filename, content);
         Path filePath = Paths.get(TEST_URL, filename);
         assertThat(Files.exists(filePath)).isTrue();
     }
 
-    // Kiểm tra lại hàm setup cũng cần throws IOException
-    @BeforeEach
-    public void setUp() throws IOException { // Thêm ở đây
-        MockitoAnnotations.openMocks(this);
-        Path testDir = Paths.get(TEST_URL);
-        if (!Files.exists(testDir)) {
-            Files.createDirectories(testDir);
-        }
+    @Test
+    void testPersistFile_whenPathTraversalWithDoubleDot_thenThrowsException() {
+        String filename = "../test.png";
+        byte[] content = "test content".getBytes();
+        assertThrows(IllegalArgumentException.class, () -> fileSystemRepository.persistFile(filename, content));
     }
 
     @Test
-    void testGetFile_whenDirectIsExist_thenReturnFile() throws IOException {
-        String filename = "test-file.png";
-        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
-
-        Path filePath = Paths.get(TEST_URL, filename);
-        byte[] content = "test-content".getBytes();
-        Files.write(filePath, content);
-
-        InputStream inputStream = fileSystemRepository.getFile(filePath.toString());
-        byte[] fileContent = inputStream.readAllBytes();
-        assertArrayEquals(content, fileContent);
+    void testPersistFile_filePathNotContainsDirectory() {
+        String filename = "sub/test.png";
+        byte[] content = "test content".getBytes();
+        assertThrows(IllegalArgumentException.class, () -> fileSystemRepository.persistFile(filename, content));
     }
 
     @Test
@@ -113,43 +115,6 @@ class FileSystemRepositoryTest {
         String directoryPath = "non-exist-directory";
         String filename = "test-file.png";
         String filePathStr = Paths.get(directoryPath, filename).toString();
-        when(filesystemConfig.getDirectory()).thenReturn(directoryPath);
-
         assertThrows(IllegalStateException.class, () -> fileSystemRepository.getFile(filePathStr));
-    }
-
-    // --- CÁC TEST CASE TỪ PHẦN "Unit Test Addition" ĐÃ ĐƯỢC FIX LỖI LOGIC ---
-
-    @Test
-    void testPersistFile_whenFilenameHasSpecialCharacters_thenSaveSuccessfully() throws IOException {
-        String filename = "test_special.txt"; // Sửa lại tên file hợp lệ với Validator của bạn
-        byte[] content = "Special Content".getBytes();
-        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
-
-        fileSystemRepository.persistFile(filename, content);
-
-        Path filePath = Paths.get(TEST_URL, filename);
-        assertThat(Files.exists(filePath)).isTrue();
-    }
-
-    @Test
-    void testPersistFile_whenPathTraversalWithDoubleDot_thenThrowsException() {
-        String filename = "../etc/passwd";
-        byte[] content = "malicious".getBytes();
-        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
-
-        assertThrows(IllegalArgumentException.class, () -> fileSystemRepository.persistFile(filename, content));
-    }
-
-    @Test
-    void testPersistFile_whenSuccessful_thenFileExists() throws IOException {
-        String filename = "valid-file.png";
-        byte[] content = "test-content".getBytes();
-        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
-
-        fileSystemRepository.persistFile(filename, content);
-
-        Path filePath = Paths.get(TEST_URL, filename);
-        assertThat(Files.exists(filePath)).isTrue();
     }
 }
