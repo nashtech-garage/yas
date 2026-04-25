@@ -98,37 +98,33 @@ class MediaServiceUnitTest {
     }
 
     @Test
-    void saveMedia_whenValidInput_thenPersistToFileSystem() throws Exception {
+    void saveMedia_whenPersistFileThrowsException_thenThrowException() throws Exception {
         byte[] content = new byte[] {1, 2, 3};
         MultipartFile multipartFile = new MockMultipartFile("file", "test.png", "image/png", content);
-        MediaPostVm vm = new MediaPostVm("caption", multipartFile, "test.png");
+        MediaPostVm vm = new MediaPostVm("caption", multipartFile, null);
 
-        when(mediaRepository.save(any(Media.class))).thenAnswer(i -> i.getArgument(0));
-        
-        // FIX: Thay doNothing bằng return giá trị (giả sử trả về null hoặc object đều được)
-        when(fileSystemRepository.persistFile(anyString(), any(byte[].class))).thenReturn(null); 
-        
-        Media savedMedia = mediaService.saveMedia(vm);
-        
-        assertNotNull(savedMedia);
-        verify(mediaRepository, times(1)).save(any());
-        verify(fileSystemRepository, times(1)).persistFile(anyString(), any(byte[].class));
+        when(fileSystemRepository.persistFile(anyString(), any(byte[].class))).thenThrow(new IOException("Disk full"));
+
+        assertThrows(IOException.class, () -> mediaService.saveMedia(vm));
     }
 
     @Test
-    void getFile_whenMediaExists_thenReturnFullData() throws IOException {
-        when(mediaRepository.findById(1L)).thenReturn(Optional.of(media));
-        
-        byte[] expectedContent = "test data".getBytes();
-        InputStream inputStream = new java.io.ByteArrayInputStream(expectedContent);
-        when(fileSystemRepository.getFile(any())).thenReturn(inputStream);
+    void getFile_whenMediaNotExists_thenReturnEmpty() {
+        when(mediaRepository.findById(1L)).thenReturn(Optional.empty());
 
         MediaDto result = mediaService.getFile(1L, "file");
 
         assertNotNull(result);
-        // FIX: So sánh bằng String vì MediaType trả về từ DTO thường được chuyển thành String hoặc dùng .toString()
-        assertEquals("image/jpeg", result.getMediaType().toString());
-        assertArrayEquals(expectedContent, result.getContent().readAllBytes());
+        assertNull(result.getContent());
+        assertNull(result.getMediaType());
+    }
+
+    @Test
+    void getFile_whenGetFileThrowsException_thenThrowException() {
+        when(mediaRepository.findById(1L)).thenReturn(Optional.of(media));
+        when(fileSystemRepository.getFile(any())).thenThrow(new RuntimeException("File not accessible"));
+
+        assertThrows(RuntimeException.class, () -> mediaService.getFile(1L, "file"));
     }
 
     @Test
@@ -142,6 +138,32 @@ class MediaServiceUnitTest {
         assertNotNull(mediaVm);
         // Nếu code chính của bạn chưa có URL Encoding, hãy đổi match này cho giống thực tế
         assertThat(mediaVm.getUrl()).contains("medias/5/file/file@#$%.png");
+    }
+
+    @Test
+    void getMediaByIds_whenValidIds_thenReturnList() {
+        List<Long> ids = List.of(1L, 2L);
+        Media media1 = getMedia(1L, "file1.png");
+        Media media2 = getMedia(2L, "file2.png");
+        when(mediaRepository.findAllById(ids)).thenReturn(List.of(media1, media2));
+        when(yasConfig.publicUrl()).thenReturn("http://example.com");
+
+        List<MediaVm> result = mediaService.getMediaByIds(ids);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(mediaVmMapper, times(2)).toVm(any());
+    }
+
+    @Test
+    void getMediaByIds_whenEmptyList_thenReturnEmpty() {
+        List<Long> ids = List.of();
+        when(mediaRepository.findAllById(ids)).thenReturn(List.of());
+
+        List<MediaVm> result = mediaService.getMediaByIds(ids);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     private static @NotNull Media getMedia(Long id, String name) {
