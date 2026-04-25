@@ -217,7 +217,19 @@ pipeline {
                             echo "Running Snyk scan for ${serviceDir}..."
 
                             dir(serviceDir) {
-                                sh 'snyk test --file=pom.xml --severity-threshold=high --skip-unresolved'
+                                int snykExitCode = sh(
+                                    script: 'snyk test --file=pom.xml --severity-threshold=high --skip-unresolved --prune-repeated-subdependencies',
+                                    returnStatus: true
+                                )
+
+                                if (snykExitCode == 1) {
+                                    error("Snyk found vulnerabilities at or above configured threshold in ${serviceDir}.")
+                                }
+
+                                if (snykExitCode != 0) {
+                                    echo "Snyk CLI returned exit code ${snykExitCode} for ${serviceDir}. Marking build as UNSTABLE due to scan runtime issue."
+                                    currentBuild.result = 'UNSTABLE'
+                                }
                             }
                         }
                     }
