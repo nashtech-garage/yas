@@ -32,6 +32,11 @@ class CustomerServiceTest {
         responseSpec = Mockito.mock(RestClient.ResponseSpec.class);
     }
 
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+    }
+
     @Test
     void testGetCustomer_whenValidJwt_returnsCustomerVm() {
         when(serviceUrlConfig.customer()).thenReturn(CUSTOMER_URL);

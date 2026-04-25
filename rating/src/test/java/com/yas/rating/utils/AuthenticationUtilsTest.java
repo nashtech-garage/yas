@@ -16,6 +16,11 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 class AuthenticationUtilsTest {
 
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
     void extractUserId_whenAnonymousUser_throwsAccessDeniedException() {
         AnonymousAuthenticationToken auth = mock(AnonymousAuthenticationToken.class);
