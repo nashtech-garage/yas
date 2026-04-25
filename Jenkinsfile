@@ -216,8 +216,9 @@ pipeline {
                         )
 
                         if (snykAuthStatus != 0) {
-                            echo 'Snyk authentication failed (401 likely). Marking build as UNSTABLE and skipping Snyk scan.'
-                            currentBuild.result = 'UNSTABLE'
+                            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                                error('Snyk authentication failed (401 likely). Check Jenkins credential snyk-token.')
+                            }
                             return
                         }
 
@@ -234,8 +235,9 @@ pipeline {
                                 )
 
                                 if (snykExitCode != 0) {
-                                    echo "Snyk CLI returned exit code ${snykExitCode} for ${serviceDir}. Marking build as UNSTABLE (scan logged, pipeline continues)."
-                                    currentBuild.result = 'UNSTABLE'
+                                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                                        error("Snyk CLI returned exit code ${snykExitCode} for ${serviceDir}. Scan logged and stage marked UNSTABLE.")
+                                    }
                                 }
                             }
                         }
