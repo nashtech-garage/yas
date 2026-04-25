@@ -141,7 +141,7 @@ class MediaServiceUnitTest {
     }
 
     @Test
-    void getMediaByIds_whenValidIds_thenReturnList() {
+    void getMediaByIds_whenMultipleIds_thenReturnListWithUrls() {
         List<Long> ids = List.of(1L, 2L);
         Media media1 = getMedia(1L, "file1.png");
         Media media2 = getMedia(2L, "file2.png");
@@ -152,6 +152,8 @@ class MediaServiceUnitTest {
 
         assertNotNull(result);
         assertEquals(2, result.size());
+        assertEquals("http://example.com/medias/1/file/file1.png", result.get(0).getUrl());
+        assertEquals("http://example.com/medias/2/file/file2.png", result.get(1).getUrl());
         verify(mediaVmMapper, times(2)).toVm(any());
     }
 
