@@ -32,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+// Test snyk
 class ProductServiceTest {
 
         private static final String PRODUCT_URL = "http://api.yas.local/product";
