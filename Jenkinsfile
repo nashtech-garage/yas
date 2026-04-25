@@ -167,7 +167,7 @@ pipeline {
                                     print('Coverage is below the required 70% threshold.')
                                     sys.exit(1)
                                 PY
-                            '''
+                            '''.stripIndent()
                             sh "mvn -f ../pom.xml -pl ${serviceDir} -am -DskipTests package"
                         }
                     }
