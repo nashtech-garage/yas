@@ -136,4 +136,42 @@ class ProductServiceTest {
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         assertDoesNotThrow(() -> productService.updateProductQuantity(productQuantityPostVms));
     }
+
+    @Test
+    void testFilterProducts_whenProductIdsIsEmpty_returnListProductInfoVm() {
+        String productName = "ProductName";
+        String productSku = "ProductSKU";
+        List<Long> productIds = null;
+        FilterExistInWhSelection selection = FilterExistInWhSelection.YES;
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("name", productName);
+        params.add("sku", productSku);
+        params.add("selection", selection.name());
+
+        final URI url = UriComponentsBuilder
+                .fromUriString(PRODUCT_URL)
+                .path("/backoffice/products/for-warehouse")
+                .queryParams(params)
+                .build()
+                .toUri();
+
+        RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(url)).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        ResponseEntity responseEntity = mock(ResponseEntity.class);
+        ProductInfoVm productInfoVm = new ProductInfoVm(1L, productName, productSku, true);
+        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductInfoVm>>() {
+        }))
+                .thenReturn(responseEntity);
+        when(responseEntity.getBody()).thenReturn(List.of(productInfoVm));
+
+        List<ProductInfoVm> result = productService.filterProducts(productName, productSku, productIds, selection);
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(productName, result.getFirst().name());
+    }
 }
