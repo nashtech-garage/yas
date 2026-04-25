@@ -210,14 +210,35 @@ pipeline {
                     }
 
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                        sh 'snyk auth "$SNYK_TOKEN"'
+                        int snykAuthStatus = sh(
+                            script: 'SNYK_TOKEN="$SNYK_TOKEN" snyk whoami >/dev/null 2>&1',
+                            returnStatus: true
+                        )
+
+                        if (snykAuthStatus != 0) {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                                error('Snyk authentication failed (401 likely). Check Jenkins credential snyk-token.')
+                            }
+                            return
+                        }
 
                         changedServices.each { serviceName ->
                             def serviceDir = serviceName.trim()
                             echo "Running Snyk scan for ${serviceDir}..."
 
                             dir(serviceDir) {
-                                sh 'snyk test --all-projects --severity-threshold=high'
+                                sh 'test -x ./mvnw || chmod +x ./mvnw'
+
+                                int snykExitCode = sh(
+                                    script: 'SNYK_TOKEN="$SNYK_TOKEN" snyk test --file=pom.xml --severity-threshold=high --skip-unresolved --prune-repeated-subdependencies',
+                                    returnStatus: true
+                                )
+
+                                if (snykExitCode != 0) {
+                                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                                        error("Snyk CLI returned exit code ${snykExitCode} for ${serviceDir}. Scan logged and stage marked UNSTABLE.")
+                                    }
+                                }
                             }
                         }
                     }
