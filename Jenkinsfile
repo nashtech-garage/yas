@@ -144,30 +144,30 @@ pipeline {
                                    sourcePattern: 'src/main/java',
                                    inclusionPattern: '**/*.class'
                             sh '''
-                                python3 - <<'PY'
-                                import sys
-                                import xml.etree.ElementTree as ET
-
-                                report_path = 'target/site/jacoco/jacoco.xml'
-                                tree = ET.parse(report_path)
-                                root = tree.getroot()
-
-                                missed = 0
-                                covered = 0
-                                for counter in root.findall('.//counter[@type="LINE"]'):
-                                    missed += int(counter.attrib.get('missed', 0))
-                                    covered += int(counter.attrib.get('covered', 0))
-
-                                total = missed + covered
-                                coverage = 100.0 * covered / total if total else 0.0
-
-                                print(f'Line coverage: {coverage:.2f}%')
-
-                                if coverage < 70.0:
-                                    print('Coverage is below the required 70% threshold.')
-                                    sys.exit(1)
-                                PY
-                            '''.stripIndent()
+                                |python3 - <<'PY'
+                                |import sys
+                                |import xml.etree.ElementTree as ET
+                                |
+                                |report_path = 'target/site/jacoco/jacoco.xml'
+                                |tree = ET.parse(report_path)
+                                |root = tree.getroot()
+                                |
+                                |missed = 0
+                                |covered = 0
+                                |for counter in root.findall('.//counter[@type="LINE"]'):
+                                |    missed += int(counter.attrib.get('missed', 0))
+                                |    covered += int(counter.attrib.get('covered', 0))
+                                |
+                                |total = missed + covered
+                                |coverage = 100.0 * covered / total if total else 0.0
+                                |
+                                |print(f'Line coverage: {coverage:.2f}%')
+                                |
+                                |if coverage < 70.0:
+                                |    print('Coverage is below the required 70% threshold.')
+                                |    sys.exit(1)
+                                |PY
+                            '''.stripMargin()
                             sh "mvn -f ../pom.xml -pl ${serviceDir} -am -DskipTests package"
                         }
                     }
