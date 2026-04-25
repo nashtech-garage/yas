@@ -101,7 +101,8 @@ class ProductTemplateServiceTest {
     @Test
     void getProductTemplate_WhenIdProductTemplateNotExit_ThrowsNotFoundException() {
         Long invalidId = 9999L;
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> productTemplateService.getProductTemplate(invalidId));
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> productTemplateService.getProductTemplate(invalidId));
         assertEquals(Constants.ErrorCode.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
     }
 
@@ -117,7 +118,8 @@ class ProductTemplateServiceTest {
     @Test
     void saveProductTemplate_WhenDuplicateName_ThenThrowDuplicatedException() {
         ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate1", null);
-        DuplicatedException exception = assertThrows(DuplicatedException.class, () -> productTemplateService.saveProductTemplate(productTemplatePostVm));
+        DuplicatedException exception = assertThrows(DuplicatedException.class,
+                () -> productTemplateService.saveProductTemplate(productTemplatePostVm));
         assertEquals("Request name productTemplate1 is already existed", exception.getMessage());
 
     }
@@ -126,8 +128,10 @@ class ProductTemplateServiceTest {
     void saveProductTemplate_WhenProductAttributesNotFound_ThenThrowBadRequestException() {
         List<ProductAttributeTemplatePostVm> listProductAttTemplates = new ArrayList<>();
         listProductAttTemplates.add(new ProductAttributeTemplatePostVm(9999L, 0));
-        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate3", listProductAttTemplates);
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> productTemplateService.saveProductTemplate(productTemplatePostVm));
+        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate3",
+                listProductAttTemplates);
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> productTemplateService.saveProductTemplate(productTemplatePostVm));
         assertThat(exception.getMessage()).isEqualTo(Constants.ErrorCode.PRODUCT_ATTRIBUTE_NOT_FOUND);
     }
 
@@ -145,7 +149,8 @@ class ProductTemplateServiceTest {
     void updateProductTemplate_WhenIdProductTemplateNotExist_ThenThrowNotFoundException() {
         ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate2",
                 List.of(new ProductAttributeTemplatePostVm(productAttribute1.getId(), 0)));
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> productTemplateService.updateProductTemplate(9999L, productTemplatePostVm));
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> productTemplateService.updateProductTemplate(9999L, productTemplatePostVm));
         assertEquals(Constants.ErrorCode.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
     }
 
