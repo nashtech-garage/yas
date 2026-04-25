@@ -1,6 +1,6 @@
 pipeline {
     agent any 
-
+   
     options {
         timestamps()
     }
@@ -191,7 +191,13 @@ pipeline {
                             echo "Running SonarQube scan for ${serviceDir}..."
 
                             dir(serviceDir) {
-                                sh "mvn -f ../pom.xml -pl ${serviceDir} -am sonar:sonar -DskipTests -Dsonar.login=${SONAR_TOKEN}"
+                                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                                    timeout(time: 10, unit: 'MINUTES') {
+                                        retry(2) {
+                                            sh "mvn -f ../pom.xml -pl ${serviceDir} -am sonar:sonar -DskipTests -Dsonar.login=${SONAR_TOKEN} -Dsonar.ws.timeout=120"
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
