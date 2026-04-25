@@ -194,7 +194,14 @@ pipeline {
                                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
                                     timeout(time: 10, unit: 'MINUTES') {
                                         retry(2) {
-                                            sh "mvn -f ../pom.xml -pl ${serviceDir} -am sonar:sonar -DskipTests -Dsonar.login=${SONAR_TOKEN} -Dsonar.ws.timeout=120"
+                                            withEnv(["SERVICE_DIR=${serviceDir}"]) {
+                                                sh '''
+                                                    mvn -f ../pom.xml -pl "$SERVICE_DIR" -am sonar:sonar \
+                                                      -DskipTests \
+                                                      -Dsonar.token="$SONAR_TOKEN" \
+                                                      -Dsonar.ws.timeout=120
+                                                '''.stripIndent()
+                                            }
                                         }
                                     }
                                 }
