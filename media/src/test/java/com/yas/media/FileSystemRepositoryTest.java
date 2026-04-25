@@ -25,7 +25,7 @@ import org.mockito.MockitoAnnotations;
 @Slf4j
 class FileSystemRepositoryTest {
 
-    private static final String TEST_URL = "src/test/resources/test-directory";
+    private static final String TEST_URL = "target/test-directory";
 
     @Mock
     private FilesystemConfig filesystemConfig;
@@ -36,8 +36,7 @@ class FileSystemRepositoryTest {
     @BeforeEach
     public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
-        // FIX: Đảm bảo thư mục test luôn tồn tại trên Jenkins
-        Path testDir = Paths.get(TEST_URL);
+        Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize(); // Dùng tuyệt đối cho chắc chắn
         if (!Files.exists(testDir)) {
             Files.createDirectories(testDir);
         }
