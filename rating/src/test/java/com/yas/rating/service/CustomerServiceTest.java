@@ -48,7 +48,7 @@ class CustomerServiceTest {
         when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
 
-        CustomerVm expectedCustomer = new CustomerVm("testUser", "test_user", "test@example.com", "Test", "User");
+        CustomerVm expectedCustomer = new CustomerVm("testUser", "test@example.com", "Test", "User");
         when(responseSpec.body(CustomerVm.class)).thenReturn(expectedCustomer);
 
         CustomerVm result = customerService.getCustomer();
