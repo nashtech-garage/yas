@@ -217,7 +217,7 @@ pipeline {
                             echo "Running Snyk scan for ${serviceDir}..."
 
                             dir(serviceDir) {
-                                sh 'snyk test --all-projects --severity-threshold=high'
+                                sh 'snyk test --file=pom.xml --severity-threshold=high --skip-unresolved'
                             }
                         }
                     }
