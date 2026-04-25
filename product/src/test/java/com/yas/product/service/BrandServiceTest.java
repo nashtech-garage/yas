@@ -106,4 +106,15 @@ class BrandServiceTest {
             brandService.update(brandPostVm, 1L);
         });
     }
+
+    // Retrieve a list of brands by ids
+    @Test
+    void test_get_brands_by_ids_successfully() {
+        List<Brand> brands = List.of(new Brand(), new Brand());
+        when(brandRepository.findAllById(any())).thenReturn(brands);
+
+        List<com.yas.product.viewmodel.brand.BrandVm> result = brandService.getBrandsByIds(List.of(1L, 2L));
+
+        assertEquals(2, result.size());
+    }
 }
