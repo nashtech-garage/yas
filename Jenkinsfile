@@ -137,7 +137,7 @@ pipeline {
                         echo "Running tests and build for ${serviceDir}..."
 
                         dir(serviceDir) {
-                            sh 'mvn clean test jacoco:report'
+                            sh "mvn -f ../pom.xml -pl ${serviceDir} -am clean test jacoco:report"
                             junit 'target/surefire-reports/*.xml'
                             jacoco execPattern: 'target/jacoco.exec',
                                    classPattern: 'target/classes',
@@ -168,7 +168,7 @@ pipeline {
                                     sys.exit(1)
                                 PY
                             '''
-                            sh 'mvn -DskipTests package'
+                            sh "mvn -f ../pom.xml -pl ${serviceDir} -am -DskipTests package"
                         }
                     }
                 }
@@ -191,7 +191,7 @@ pipeline {
                             echo "Running SonarQube scan for ${serviceDir}..."
 
                             dir(serviceDir) {
-                                sh 'mvn sonar:sonar -DskipTests -Dsonar.login=${SONAR_TOKEN}'
+                                sh "mvn -f ../pom.xml -pl ${serviceDir} -am sonar:sonar -DskipTests -Dsonar.login=${SONAR_TOKEN}"
                             }
                         }
                     }
