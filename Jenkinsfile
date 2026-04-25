@@ -199,6 +199,8 @@ pipeline {
                                                     mvn -f ../pom.xml -pl "$SERVICE_DIR" -am sonar:sonar \
                                                       -DskipTests \
                                                       -Dsonar.token="$SONAR_TOKEN" \
+                                                      -Dsonar.projectKey="hcmus-devops-project1_yas_${SERVICE_DIR}" \
+                                                      -Dsonar.projectName="yas-${SERVICE_DIR}" \
                                                       -Dsonar.ws.timeout=120
                                                 '''.stripIndent()
                                             }
