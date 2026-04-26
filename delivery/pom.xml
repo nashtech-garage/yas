@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -16,9 +16,9 @@
     <description>YAS Delivery service</description>
 
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>Nat90711</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-delivery</sonar.projectKey>
+        <sonar.projectKey>Nat90711_yas-delivery</sonar.projectKey>
     </properties>
 
 </project>
