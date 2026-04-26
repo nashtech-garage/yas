@@ -1,12 +1,11 @@
 package com.yas.media.utils;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.yas.media.validation.ValidFileType;
+import com.yas.media.utils.ValidFileType;
 import jakarta.validation.ConstraintValidatorContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -61,7 +60,7 @@ class FileTypeValidatorTest {
     }
 
     @Test
-    void isValid_whenValidPngFile_thenReturnFalse_becauseEmptyContent() throws IOException {
+    void isValid_whenValidPngFileButEmptyContent_thenReturnFalse() throws IOException {
         // Empty byte array is not a valid PNG image, so ImageIO.read returns null → false
         MultipartFile file = mock(MultipartFile.class);
         when(file.getContentType()).thenReturn("image/png");

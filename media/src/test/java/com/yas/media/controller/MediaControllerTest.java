@@ -22,15 +22,18 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(MediaController.class)
-@AutoConfigureMockMvc(addSpringSecurityAutoConfiguration = false)
+@WebMvcTest(excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
+@ContextConfiguration(classes = {MediaController.class})
+@AutoConfigureMockMvc(addFilters = false)
 class MediaControllerTest {
 
     @Autowired
@@ -50,13 +53,13 @@ class MediaControllerTest {
         when(mediaService.saveMedia(any())).thenReturn(media);
 
         MockMultipartFile file = new MockMultipartFile(
-            "file", "test.png", "image/png", "content".getBytes()
+            "multipartFile", "test.png", "image/png", "content".getBytes()
         );
 
         mockMvc.perform(multipart("/medias")
                 .file(file)
                 .param("caption", "test")
-                .param("fileName", "test.png")
+                .param("fileNameOverride", "test.png")
                 .contentType(MediaType.MULTIPART_FORM_DATA))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1L))
