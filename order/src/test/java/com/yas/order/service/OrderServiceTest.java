@@ -21,12 +21,19 @@ import com.yas.order.viewmodel.order.OrderItemPostVm;
 import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.OrderAddress;
+import com.yas.order.utils.AuthenticationUtils;
+import com.yas.order.model.request.OrderRequest;
+import com.yas.commonlibrary.csv.BaseCsv;
+import com.yas.order.viewmodel.order.OrderBriefVm;
+import com.yas.order.viewmodel.order.OrderListVm;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -265,5 +272,54 @@ class OrderServiceTest {
         var result = orderService.getLatestOrders(5);
         
         assertThat(result).hasSize(1);
+    }
+    
+    @Test
+    void exportCsv_WhenOrdersExist_ShouldReturnCsvBytes() throws IOException {
+        OrderRequest request = new OrderRequest();
+        request.setPageNo(0);
+        request.setPageSize(10);
+        request.setCreatedFrom(ZonedDateTime.now());
+        request.setCreatedTo(ZonedDateTime.now());
+        request.setProductName("product");
+        request.setOrderStatus(List.of(OrderStatus.COMPLETED));
+        request.setBillingCountry("VN");
+        request.setBillingPhoneNumber("123456");
+        request.setEmail("test@example.com");
+
+        Page<Order> orderPage = new PageImpl<>(List.of(order));
+        when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(orderPage);
+        
+        byte[] result = orderService.exportCsv(request);
+        
+        assertThat(result).isNotNull();
+    }
+    
+    @Test
+    void getMyOrders_ShouldReturnOrderGetVms() {
+        when(orderRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(order));
+        
+        try (org.mockito.MockedStatic<AuthenticationUtils> utilities = org.mockito.Mockito.mockStatic(AuthenticationUtils.class)) {
+            utilities.when(AuthenticationUtils::extractUserId).thenReturn("user123");
+            
+            var result = orderService.getMyOrders("product", OrderStatus.COMPLETED);
+            
+            assertThat(result).hasSize(1);
+        }
+    }
+    
+    @Test
+    void isOrderCompletedWithUserIdAndProductId_ShouldReturnVm() {
+        when(productService.getProductVariations(1L)).thenReturn(List.of());
+        when(orderRepository.findOne(any(Specification.class))).thenReturn(Optional.of(order));
+        
+        try (org.mockito.MockedStatic<AuthenticationUtils> utilities = org.mockito.Mockito.mockStatic(AuthenticationUtils.class)) {
+            utilities.when(AuthenticationUtils::extractUserId).thenReturn("user123");
+            
+            var result = orderService.isOrderCompletedWithUserIdAndProductId(1L);
+            
+            assertThat(result).isNotNull();
+            assertThat(result.isCompleted()).isTrue();
+        }
     }
 }
