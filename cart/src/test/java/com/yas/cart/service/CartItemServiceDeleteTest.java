@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.yas.cart.mapper.CartItemMapper;
 import com.yas.cart.repository.CartItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -19,7 +20,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import com.yas.cart.mapper.CartItemMapper;
 
 @ExtendWith(MockitoExtension.class)
 class CartItemServiceDeleteTest {
@@ -48,13 +48,13 @@ class CartItemServiceDeleteTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
+    @BeforeEach
+    void setUp() {
+        mockCurrentUserId(CURRENT_USER_ID);
+    }
+
     @Nested
     class DeleteCartItemTest {
-
-        @BeforeEach
-        void setUp() {
-            mockCurrentUserId(CURRENT_USER_ID);
-        }
 
         @Test
         void deleteCartItem_whenValidProductId_thenDeleteSuccessfully() {
