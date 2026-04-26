@@ -21,7 +21,7 @@ import com.yas.order.viewmodel.order.OrderItemPostVm;
 import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.OrderAddress;
-import com.yas.order.utils.AuthenticationUtils;
+import com.yas.commonlibrary.utils.AuthenticationUtils;
 import com.yas.order.model.request.OrderRequest;
 import com.yas.commonlibrary.csv.BaseCsv;
 import com.yas.order.viewmodel.order.OrderBriefVm;
