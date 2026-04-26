@@ -290,9 +290,10 @@ class OrderServiceTest {
         Page<Order> orderPage = new PageImpl<>(List.of(order));
         when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(orderPage);
         
-        byte[] result = orderService.exportCsv(request);
-        
-        assertThat(result).isNotNull();
+        com.yas.order.viewmodel.order.OrderItemCsv csvMock = new com.yas.order.viewmodel.order.OrderItemCsv();
+        when(orderMapper.toCsv(any())).thenReturn(csvMock);
+
+        byte[] result = orderService.exportCsv(request);        assertThat(result).isNotNull();
     }
     
     @Test

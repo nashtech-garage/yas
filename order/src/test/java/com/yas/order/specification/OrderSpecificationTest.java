@@ -39,6 +39,9 @@ class OrderSpecificationTest {
     void testFindMyOrders() {
         Specification<Order> spec = OrderSpecification.findMyOrders("user123", "Product", OrderStatus.COMPLETED);
         assertNotNull(spec);
+        Subquery subquery = mock(Subquery.class);
+        when(query.subquery(any())).thenReturn(subquery);
+        when(subquery.from(any(Class.class))).thenReturn(mock(Root.class));
         when(root.get(anyString())).thenReturn(mock(Path.class));
         when(criteriaBuilder.equal(any(), anyString())).thenReturn(mock(Predicate.class));
         when(criteriaBuilder.and(any(), any(), any())).thenReturn(mock(Predicate.class));
@@ -50,6 +53,9 @@ class OrderSpecificationTest {
         Specification<Order> spec = OrderSpecification.findOrderByWithMulCriteria(
             List.of(OrderStatus.COMPLETED), "123", "USA", "email@e.com", "product", ZonedDateTime.now(), ZonedDateTime.now());
         assertNotNull(spec);
+        Subquery subquery = mock(Subquery.class);
+        when(query.subquery(any())).thenReturn(subquery);
+        when(subquery.from(any(Class.class))).thenReturn(mock(Root.class));
         when(query.getResultType()).thenReturn((Class) Order.class);
         when(root.fetch(anyString(), any())).thenReturn(null);
         when(root.get(anyString())).thenReturn(mock(Path.class));

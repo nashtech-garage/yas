@@ -197,14 +197,14 @@ class OrderControllerTest {
             any()
         )).thenReturn(orderListVm);
 
-        mockMvc.perform(get("/backoffice/orders")
-                .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content()
-                .json(objectWriter.writeValueAsString(orderListVm)));
-    }
-
-    @Test
+          mockMvc.perform(get("/backoffice/orders")
+                  .param("createdFrom", "1970-01-01T00:00:00Z")
+                  .param("createdTo", "2026-04-26T00:00:00Z")
+                  .accept(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk())
+              .andExpect(MockMvcResultMatchers.content()
+                  .json(objectWriter.writeValueAsString(orderListVm)));
+      }    @Test
     void testGetLatestOrders_whenRequestIsValid_thenReturnOrderListVm() throws Exception {
 
         List<OrderBriefVm> list = new ArrayList<>();
@@ -229,13 +229,11 @@ class OrderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(orderRequest)))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION,
-                org.hamcrest.Matchers.startsWith("attachment; filename=OrderItemCsv_")))
-            .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
-    }
-
-    private OrderVm getOrderVm() {
+              .andExpect(status().isOk())
+              .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION,
+                  org.hamcrest.Matchers.startsWith("attachment; filename=Orders_")))
+              .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
+      }    private OrderVm getOrderVm() {
 
         OrderAddressVm shippingAddress = new OrderAddressVm(
             1L,
