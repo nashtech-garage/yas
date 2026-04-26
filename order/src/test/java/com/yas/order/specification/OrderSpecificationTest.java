@@ -46,6 +46,9 @@ class OrderSpecificationTest {
         when(root.get(anyString())).thenReturn(mock(Path.class));
         when(criteriaBuilder.equal(any(), anyString())).thenReturn(mock(Predicate.class));
         when(criteriaBuilder.and(any(), any(), any())).thenReturn(mock(Predicate.class));
+        CriteriaBuilder.In inMock = mock(CriteriaBuilder.In.class);
+        when(criteriaBuilder.in(any())).thenReturn(inMock);
+        when(inMock.value(any())).thenReturn(inMock);
         spec.toPredicate(root, query, criteriaBuilder);
     }
 
@@ -62,6 +65,9 @@ class OrderSpecificationTest {
         when(root.fetch(anyString(), any())).thenReturn(null);
         when(root.get(anyString())).thenReturn(mock(Path.class));
         when(criteriaBuilder.and(any(), any(), any(), any(), any(), any())).thenReturn(mock(Predicate.class));
+        CriteriaBuilder.In inMock = mock(CriteriaBuilder.In.class);
+        when(criteriaBuilder.in(any())).thenReturn(inMock);
+        when(inMock.value(any())).thenReturn(inMock);
         spec.toPredicate(root, query, criteriaBuilder);
     }
 
