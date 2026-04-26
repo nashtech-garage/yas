@@ -224,7 +224,7 @@ class OrderServiceTest {
         
         OrderVm result = orderService.createOrder(orderPostVm);
         
-        verify(orderRepository).save(any(Order.class));
+        verify(orderRepository, org.mockito.Mockito.times(2)).save(any(Order.class));
         verify(orderItemRepository).saveAll(any());
         verify(productService).subtractProductStockQuantity(any(OrderVm.class));
         verify(cartService).deleteCartItems(any(OrderVm.class));
