@@ -42,6 +42,7 @@ class OrderSpecificationTest {
         Subquery subquery = mock(Subquery.class);
         when(query.subquery(any(Class.class))).thenReturn(subquery);
         when(subquery.from(any(Class.class))).thenReturn(mock(Root.class));
+        when(subquery.select(any())).thenReturn(subquery);
         when(root.get(anyString())).thenReturn(mock(Path.class));
         when(criteriaBuilder.equal(any(), anyString())).thenReturn(mock(Predicate.class));
         when(criteriaBuilder.and(any(), any(), any())).thenReturn(mock(Predicate.class));
@@ -56,6 +57,7 @@ class OrderSpecificationTest {
         Subquery subquery = mock(Subquery.class);
         when(query.subquery(any(Class.class))).thenReturn(subquery);
         when(subquery.from(any(Class.class))).thenReturn(mock(Root.class));
+        when(subquery.select(any())).thenReturn(subquery);
         when(query.getResultType()).thenReturn((Class) Order.class);
         when(root.fetch(anyString(), any())).thenReturn(null);
         when(root.get(anyString())).thenReturn(mock(Path.class));
