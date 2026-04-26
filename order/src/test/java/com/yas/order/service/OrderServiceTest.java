@@ -22,9 +22,16 @@ import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.OrderAddress;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -231,5 +238,32 @@ class OrderServiceTest {
         verify(promotionService).updateUsagePromotion(any());
         
         assertThat(result).isNotNull();
+    }
+    
+    @Test
+    void getAllOrder_WhenOrdersExist_ShouldReturnOrderListVm() {
+        Page<Order> orderPage = new PageImpl<>(List.of(order));
+        when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(orderPage);
+        
+        var result = orderService.getAllOrder(
+            Pair.of(ZonedDateTime.now(), ZonedDateTime.now()),
+            "product",
+            List.of(OrderStatus.PENDING),
+            Pair.of("VN", "123456"),
+            "test@example.com",
+            Pair.of(0, 10)
+        );
+        
+        assertThat(result).isNotNull();
+        assertThat(result.totalElements()).isEqualTo(1);
+    }
+    
+    @Test
+    void getLatestOrders_WhenOrdersExist_ShouldReturnOrderBriefVms() {
+        when(orderRepository.getLatestOrders(any(Pageable.class))).thenReturn(List.of(order));
+        
+        var result = orderService.getLatestOrders(5);
+        
+        assertThat(result).hasSize(1);
     }
 }

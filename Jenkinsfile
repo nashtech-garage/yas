@@ -97,7 +97,10 @@ pipeline {
            
             jacoco execPattern: '**/target/jacoco.exec',
                    classPattern: '**/target/classes',
-                   sourcePattern: '**/src/main/java'
+                   sourcePattern: '**/src/main/java',
+                   changeBuildStatus: true,
+                   minimumLineCoverage: '70',
+                   maximumLineCoverage: '70'
         }
     }
 }   
