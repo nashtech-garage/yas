@@ -317,9 +317,9 @@ class OrderServiceTest {
             utilities.when(AuthenticationUtils::extractUserId).thenReturn("user123");
             
             var result = orderService.isOrderCompletedWithUserIdAndProductId(1L);
-            
+
             assertThat(result).isNotNull();
-            assertThat(result.isCompleted()).isTrue();
+            assertThat(result.isPresent()).isTrue();
         }
     }
 }
