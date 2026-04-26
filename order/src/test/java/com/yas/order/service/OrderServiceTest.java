@@ -290,7 +290,7 @@ class OrderServiceTest {
         Page<Order> orderPage = new PageImpl<>(List.of(order));
         when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(orderPage);
         
-        com.yas.order.model.csv.OrderItemCsv csvMock = new com.yas.order.model.csv.OrderItemCsv();
+        com.yas.order.model.csv.OrderItemCsv csvMock = org.mockito.Mockito.mock(com.yas.order.model.csv.OrderItemCsv.class);
         when(orderMapper.toCsv(any())).thenReturn(csvMock);
 
         byte[] result = orderService.exportCsv(request);        assertThat(result).isNotNull();
