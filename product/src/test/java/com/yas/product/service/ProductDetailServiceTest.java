@@ -2,6 +2,7 @@ package com.yas.product.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +13,8 @@ import com.yas.product.model.Product;
 import com.yas.product.model.ProductCategory;
 import com.yas.product.repository.ProductOptionCombinationRepository;
 import com.yas.product.repository.ProductRepository;
-import java.util.Collections;
+import com.yas.product.viewmodel.NoFileMediaVm;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,8 @@ class ProductDetailServiceTest {
     private ProductDetailService productDetailService;
 
     private Product sampleProduct;
+    private static final NoFileMediaVm SAMPLE_MEDIA =
+        new NoFileMediaVm(100L, "caption", "image.png", "image/png", "http://media/100");
 
     @BeforeEach
     void setUp() {
@@ -58,10 +62,14 @@ class ProductDetailServiceTest {
         sampleProduct.setName("Test Product");
         sampleProduct.setSlug("test-product");
         sampleProduct.setBrand(brand);
-        sampleProduct.setProductCategories(List.of(productCategory));
+        sampleProduct.setProductCategories(new ArrayList<>(List.of(productCategory)));
         sampleProduct.setThumbnailMediaId(100L);
-        sampleProduct.setIsPublished(true);
-        sampleProduct.setIsVisibleIndividually(true);
+        sampleProduct.setPublished(true);
+        sampleProduct.setVisibleIndividually(true);
+        sampleProduct.setHasOptions(false);
+        sampleProduct.setProductImages(new ArrayList<>());
+        sampleProduct.setAttributeValues(new ArrayList<>());
+        sampleProduct.setProducts(new ArrayList<>());
     }
 
     @Nested
@@ -78,32 +86,53 @@ class ProductDetailServiceTest {
         }
 
         @Test
+        void getProductDetailById_whenProductNotPublished_thenThrowNotFoundException() {
+            sampleProduct.setPublished(false);
+            when(productRepository.findById(1L)).thenReturn(Optional.of(sampleProduct));
+
+            assertThrows(NotFoundException.class,
+                () -> productDetailService.getProductDetailById(1L));
+        }
+
+        @Test
         void getProductDetailById_whenProductExists_thenReturnProductDetailInfoVm() {
             when(productRepository.findById(1L)).thenReturn(Optional.of(sampleProduct));
-            when(productOptionCombinationRepository.findAllByProductParent(sampleProduct))
-                .thenReturn(Collections.emptyList());
-            when(mediaService.getMediaUrl(100L)).thenReturn("http://media/100");
+            when(mediaService.getMedia(100L)).thenReturn(SAMPLE_MEDIA);
 
             var result = productDetailService.getProductDetailById(1L);
 
             assertNotNull(result);
-            assertEquals("Test Product", result.name());
-            assertEquals("test-product", result.slug());
+            assertEquals("Test Product", result.getName());
+            assertEquals("test-product", result.getSlug());
+            assertEquals(1, result.getCategories().size());
+            assertEquals("TestBrand", result.getBrandName());
+            assertNotNull(result.getThumbnail());
         }
 
         @Test
         void getProductDetailById_whenProductHasNoCategories_thenReturnEmptyCategories() {
-            sampleProduct.setProductCategories(Collections.emptyList());
-
+            sampleProduct.setProductCategories(new ArrayList<>());
             when(productRepository.findById(1L)).thenReturn(Optional.of(sampleProduct));
-            when(productOptionCombinationRepository.findAllByProductParent(sampleProduct))
-                .thenReturn(Collections.emptyList());
-            when(mediaService.getMediaUrl(100L)).thenReturn("http://media/100");
+            when(mediaService.getMedia(100L)).thenReturn(SAMPLE_MEDIA);
 
             var result = productDetailService.getProductDetailById(1L);
 
             assertNotNull(result);
-            assertEquals(0, result.categories().size());
+            assertEquals(0, result.getCategories().size());
+        }
+
+        @Test
+        void getProductDetailById_whenProductHasNoBrand_thenBrandIsNull() {
+            sampleProduct.setBrand(null);
+            sampleProduct.setThumbnailMediaId(null);
+            when(productRepository.findById(1L)).thenReturn(Optional.of(sampleProduct));
+
+            var result = productDetailService.getProductDetailById(1L);
+
+            assertNotNull(result);
+            assertNull(result.getBrandId());
+            assertNull(result.getBrandName());
+            assertNull(result.getThumbnail());
         }
     }
 }
