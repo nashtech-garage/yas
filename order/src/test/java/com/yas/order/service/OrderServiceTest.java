@@ -21,6 +21,7 @@ import com.yas.order.viewmodel.order.OrderItemPostVm;
 import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.OrderAddress;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -89,7 +90,7 @@ class OrderServiceTest {
                 .id(1L)
                 .productId(1L)
                 .quantity(2)
-                .productPrice(10.0)
+                .productPrice(BigDecimal.valueOf(10.0))
                 .orderId(order.getId())
                 .build();
                 
@@ -100,14 +101,26 @@ class OrderServiceTest {
             "123", "contact", "line1", "line2", "city", "zip", 1L, "district", 2L, "state", 3L, "country"
         );
         
-        OrderItemPostVm orderItemPostVm = new OrderItemPostVm(
-            1L, "Product 1", 2, 10.0, "Note"
-        );
+        OrderItemPostVm orderItemPostVm = OrderItemPostVm.builder()
+            .productId(1L)
+            .productName("Product 1")
+            .quantity(2)
+            .productPrice(BigDecimal.valueOf(10.0))
+            .note("Note")
+            .build();
         
-        orderPostVm = new OrderPostVm(
-            "test@example.com", "Note", 0.0, 0.0, 1, 20.0, "COUPON", 0.0, DeliveryMethod.GRAB_EXPRESS, 
-            PaymentStatus.PENDING, "checkout-123", shippingAddressPostVm, billingAddressPostVm, List.of(orderItemPostVm)
-        );
+        orderPostVm = OrderPostVm.builder()
+            .checkoutId("checkout-123")
+            .email("test@example.com")
+            .shippingAddressPostVm(shippingAddressPostVm)
+            .billingAddressPostVm(billingAddressPostVm)
+            .note("Note")
+            .totalPrice(BigDecimal.valueOf(20.0))
+            .deliveryMethod(DeliveryMethod.GRAB_EXPRESS)
+            .paymentMethod(com.yas.order.model.enumeration.PaymentMethod.COD)
+            .paymentStatus(PaymentStatus.PENDING)
+            .orderItemPostVms(List.of(orderItemPostVm))
+            .build();
     }
 
     @Test
@@ -155,14 +168,14 @@ class OrderServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(1L);
-        assertThat(result.orderItemVms()).hasSize(1);
+        assertThat(result.orderItems()).hasSize(1);
     }
 
     @Test
     void updateOrderPaymentStatus_WhenOrderExists_ShouldUpdateStatus() {
         PaymentOrderStatusVm request = PaymentOrderStatusVm.builder()
                 .orderId(1L)
-                .paymentId("payment-123")
+                .paymentId(123L)
                 .paymentStatus(PaymentStatus.COMPLETED.name())
                 .build();
 
@@ -171,7 +184,7 @@ class OrderServiceTest {
 
         PaymentOrderStatusVm result = orderService.updateOrderPaymentStatus(request);
 
-        assertThat(result.paymentId()).isEqualTo("payment-123");
+        assertThat(result.paymentId()).isEqualTo(123L);
         assertThat(result.paymentStatus()).isEqualTo(PaymentStatus.COMPLETED.name());
         assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETED);
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAID);
