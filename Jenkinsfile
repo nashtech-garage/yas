@@ -9,7 +9,6 @@ pipeline {
     environment {
         COVERAGE_THRESHOLD = 70
         SERVICES = "media product cart"
-        GITHUB_CONTEXT = "jenkins-ci"
     }
 
     stages {
@@ -20,21 +19,11 @@ pipeline {
             }
         }
 
-        // ✅ GỬI STATUS START LÊN GITHUB (Checks API)
-        stage('Notify GitHub START') {
-            steps {
-                publishChecks name: "${env.GITHUB_CONTEXT}", status: 'IN_PROGRESS'
-            }
-        }
-
         stage('Detect Changed Services') {
             steps {
                 script {
-                    // 🔧 Fix: đảm bảo có origin/main
-                    sh "git fetch origin main || true"
-
                     def changedDirs = sh(
-                        script: "git diff --name-only origin/main...HEAD | cut -d/ -f1 | sort -u || true",
+                        script: "git diff --name-only origin/main | cut -d/ -f1 | sort -u || true",
                         returnStdout: true
                     ).trim()
 
@@ -43,7 +32,7 @@ pipeline {
                     if (changedDirs) {
                         def dirs = changedDirs.split("\n")
                         for (dir in dirs) {
-                            if (env.SERVICES.tokenize(' ').contains(dir)) {
+                            if (env.SERVICES.split().contains(dir)) {
                                 services.add(dir)
                             }
                         }
@@ -51,7 +40,7 @@ pipeline {
 
                     if (services.isEmpty()) {
                         echo "No service detected → build ALL"
-                        services = env.SERVICES.tokenize(' ')
+                        services = env.SERVICES.split()
                     }
 
                     env.CHANGED_SERVICES = services.join(" ")
@@ -60,6 +49,7 @@ pipeline {
             }
         }
 
+        // ✅ Build toàn bộ để resolve dependency + ${revision}
         stage('Prepare Dependencies') {
             steps {
                 echo "Building full project to resolve dependencies..."
@@ -69,6 +59,7 @@ pipeline {
             }
         }
 
+        // ✅ FIX: dùng -pl thay vì cd
         stage('Test') {
             steps {
                 script {
@@ -106,7 +97,7 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        if (!coverage || !coverage.isFloat()) {
+                        if (!coverage) {
                             echo "⚠️ Cannot read coverage for ${svc}"
                             continue
                         }
@@ -116,13 +107,14 @@ pipeline {
                         echo "Coverage ${svc}: ${coverage}%"
 
                         if (coverage < COVERAGE_THRESHOLD.toInteger()) {
-                            error "❌ Coverage < ${COVERAGE_THRESHOLD}% for ${svc}"
+                            error "❌ Coverage < 70% for ${svc}"
                         }
                     }
                 }
             }
         }
 
+        // ✅ FIX: build đúng cách
         stage('Build') {
             steps {
                 script {
@@ -137,15 +129,12 @@ pipeline {
         }
     }
 
-    // ✅ GỬI STATUS VỀ GITHUB
     post {
         success {
             echo "✅ PIPELINE SUCCESS"
-            publishChecks name: "${env.GITHUB_CONTEXT}", status: 'COMPLETED', conclusion: 'SUCCESS'
         }
         failure {
             echo "❌ PIPELINE FAILED"
-            publishChecks name: "${env.GITHUB_CONTEXT}", status: 'COMPLETED', conclusion: 'FAILURE'
         }
     }
 }
