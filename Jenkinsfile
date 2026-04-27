@@ -13,6 +13,14 @@ pipeline {
 
     stages {
 
+        stage('Init') {
+            steps {
+                script {
+                    githubNotify context: 'ci/jenkins', status: 'PENDING'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -49,7 +57,6 @@ pipeline {
             }
         }
 
-        // ✅ Build toàn bộ để resolve dependency + ${revision}
         stage('Prepare Dependencies') {
             steps {
                 echo "Building full project to resolve dependencies..."
@@ -59,7 +66,6 @@ pipeline {
             }
         }
 
-        // ✅ FIX: dùng -pl thay vì cd
         stage('Test') {
             steps {
                 script {
@@ -114,7 +120,6 @@ pipeline {
             }
         }
 
-        // ✅ FIX: build đúng cách
         stage('Build') {
             steps {
                 script {
@@ -132,9 +137,11 @@ pipeline {
     post {
         success {
             echo "✅ PIPELINE SUCCESS"
+            githubNotify context: 'ci/jenkins', status: 'SUCCESS'
         }
         failure {
             echo "❌ PIPELINE FAILED"
+            githubNotify context: 'ci/jenkins', status: 'FAILURE'
         }
     }
 }
