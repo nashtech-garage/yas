@@ -9,6 +9,7 @@ pipeline {
     environment {
         COVERAGE_THRESHOLD = 70
         SERVICES = "media product cart"
+        GITHUB_CONTEXT = "jenkins-ci"
     }
 
     stages {
@@ -16,6 +17,13 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        // ✅ GỬI STATUS START LÊN GITHUB
+        stage('Notify GitHub START') {
+            steps {
+                githubNotify context: "${env.GITHUB_CONTEXT}", status: 'PENDING'
             }
         }
 
@@ -49,7 +57,6 @@ pipeline {
             }
         }
 
-        // ✅ Build toàn bộ để resolve dependency + ${revision}
         stage('Prepare Dependencies') {
             steps {
                 echo "Building full project to resolve dependencies..."
@@ -59,7 +66,6 @@ pipeline {
             }
         }
 
-        // ✅ FIX: dùng -pl thay vì cd
         stage('Test') {
             steps {
                 script {
@@ -114,7 +120,6 @@ pipeline {
             }
         }
 
-        // ✅ FIX: build đúng cách
         stage('Build') {
             steps {
                 script {
@@ -129,12 +134,15 @@ pipeline {
         }
     }
 
+    // ✅ GỬI STATUS VỀ GITHUB (SUCCESS / FAILURE)
     post {
         success {
             echo "✅ PIPELINE SUCCESS"
+            githubNotify context: "${env.GITHUB_CONTEXT}", status: 'SUCCESS'
         }
         failure {
             echo "❌ PIPELINE FAILED"
+            githubNotify context: "${env.GITHUB_CONTEXT}", status: 'FAILURE'
         }
     }
 }
