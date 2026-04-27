@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.2</version>
+        <version>4.0.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yas</groupId>
@@ -45,9 +45,9 @@
         <yas.version>1.0-SNAPSHOT</yas.version>
         <revision>1.0-SNAPSHOT</revision>
 
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>23120049</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-yas-parent</sonar.projectKey>
+        <sonar.projectKey>23120049_yas_parent</sonar.projectKey>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <org.lombok.version>1.18.42</org.lombok.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -68,6 +68,9 @@
         <instancio-junit.version>5.0.2</instancio-junit.version>
         <opencsv.version>5.9</opencsv.version>
         <spring-retry.version>2.0.12</spring-retry.version>
+        <!-- Shared Surefire plugin version -->
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <!-- Shared JaCoCo plugin version -->
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
     </properties>
     <dependencyManagement>
@@ -338,36 +341,92 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                 </plugin>
+                <!-- Surefire -->
                 <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>report</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <excludes>
-                            <exclude>com/yas/**/*Application.class</exclude>
-                            <exclude>com/yas/**/config/**</exclude>
-                            <exclude>com/yas/**/exception/**</exclude>
-                            <exclude>com/yas/**/constants/**</exclude>
-                        </excludes>
+                        <useModulePath>false</useModulePath>
                     </configuration>
                 </plugin>
+                <!-- Jacoco -->
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco-maven-plugin.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>check</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<haltOnFailure>false</haltOnFailure>
+						<skip>${jacoco.skip}</skip>
+						<excludes>
+							<exclude>com/yas/**/*Application.class</exclude>
+							<exclude>com/yas/**/config/**</exclude>
+							<exclude>com/yas/**/exception/**</exclude>
+							<exclude>com/yas/**/constants/**</exclude>
+						</excludes>
+						<rules>
+							<rule>
+								<element>BUNDLE</element>
+								<limits>
+									<limit>
+										<counter>LINE</counter>
+										<value>COVEREDRATIO</value>
+										<minimum>0.00</minimum>
+									</limit>
+								</limits>
+							</rule>
+						</rules>
+					</configuration>
+				</plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<configuration>
+					<updatePomFile>true</updatePomFile>
+					<flattenMode>resolveCiFriendliesOnly</flattenMode>
+				</configuration>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -417,6 +476,11 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Inherit shared unit test settings -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

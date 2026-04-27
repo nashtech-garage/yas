@@ -17,6 +17,7 @@ useDefault = true
 [allowlist]
 description = "global allow list"
 paths = [
+  '''(^|/)k8s/''',
   '''test-realm.json''',
   '''realm-export''',
   '''keycloak-yas-realm-import.yaml''',

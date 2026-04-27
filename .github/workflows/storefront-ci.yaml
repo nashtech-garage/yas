@@ -19,7 +19,9 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      # FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      FROM_ORIGINAL_REPOSITORY: true 
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,16 +46,61 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./storefront
           push: true
-          tags: ghcr.io/nashtech-garage/yas-storefront:latest
+          tags: ghcr.io/23120049/yas-storefront:latest
+
+  Test:
+    runs-on: ubuntu-latest
+    needs: Build
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: storefront
+      - name: Run Tests
+        run: npm test
+        working-directory: storefront
+      - name: Upload Test Result Artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Storefront-Test-Results
+          path: storefront/coverage/
+      - name: Test Results
+        uses: dorny/test-reporter@v1
+        if: always() && hashFiles('storefront/coverage/coverage-summary.json') != ''
+        with:
+          name: Storefront-Unit-Test-Results
+          path: storefront/coverage/
+          reporter: javascript-jest
+      - name: Upload Coverage Report Artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          name: Storefront-Coverage-Report
+          path: storefront/coverage/
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/storefront/coverage/coverage-summary.json
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 80
+          min-coverage-changed-files: 60
+          title: 'Storefront Coverage Report'
+          update-comment: true
