@@ -20,18 +20,21 @@ pipeline {
             }
         }
 
-        // ✅ GỬI STATUS START LÊN GITHUB
+        // ✅ GỬI STATUS START LÊN GITHUB (Checks API)
         stage('Notify GitHub START') {
             steps {
-                githubNotify context: "${env.GITHUB_CONTEXT}", status: 'PENDING'
+                publishChecks name: "${env.GITHUB_CONTEXT}", status: 'IN_PROGRESS'
             }
         }
 
         stage('Detect Changed Services') {
             steps {
                 script {
+                    // 🔧 Fix: đảm bảo có origin/main
+                    sh "git fetch origin main || true"
+
                     def changedDirs = sh(
-                        script: "git diff --name-only origin/main | cut -d/ -f1 | sort -u || true",
+                        script: "git diff --name-only origin/main...HEAD | cut -d/ -f1 | sort -u || true",
                         returnStdout: true
                     ).trim()
 
@@ -40,7 +43,7 @@ pipeline {
                     if (changedDirs) {
                         def dirs = changedDirs.split("\n")
                         for (dir in dirs) {
-                            if (env.SERVICES.split().contains(dir)) {
+                            if (env.SERVICES.tokenize(' ').contains(dir)) {
                                 services.add(dir)
                             }
                         }
@@ -48,7 +51,7 @@ pipeline {
 
                     if (services.isEmpty()) {
                         echo "No service detected → build ALL"
-                        services = env.SERVICES.split()
+                        services = env.SERVICES.tokenize(' ')
                     }
 
                     env.CHANGED_SERVICES = services.join(" ")
@@ -103,7 +106,7 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        if (!coverage) {
+                        if (!coverage || !coverage.isFloat()) {
                             echo "⚠️ Cannot read coverage for ${svc}"
                             continue
                         }
@@ -113,7 +116,7 @@ pipeline {
                         echo "Coverage ${svc}: ${coverage}%"
 
                         if (coverage < COVERAGE_THRESHOLD.toInteger()) {
-                            error "❌ Coverage < 70% for ${svc}"
+                            error "❌ Coverage < ${COVERAGE_THRESHOLD}% for ${svc}"
                         }
                     }
                 }
@@ -134,15 +137,15 @@ pipeline {
         }
     }
 
-    // ✅ GỬI STATUS VỀ GITHUB (SUCCESS / FAILURE)
+    // ✅ GỬI STATUS VỀ GITHUB
     post {
         success {
             echo "✅ PIPELINE SUCCESS"
-            githubNotify context: "${env.GITHUB_CONTEXT}", status: 'SUCCESS'
+            publishChecks name: "${env.GITHUB_CONTEXT}", status: 'COMPLETED', conclusion: 'SUCCESS'
         }
         failure {
             echo "❌ PIPELINE FAILED"
-            githubNotify context: "${env.GITHUB_CONTEXT}", status: 'FAILURE'
+            publishChecks name: "${env.GITHUB_CONTEXT}", status: 'COMPLETED', conclusion: 'FAILURE'
         }
     }
 }
