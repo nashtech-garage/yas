@@ -20,6 +20,10 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
@@ -35,14 +39,49 @@ jobs:
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
-          name: Unit-Test-Results
-          path: "{{SERVICE_NAME}}/**/surefire-reports/*.xml"
+          name: {{SERVICE_NAME}}-Service-Unit-Test-Results
+          path: "{{SERVICE_NAME}}/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/{{SERVICE_NAME}}/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: '{{SERVICE_NAME}} Coverage Report'
+          pass-coverage-on-overall-minimum: true
+          update-comment: true
+      - name: OWASP Dependency Check
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: dependency-check/Dependency-Check_Action@main
+        env:
+          JAVA_HOME: /opt/jdk
+        with:
+          project: 'yas'
+          path: '.'
+          format: 'HTML'
+      - name: Upload OWASP Dependency Check results
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: actions/upload-artifact@master
+        with:
+          name: OWASP Dependency Check Report
+          path: ${{github.workspace}}/reports
+      - name: Analyze with sonar cloud
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && secrets.SONAR_TOKEN != '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f {{SERVICE_NAME}}
+        run: |
+          SONAR_GOAL="org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            mvn -f {{SERVICE_NAME}}/pom.xml $SONAR_GOAL \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch="${{ github.head_ref }}" \
+              -Dsonar.pullrequest.base="${{ github.base_ref }}"
+          else
+            mvn -f {{SERVICE_NAME}}/pom.xml $SONAR_GOAL
+          fi
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3

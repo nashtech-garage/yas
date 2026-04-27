@@ -13,9 +13,9 @@
     <name>storefront-bff</name>
     <description>Back end for Storefront</description>
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>23122004</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-storefront-bff</sonar.projectKey>
+        <sonar.projectKey>23122004_yas-storefront-bff</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>

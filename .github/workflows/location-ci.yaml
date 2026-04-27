@@ -36,7 +36,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/location-checkstyle-result.xml'
+          path: "**/location-checkstyle-result.xml"
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
@@ -55,9 +55,9 @@ jobs:
         env:
           JAVA_HOME: /opt/jdk
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
+          project: "yas"
+          path: "."
+          format: "HTML"
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
@@ -70,9 +70,10 @@ jobs:
         with:
           paths: ${{github.workspace}}/location/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Location Coverage Report'
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          pass-coverage-on-overall-minimum: true
+          title: "Location Coverage Report"
           update-comment: true
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}

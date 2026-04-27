@@ -46,7 +46,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
       - name: SonarCloud Scan
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        if: ${{ secrets.SONAR_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         uses: SonarSource/sonarcloud-github-action@master
         with:
           projectBaseDir: backoffice

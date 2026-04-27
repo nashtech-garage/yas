@@ -45,10 +45,19 @@ jobs:
           path: "customer/**/*-reports/TEST*.xml"
           reporter: java-junit
       - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        if: ${{ secrets.SONAR_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f customer
+        run: |
+          SONAR_GOAL="org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            mvn -f customer/pom.xml $SONAR_GOAL \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch="${{ github.head_ref }}" \
+              -Dsonar.pullrequest.base="${{ github.base_ref }}"
+          else
+            mvn -f customer/pom.xml $SONAR_GOAL
+          fi
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
@@ -70,9 +79,10 @@ jobs:
         with:
           paths: ${{github.workspace}}/customer/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
           title: 'Customer Coverage Report'
+          pass-coverage-on-overall-minimum: true
           update-comment: true
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}

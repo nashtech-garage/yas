@@ -38,10 +38,19 @@ jobs:
         with:
           path: '**/storefront-bff-checkstyle-result.xml'
       - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        if: ${{ secrets.SONAR_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f storefront-bff
+        run: |
+          SONAR_GOAL="org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            mvn -f storefront-bff/pom.xml $SONAR_GOAL \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch="${{ github.head_ref }}" \
+              -Dsonar.pullrequest.base="${{ github.base_ref }}"
+          else
+            mvn -f storefront-bff/pom.xml $SONAR_GOAL
+          fi
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main

@@ -13,9 +13,9 @@
     <name>inventory</name>
     <description>YAS Inventory Service</description>
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>23122004</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-inventory</sonar.projectKey>
+        <sonar.projectKey>23122004_yas-inventory</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>
