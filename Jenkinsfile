@@ -31,7 +31,7 @@ pipeline {
             }
         }
 
-        // ✅ FIX: detect change chuẩn cho PR
+        // ✅ Detect changed services (PR-safe)
         stage('Detect Changed Services') {
             steps {
                 script {
@@ -82,23 +82,34 @@ pipeline {
             }
             post {
                 always {
-                    // ✅ Test report
+                    // ✅ Upload test results
                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
 
-                    // ✅ Coverage HTML (để chụp hình)
-                    publishHTML(target: [
-                        reportDir: 'target/site/jacoco',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report',
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true
-                    ])
+                    // ✅ Upload coverage HTML per service
+                    script {
+                        for (svc in env.CHANGED_SERVICES.split()) {
+
+                            def reportPath = "${svc}/target/site/jacoco"
+
+                            if (fileExists("${reportPath}/index.html")) {
+                                publishHTML(target: [
+                                    reportDir: reportPath,
+                                    reportFiles: 'index.html',
+                                    reportName: "Coverage - ${svc}",
+                                    allowMissing: true,
+                                    alwaysLinkToLastBuild: true,
+                                    keepAll: true
+                                ])
+                            } else {
+                                echo "⚠️ No HTML report for ${svc}"
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        // ✅ FIX QUAN TRỌNG: đọc JaCoCo đúng chuẩn
+        // ✅ Coverage check (JaCoCo chuẩn)
         stage('Coverage Check') {
             steps {
                 script {
