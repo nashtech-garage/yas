@@ -297,7 +297,6 @@ pipeline {
                                         # Debug môi trường
                                         node -v || echo "Node not found"
                                         npm -v || echo "npm not found"
-                                        docker -v || echo "docker not found"
 
                                         # Install deps (QUAN TRỌNG)
                                         npm ci
@@ -305,8 +304,6 @@ pipeline {
                                         # Build
                                         npm run build
 
-                                        # Docker build
-                                        docker build -t '"${svc}"':latest .
                                     '''
                                 } else {
                                     sh '''
@@ -315,15 +312,12 @@ pipeline {
 
                                         # Debug môi trường
                                         java -version || echo "Java not found"
-                                        docker -v || echo "docker not found"
-
+                            
                                         chmod +x mvnw
 
                                         # Build
                                         ./mvnw clean package -DskipTests
 
-                                        # Docker build
-                                        docker build -t '"${svc}"':latest .
                                     '''
                                 }
                             }
