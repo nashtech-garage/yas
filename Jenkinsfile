@@ -153,13 +153,13 @@ pipeline {
                                 execPattern: '**/target/jacoco.exec',
                                 classPattern: '**/target/classes',
                                 sourcePattern: '**/src/main/java',
-                                minimumInstructionCoverage: '2', maximumInstructionCoverage: '2',
-                                minimumLineCoverage: '2', maximumLineCoverage: '2',
-                                minimumBranchCoverage: '2', maximumBranchCoverage: '2',
+                                minimumInstructionCoverage: '70', maximumInstructionCoverage: '70',
+                                minimumLineCoverage: '70', maximumLineCoverage: '70',
+                                minimumBranchCoverage: '70', maximumBranchCoverage: '70',
                                 changeBuildStatus: true
                             )
                             if (currentBuild.result == 'FAILURE' || currentBuild.result == 'UNSTABLE') {
-                                error("Test coverage below 2%")
+                                error("Test coverage below 70%")
                             }
                         }
                     }
