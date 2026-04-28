@@ -121,154 +121,154 @@ pipeline {
             }
         }
 
-        // // =========================
-        // // TEST PHASE
-        // // =========================
-        // stage('Test') {
-        //     when {
-        //         expression { env.CHANGED_SERVICES?.trim() }
-        //     }
-        //     steps {
-        //         script {
-        //             // 1. Get the list of services, trim whitespace, and remove DUPLICATES (unique)
-        //             def rawServices = env.CHANGED_SERVICES?.trim() ? env.CHANGED_SERVICES.split(',').collect { it.trim() } : []
-        //             def services = rawServices.unique() // This completely solves the issue of running multiple times
+        // =========================
+        // TEST PHASE
+        // =========================
+        stage('Test') {
+            when {
+                expression { env.CHANGED_SERVICES?.trim() }
+            }
+            steps {
+                script {
+                    // 1. Get the list of services, trim whitespace, and remove DUPLICATES (unique)
+                    def rawServices = env.CHANGED_SERVICES?.trim() ? env.CHANGED_SERVICES.split(',').collect { it.trim() } : []
+                    def services = rawServices.unique() // This completely solves the issue of running multiple times
 
-        //             // 2. Categorize Java and NodeJS (Frontend) services
-        //             def javaServices = services.findAll { !(it in ['backoffice', 'storefront']) && it != '' }
-        //             def nodeServices = services.findAll { it in ['backoffice', 'storefront'] }
+                    // 2. Categorize Java and NodeJS (Frontend) services
+                    def javaServices = services.findAll { !(it in ['backoffice', 'storefront']) && it != '' }
+                    def nodeServices = services.findAll { it in ['backoffice', 'storefront'] }
 
-        //             def jobs = [:]
+                    def jobs = [:]
 
-        //             // 3. Process Java Services: Combine into a single command!
-        //             if (!javaServices.isEmpty()) {
-        //                 def plArgs = javaServices.join(',') // Example: "product,cart"
-        //                 jobs['Java Services Tests'] = {
-        //                     sh "chmod +x mvnw"
-        //                     // Bring back the -am flag. Since we run in a single command, there are no race conditions or ${revision} errors
-        //                     sh "./mvnw -B test jacoco:report -pl ${plArgs} -am -DskipITs -Dmaven.test.failure.ignore=true"
+                    // 3. Process Java Services: Combine into a single command!
+                    if (!javaServices.isEmpty()) {
+                        def plArgs = javaServices.join(',') // Example: "product,cart"
+                        jobs['Java Services Tests'] = {
+                            sh "chmod +x mvnw"
+                            // Bring back the -am flag. Since we run in a single command, there are no race conditions or ${revision} errors
+                            sh "./mvnw -B test jacoco:report -pl ${plArgs} -am -DskipITs -Dmaven.test.failure.ignore=true"
 
-        //                     // Aggregate coverage reports from all modules using **
-        //                     jacoco(
-        //                         execPattern: '**/target/jacoco.exec',
-        //                         classPattern: '**/target/classes',
-        //                         sourcePattern: '**/src/main/java',
-        //                         minimumInstructionCoverage: '70', maximumInstructionCoverage: '70',
-        //                         minimumLineCoverage: '70', maximumLineCoverage: '70',
-        //                         minimumBranchCoverage: '70', maximumBranchCoverage: '70',
-        //                         changeBuildStatus: true
-        //                     )
-        //                     if (currentBuild.result == 'FAILURE' || currentBuild.result == 'UNSTABLE') {
-        //                         error("Test coverage below 70%")
-        //                     }
-        //                 }
-        //             }
+                            // Aggregate coverage reports from all modules using **
+                            jacoco(
+                                execPattern: '**/target/jacoco.exec',
+                                classPattern: '**/target/classes',
+                                sourcePattern: '**/src/main/java',
+                                minimumInstructionCoverage: '70', maximumInstructionCoverage: '70',
+                                minimumLineCoverage: '70', maximumLineCoverage: '70',
+                                minimumBranchCoverage: '70', maximumBranchCoverage: '70',
+                                changeBuildStatus: true
+                            )
+                            if (currentBuild.result == 'FAILURE' || currentBuild.result == 'UNSTABLE') {
+                                error("Test coverage below 70%")
+                            }
+                        }
+                    }
 
-        //             // 4. Process Frontend (Node): Keep running in parallel as they are completely independent
-        //             for (nodeSvc in nodeServices) {
-        //                 def svcName = nodeSvc // Assign to a local variable to avoid Groovy loop scope issues
-        //                 jobs[svcName] = {
-        //                     sh """
-        //                         cd ${svcName}
-        //                         npm ci
-        //                         npm test -- --coverage
-        //                     """
-        //                 }
-        //             }
+                    // 4. Process Frontend (Node): Keep running in parallel as they are completely independent
+                    for (nodeSvc in nodeServices) {
+                        def svcName = nodeSvc // Assign to a local variable to avoid Groovy loop scope issues
+                        jobs[svcName] = {
+                            sh """
+                                cd ${svcName}
+                                npm ci
+                                npm test -- --coverage
+                            """
+                        }
+                    }
 
-        //             // 5. Execute in parallel
-        //             if (jobs.size() > 0) {
-        //                 parallel jobs
-        //             } else {
-        //                 echo "No services to test."
-        //             }
-        //         }
-        //     }
-        // }
+                    // 5. Execute in parallel
+                    if (jobs.size() > 0) {
+                        parallel jobs
+                    } else {
+                        echo "No services to test."
+                    }
+                }
+            }
+        }
 
-        // // =========================
-        // // SECURITY SCAN
-        // // =========================
-        // stage('Security Scan') {
-        //     when {
-        //         expression { env.CHANGED_SERVICES?.trim() }
-        //     }
-        //     steps {
-        //         script {
-        //             def rawServices = env.CHANGED_SERVICES?.trim() ? env.CHANGED_SERVICES.split(',').collect { it.trim() } : []
-        //             def services = rawServices.unique()
-        //             def securityJobs = [:]
+        // =========================
+        // SECURITY SCAN
+        // =========================
+        stage('Security Scan') {
+            when {
+                expression { env.CHANGED_SERVICES?.trim() }
+            }
+            steps {
+                script {
+                    def rawServices = env.CHANGED_SERVICES?.trim() ? env.CHANGED_SERVICES.split(',').collect { it.trim() } : []
+                    def services = rawServices.unique()
+                    def securityJobs = [:]
 
-        //             securityJobs['Gitleaks'] = {
-        //                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //                     sh """
-        //                         echo "=========================================================="
-        //                         echo "[SECURITY] STARTING GITLEAKS SCAN (origin/main..HEAD)"
-        //                         echo "=========================================================="
-        //                         curl -sL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar xz
-        //                         ./gitleaks detect --log-opts="origin/main..HEAD" --verbose
-        //                     """
-        //                 }
-        //             }
+                    securityJobs['Gitleaks'] = {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            sh """
+                                echo "=========================================================="
+                                echo "[SECURITY] STARTING GITLEAKS SCAN (origin/main..HEAD)"
+                                echo "=========================================================="
+                                curl -sL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar xz
+                                ./gitleaks detect --log-opts="origin/main..HEAD" --verbose
+                            """
+                        }
+                    }
 
-        //             for (svc in services) {
-        //                 def currentSvc = svc
+                    for (svc in services) {
+                        def currentSvc = svc
 
-        //                 securityJobs["SonarCloud-${currentSvc}"] = {
-        //                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //                         withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-        //                             if (currentSvc in ["backoffice", "storefront"]) {
-        //                                 sh """
-        //                                     echo "=========================================================="
-        //                                     echo "[SECURITY] STARTING SONARCLOUD SCAN (JS/NPM): ${currentSvc}"
-        //                                     echo "=========================================================="
-        //                                     cd ${currentSvc}
-        //                                     sonar-scanner -Dsonar.projectKey=intro-to-devops_yas-${currentSvc} -Dsonar.organization=intro-to-devops -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=\$SONAR_TOKEN
-        //                                 """
-        //                             } else {
-        //                                 sh """
-        //                                     echo "=========================================================="
-        //                                     echo "[SECURITY] STARTING SONARCLOUD SCAN (MAVEN): ${currentSvc}"
-        //                                     echo "=========================================================="
-        //                                     cd ${currentSvc}
-        //                                     mvn sonar:sonar -Dsonar.projectKey=intro-to-devops_yas-${currentSvc} -Dsonar.organization=intro-to-devops -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=\$SONAR_TOKEN
-        //                                 """
-        //                             }
-        //                         }
-        //                     }
-        //                 }
+                        securityJobs["SonarCloud-${currentSvc}"] = {
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                                    if (currentSvc in ["backoffice", "storefront"]) {
+                                        sh """
+                                            echo "=========================================================="
+                                            echo "[SECURITY] STARTING SONARCLOUD SCAN (JS/NPM): ${currentSvc}"
+                                            echo "=========================================================="
+                                            cd ${currentSvc}
+                                            sonar-scanner -Dsonar.projectKey=intro-to-devops_yas-${currentSvc} -Dsonar.organization=intro-to-devops -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=\$SONAR_TOKEN
+                                        """
+                                    } else {
+                                        sh """
+                                            echo "=========================================================="
+                                            echo "[SECURITY] STARTING SONARCLOUD SCAN (MAVEN): ${currentSvc}"
+                                            echo "=========================================================="
+                                            cd ${currentSvc}
+                                            mvn sonar:sonar -Dsonar.projectKey=intro-to-devops_yas-${currentSvc} -Dsonar.organization=intro-to-devops -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=\$SONAR_TOKEN
+                                        """
+                                    }
+                                }
+                            }
+                        }
 
-        //                 securityJobs["Snyk-${currentSvc}"] = {
-        //                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //                         withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-        //                             if (currentSvc in ["backoffice", "storefront"]) {
-        //                                 sh """
-        //                                     echo "=========================================================="
-        //                                     echo "[SECURITY] STARTING SNYK VULNERABILITY SCAN (NPM): ${currentSvc}"
-        //                                     echo "=========================================================="
-        //                                     cd ${currentSvc}
-        //                                     npx snyk test
-        //                                 """
-        //                             } else {
-        //                                 sh """
-        //                                     echo "=========================================================="
-        //                                     echo "[SECURITY] STARTING SNYK VULNERABILITY SCAN (MAVEN): ${currentSvc}"
-        //                                     echo "=========================================================="
-        //                                     chmod +x mvnw || true
-        //                                     chmod +x ${currentSvc}/mvnw || true
-        //                                     npx snyk test --file=${currentSvc}/pom.xml --command=mvn
-        //                                 """
-        //                             }
-        //                         }
-        //                     }
-        //                 }
-        //             }
+                        securityJobs["Snyk-${currentSvc}"] = {
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
+                                    if (currentSvc in ["backoffice", "storefront"]) {
+                                        sh """
+                                            echo "=========================================================="
+                                            echo "[SECURITY] STARTING SNYK VULNERABILITY SCAN (NPM): ${currentSvc}"
+                                            echo "=========================================================="
+                                            cd ${currentSvc}
+                                            npx snyk test
+                                        """
+                                    } else {
+                                        sh """
+                                            echo "=========================================================="
+                                            echo "[SECURITY] STARTING SNYK VULNERABILITY SCAN (MAVEN): ${currentSvc}"
+                                            echo "=========================================================="
+                                            chmod +x mvnw || true
+                                            chmod +x ${currentSvc}/mvnw || true
+                                            npx snyk test --file=${currentSvc}/pom.xml --command=mvn
+                                        """
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-        //             // Execute security scans in parallel
-        //             parallel securityJobs
-        //         }
-        //     }
-        // }
+                    // Execute security scans in parallel
+                    parallel securityJobs
+                }
+            }
+        }
 
         // =========================
         // BUILD PHASE
