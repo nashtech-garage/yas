@@ -279,48 +279,47 @@ pipeline {
             }
             steps {
                 script {
+                    echo " ===== START BUILD PHASE ===== "
+                    echo "Changed services raw: ${env.CHANGED_SERVICES}"
+
                     def rawServices = env.CHANGED_SERVICES?.trim() 
                         ? env.CHANGED_SERVICES.split(',').collect { it.trim() } 
                         : []
+
                     def services = rawServices.unique()
+
+                    echo "Services to build: ${services}"
 
                     def jobs = [:]
 
                     for (svc in services) {
-                        jobs[svc] = {
-                            dir(svc) {
-                                if (svc in ["backoffice", "storefront"]) {
+                        def serviceName = svc
+
+                        jobs[serviceName] = {
+                            echo "👉 START building ${serviceName}"
+
+                            dir(serviceName) {
+                                if (serviceName in ["backoffice", "storefront"]) {
                                     sh '''
                                         set -e
-                                        echo "=== Building Node service: ${PWD} ==="
-
-                                        # Debug môi trường
-                                        node -v || echo "Node not found"
-                                        npm -v || echo "npm not found"
-
-                                        # Install deps (QUAN TRỌNG)
+                                        echo "=== Building Node service: $(pwd) ==="
+                                        node -v
+                                        npm -v
                                         npm ci
-
-                                        # Build
                                         npm run build
-
                                     '''
                                 } else {
                                     sh '''
                                         set -e
-                                        echo "=== Building Java service: ${PWD} ==="
-
-                                        # Debug môi trường
-                                        java -version || echo "Java not found"
-                            
+                                        echo "=== Building Java service: $(pwd) ==="
+                                        java -version
                                         chmod +x mvnw
-
-                                        # Build
                                         ./mvnw clean package -DskipTests
-
                                     '''
                                 }
                             }
+
+                            echo "✅ DONE building ${serviceName}"
                         }
                     }
 
