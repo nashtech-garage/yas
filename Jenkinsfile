@@ -16,7 +16,10 @@ pipeline {
 
         stage('Prepare Environment') {
             steps {
-                sh 'sudo apt-get update && sudo apt-get install -y libatomic1'
+                sh '''
+                    apt-get update
+                    apt-get install -y libatomic1
+                '''
             }
         }
 
