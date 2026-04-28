@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.yas.commonlibrary.exception.NotFoundException;
+
 @WebMvcTest(excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
 @ContextConfiguration(classes = {
     CartItemController.class,
@@ -148,6 +150,20 @@ class CartItemControllerTest {
             verify(cartItemService).updateCartItem(anyLong(), any());
         }
 
+        @Test
+        void testUpdateCartItem_whenServiceThrowsNotFound_shouldReturnNotFound() throws Exception {
+            cartItemPutVm = new CartItemPutVm(1);
+            
+            // Simulate Service throwing NotFoundException (covers ApiExceptionHandler)
+            when(cartItemService.updateCartItem(anyLong(), any()))
+                .thenThrow(new NotFoundException("Product not found"));
+
+            mockMvc.perform(put("/storefront/cart/items/" + PRODUCT_ID_SAMPLE)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(cartItemPutVm)))
+                .andExpect(status().isNotFound());
+        }
+
         private void performUpdateCartItemAndExpectBadRequest(CartItemPutVm cartItemPutVm)
             throws Exception {
             mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
@@ -180,6 +196,17 @@ class CartItemControllerTest {
                 .andExpect(jsonPath("$[0].quantity").value(expectedCartItem.quantity()));
 
             verify(cartItemService).getCartItems();
+        }
+
+        // Add to GetCartItemsTest class
+        @Test
+        void testGetCartItems_whenNoItems_shouldReturnEmptyList() throws Exception {
+            // Simulate empty cart scenario
+            when(cartItemService.getCartItems()).thenReturn(List.of());
+
+            mockMvc.perform(get("/storefront/cart/items"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
         }
     }
 
