@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_USERNAME = 'your-docker-username' // Must match CI
+        // Deployment Target (e.g., staging server)
+        DEPLOY_SERVER = 'staging-server.yourdomain.com'
+        SSH_CREDENTIALS_ID = 'ssh-deploy-key'
+    }
+
+    stages {
+        stage('Pull Latest Images') {
+            steps {
+                script {
+                    echo "Pulling latest images from Docker Hub..."
+                    // In a real scenario, this would run on the target server
+                    sh "docker-compose pull"
+                }
+            }
+        }
+
+        stage('Deploy / Restart Services') {
+            steps {
+                script {
+                    echo "Restarting services using Docker Compose..."
+                    // -d runs in background
+                    sh "docker-compose up -d --remove-orphans"
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    echo "Waiting for services to be healthy..."
+                    sleep 30
+                    // Example health check (adjust ports as needed)
+                    // sh "curl -f http://localhost:8080/actuator/health"
+                    echo "Deployment verification complete."
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CD Pipeline: Deployment to Staging successful!"
+        }
+        failure {
+            echo "CD Pipeline: Deployment failed!"
+        }
+    }
+}
