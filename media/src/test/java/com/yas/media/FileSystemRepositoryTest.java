@@ -15,10 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,18 +33,21 @@ class FileSystemRepositoryTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        fileSystemRepository = new FileSystemRepository(filesystemConfig);
-        lenient().when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
-        
+        // KHAI BÁO BIẾN testDir Ở ĐÂY ĐỂ TRÁNH LỖI "cannot find symbol"
         Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize();
+        
         if (!Files.exists(testDir)) {
             Files.createDirectories(testDir);
         }
+
+        fileSystemRepository = new FileSystemRepository(filesystemConfig);
+        // Trả về đường dẫn đã được chuẩn hóa để logic trong code chính không bị sai trên Windows
+        lenient().when(filesystemConfig.getDirectory()).thenReturn(testDir.toString());
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        Path testDir = Paths.get(TEST_URL);
+        Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize();
         if (Files.exists(testDir)) {
             Files.walk(testDir)
                 .sorted((p1, p2) -> p2.compareTo(p1))
@@ -69,17 +69,20 @@ class FileSystemRepositoryTest {
 
     @Test
     void testPersistFile_whenSuccessful_thenFileExists() throws IOException {
-        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        // Lấy đường dẫn chuẩn hóa
+        Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize();
+        when(filesystemConfig.getDirectory()).thenReturn(testDir.toString());
 
         fileSystemRepository.persistFile("validfile.png", "content".getBytes());
 
-        Path filePath = Paths.get(TEST_URL, "validfile.png");
+        Path filePath = testDir.resolve("validfile.png");
         assertTrue(Files.exists(filePath));
     }
 
     @Test
     void testGetFile_whenDirectIsExist_thenReturnFile() throws IOException {
-        Path filePath = Paths.get(TEST_URL, "get-test.png");
+        Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize();
+        Path filePath = testDir.resolve("get-test.png");
         Files.write(filePath, "data".getBytes());
 
         InputStream inputStream = fileSystemRepository.getFile(filePath.toString());
@@ -89,10 +92,13 @@ class FileSystemRepositoryTest {
 
     @Test
     void testPersistFile_whenFilenameHasSpecialCharacters_thenSaveSuccessfully() throws IOException {
+        Path testDir = Paths.get(TEST_URL).toAbsolutePath().normalize();
         String filename = "test@special.png";
         byte[] content = "test content".getBytes();
+        
         fileSystemRepository.persistFile(filename, content);
-        Path filePath = Paths.get(TEST_URL, filename);
+        
+        Path filePath = testDir.resolve(filename);
         assertThat(Files.exists(filePath)).isTrue();
     }
 
