@@ -15,9 +15,13 @@ pipeline {
 
         stage('Init') {
             steps {
-                script {
-                    githubNotify context: 'ci/jenkins', status: 'PENDING'
-                }
+                publishChecks(
+                    name: 'jenkins/ci',
+                    title: 'CI Pipeline',
+                    summary: 'Pipeline started...',
+                    status: 'IN_PROGRESS',
+                    conclusion: 'NONE'
+                )
             }
         }
 
@@ -60,9 +64,7 @@ pipeline {
         stage('Prepare Dependencies') {
             steps {
                 echo "Building full project to resolve dependencies..."
-                sh """
-                mvn clean install -DskipTests
-                """
+                sh "mvn clean install -DskipTests"
             }
         }
 
@@ -71,9 +73,7 @@ pipeline {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
                         echo "Testing ${svc}"
-                        sh """
-                        mvn -pl ${svc} -am test
-                        """
+                        sh "mvn -pl ${svc} -am test"
                     }
                 }
             }
@@ -88,7 +88,6 @@ pipeline {
             steps {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
-
                         def report = "${svc}/target/site/jacoco/jacoco.xml"
 
                         if (!fileExists(report)) {
@@ -109,7 +108,6 @@ pipeline {
                         }
 
                         coverage = coverage.toFloat() * 100
-
                         echo "Coverage ${svc}: ${coverage}%"
 
                         if (coverage < COVERAGE_THRESHOLD.toInteger()) {
@@ -125,9 +123,7 @@ pipeline {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
                         echo "Building ${svc}"
-                        sh """
-                        mvn -pl ${svc} -am package -DskipTests
-                        """
+                        sh "mvn -pl ${svc} -am package -DskipTests"
                     }
                 }
             }
@@ -137,11 +133,23 @@ pipeline {
     post {
         success {
             echo "✅ PIPELINE SUCCESS"
-            githubNotify context: 'ci/jenkins', status: 'SUCCESS'
+            publishChecks(
+                name: 'jenkins/ci',
+                title: 'CI Pipeline',
+                summary: 'All stages passed ✅',
+                status: 'COMPLETED',
+                conclusion: 'SUCCESS'
+            )
         }
         failure {
             echo "❌ PIPELINE FAILED"
-            githubNotify context: 'ci/jenkins', status: 'FAILURE'
+            publishChecks(
+                name: 'jenkins/ci',
+                title: 'CI Pipeline',
+                summary: 'Pipeline failed ❌',
+                status: 'COMPLETED',
+                conclusion: 'FAILURE'
+            )
         }
     }
 }
