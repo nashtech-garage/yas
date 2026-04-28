@@ -277,29 +277,19 @@ pipeline {
             when {
                 expression { env.CHANGED_SERVICES?.trim() }
             }
-            steps {
-                script {
-                    echo " ===== START BUILD PHASE ===== "
-                    echo "Changed services raw: ${env.CHANGED_SERVICES}"
+            parallel {
 
-                    def rawServices = env.CHANGED_SERVICES?.trim() 
-                        ? env.CHANGED_SERVICES.split(',').collect { it.trim() } 
-                        : []
+                stage('Build Node Services') {
+                    agent {
+                        docker { image 'node:24.15.0-alpine3.23' }
+                    }
+                    steps {
+                        script {
+                            def services = env.CHANGED_SERVICES.split(',').collect { it.trim() }
+                            def nodeServices = services.findAll { it in ["backoffice", "storefront"] }
 
-                    def services = rawServices.unique()
-
-                    echo "Services to build: ${services}"
-
-                    def jobs = [:]
-
-                    for (svc in services) {
-                        def serviceName = svc
-
-                        jobs[serviceName] = {
-                            echo "👉 START building ${serviceName}"
-
-                            dir(serviceName) {
-                                if (serviceName in ["backoffice", "storefront"]) {
+                            for (svc in nodeServices) {
+                                dir(svc) {
                                     sh '''
                                         set -e
                                         echo "=== Building Node service: $(pwd) ==="
@@ -308,22 +298,33 @@ pipeline {
                                         npm ci
                                         npm run build
                                     '''
-                                } else {
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Build Java Services') {
+                    agent {
+                        docker { image 'maven:3.9.15-eclipse-temurin-21-alpine' }
+                    }
+                    steps {
+                        script {
+                            def services = env.CHANGED_SERVICES.split(',').collect { it.trim() }
+                            def javaServices = services.findAll { !(it in ["backoffice", "storefront"]) }
+
+                            for (svc in javaServices) {
+                                dir(svc) {
                                     sh '''
                                         set -e
                                         echo "=== Building Java service: $(pwd) ==="
-                                        java -version
-                                        chmod +x mvnw
-                                        ./mvnw clean package -DskipTests
+                                        mvn -v
+                                        mvn clean package -DskipTests
                                     '''
                                 }
                             }
-
-                            echo "✅ DONE building ${serviceName}"
                         }
                     }
-
-                    parallel jobs
                 }
             }
         }
