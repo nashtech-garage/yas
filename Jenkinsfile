@@ -279,26 +279,53 @@ pipeline {
             }
             steps {
                 script {
-                    def rawServices = env.CHANGED_SERVICES?.trim() ? env.CHANGED_SERVICES.split(',').collect { it.trim() } : []
+                    def rawServices = env.CHANGED_SERVICES?.trim() 
+                        ? env.CHANGED_SERVICES.split(',').collect { it.trim() } 
+                        : []
                     def services = rawServices.unique()
 
                     def jobs = [:]
 
                     for (svc in services) {
                         jobs[svc] = {
-                            if (svc in ["backoffice", "storefront"]) {
-                                sh """
-                                    cd ${svc}
-                                    npm run build
-                                    docker build -t ${svc}:latest .
-                                """
-                            } else {
-                                sh """
-                                    cd ${svc}
-                                    chmod +x mvnw
-                                    ./mvnw package -DskipTests
-                                    docker build -t ${svc}:latest .
-                                """
+                            dir(svc) {
+                                if (svc in ["backoffice", "storefront"]) {
+                                    sh '''
+                                        set -e
+                                        echo "=== Building Node service: ${PWD} ==="
+
+                                        # Debug môi trường
+                                        node -v || echo "Node not found"
+                                        npm -v || echo "npm not found"
+                                        docker -v || echo "docker not found"
+
+                                        # Install deps (QUAN TRỌNG)
+                                        npm ci
+
+                                        # Build
+                                        npm run build
+
+                                        # Docker build
+                                        docker build -t '"${svc}"':latest .
+                                    '''
+                                } else {
+                                    sh '''
+                                        set -e
+                                        echo "=== Building Java service: ${PWD} ==="
+
+                                        # Debug môi trường
+                                        java -version || echo "Java not found"
+                                        docker -v || echo "docker not found"
+
+                                        chmod +x mvnw
+
+                                        # Build
+                                        ./mvnw clean package -DskipTests
+
+                                        # Docker build
+                                        docker build -t '"${svc}"':latest .
+                                    '''
+                                }
                             }
                         }
                     }
