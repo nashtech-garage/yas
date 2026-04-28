@@ -14,15 +14,6 @@ pipeline {
             }
         }
 
-        stage('Prepare Environment') {
-            steps {
-                sh '''
-                    apt-get update
-                    apt-get install -y libatomic1
-                '''
-            }
-        }
-
         stage('Prepare Git') {
             steps {
                 script {
@@ -312,7 +303,7 @@ pipeline {
                                     sh '''
                                         set -e
                                         echo "=== Building Node service: $(pwd) ==="
-                                        npm install
+                                        npm ci
                                         npm run build
                                     '''
                                 } else {
