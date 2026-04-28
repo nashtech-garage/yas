@@ -230,8 +230,17 @@ pipeline {
 
     post {
         always {
-            echo "=> Pipeline finished. Cleaning workspace..."
-            cleanWs()
+            script {
+                echo "=> Pipeline finished."
+                // Wrap cleanWs trong try-catch để tránh lỗi MissingContextVariableException
+                // khi workspace context bị mất trong dynamic parallel stages
+                try {
+                    cleanWs()
+                    echo "=> Workspace cleaned."
+                } catch (Exception e) {
+                    echo "=> cleanWs() skipped: ${e.getMessage()}"
+                }
+            }
         }
         success {
             echo "=> ✅ All stages passed! Code is clean, tested, and secure."
