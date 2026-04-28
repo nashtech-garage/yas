@@ -62,11 +62,6 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20'))
     }
 
-    triggers {
-        //  Poll the SCM every 5 minutes to check for changes
-        pollSCM('H/5 * * * *')
-    }
-
     environment {
         // Define environment variables for Maven commands
         MVN_ARGS = '-B -ntp'
@@ -77,7 +72,11 @@ pipeline {
             steps {
                 // Perform a clean checkout of the source code
                 checkout scm  
-                sh 'git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/*'
+                script {
+                    if (env.CHANGE_TARGET) {
+                        sh "git fetch --no-tags origin ${env.CHANGE_TARGET}"
+                    }
+                }
             }
         }
 
