@@ -31,11 +31,14 @@ pipeline {
             }
         }
 
+        // ✅ FIX: detect change chuẩn cho PR
         stage('Detect Changed Services') {
             steps {
                 script {
+                    sh "git fetch origin main"
+
                     def changedDirs = sh(
-                        script: "git diff --name-only origin/main | cut -d/ -f1 | sort -u || true",
+                        script: "git diff --name-only origin/main...HEAD | cut -d/ -f1 | sort -u || true",
                         returnStdout: true
                     ).trim()
 
@@ -79,35 +82,47 @@ pipeline {
             }
             post {
                 always {
+                    // ✅ Test report
                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+
+                    // ✅ Coverage HTML (để chụp hình)
+                    publishHTML(target: [
+                        reportDir: 'target/site/jacoco',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report',
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true
+                    ])
                 }
             }
         }
 
+        // ✅ FIX QUAN TRỌNG: đọc JaCoCo đúng chuẩn
         stage('Coverage Check') {
             steps {
                 script {
                     for (svc in env.CHANGED_SERVICES.split()) {
+
                         def report = "${svc}/target/site/jacoco/jacoco.xml"
 
                         if (!fileExists(report)) {
-                            echo "⚠️ No coverage report for ${svc} → skip"
-                            continue
+                            error "❌ No coverage report for ${svc}"
                         }
 
-                        def coverage = sh(
-                            script: """
-                            grep -o 'line-rate="[^"]*"' ${report} | head -1 | cut -d'"' -f2
-                            """,
-                            returnStdout: true
-                        ).trim()
+                        def content = readFile(report)
 
-                        if (!coverage) {
-                            echo "⚠️ Cannot read coverage for ${svc}"
-                            continue
+                        def matcher = content =~ /<counter type="LINE" missed="(\d+)" covered="(\d+)"/
+
+                        if (!matcher) {
+                            error "❌ Cannot parse coverage for ${svc}"
                         }
 
-                        coverage = coverage.toFloat() * 100
+                        def missed = matcher[0][1].toInteger()
+                        def covered = matcher[0][2].toInteger()
+
+                        def coverage = (covered * 100) / (covered + missed)
+
                         echo "Coverage ${svc}: ${coverage}%"
 
                         if (coverage < COVERAGE_THRESHOLD.toInteger()) {
