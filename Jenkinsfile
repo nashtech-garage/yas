@@ -329,11 +329,25 @@ pipeline {
 
     post {
         always {
-            junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+            script {
+                if (!env.CHANGED_SERVICES?.trim()) {
+                    echo "No services changed → skip post actions"
+                    return
+                }
 
-            publishCoverage adapters: [
-                jacocoAdapter('**/target/site/jacoco/jacoco.xml')
-            ]
+                junit allowEmptyResults: true,
+                      testResults: '**/target/surefire-reports/*.xml'
+
+                def jacocoFileExists = fileExists('**/target/site/jacoco/jacoco.xml')
+
+                if (jacocoFileExists) {
+                    publishCoverage adapters: [
+                        jacocoAdapter('**/target/site/jacoco/jacoco.xml')
+                    ]
+                } else {
+                    echo "No JaCoCo report found → skip coverage publishing"
+                }
+            }
         }
     }
 }
