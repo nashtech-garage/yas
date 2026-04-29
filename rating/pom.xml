@@ -78,6 +78,18 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                    <!-- Chỉ chứa khai báo, ko có logic -->
+                        <exclude>**/*Application.*</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/exception/**</exclude>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/viewmodel/**</exclude>
+                        <exclude>**/constants/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
