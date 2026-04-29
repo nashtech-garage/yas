@@ -118,12 +118,14 @@ class CustomerServiceTest {
         enabledUser.setUsername("user1");
         enabledUser.setEmail(VALID_EMAIL);
         enabledUser.setEnabled(true);
+        enabledUser.setCreatedTimestamp(946684800000L);
 
         UserRepresentation disabledUser = new UserRepresentation();
         disabledUser.setId("2");
         disabledUser.setUsername("user2");
         disabledUser.setEmail("user2@example.com");
         disabledUser.setEnabled(false);
+        disabledUser.setCreatedTimestamp(946684800000L);
 
         when(usersResource.search(any(), anyInt(), anyInt()))
             .thenReturn(List.of(enabledUser, disabledUser));
