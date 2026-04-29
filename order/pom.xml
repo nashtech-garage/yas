@@ -84,7 +84,7 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.11</version>
                 <configuration>
-                    <exclude>
+                    <excludes>
                     <!-- Chỉ chứa khai báo, ko có logic -->
                         <exclude>**/*Application.*</exclude>
                         <exclude>**/config/**</exclude>
@@ -93,7 +93,7 @@
                         <exclude>**/model/**</exclude>
                         <exclude>**/viewmodel/**</exclude>
                         <exclude>**/constants/**</exclude>
-                    </exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -110,6 +110,7 @@
                     </execution>
                     <execution>
                         <id>jacoco-check</id>
+                        <phase>test</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
