@@ -125,31 +125,6 @@ pipeline {
             }
         }
 
-        stage('Snyk Scan') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'snyk-token-1', variable: 'SNYK_TOKEN')]) {
-
-                        def snykStatus = sh(
-                            script: '''
-                                snyk auth $SNYK_TOKEN
-                                snyk test
-                                snyk code test
-                            ''',
-                            returnStatus: true
-                        )
-
-                        if (snykStatus != 0) {
-                            echo "SNYK WARNING: vulnerabilities detected"
-                            currentBuild.result = 'SUCCESS'
-                        } else {
-                            echo "No vulnerabilities detected"
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Detect Changes') {
             steps {
                 script {
@@ -221,6 +196,57 @@ pipeline {
                 }
             }
         }
+
+        stage('Snyk Scan') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'snyk', variable: 'SNYK_TOKEN')]) {
+
+                        sh 'snyk auth $SNYK_TOKEN'
+
+                        sh '''
+                          if [ -f "mvnw" ]; then
+                            chmod +x mvnw
+                            ./mvnw clean install -DskipTests
+                          fi
+                        '''
+
+                        def modules = env.AFFECTED_MODULES.split(',')
+
+                        for (module in modules) {
+                            module = module.trim()
+                            if (!module) continue
+
+                            echo "--- Running Snyk scan for module: ${module} ---"
+
+                            dir(module) {
+
+                                def depStatus = sh(
+                                    script: 'snyk test --file=pom.xml --org=4496d6cc-3702-46bc-8ea7-6ac73f92b5cf',
+                                    returnStatus: true
+                                )
+
+                                def codeStatus = sh(
+                                    script: 'snyk code test --org=4496d6cc-3702-46bc-8ea7-6ac73f92b5cf',
+                                    returnStatus: true
+                                )
+
+                                if (depStatus != 0 || codeStatus != 0) {
+                                    echo "SNYK WARNING: vulnerabilities detected in ${module}"
+                                    currentBuild.result = 'UNSTABLE'
+                                } else {
+                                    echo "No vulnerabilities detected in ${module}"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 
         stage('Build') {
             when {
