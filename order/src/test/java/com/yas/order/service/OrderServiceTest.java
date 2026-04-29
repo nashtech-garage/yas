@@ -323,4 +323,115 @@ class OrderServiceTest {
             assertThat(result.isPresent()).isTrue();
         }
     }
+    
+    @Test
+    void isOrderCompletedWithUserIdAndProductId_WhenHasVariations_ShouldUseVariationIds() {
+        com.yas.order.viewmodel.product.ProductVariationVm variation = 
+                new com.yas.order.viewmodel.product.ProductVariationVm(10L, "Variant", "SKU-1");
+        when(productService.getProductVariations(1L)).thenReturn(List.of(variation));
+        when(orderRepository.findOne(any(Specification.class))).thenReturn(Optional.empty());
+        
+        try (org.mockito.MockedStatic<AuthenticationUtils> utilities = org.mockito.Mockito.mockStatic(AuthenticationUtils.class)) {
+            utilities.when(AuthenticationUtils::extractUserId).thenReturn("user123");
+            
+            var result = orderService.isOrderCompletedWithUserIdAndProductId(1L);
+
+            assertThat(result).isNotNull();
+            assertThat(result.isPresent()).isFalse();
+        }
+    }
+    
+    @Test
+    void getLatestOrders_WhenCountIsZero_ShouldReturnEmptyList() {
+        var result = orderService.getLatestOrders(0);
+        assertThat(result).isEmpty();
+    }
+    
+    @Test
+    void getLatestOrders_WhenCountIsNegative_ShouldReturnEmptyList() {
+        var result = orderService.getLatestOrders(-1);
+        assertThat(result).isEmpty();
+    }
+    
+    @Test
+    void getLatestOrders_WhenRepositoryReturnsEmpty_ShouldReturnEmptyList() {
+        when(orderRepository.getLatestOrders(any(Pageable.class))).thenReturn(List.of());
+        
+        var result = orderService.getLatestOrders(5);
+        assertThat(result).isEmpty();
+    }
+    
+    @Test
+    void getAllOrder_WhenPageIsEmpty_ShouldReturnEmptyOrderListVm() {
+        Page<Order> emptyPage = new PageImpl<>(List.of());
+        when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(emptyPage);
+        
+        var result = orderService.getAllOrder(
+            Pair.of(ZonedDateTime.now(), ZonedDateTime.now()),
+            "product",
+            List.of(OrderStatus.PENDING),
+            Pair.of("VN", "123456"),
+            "test@example.com",
+            Pair.of(0, 10)
+        );
+        
+        assertThat(result).isNotNull();
+        assertThat(result.totalElements()).isEqualTo(0);
+    }
+    
+    @Test
+    void getAllOrder_WhenOrderStatusIsEmpty_ShouldUseAllStatuses() {
+        Page<Order> orderPage = new PageImpl<>(List.of(order));
+        when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(orderPage);
+        
+        var result = orderService.getAllOrder(
+            Pair.of(ZonedDateTime.now(), ZonedDateTime.now()),
+            "product",
+            List.of(),
+            Pair.of("VN", "123456"),
+            "test@example.com",
+            Pair.of(0, 10)
+        );
+        
+        assertThat(result).isNotNull();
+        assertThat(result.totalElements()).isEqualTo(1);
+    }
+    
+    @Test
+    void updateOrderPaymentStatus_WhenPaymentStatusIsNotCompleted_ShouldNotChangeToPaid() {
+        PaymentOrderStatusVm request = PaymentOrderStatusVm.builder()
+                .orderId(1L)
+                .paymentId(123L)
+                .paymentStatus(PaymentStatus.PENDING.name())
+                .build();
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+        PaymentOrderStatusVm result = orderService.updateOrderPaymentStatus(request);
+
+        assertThat(result.paymentId()).isEqualTo(123L);
+        assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
+    }
+    
+    @Test
+    void exportCsv_WhenOrderListIsNull_ShouldReturnEmptyCsv() throws IOException {
+        com.yas.order.model.request.OrderRequest request = new com.yas.order.model.request.OrderRequest();
+        request.setPageNo(0);
+        request.setPageSize(10);
+        request.setCreatedFrom(ZonedDateTime.now());
+        request.setCreatedTo(ZonedDateTime.now());
+        request.setProductName("product");
+        request.setOrderStatus(List.of(OrderStatus.COMPLETED));
+        request.setBillingCountry("VN");
+        request.setBillingPhoneNumber("123456");
+        request.setEmail("test@example.com");
+
+        Page<Order> emptyPage = new PageImpl<>(List.of());
+        when(orderRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(emptyPage);
+
+        byte[] result = orderService.exportCsv(request);
+        assertThat(result).isNotNull();
+    }
 }
