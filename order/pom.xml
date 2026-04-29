@@ -85,14 +85,7 @@
                 <version>0.8.11</version>
                 <configuration>
                     <excludes>
-                    <!-- Chỉ chứa khai báo, ko có logic -->
                         <exclude>**/*Application.*</exclude>
-                        <exclude>**/config/**</exclude>
-                        <exclude>**/exception/**</exclude>
-                        <exclude>**/dto/**</exclude>
-                        <exclude>**/model/**</exclude>
-                        <exclude>**/viewmodel/**</exclude>
-                        <exclude>**/constants/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

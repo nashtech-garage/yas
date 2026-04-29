@@ -20,6 +20,7 @@ import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
 import com.yas.order.viewmodel.product.ProductCheckoutListVm;
 import com.yas.order.viewmodel.product.ProductGetCheckoutListVm;
 import java.util.List;
