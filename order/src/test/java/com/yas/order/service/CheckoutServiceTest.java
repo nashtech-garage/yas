@@ -73,7 +73,6 @@ class CheckoutServiceTest {
                 .email("test@test.com")
                 .note("Test note")
                 .promotionCode("PROMO")
-                .createdBy("user123")
                 .build();
         checkout.setCreatedBy("user123");
 
@@ -85,14 +84,17 @@ class CheckoutServiceTest {
                 .productPrice(BigDecimal.valueOf(50))
                 .build();
 
-        checkoutItemPostVm = new CheckoutItemPostVm(100L, 2, "Test description");
+        checkoutItemPostVm = new CheckoutItemPostVm(100L, "Test description", 2);
         checkoutPostVm = new CheckoutPostVm(
                 "test@test.com", "Test note", "PROMO", "10", "11", "12", List.of(checkoutItemPostVm)
         );
 
-        productCheckoutListVm = new ProductCheckoutListVm(
-                100L, "Product Name", "slug", 50.0, 50.0, 100L, 10L, "brand", true, null, null
-        );
+        productCheckoutListVm = ProductCheckoutListVm.builder()
+                .id(100L)
+                .name("Product Name")
+                .price(50.0)
+                .taxClassId(10L)
+                .build();
     }
 
     @AfterEach
@@ -128,7 +130,7 @@ class CheckoutServiceTest {
             return c;
         });
 
-        CheckoutVm checkoutVmMock = new CheckoutVm("checkout-123", "test@test.com", "note", "PROMO", "1", "1", "1", null);
+        CheckoutVm checkoutVmMock = CheckoutVm.builder().id("checkout-123").email("test@test.com").note("note").promotionCode("PROMO").build();
         when(checkoutMapper.toVm(any(Checkout.class))).thenReturn(checkoutVmMock);
 
         CheckoutItemVm itemVmMock = new CheckoutItemVm(1L, 100L, "Name", "Desc", 2, BigDecimal.TEN, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, "checkout-123");
@@ -176,7 +178,7 @@ class CheckoutServiceTest {
         when(checkoutRepository.findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING))
                 .thenReturn(Optional.of(checkout));
 
-        CheckoutVm checkoutVmMock = new CheckoutVm("checkout-123", "test@test.com", "note", "PROMO", "1", "1", "1", null);
+        CheckoutVm checkoutVmMock = CheckoutVm.builder().id("checkout-123").email("test@test.com").note("note").promotionCode("PROMO").build();
         when(checkoutMapper.toVm(checkout)).thenReturn(checkoutVmMock);
 
         CheckoutItemVm itemVmMock = new CheckoutItemVm(1L, 100L, "Name", "Desc", 2, BigDecimal.TEN, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, "checkout-123");
@@ -200,7 +202,7 @@ class CheckoutServiceTest {
         when(checkoutRepository.findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING))
                 .thenReturn(Optional.of(checkout));
 
-        CheckoutVm checkoutVmMock = new CheckoutVm("checkout-123", "test@test.com", "note", "PROMO", "1", "1", "1", null);
+        CheckoutVm checkoutVmMock = CheckoutVm.builder().id("checkout-123").email("test@test.com").note("note").promotionCode("PROMO").build();
         when(checkoutMapper.toVm(checkout)).thenReturn(checkoutVmMock);
 
         CheckoutVm result = checkoutService.getCheckoutPendingStateWithItemsById("checkout-123");
