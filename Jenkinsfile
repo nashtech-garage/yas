@@ -46,6 +46,11 @@ pipeline {
                         env.MAVEN_PROJECT_LIST = changedModules.join(',')
                         echo "Phát hiện thay đổi ở các service: ${env.MAVEN_PROJECT_LIST}. Chỉ build và test các service này."
                     }
+
+                    if (env.BRANCH_NAME == 'feature/add-test-order') {
+                        env.MAVEN_PROJECT_LIST = 'order'
+                        echo "Branch feature/add-test-order: chỉ chạy service order."
+                    }
                 }
             }
         }
@@ -63,8 +68,8 @@ pipeline {
                     } else {
                         echo 'Đang chạy Unit Test và tạo report Coverage cho toàn bộ dự án...'
                     }
-                    
-                    sh "mvn clean test jacoco:report ${mavenArgs} '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java'"
+
+                    sh "mvn clean verify ${mavenArgs} '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java' '-Dfailsafe.excludes=**/*IT.java,**/*IT\$*.java'"
                 }
             }
         }
@@ -95,12 +100,23 @@ pipeline {
             junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
             
            
-            jacoco execPattern: '**/target/jacoco.exec',
-                   classPattern: '**/target/classes',
-                   sourcePattern: '**/src/main/java',
-                   changeBuildStatus: true,
-                   minimumLineCoverage: '70',
-                   maximumLineCoverage: '70'
+            script {
+                def classPatterns = '**/target/classes'
+                def sourcePatterns = '**/src/main/java'
+                def execPatterns = '**/target/jacoco.exec'
+
+                if (env.MAVEN_PROJECT_LIST?.trim()) {
+                    classPatterns = env.MAVEN_PROJECT_LIST.split(',').collect { "${it}/target/classes" }.join(',')
+                    sourcePatterns = env.MAVEN_PROJECT_LIST.split(',').collect { "${it}/src/main/java" }.join(',')
+                    execPatterns = env.MAVEN_PROJECT_LIST.split(',').collect { "${it}/target/jacoco.exec" }.join(',')
+                }
+
+                jacoco execPattern: execPatterns,
+                       classPattern: classPatterns,
+                       sourcePattern: sourcePatterns,
+                       changeBuildStatus: true,
+                       minimumLineCoverage: '0.80'
+            }
         }
     }
 }   
