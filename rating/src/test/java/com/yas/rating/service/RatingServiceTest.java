@@ -194,7 +194,7 @@ class RatingServiceTest {
         when(jwt.getSubject()).thenReturn(userId);
 
         when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong())).thenReturn(new OrderExistsByProductAndUserGetVm(true));
-        when(ratingRepository.existsByCreatedByAndProductId(userId, ratingPostVm.productId())).thenReturn(false);
+       // when(ratingRepository.existsByCreatedByAndProductId(userId, ratingPostVm.productId())).thenReturn(false);
         when(customerService.getCustomer()).thenReturn(null);
 
         NotFoundException exception = assertThrows(NotFoundException.class,
