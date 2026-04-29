@@ -13,8 +13,22 @@ def getAffectedPaths() {
 
 def getChangedServices() {
     def changedServices = [] as Set
-    def paths = getAffectedPaths()
-    
+    def gitDiffOutput = ''
+
+    try {
+        sh(script: 'git fetch origin main --no-tags --depth=1', returnStdout: false)
+        gitDiffOutput = sh(script: 'git diff --name-only origin/main...HEAD', returnStdout: true).trim()
+    } catch (e) {   
+        echo "git diff failed, fallback to changeSets: ${e.message}"
+    }
+
+    def paths = []
+    if (gitDiffOutput) {
+        paths = gitDiffOutput.split('\n').toList()
+    } else {
+        paths = getAffectedPaths()
+    }
+
     for (path in paths) {
         if (path.contains('/')) {
             def folder = path.split('/')[0]
@@ -60,12 +74,12 @@ pipeline {
                     
                     if (services.isEmpty()) {
                         echo 'Đang chạy Unit Test và tạo report Coverage cho TOÀN BỘ dự án...'
-                        sh "mvn clean test jacoco:report '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java'"
+                        sh "mvn clean verify '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java'"
                     } else {
-                        echo 'Đang chạy Unit Test và tạo report Coverage cho CÁC SERVICE BỊ THAY ĐỔI...'
+                        echo "Đang chạy Unit Test và tạo report Coverage cho CÁC SERVICE BỊ THAY ĐỔI: ${services}"
                         for (service in services) {
                             stage("Test ${service}") {
-                                sh "mvn clean test jacoco:report -pl ${service} -am '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java'"
+                                sh "mvn clean verify -pl ${service} -am '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java'"
                             }
                         }
                     }
@@ -77,9 +91,25 @@ pipeline {
                 always {
                     echo 'Upload Test Result và TestCoverage cho Phase Test...'
                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-                    jacoco execPattern: '**/target/jacoco.exec',
-                           classPattern: '**/target/classes',
-                           sourcePattern: '**/src/main/java'
+                    script {
+                        def services = getChangedServices()
+                        def classPatterns = '**/target/classes'
+                        def sourcePatterns = '**/src/main/java'
+                        def execPatterns = '**/target/jacoco.exec'
+
+                        if (!services.isEmpty()) {
+                            classPatterns = services.collect { "${it}/target/classes" }.join(',')
+                            sourcePatterns = services.collect { "${it}/src/main/java" }.join(',')
+                            execPatterns = services.collect { "${it}/target/jacoco.exec" }.join(',')
+                            echo "JaCoCo scope theo service thay đổi: ${services}"
+                        }
+
+                        jacoco execPattern: execPatterns,
+                               classPattern: classPatterns,
+                               sourcePattern: sourcePatterns,
+                               changeBuildStatus: true,
+                               minimumLineCoverage: '0.90'
+                    }
                 }
             }
         }
