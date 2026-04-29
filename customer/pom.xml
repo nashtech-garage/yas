@@ -52,6 +52,18 @@
             <artifactId>spring-boot-starter-liquibase</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.yas</groupId>
             <artifactId>common-library</artifactId>
             <version>${revision}</version>
