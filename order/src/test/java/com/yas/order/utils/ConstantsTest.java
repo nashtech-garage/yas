@@ -3,6 +3,9 @@ package com.yas.order.utils;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 class ConstantsTest {
 
     @Test
@@ -11,6 +14,19 @@ class ConstantsTest {
         assertEquals("CHECKOUT_NOT_FOUND", Constants.ErrorCode.CHECKOUT_NOT_FOUND);
         assertEquals("CHECKOUT_ITEM_NOT_EMPTY", Constants.ErrorCode.CHECKOUT_ITEM_NOT_EMPTY);
         assertEquals("SIGN_IN_REQUIRED", Constants.ErrorCode.SIGN_IN_REQUIRED);
+    }
+
+    @Test
+    void testPrivateConstructors() throws Exception {
+        testPrivateConstructor(Constants.ErrorCode.class);
+        testPrivateConstructor(Constants.MessageCode.class);
+        testPrivateConstructor(Constants.Column.class);
+    }
+
+    private void testPrivateConstructor(Class<?> clazz) throws Exception {
+        Constructor<?> constructor = clazz.getDeclaredConstructor(Constants.class);
+        constructor.setAccessible(true);
+        constructor.newInstance(new Constants());
     }
 
     @Test
