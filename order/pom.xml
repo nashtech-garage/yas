@@ -89,17 +89,7 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
-                            <excludes>
-                                <exclude>**/*Application.*</exclude>
-                                <exclude>**/model/**</exclude>
-                                <exclude>**/viewmodel/**</exclude>
-                                <exclude>**/dto/**</exclude>
-                                <exclude>**/config/**</exclude>
-                                <exclude>**/constants/**</exclude>
-                                <exclude>**/exception/**</exclude>
-                                <exclude>**/mapper/**</exclude>
-                                <exclude>**/enumeration/**</exclude>
-                            </excludes>
+
                         </configuration>
                     </execution>
                     <execution>
@@ -109,17 +99,7 @@
                             <goal>report</goal>
                         </goals>
                         <configuration>
-                            <excludes>
-                                <exclude>**/*Application.*</exclude>
-                                <exclude>**/model/**</exclude>
-                                <exclude>**/viewmodel/**</exclude>
-                                <exclude>**/dto/**</exclude>
-                                <exclude>**/config/**</exclude>
-                                <exclude>**/constants/**</exclude>
-                                <exclude>**/exception/**</exclude>
-                                <exclude>**/mapper/**</exclude>
-                                <exclude>**/enumeration/**</exclude>
-                            </excludes>
+
                         </configuration>
                     </execution>
                     <execution>
@@ -129,17 +109,6 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
-                            <excludes>
-                                <exclude>**/*Application.*</exclude>
-                                <exclude>**/model/**</exclude>
-                                <exclude>**/viewmodel/**</exclude>
-                                <exclude>**/dto/**</exclude>
-                                <exclude>**/config/**</exclude>
-                                <exclude>**/constants/**</exclude>
-                                <exclude>**/exception/**</exclude>
-                                <exclude>**/mapper/**</exclude>
-                                <exclude>**/enumeration/**</exclude>
-                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
