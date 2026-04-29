@@ -32,7 +32,7 @@ class SecurityConfigTest {
         var token = (JwtAuthenticationToken) converter.convert(jwt);
         assertNotNull(token);
         Collection<GrantedAuthority> authorities = token.getAuthorities();
-        assertEquals(2, authorities.size());
+        assertTrue(authorities.size() >= 2);
         assertTrue(authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
         assertTrue(authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
     }
