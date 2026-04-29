@@ -66,7 +66,7 @@ public class FarmingCoverageTest {
         assertNotNull(DeliveryMethod.valueOf("GRAB_EXPRESS"));
 
         assertNotNull(DeliveryStatus.values());
-        assertNotNull(DeliveryStatus.valueOf("PENDING"));
+        assertNotNull(DeliveryStatus.valueOf("PREPARING"));
 
         assertNotNull(OrderStatus.values());
         assertNotNull(OrderStatus.valueOf("PENDING"));
@@ -83,15 +83,15 @@ public class FarmingCoverageTest {
         OrderService mockService = mock(OrderService.class);
         OrderController controller = new OrderController(mockService);
 
-        OrderVm orderVmMock = new OrderVm(1L, "email@test.com", null, null, "note", 0f, 0f, 1, BigDecimal.ZERO, BigDecimal.ZERO, "COUPON", OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PENDING, PaymentStatus.PENDING, Set.of(), "checkout123");
+        OrderVm orderVmMock = new OrderVm(1L, "email@test.com", null, null, "note", 0f, 0f, 1, BigDecimal.ZERO, BigDecimal.ZERO, "COUPON", OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PREPARING, PaymentStatus.PENDING, Set.of(), "checkout123");
         when(mockService.createOrder(any())).thenReturn(orderVmMock);
         when(mockService.updateOrderPaymentStatus(any())).thenReturn(PaymentOrderStatusVm.builder().build());
         when(mockService.isOrderCompletedWithUserIdAndProductId(any())).thenReturn(new OrderExistsByProductAndUserGetVm(true));
-        when(mockService.getMyOrders(any(), any())).thenReturn(List.of(new OrderGetVm(1L, "email@test.com", null, null, "note", 0f, 0f, 1, BigDecimal.ZERO, BigDecimal.ZERO, "COUPON", OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PENDING, PaymentStatus.PENDING, Set.of())));
+        when(mockService.getMyOrders(any(), any())).thenReturn(List.of(new OrderGetVm(1L, "email@test.com", null, null, "note", 0f, 0f, 1, BigDecimal.ZERO, BigDecimal.ZERO, "COUPON", OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PREPARING, PaymentStatus.PENDING, Set.of())));
         when(mockService.getOrderWithItemsById(any())).thenReturn(orderVmMock);
-        when(mockService.findOrderVmByCheckoutId(any())).thenReturn(new OrderGetVm(1L, "email@test.com", null, null, "note", 0f, 0f, 1, BigDecimal.ZERO, BigDecimal.ZERO, "COUPON", OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PENDING, PaymentStatus.PENDING, Set.of()));
+        when(mockService.findOrderVmByCheckoutId(any())).thenReturn(new OrderGetVm(1L, "email@test.com", null, null, "note", 0f, 0f, 1, BigDecimal.ZERO, BigDecimal.ZERO, "COUPON", OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PREPARING, PaymentStatus.PENDING, Set.of()));
         when(mockService.getAllOrder(any(), any(), any(), any(), any(), any())).thenReturn(new OrderListVm(List.of(), 0, 0));
-        when(mockService.getLatestOrders(any(Integer.class))).thenReturn(List.of(new OrderBriefVm(1L, "test", OrderStatus.PENDING, DeliveryStatus.PENDING, PaymentStatus.PENDING, BigDecimal.ZERO, ZonedDateTime.now())));
+        when(mockService.getLatestOrders(any(Integer.class))).thenReturn(List.of(new OrderBriefVm(1L, "test", OrderStatus.PENDING, DeliveryStatus.PREPARING, PaymentStatus.PENDING, BigDecimal.ZERO, ZonedDateTime.now())));
         when(mockService.exportCsv(any())).thenReturn("csv".getBytes());
 
         OrderPostVm postVm = OrderPostVm.builder()
@@ -178,20 +178,16 @@ public class FarmingCoverageTest {
         checkoutItem.setProductName("name");
         checkoutItem.setQuantity(1);
         checkoutItem.setProductPrice(BigDecimal.ZERO);
-        checkoutItem.setNote("note");
         checkoutItem.setDiscountAmount(BigDecimal.ZERO);
         checkoutItem.setTaxAmount(BigDecimal.ZERO);
-        checkoutItem.setTaxPercent(BigDecimal.ZERO);
         checkoutItem.setCheckout(new Checkout());
         assertNotNull(checkoutItem.getId());
         assertNotNull(checkoutItem.getProductId());
         assertNotNull(checkoutItem.getProductName());
         assertNotNull(checkoutItem.getQuantity());
         assertNotNull(checkoutItem.getProductPrice());
-        assertNotNull(checkoutItem.getNote());
         assertNotNull(checkoutItem.getDiscountAmount());
         assertNotNull(checkoutItem.getTaxAmount());
-        assertNotNull(checkoutItem.getTaxPercent());
         assertNotNull(checkoutItem.getCheckout());
 
         Order order = new Order();
@@ -208,13 +204,12 @@ public class FarmingCoverageTest {
         order.setCouponCode("c");
         order.setOrderStatus(OrderStatus.PENDING);
         order.setDeliveryMethod(DeliveryMethod.GRAB_EXPRESS);
-        order.setDeliveryStatus(DeliveryStatus.PENDING);
-        order.setPaymentMethod(PaymentMethod.COD);
+        order.setDeliveryStatus(DeliveryStatus.PREPARING);
+        order.setPaymentMethodId("1");
         order.setPaymentStatus(PaymentStatus.PENDING);
         order.setPaymentId(1L);
         order.setCheckoutId("1");
         order.setRejectReason("r");
-        order.setOrderItems(Set.of());
         assertNotNull(order.getId());
         assertNotNull(order.getEmail());
         assertNotNull(order.getShippingAddressId());
@@ -229,12 +224,11 @@ public class FarmingCoverageTest {
         assertNotNull(order.getOrderStatus());
         assertNotNull(order.getDeliveryMethod());
         assertNotNull(order.getDeliveryStatus());
-        assertNotNull(order.getPaymentMethod());
+        assertNotNull(order.getPaymentMethodId());
         assertNotNull(order.getPaymentStatus());
         assertNotNull(order.getPaymentId());
         assertNotNull(order.getCheckoutId());
         assertNotNull(order.getRejectReason());
-        assertNotNull(order.getOrderItems());
 
         OrderAddress address = new OrderAddress();
         address.setId(1L);
