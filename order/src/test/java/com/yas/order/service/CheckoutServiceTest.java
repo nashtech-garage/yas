@@ -243,7 +243,8 @@ class CheckoutServiceTest {
     @Test
     void updateCheckoutStatus_WhenOwnedByUser_ShouldUpdateAndReturnOrderId() {
         setupSecurityContext("user123");
-        CheckoutStatusPutVm putVm = new CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
+        com.yas.order.viewmodel.checkout.CheckoutStatusPutVm putVm =
+            new com.yas.order.viewmodel.checkout.CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
 
         when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.of(checkout));
         when(checkoutRepository.save(checkout)).thenReturn(checkout);
@@ -265,7 +266,8 @@ class CheckoutServiceTest {
     @Test
     void updateCheckoutStatus_WhenNotOwnedByUser_ShouldThrowForbiddenException() {
         setupSecurityContext("user999");
-        CheckoutStatusPutVm putVm = new CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
+        com.yas.order.viewmodel.checkout.CheckoutStatusPutVm putVm =
+            new com.yas.order.viewmodel.checkout.CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
 
         when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.of(checkout));
 
@@ -278,7 +280,8 @@ class CheckoutServiceTest {
 
     @Test
     void updateCheckoutStatus_WhenNotFound_ShouldThrowNotFoundException() {
-        CheckoutStatusPutVm putVm = new CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
+        com.yas.order.viewmodel.checkout.CheckoutStatusPutVm putVm =
+            new com.yas.order.viewmodel.checkout.CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
 
         when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.empty());
 
