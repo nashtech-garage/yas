@@ -71,6 +71,14 @@ pipeline {
                 
                 script {
                     def services = getChangedServices()
+                    def focusService = env.FOCUS_SERVICE
+                    def isCustomerBranch = env.BRANCH_NAME == 'feature/add-test-customer'
+
+                    if (focusService?.trim()) {
+                        services = [focusService.trim()] as Set
+                    } else if (isCustomerBranch) {
+                        services = ['customer'] as Set
+                    }
                     
                     if (services.isEmpty()) {
                         echo 'Đang chạy Unit Test và tạo report Coverage cho TOÀN BỘ dự án...'
@@ -93,6 +101,14 @@ pipeline {
                     junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
                     script {
                         def services = getChangedServices()
+                        def focusService = env.FOCUS_SERVICE
+                        def isCustomerBranch = env.BRANCH_NAME == 'feature/add-test-customer'
+
+                        if (focusService?.trim()) {
+                            services = [focusService.trim()] as Set
+                        } else if (isCustomerBranch) {
+                            services = ['customer'] as Set
+                        }
                         def classPatterns = '**/target/classes'
                         def sourcePatterns = '**/src/main/java'
                         def execPatterns = '**/target/jacoco.exec'
