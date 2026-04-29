@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -88,10 +90,10 @@ public class FarmingCoverageTest {
         when(mockService.updateOrderPaymentStatus(any())).thenReturn(PaymentOrderStatusVm.builder().build());
         when(mockService.isOrderCompletedWithUserIdAndProductId(any())).thenReturn(new OrderExistsByProductAndUserGetVm(true));
         when(mockService.getMyOrders(any(), any())).thenReturn(List.of(new OrderGetVm(1L, OrderStatus.PENDING, BigDecimal.ZERO, DeliveryStatus.PREPARING, DeliveryMethod.GRAB_EXPRESS, List.of(), ZonedDateTime.now())));
-        when(mockService.getOrderWithItemsById(any())).thenReturn(orderVmMock);
+        when(mockService.getOrderWithItemsById(anyLong())).thenReturn(orderVmMock);
         when(mockService.findOrderVmByCheckoutId(any())).thenReturn(new OrderGetVm(1L, OrderStatus.PENDING, BigDecimal.ZERO, DeliveryStatus.PREPARING, DeliveryMethod.GRAB_EXPRESS, List.of(), ZonedDateTime.now()));
         when(mockService.getAllOrder(any(), any(), any(), any(), any(), any())).thenReturn(new OrderListVm(List.of(), 0, 0));
-        when(mockService.getLatestOrders(any(Integer.class))).thenReturn(List.of(new OrderBriefVm(1L, "email", new OrderAddressVm(1L, "1", "1", "1", "1", "1", "1", 1L, "1", 1L, "1", 1L, "1"), BigDecimal.ZERO, OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PREPARING, PaymentStatus.PENDING, ZonedDateTime.now())));
+        when(mockService.getLatestOrders(anyInt())).thenReturn(List.of(new OrderBriefVm(1L, "email", new OrderAddressVm(1L, "1", "1", "1", "1", "1", "1", 1L, "1", 1L, "1", 1L, "1"), BigDecimal.ZERO, OrderStatus.PENDING, DeliveryMethod.GRAB_EXPRESS, DeliveryStatus.PREPARING, PaymentStatus.PENDING, ZonedDateTime.now())));
         when(mockService.exportCsv(any())).thenReturn("csv".getBytes());
 
         OrderPostVm postVm = OrderPostVm.builder()
