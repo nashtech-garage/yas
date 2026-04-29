@@ -94,8 +94,6 @@
                 <configuration>
                     <excludes>
                     <!-- Chỉ chứa khai báo, ko có logic -->
-                        <exclude>**/*Application.*</exclude>
-                        <exclude>**/config/**</exclude>
                         <exclude>**/model/**</exclude>
                         <exclude>**/viewmodel/**</exclude>
                         <exclude>**/repository/**</exclude>

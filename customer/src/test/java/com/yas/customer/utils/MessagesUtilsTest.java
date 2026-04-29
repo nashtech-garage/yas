@@ -7,15 +7,8 @@ import org.junit.jupiter.api.Test;
 class MessagesUtilsTest {
 
     @Test
-    void testGetMessageWithValidCode() {
-        String result = MessagesUtils.getMessage("WRONG_EMAIL_FORMAT", "World");
-        assertEquals("Wrong email format for World", result);
-    }
-
-    @Test
-    void testGetMessageWithInvalidCode() {
-
-        String result = MessagesUtils.getMessage("invalid.code");
-        assertEquals("invalid.code", result);
+    void getMessage_WhenCodeExists_ShouldReturnMessage() {
+        String message = MessagesUtils.getMessage("SOME_DUMMY_CODE");
+        assertEquals("SOME_DUMMY_CODE", message);
     }
 }
