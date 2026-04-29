@@ -242,4 +242,36 @@ class CheckoutServiceTest {
         verify(checkoutRepository).save(checkout);
         assertThat(checkout.getPaymentMethodId()).isNull();
     }
+
+    @Test
+    void testUpdateCheckoutStatus_whenCheckoutExistsAndOwnedByCurrentUser_thenUpdateStatus() {
+        CheckoutStatusPutVm checkoutStatusPutVm = new CheckoutStatusPutVm(checkoutId, CheckoutState.COMPLETED.name());
+        when(checkoutRepository.findById(checkoutId)).thenReturn(Optional.of(checkoutCreated));
+        com.yas.order.model.Order order = new com.yas.order.model.Order();
+        order.setId(10L);
+        when(orderService.findOrderByCheckoutId(checkoutId)).thenReturn(order);
+
+        Long resultOrderId = checkoutService.updateCheckoutStatus(checkoutStatusPutVm);
+
+        assertThat(checkoutCreated.getCheckoutState()).isEqualTo(CheckoutState.COMPLETED);
+        verify(checkoutRepository).save(checkoutCreated);
+        assertThat(resultOrderId).isEqualTo(10L);
+    }
+
+    @Test
+    void testUpdateCheckoutStatus_whenCheckoutNotFound_thenThrowNotFoundException() {
+        CheckoutStatusPutVm checkoutStatusPutVm = new CheckoutStatusPutVm("invalid-id", CheckoutState.COMPLETED.name());
+        when(checkoutRepository.findById("invalid-id")).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> checkoutService.updateCheckoutStatus(checkoutStatusPutVm));
+    }
+
+    @Test
+    void testUpdateCheckoutStatus_whenNotOwnedByCurrentUser_thenThrowForbiddenException() {
+        CheckoutStatusPutVm checkoutStatusPutVm = new CheckoutStatusPutVm(checkoutId, CheckoutState.COMPLETED.name());
+        when(checkoutRepository.findById(checkoutId)).thenReturn(Optional.of(checkoutCreated));
+        setSubjectUpSecurityContext("another-user");
+
+        assertThrows(ForbiddenException.class, () -> checkoutService.updateCheckoutStatus(checkoutStatusPutVm));
+    }
 }
