@@ -112,6 +112,30 @@ class CustomerServiceTest {
     }
 
     @Test
+    void testGetCustomers_filtersDisabledUsers() {
+        UserRepresentation enabledUser = new UserRepresentation();
+        enabledUser.setId("1");
+        enabledUser.setUsername("user1");
+        enabledUser.setEmail(VALID_EMAIL);
+        enabledUser.setEnabled(true);
+
+        UserRepresentation disabledUser = new UserRepresentation();
+        disabledUser.setId("2");
+        disabledUser.setUsername("user2");
+        disabledUser.setEmail("user2@example.com");
+        disabledUser.setEnabled(false);
+
+        when(usersResource.search(any(), anyInt(), anyInt()))
+            .thenReturn(List.of(enabledUser, disabledUser));
+
+        CustomerListVm customerListVm = customerService.getCustomers(0);
+
+        assertThat(customerListVm.totalUser()).isEqualTo(1);
+        assertThat(customerListVm.customers()).hasSize(1);
+        assertThat(customerListVm.customers().getFirst().email()).isEqualTo(VALID_EMAIL);
+    }
+
+    @Test
     void testGetCustomers_isUserRepresentationEmpty_returnCustomerListVm() {
 
         when(usersResource.search(any(), anyInt(), anyInt())).thenReturn(List.of());
@@ -265,13 +289,15 @@ class CustomerServiceTest {
 
         RoleMappingResource roleMappingResource = mock(RoleMappingResource.class);
         when(userResource.roles()).thenReturn(roleMappingResource);
-        when(roleMappingResource.realmLevel()).thenReturn(mock(RoleScopeResource.class));
+        RoleScopeResource roleScopeResource = mock(RoleScopeResource.class);
+        when(roleMappingResource.realmLevel()).thenReturn(roleScopeResource);
 
         GuestUserVm guestUserVm = customerService.createGuestUser();
 
         assertThat(guestUserVm.userId()).isEqualTo("1");
         assertThat(guestUserVm.email()).contains("_guest@yas.com");
         assertThat(guestUserVm.password()).isEqualTo("GUEST");
+        verify(roleScopeResource).add(any());
     }
 
     @Test

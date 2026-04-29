@@ -121,6 +121,21 @@ class UserAddressServiceTest {
         }
 
         @Test
+        void getUserAddressList_whenNoMatchingAddressDetails_returnEmptyList() {
+            setUpSecurityContext(USER_ID);
+
+            UserAddress address1 = createUserAddress(1L, USER_ID, 10L, true);
+            when(userAddressRepository.findAllByUserId(USER_ID))
+                .thenReturn(List.of(address1));
+            when(locationService.getAddressesByIdList(List.of(10L)))
+                .thenReturn(Collections.emptyList());
+
+            List<ActiveAddressVm> result = userAddressService.getUserAddressList();
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
         void getUserAddressList_whenAnonymousUser_throwAccessDeniedException() {
             setUpAnonymousUser();
 
@@ -325,6 +340,18 @@ class UserAddressServiceTest {
             assertThat(address2.getIsActive()).isFalse();
 
             verify(userAddressRepository).saveAll(List.of(address1, address2));
+        }
+
+        @Test
+        void chooseDefaultAddress_whenNoAddresses_shouldSaveEmptyList() {
+            setUpSecurityContext(USER_ID);
+
+            when(userAddressRepository.findAllByUserId(USER_ID))
+                .thenReturn(Collections.emptyList());
+
+            userAddressService.chooseDefaultAddress(10L);
+
+            verify(userAddressRepository).saveAll(Collections.emptyList());
         }
     }
 }
