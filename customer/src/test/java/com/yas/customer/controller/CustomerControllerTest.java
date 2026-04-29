@@ -1,10 +1,10 @@
 package com.yas.customer.controller;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
@@ -114,6 +114,24 @@ class CustomerControllerTest {
     }
 
     @Test
+    void testGetCustomerById_whenNormalCase_responseCustomerVm() throws Exception {
+        CustomerVm customerVm = new CustomerVm(
+            "12345",
+            "john_doe",
+            "john.doe@example.com",
+            "John",
+            "Doe"
+        );
+        when(customerService.getCustomerProfile("12345")).thenReturn(customerVm);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                    BACK_OFFICE_CUSTOMER_BASE_URL + "/profile/{id}", "12345")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(customerVm)));
+    }
+
+    @Test
     void testCreateGuestUser_whenNormalCase_responseGuestUserVm() throws Exception {
 
         GuestUserVm guestUserVm = new GuestUserVm(
@@ -149,12 +167,20 @@ class CustomerControllerTest {
         CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
             "Doe", "123", "ADMIN");
 
-        when(customerService.create(any(CustomerPostVm.class))).thenReturn(mock(CustomerVm.class));
+        CustomerVm customerVm = new CustomerVm(
+            "100",
+            "user1",
+            "test@gmail.com",
+            "John",
+            "Doe"
+        );
+        when(customerService.create(any(CustomerPostVm.class))).thenReturn(customerVm);
 
         mockMvc.perform(MockMvcRequestBuilders.post(BACK_OFFICE_CUSTOMER_BASE_URL)
                 .contentType("application/json")
                 .content(objectWriter.writeValueAsString(customerPostVm)))
-                .andExpect(MockMvcResultMatchers.status().isCreated());
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.header().string("Location", containsString("/customers/100")));
     }
 
     @Test
