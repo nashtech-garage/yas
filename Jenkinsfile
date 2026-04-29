@@ -236,7 +236,7 @@ pipeline {
 
                                 if (depStatus != 0 || codeStatus != 0) {
                                     echo "SNYK WARNING: vulnerabilities detected in ${module}"
-                                    currentBuild.result = 'SUCCESS' // Mark as success
+                                    currentBuild.result = 'SUCCESS'
                                 } else {
                                     echo "No vulnerabilities detected in ${module}"
                                 }

@@ -7,15 +7,15 @@ abstract class AbstractCircuitBreakFallbackHandler {
 
     protected void handleBodilessFallback(Throwable throwable) throws Throwable {
         handleError(throwable);
+        throw throwable;
     }
 
     protected <T> T handleTypedFallback(Throwable throwable) throws Throwable {
         handleError(throwable);
-        return null;
+        throw throwable;
     }
 
-    private void handleError(Throwable throwable) throws Throwable {
+    private void handleError(Throwable throwable) {
         log.error("Circuit breaker records an error. Detail {}", throwable.getMessage());
-        throw throwable;
     }
 }
