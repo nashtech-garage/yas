@@ -16,7 +16,7 @@ def getChangedServices() {
     def gitDiffOutput = ''
 
     try {
-        sh(script: 'git fetch origin main --no-tags --depth=1', returnStdout: false)
+        sh(script: 'git fetch origin +refs/heads/main:refs/remotes/origin/main --no-tags --depth=1', returnStdout: false)
         gitDiffOutput = sh(script: 'git diff --name-only origin/main...HEAD', returnStdout: true).trim()
     } catch (e) {   
         echo "git diff failed, fallback to changeSets: ${e.message}"
@@ -74,12 +74,12 @@ pipeline {
                     
                     if (services.isEmpty()) {
                         echo 'Đang chạy Unit Test và tạo report Coverage cho TOÀN BỘ dự án...'
-                        sh "mvn clean verify '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java'"
+                        sh "mvn clean verify '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java' '-Dfailsafe.excludes=**/*IT.java,**/*IT\$*.java'"
                     } else {
                         echo "Đang chạy Unit Test và tạo report Coverage cho CÁC SERVICE BỊ THAY ĐỔI: ${services}"
                         for (service in services) {
                             stage("Test ${service}") {
-                                sh "mvn clean verify -pl ${service} -am '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java'"
+                                sh "mvn clean verify -pl ${service} -am '-Dsurefire.excludes=**/*IT.java,**/*IT\$*.java,**/ProductCdcConsumerTest.java,**/ProductVectorRepositoryTest.java,**/VectorQueryTest.java' '-Dfailsafe.excludes=**/*IT.java,**/*IT\$*.java'"
                             }
                         }
                     }
