@@ -20,7 +20,7 @@ class OrderMapperTest {
 
     @Test
     void testToCsv_convertToCorrectOrderItemCsv() {
-        OrderAddressVm billingAddressVm = Instancioof(OrderAddressVm.class);
+        OrderAddressVm billingAddressVm = Instancio.create(OrderAddressVm.class);
         OrderBriefVm orderBriefVm = Instancio.of(OrderBriefVm.class)
                 .set(org.instancio.Select.field("billingAddressVm"), billingAddressVm)
                 .create();
