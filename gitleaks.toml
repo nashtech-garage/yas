@@ -22,3 +22,13 @@ paths = [
   '''keycloak-yas-realm-import.yaml''',
   '''target'''
 ]
+
+fingerprints = [
+  "6ca0102f9d384227cdda941223b3929f25301a06:automation-ui/backoffice/src/test/java/com/yas/automation/ui/steps/LoginSteps.java:hashicorp-tf-password:57",
+  "6ca0102f9d384227cdda941223b3929f25301a06:automation-ui/storefront/src/test/java/com/yas/automation/ui/steps/LoginSteps.java:hashicorp-tf-password:78",
+  "6ca0102f9d384227cdda941223b3929f25301a06:k8s/charts/yas-configuration/values.yaml:generic-api-key:10",
+  "6ca0102f9d384227cdda941223b3929f25301a06:k8s/charts/yas-configuration/values.yaml:generic-api-key:11",
+  "af2c9421030761ec4eccb0994a6c576592be113b:k8s/charts/yas-configuration/values.yaml:generic-api-key:10",
+  "c8b3afc33a335af1ac3cc1640be60888c34e2fce:automation-ui/backoffice/src/test/java/com/yas/automation/ui/steps/LoginSteps.java:hashicorp-tf-password:57",
+  "c8b3afc33a335af1ac3cc1640be60888c34e2fce:automation-ui/storefront/src/test/java/com/yas/automation/ui/steps/LoginSteps.java:hashicorp-tf-password:78"
+]
