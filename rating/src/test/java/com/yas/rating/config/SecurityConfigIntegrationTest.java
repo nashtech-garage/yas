@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import com.yas.rating.controller.RatingController;
 import com.yas.rating.service.RatingService;
@@ -65,7 +66,7 @@ class SecurityConfigIntegrationTest {
 
     @Test
     void backofficeDeleteEndpoints_shouldReturn401WithoutAuth() throws Exception {
-        mockMvc.perform(delete("/backoffice/ratings/1"))
+        mockMvc.perform(delete("/backoffice/ratings/1").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 
