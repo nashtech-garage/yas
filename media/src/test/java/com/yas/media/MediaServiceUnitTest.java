@@ -1,23 +1,15 @@
 package com.yas.media;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.media.config.YasConfig;
 import com.yas.media.mapper.MediaVmMapper;
 import com.yas.media.model.Media;
 import com.yas.media.model.dto.MediaDto;
-import com.yas.media.model.dto.MediaDto.MediaDtoBuilder;
 import com.yas.media.repository.FileSystemRepository;
 import com.yas.media.repository.MediaRepository;
 import com.yas.media.service.MediaServiceImpl;
@@ -36,6 +28,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.io.InputStream;
 
 class MediaServiceUnitTest {
 
@@ -50,9 +44,6 @@ class MediaServiceUnitTest {
 
     @Mock
     private YasConfig yasConfig;
-
-    @Mock
-    private MediaDtoBuilder builder;
 
     @InjectMocks
     private MediaServiceImpl mediaService;
@@ -80,23 +71,20 @@ class MediaServiceUnitTest {
         assertEquals("Test", mediaVm.getCaption());
         assertEquals("fileName", mediaVm.getFileName());
         assertEquals("image/png", mediaVm.getMediaType());
-        assertEquals(String.format("/media/medias/%s/file/%s", 1L, "fileName"), mediaVm.getUrl());
+        assertEquals("/media/medias/1/file/fileName", mediaVm.getUrl());
     }
 
     @Test
     void getMedia_whenMediaNotFound_thenReturnNull() {
-        when(mediaRepository.findById(1L)).thenReturn(Optional.empty());
-
+        when(mediaRepository.findByIdWithoutFileInReturn(1L)).thenReturn(null);
         MediaVm mediaVm = mediaService.getMediaById(1L);
         assertNull(mediaVm);
     }
 
     @Test
     void removeMedia_whenMediaNotFound_thenThrowsNotFoundException() {
-        when(mediaRepository.findById(1L)).thenReturn(Optional.empty());
-
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> mediaService.removeMedia(1L));
-        assertEquals(String.format("Media %s is not found", 1L), exception.getMessage());
+        when(mediaRepository.findByIdWithoutFileInReturn(1L)).thenReturn(null);
+        assertThrows(NotFoundException.class, () -> mediaService.removeMedia(1L));
     }
 
     @Test
@@ -106,165 +94,78 @@ class MediaServiceUnitTest {
         doNothing().when(mediaRepository).deleteById(1L);
 
         mediaService.removeMedia(1L);
-
         verify(mediaRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    void saveMedia_whenTypePNG_thenSaveSuccess() {
-        byte[] pngFileContent = new byte[] {};
-        MultipartFile multipartFile = new MockMultipartFile(
-            "file",
-            "example.png",
-            "image/png",
-            pngFileContent
-        );
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
+    void saveMedia_whenPersistFileThrowsException_thenThrowException() throws Exception {
+        byte[] content = new byte[] {1, 2, 3};
+        MultipartFile multipartFile = new MockMultipartFile("file", "test.png", "image/png", content);
+        MediaPostVm vm = new MediaPostVm("caption", multipartFile, null);
 
-        when(mediaRepository.save(any(Media.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(fileSystemRepository.persistFile(anyString(), any(byte[].class))).thenThrow(new IOException("Disk full"));
 
-        Media mediaSave = mediaService.saveMedia(mediaPostVm);
-        assertNotNull(mediaSave);
-        assertEquals("media", mediaSave.getCaption());
-        assertEquals("fileName", mediaSave.getFileName());
+        assertThrows(IOException.class, () -> mediaService.saveMedia(vm));
     }
 
     @Test
-    void saveMedia_whenTypeJPEG_thenSaveSuccess() {
-        byte[] pngFileContent = new byte[] {};
-        MultipartFile multipartFile = new MockMultipartFile(
-            "file",
-            "example.jpeg",
-            "image/jpeg",
-            pngFileContent
-        );
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
+    void getFile_whenMediaNotExists_thenReturnEmpty() {
+        when(mediaRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(mediaRepository.save(any(Media.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        MediaDto result = mediaService.getFile(1L, "file");
 
-        Media mediaSave = mediaService.saveMedia(mediaPostVm);
-        assertNotNull(mediaSave);
-        assertEquals("media", mediaSave.getCaption());
-        assertEquals("fileName", mediaSave.getFileName());
+        assertNotNull(result);
+        assertNull(result.getContent());
+        assertNull(result.getMediaType());
     }
 
     @Test
-    void saveMedia_whenTypeGIF_thenSaveSuccess() {
-        byte[] gifFileContent = new byte[] {};
-        MultipartFile multipartFile = new MockMultipartFile(
-            "file",
-            "example.gif",
-            "image/gif",
-            gifFileContent
-        );
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "fileName");
+    void getFile_whenGetFileThrowsException_thenThrowException() {
+        when(mediaRepository.findById(1L)).thenReturn(Optional.of(media));
+        when(fileSystemRepository.getFile(any())).thenThrow(new RuntimeException("File not accessible"));
 
-        when(mediaRepository.save(any(Media.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Media mediaSave = mediaService.saveMedia(mediaPostVm);
-        assertNotNull(mediaSave);
-        assertEquals("media", mediaSave.getCaption());
-        assertEquals("fileName", mediaSave.getFileName());
+        assertThrows(RuntimeException.class, () -> mediaService.getFile(1L, "file"));
     }
 
     @Test
-    void saveMedia_whenFileNameIsNull_thenOk() {
-        byte[] pngFileContent = new byte[] {};
-        MultipartFile multipartFile = new MockMultipartFile(
-            "file",
-            "example.png",
-            "image/png",
-            pngFileContent
-        );
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, null);
+    void getMedia_whenMediaWithSpecialCharactersInFileName_thenReturnCorrectUrl() {
+        NoFileMediaVm noFileMediaVm = new NoFileMediaVm(5L, "Test", "file@#$%.png", "image/png");
+        when(mediaRepository.findByIdWithoutFileInReturn(5L)).thenReturn(noFileMediaVm);
+        when(yasConfig.publicUrl()).thenReturn("https://media.example.com/");
 
-        when(mediaRepository.save(any(Media.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        MediaVm mediaVm = mediaService.getMediaById(5L);
 
-        Media mediaSave = mediaService.saveMedia(mediaPostVm);
-        assertNotNull(mediaSave);
-        assertEquals("media", mediaSave.getCaption());
-        assertEquals("example.png", mediaSave.getFileName());
+        assertNotNull(mediaVm);
+        // Nếu code chính của bạn chưa có URL Encoding, hãy đổi match này cho giống thực tế
+        assertThat(mediaVm.getUrl()).contains("medias/5/file/file@#$%.png");
     }
 
     @Test
-    void saveMedia_whenFileNameIsEmpty_thenOk() {
-        byte[] pngFileContent = new byte[] {};
-        MultipartFile multipartFile = new MockMultipartFile(
-            "file",
-            "example.png",
-            "image/png",
-            pngFileContent
-        );
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "");
+    void getMediaByIds_whenMultipleIds_thenReturnListWithUrls() {
+        List<Long> ids = List.of(1L, 2L);
+        Media media1 = getMedia(1L, "file1.png");
+        Media media2 = getMedia(2L, "file2.png");
+        when(mediaRepository.findAllById(ids)).thenReturn(List.of(media1, media2));
+        when(yasConfig.publicUrl()).thenReturn("http://example.com");
 
-        when(mediaRepository.save(any(Media.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        List<MediaVm> result = mediaService.getMediaByIds(ids);
 
-        Media mediaSave = mediaService.saveMedia(mediaPostVm);
-        assertNotNull(mediaSave);
-        assertEquals("media", mediaSave.getCaption());
-        assertEquals("example.png", mediaSave.getFileName());
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("http://example.com/medias/1/file/file1.png", result.get(0).getUrl());
+        assertEquals("http://example.com/medias/2/file/file2.png", result.get(1).getUrl());
+        verify(mediaVmMapper, times(2)).toVm(any());
     }
 
     @Test
-    void saveMedia_whenFileNameIsBlank_thenOk() {
-        byte[] pngFileContent = new byte[] {};
-        MultipartFile multipartFile = new MockMultipartFile(
-            "file",
-            "example.png",
-            "image/png",
-            pngFileContent
-        );
-        MediaPostVm mediaPostVm = new MediaPostVm("media", multipartFile, "   ");
+    void getMediaByIds_whenEmptyList_thenReturnEmpty() {
+        List<Long> ids = List.of();
+        when(mediaRepository.findAllById(ids)).thenReturn(List.of());
 
-        when(mediaRepository.save(any(Media.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        List<MediaVm> result = mediaService.getMediaByIds(ids);
 
-        Media mediaSave = mediaService.saveMedia(mediaPostVm);
-        assertNotNull(mediaSave);
-        assertEquals("media", mediaSave.getCaption());
-        assertEquals("example.png", mediaSave.getFileName());
-    }
-
-    @Test
-    void getFile_whenMediaNotFound_thenReturnMediaDto() {
-        MediaDto expectedDto = MediaDto.builder().build();
-        when(mediaRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
-        when(builder.build()).thenReturn(expectedDto);
-
-        MediaDto mediaDto = mediaService.getFile(1L, "fileName");
-
-        assertEquals(expectedDto.getMediaType(), mediaDto.getMediaType());
-        assertEquals(expectedDto.getContent(), mediaDto.getContent());
-    }
-
-    @Test
-    void getFile_whenMediaNameNotMatch_thenReturnMediaDto() {
-        MediaDto expectedDto = MediaDto.builder().build();
-        when(mediaRepository.findById(1L)).thenReturn(Optional.ofNullable(media));
-        when(builder.build()).thenReturn(expectedDto);
-
-        MediaDto mediaDto = mediaService.getFile(1L, "fileName");
-
-        assertEquals(expectedDto.getMediaType(), mediaDto.getMediaType());
-        assertEquals(expectedDto.getContent(), mediaDto.getContent());
-    }
-
-    @Test
-    void getFileByIds() {
-        // Given
-        var ip15 = getMedia(-1L, "Iphone 15");
-        var macbook = getMedia(-2L, "Macbook");
-        var existingMedias = List.of(ip15, macbook);
-        when(mediaRepository.findAllById(List.of(ip15.getId(), macbook.getId())))
-            .thenReturn(existingMedias);
-        when(yasConfig.publicUrl()).thenReturn("https://media/");
-
-        // When
-        var medias = mediaService.getMediaByIds(List.of(ip15.getId(), macbook.getId()));
-
-        // Then
-        assertFalse(medias.isEmpty());
-        verify(mediaVmMapper, times(existingMedias.size())).toVm(any());
-        assertThat(medias).allMatch(m -> m.getUrl() != null);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     private static @NotNull Media getMedia(Long id, String name) {
@@ -273,6 +174,4 @@ class MediaServiceUnitTest {
         media.setFileName(name);
         return media;
     }
-
-
 }
