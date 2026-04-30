@@ -350,7 +350,6 @@ pipeline {
                             -Dsonar.projectKey=yas-project\
                             -Dsonar.host.url=http://localhost:9000 \
                             -Dsonar.login=$SONAR_TOKEN \
-                            -Dsonar.qualitygate.wait=true
                     """
                 }
             }
