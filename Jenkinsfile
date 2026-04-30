@@ -1,192 +1,293 @@
-pipeline {
-    agent any 
-//    Comment in
-    options {
-        timestamps()
+// HELPER FUNCTIONS
+
+// Run a shell command and return stdout as a trimmed string
+def runCapture(String cmd) {
+    return sh(script: cmd, returnStdout: true).trim()
+}
+
+// Calculate the list of changed files with multi-tier fallback + PR support
+def computeChangedFiles() {
+    def cmd = null
+
+    if (env.CHANGE_TARGET) {
+        // Pull request: compare current branch with target branch
+        cmd = "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD"
+    } else if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT && env.GIT_COMMIT) {
+        // Regular push: compare with last successful commit
+        cmd = "git diff --name-only ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT}..${env.GIT_COMMIT}"
+    } else if (env.GIT_PREVIOUS_COMMIT && env.GIT_COMMIT) {
+        // No previous successful commit available
+        cmd = "git diff --name-only ${env.GIT_PREVIOUS_COMMIT}..${env.GIT_COMMIT}"
+    } else {
+        // Fallback: files changed in the latest commit
+        cmd = 'git show --name-only --pretty="" HEAD'
     }
+
+    try {
+        def out = runCapture(cmd)
+        return out.split(/\r?\n/).collect { it.trim() }.findAll { it }
+    } catch (err) {
+        def out = runCapture('git -c color.ui=never show --name-only --pretty="" HEAD')
+        return out.split(/\r?\n/).collect { it.trim() }.findAll { it }
+    }
+}
+
+// Auto-read Maven module list from root pom.xml (no hard-coding needed)
+def readMavenModulesFromRootPom() {
+    def pom = readFile('pom.xml')
+    def matcher = (pom =~ /<module>([^<]+)<\/module>/)
+    def modules = []
+    matcher.each { m -> modules << m[1].trim() }
+    return modules.unique()
+}
+
+//  PIPELINE
+
+pipeline {
+    agent any
 
     tools {
         jdk 'jdk21'
         maven 'maven-3'
     }
 
+    options {
+        timestamps()
+        disableConcurrentBuilds()          // Prevent race conditions on shared agents
+        skipDefaultCheckout(true)          // Use explicit Checkout stage for full control
+        buildDiscarder(logRotator(numToKeepStr: '20'))  // Limit build history to save disk
+    }
+
+    environment {
+        MVN_ARGS = '-B -ntp'   // -B: batch mode, -ntp: no transfer progress (cleaner logs)
+    }
+
     stages {
-        stage('Detect Changes') {
+
+        // 1. Checkout
+        stage('Checkout') {
             steps {
+                checkout scm
                 script {
-                    sh 'git fetch origin +refs/heads/main:refs/remotes/origin/main --prune'
-
-                    def baseCommit = ''
-                    def hasOriginMain = (sh(
-                        script: 'git rev-parse --verify refs/remotes/origin/main >/dev/null 2>&1',
-                        returnStatus: true
-                    ) == 0)
-
-                    if (hasOriginMain) {
-                        baseCommit = sh(
-                            script: 'git merge-base HEAD refs/remotes/origin/main',
-                            returnStdout: true
-                        ).trim()
-                        echo 'Using refs/remotes/origin/main as base'
-                    } else if (sh(script: 'git rev-parse --verify HEAD~1 >/dev/null 2>&1', returnStatus: true) == 0) {
-                        baseCommit = sh(
-                            script: 'git rev-parse HEAD~1',
-                            returnStdout: true
-                        ).trim()
-                        echo 'origin/main not found, fallback to HEAD~1'
-                    } else {
-                        baseCommit = sh(
-                            script: 'git rev-parse HEAD',
-                            returnStdout: true
-                        ).trim()
-                        echo 'Single-commit branch, fallback to HEAD'
+                    // For PRs: fetch the target branch so git diff works correctly
+                    if (env.CHANGE_TARGET) {
+                        sh "git fetch --no-tags origin ${env.CHANGE_TARGET}"
                     }
-
-                    def changedFiles = sh(
-                        script: "git diff --name-only ${baseCommit} HEAD",
-                        returnStdout: true
-                    ).trim()
-
-                    echo "Base commit: ${baseCommit}"
-                    echo "Files changed:\n${changedFiles}"
-                    env.BASE_COMMIT = baseCommit
-                    env.CHANGED_FILES = changedFiles
-
-                    def servicePaths = [
-                        'backoffice-bff': 'backoffice-bff/',
-                        'cart': 'cart/',
-                        'customer': 'customer/',
-                        'delivery': 'delivery/',
-                        'inventory': 'inventory/',
-                        'location': 'location/',
-                        'media': 'media/',
-                        'order': 'order/',
-                        'payment-paypal': 'payment-paypal/',
-                        'payment': 'payment/',
-                        'product': 'product/',
-                        'promotion': 'promotion/',
-                        'rating': 'rating/',
-                        'recommendation': 'recommendation/',
-                        'sampledata': 'sampledata/',
-                        'search': 'search/',
-                        'storefront-bff': 'storefront-bff/',
-                        'tax': 'tax/',
-                        'webhook': 'webhook/'
-                    ]
-
-                    def changedServices = []
-
-                    if (changedFiles.contains('common-library/')) {
-                        changedServices.addAll(servicePaths.keySet())
-                        echo 'common-library changed, scheduling all services'
-                    } else {
-                        servicePaths.each { serviceName, servicePath ->
-                            if (changedFiles.contains(servicePath)) {
-                                changedServices << serviceName
-                            }
-                        }
-                    }
-
-                    env.CHANGED_SERVICES = changedServices.unique().join(',')
-                    echo "Changed services: ${env.CHANGED_SERVICES}"
                 }
             }
         }
 
+        // 2. Gitleaks Scan
+        stage('Gitleaks Scan') {
+            steps {
+                script {
+                    def status = sh(
+                        script: '''
+                            gitleaks detect \
+                                --source . \
+                                --config gitleaks.toml \
+                                --report-format json \
+                                --report-path gitleaks-report.json \
+                                --redact
+                        ''',
+                        returnStatus: true
+                    )
+
+                    // Convert JSON report to HTML for Jenkins UI
+                    sh '''
+                        echo "<html><body><h2>Gitleaks Report</h2><pre>" > gitleaks-report.html
+                        cat gitleaks-report.json >> gitleaks-report.html
+                        echo "</pre></body></html>" >> gitleaks-report.html
+                    '''
+
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'gitleaks-report.html',
+                        reportName: 'Gitleaks Report'
+                    ])
+
+                    if (status != 0) {
+                        error("GITLEAKS FAILURE: secrets detected. Review the Gitleaks Report tab before merging.")
+                    } else {
+                        echo "No secrets detected"
+                    }
+                }
+            }
+        }
+
+        // 3. Detect Changes
+        stage('Detect Changes') {
+            steps {
+                script {
+                    def allModules = readMavenModulesFromRootPom()
+                    def changedFiles = computeChangedFiles()
+
+                    // Normalize: strip ANSI color codes, unify slashes, remove leading ./
+                    def normalizedChangedFiles = changedFiles
+                        .collect { it.replaceAll('\\u001B\\[[;\\d]*m', '').trim() }
+                        .collect { it.replace('\\', '/') }
+                        .collect { it.replaceFirst(/^\.\//, '') }
+                        .findAll { it }
+
+                    // Trigger full rebuild if root pom.xml or shared checkstyle config changed
+                    def rebuildAll = normalizedChangedFiles.any { f ->
+                        f.equalsIgnoreCase('pom.xml') || f.startsWith('checkstyle/')
+                    }
+
+                    // Optionally also rebuild all if Jenkinsfile itself changed
+                    if (env.REBUILD_ALL_ON_JENKINSFILE?.toBoolean()) {
+                        rebuildAll = rebuildAll || normalizedChangedFiles.any {
+                            it.equalsIgnoreCase('Jenkinsfile')
+                        }
+                    }
+
+                    // Debug: which top-level dirs were touched
+                    def touchedTopDirs = normalizedChangedFiles
+                        .findAll { it.contains('/') }
+                        .collect { it.tokenize('/')[0] }
+                        .unique()
+
+                    // Match changed files against known Maven modules
+                    def affected = allModules.findAll { module ->
+                        normalizedChangedFiles.any { f ->
+                            f == module || f.startsWith("${module}/")
+                        }
+                    }
+
+                    if (rebuildAll) {
+                        affected = allModules
+                    }
+
+                    // If common-library changed, also rebuild its downstream dependents (-amd)
+                    env.MVN_MAKE_FLAGS = '-am'
+                    if (affected.contains('common-library')) {
+                        env.MVN_MAKE_FLAGS = '-am -amd'
+                    }
+
+                    def affectedModulesCsv = affected.join(',')
+                    env.AFFECTED_MODULES = affectedModulesCsv
+
+                    // Persist to file as a safety net for env var propagation issues
+                    writeFile file: '.jenkins_affected_modules', text: affectedModulesCsv
+
+                    // Logging
+                    echo "All modules (${allModules.size()}): ${allModules.join(',')}"
+                    echo "rebuildAll=${rebuildAll}"
+                    echo "Touched dirs: ${touchedTopDirs.join(',')}"
+                    echo "Affected modules: ${affectedModulesCsv}"
+                    echo "Changed files:\n${normalizedChangedFiles.join('\n')}"
+
+                    if (affectedModulesCsv?.trim()) {
+                        currentBuild.description = "${env.BRANCH_NAME ?: ''} | modules: ${affectedModulesCsv}"
+                    } else {
+                        currentBuild.description = "${env.BRANCH_NAME ?: ''} | no service changes"
+                        echo "No Maven module affected → build/test stages will be skipped"
+                    }
+                }
+            }
+        }
+
+        // 4. Check Tools
         stage('Check Tools') {
             steps {
                 script {
-                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
-
-                    if (changedServices.isEmpty()) {
+                    if (!env.AFFECTED_MODULES?.trim()) {
                         echo 'No service changes detected. Skipping tool checks.'
                         return
                     }
-
                     sh 'which gitleaks && gitleaks version'
                     sh 'which snyk && snyk --version'
                 }
             }
         }
 
-        stage('Gitleaks Scan') {
+        // 5. Build
+        stage('Build') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+                echo "Building affected modules: ${env.AFFECTED_MODULES}..."
+                sh "mvn ${env.MVN_ARGS} -pl ${env.AFFECTED_MODULES} ${env.MVN_MAKE_FLAGS} -DskipTests clean package"
+            }
+        }
+
+        // 6. Unit & Integration Tests
+        stage('Unit & Integration Tests') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+                sh """
+                    mvn ${env.MVN_ARGS} \
+                        -pl ${env.AFFECTED_MODULES} ${env.MVN_MAKE_FLAGS} \
+                        verify \
+                        -ff \
+                        -DtrimStackTrace=true \
+                        -Dsurefire.printSummary=true \
+                        -Dfailsafe.printSummary=true
+                """
+                // Collect both unit test (surefire) and integration test (failsafe) results
+                junit allowEmptyResults: true,
+                      testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
+            }
+        }
+
+        // 7. Coverage Gate
+        stage('Coverage Gate') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
             steps {
                 script {
-                    if (!env.CHANGED_FILES?.trim()) {
-                        echo 'No file changes detected. Skipping Gitleaks scan.'
+                    def modules = env.AFFECTED_MODULES
+                        .split(',')
+                        .collect { it.trim() }
+                        .findAll { it }
+
+                    if (!modules || modules.isEmpty()) {
+                        echo "No affected modules → skipping coverage gate"
                         return
                     }
 
-                    sh 'gitleaks detect --config gitleaks.toml --source . --log-opts="${BASE_COMMIT}..HEAD" --no-banner'
+                    echo "Running coverage gate for modules: ${modules.join(', ')}"
+
+                    def coverageTools = modules.collect { module ->
+                        [
+                            parser: 'JACOCO',
+                            pattern: "${module}/target/site/jacoco/jacoco.xml"
+                        ]
+                    }
+
+                    recordCoverage(
+                        tools: coverageTools,
+                        sourceCodeRetention: 'NEVER',
+                        qualityGates: [
+                            [threshold: 70.0, metric: 'LINE',        baseline: 'PROJECT', criticality: 'FAILURE'],
+                            [threshold: 50.0, metric: 'BRANCH',      baseline: 'PROJECT', criticality: 'FAILURE'],
+                            [threshold: 70.0, metric: 'INSTRUCTION', baseline: 'PROJECT', criticality: 'FAILURE']
+                        ]
+                    )
                 }
             }
         }
 
-        stage('Test & Build Changed Services') {
-            steps {
-                script {
-                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
-
-                    if (changedServices.isEmpty()) {
-                        echo 'No service changes detected. Skipping build.'
-                        return
-                    }
-
-                    changedServices.each { serviceName ->
-                        def serviceDir = serviceName.trim()
-                        echo "Running tests and build for ${serviceDir}..."
-
-                        dir(serviceDir) {
-                            sh "mvn -f ../pom.xml -pl ${serviceDir} -am clean test jacoco:report"
-                            junit 'target/surefire-reports/*.xml'
-                            jacoco execPattern: 'target/jacoco.exec',
-                                   classPattern: 'target/classes',
-                                   sourcePattern: 'src/main/java',
-                                   inclusionPattern: '**/*.class'
-                            sh '''
-                                |python3 - <<'PY'
-                                |import sys
-                                |import xml.etree.ElementTree as ET
-                                |
-                                |report_path = 'target/site/jacoco/jacoco.xml'
-                                |tree = ET.parse(report_path)
-                                |root = tree.getroot()
-                                |
-                                |missed = 0
-                                |covered = 0
-                                |for counter in root.findall('.//counter[@type="LINE"]'):
-                                |    missed += int(counter.attrib.get('missed', 0))
-                                |    covered += int(counter.attrib.get('covered', 0))
-                                |
-                                |total = missed + covered
-                                |coverage = 100.0 * covered / total if total else 0.0
-                                |
-                                |print(f'Line coverage: {coverage:.2f}%')
-                                |
-                                |if coverage < 70.0:
-                                |    print('Coverage is below the required 70% threshold.')
-                                |    sys.exit(1)
-                                |PY
-                            '''.stripMargin()
-                            sh "mvn -f ../pom.xml -pl ${serviceDir} -am -DskipTests package"
-                        }
-                    }
-                }
-            }
-        }
-
+        // 8. SonarQube Scan
         stage('SonarQube Scan') {
             steps {
                 script {
-                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
-
-                    if (changedServices.isEmpty()) {
+                    if (!env.AFFECTED_MODULES?.trim()) {
                         echo 'No service changes detected. Skipping SonarQube scan.'
                         return
                     }
 
+                    def affectedServices = env.AFFECTED_MODULES.split(',').findAll { it?.trim() }
+
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        changedServices.each { serviceName ->
+                        affectedServices.each { serviceName ->
                             def serviceDir = serviceName.trim()
                             echo "Running SonarQube scan for ${serviceDir}..."
 
@@ -214,17 +315,20 @@ pipeline {
             }
         }
 
+        // 9. Snyk Scan
         stage('Snyk Scan') {
             steps {
                 script {
-                    def changedServices = env.CHANGED_SERVICES ? env.CHANGED_SERVICES.split(',').findAll { it?.trim() } : []
-
-                    if (changedServices.isEmpty()) {
+                    if (!env.AFFECTED_MODULES?.trim()) {
                         echo 'No service changes detected. Skipping Snyk scan.'
                         return
                     }
 
+                    def affectedServices = env.AFFECTED_MODULES.split(',').findAll { it?.trim() }
+
                     withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+
+                        // Verify authentication before scanning
                         int snykAuthStatus = sh(
                             script: 'SNYK_TOKEN="$SNYK_TOKEN" snyk whoami >/dev/null 2>&1',
                             returnStatus: true
@@ -237,21 +341,28 @@ pipeline {
                             return
                         }
 
-                        changedServices.each { serviceName ->
+                        affectedServices.each { serviceName ->
                             def serviceDir = serviceName.trim()
                             echo "Running Snyk scan for ${serviceDir}..."
 
                             dir(serviceDir) {
                                 sh 'test -x ./mvnw || chmod +x ./mvnw'
 
-                                int snykExitCode = sh(
+                                // Dependency vulnerability scan
+                                int depExitCode = sh(
                                     script: 'SNYK_TOKEN="$SNYK_TOKEN" snyk test --file=pom.xml --severity-threshold=high --skip-unresolved --prune-repeated-subdependencies',
                                     returnStatus: true
                                 )
 
-                                if (snykExitCode != 0) {
+                                // Static code analysis scan (added)
+                                int codeExitCode = sh(
+                                    script: 'SNYK_TOKEN="$SNYK_TOKEN" snyk code test',
+                                    returnStatus: true
+                                )
+
+                                if (depExitCode != 0 || codeExitCode != 0) {
                                     catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                                        error("Snyk CLI returned exit code ${snykExitCode} for ${serviceDir}. Scan logged and stage marked UNSTABLE.")
+                                        error("Snyk found issues in ${serviceDir}. Scan logged and stage marked UNSTABLE.")
                                     }
                                 }
                             }
@@ -262,9 +373,20 @@ pipeline {
         }
     }
 
+    // Post Actions
     post {
         always {
+            archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/*.jar'
+            archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
+            archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/site/jacoco/**'
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'gitleaks-report.json'
             echo 'Pipeline finished.'
+        }
+        success {
+            echo 'Pipeline SUCCESS'
+        }
+        failure {
+            echo 'Pipeline FAILED'
         }
     }
 }
