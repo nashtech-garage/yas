@@ -23,4 +23,9 @@ class MessagesUtilsTest {
         String message = MessagesUtils.getMessage("NON_EXISTENT_CODE {}", "arg");
         assertEquals("NON_EXISTENT_CODE arg", message);
     }
+
+    @Test
+    void testConstructor() {
+        org.junit.jupiter.api.Assertions.assertNotNull(new MessagesUtils());
+    }
 }

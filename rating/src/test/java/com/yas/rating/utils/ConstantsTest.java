@@ -14,4 +14,11 @@ class ConstantsTest {
         assertEquals("ACCESS_DENIED", Constants.ErrorCode.ACCESS_DENIED);
         assertEquals("SUCCESS", Constants.Message.SUCCESS_MESSAGE);
     }
+
+    @Test
+    void testConstructors() {
+        assertNotNull(new Constants());
+        assertNotNull(new Constants().new ErrorCode());
+        assertNotNull(new Constants().new Message());
+    }
 }

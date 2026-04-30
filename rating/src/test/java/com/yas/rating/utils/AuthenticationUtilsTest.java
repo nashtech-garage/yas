@@ -46,4 +46,12 @@ class AuthenticationUtilsTest {
 
         assertThat(userId).isEqualTo("test-user-id");
     }
+
+    @Test
+    void testPrivateConstructor() throws Exception {
+        java.lang.reflect.Constructor<AuthenticationUtils> constructor = AuthenticationUtils.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        AuthenticationUtils instance = constructor.newInstance();
+        assertThat(instance).isNotNull();
+    }
 }
