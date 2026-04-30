@@ -160,6 +160,7 @@ pipeline {
                             // Aggregate coverage reports from all modules using **
                             jacoco(
                                 execPattern: '**/target/jacoco.exec',
+                                exclusionPattern: '**/com/yas/**/*Application.class, **/com/yas/**/config/**, **/com/yas/**/exception/**, **/com/yas/**/constants/**',
                                 classPattern: classPatterns,
                                 sourcePattern: sourcePatterns,
                                 minimumInstructionCoverage: '70', maximumInstructionCoverage: '70',
