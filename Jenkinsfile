@@ -93,7 +93,7 @@ pipeline {
                     echo "Changed services before common-library check: ${changed}"
 
                     if (changed.contains("common-library")) {
-                        echo "⚠ common-library changed → rebuild ALL services"
+                        echo "common-library changed → rebuild ALL services"
                         changed = allServices
                     }
 

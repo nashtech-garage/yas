@@ -33,3 +33,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+
+.flattened-pom.xml
+*/.flattened-pom.xml
