@@ -1,0 +1,7 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+ignore:
+  'SNYK-JAVA-COMMONSBEANUTILS-10259368':
+    - '*':
+        reason: 'No direct upgrade or patch available in Maven Central. This is a transitive dependency of OpenCSV.'
+        expires: '2026-06-30T00:00:00.000Z'
