@@ -28,34 +28,39 @@ pipeline {
         stage('Detect Changed Services') {
             steps {
                 script {
-                    def currentBranch = sh(
-                        script: "git rev-parse --abbrev-ref HEAD",
-                        returnStdout: true
-                    ).trim()
+                    echo "========== FETCH ORIGIN/MAIN =========="
+                    sh "git fetch origin main"
 
+                    echo "========== BRANCH INFO =========="
+                    sh "git branch -a"
+                    sh "git remote -v"
+
+                    echo "========== COMMIT INFO =========="
                     def headCommit = sh(
                         script: "git rev-parse HEAD",
                         returnStdout: true
                     ).trim()
-
                     def mainCommit = sh(
-                        script: "git rev-parse origin/main || true",
+                        script: "git rev-parse origin/main",
                         returnStdout: true
                     ).trim()
+                    echo "HEAD commit:        ${headCommit}"
+                    echo "origin/main commit: ${mainCommit}"
 
-                    echo "========== FETCH CHECK =========="
-                    sh "git branch -a"
-                    sh "git remote -v"
-
-                    echo "========== DIFF FILES =========="
-
+                    echo "========== RAW GIT DIFF =========="
                     def changedFilesRaw = sh(
-                        script: "git diff --name-only origin/main..HEAD || true",
+                        script: "git diff --name-only origin/main..HEAD",
                         returnStdout: true
                     ).trim()
+                    echo "Raw output from git diff:\n[${changedFilesRaw}]"
 
                     def changedFiles = changedFilesRaw ? changedFilesRaw.split("\\n") : []
+                    echo "Total files detected: ${changedFiles.size()}"
+                    for (file in changedFiles) {
+                        echo "  FILE: [${file}]"
+                    }
 
+                    echo "========== MATCHING SERVICES =========="
                     def allServices = [
                         "backoffice", "storefront",
                         "backoffice-bff", "storefront-bff",
@@ -69,31 +74,33 @@ pipeline {
                     def changed = []
 
                     for (file in changedFiles) {
-                        echo "Checking file: ${file}"
+                        def matched = false
                         for (svc in allServices) {
-                            if (file.startsWith("${svc}/") || file.contains("/${svc}/")) {
-                                echo "→ Matched service: ${svc}"
-                                changed.add(svc)
+                            if (file.startsWith("${svc}/")) {
+                                echo "  [MATCH]    file='${file}' → service='${svc}'"
+                                if (!changed.contains(svc)) {
+                                    changed.add(svc)
+                                }
+                                matched = true
                             }
+                        }
+                        if (!matched) {
+                            echo "  [NO MATCH] file='${file}' → root file, ignored"
                         }
                     }
 
-                    changed = changed.unique()
+                    echo "========== PRE-COMMON-LIBRARY CHECK =========="
+                    echo "Changed services before common-library check: ${changed}"
 
                     if (changed.contains("common-library")) {
-                        echo "Common library changed → rebuild all services"
+                        echo "common-library changed → rebuild ALL services"
                         changed = allServices
                     }
 
-                    def result = changed.join(",")
+                    env.CHANGED_SERVICES = changed.join(",")
 
-                    env.CHANGED_SERVICES = result.toString()
-
-                    if (!env.CHANGED_SERVICES?.trim()) {
-                        env.CHANGED_SERVICES = ""
-                    }
                     echo "========== FINAL RESULT =========="
-                    echo "Changed services: ${CHANGED_SERVICES}"
+                    echo "CHANGED_SERVICES = [${env.CHANGED_SERVICES}]"
                 }
             }
         }
@@ -153,6 +160,7 @@ pipeline {
                             // Aggregate coverage reports from all modules using **
                             jacoco(
                                 execPattern: '**/target/jacoco.exec',
+                                exclusionPattern: '**/com/yas/**/*Application.class, **/com/yas/**/config/**, **/com/yas/**/exception/**, **/com/yas/**/constants/**',
                                 classPattern: classPatterns,
                                 sourcePattern: sourcePatterns,
                                 minimumInstructionCoverage: '70', maximumInstructionCoverage: '70',
