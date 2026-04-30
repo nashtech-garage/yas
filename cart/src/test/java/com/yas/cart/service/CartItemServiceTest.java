@@ -249,6 +249,20 @@ class CartItemServiceTest {
         }
     }
 
+    // Unit Test Addition
+    @Nested
+    class ExtraServiceExceptionTests {
+
+        @Test
+        void testGetCartItems_whenNoUserLoggedIn_shouldThrowException() {
+            // Clear security context to trigger error line in getCartItems()
+            SecurityContextHolder.clearContext();
+            
+            assertThrows(Exception.class, () -> cartItemService.getCartItems());
+        }
+
+    }
+
     private void mockCurrentUserId(String userIdToMock) {
         Jwt jwt = mock(Jwt.class);
         JwtAuthenticationToken jwtToken = new JwtAuthenticationToken(jwt);

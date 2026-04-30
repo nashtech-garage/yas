@@ -56,7 +56,8 @@ public class FileSystemRepository {
         Path filePath = Paths.get(filesystemConfig.getDirectory(), filename).toAbsolutePath().normalize();
 
         // Ensure the file is within the base directory
-        if (!filePath.startsWith(filesystemConfig.getDirectory())) {
+        Path baseDir = Paths.get(filesystemConfig.getDirectory()).toAbsolutePath().normalize();
+        if (!filePath.startsWith(baseDir)) {
             throw new IllegalArgumentException("Invalid file path");
         }
         return filePath;
