@@ -29,3 +29,6 @@ hs_err_pid*
 .settings*
 .vscode
 *.iml
+
+.flattened-pom.xml
+*/.flattened-pom.xml
