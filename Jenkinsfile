@@ -33,16 +33,6 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    def headCommit = sh(
-                        script: "git rev-parse HEAD",
-                        returnStdout: true
-                    ).trim()
-
-                    def mainCommit = sh(
-                        script: "git rev-parse origin/main || true",
-                        returnStdout: true
-                    ).trim()
-
                     echo "========== FETCH CHECK =========="
                     sh "git branch -a"
                     sh "git remote -v"
@@ -71,29 +61,25 @@ pipeline {
                     for (file in changedFiles) {
                         echo "Checking file: ${file}"
                         for (svc in allServices) {
-                            if (file.startsWith("${svc}/") || file.contains("/${svc}/")) {
+                            // Chỉ match khi file nằm trực tiếp trong thư mục service (startsWith + dấu /)
+                            if (file.startsWith("${svc}/")) {
                                 echo "→ Matched service: ${svc}"
-                                changed.add(svc)
+                                if (!changed.contains(svc)) {
+                                    changed.add(svc)
+                                }
                             }
                         }
                     }
-
-                    changed = changed.unique()
 
                     if (changed.contains("common-library")) {
                         echo "Common library changed → rebuild all services"
                         changed = allServices
                     }
 
-                    def result = changed.join(",")
+                    env.CHANGED_SERVICES = changed.join(",")
 
-                    env.CHANGED_SERVICES = result.toString()
-
-                    if (!env.CHANGED_SERVICES?.trim()) {
-                        env.CHANGED_SERVICES = ""
-                    }
                     echo "========== FINAL RESULT =========="
-                    echo "Changed services: ${CHANGED_SERVICES}"
+                    echo "Changed services: ${env.CHANGED_SERVICES}"
                 }
             }
         }
