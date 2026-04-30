@@ -254,6 +254,7 @@ pipeline {
                 expression { env.AFFECTED_MODULES?.trim() }
             }
             steps {
+              
                 // Run the Maven build command for the affected modules to create the necessary artifacts for testing and coverage analysis
                 echo "Building affected modules: ${env.AFFECTED_MODULES}..."
                 sh "mvn ${env.MVN_ARGS} -pl ${env.AFFECTED_MODULES} ${env.MVN_MAKE_FLAGS} -DskipTests clean package"
