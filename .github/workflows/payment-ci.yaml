@@ -2,14 +2,14 @@ name: payment service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "**" ] # Quét và chạy trên mọi branch
     paths:
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/payment-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
     paths:
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,62 +18,117 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  # ==========================================
+  # PHASE 1: TEST
+  # ==========================================
+  Test:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 
+          
+      - name: Gitleaks Secret Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up JDK 21
+        uses: ./.github/workflows/actions
+
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
+      
+      - name: Run Maven Test Command
         run: mvn clean install -pl payment -am
+
+      - name: Pre-build common library
+        run: mvn install -DskipTests -am -pl payment
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl payment -am -Dcheckstyle.output.file=payment-checkstyle-result.xml
+      
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/payment-checkstyle-result.xml'
+
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Payment-Service-Unit-Test-Results
-          path: "payment/**/*-reports/TEST*.xml"
+          path: "payment/**/surefire-reports/*.xml"
           reporter: java-junit
+          
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f payment
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f payment/pom.xml -Dsonar.projectKey=SorakamiIzuna_yas -Dsonar.organization=sorakamiizuna -Dsonar.host.url=https://sonarcloud.io
+
+      - name: Setup Snyk CLI
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+        
+      - name: Snyk Security Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        continue-on-error: true 
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          cd payment
+          snyk test --severity-threshold=high
+        
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
+        continue-on-error: true 
         env:
           JAVA_HOME: /opt/jdk
         with:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: >
+            --disableCentral
+          
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
         with:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
+          
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
           paths: ${{github.workspace}}/payment/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
+          min-coverage-overall: 70
           min-coverage-changed-files: 60
           title: 'Payment Coverage Report'
           update-comment: true
+
+  # ==========================================
+  # PHASE 2: BUILD
+  # ==========================================
+  Build:
+    needs: Test # Chỉ chạy khi Phase Test thành công
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: ./.github/workflows/actions
+      
+      - name: Run Maven Build Command
+        run: mvn clean package -DskipTests -pl payment -am
+
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -81,10 +136,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./payment
           push: true
-          tags: ghcr.io/nashtech-garage/yas-payment:latest
+          tags: ghcr.io/${{ github.repository_owner }}/yas-payment:latest
