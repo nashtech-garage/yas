@@ -110,8 +110,7 @@ pipeline {
                     ])
 
                     if (status != 0) {
-                        echo "GITLEAKS WARNING: secrets detected (see Gitleaks Report tab)"
-                        currentBuild.result = 'SUCCESS'  // Allow manual review before blocking
+                        error("GITLEAKS FAILURE: secrets detected. Review the Gitleaks Report tab before merging.")
                     } else {
                         echo "No secrets detected"
                     }
