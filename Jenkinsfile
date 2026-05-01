@@ -32,7 +32,9 @@ pipeline {
                         }
                         steps {
                             echo "Đang Build service: ${SERVICE_NAME}..."
-                            sh "mvn compile -pl ${SERVICE_NAME}"
+                            lock('maven-build') {
+                                sh "mvn compile -pl ${SERVICE_NAME}"
+                            }
                         }
                     }
                     stage('Test Phase') {
@@ -44,7 +46,9 @@ pipeline {
                         }
                         steps {
                             echo "Đang Test và Đo lường độ phủ cho service: ${SERVICE_NAME}..."
-                            sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report -pl ${SERVICE_NAME}" 
+                            lock('maven-build') {
+                                sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report -pl ${SERVICE_NAME} -Dserver.port=0 -Dspring.jmx.enabled=false" 
+                            }
                         }
                         post {
                             always {
