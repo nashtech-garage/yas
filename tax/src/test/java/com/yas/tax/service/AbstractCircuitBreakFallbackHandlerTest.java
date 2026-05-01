@@ -19,7 +19,7 @@ class AbstractCircuitBreakFallbackHandlerTest {
 
         assertEquals("Test bodiless exception", exception.getMessage());
     }
-
+    // test
     @Test
     void handleTypedFallback_shouldThrowThrowable() {
         Throwable throwable = new RuntimeException("Test typed exception");

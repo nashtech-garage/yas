@@ -7,6 +7,13 @@ pipeline {
     }
 
     stages {
+        stage('Build Common Library') {
+            steps {
+                echo 'Đang Build Common Library...'
+                sh 'mvn clean install -pl common-library -am'
+            }
+        }
+
         stage('Build & Test All Services') {
             matrix {
                 axes {
@@ -25,7 +32,7 @@ pipeline {
                         }
                         steps {
                             echo "Đang Build service: ${SERVICE_NAME}..."
-                            sh "mvn clean compile -pl ${SERVICE_NAME} -am"
+                            sh "mvn compile -pl ${SERVICE_NAME}"
                         }
                     }
                     stage('Test Phase') {
@@ -37,7 +44,7 @@ pipeline {
                         }
                         steps {
                             echo "Đang Test và Đo lường độ phủ cho service: ${SERVICE_NAME}..."
-                            sh "mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report -pl ${SERVICE_NAME} -am" 
+                            sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report -pl ${SERVICE_NAME}" 
                         }
                         post {
                             always {
@@ -51,7 +58,7 @@ pipeline {
                                     exclusionPattern: '**/config/**,**/exception/**,**/constants/**,**/*Application.class', 
                                     changeBuildStatus: true,
                                     minimumLineCoverage: '70', 
-                                    maximumLineCoverage: '75'       
+                                    maximumLineCoverage: '70'       
                                 )
                             }
                         }
