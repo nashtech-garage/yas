@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.AccessDeniedException;
 import com.yas.rating.utils.AuthenticationUtils;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -15,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import java.util.List;
 
 class AuthenticationUtilsTest {
 
