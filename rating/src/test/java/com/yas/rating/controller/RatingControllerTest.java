@@ -173,4 +173,46 @@ class RatingControllerTest {
             ).andExpect(status().isOk());
     }
 
+    @Test
+    void testGetLatestRatings_WhenCountIsZero_returnEmptyList() throws Exception {
+        when(ratingService.getLatestRatings(0)).thenReturn(List.of());
+
+        this.mockMvc.perform(get("/backoffice/ratings/latest/0")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testStorefrontGetRatingList_WithDefaultPageParams_ShouldReturnOk() throws Exception {
+        when(ratingService.getRatingListByProductId(anyLong(), anyInt(), anyInt()))
+            .thenReturn(new RatingListVm(List.of(ratingVm), 1L, 1));
+
+        this.mockMvc.perform(get("/storefront/ratings/products/{productId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetRatingListWithFilter_WithDefaultParams_ShouldReturnOk() throws Exception {
+        when(ratingService.getRatingListWithFilter(
+                anyString(), anyString(), anyString(),
+                any(ZonedDateTime.class), any(ZonedDateTime.class),
+                anyInt(), anyInt()))
+            .thenReturn(new RatingListVm(List.of(ratingVm), 1L, 1));
+
+        this.mockMvc.perform(get("/backoffice/ratings")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetAverageStarOfProduct_WhenProductHasRatings_ShouldReturnAverage() throws Exception {
+        when(ratingService.calculateAverageStar(2L)).thenReturn(4.5D);
+
+        this.mockMvc.perform(get("/storefront/ratings/product/{productId}/average-star", 2L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string("4.5"));
+    }
+
 }
