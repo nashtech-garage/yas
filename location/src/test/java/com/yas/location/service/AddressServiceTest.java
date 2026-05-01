@@ -1,3 +1,4 @@
+//rebuild
 package com.yas.location.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,6 +26,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = LocationApplication.class)
 public class AddressServiceTest {
+    
+    @SuppressWarnings("unused")
 
     @Autowired
     private AddressRepository addressRepository;
