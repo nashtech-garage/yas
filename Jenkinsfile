@@ -27,6 +27,8 @@ pipeline {
                         when {
                             anyOf {
                                 changeset "${SERVICE_NAME}/**"
+                                changeset "common-library/**"
+                                changeset "pom.xml"
                                 environment name: 'FORCE_BUILD_ALL', value: 'true'
                             }
                         }
@@ -41,6 +43,8 @@ pipeline {
                         when {
                             anyOf {
                                 changeset "${SERVICE_NAME}/**"
+                                changeset "common-library/**"
+                                changeset "pom.xml"
                                 environment name: 'FORCE_BUILD_ALL', value: 'true'
                             }
                         }
