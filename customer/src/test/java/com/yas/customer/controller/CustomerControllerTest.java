@@ -114,6 +114,35 @@ class CustomerControllerTest {
     }
 
     @Test
+    void testGetCustomerById_whenNormalCase_responseCustomerVm() throws Exception {
+        CustomerVm customerVm = new CustomerVm("1", "user1", "test@gmail.com", "John", "Doe");
+        when(customerService.getCustomerProfile("1")).thenReturn(customerVm);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile/1")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(customerVm)));
+    }
+
+    @Test
+    void testGetCustomerById_whenNotFound_responseNotFound() throws Exception {
+        when(customerService.getCustomerProfile("1")).thenThrow(new NotFoundException("User not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile/1")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testGetCustomers_whenForbidden_responseForbidden() throws Exception {
+        when(customerService.getCustomers(anyInt())).thenThrow(new AccessDeniedException("Access Denied"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL)
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
     void testCreateGuestUser_whenNormalCase_responseGuestUserVm() throws Exception {
 
         GuestUserVm guestUserVm = new GuestUserVm(
