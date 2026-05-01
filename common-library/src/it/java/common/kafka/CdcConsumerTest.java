@@ -151,7 +151,7 @@ public abstract class CdcConsumerTest<K, M> {
         long retryTime = processTime + (attempts * processTime) + (backOff * attempts);
         long waitTime = (attempts > 0 ? retryTime : processTime) * numOfRecords;
         logger.info("Consumer Processing expected time: {}s", waitTime);
-        Thread.sleep(Duration.ofSeconds(waitTime));
+        Thread.sleep(waitTime * 1000);
     }
 
     private @NotNull Map<String, Object> getProducerProps() {
