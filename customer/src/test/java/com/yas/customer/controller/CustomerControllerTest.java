@@ -7,10 +7,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.customer.CustomerApplication;
 import com.yas.customer.service.CustomerService;
 import com.yas.customer.util.SecurityContextUtils;
@@ -22,14 +20,16 @@ import com.yas.customer.viewmodel.customer.CustomerVm;
 import com.yas.customer.viewmodel.customer.GuestUserVm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 
 @WebMvcTest(controllers = CustomerController.class,
     excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
@@ -111,6 +111,35 @@ class CustomerControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(customerVm)));
 
+    }
+
+    @Test
+    void testGetCustomerById_whenNormalCase_responseCustomerVm() throws Exception {
+        CustomerVm customerVm = new CustomerVm("1", "user1", "test@gmail.com", "John", "Doe");
+        when(customerService.getCustomerProfile("1")).thenReturn(customerVm);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile/1")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(customerVm)));
+    }
+
+    @Test
+    void testGetCustomerById_whenNotFound_responseNotFound() throws Exception {
+        when(customerService.getCustomerProfile("1")).thenThrow(new NotFoundException("User not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile/1")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testGetCustomers_whenForbidden_responseForbidden() throws Exception {
+        when(customerService.getCustomers(anyInt())).thenThrow(new AccessDeniedException("Access Denied"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL)
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     @Test

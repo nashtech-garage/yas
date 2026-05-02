@@ -1,32 +1,48 @@
 package com.yas.customer.service;
 
-import com.yas.commonlibrary.exception.AccessDeniedException;
-import com.yas.commonlibrary.exception.DuplicatedException;
-import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.commonlibrary.exception.WrongEmailFormatException;
-import com.yas.customer.config.KeycloakPropsConfig;
-import com.yas.customer.viewmodel.customer.*;
-import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.*;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.mockito.ArgumentCaptor;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.DuplicatedException;
+import com.yas.commonlibrary.exception.ForbiddenException;
+import com.yas.commonlibrary.exception.NotFoundException;
+import com.yas.commonlibrary.exception.WrongEmailFormatException;
+import com.yas.customer.config.KeycloakPropsConfig;
+import com.yas.customer.viewmodel.customer.CustomerAdminVm;
+import com.yas.customer.viewmodel.customer.CustomerListVm;
+import com.yas.customer.viewmodel.customer.CustomerPostVm;
+import com.yas.customer.viewmodel.customer.CustomerProfileRequestVm;
+import com.yas.customer.viewmodel.customer.CustomerVm;
+import com.yas.customer.viewmodel.customer.GuestUserVm;
+import jakarta.ws.rs.core.Response;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.RoleMappingResource;
+import org.keycloak.admin.client.resource.RoleResource;
+import org.keycloak.admin.client.resource.RoleScopeResource;
+import org.keycloak.admin.client.resource.RolesResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.mockito.ArgumentCaptor;
 
 class CustomerServiceTest {
 
@@ -54,6 +70,14 @@ class CustomerServiceTest {
         usersResource = mock(UsersResource.class);
         customerService = new CustomerService(keycloak, keycloakPropsConfig);
         when(realmResource.users()).thenReturn(usersResource);
+    }
+
+    @Test
+    void testCreatePasswordCredentials_returnCredentialRepresentation() {
+        CredentialRepresentation credential = CustomerService.createPasswordCredentials("password");
+        assertThat(credential.getType()).isEqualTo(CredentialRepresentation.PASSWORD);
+        assertThat(credential.getValue()).isEqualTo("password");
+        assertThat(credential.isTemporary()).isFalse();
     }
 
     private List<UserRepresentation> getUserRepresentations() {
@@ -135,6 +159,17 @@ class CustomerServiceTest {
     }
 
     @Test
+    void testGetCustomers_hasForbiddenException_throwAccessDeniedException() {
+        when(usersResource.search(any(), anyInt(), anyInt()))
+            .thenThrow(new ForbiddenException("Forbidden"));
+
+        AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
+            () -> customerService.getCustomers(1));
+
+        assertThat(thrown.getMessage()).contains("Forbidden");
+    }
+
+    @Test
     void testUpdateCustomer_isNormalCase_methodSuccess() {
         UserRepresentation userRepresentation = getUserRepresentation();
         UserResource userResource = mock(UserResource.class);
@@ -179,6 +214,17 @@ class CustomerServiceTest {
     }
 
     @Test
+    void testDeleteCustomer_isUserNotFound_ThrowNotFoundException() {
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_NAME)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(null);
+
+        NotFoundException thrown = assertThrows(NotFoundException.class,
+            () -> customerService.deleteCustomer(USER_NAME));
+        assertTrue(thrown.getMessage().contains("User not found"));
+    }
+
+    @Test
     void testGetCustomerByEmail_isNormalCase_returnCustomerAdminVm() {
         when(usersResource.search(VALID_EMAIL, true)).thenReturn(getUserRepresentations());
         CustomerAdminVm adminVm = customerService.getCustomerByEmail(VALID_EMAIL);
@@ -215,6 +261,17 @@ class CustomerServiceTest {
     }
 
     @Test
+    void testGetCustomerByEmail_hasForbiddenException_throwAccessDeniedException() {
+        when(usersResource.search(VALID_EMAIL, true))
+            .thenThrow(new ForbiddenException("Forbidden"));
+
+        AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
+            () -> customerService.getCustomerByEmail(VALID_EMAIL));
+
+        assertThat(thrown.getMessage()).contains("Forbidden");
+    }
+
+    @Test
     void testGetCustomerProfile_isNormalCase_ReturnCustomerVm() {
 
         UserRepresentation userRepresentation = getUserRepresentation();
@@ -239,6 +296,17 @@ class CustomerServiceTest {
             () -> customerService.getCustomerProfile(USER_NAME));
 
         assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
+    }
+
+    @Test
+    void testGetCustomerProfile_hasForbiddenException_throwAccessDeniedException() {
+        when(usersResource.get(USER_NAME))
+            .thenThrow(new ForbiddenException("Forbidden"));
+
+        AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
+            () -> customerService.getCustomerProfile(USER_NAME));
+
+        assertThat(thrown.getMessage()).contains("Forbidden");
     }
 
     @Test
@@ -314,6 +382,18 @@ class CustomerServiceTest {
             "Doe", "123", "ADMIN");
 
         when(realmResource.users().search(anyString(), anyBoolean()))
+            .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+
+        assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
+    }
+
+    @Test
+    void testCreateUser_whenEmailAlreadyExisted_thenThrowDuplicateException() {
+        CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
+            "Doe", "123", "ADMIN");
+
+        when(realmResource.users().search(anyString(), anyBoolean())).thenReturn(Collections.emptyList());
+        when(realmResource.users().search(null, null, null, customerPostVm.email(), 0, 1))
             .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
 
         assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));

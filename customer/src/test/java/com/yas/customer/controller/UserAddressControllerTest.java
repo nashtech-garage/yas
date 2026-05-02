@@ -2,12 +2,11 @@ package com.yas.customer.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
+import com.yas.commonlibrary.exception.AccessDeniedException;
+import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.customer.service.UserAddressService;
 import com.yas.customer.viewmodel.address.ActiveAddressVm;
 import com.yas.customer.viewmodel.address.AddressDetailVm;
@@ -17,14 +16,16 @@ import com.yas.customer.viewmodel.useraddress.UserAddressVm;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 
 @WebMvcTest(controllers = UserAddressController.class,
     excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
@@ -100,6 +101,34 @@ class UserAddressControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(USER_ADDRESS_BASE_URL + "/{id}", id)
                 .accept("application/json"))
             .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    void testGetDefaultAddress_whenNotFound_responseNotFound() throws Exception {
+        when(userAddressService.getAddressDefault()).thenThrow(new NotFoundException("Not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_ADDRESS_BASE_URL + "/default-address")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testDeleteAddress_whenNotFound_responseNotFound() throws Exception {
+        Long id = 1L;
+        doThrow(new NotFoundException("Not found")).when(userAddressService).deleteAddress(id);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(USER_ADDRESS_BASE_URL + "/{id}", id)
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testGetUserAddresses_whenUnauthenticated_responseForbidden() throws Exception {
+        when(userAddressService.getUserAddressList()).thenThrow(new AccessDeniedException("Unauthenticated"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_ADDRESS_BASE_URL)
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     private List<ActiveAddressVm> getActiveAddressVms() {
