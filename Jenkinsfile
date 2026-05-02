@@ -109,6 +109,7 @@ pipeline {
                 }
             }
         }
+    }
 }
 
 @NonCPS
