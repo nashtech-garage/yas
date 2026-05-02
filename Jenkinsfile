@@ -35,15 +35,15 @@ pipeline {
                     def changedFiles = []
                     
                     try {
-                        // Bỏ shallow clone để lấy được lịch sử cho lệnh git diff
-                        sh "git fetch --unshallow || git fetch --depth=50 origin main || true"
-                        
                         if (env.CHANGE_TARGET) {
+                            sh "git fetch --no-tags origin ${env.CHANGE_TARGET}:refs/remotes/origin/${env.CHANGE_TARGET} || true"
+                            
                             // Nếu là Pull Request, so sánh độ lệch với nhánh đích
                             def diffStr = sh(script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD", returnStdout: true).trim()
                             if (diffStr) changedFiles.addAll(diffStr.split('\n'))
                         } else {
-                            // Nếu chạy trực tiếp trên main (sau merge), lấy file thay đổi của merge commit đó
+                            // Chạy trên nhánh trực tiếp (main hoặc feature branch), lấy file thay đổi của commit đó
+                            sh "git fetch --unshallow || git fetch --depth=50 origin HEAD || true"
                             def diffStr = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
                             if (diffStr) changedFiles.addAll(diffStr.split('\n'))
                         }
@@ -54,7 +54,7 @@ pipeline {
                     // Lấy dữ liệu an toàn thông qua hàm @NonCPS để tránh lỗi NotSerializableException
                     changedFiles.addAll(extractChangedFiles())
                     
-                    // Hàm kiểm tra cuối cùng (đã bỏ chế độ tự động build tất cả nếu rỗng)
+                    // Hàm kiểm tra cuối cùng (Không tự động chạy tất cả nếu rỗng)
                     def checkChanges = { serviceName ->
                         if (env.FORCE_BUILD_ALL == 'true') return true
                         return changedFiles.any { path ->
