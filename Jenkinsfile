@@ -45,17 +45,8 @@ pipeline {
                         echo "Warning: git diff thất bại, hệ thống sẽ sử dụng Jenkins changeSets làm phương án dự phòng."
                     }
 
-                    // Bổ sung thêm dữ liệu từ Jenkins changeSets để đảm bảo không sót file nào
-                    def changeLogSets = currentBuild.changeSets
-                    for (int i = 0; i < changeLogSets.size(); i++) {
-                        def entries = changeLogSets[i].items
-                        for (int j = 0; j < entries.length; j++) {
-                            def files = entries[j].affectedFiles
-                            for (int k = 0; k < files.size(); k++) {
-                                changedFiles.add(files[k].path)
-                            }
-                        }
-                    }
+                    // Lấy dữ liệu an toàn thông qua hàm @NonCPS để tránh lỗi NotSerializableException
+                    changedFiles.addAll(extractChangedFiles())
                     
                     // Nếu build thủ công không có params FORCE_BUILD_ALL và không có file thay đổi thì mặc định build tất cả
                     def isManualBuild = changedFiles.isEmpty() && env.FORCE_BUILD_ALL != 'false'
@@ -118,5 +109,22 @@ pipeline {
                 }
             }
         }
+}
+
+@NonCPS
+def extractChangedFiles() {
+    def files = []
+    def changeLogSets = currentBuild.changeSets
+    if (changeLogSets != null) {
+        for (int i = 0; i < changeLogSets.size(); i++) {
+            def entries = changeLogSets[i].items
+            for (int j = 0; j < entries.length; j++) {
+                def affectedFiles = entries[j].affectedFiles
+                for (int k = 0; k < affectedFiles.size(); k++) {
+                    files.add(affectedFiles[k].path)
+                }
+            }
+        }
     }
+    return files
 }
