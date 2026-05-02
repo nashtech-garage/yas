@@ -17,11 +17,19 @@ pipeline {
         stage('Build & Test All Services') {
             steps {
                 script {
-                    // Đọc danh sách module từ pom.xml (yêu cầu Pipeline Utility Steps plugin)
-                    def pom = readMavenPom file: 'pom.xml'
-                    
-                    // Lọc bỏ 'common-library' vì nó đã được build ở stage trước
-                    def services = pom.modules.findAll { it != 'common-library' }
+                    // Đọc file pom.xml dưới dạng văn bản thuần để tránh lỗi Jenkins Sandbox (RejectedAccessException)
+                    def pomText = readFile('pom.xml')
+                    def services = []
+                    def lines = pomText.split('\n')
+                    for (int j = 0; j < lines.length; j++) {
+                        def line = lines[j].trim()
+                        if (line.startsWith('<module>') && line.endsWith('</module>')) {
+                            def moduleName = line.substring(8, line.length() - 9)
+                            if (moduleName != 'common-library') {
+                                services.add(moduleName)
+                            }
+                        }
+                    }
 
                     // Hàm kiểm tra changeset tương tự như Declarative Pipeline
                     def checkChanges = { serviceName ->
