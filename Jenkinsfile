@@ -31,29 +31,41 @@ pipeline {
                         }
                     }
 
-                    // Hàm kiểm tra changeset tương tự như Declarative Pipeline
-                    def checkChanges = { serviceName ->
-                        if (env.FORCE_BUILD_ALL == 'true') return true
-                        
-                        def changed = false
-                        def changeLogSets = currentBuild.changeSets
-                        
-                        // Nếu không lấy được lịch sử commit (ví dụ: build thủ công), mặc định build
-                        if (changeLogSets.size() == 0) return true
-                        
-                        for (int i = 0; i < changeLogSets.size(); i++) {
-                            def entries = changeLogSets[i].items
-                            for (int j = 0; j < entries.length; j++) {
-                                def files = entries[j].affectedFiles
-                                for (int k = 0; k < files.size(); k++) {
-                                    def path = files[k].path
-                                    if (path.startsWith("${serviceName}/") || path.startsWith("common-library/") || path == "pom.xml") {
-                                        changed = true
-                                    }
-                                }
+                    // 1. Lấy danh sách toàn bộ các file có thay đổi (Giải quyết Rủi ro số 3)
+                    def changedFiles = []
+                    
+                    try {
+                        // Thử fetch nhánh main về để có cơ sở so sánh (cần thiết nếu Jenkins clone dạng shallow)
+                        sh "git fetch --no-tags --depth=1 origin main:main || true"
+                        // Nếu là dạng PR (Multibranch) sẽ có biến CHANGE_TARGET, nếu không mặc định so với main
+                        def targetBranch = env.CHANGE_TARGET ?: 'main'
+                        def diffStr = sh(script: "git diff --name-only origin/${targetBranch}...HEAD || git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                        if (diffStr) changedFiles.addAll(diffStr.split('\n'))
+                    } catch (Exception e) {
+                        echo "Warning: git diff thất bại, hệ thống sẽ sử dụng Jenkins changeSets làm phương án dự phòng."
+                    }
+
+                    // Bổ sung thêm dữ liệu từ Jenkins changeSets để đảm bảo không sót file nào
+                    def changeLogSets = currentBuild.changeSets
+                    for (int i = 0; i < changeLogSets.size(); i++) {
+                        def entries = changeLogSets[i].items
+                        for (int j = 0; j < entries.length; j++) {
+                            def files = entries[j].affectedFiles
+                            for (int k = 0; k < files.size(); k++) {
+                                changedFiles.add(files[k].path)
                             }
                         }
-                        return changed
+                    }
+                    
+                    // Nếu build thủ công không có params FORCE_BUILD_ALL và không có file thay đổi thì mặc định build tất cả
+                    def isManualBuild = changedFiles.isEmpty() && env.FORCE_BUILD_ALL != 'false'
+                    
+                    // Hàm kiểm tra cuối cùng
+                    def checkChanges = { serviceName ->
+                        if (env.FORCE_BUILD_ALL == 'true' || isManualBuild) return true
+                        return changedFiles.any { path ->
+                            path.startsWith("${serviceName}/") || path.startsWith("common-library/") || path == "pom.xml"
+                        }
                     }
 
                     // Khởi tạo danh sách các stage song song
