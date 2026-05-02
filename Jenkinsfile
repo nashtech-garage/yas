@@ -65,12 +65,14 @@ pipeline {
 
                         if (checkChanges(serviceName)) {
                             parallelStages[serviceName] = {
-                                stage("Build & Test ${serviceName}") {
+                                stage("Build Phase - ${serviceName}") {
                                     echo "Đang Build service: ${serviceName}..."
                                     lock('maven-build') {
                                         sh "mvn install -pl ${serviceName} -am -DskipTests"
                                     }
-                                    
+                                }
+                                
+                                stage("Test Phase - ${serviceName}") {
                                     echo "Đang Test và Đo lường độ phủ cho service: ${serviceName}..."
                                     lock('maven-build') {
                                         sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report -pl ${serviceName} -Dserver.port=0 -Dspring.jmx.enabled=false" 
