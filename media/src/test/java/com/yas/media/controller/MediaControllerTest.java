@@ -30,16 +30,15 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// Dùng Mockito thuần túy thay vì WebMvcTest của Spring
 @ExtendWith(MockitoExtension.class)
 class MediaControllerTest {
 
     private MockMvc mockMvc;
 
-    @Mock // Tạo service giả bằng Mockito chuẩn
+    @Mock
     private MediaService mediaService;
 
-    @InjectMocks // Tự động nhúng service giả vào Controller
+    @InjectMocks
     private MediaController mediaController;
 
     private Media media;
@@ -47,14 +46,12 @@ class MediaControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Bí quyết phá giải: Gắn một Validator "bù nhìn" để bypass toàn bộ lỗi 400 ảo 
         mockMvc = MockMvcBuilders.standaloneSetup(mediaController)
                 .setValidator(new Validator() {
                     @Override
                     public boolean supports(Class<?> clazz) { return true; }
                     @Override
                     public void validate(Object target, Errors errors) { 
-                        // Cố tình để trống để nó luôn Pass validation
                     }
                 })
                 .build();
@@ -68,7 +65,6 @@ class MediaControllerTest {
         mediaVm = new MediaVm(1L, "Test Image", "test.png", "image/png", "/url/test.png");
     }
 
-    // --- TEST POST: /medias ---
     @Test
     void testCreateMedia_Success() throws Exception {
         when(mediaService.saveMedia(any(MediaPostVm.class))).thenReturn(media);
@@ -81,7 +77,6 @@ class MediaControllerTest {
                 "test data".getBytes()     
         );
 
-        // Gửi form thẳng thừng, không cần flashAttr nữa vì đã tắt được gác cổng
         mockMvc.perform(multipart("/medias")
                 .file(mockFile)
                 .param("caption", "Test Image"))
@@ -90,7 +85,6 @@ class MediaControllerTest {
                 .andExpect(jsonPath("$.fileName").value("test.png"));
     }
 
-    // --- TEST DELETE: /medias/{id} ---
     @Test
     void testDeleteMedia_Success() throws Exception {
         doNothing().when(mediaService).removeMedia(anyLong());
@@ -101,7 +95,6 @@ class MediaControllerTest {
         verify(mediaService, times(1)).removeMedia(1L);
     }
 
-    // --- TEST GET: /medias/{id} ---
     @Test
     void testGetMediaById_Success() throws Exception {
         when(mediaService.getMediaById(1L)).thenReturn(mediaVm);
@@ -120,7 +113,6 @@ class MediaControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // --- TEST GET: /medias?ids=... ---
     @Test
     void testGetMediasByIds_Success() throws Exception {
         List<MediaVm> mediaList = Arrays.asList(mediaVm);
