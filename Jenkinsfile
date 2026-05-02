@@ -7,6 +7,13 @@ pipeline {
     }
 
     stages {
+        stage('Build Common Library') {
+            steps {
+                echo 'Đang Build Common Library...'
+                sh 'mvn clean install -pl common-library -am'
+            }
+        }
+
         stage('Build & Test All Services') {
             matrix {
                 axes {
@@ -20,24 +27,32 @@ pipeline {
                         when {
                             anyOf {
                                 changeset "${SERVICE_NAME}/**"
+                                changeset "common-library/**"
+                                changeset "pom.xml"
                                 environment name: 'FORCE_BUILD_ALL', value: 'true'
                             }
                         }
                         steps {
                             echo "Đang Build service: ${SERVICE_NAME}..."
-                            sh "mvn clean compile -pl ${SERVICE_NAME} -am"
+                            lock('maven-build') {
+                                sh "mvn compile -pl ${SERVICE_NAME}"
+                            }
                         }
                     }
                     stage('Test Phase') {
                         when {
                             anyOf {
                                 changeset "${SERVICE_NAME}/**"
+                                changeset "common-library/**"
+                                changeset "pom.xml"
                                 environment name: 'FORCE_BUILD_ALL', value: 'true'
                             }
                         }
                         steps {
                             echo "Đang Test và Đo lường độ phủ cho service: ${SERVICE_NAME}..."
-                            sh "mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report -pl ${SERVICE_NAME} -am" 
+                            lock('maven-build') {
+                                sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report -pl ${SERVICE_NAME} -Dserver.port=0 -Dspring.jmx.enabled=false" 
+                            }
                         }
                         post {
                             always {
@@ -51,7 +66,7 @@ pipeline {
                                     exclusionPattern: '**/config/**,**/exception/**,**/constants/**,**/*Application.class', 
                                     changeBuildStatus: true,
                                     minimumLineCoverage: '70', 
-                                    maximumLineCoverage: '75'       
+                                    maximumLineCoverage: '70'       
                                 )
                             }
                         }

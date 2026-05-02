@@ -1,5 +1,4 @@
 package com.yas.tax.service;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -19,7 +18,6 @@ class AbstractCircuitBreakFallbackHandlerTest {
 
         assertEquals("Test bodiless exception", exception.getMessage());
     }
-
     @Test
     void handleTypedFallback_shouldThrowThrowable() {
         Throwable throwable = new RuntimeException("Test typed exception");
