@@ -68,7 +68,7 @@ pipeline {
                                 stage("Build & Test ${serviceName}") {
                                     echo "Đang Build service: ${serviceName}..."
                                     lock('maven-build') {
-                                        sh "mvn compile -pl ${serviceName}"
+                                        sh "mvn install -pl ${serviceName} -am -DskipTests"
                                     }
                                     
                                     echo "Đang Test và Đo lường độ phủ cho service: ${serviceName}..."
