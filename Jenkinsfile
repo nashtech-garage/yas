@@ -35,12 +35,18 @@ pipeline {
                     def changedFiles = []
                     
                     try {
-                        // Thử fetch nhánh main về để có cơ sở so sánh (cần thiết nếu Jenkins clone dạng shallow)
-                        sh "git fetch --no-tags --depth=1 origin main:main || true"
-                        // Nếu là dạng PR (Multibranch) sẽ có biến CHANGE_TARGET, nếu không mặc định so với main
-                        def targetBranch = env.CHANGE_TARGET ?: 'main'
-                        def diffStr = sh(script: "git diff --name-only origin/${targetBranch}...HEAD || git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
-                        if (diffStr) changedFiles.addAll(diffStr.split('\n'))
+                        if (env.CHANGE_TARGET) {
+                            sh "git fetch --no-tags origin ${env.CHANGE_TARGET}:refs/remotes/origin/${env.CHANGE_TARGET} || true"
+                            
+                            // Nếu là Pull Request, so sánh độ lệch với nhánh đích
+                            def diffStr = sh(script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD", returnStdout: true).trim()
+                            if (diffStr) changedFiles.addAll(diffStr.split('\n'))
+                        } else {
+                            // Chạy trên nhánh trực tiếp (main hoặc feature branch), lấy file thay đổi của commit đó
+                            sh "git fetch --unshallow || git fetch --depth=50 origin HEAD || true"
+                            def diffStr = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                            if (diffStr) changedFiles.addAll(diffStr.split('\n'))
+                        }
                     } catch (Exception e) {
                         echo "Warning: git diff thất bại, hệ thống sẽ sử dụng Jenkins changeSets làm phương án dự phòng."
                     }
@@ -48,12 +54,9 @@ pipeline {
                     // Lấy dữ liệu an toàn thông qua hàm @NonCPS để tránh lỗi NotSerializableException
                     changedFiles.addAll(extractChangedFiles())
                     
-                    // Nếu build thủ công không có params FORCE_BUILD_ALL và không có file thay đổi thì mặc định build tất cả
-                    def isManualBuild = changedFiles.isEmpty() && env.FORCE_BUILD_ALL != 'false'
-                    
-                    // Hàm kiểm tra cuối cùng
+                    // Hàm kiểm tra cuối cùng (Không tự động chạy tất cả nếu rỗng)
                     def checkChanges = { serviceName ->
-                        if (env.FORCE_BUILD_ALL == 'true' || isManualBuild) return true
+                        if (env.FORCE_BUILD_ALL == 'true') return true
                         return changedFiles.any { path ->
                             path.startsWith("${serviceName}/") || path.startsWith("common-library/") || path == "pom.xml"
                         }
