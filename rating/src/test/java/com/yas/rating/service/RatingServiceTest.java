@@ -2,6 +2,7 @@ package com.yas.rating.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -27,10 +28,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(classes = RatingApplication.class)
 class RatingServiceTest {
@@ -240,5 +241,44 @@ class RatingServiceTest {
         ratingRepository.deleteAll();
         List<RatingVm>  newResponse = ratingService.getLatestRatings(5);
         assertEquals(0, newResponse.size());
+    }
+
+    @Test
+    void createRating_CustomerNotFound_ShouldThrowNotFoundException() {
+        RatingPostVm ratingPostVm = RatingPostVm.builder()
+            .content("comment new")
+            .productName("product-new")
+            .star(5)
+            .productId(99L)
+            .build();
+
+        Jwt jwt = mock(Jwt.class);
+        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        when(authentication.getToken()).thenReturn(jwt);
+        when(authentication.getName()).thenReturn(userId);
+        when(jwt.getSubject()).thenReturn(userId);
+
+        when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong()))
+            .thenReturn(new OrderExistsByProductAndUserGetVm(true));
+        // customerService returns null => NotFoundException
+        when(customerService.getCustomer()).thenReturn(null);
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> ratingService.createRating(ratingPostVm));
+
+        assertEquals("CUSTOMER " + userId + " is not found", exception.getMessage());
+    }
+
+    @Test
+    void getRatingListWithFilter_EmptyFilters_ShouldReturnAllRatings() {
+        ZonedDateTime createdFrom = ZonedDateTime.now().minusDays(30);
+        ZonedDateTime createdTo = ZonedDateTime.now().plusDays(30);
+
+        RatingListVm result = ratingService.getRatingListWithFilter(
+            "", "", "", createdFrom, createdTo, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(3, result.totalElements());
     }
 }
