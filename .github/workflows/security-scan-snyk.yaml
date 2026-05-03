@@ -1,0 +1,196 @@
+name: Security Gate - Snyk
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security_scan:
+    name: Snyk & Gitleaks Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # Required to upload SARIF to GitHub Security tab
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25 Early Access (Temurin EA)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25-ea'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Download Dependencies
+        run: mvn dependency:go-offline -q || true
+
+      # ----------------------------------------------------------------
+      # Install Snyk CLI directly
+      # ----------------------------------------------------------------
+      - name: Install Snyk CLI
+        run: npm install -g snyk@1.1304.1 --ignore-scripts
+
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }} || true
+
+      # ----------------------------------------------------------------
+      # SAST: Scan Java source code for vulnerabilities
+      # ----------------------------------------------------------------
+      - name: Snyk Code Scan (SAST)
+        id: snyk-code
+        continue-on-error: true
+        run: |
+          snyk code test \
+            --severity-threshold=high \
+            --all-projects \
+            --sarif-file-output=snyk-code.sarif \
+            2>&1 | tee snyk-code-output.txt || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_DISABLE_ANALYTICS: "1"
+
+      # ----------------------------------------------------------------
+      # SCA: Scan pom.xml dependencies for vulnerabilities
+      # ----------------------------------------------------------------
+      - name: Snyk SCA Scan (Dependencies)
+        id: snyk-sca
+        continue-on-error: true
+        run: |
+          snyk test \
+            --severity-threshold=high \
+            --all-projects \
+            --sarif-file-output=snyk-sca.sarif \
+            2>&1 | tee snyk-sca-output.txt || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_DISABLE_ANALYTICS: "1"
+
+      # ----------------------------------------------------------------
+      # Upload SARIF files to GitHub Security tab (best-effort)
+      # ----------------------------------------------------------------
+      - name: Upload Snyk Code SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('snyk-code.sarif') != ''
+        continue-on-error: true
+        with:
+          sarif_file: snyk-code.sarif
+          category: snyk-code-sast
+
+      - name: Upload Snyk SCA SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('snyk-sca.sarif') != ''
+        continue-on-error: true
+        with:
+          sarif_file: snyk-sca.sarif
+          category: snyk-sca-dependencies
+
+      # ----------------------------------------------------------------
+      # Collect all results into a single human-readable report artifact
+      # ----------------------------------------------------------------
+      - name: Generate Security Summary Report
+        if: always()
+        run: |
+          REPORT="snyk-security-report.md"
+          echo "# Snyk Security Scan Report" > $REPORT
+          echo "" >> $REPORT
+          echo "**Run:** ${{ github.run_id }} | **Ref:** ${{ github.ref }} | **SHA:** ${{ github.sha }}" >> $REPORT
+          echo "" >> $REPORT
+          echo "---" >> $REPORT
+
+          # ---------- SAST section ----------
+          echo "## Snyk Code (SAST)" >> $REPORT
+          if [ -f snyk-code.sarif ]; then
+            RESULTS=$(jq '.runs[0].results | length' snyk-code.sarif 2>/dev/null || echo "0")
+            echo "**HIGH/CRITICAL findings:** $RESULTS" >> $REPORT
+            if [ "$RESULTS" -gt 0 ]; then
+              echo "" >> $REPORT
+              echo "### Finding Details" >> $REPORT
+              jq -r '
+                .runs[0].results[]
+                | "- **[\(.level // "unknown")]** \(.message.text // "(no message)") — `\(.locations[0].physicalLocation.artifactLocation.uri // "unknown")`:\(.locations[0].physicalLocation.region.startLine // "?")"
+              ' snyk-code.sarif 2>/dev/null >> $REPORT || echo "_(could not parse findings)_" >> $REPORT
+            fi
+          else
+            echo "> ⚠️ snyk-code.sarif was not produced — scan may have failed to authenticate or run." >> $REPORT
+          fi
+
+          if [ -f snyk-code-output.txt ]; then
+            echo "" >> $REPORT
+            echo "<details><summary>Raw CLI output</summary>" >> $REPORT
+            echo "" >> $REPORT
+            echo "\`\`\`" >> $REPORT
+            cat snyk-code-output.txt >> $REPORT
+            echo "\`\`\`" >> $REPORT
+            echo "" >> $REPORT
+            echo "</details>" >> $REPORT
+          fi
+
+          echo "" >> $REPORT
+          echo "---" >> $REPORT
+
+          # ---------- SCA section ----------
+          echo "## Snyk Test (SCA — Dependencies)" >> $REPORT
+          if [ -f snyk-sca.sarif ]; then
+            RESULTS=$(jq '.runs[0].results | length' snyk-sca.sarif 2>/dev/null || echo "0")
+            echo "**HIGH/CRITICAL findings:** $RESULTS" >> $REPORT
+            if [ "$RESULTS" -gt 0 ]; then
+              echo "" >> $REPORT
+              echo "### Finding Details" >> $REPORT
+              jq -r '
+                .runs[0].results[]
+                | "- **[\(.level // "unknown")]** \(.message.text // "(no message)")"
+              ' snyk-sca.sarif 2>/dev/null >> $REPORT || echo "_(could not parse findings)_" >> $REPORT
+            fi
+          else
+            echo "> ⚠️ snyk-sca.sarif was not produced — scan may have failed to authenticate or run." >> $REPORT
+          fi
+
+          if [ -f snyk-sca-output.txt ]; then
+            echo "" >> $REPORT
+            echo "<details><summary>Raw CLI output</summary>" >> $REPORT
+            echo "" >> $REPORT
+            echo "\`\`\`" >> $REPORT
+            cat snyk-sca-output.txt >> $REPORT
+            echo "\`\`\`" >> $REPORT
+            echo "" >> $REPORT
+            echo "</details>" >> $REPORT
+          fi
+
+          echo "" >> $REPORT
+          echo "---" >> $REPORT
+          echo "_Report generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')_" >> $REPORT
+
+          # Also post a short summary in the Actions step summary panel
+          cat $REPORT >> $GITHUB_STEP_SUMMARY
+
+      # ----------------------------------------------------------------
+      # Upload all scan artifacts (SARIF + report + raw logs)
+      # ----------------------------------------------------------------
+      - name: Upload Snyk Scan Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-security-results-${{ github.run_id }}
+          path: |
+            snyk-code.sarif
+            snyk-sca.sarif
+            snyk-code-output.txt
+            snyk-sca-output.txt
+            snyk-security-report.md
+          if-no-files-found: warn
+          retention-days: 30

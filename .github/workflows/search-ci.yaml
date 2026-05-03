@@ -1,21 +1,21 @@
 name: search service ci
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "search/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/search-ci.yaml"
-      - "pom.xml"
-  pull_request:
-    branches: ["main"]
-    paths:
-      - "search/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/search-ci.yaml"
-      - "pom.xml"
   workflow_dispatch:
+#  push:
+#    branches: ["main"]
+#    paths:
+#      - "search/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/search-ci.yaml"
+#      - "pom.xml"
+#  pull_request:
+#    branches: ["main"]
+#    paths:
+#      - "search/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/search-ci.yaml"
+#      - "pom.xml"
 
 jobs:
   Build:

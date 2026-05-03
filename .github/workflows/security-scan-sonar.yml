@@ -1,0 +1,197 @@
+name: SonarQube Cloud Scan with Dynamic Matrix
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - 'main'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # ============================================================================
+  # Job 1: Detect Changes
+  # ============================================================================
+  detect-changes:
+    name: Detect Changed Modules
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.filter.outputs.changes }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
+
+      - name: Filter changed modules
+        id: filter
+        uses: dorny/paths-filter@v3  
+        with:
+          filters: |
+            media: 'media/**'
+            product: 'product/**'
+            cart: 'cart/**'
+            location: 'location/**'
+            order: 'order/**'
+            customer: 'customer/**'
+            rating: 'rating/**'
+            inventory: 'inventory/**'
+            tax: 'tax/**'
+            search: 'search/**'
+
+  # ============================================================================
+  # Job 2: Build & Test with Dynamic Matrix
+  # ============================================================================
+  build-and-test:
+    name: Test Module [${{ matrix.module }}]
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.modules != '[]' && needs.detect-changes.outputs.modules != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        module: ${{ fromJson(needs.detect-changes.outputs.modules) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # FIX: v6 không tồn tại
+
+      - name: Set up JDK 25 Early Access (Temurin EA)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25-ea'       # JDK 25 Early Access — khớp với release version trong pom.xml
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run tests and generate Jacoco coverage for ${{ matrix.module }}
+        run: |
+          mvn clean \
+            org.jacoco:jacoco-maven-plugin:prepare-agent \
+            test \
+            org.jacoco:jacoco-maven-plugin:report \
+            -pl ${{ matrix.module }} \
+            -am \
+            -Dmaven.test.failure.ignore=true \
+            --batch-mode \
+            --fail-at-end
+
+      - name: Upload Jacoco coverage report for ${{ matrix.module }}
+        if: always()
+        uses: actions/upload-artifact@v4  # FIX: v7 không tồn tại; v4 là latest stable
+        with:
+          name: jacoco-report-${{ matrix.module }}
+          path: ${{ matrix.module }}/target/site/jacoco/jacoco.xml
+          retention-days: 1
+          if-no-files-found: warn
+
+  # ============================================================================
+  # Job 3: SonarQube Cloud Scan
+  # ============================================================================
+  sonarqube-scan:
+    name: SonarQube Cloud Scan
+    needs: [detect-changes, build-and-test]
+    # FIX: Giới hạn điều kiện rõ ràng hơn — 'always()' sẽ chạy cả khi job bị cancel
+    if: >
+      always() &&
+      !contains(needs.build-and-test.result, 'cancelled')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write   # Cho phép SonarQube comment lên PR
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25 Early Access (Temurin EA)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25-ea'       # JDK 25 Early Access — khớp với release version trong pom.xml
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Create coverage output directory
+        run: mkdir -p coverage-reports
+
+      - name: Download Jacoco coverage reports
+        if: ${{ needs.detect-changes.outputs.modules != '[]' && needs.detect-changes.outputs.modules != '' }}
+        uses: actions/download-artifact@v4  # FIX: v8 không tồn tại; v4 là latest stable
+        with:
+          path: coverage-reports
+          pattern: jacoco-report-*
+          merge-multiple: false
+
+      - name: Compile project for SonarQube
+        run: |
+          mvn package \
+            -DskipTests \
+            -Dmaven.main.skip=false \
+            --batch-mode \
+            --fail-at-end
+
+      - name: Prepare SonarQube parameters
+        id: sonar-params
+        run: |
+          COVERAGE_FILES=$(find coverage-reports -name "jacoco.xml" | tr '\n' ',' | sed 's/,$//')
+          if [ -z "$COVERAGE_FILES" ]; then
+            echo "::notice::No coverage reports found - SonarQube will analyze without coverage"
+            echo "coverage-paths=" >> $GITHUB_OUTPUT
+          else
+            echo "::notice::Using coverage reports: $COVERAGE_FILES"
+            echo "coverage-paths=$COVERAGE_FILES" >> $GITHUB_OUTPUT
+          fi
+
+      - name: SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io  # FIX: required for SonarCloud; omitting this causes scanner to target localhost:9000
+        with:
+          args: >
+            -Dsonar.projectKey=nat90711_project-devops-yas
+            -Dsonar.organization=nat90711
+            ${{ steps.sonar-params.outputs.coverage-paths != '' && format('-Dsonar.coverage.jacoco.xmlReportPaths={0}', steps.sonar-params.outputs.coverage-paths) || '' }}
+            -Dsonar.java.binaries=**/target/classes
+            -Dsonar.exclusions=**/src/test/**,**/config/**,**/dto/**,**/entity/**,**/*Exception.java
+
+      - name: SonarQube scan completed
+        run: |
+          echo "::notice::SonarQube Cloud scan completed successfully"
+          echo "View results at: https://sonarcloud.io/project/overview?id=nat90711_project-devops-yas"
+
+      # ----------------------------------------------------------------
+      # Snyk Monitor — chỉ chạy khi push vào main
+      # ----------------------------------------------------------------
+      - name: Snyk Monitor (Gửi báo cáo khi Push vào Main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: snyk/actions/maven@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --all-projects

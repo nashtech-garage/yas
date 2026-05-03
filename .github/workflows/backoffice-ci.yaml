@@ -1,19 +1,19 @@
 name: backoffice service ci
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "backoffice/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/backoffice-ci.yaml"
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - "backoffice/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/backoffice-ci.yaml"
   workflow_dispatch:
+#  push:
+#    branches: [ "main" ]
+#    paths:
+#      - "backoffice/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/backoffice-ci.yaml"
+#  pull_request:
+#    branches: [ "main" ]
+#    paths:
+#      - "backoffice/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/backoffice-ci.yaml"
 
 jobs:
   Build:

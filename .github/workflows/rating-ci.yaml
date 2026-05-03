@@ -1,21 +1,21 @@
 name: rating service ci
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "rating/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/rating-ci.yaml"
-      - "pom.xml"
-  pull_request:
-    branches: ["main"]
-    paths:
-      - "rating/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/rating-ci.yaml"
-      - "pom.xml"
   workflow_dispatch:
+#  push:
+#    branches: ["main"]
+#    paths:
+#      - "rating/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/rating-ci.yaml"
+#      - "pom.xml"
+#  pull_request:
+#    branches: ["main"]
+#    paths:
+#      - "rating/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/rating-ci.yaml"
+#      - "pom.xml"
 
 jobs:
   Build:

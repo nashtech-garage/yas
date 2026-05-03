@@ -58,7 +58,7 @@ pipeline {
                     def checkChanges = { serviceName ->
                         if (env.FORCE_BUILD_ALL == 'true') return true
                         return changedFiles.any { path ->
-                            path.startsWith("${serviceName}/") || path.startsWith("common-library/") || path == "pom.xml"
+                            path.startsWith("${serviceName}/") || path.startsWith("common-library/")
                         }
                     }
 
@@ -132,3 +132,4 @@ def extractChangedFiles() {
     }
     return files
 }
+

@@ -1,19 +1,19 @@
 name: storefront service ci
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "storefront/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/storefront-ci.yaml"
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - "storefront/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/storefront-ci.yaml"
   workflow_dispatch:
+#  push:
+#    branches: [ "main" ]
+#    paths:
+#      - "storefront/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/storefront-ci.yaml"
+#  pull_request:
+#    branches: [ "main" ]
+#    paths:
+#      - "storefront/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/storefront-ci.yaml"
 
 jobs:
   Build:
