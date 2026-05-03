@@ -1,0 +1,103 @@
+name: Security Gate - Snyk
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security_scan:
+    name: Snyk & Gitleaks Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # Cần thiết để upload SARIF lên GitHub Security tab
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25 Early Access (Temurin EA)
+        uses: actions/setup-java@v4   # actions/setup-java tự export JAVA_HOME vào $PATH — không cần set thủ công
+        with:
+          java-version: '25-ea'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Download Dependencies
+        run: mvn dependency:go-offline -q
+
+      # ----------------------------------------------------------------
+      # SAST: Quét lỗ hổng mã nguồn Java
+      # Xuất SARIF để tích hợp với GitHub Security tab
+      # ----------------------------------------------------------------
+      - name: Snyk Code Scan (SAST)
+        uses: snyk/actions/maven@master
+        continue-on-error: true  # Tránh block pipeline, dùng SARIF để review
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: code test
+          args: >-
+            --severity-threshold=high
+            --all-projects
+            --sarif-file-output=snyk-code.sarif
+
+      - name: Upload Snyk Code SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk-code.sarif
+          category: snyk-code-sast
+
+      # ----------------------------------------------------------------
+      # SCA: Quét lỗ hổng thư viện pom.xml
+      # ----------------------------------------------------------------
+      - name: Snyk SCA Scan (Dependencies)
+        uses: snyk/actions/maven@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: >-
+            --severity-threshold=high
+            --all-projects
+            --sarif-file-output=snyk-sca.sarif
+
+      - name: Upload Snyk SCA SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk-sca.sarif
+          category: snyk-sca-dependencies
+
+      # ----------------------------------------------------------------
+      # Fail job nếu có kết quả HIGH/CRITICAL sau khi đã upload report
+      # ----------------------------------------------------------------
+      - name: Check Snyk results and fail if vulnerabilities found
+        if: always()
+        run: |
+          CODE_EXIT=0
+          SCA_EXIT=0
+          if [ -f snyk-code.sarif ]; then
+            RESULTS=$(jq '.runs[0].results | length' snyk-code.sarif 2>/dev/null || echo 0)
+            [ "$RESULTS" -gt 0 ] && CODE_EXIT=1 && echo "::error::Snyk Code found $RESULTS issue(s)"
+          fi
+          if [ -f snyk-sca.sarif ]; then
+            RESULTS=$(jq '.runs[0].results | length' snyk-sca.sarif 2>/dev/null || echo 0)
+            [ "$RESULTS" -gt 0 ] && SCA_EXIT=1 && echo "::error::Snyk SCA found $RESULTS issue(s)"
+          fi
+          exit $((CODE_EXIT + SCA_EXIT > 0 ? 1 : 0))

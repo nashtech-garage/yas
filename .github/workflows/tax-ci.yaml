@@ -1,21 +1,21 @@
 name: tax service ci
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "tax/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/tax-ci.yaml"
-      - "pom.xml"
-  pull_request:
-    branches: ["main"]
-    paths:
-      - "tax/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/tax-ci.yaml"
-      - "pom.xml"
   workflow_dispatch:
+#  push:
+#    branches: ["main"]
+#    paths:
+#      - "tax/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/tax-ci.yaml"
+#      - "pom.xml"
+#  pull_request:
+#    branches: ["main"]
+#    paths:
+#      - "tax/**"
+#      - ".github/workflows/actions/action.yaml"
+#      - ".github/workflows/tax-ci.yaml"
+#      - "pom.xml"
 
 jobs:
   Build:

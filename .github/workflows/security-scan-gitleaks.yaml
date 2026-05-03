@@ -1,0 +1,51 @@
+name: Secret Scanner (Gitleaks)
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  scan_secrets:
+    name: Gitleaks Secret Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Gitleaks Scan
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true  
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      # ----------------------------------------------------------------
+      # Upload SARIF để hiển thị kết quả trong GitHub Security tab
+      # File gitleaks.sarif được tạo tự động bởi gitleaks-action@v2
+      # ----------------------------------------------------------------
+      - name: Upload Gitleaks SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif 
+          category: gitleaks-secret-scan
+
+      # ----------------------------------------------------------------
+      # Fail pipeline nếu Gitleaks phát hiện secret
+      # ----------------------------------------------------------------
+      - name: Fail if secrets detected
+        if: steps.gitleaks.outcome == 'failure'
+        run: |
+          echo "::error::Gitleaks detected secrets in the codebase. Review the Security tab for details."
+          exit 1
