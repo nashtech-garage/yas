@@ -99,16 +99,37 @@ jobs:
         run: |
           CODE_EXIT=0
           SCA_EXIT=0
+          SARIF_MISSING=0
+
           if [ -f snyk-code.sarif ]; then
             RESULTS=$(jq '.runs[0].results | length' snyk-code.sarif 2>/dev/null || echo 0)
-            [ "$RESULTS" -gt 0 ] && CODE_EXIT=1 && echo "::error::Snyk Code found $RESULTS issue(s)"
+            if [ "$RESULTS" -gt 0 ]; then
+              CODE_EXIT=1
+              echo "::error::Snyk Code found $RESULTS HIGH/CRITICAL issue(s) — review the Security tab"
+            fi
           else
-            echo "::warning::snyk-code.sarif not found — Code scan may have failed to produce output"
+            echo "::warning::snyk-code.sarif not found — Snyk Code scan did not produce output (check CLI auth or network)"
+            SARIF_MISSING=$((SARIF_MISSING + 1))
           fi
+
           if [ -f snyk-sca.sarif ]; then
             RESULTS=$(jq '.runs[0].results | length' snyk-sca.sarif 2>/dev/null || echo 0)
-            [ "$RESULTS" -gt 0 ] && SCA_EXIT=1 && echo "::error::Snyk SCA found $RESULTS issue(s)"
+            if [ "$RESULTS" -gt 0 ]; then
+              SCA_EXIT=1
+              echo "::error::Snyk SCA found $RESULTS HIGH/CRITICAL issue(s) — review the Security tab"
+            fi
           else
-            echo "::warning::snyk-sca.sarif not found — SCA scan may have failed to produce output"
+            echo "::warning::snyk-sca.sarif not found — Snyk SCA scan did not produce output (check CLI auth or network)"
+            SARIF_MISSING=$((SARIF_MISSING + 1))
           fi
-          exit $((CODE_EXIT + SCA_EXIT > 0 ? 1 : 0))
+
+          # Hard-fail when BOTH SARIF files are absent: indicates CLI/auth failure, not merely zero findings
+          if [ "$SARIF_MISSING" -eq 2 ]; then
+            echo "::error::Neither snyk-code.sarif nor snyk-sca.sarif was produced. Snyk CLI may have failed to authenticate or run."
+            exit 1
+          fi
+
+          if [ "$CODE_EXIT" -gt 0 ] || [ "$SCA_EXIT" -gt 0 ]; then
+            exit 1
+          fi
+          exit 0
