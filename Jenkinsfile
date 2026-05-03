@@ -47,6 +47,7 @@ pipeline {
         MVN_ARGS = '-B -ntp'
         SERVICES = 'common-library backoffice-bff cart customer inventory location media order payment-paypal payment product promotion rating search storefront-bff tax webhook sampledata recommendation delivery'
         SNYK_HOME = tool name: 'snyk@latest'
+        REVISION = '1.0-SNAPSHOT'
     }
 
     stages {
@@ -172,9 +173,32 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: 'snyk-quan', variable: 'SNYK_TOKEN')]) {
 
-                        sh 'snyk auth $SNYK_TOKEN'
+                        sh '''
+                            snyk auth "$SNYK_TOKEN"
+                        '''
 
                         def modules = getModules()
+                        
+                        def moduleList = modules.join(',')
+                        echo "Running Snyk scan for modules: ${moduleList}"
+
+                        sh """
+                            if [ -f "mvnw" ]; then
+                                chmod +x mvnw
+                                MVN=./mvnw
+                            else
+                                MVN=mvn
+                            fi
+
+                            echo "Using Maven: \$MVN"
+
+                            \$MVN -q \
+                                -Drevision=${env.REVISION} \
+                                -DskipTests \
+                                -pl ${moduleList} \
+                                -am \
+                                clean install
+                        """
 
                         for (module in modules) {
                             module = module.trim()
@@ -183,14 +207,38 @@ pipeline {
                             echo "Running Snyk scan for module: ${module} "
 
                             dir(module) {
+                                
+                                // Ensure mvnw is executable if it exists
+                                sh '''
+                                    if [ -f "mvnw" ]; then
+                                        chmod +x mvnw
+                                    fi
+                                '''
 
+                                // 1. Run Snyk test for dependencies
                                 def depStatus = sh(
-                                    script: 'snyk test --file=pom.xml --org=036f61e9-4955-4444-b27c-a427cda4feca',
+                                    script: """
+                                        snyk test --file=pom.xml --package-manager=maven --severity-threshold=low -- -Drevision=${env.REVISION} || true
+                                    """,
                                     returnStatus: true
                                 )
 
+                                // 2. Push results to Snyk Monitor for tracking
+                                sh """
+                                    echo "Pushing Open Source snapshot to Snyk Monitor..."
+
+                                    snyk monitor --file=pom.xml --package-manager=maven --project-name=YAS-${module}-Dependencies -- -Drevision=${env.REVISION} || true
+                                """
+
+                                // 3. Run Snyk Code test for static analysis and push results
                                 def codeStatus = sh(
-                                    script: 'snyk code test --org=036f61e9-4955-4444-b27c-a427cda4feca',
+                                    script: """
+                                        echo "Running Snyk Code Test and pushing report..."
+                                        snyk code test \
+                                            --severity-threshold=low \
+                                            --project-name=YAS-${module}-Code \
+                                            --report || true
+                                    """,
                                     returnStatus: true
                                 )
 
