@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @Import(KafkaIntegrationTestConfiguration.class)
 @TestPropertySource("classpath:application-test.properties")
-public class VectorQueryIT {
+public class VectorQueryTest {
 
     @Autowired
     private JdbcTemplate jdbcClient;

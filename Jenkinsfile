@@ -87,15 +87,12 @@ pipeline {
                                     junit allowEmptyResults: true, 
                                           testResults: "${serviceName}/target/surefire-reports/*.xml"
                                           
-                                    def skipCoverageServices = ['recommendation']
-                                    def shouldFailBuild = !skipCoverageServices.contains(serviceName)
-
                                     jacoco(
                                         execPattern: "${serviceName}/target/jacoco.exec",
                                         classPattern: "${serviceName}/target/classes",
                                         sourcePattern: "${serviceName}/src/main/java",
                                         exclusionPattern: '**/config/**,**/exception/**,**/constants/**,**/*Application.class', 
-                                        changeBuildStatus: shouldFailBuild,
+                                        changeBuildStatus: true,
                                         minimumLineCoverage: '70', 
                                         maximumLineCoverage: '70'       
                                     )
