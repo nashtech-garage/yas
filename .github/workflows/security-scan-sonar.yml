@@ -171,8 +171,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=Nat90711_project-devops-yas
-            -Dsonar.organization=Nat90711
+            -Dsonar.projectKey=nat90711_project-devops-yas
+            -Dsonar.organization=nat90711
             ${{ steps.sonar-params.outputs.coverage-paths != '' && format('-Dsonar.coverage.jacoco.xmlReportPaths={0}', steps.sonar-params.outputs.coverage-paths) || '' }}
             -Dsonar.java.binaries=**/target/classes
             -Dsonar.exclusions=**/src/test/**,**/config/**,**/dto/**,**/entity/**,**/*Exception.java
@@ -180,7 +180,7 @@ jobs:
       - name: SonarQube scan completed
         run: |
           echo "::notice::SonarQube Cloud scan completed successfully"
-          echo "View results at: https://sonarcloud.io/project/overview?id=Nat90711_project-devops-yas"
+          echo "View results at: https://sonarcloud.io/project/overview?id=nat90711_project-devops-yas"
 
       # ----------------------------------------------------------------
       # Snyk Monitor — chỉ chạy khi push vào main

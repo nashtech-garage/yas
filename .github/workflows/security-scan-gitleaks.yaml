@@ -14,31 +14,31 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write  
+      security-events: write  # Cần thiết để upload SARIF lên GitHub Security tab
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
+          fetch-depth: 0  # Cần thiết để Gitleaks quét toàn bộ lịch sử commit
 
       - name: Gitleaks Scan
         id: gitleaks
         uses: gitleaks/gitleaks-action@v2
-        continue-on-error: true  
+        continue-on-error: true  # Cho phép upload SARIF trước khi fail
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}  # Bỏ comment nếu dùng Gitleaks Pro
 
       # ----------------------------------------------------------------
       # Upload SARIF để hiển thị kết quả trong GitHub Security tab
-      # File gitleaks.sarif được tạo tự động bởi gitleaks-action@v2
+      # File results.sarif được tạo tự động bởi gitleaks-action@v2
       # ----------------------------------------------------------------
       - name: Upload Gitleaks SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        uses: github/codeql-action/upload-sarif@v4  # FIX: v3 deprecated tháng 12/2026
+        if: always() && hashFiles('results.sarif') != ''  # Guard: chỉ upload nếu file tồn tại
         with:
-          sarif_file: results.sarif 
+          sarif_file: results.sarif
           category: gitleaks-secret-scan
 
       # ----------------------------------------------------------------

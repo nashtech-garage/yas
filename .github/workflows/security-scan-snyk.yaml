@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 25 Early Access (Temurin EA)
-        uses: actions/setup-java@v4   # actions/setup-java tự export JAVA_HOME vào $PATH — không cần set thủ công
+        uses: actions/setup-java@v4  # actions/setup-java tự export JAVA_HOME vào $PATH
         with:
           java-version: '25-ea'
           distribution: 'temurin'
@@ -40,24 +40,32 @@ jobs:
         run: mvn dependency:go-offline -q
 
       # ----------------------------------------------------------------
+      # Cài Snyk CLI trực tiếp — snyk/actions/maven wrapper không hỗ trợ
+      # --sarif-file-output cho lệnh "code test", gây lỗi "Path does not exist"
+      # ----------------------------------------------------------------
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      # ----------------------------------------------------------------
       # SAST: Quét lỗ hổng mã nguồn Java
-      # Xuất SARIF để tích hợp với GitHub Security tab
       # ----------------------------------------------------------------
       - name: Snyk Code Scan (SAST)
-        uses: snyk/actions/maven@master
-        continue-on-error: true  # Tránh block pipeline, dùng SARIF để review
+        id: snyk-code
+        continue-on-error: true  # Tránh block pipeline trước khi upload SARIF
+        run: |
+          snyk code test \
+            --severity-threshold=high \
+            --all-projects \
+            --sarif-file-output=snyk-code.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: code test
-          args: >-
-            --severity-threshold=high
-            --all-projects
-            --sarif-file-output=snyk-code.sarif
 
       - name: Upload Snyk Code SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        uses: github/codeql-action/upload-sarif@v4  # FIX: v3 deprecated tháng 12/2026
+        if: always() && hashFiles('snyk-code.sarif') != ''
         with:
           sarif_file: snyk-code.sarif
           category: snyk-code-sast
@@ -66,20 +74,19 @@ jobs:
       # SCA: Quét lỗ hổng thư viện pom.xml
       # ----------------------------------------------------------------
       - name: Snyk SCA Scan (Dependencies)
-        uses: snyk/actions/maven@master
+        id: snyk-sca
         continue-on-error: true
+        run: |
+          snyk test \
+            --severity-threshold=high \
+            --all-projects \
+            --sarif-file-output=snyk-sca.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: >-
-            --severity-threshold=high
-            --all-projects
-            --sarif-file-output=snyk-sca.sarif
 
       - name: Upload Snyk SCA SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        uses: github/codeql-action/upload-sarif@v4  # FIX: v3 deprecated tháng 12/2026
+        if: always() && hashFiles('snyk-sca.sarif') != ''
         with:
           sarif_file: snyk-sca.sarif
           category: snyk-sca-dependencies
@@ -95,9 +102,13 @@ jobs:
           if [ -f snyk-code.sarif ]; then
             RESULTS=$(jq '.runs[0].results | length' snyk-code.sarif 2>/dev/null || echo 0)
             [ "$RESULTS" -gt 0 ] && CODE_EXIT=1 && echo "::error::Snyk Code found $RESULTS issue(s)"
+          else
+            echo "::warning::snyk-code.sarif not found — Code scan may have failed to produce output"
           fi
           if [ -f snyk-sca.sarif ]; then
             RESULTS=$(jq '.runs[0].results | length' snyk-sca.sarif 2>/dev/null || echo 0)
             [ "$RESULTS" -gt 0 ] && SCA_EXIT=1 && echo "::error::Snyk SCA found $RESULTS issue(s)"
+          else
+            echo "::warning::snyk-sca.sarif not found — SCA scan may have failed to produce output"
           fi
           exit $((CODE_EXIT + SCA_EXIT > 0 ? 1 : 0))
