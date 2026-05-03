@@ -40,7 +40,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @Import(KafkaIntegrationTestConfiguration.class)
 @TestPropertySource("classpath:application-test.properties")
-public class ProductVectorRepositoryTest extends BaseVectorRepositoryTest<ProductDocument, ProductDetailVm> {
+public class ProductVectorRepositoryIT extends BaseVectorRepositoryIT<ProductDocument, ProductDetailVm> {
 
     @Mock
     private OpenAIClient openAIClient;
@@ -57,7 +57,7 @@ public class ProductVectorRepositoryTest extends BaseVectorRepositoryTest<Produc
     @Autowired
     private EmbeddingSearchConfiguration embeddingSearchConf;
 
-    public ProductVectorRepositoryTest() {
+    public ProductVectorRepositoryIT() {
         super(ProductDocument.class);
     }
 

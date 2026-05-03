@@ -20,7 +20,7 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class BaseVectorRepositoryTest<D extends BaseDocument, E> {
+public class BaseVectorRepositoryIT<D extends BaseDocument, E> {
 
     private final Class<D> docClass;
     private final DocumentMetadata documentMetadata;
@@ -36,7 +36,7 @@ public class BaseVectorRepositoryTest<D extends BaseDocument, E> {
     private EmbeddingSearchConfiguration embeddingSearchConf;
 
     @SneakyThrows
-    public BaseVectorRepositoryTest(Class<D> docClass) {
+    public BaseVectorRepositoryIT(Class<D> docClass) {
         Assertions.assertNotNull(docClass, "Document must not be 'null'");
         this.docClass = docClass;
         this.documentMetadata = getDocumentMetadata();
