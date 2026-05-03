@@ -44,7 +44,7 @@ jobs:
       # --sarif-file-output cho lệnh "code test", gây lỗi "Path does not exist"
       # ----------------------------------------------------------------
       - name: Install Snyk CLI
-        run: npm install -g snyk
+        run: npm install -g snyk@1.1304.1 --ignore-scripts
 
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
