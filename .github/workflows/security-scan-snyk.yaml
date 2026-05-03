@@ -62,6 +62,10 @@ jobs:
             --sarif-file-output=snyk-code.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          # FIX 403 Forbidden: Snyk CLI gửi POST request lên app.snyk.io sau khi ghi SARIF.
+          # Nếu plan không bao gồm Snyk Code API hoặc token thiếu quyền org:write → 403.
+          # SNYK_DISABLE_ANALYTICS=1 tắt remote sync, exit code chỉ phản ánh kết quả scan.
+          SNYK_DISABLE_ANALYTICS: "1"
 
       - name: Upload Snyk Code SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4  # FIX: v3 deprecated tháng 12/2026
