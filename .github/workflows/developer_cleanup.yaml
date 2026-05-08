@@ -1,0 +1,61 @@
+name: Developer Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: 'Namespace to clean up (from developer_build summary)'
+        required: true
+        type: string
+
+jobs:
+  cleanup:
+    runs-on: self-hosted
+    steps:
+      - name: Validate namespace
+        run: |
+          NS="${{ inputs.namespace }}"
+          if [[ ! "$NS" =~ ^yas-dev- ]]; then
+            echo "ERROR: Only namespaces starting with 'yas-dev-' can be deleted."
+            exit 1
+          fi
+          if ! kubectl get namespace "$NS" &>/dev/null; then
+            echo "ERROR: Namespace '$NS' does not exist."
+            exit 1
+          fi
+          echo "Namespace '$NS' found. Proceeding with cleanup..."
+
+      - name: Uninstall all Helm releases
+        run: |
+          NS="${{ inputs.namespace }}"
+          echo "Listing Helm releases in $NS..."
+          RELEASES=$(helm list -n "$NS" -q 2>/dev/null)
+          if [ -z "$RELEASES" ]; then
+            echo "No Helm releases found."
+          else
+            for release in $RELEASES; do
+              echo "Uninstalling $release..."
+              helm uninstall "$release" -n "$NS" --wait --timeout 2m || true
+            done
+          fi
+
+      - name: Delete remaining resources
+        run: |
+          NS="${{ inputs.namespace }}"
+          kubectl delete all --all -n "$NS" --timeout=2m || true
+          kubectl delete configmap --all -n "$NS" || true
+          kubectl delete secret --all -n "$NS" || true
+
+      - name: Delete namespace
+        run: |
+          NS="${{ inputs.namespace }}"
+          kubectl delete namespace "$NS" --timeout=5m
+          echo "Namespace '$NS' deleted successfully."
+
+      - name: Summary
+        run: |
+          echo "## 🧹 Developer Cleanup Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Namespace:** \`${{ inputs.namespace }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered By:** \`${{ github.actor }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ✅ Deleted" >> $GITHUB_STEP_SUMMARY
