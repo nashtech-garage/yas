@@ -88,137 +88,181 @@ on:
         required: false
         default: 'yas-dev'
 
+env:
+  SERVICES_BACKEND: "cart customer inventory location media order payment payment-paypal product promotion rating recommendation search tax webhook backoffice-bff storefront-bff sampledata"
+  SERVICES_UI: "storefront-ui backoffice-ui"
+
 jobs:
+  # ─── Job 1: Resolve image tags from branch inputs ─────────────────────
   get-commit-ids:
     runs-on: self-hosted
     outputs:
-      cart_tag: ${{ steps.cart.outputs.tag }}
-      customer_tag: ${{ steps.customer.outputs.tag }}
-      inventory_tag: ${{ steps.inventory.outputs.tag }}
-      location_tag: ${{ steps.location.outputs.tag }}
-      media_tag: ${{ steps.media.outputs.tag }}
-      order_tag: ${{ steps.order.outputs.tag }}
-      payment_tag: ${{ steps.payment.outputs.tag }}
-      payment_paypal_tag: ${{ steps.payment_paypal.outputs.tag }}
-      product_tag: ${{ steps.product.outputs.tag }}
-      promotion_tag: ${{ steps.promotion.outputs.tag }}
-      rating_tag: ${{ steps.rating.outputs.tag }}
-      recommendation_tag: ${{ steps.recommendation.outputs.tag }}
-      search_tag: ${{ steps.search.outputs.tag }}
-      tax_tag: ${{ steps.tax.outputs.tag }}
-      webhook_tag: ${{ steps.webhook.outputs.tag }}
-      backoffice_bff_tag: ${{ steps.backoffice_bff.outputs.tag }}
-      storefront_bff_tag: ${{ steps.storefront_bff.outputs.tag }}
-      storefront_tag: ${{ steps.storefront.outputs.tag }}
-      backoffice_tag: ${{ steps.backoffice.outputs.tag }}
-      sampledata_tag: ${{ steps.sampledata.outputs.tag }}
+      cart_tag: ${{ steps.tags.outputs.cart_tag }}
+      customer_tag: ${{ steps.tags.outputs.customer_tag }}
+      inventory_tag: ${{ steps.tags.outputs.inventory_tag }}
+      location_tag: ${{ steps.tags.outputs.location_tag }}
+      media_tag: ${{ steps.tags.outputs.media_tag }}
+      order_tag: ${{ steps.tags.outputs.order_tag }}
+      payment_tag: ${{ steps.tags.outputs.payment_tag }}
+      payment_paypal_tag: ${{ steps.tags.outputs.payment_paypal_tag }}
+      product_tag: ${{ steps.tags.outputs.product_tag }}
+      promotion_tag: ${{ steps.tags.outputs.promotion_tag }}
+      rating_tag: ${{ steps.tags.outputs.rating_tag }}
+      recommendation_tag: ${{ steps.tags.outputs.recommendation_tag }}
+      search_tag: ${{ steps.tags.outputs.search_tag }}
+      tax_tag: ${{ steps.tags.outputs.tax_tag }}
+      webhook_tag: ${{ steps.tags.outputs.webhook_tag }}
+      backoffice_bff_tag: ${{ steps.tags.outputs.backoffice_bff_tag }}
+      storefront_bff_tag: ${{ steps.tags.outputs.storefront_bff_tag }}
+      storefront_tag: ${{ steps.tags.outputs.storefront_tag }}
+      backoffice_tag: ${{ steps.tags.outputs.backoffice_tag }}
+      sampledata_tag: ${{ steps.tags.outputs.sampledata_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Fetch origin branches
-        run: |
-          git fetch origin ${{ inputs.cart_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.customer_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.inventory_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.location_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.media_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.order_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.payment_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.payment_paypal_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.product_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.promotion_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.rating_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.recommendation_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.search_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.tax_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.webhook_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.backoffice_bff_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.storefront_bff_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.storefront_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.backoffice_branch }} --depth=1 2>/dev/null || true
-          git fetch origin ${{ inputs.sampledata_branch }} --depth=1 2>/dev/null || true
 
-      - name: Resolve tags
-        id: resolve_tags
+      - name: Fetch all input branches
         run: |
-          # Helper function to assign main tag or commit SHA
+          BRANCHES=(
+            "${{ inputs.cart_branch }}"
+            "${{ inputs.customer_branch }}"
+            "${{ inputs.inventory_branch }}"
+            "${{ inputs.location_branch }}"
+            "${{ inputs.media_branch }}"
+            "${{ inputs.order_branch }}"
+            "${{ inputs.payment_branch }}"
+            "${{ inputs.payment_paypal_branch }}"
+            "${{ inputs.product_branch }}"
+            "${{ inputs.promotion_branch }}"
+            "${{ inputs.rating_branch }}"
+            "${{ inputs.recommendation_branch }}"
+            "${{ inputs.search_branch }}"
+            "${{ inputs.tax_branch }}"
+            "${{ inputs.webhook_branch }}"
+            "${{ inputs.backoffice_bff_branch }}"
+            "${{ inputs.storefront_bff_branch }}"
+            "${{ inputs.storefront_branch }}"
+            "${{ inputs.backoffice_branch }}"
+            "${{ inputs.sampledata_branch }}"
+          )
+          # Deduplicate and fetch
+          printf '%s\n' "${BRANCHES[@]}" | sort -u | while read -r b; do
+            git fetch origin "$b" --depth=1 2>/dev/null || echo "⚠ Could not fetch branch: $b"
+          done
+
+      - name: Resolve all tags
+        id: tags
+        run: |
           resolve_tag() {
             local branch=$1
-            if [ "$branch" = "main" ]; then
-              echo "main"
-            else
-              git rev-parse --short origin/$branch 2>/dev/null || echo "unknown"
-            fi
+            # CI tags images with short commit SHA (docker/metadata-action type=sha)
+            git rev-parse --short origin/$branch 2>/dev/null || echo "main"
           }
 
-          echo "cart_tag=$(resolve_tag ${{ inputs.cart_branch }})" >> $GITHUB_ENV
-          echo "customer_tag=$(resolve_tag ${{ inputs.customer_branch }})" >> $GITHUB_ENV
-          echo "inventory_tag=$(resolve_tag ${{ inputs.inventory_branch }})" >> $GITHUB_ENV
-          echo "location_tag=$(resolve_tag ${{ inputs.location_branch }})" >> $GITHUB_ENV
-          echo "media_tag=$(resolve_tag ${{ inputs.media_branch }})" >> $GITHUB_ENV
-          echo "order_tag=$(resolve_tag ${{ inputs.order_branch }})" >> $GITHUB_ENV
-          echo "payment_tag=$(resolve_tag ${{ inputs.payment_branch }})" >> $GITHUB_ENV
-          echo "payment_paypal_tag=$(resolve_tag ${{ inputs.payment_paypal_branch }})" >> $GITHUB_ENV
-          echo "product_tag=$(resolve_tag ${{ inputs.product_branch }})" >> $GITHUB_ENV
-          echo "promotion_tag=$(resolve_tag ${{ inputs.promotion_branch }})" >> $GITHUB_ENV
-          echo "rating_tag=$(resolve_tag ${{ inputs.rating_branch }})" >> $GITHUB_ENV
-          echo "recommendation_tag=$(resolve_tag ${{ inputs.recommendation_branch }})" >> $GITHUB_ENV
-          echo "search_tag=$(resolve_tag ${{ inputs.search_branch }})" >> $GITHUB_ENV
-          echo "tax_tag=$(resolve_tag ${{ inputs.tax_branch }})" >> $GITHUB_ENV
-          echo "webhook_tag=$(resolve_tag ${{ inputs.webhook_branch }})" >> $GITHUB_ENV
-          echo "backoffice_bff_tag=$(resolve_tag ${{ inputs.backoffice_bff_branch }})" >> $GITHUB_ENV
-          echo "storefront_bff_tag=$(resolve_tag ${{ inputs.storefront_bff_branch }})" >> $GITHUB_ENV
-          echo "storefront_tag=$(resolve_tag ${{ inputs.storefront_branch }})" >> $GITHUB_ENV
-          echo "backoffice_tag=$(resolve_tag ${{ inputs.backoffice_branch }})" >> $GITHUB_ENV
-          echo "sampledata_tag=$(resolve_tag ${{ inputs.sampledata_branch }})" >> $GITHUB_ENV
+          echo "cart_tag=$(resolve_tag ${{ inputs.cart_branch }})" >> $GITHUB_OUTPUT
+          echo "customer_tag=$(resolve_tag ${{ inputs.customer_branch }})" >> $GITHUB_OUTPUT
+          echo "inventory_tag=$(resolve_tag ${{ inputs.inventory_branch }})" >> $GITHUB_OUTPUT
+          echo "location_tag=$(resolve_tag ${{ inputs.location_branch }})" >> $GITHUB_OUTPUT
+          echo "media_tag=$(resolve_tag ${{ inputs.media_branch }})" >> $GITHUB_OUTPUT
+          echo "order_tag=$(resolve_tag ${{ inputs.order_branch }})" >> $GITHUB_OUTPUT
+          echo "payment_tag=$(resolve_tag ${{ inputs.payment_branch }})" >> $GITHUB_OUTPUT
+          echo "payment_paypal_tag=$(resolve_tag ${{ inputs.payment_paypal_branch }})" >> $GITHUB_OUTPUT
+          echo "product_tag=$(resolve_tag ${{ inputs.product_branch }})" >> $GITHUB_OUTPUT
+          echo "promotion_tag=$(resolve_tag ${{ inputs.promotion_branch }})" >> $GITHUB_OUTPUT
+          echo "rating_tag=$(resolve_tag ${{ inputs.rating_branch }})" >> $GITHUB_OUTPUT
+          echo "recommendation_tag=$(resolve_tag ${{ inputs.recommendation_branch }})" >> $GITHUB_OUTPUT
+          echo "search_tag=$(resolve_tag ${{ inputs.search_branch }})" >> $GITHUB_OUTPUT
+          echo "tax_tag=$(resolve_tag ${{ inputs.tax_branch }})" >> $GITHUB_OUTPUT
+          echo "webhook_tag=$(resolve_tag ${{ inputs.webhook_branch }})" >> $GITHUB_OUTPUT
+          echo "backoffice_bff_tag=$(resolve_tag ${{ inputs.backoffice_bff_branch }})" >> $GITHUB_OUTPUT
+          echo "storefront_bff_tag=$(resolve_tag ${{ inputs.storefront_bff_branch }})" >> $GITHUB_OUTPUT
+          echo "storefront_tag=$(resolve_tag ${{ inputs.storefront_branch }})" >> $GITHUB_OUTPUT
+          echo "backoffice_tag=$(resolve_tag ${{ inputs.backoffice_branch }})" >> $GITHUB_OUTPUT
+          echo "sampledata_tag=$(resolve_tag ${{ inputs.sampledata_branch }})" >> $GITHUB_OUTPUT
 
-      # Mapping ENV to Job Outputs
-      - id: cart
-        run: echo "tag=${{ env.cart_tag }}" >> $GITHUB_OUTPUT
-      - id: customer
-        run: echo "tag=${{ env.customer_tag }}" >> $GITHUB_OUTPUT
-      - id: inventory
-        run: echo "tag=${{ env.inventory_tag }}" >> $GITHUB_OUTPUT
-      - id: location
-        run: echo "tag=${{ env.location_tag }}" >> $GITHUB_OUTPUT
-      - id: media
-        run: echo "tag=${{ env.media_tag }}" >> $GITHUB_OUTPUT
-      - id: order
-        run: echo "tag=${{ env.order_tag }}" >> $GITHUB_OUTPUT
-      - id: payment
-        run: echo "tag=${{ env.payment_tag }}" >> $GITHUB_OUTPUT
-      - id: payment_paypal
-        run: echo "tag=${{ env.payment_paypal_tag }}" >> $GITHUB_OUTPUT
-      - id: product
-        run: echo "tag=${{ env.product_tag }}" >> $GITHUB_OUTPUT
-      - id: promotion
-        run: echo "tag=${{ env.promotion_tag }}" >> $GITHUB_OUTPUT
-      - id: rating
-        run: echo "tag=${{ env.rating_tag }}" >> $GITHUB_OUTPUT
-      - id: recommendation
-        run: echo "tag=${{ env.recommendation_tag }}" >> $GITHUB_OUTPUT
-      - id: search
-        run: echo "tag=${{ env.search_tag }}" >> $GITHUB_OUTPUT
-      - id: tax
-        run: echo "tag=${{ env.tax_tag }}" >> $GITHUB_OUTPUT
-      - id: webhook
-        run: echo "tag=${{ env.webhook_tag }}" >> $GITHUB_OUTPUT
-      - id: backoffice_bff
-        run: echo "tag=${{ env.backoffice_bff_tag }}" >> $GITHUB_OUTPUT
-      - id: storefront_bff
-        run: echo "tag=${{ env.storefront_bff_tag }}" >> $GITHUB_OUTPUT
-      - id: storefront
-        run: echo "tag=${{ env.storefront_tag }}" >> $GITHUB_OUTPUT
-      - id: backoffice
-        run: echo "tag=${{ env.backoffice_tag }}" >> $GITHUB_OUTPUT
-      - id: sampledata
-        run: echo "tag=${{ env.sampledata_tag }}" >> $GITHUB_OUTPUT
+  # ─── Job 2: Scale down dev & staging via GitOps ────────────────────────
+  scale-down-environments:
+    runs-on: self-hosted
+    steps:
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.1
 
+      - name: Checkout gitops repo
+        uses: actions/checkout@v4
+        with:
+          repository: devops-hcmus/gitops
+          token: ${{ secrets.GITOPS_PAT }}
+          path: gitops
+
+      - name: Scale down dev namespace
+        run: |
+          cd gitops
+          for service_dir in clusters/dev/*/; do
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".ui.replicaCount = 0" -i "$values_file"
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".backend.replicaCount = 0" -i "$values_file"
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              yq e ".reloader.reloader.deployment.replicas = 0" -i "$values_file"
+            else
+              yq e ".replicaCount = 0" -i "$values_file"
+            fi
+          done
+          if [ -f clusters/dev/nginx/nginx.yaml ]; then
+            yq e '(select(.kind == "Deployment") | .spec.replicas) = 0' -i clusters/dev/nginx/nginx.yaml
+          fi
+
+      - name: Scale down staging namespace
+        run: |
+          cd gitops
+          for service_dir in clusters/staging/*/; do
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".ui.replicaCount = 0" -i "$values_file"
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".backend.replicaCount = 0" -i "$values_file"
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              yq e ".reloader.reloader.deployment.replicas = 0" -i "$values_file"
+            else
+              yq e ".replicaCount = 0" -i "$values_file"
+            fi
+          done
+          if [ -f clusters/staging/nginx/nginx.yaml ]; then
+            yq e '(select(.kind == "Deployment") | .spec.replicas) = 0' -i clusters/staging/nginx/nginx.yaml
+          fi
+
+      - name: Commit and push scale-down
+        run: |
+          cd gitops
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@devops-hcmus.com"
+          git add clusters/dev/ clusters/staging/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore(developer-build): scale down dev & staging for developer testing"
+          for i in $(seq 1 10); do
+            git push && exit 0
+            echo "Push attempt $i failed, retrying..."
+            git pull --rebase origin main || { git rebase --abort 2>/dev/null || true; }
+            sleep $((RANDOM % 5 + 3))
+          done
+          exit 1
+
+      - name: Wait for ArgoCD sync
+        run: |
+          echo "Waiting 30s for ArgoCD to sync scale-down..."
+          sleep 30
+
+  # ─── Job 3: Deploy to developer namespace ──────────────────────────────
   deploy:
-    needs: get-commit-ids
+    needs: [get-commit-ids, scale-down-environments]
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -239,25 +283,19 @@ jobs:
         run: |
           echo "Waiting for PostgreSQL service in postgres namespace..."
           kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=postgresql -n postgres --timeout=300s || {
-            echo "Warning: PostgreSQL not ready in postgres namespace. Checking if service exists..."
+            echo "Warning: PostgreSQL not ready. Checking service..."
             kubectl get svc postgresql -n postgres 2>/dev/null || {
-              echo "ERROR: PostgreSQL service not found in postgres namespace"
-              echo "Available services in postgres namespace:"
-              kubectl get svc -n postgres || echo "postgres namespace may not exist"
+              echo "ERROR: PostgreSQL service not found"
               exit 1
             }
           }
 
       - name: Update Helm Dependencies
         run: |
-          # Update dependencies for all charts that have them
           for chart_dir in k8s/charts/*/; do
-            if [ -f "$chart_dir/Chart.yaml" ]; then
-              # Check if Chart.yaml has dependencies
-              if grep -q "dependencies:" "$chart_dir/Chart.yaml"; then
-                echo "Updating dependencies for $(basename $chart_dir)..."
-                helm dependency update "$chart_dir" --skip-refresh
-              fi
+            if [ -f "$chart_dir/Chart.yaml" ] && grep -q "dependencies:" "$chart_dir/Chart.yaml"; then
+              echo "Updating dependencies for $(basename $chart_dir)..."
+              helm dependency update "$chart_dir" --skip-refresh
             fi
           done
 
@@ -266,195 +304,176 @@ jobs:
           echo "Deploying yas-configuration chart..."
           helm upgrade --install yas-configuration k8s/charts/yas-configuration \
             --namespace ${{ env.TARGET_NAMESPACE }} || {
-              echo "Failed to deploy yas-configuration. Checking if chart exists..."
-              ls -la k8s/charts/yas-configuration/ 2>/dev/null || echo "Chart not found"
+              echo "Failed to deploy yas-configuration"
               exit 1
             }
-          echo "Waiting for ConfigMaps to be created..."
           sleep 5
 
-      - name: Deploy Services via Helm
+      - name: Deploy Backend Services
         run: |
-          # Deploy backend services with custom image tags
-          helm upgrade --install cart k8s/charts/cart \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-cart \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.cart_tag }} || true
-          
-          helm upgrade --install customer k8s/charts/customer \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-customer \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.customer_tag }} || true
-          
-          helm upgrade --install inventory k8s/charts/inventory \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-inventory \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.inventory_tag }} || true
-          
-          helm upgrade --install location k8s/charts/location \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-location \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.location_tag }} || true
-          
-          helm upgrade --install media k8s/charts/media \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-media \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.media_tag }} || true
-          
-          helm upgrade --install order k8s/charts/order \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-order \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.order_tag }} || true
-          
-          helm upgrade --install payment k8s/charts/payment \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-payment \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.payment_tag }} || true
-          
-          helm upgrade --install payment-paypal k8s/charts/payment-paypal \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-payment-paypal \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.payment_paypal_tag }} || true
-          
-          helm upgrade --install product k8s/charts/product \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-product \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.product_tag }} || true
-          
-          helm upgrade --install promotion k8s/charts/promotion \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-promotion \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.promotion_tag }} || true
-          
-          helm upgrade --install rating k8s/charts/rating \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-rating \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.rating_tag }} || true
-          
-          helm upgrade --install recommendation k8s/charts/recommendation \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-recommendation \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.recommendation_tag }} || true
-          
-          helm upgrade --install search k8s/charts/search \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-search \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.search_tag }} || true
-          
-          helm upgrade --install tax k8s/charts/tax \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-tax \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.tax_tag }} || true
-          
-          helm upgrade --install webhook k8s/charts/webhook \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-webhook \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.webhook_tag }} || true
-          
-          helm upgrade --install backoffice-bff k8s/charts/backoffice-bff \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-backoffice-bff \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.backoffice_bff_tag }} || true
-          
-          helm upgrade --install storefront-bff k8s/charts/storefront-bff \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-storefront-bff \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.storefront_bff_tag }} || true
-          
-          helm upgrade --install storefront-ui k8s/charts/storefront-ui \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set ui.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-storefront \
-            --set ui.image.tag=${{ needs.get-commit-ids.outputs.storefront_tag }} || true
-          
-          helm upgrade --install backoffice-ui k8s/charts/backoffice-ui \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set ui.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-backoffice \
-            --set ui.image.tag=${{ needs.get-commit-ids.outputs.backoffice_tag }} || true
-          
-          helm upgrade --install sampledata k8s/charts/sampledata \
-            --namespace ${{ env.TARGET_NAMESPACE }} \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-sampledata \
-            --set backend.image.tag=${{ needs.get-commit-ids.outputs.sampledata_tag }} || true
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}"
+          NS="${{ env.TARGET_NAMESPACE }}"
 
-      - name: Wait for Rollout Status
+          deploy_backend() {
+            local name=$1 tag=$2
+            echo "Deploying $name (tag: $tag)..."
+            helm upgrade --install "$name" "k8s/charts/$name" \
+              --namespace "$NS" \
+              --set backend.image.repository="${REPO}/yas-${name}" \
+              --set backend.image.tag="$tag" || true
+          }
+
+          deploy_backend cart "${{ needs.get-commit-ids.outputs.cart_tag }}"
+          deploy_backend customer "${{ needs.get-commit-ids.outputs.customer_tag }}"
+          deploy_backend inventory "${{ needs.get-commit-ids.outputs.inventory_tag }}"
+          deploy_backend location "${{ needs.get-commit-ids.outputs.location_tag }}"
+          deploy_backend media "${{ needs.get-commit-ids.outputs.media_tag }}"
+          deploy_backend order "${{ needs.get-commit-ids.outputs.order_tag }}"
+          deploy_backend payment "${{ needs.get-commit-ids.outputs.payment_tag }}"
+          deploy_backend payment-paypal "${{ needs.get-commit-ids.outputs.payment_paypal_tag }}"
+          deploy_backend product "${{ needs.get-commit-ids.outputs.product_tag }}"
+          deploy_backend promotion "${{ needs.get-commit-ids.outputs.promotion_tag }}"
+          deploy_backend rating "${{ needs.get-commit-ids.outputs.rating_tag }}"
+          deploy_backend recommendation "${{ needs.get-commit-ids.outputs.recommendation_tag }}"
+          deploy_backend search "${{ needs.get-commit-ids.outputs.search_tag }}"
+          deploy_backend tax "${{ needs.get-commit-ids.outputs.tax_tag }}"
+          deploy_backend webhook "${{ needs.get-commit-ids.outputs.webhook_tag }}"
+          deploy_backend sampledata "${{ needs.get-commit-ids.outputs.sampledata_tag }}"
+
+      - name: Deploy BFF Services (NodePort)
+        run: |
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}"
+          NS="${{ env.TARGET_NAMESPACE }}"
+
+          helm upgrade --install backoffice-bff k8s/charts/backoffice-bff \
+            --namespace "$NS" \
+            --set backend.image.repository="${REPO}/yas-backoffice-bff" \
+            --set backend.image.tag="${{ needs.get-commit-ids.outputs.backoffice_bff_tag }}" \
+            --set backend.service.type=NodePort \
+            --set backend.ingress.enabled=false || true
+
+          helm upgrade --install storefront-bff k8s/charts/storefront-bff \
+            --namespace "$NS" \
+            --set backend.image.repository="${REPO}/yas-storefront-bff" \
+            --set backend.image.tag="${{ needs.get-commit-ids.outputs.storefront_bff_tag }}" \
+            --set backend.service.type=NodePort \
+            --set backend.ingress.enabled=false || true
+
+      - name: Deploy UI Services (NodePort)
+        run: |
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}"
+          NS="${{ env.TARGET_NAMESPACE }}"
+
+          helm upgrade --install storefront-ui k8s/charts/storefront-ui \
+            --namespace "$NS" \
+            --set ui.image.repository="${REPO}/yas-storefront" \
+            --set ui.image.tag="${{ needs.get-commit-ids.outputs.storefront_tag }}" \
+            --set ui.service.type=NodePort || true
+
+          helm upgrade --install backoffice-ui k8s/charts/backoffice-ui \
+            --namespace "$NS" \
+            --set ui.image.repository="${REPO}/yas-backoffice" \
+            --set ui.image.tag="${{ needs.get-commit-ids.outputs.backoffice_tag }}" \
+            --set ui.service.type=NodePort || true
+
+      - name: Deploy Nginx API Gateway (NodePort)
+        run: |
+          NS="${{ env.TARGET_NAMESPACE }}"
+          # Render nginx-api-gateway.yaml with correct namespace and DNS
+          sed \
+            -e "s/namespace: yas/namespace: $NS/g" \
+            -e "s/\.yas\.svc\.cluster\.local/.$NS.svc.cluster.local/g" \
+            k8s/deploy/nginx-api-gateway.yaml | kubectl apply -f -
+
+          # Patch service to NodePort so developer can access APIs
+          kubectl patch svc nginx -n "$NS" \
+            -p '{"spec":{"type":"NodePort"}}'
+
+      - name: Wait for Rollout
         run: |
           kubectl rollout status deployment --all -n ${{ env.TARGET_NAMESPACE }} --timeout=5m || true
 
       - name: Get Worker Node IP
         id: worker-ip
         run: |
-          # Check if Minikube is being used
-          IS_MINIKUBE=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}' | grep -q "minikube" && echo "true" || echo "false")
-          
-          if [ "$IS_MINIKUBE" = "true" ]; then
-            # For Minikube: try to get VM IP from node status
-            WORKER_IP=$(kubectl get nodes minikube -o jsonpath='{.status.addresses[?(@.type=="ExternalIP")].address}' 2>/dev/null || echo "")
-            
-            if [ -z "$WORKER_IP" ]; then
-              WORKER_IP=$(kubectl get nodes minikube -o jsonpath='{.status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null || echo "")
-            fi
-            
-            # If still empty, try hostname which could be IP
-            if [ -z "$WORKER_IP" ]; then
-              WORKER_IP=$(kubectl get nodes minikube -o jsonpath='{.status.addresses[?(@.type=="Hostname")].address}' 2>/dev/null || echo "")
-            fi
-          else
-            # For multi-node clusters: try to get ExternalIP first, fallback to InternalIP
-            WORKER_IP=$(kubectl get nodes --selector='!node-role.kubernetes.io/master' \
-              -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' 2>/dev/null || echo "")
-            
-            if [ -z "$WORKER_IP" ]; then
-              WORKER_IP=$(kubectl get nodes --selector='!node-role.kubernetes.io/master' \
-                -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null || echo "")
-            fi
-            
-            # If no selector match, get first node
-            if [ -z "$WORKER_IP" ]; then
-              WORKER_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' 2>/dev/null || echo "")
-            fi
-            
-            if [ -z "$WORKER_IP" ]; then
-              WORKER_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null || echo "")
-            fi
-          fi
-          
+          # Try worker nodes first, then any node
+          WORKER_IP=$(kubectl get nodes --selector='!node-role.kubernetes.io/master,!node-role.kubernetes.io/control-plane' \
+            -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null || echo "")
+
           if [ -z "$WORKER_IP" ]; then
-            WORKER_IP="<WORKER_NODE_IP>"
+            WORKER_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null || echo "<WORKER_NODE_IP>")
           fi
-          
+
           echo "WORKER_IP=$WORKER_IP" >> $GITHUB_ENV
           echo "worker_ip=$WORKER_IP" >> $GITHUB_OUTPUT
 
+      - name: Collect NodePort Information
+        id: nodeports
+        run: |
+          NS="${{ env.TARGET_NAMESPACE }}"
+          IP="${{ steps.worker-ip.outputs.worker_ip }}"
+
+          get_nodeport() {
+            kubectl get svc "$1" -n "$NS" -o jsonpath='{.spec.ports[0].nodePort}' 2>/dev/null || echo "N/A"
+          }
+
+          BACKOFFICE_BFF_NP=$(get_nodeport backoffice-bff)
+          STOREFRONT_BFF_NP=$(get_nodeport storefront-bff)
+          BACKOFFICE_UI_NP=$(get_nodeport backoffice-ui)
+          STOREFRONT_UI_NP=$(get_nodeport storefront-ui)
+          NGINX_NP=$(get_nodeport nginx)
+
+          echo "backoffice_bff_np=$BACKOFFICE_BFF_NP" >> $GITHUB_OUTPUT
+          echo "storefront_bff_np=$STOREFRONT_BFF_NP" >> $GITHUB_OUTPUT
+          echo "backoffice_ui_np=$BACKOFFICE_UI_NP" >> $GITHUB_OUTPUT
+          echo "storefront_ui_np=$STOREFRONT_UI_NP" >> $GITHUB_OUTPUT
+          echo "nginx_np=$NGINX_NP" >> $GITHUB_OUTPUT
+
       - name: Publish Summary Report
         run: |
-          echo "## 🎉 Deployment Completed Successfully" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Deployment Information" >> $GITHUB_STEP_SUMMARY
-          echo "- **Namespace:** \`${{ env.TARGET_NAMESPACE }}\`" >> $GITHUB_STEP_SUMMARY
+          NS="${{ env.TARGET_NAMESPACE }}"
+          IP="${{ steps.worker-ip.outputs.worker_ip }}"
+
+          cat >> $GITHUB_STEP_SUMMARY << 'HEADER'
+          ## 🎉 Developer Build Deployed Successfully
+
+          ### 📊 Deployment Information
+          HEADER
+
+          echo "- **Namespace:** \`$NS\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered By:** \`${{ github.actor }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Worker Node IP:** \`${{ steps.worker-ip.outputs.worker_ip }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Worker Node IP:** \`$IP\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔗 Service Access Information" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "#### How to Access Services:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "1. **Add entries to your /etc/hosts file:**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "# Add this line to /etc/hosts (Linux/Mac: /etc/hosts, Windows: C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts)" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.worker-ip.outputs.worker_ip }} yas.local" >> $GITHUB_STEP_SUMMARY
+
+          cat >> $GITHUB_STEP_SUMMARY << 'ACCESS'
+          ### 🔗 Service Access (NodePort)
+
+          **Step 1: Add to your hosts file** (`C:\Windows\System32\drivers\etc\hosts` or `/etc/hosts`):
+          ACCESS
+
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$IP    dev.yas.local" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "2. **Service Endpoints (NodePort):**" >> $GITHUB_STEP_SUMMARY
+
+          echo "**Step 2: Access services:**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-----|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backoffice BFF | \`http://$IP:${{ steps.nodeports.outputs.backoffice_bff_np }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Storefront BFF | \`http://$IP:${{ steps.nodeports.outputs.storefront_bff_np }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backoffice UI | \`http://$IP:${{ steps.nodeports.outputs.backoffice_ui_np }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Storefront UI | \`http://$IP:${{ steps.nodeports.outputs.storefront_ui_np }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Nginx API GW | \`http://$IP:${{ steps.nodeports.outputs.nginx_np }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "**All NodePort services:**" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          kubectl get svc -n ${{ env.TARGET_NAMESPACE }} -o custom-columns=SERVICE:.metadata.name,TYPE:.spec.type,INTERNAL-PORT:.spec.ports[0].port,NODEPORT:.spec.ports[0].nodePort --no-headers 2>/dev/null | while read SERVICE TYPE PORT NODEPORT; do
-            [ -z "$NODEPORT" ] && NODEPORT="N/A"
-            [ "$NODEPORT" != "N/A" ] && echo "$SERVICE: ${{ steps.worker-ip.outputs.worker_ip }}:$NODEPORT (Port: $PORT)" || echo "$SERVICE: No NodePort"
-          done >> $GITHUB_STEP_SUMMARY || echo "Unable to retrieve services" >> $GITHUB_STEP_SUMMARY
+          kubectl get svc -n "$NS" -o custom-columns='SERVICE:.metadata.name,TYPE:.spec.type,PORT:.spec.ports[0].port,NODEPORT:.spec.ports[0].nodePort' --no-headers 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "Unable to retrieve" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📦 Image Tags Applied" >> $GITHUB_STEP_SUMMARY
+
+          echo "### 📦 Image Tags" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Service | Tag | Branch |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|-----|--------|" >> $GITHUB_STEP_SUMMARY
@@ -479,8 +498,12 @@ jobs:
           echo "| backoffice | \`${{ needs.get-commit-ids.outputs.backoffice_tag }}\` | \`${{ inputs.backoffice_branch }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| sampledata | \`${{ needs.get-commit-ids.outputs.sampledata_tag }}\` | \`${{ inputs.sampledata_branch }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
           echo "### 📋 Pods Status" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          kubectl get pods -n ${{ env.TARGET_NAMESPACE }} -o wide 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "No pods found." >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          kubectl get pods -n "$NS" -o wide 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "No pods found." >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### 🧹 Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "To delete this deployment, run the **Developer Cleanup** workflow with namespace: \`$NS\`" >> $GITHUB_STEP_SUMMARY
