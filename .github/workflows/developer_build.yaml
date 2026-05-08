@@ -157,12 +157,10 @@ jobs:
               run: |
                   resolve_tag() {
                     local branch=$1
-                    # Nếu input là main, dùng luôn tag "main"
                     if [ "$branch" == "main" ]; then
                       echo "main"
                     else
-                      # Nếu là nhánh khác (feature branch), lấy mã commit ngắn. Nếu không tìm thấy thì lấy tên nhánh.
-                      git rev-parse --short origin/$branch 2>/dev/null || echo "$branch"
+                      git rev-parse --short=7 origin/$branch 2>/dev/null || echo "$branch"
                     fi
                   }
 
