@@ -13,3 +13,4 @@ public class LocationApplication {
         SpringApplication.run(LocationApplication.class, args);
     }
 }
+// For Test
