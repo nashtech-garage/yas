@@ -31,9 +31,22 @@ helm upgrade --install keycloak ./keycloak/keycloak \
 # Pods cannot read the host's /etc/hosts, so identity.yas.local.com (used by BFF
 # services for OAuth2 issuer-uri) would be unresolvable without this patch.
 # Adds the Keycloak ClusterIP to the existing CoreDNS hosts block.
+
+# Wait for keycloak-service to be created by the Keycloak operator (may take 30-60s)
+echo "Waiting for keycloak-service to be created..."
+until kubectl get svc keycloak-service -n keycloak &>/dev/null; do
+  echo "  keycloak-service not ready yet, retrying in 5s..."
+  sleep 5
+done
+
 KEYCLOAK_IP=$(kubectl get svc keycloak-service -n keycloak -o jsonpath='{.spec.clusterIP}')
+if [ -z "$KEYCLOAK_IP" ]; then
+  echo "ERROR: Could not get Keycloak ClusterIP, skipping CoreDNS patch"
+  exit 1
+fi
 CURRENT_COREFILE=$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')
 if ! echo "$CURRENT_COREFILE" | grep -q "identity.$DOMAIN"; then
+  export KEYCLOAK_IP DOMAIN
   kubectl get configmap coredns -n kube-system -o json | \
     python3 -c "
 import sys, json, os
@@ -45,7 +58,7 @@ entry = '       ' + keycloak_ip + ' identity.' + domain + '\n'
 corefile = corefile.replace('       fallthrough\n    }', entry + '       fallthrough\n    }', 1)
 cm['data']['Corefile'] = corefile
 print(json.dumps(cm))
-" | KEYCLOAK_IP="$KEYCLOAK_IP" DOMAIN="$DOMAIN" kubectl apply -f -
+" | kubectl apply -f -
   kubectl rollout restart deployment coredns -n kube-system
   kubectl rollout status deployment coredns -n kube-system --timeout=60s
 fi

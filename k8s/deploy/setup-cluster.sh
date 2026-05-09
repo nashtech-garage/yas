@@ -183,6 +183,7 @@ kubectl wait --for=condition=ready pod \
 NGINX_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.spec.clusterIP}')
 CURRENT_COREFILE=$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')
 if ! echo "$CURRENT_COREFILE" | grep -q "api.$DOMAIN"; then
+  export NGINX_IP DOMAIN
   kubectl get configmap coredns -n kube-system -o json | \
     python3 -c "
 import sys, json, os
@@ -196,7 +197,7 @@ entries += '       ' + nginx_ip + ' storefront.' + domain + '\n'
 corefile = corefile.replace('       fallthrough\n    }', entries + '       fallthrough\n    }', 1)
 cm['data']['Corefile'] = corefile
 print(json.dumps(cm))
-" | NGINX_IP="$NGINX_IP" DOMAIN="$DOMAIN" kubectl apply -f -
+" | kubectl apply -f -
   kubectl rollout restart deployment coredns -n kube-system
   kubectl rollout status deployment coredns -n kube-system --timeout=60s
 fi
