@@ -1,4 +1,13 @@
 #!/bin/bash
+# ============================================================
+# VERSION COMPATIBILITY MATRIX
+# Kubernetes: v1.28.x  (minikube start --kubernetes-version=v1.28.0)
+# Strimzi:    0.35.1   (Kafka 3.4.0, v1beta2 API, ZooKeeper mode)
+# Debezium:   ghcr.io/nashtech-garage/debezium-connect-postgresql:latest (Kafka 3.4.0 base)
+#
+# To start minikube with correct k8s version:
+#   minikube start --kubernetes-version=v1.28.0 --disk-size='40000mb' --memory='16g'
+# ============================================================
 set -x
 
 # Add chart repos and update
@@ -22,7 +31,8 @@ GRAFANA_USERNAME GRAFANA_PASSWORD \
 
 # Install the postgres-operator
 helm upgrade --install postgres-operator postgres-operator-charts/postgres-operator \
- --create-namespace --namespace postgres
+ --create-namespace --namespace postgres \
+ --version 1.10.1
 
 #Install postgresql
 helm upgrade --install postgres ./postgres/postgresql \
@@ -37,8 +47,26 @@ helm upgrade --install pgadmin ./postgres/pgadmin \
 --create-namespace --namespace postgres \
 
 #Install strimzi-kafka-operator
+# Pin to 0.35.x to match debezium-connect-postgresql image (built on Kafka 3.4.0 / Strimzi 0.35.x)
+# Upgrading Strimzi beyond 0.35.x will break the nashtech-garage debezium image
 helm upgrade --install kafka-operator strimzi/strimzi-kafka-operator \
---create-namespace --namespace kafka
+--create-namespace --namespace kafka \
+--version 0.35.1
+
+# Wait for Strimzi operator pod to be ready
+kubectl wait --for=condition=ready pod \
+  -l name=strimzi-cluster-operator \
+  -n kafka \
+  --timeout=120s
+
+# Wait for Strimzi CRDs to be fully established in the API server
+# This is required before Helm can resolve the kafka.strimzi.io API group
+kubectl wait --for=condition=established crd/kafkas.kafka.strimzi.io --timeout=120s
+kubectl wait --for=condition=established crd/kafkaconnects.kafka.strimzi.io --timeout=120s
+kubectl wait --for=condition=established crd/kafkaconnectors.kafka.strimzi.io --timeout=120s
+
+# Clear Helm API discovery cache so it picks up newly installed Strimzi CRDs
+rm -rf ~/.kube/cache/discovery/
 
 #Install kafka and postgresql connector
 helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
@@ -52,11 +80,19 @@ helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
 akhq_hostname="akhq.$DOMAIN" yq -i '.hostname=env(akhq_hostname)' ./kafka/akhq.values.yaml
 helm upgrade --install akhq akhq/akhq \
 --create-namespace --namespace kafka \
+--version 0.24.0 \
 --values ./kafka/akhq.values.yaml
 
 #Install elastic-operator
 helm upgrade --install elastic-operator elastic/eck-operator \
- --create-namespace --namespace elasticsearch
+ --create-namespace --namespace elasticsearch \
+ --version 2.9.0
+
+# Wait for ECK operator and CRDs before installing elasticsearch-cluster
+kubectl wait --for=condition=ready pod \
+  -l control-plane=elastic-operator \
+  -n elasticsearch --timeout=120s
+kubectl wait --for=condition=established crd/elasticsearches.elasticsearch.k8s.elastic.co --timeout=120s
 
 # Install elasticsearch-cluster
 helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-cluster \
@@ -67,11 +103,13 @@ helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-clust
 #Install loki
 helm upgrade --install loki grafana/loki \
  --create-namespace --namespace observability \
+ --version 5.41.6 \
  -f ./observability/loki.values.yaml
 
 #Install tempo
 helm upgrade --install tempo grafana/tempo \
 --create-namespace --namespace observability \
+--version 1.7.2 \
 -f ./observability/tempo.values.yaml
 
 #Install cert manager
@@ -86,7 +124,16 @@ helm upgrade --install cert-manager jetstack/cert-manager \
 
 #Install opentelemetry-operator
 helm upgrade --install opentelemetry-operator open-telemetry/opentelemetry-operator \
---create-namespace --namespace observability
+--create-namespace --namespace observability \
+--version 0.43.1
+
+# Wait for OpenTelemetry CRDs before installing collector
+kubectl wait --for=condition=established crd/opentelemetrycollectors.opentelemetry.io --timeout=120s
+
+# Wait for opentelemetry-operator webhook to be ready
+kubectl wait --for=condition=ready pod \
+  -l app.kubernetes.io/name=opentelemetry-operator \
+  -n observability --timeout=120s
 
 #Install opentelemetry-collector
 helm upgrade --install opentelemetry-collector ./observability/opentelemetry \
@@ -95,6 +142,7 @@ helm upgrade --install opentelemetry-collector ./observability/opentelemetry \
 #Install promtail
 helm upgrade --install promtail grafana/promtail \
 --create-namespace --namespace observability \
+--version 6.15.5 \
 --values ./observability/promtail.values.yaml
 
 #Install prometheus + grafana
@@ -103,6 +151,7 @@ postgresql_username="$POSTGRESQL_USERNAME" yq -i '.grafana."grafana.ini".databas
 postgresql_password="$POSTGRESQL_PASSWORD" yq -i '.grafana."grafana.ini".database.password=env(postgresql_password)' ./observability/prometheus.values.yaml
 helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
  --create-namespace --namespace observability \
+--version 55.5.2 \
 -f ./observability/prometheus.values.yaml \
 
 #Install grafana operator
