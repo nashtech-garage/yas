@@ -17,16 +17,11 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# Add host aliases to pod /etc/hosts so services can resolve cluster-internal domains
-hostAliases:
-  - ip: "10.96.53.112"  # ingress-nginx-controller ClusterIP
-    hostnames:
-      - "backoffice.yas.local.com"
-      - "storefront.yas.local.com"
-      - "api.yas.local.com"
-  # Note: identity.yas.local.com is intentionally excluded here.
-  # It is resolved via CoreDNS (patched by setup-keycloak.sh) to point directly to the Keycloak ClusterIP.
-  # Putting it here would route Keycloak traffic through nginx, causing OIDC discovery to fail at BFF startup.
+# hostAliases intentionally empty.
+# All cluster-internal domains (identity.yas.local.com, api.yas.local.com, etc.)
+# are resolved via CoreDNS hosts block, patched dynamically by setup scripts.
+# This avoids hardcoding ClusterIPs that change on every cluster recreate.
+hostAliases: []
 
 serviceAccount:
   # Specifies whether a service account should be created
