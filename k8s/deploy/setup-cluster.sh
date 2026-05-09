@@ -182,7 +182,7 @@ kubectl wait --for=condition=ready pod \
 # must be mapped to the ingress-nginx ClusterIP via CoreDNS.
 NGINX_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.spec.clusterIP}')
 CURRENT_COREFILE=$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')
-if ! echo "$CURRENT_COREFILE" | grep -q "api.$DOMAIN"; then
+if ! echo "$CURRENT_COREFILE" | grep -q "api.dev.$DOMAIN"; then
   export NGINX_IP DOMAIN
   kubectl get configmap coredns -n kube-system -o json | \
     python3 -c "
@@ -191,9 +191,12 @@ cm = json.load(sys.stdin)
 corefile = cm['data']['Corefile']
 nginx_ip = os.environ['NGINX_IP']
 domain = os.environ['DOMAIN']
-entries  = '       ' + nginx_ip + ' api.' + domain + '\n'
-entries += '       ' + nginx_ip + ' backoffice.' + domain + '\n'
-entries += '       ' + nginx_ip + ' storefront.' + domain + '\n'
+entries  = '       ' + nginx_ip + ' api.dev.' + domain + '\n'
+entries += '       ' + nginx_ip + ' backoffice.dev.' + domain + '\n'
+entries += '       ' + nginx_ip + ' storefront.dev.' + domain + '\n'
+entries += '       ' + nginx_ip + ' api.staging.' + domain + '\n'
+entries += '       ' + nginx_ip + ' backoffice.staging.' + domain + '\n'
+entries += '       ' + nginx_ip + ' storefront.staging.' + domain + '\n'
 corefile = corefile.replace('       fallthrough\n    }', entries + '       fallthrough\n    }', 1)
 cm['data']['Corefile'] = corefile
 print(json.dumps(cm))
