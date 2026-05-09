@@ -1,0 +1,37 @@
+# ============================================================
+# PeerAuthentication - Enable mTLS for YAS namespace
+# ============================================================
+# PeerAuthentication xác định cách traffic sẽ được tunnel (hoặc không)
+# tới sidecar proxy (Envoy).
+#
+# Mode STRICT: Tất cả traffic trong mesh PHẢI sử dụng mTLS.
+# Không chấp nhận plaintext traffic. Đảm bảo mã hóa end-to-end
+# giữa tất cả services trong namespace 'yas'.
+#
+# Áp dụng: Toàn bộ namespace 'yas' (không chỉ định selector = áp dụng cho tất cả workloads)
+# ============================================================
+
+# --- mTLS cho toàn bộ namespace yas (STRICT mode) ---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: yas-strict-mtls
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    app.kubernetes.io/managed-by: istio
+spec:
+  mtls:
+    mode: STRICT
+
+---
+# --- mTLS mesh-wide default (Optional - áp dụng cho toàn cluster) ---
+# Uncomment nếu muốn bật mTLS cho toàn bộ mesh, không chỉ namespace yas
+# apiVersion: security.istio.io/v1beta1
+# kind: PeerAuthentication
+# metadata:
+#   name: default-strict-mtls
+#   namespace: istio-system
+# spec:
+#   mtls:
+#     mode: STRICT
