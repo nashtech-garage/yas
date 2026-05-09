@@ -21,10 +21,12 @@ fullnameOverride: ""
 hostAliases:
   - ip: "10.96.53.112"  # ingress-nginx-controller ClusterIP
     hostnames:
-      - "identity.yas.local.com"
       - "backoffice.yas.local.com"
       - "storefront.yas.local.com"
       - "api.yas.local.com"
+  # Note: identity.yas.local.com is intentionally excluded here.
+  # It is resolved via CoreDNS (patched by setup-keycloak.sh) to point directly to the Keycloak ClusterIP.
+  # Putting it here would route Keycloak traffic through nginx, causing OIDC discovery to fail at BFF startup.
 
 serviceAccount:
   # Specifies whether a service account should be created
