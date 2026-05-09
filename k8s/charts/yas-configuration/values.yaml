@@ -220,12 +220,7 @@ backofficeBffExtraConfig:
         client:
           provider:
             keycloak:
-              issuer-uri: ""   # override built-in application.yaml value to disable eager OIDC discovery
-              authorization-uri: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/auth
-              token-uri: http://keycloak-service.keycloak/realms/Yas/protocol/openid-connect/token
-              user-info-uri: http://keycloak-service.keycloak/realms/Yas/protocol/openid-connect/userinfo
-              jwk-set-uri: http://keycloak-service.keycloak/realms/Yas/protocol/openid-connect/certs
-              user-name-attribute: preferred_username
+              issuer-uri: http://identity.yas.local.com/realms/Yas
           registration:
             api-client:
               provider: keycloak
@@ -245,12 +240,7 @@ storefrontBffExtraConfig:
         client:
           provider:
             keycloak:
-              issuer-uri: ""   # override built-in application.yaml value to disable eager OIDC discovery
-              authorization-uri: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/auth
-              token-uri: http://keycloak-service.keycloak/realms/Yas/protocol/openid-connect/token
-              user-info-uri: http://keycloak-service.keycloak/realms/Yas/protocol/openid-connect/userinfo
-              jwk-set-uri: http://keycloak-service.keycloak/realms/Yas/protocol/openid-connect/certs
-              user-name-attribute: preferred_username
+              issuer-uri: http://identity.yas.local.com/realms/Yas
           registration:
             api-client:
               provider: keycloak
