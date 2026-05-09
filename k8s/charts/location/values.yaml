@@ -21,7 +21,7 @@ backend:
             -h postgresql.postgres \
             -U "$POSTGRESQL_USERNAME" \
             -d location \
-            -c "UPDATE databasechangeloglock SET locked = false, lockgranted = NULL, lockedby = NULL WHERE id = 1;"
+            -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'databasechangeloglock') THEN UPDATE databasechangeloglock SET locked = false, lockgranted = NULL, lockedby = NULL WHERE id = 1; END IF; END \$\$;"
       envFrom:
         - secretRef:
             name: yas-postgresql-credentials-secret
