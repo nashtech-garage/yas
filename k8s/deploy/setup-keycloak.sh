@@ -11,7 +11,7 @@ KEYCLOAK_BACKOFFICE_REDIRECT_URL KEYCLOAK_STOREFRONT_REDIRECT_URL \
   .keycloak.backofficeRedirectUrl, .keycloak.storefrontRedirectUrl' ./cluster-config.yaml)
 
 #Install CRD keycloak
-kubectl create namespace keycloak
+kubectl create namespace keycloak --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/kubernetes.yml -n keycloak
@@ -26,3 +26,26 @@ helm upgrade --install keycloak ./keycloak/keycloak \
 --set bootstrapAdmin.password="$BOOTSTRAP_ADMIN_PASSWORD" \
 --set backofficeRedirectUrl="$KEYCLOAK_BACKOFFICE_REDIRECT_URL" \
 --set storefrontRedirectUrl="$KEYCLOAK_STOREFRONT_REDIRECT_URL"
+
+# Patch CoreDNS to resolve identity.<DOMAIN> inside the cluster.
+# Pods cannot read the host's /etc/hosts, so identity.yas.local.com (used by BFF
+# services for OAuth2 issuer-uri) would be unresolvable without this patch.
+# Adds the Keycloak ClusterIP to the existing CoreDNS hosts block.
+KEYCLOAK_IP=$(kubectl get svc keycloak-service -n keycloak -o jsonpath='{.spec.clusterIP}')
+CURRENT_COREFILE=$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')
+if ! echo "$CURRENT_COREFILE" | grep -q "identity.$DOMAIN"; then
+  kubectl get configmap coredns -n kube-system -o json | \
+    python3 -c "
+import sys, json, os
+cm = json.load(sys.stdin)
+corefile = cm['data']['Corefile']
+keycloak_ip = os.environ['KEYCLOAK_IP']
+domain = os.environ['DOMAIN']
+entry = '       ' + keycloak_ip + ' identity.' + domain + '\n'
+corefile = corefile.replace('       fallthrough\n    }', entry + '       fallthrough\n    }', 1)
+cm['data']['Corefile'] = corefile
+print(json.dumps(cm))
+" | KEYCLOAK_IP="$KEYCLOAK_IP" DOMAIN="$DOMAIN" kubectl apply -f -
+  kubectl rollout restart deployment coredns -n kube-system
+  kubectl rollout status deployment coredns -n kube-system --timeout=60s
+fi
