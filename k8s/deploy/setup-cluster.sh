@@ -170,3 +170,33 @@ helm upgrade --install grafana ./observability/grafana \
 
 helm upgrade --install zookeeper ./zookeeper \
  --namespace zookeeper --create-namespace
+
+# Wait for ingress-nginx controller to be ready
+# (ingress addon is enabled manually via `minikube addons enable ingress` before running this script)
+kubectl wait --for=condition=ready pod \
+  -l app.kubernetes.io/component=controller \
+  -n ingress-nginx --timeout=120s
+
+# Patch CoreDNS to resolve cluster-external domains inside pods.
+# Pods cannot read host /etc/hosts, so api/backoffice/storefront.yas.local.com
+# must be mapped to the ingress-nginx ClusterIP via CoreDNS.
+NGINX_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.spec.clusterIP}')
+CURRENT_COREFILE=$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')
+if ! echo "$CURRENT_COREFILE" | grep -q "api.$DOMAIN"; then
+  kubectl get configmap coredns -n kube-system -o json | \
+    python3 -c "
+import sys, json, os
+cm = json.load(sys.stdin)
+corefile = cm['data']['Corefile']
+nginx_ip = os.environ['NGINX_IP']
+domain = os.environ['DOMAIN']
+entries  = '       ' + nginx_ip + ' api.' + domain + '\n'
+entries += '       ' + nginx_ip + ' backoffice.' + domain + '\n'
+entries += '       ' + nginx_ip + ' storefront.' + domain + '\n'
+corefile = corefile.replace('       fallthrough\n    }', entries + '       fallthrough\n    }', 1)
+cm['data']['Corefile'] = corefile
+print(json.dumps(cm))
+" | NGINX_IP="$NGINX_IP" DOMAIN="$DOMAIN" kubectl apply -f -
+  kubectl rollout restart deployment coredns -n kube-system
+  kubectl rollout status deployment coredns -n kube-system --timeout=60s
+fi
