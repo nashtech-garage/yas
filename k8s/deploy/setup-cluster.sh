@@ -86,7 +86,7 @@ helm upgrade --install akhq akhq/akhq \
 #Install elastic-operator
 helm upgrade --install elastic-operator elastic/eck-operator \
  --create-namespace --namespace elasticsearch \
- --version 2.9.0
+ --version 3.4.0
 
 # Wait for ECK operator and CRDs before installing elasticsearch-cluster
 kubectl wait --for=condition=ready pod \
