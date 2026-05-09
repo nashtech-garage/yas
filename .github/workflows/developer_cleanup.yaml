@@ -39,12 +39,24 @@ jobs:
             done
           fi
 
+      - name: Clean up Service Mesh resources
+        run: |
+          NS="${{ inputs.namespace }}"
+          echo "Removing Istio resources from $NS..."
+          kubectl delete authorizationpolicy --all -n "$NS" 2>/dev/null || true
+          kubectl delete peerauthentication --all -n "$NS" 2>/dev/null || true
+          kubectl delete destinationrule --all -n "$NS" 2>/dev/null || true
+          kubectl delete virtualservice --all -n "$NS" 2>/dev/null || true
+          kubectl label namespace "$NS" istio-injection- 2>/dev/null || true
+          echo "Service mesh resources cleaned"
+
       - name: Delete remaining resources
         run: |
           NS="${{ inputs.namespace }}"
           kubectl delete all --all -n "$NS" --timeout=2m || true
           kubectl delete configmap --all -n "$NS" || true
           kubectl delete secret --all -n "$NS" || true
+
 
       - name: Delete namespace
         run: |

@@ -2,119 +2,127 @@
 
 ## Mục lục
 - [1. Tổng quan](#1-tổng-quan)
-- [2. Kiến trúc Service Mesh](#2-kiến-trúc-service-mesh)
+- [2. Kiến trúc](#2-kiến-trúc)
 - [3. Prerequisites](#3-prerequisites)
-- [4. Cài đặt Istio & Kiali](#4-cài-đặt-istio--kiali)
-- [5. Cấu hình mTLS](#5-cấu-hình-mtls)
-- [6. Cấu hình Authorization Policy](#6-cấu-hình-authorization-policy)
-- [7. Cấu hình Retry Policy](#7-cấu-hình-retry-policy)
-- [8. Kịch bản Test](#8-kịch-bản-test)
-- [9. Sử dụng Kiali Dashboard](#9-sử-dụng-kiali-dashboard)
-- [10. Troubleshooting](#10-troubleshooting)
+- [4. Cài đặt Istio (1 lần)](#4-cài-đặt-istio-1-lần)
+- [5. Apply Mesh cho Namespace](#5-apply-mesh-cho-namespace)
+- [6. Cấu hình mTLS](#6-cấu-hình-mtls)
+- [7. Authorization Policy](#7-authorization-policy)
+- [8. Retry Policy](#8-retry-policy)
+- [9. Kịch bản Test](#9-kịch-bản-test)
+- [10. Kiali Dashboard](#10-kiali-dashboard)
+- [11. Chuyển đổi Namespace](#11-chuyển-đổi-namespace)
+- [12. Troubleshooting](#12-troubleshooting)
 
 ---
 
 ## 1. Tổng quan
 
-### Mục tiêu
-- **mTLS (Mutual TLS)**: Mã hóa toàn bộ traffic giữa các services trong namespace `yas`
-- **Authorization Policy**: Kiểm soát service nào được phép giao tiếp với service nào
-- **Retry Policy**: Tự động retry khi service trả lỗi 5xx
-- **Observability**: Sử dụng Kiali để visualize service mesh topology
+### Vấn đề
+Do tài nguyên máy tính hạn chế, chỉ **1 trong 3 namespace** chạy tại một thời điểm:
+- `yas` (dev environment - GitOps)
+- `staging` (staging environment - GitOps)  
+- `yas-dev-*` (developer build - tạo động)
 
-### Các file cấu hình
+Khi namespace A chạy → namespace B,C bị scale về 0.
 
-| File | Mô tả |
-|------|--------|
-| `install-istio.sh` | Script tự động cài đặt Istio + Kiali |
-| `peer-authentication.yaml` | Bật mTLS STRICT cho namespace yas |
-| `destination-rules.yaml` | Enforce mTLS ở phía client (caller) |
-| `authorization-policies.yaml` | Chính sách phân quyền service-to-service |
-| `virtual-services.yaml` | Retry policies (3 lần retry cho 5xx) |
-| `test-denied-pod.yaml` | Pod test để kiểm tra policy deny/allow |
+### Giải pháp
+Service mesh được đóng gói thành **Helm chart** (`k8s/charts/service-mesh/`) → deploy vào **bất kỳ namespace nào** đang active:
+
+```bash
+# Apply cho namespace đang chạy
+helm upgrade --install service-mesh k8s/charts/service-mesh -n <NAMESPACE>
+```
+
+### Cấu trúc file
+
+```
+k8s/
+├── charts/
+│   └── service-mesh/              # ⭐ Helm chart (namespace-agnostic)
+│       ├── Chart.yaml
+│       ├── values.yaml            # Tham số: services, mTLS, retry, auth
+│       └── templates/
+│           ├── _helpers.tpl
+│           ├── mtls.yaml          # PeerAuthentication + DestinationRules
+│           ├── authorization.yaml # Deny-all + Allow policies
+│           ├── retry.yaml         # VirtualService retry
+│           └── tests/
+│               └── test-pods.yaml # Test denied/allowed pods
+│
+├── deploy/
+│   └── service-mesh/
+│       ├── install-istio.sh       # Cài Istio system (1 lần)
+│       ├── apply-mesh.sh          # Apply mesh cho NS active
+│       ├── remove-mesh.sh         # Xoá mesh khỏi NS
+│       ├── README.md              # File này
+│       ├── peer-authentication.yaml    # Standalone (fallback)
+│       ├── destination-rules.yaml      # Standalone (fallback)
+│       ├── authorization-policies.yaml # Standalone (fallback)
+│       ├── virtual-services.yaml       # Standalone (fallback)
+│       └── test-denied-pod.yaml        # Standalone (fallback)
+```
 
 ---
 
-## 2. Kiến trúc Service Mesh
+## 2. Kiến trúc
 
-### Flow tổng quan
+### Flow Service Mesh
 
 ```
-                                    ┌─────────────────────────────────────────────┐
-                                    │              ISTIO MESH (namespace: yas)     │
-                                    │                                             │
-  Client ──► Ingress ──► Nginx ────►│  ┌──────────┐     ┌──────────┐              │
-                          (API GW)  │  │ product  │◄───►│  order   │              │
-                                    │  └──────────┘     └──────────┘              │
-                                    │       ▲                 ▲                   │
-                                    │       │                 │                   │
-                                    │  ┌──────────┐     ┌──────────┐              │
-                                    │  │   cart   │     │ payment  │              │
-                                    │  └──────────┘     └──────────┘              │
-                                    │       ▲                                     │
-                                    │       │                                     │
-                                    │  ┌──────────┐     ┌──────────┐              │
-                                    │  │storefront│     │backoffice│              │
-                                    │  │   -bff   │     │   -bff   │              │
-                                    │  └──────────┘     └──────────┘              │
-                                    │                                             │
-                                    │  Tất cả traffic đều qua Envoy sidecar       │
-                                    │  với mTLS encryption (🔒)                   │
-                                    └─────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  Cluster                                                     │
+│                                                              │
+│  ┌─────────────────┐   ┌──────────────────────────────────┐  │
+│  │  istio-system    │   │  Active Namespace (yas/staging/  │  │
+│  │                  │   │  yas-dev-*)                      │  │
+│  │  ┌────────────┐  │   │                                  │  │
+│  │  │  istiod    │──┼──►│  [Pod+Sidecar] ◄──mTLS──►       │  │
+│  │  └────────────┘  │   │  [Pod+Sidecar] ◄──mTLS──►       │  │
+│  │  ┌────────────┐  │   │  [Pod+Sidecar] ◄──mTLS──►       │  │
+│  │  │  kiali     │  │   │                                  │  │
+│  │  └────────────┘  │   │  AuthorizationPolicy: deny-all   │  │
+│  │  ┌────────────┐  │   │  + per-service ALLOW policies    │  │
+│  │  │ prometheus │  │   │  VirtualService: retry 3x on 5xx│  │
+│  │  └────────────┘  │   └──────────────────────────────────┘  │
+│  └─────────────────┘                                         │
+│                         ┌──────────────────────────────────┐  │
+│                         │  Inactive Namespaces              │  │
+│                         │  (scaled to 0, no mesh config)    │  │
+│                         └──────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### Services trong mesh
+### Access Matrix (Authorization)
 
-| Service | Port | Mô tả |
-|---------|------|--------|
-| product | 80 | Quản lý sản phẩm |
-| cart | 80 | Giỏ hàng |
-| order | 80 | Đơn hàng |
-| payment | 80 | Thanh toán |
-| payment-paypal | 80 | Thanh toán PayPal |
-| customer | 80 | Khách hàng |
-| inventory | 80 | Kho hàng |
-| media | 80 | Media/Hình ảnh |
-| location | 80 | Địa chỉ |
-| tax | 80 | Thuế |
-| promotion | 80 | Khuyến mãi |
-| rating | 80 | Đánh giá |
-| search | 80 | Tìm kiếm |
-| recommendation | 80 | Gợi ý sản phẩm |
-| webhook | 80 | Webhook events |
-| sampledata | 80 | Dữ liệu mẫu |
-| storefront-bff | 80 | BFF cho storefront |
-| backoffice-bff | 80 | BFF cho backoffice |
-| nginx | 80 | API Gateway |
+| Target ↓ / Source → | storefront-bff | backoffice-bff | nginx | order | cart | payment |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **product** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **cart** | ✅ | ✅ | ✅ | ✅ | — | ❌ |
+| **order** | ✅ | ✅ | ✅ | — | ❌ | ✅ |
+| **payment** | ❌ | ❌ | ✅ | ✅ | ❌ | — |
+| **customer** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **inventory** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+
+✅ = Allowed | ❌ = Denied | — = Self
 
 ---
 
 ## 3. Prerequisites
 
-### Yêu cầu hệ thống
-- Kubernetes cluster (minikube hoặc tương đương) đã chạy
-- `kubectl` đã kết nối tới cluster
-- `helm` v3+ đã cài đặt
-- Cluster có ít nhất **4GB RAM khả dụng** cho Istio components
-- Các services YAS đã deploy trong namespace `yas`
-
-### Kiểm tra trạng thái cluster
 ```bash
 # Kiểm tra cluster
 kubectl cluster-info
 
-# Kiểm tra namespace yas
-kubectl get pods -n yas
-
-# Kiểm tra tài nguyên khả dụng
-kubectl top nodes
+# Kiểm tra Helm
+helm version
 ```
 
 ---
 
-## 4. Cài đặt Istio & Kiali
+## 4. Cài đặt Istio (1 lần)
 
-### Cách 1: Sử dụng script tự động (Khuyến nghị)
+Chỉ cần chạy **1 lần** trên cluster:
 
 ```bash
 cd k8s/deploy/service-mesh
@@ -122,436 +130,276 @@ chmod +x install-istio.sh
 ./install-istio.sh
 ```
 
-Script sẽ tự động thực hiện 7 bước:
-1. Download istioctl
-2. Pre-flight check
-3. Cài Istio (demo profile)
-4. Cài Kiali + addons (Prometheus, Grafana, Jaeger)
-5. Enable sidecar injection cho namespace `yas`
-6. Restart pods để inject Envoy sidecar
-7. Apply tất cả configurations (mTLS, policies, retry)
-
-### Cách 2: Cài đặt thủ công từng bước
-
-#### Bước 1: Cài Istio
+Verify:
 ```bash
-# Download istioctl
-curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.20.2 sh -
-export PATH="$PWD/istio-1.20.2/bin:$PATH"
-
-# Cài Istio
-istioctl install --set profile=demo -y
-
-# Verify
 kubectl get pods -n istio-system
-```
-
-#### Bước 2: Cài Kiali
-```bash
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/kiali.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
-```
-
-#### Bước 3: Enable sidecar injection
-```bash
-kubectl label namespace yas istio-injection=enabled --overwrite
-```
-
-#### Bước 4: Restart pods
-```bash
-kubectl rollout restart deployment --all -n yas
-```
-
-#### Bước 5: Verify sidecar injection
-```bash
-# Mỗi pod phải có 2 containers (app + istio-proxy)
-kubectl get pods -n yas -o jsonpath='{range .items[*]}{.metadata.name}{" "}{range .spec.containers[*]}{.name}{","}{end}{"\n"}{end}'
+# istiod, kiali, prometheus, grafana, jaeger phải Running
 ```
 
 ---
 
-## 5. Cấu hình mTLS
+## 5. Apply Mesh cho Namespace
 
-### Giải thích
+### Cách 1: Auto-detect namespace đang active
 
-mTLS (Mutual TLS) đảm bảo:
-- **Encryption**: Traffic giữa services được mã hóa
-- **Authentication**: Cả client và server đều xác thực lẫn nhau bằng certificate
-- **Integrity**: Dữ liệu không bị thay đổi trong quá trình truyền
-
-### Các thành phần cấu hình
-
-#### PeerAuthentication (Server-side)
-```yaml
-# peer-authentication.yaml
-apiVersion: security.istio.io/v1beta1
-kind: PeerAuthentication
-metadata:
-  name: yas-strict-mtls
-  namespace: yas
-spec:
-  mtls:
-    mode: STRICT  # Chỉ chấp nhận mTLS, reject plaintext
+```bash
+cd k8s/deploy/service-mesh
+chmod +x apply-mesh.sh
+./apply-mesh.sh
 ```
 
-**Modes:**
-| Mode | Mô tả |
-|------|--------|
-| `STRICT` | Chỉ chấp nhận mTLS traffic (khuyến nghị cho production) |
-| `PERMISSIVE` | Chấp nhận cả mTLS và plaintext (dùng khi migration) |
-| `DISABLE` | Tắt mTLS |
+Script tự tìm namespace có pods đang chạy (ưu tiên: `yas-dev-*` → `yas` → `staging`).
 
-#### DestinationRule (Client-side)
+### Cách 2: Chỉ định namespace
+
+```bash
+# Dev namespace
+./apply-mesh.sh yas
+
+# Staging
+./apply-mesh.sh staging
+
+# Developer build
+./apply-mesh.sh yas-dev-john-42
+```
+
+### Cách 3: Dùng Helm trực tiếp
+
+```bash
+helm upgrade --install service-mesh k8s/charts/service-mesh \
+    --namespace yas-dev-john-42
+```
+
+### Cách 4: Tự động trong CI/CD
+
+Đã tích hợp vào workflow `developer_build.yaml` → khi deploy developer build, service mesh tự động apply vào namespace mới.
+
+---
+
+## 6. Cấu hình mTLS
+
+### Cách hoạt động
+
 ```yaml
-# destination-rules.yaml
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: yas-default-mtls
-  namespace: yas
-spec:
-  host: "*.yas.svc.cluster.local"
+# PeerAuthentication (server-side) - yêu cầu client gửi mTLS
+PeerAuthentication:
+  mtls:
+    mode: STRICT  # Reject plaintext traffic
+
+# DestinationRule (client-side) - cấu hình client gửi mTLS  
+DestinationRule:
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL  # Istio tự quản lý certificates
 ```
 
-### Apply cấu hình
+### Verify
+
 ```bash
-kubectl apply -f peer-authentication.yaml
-kubectl apply -f destination-rules.yaml
-```
+NS=yas  # hoặc namespace đang active
 
-### Verify mTLS
-```bash
-# Kiểm tra mTLS cho một pod cụ thể
-istioctl x describe pod <pod-name> -n yas
+# Kiểm tra mTLS trên pod
+POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=product -o jsonpath='{.items[0].metadata.name}')
+istioctl x describe pod $POD -n $NS
 
-# Kiểm tra certificate
-istioctl proxy-config secret <pod-name> -n yas
-
-# Xem TLS mode đang active
-kubectl get peerauthentication -n yas
-kubectl get destinationrule -n yas
+# Kiểm tra PeerAuthentication
+kubectl get peerauthentication -n $NS
 ```
 
 ---
 
-## 6. Cấu hình Authorization Policy
+## 7. Authorization Policy
 
 ### Chiến lược: Deny-by-Default + Allow-List
 
-```
-┌─────────────────────────────────────────────────┐
-│  Authorization Flow                              │
-│                                                  │
-│  Request ──► deny-all-default ──► DENIED         │
-│                                                  │
-│  Request ──► allow-product-access ──► ALLOWED    │
-│  (from storefront-bff)                           │
-│                                                  │
-│  Request ──► no matching ALLOW ──► DENIED        │
-│  (from test-client)                              │
-└─────────────────────────────────────────────────┘
-```
+Helm chart tự động tạo:
+1. **`deny-all-default`** → chặn tất cả traffic
+2. **`allow-<service>-access`** → cho phép các caller cụ thể
 
-### Ma trận quyền truy cập (Access Matrix)
+### Customize allow list
 
-| Target ↓ / Source → | storefront-bff | backoffice-bff | nginx | order | cart | payment | product | search | recommendation |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **product** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | — | ✅ | ✅ |
-| **cart** | ✅ | ✅ | ✅ | ✅ | — | ❌ | ❌ | ❌ | ❌ |
-| **order** | ✅ | ✅ | ✅ | — | ❌ | ✅ | ❌ | ❌ | ❌ |
-| **payment** | ❌ | ❌ | ✅ | ✅ | ❌ | — | ❌ | ❌ | ❌ |
-| **customer** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **inventory** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| **media** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-
-✅ = Allowed | ❌ = Denied | — = Self (N/A)
-
-### Apply cấu hình
-```bash
-kubectl apply -f authorization-policies.yaml
-```
-
-### Verify
-```bash
-# Liệt kê tất cả policies
-kubectl get authorizationpolicy -n yas
-
-# Xem chi tiết một policy
-kubectl describe authorizationpolicy allow-product-access -n yas
+Chỉnh trong `values.yaml`:
+```yaml
+backendServices:
+  - name: payment
+    allowedCallers:
+      - order        # Chỉ order được gọi payment
+      # Thêm service khác nếu cần
 ```
 
 ---
 
-## 7. Cấu hình Retry Policy
+## 8. Retry Policy
 
-### Giải thích
-
-Retry policy cấu hình qua VirtualService, cho phép Envoy tự động retry request khi gặp lỗi.
+### Cấu hình
 
 ```yaml
-retries:
-  attempts: 3                    # Retry tối đa 3 lần
-  perTryTimeout: 5s              # Timeout mỗi lần retry: 5 giây
+# values.yaml
+retry:
+  attempts: 3          # Retry 3 lần
+  perTryTimeout: 5s    # Timeout mỗi lần: 5s
   retryOn: "5xx,connect-failure,refused-stream,reset"
-```
-
-### Các điều kiện retry
-
-| Condition | Mô tả |
-|-----------|--------|
-| `5xx` | Server trả lỗi 500, 502, 503, 504 |
-| `connect-failure` | Không kết nối được tới upstream |
-| `refused-stream` | Upstream từ chối stream |
-| `reset` | Connection bị reset |
-
-### Apply cấu hình
-```bash
-kubectl apply -f virtual-services.yaml
-```
-
-### Verify
-```bash
-# Xem VirtualService đã tạo
-kubectl get virtualservice -n yas
-
-# Xem chi tiết
-kubectl describe virtualservice product-retry -n yas
-
-# Kiểm tra retry stats qua Envoy proxy
-kubectl exec -n yas <pod-name> -c istio-proxy -- \
-  pilot-agent request GET stats | grep retry
+  timeout: 30s         # Timeout tổng: 30s
 ```
 
 ---
 
-## 8. Kịch bản Test
+## 9. Kịch bản Test
 
-### Test Plan
-
-#### Test 1: Verify mTLS hoạt động
-
+### Test 1: mTLS Verification
 ```bash
-# Kiểm tra mTLS status trên pod product
-PRODUCT_POD=$(kubectl get pod -n yas -l app.kubernetes.io/name=product -o jsonpath='{.items[0].metadata.name}')
-istioctl x describe pod $PRODUCT_POD -n yas
-
-# Expected output:
-# Pod is STRICT, clients configured automatically
-# mTLS mode: STRICT
-
-# Kiểm tra certificate chain
-istioctl proxy-config secret $PRODUCT_POD -n yas
+NS=yas  # namespace đang active
+POD=$(kubectl get pod -n $NS -o jsonpath='{.items[0].metadata.name}')
+istioctl x describe pod $POD -n $NS
+# Expected: mTLS mode: STRICT
 ```
 
-#### Test 2: Authorization Policy - ALLOW (kết nối thành công)
-
+### Test 2: Authorization ALLOW
 ```bash
+NS=yas
+
 # Deploy test pods
-kubectl apply -f test-denied-pod.yaml
+kubectl apply -f <(helm template service-mesh k8s/charts/service-mesh \
+    -n $NS -s templates/tests/test-pods.yaml)
+kubectl wait --for=condition=ready pod/test-allowed-client -n $NS --timeout=120s
 
-# Chờ pods ready
-kubectl wait --for=condition=ready pod/test-allowed-client -n yas --timeout=120s
-
-# Từ test-allowed-client (SA: storefront-bff) → product: ALLOWED
-kubectl exec -n yas test-allowed-client -- curl -s -o /dev/null -w "%{http_code}" http://product.yas:80/product/
-
-# Expected: 200 (hoặc response code từ product service)
-
-# Từ test-allowed-client → cart: ALLOWED
-kubectl exec -n yas test-allowed-client -- curl -s -o /dev/null -w "%{http_code}" http://cart.yas:80/cart/
-
+# storefront-bff SA → product: ALLOWED
+kubectl exec -n $NS test-allowed-client -- \
+    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/product/
 # Expected: 200
 ```
 
-#### Test 3: Authorization Policy - DENY (kết nối bị chặn)
-
+### Test 3: Authorization DENY
 ```bash
-# Chờ pods ready
-kubectl wait --for=condition=ready pod/test-client -n yas --timeout=120s
+NS=yas
+kubectl wait --for=condition=ready pod/test-client -n $NS --timeout=120s
 
-# Từ test-client (SA: test-client, KHÔNG trong allow list) → product: DENIED
-kubectl exec -n yas test-client -- curl -v http://product.yas:80/product/
-
-# Expected output:
-# < HTTP/1.1 403 Forbidden
-# RBAC: access denied
-
-# Từ test-client → payment: DENIED
-kubectl exec -n yas test-client -- curl -v http://payment.yas:80/payment/
-
-# Expected output:
-# < HTTP/1.1 403 Forbidden
-# RBAC: access denied
-
-# Từ test-client → order: DENIED
-kubectl exec -n yas test-client -- curl -v http://order.yas:80/order/
-
-# Expected output:
-# < HTTP/1.1 403 Forbidden
-# RBAC: access denied
-```
-
-#### Test 4: Cross-service authorization (service A không có quyền gọi service B)
-
-```bash
-# Tìm pod cart
-CART_POD=$(kubectl get pod -n yas -l app.kubernetes.io/name=cart -o jsonpath='{.items[0].metadata.name}')
-
-# Cart → Payment: DENIED (cart không trong allow list của payment)
-kubectl exec -n yas $CART_POD -c cart -- curl -v http://payment.yas:80/payment/
-
+# test-client SA → product: DENIED
+kubectl exec -n $NS test-client -- \
+    curl -v http://product.$NS:80/product/
 # Expected: HTTP 403 RBAC: access denied
 
-# Tìm pod search
-SEARCH_POD=$(kubectl get pod -n yas -l app.kubernetes.io/name=search -o jsonpath='{.items[0].metadata.name}')
-
-# Search → Payment: DENIED
-kubectl exec -n yas $SEARCH_POD -c search -- curl -v http://payment.yas:80/payment/
-
+# test-client SA → payment: DENIED
+kubectl exec -n $NS test-client -- \
+    curl -v http://payment.$NS:80/payment/
 # Expected: HTTP 403 RBAC: access denied
 ```
 
-#### Test 5: Retry Policy
-
+### Test 4: Cross-service DENY
 ```bash
-# Kiểm tra retry statistics từ Envoy sidecar
-PRODUCT_POD=$(kubectl get pod -n yas -l app.kubernetes.io/name=product -o jsonpath='{.items[0].metadata.name}')
+NS=yas
+CART_POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=cart -o jsonpath='{.items[0].metadata.name}')
 
-kubectl exec -n yas $PRODUCT_POD -c istio-proxy -- \
-  pilot-agent request GET stats | grep -E "upstream_rq_retry|upstream_rq_5xx"
-
-# Expected output (sau khi có traffic):
-# cluster.outbound|80||product.yas.svc.cluster.local.upstream_rq_retry: <N>
-# cluster.outbound|80||product.yas.svc.cluster.local.upstream_rq_5xx: <N>
-
-# Verify VirtualService retry config
-kubectl get virtualservice product-retry -n yas -o yaml | grep -A 5 retries
+# Cart → Payment: DENIED (cart không trong allow-list của payment)
+kubectl exec -n $NS $CART_POD -c cart -- \
+    curl -v http://payment.$NS:80/payment/
+# Expected: HTTP 403 RBAC: access denied
 ```
 
-### Cleanup Test Resources
+### Test 5: Retry Evidence
 ```bash
-kubectl delete -f test-denied-pod.yaml
+NS=yas
+POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=product -o jsonpath='{.items[0].metadata.name}')
+
+kubectl exec -n $NS $POD -c istio-proxy -- \
+    pilot-agent request GET stats | grep -E "upstream_rq_retry|upstream_rq_5xx"
+```
+
+### Cleanup Test Pods
+```bash
+kubectl delete pod test-client test-allowed-client -n $NS
+kubectl delete sa test-client -n $NS
 ```
 
 ---
 
-## 9. Sử dụng Kiali Dashboard
-
-### Truy cập Kiali
+## 10. Kiali Dashboard
 
 ```bash
-# Port-forward Kiali service
 kubectl port-forward svc/kiali -n istio-system 20001:20001
-
-# Mở browser
-# URL: http://localhost:20001
+# Mở: http://localhost:20001
 ```
 
-### Xem Topology
-
-1. **Mở Kiali** → đăng nhập (token hoặc anonymous tùy cấu hình)
-2. **Menu trái** → chọn **Graph**
-3. **Namespace dropdown** → chọn `yas`
-4. **Display** → tick các options:
-   - ✅ Traffic Animation
-   - ✅ Security (hiện 🔒 mTLS)
-   - ✅ Response Time
-   - ✅ Throughput
-5. **Graph Type** → chọn `Versioned app graph` hoặc `Workload graph`
-
-### Các thông tin quan sát trên Kiali
-
-| Thành phần | Ý nghĩa |
-|------------|---------|
-| 🔒 (Lock icon) | mTLS đang hoạt động giữa 2 services |
-| Mũi tên xanh | Traffic thành công (2xx) |
-| Mũi tên đỏ | Traffic lỗi (4xx, 5xx) |
-| Đường nét đứt | Không có traffic hiện tại |
-| Badge "VS" | Có VirtualService cấu hình |
-| Badge "DR" | Có DestinationRule cấu hình |
-
-### Screenshot Topology
-
-Để capture topology cho báo cáo:
-1. Mở Kiali Graph → chọn namespace `yas`
-2. Tạo traffic bằng cách gọi API qua storefront
-3. Chờ ~30s để Kiali thu thập metrics
-4. Screenshot graph hiển thị:
-   - Tất cả services với 🔒 mTLS icons
-   - Traffic flow giữa các services
-   - VirtualService và DestinationRule badges
+1. **Graph** → chọn namespace active → xem topology
+2. **Security badge (🔒)** = mTLS active
+3. **VS badge** = VirtualService (retry) configured
+4. **Traffic animation** = request flow giữa services
 
 ---
 
-## 10. Troubleshooting
+## 11. Chuyển đổi Namespace
 
-### Vấn đề thường gặp
+Khi cần chuyển mesh từ namespace A sang B:
 
-#### Pods không inject sidecar
 ```bash
-# Kiểm tra label namespace
-kubectl get namespace yas --show-labels
-# Phải có: istio-injection=enabled
+# 1. Xoá mesh khỏi namespace cũ
+./remove-mesh.sh yas
 
-# Force restart pods
-kubectl rollout restart deployment --all -n yas
+# 2. Apply mesh cho namespace mới
+./apply-mesh.sh staging
+
+# Hoặc xoá tất cả
+./remove-mesh.sh --all
 ```
 
-#### mTLS không hoạt động
-```bash
-# Kiểm tra PeerAuthentication
-kubectl get peerauthentication -n yas -o yaml
+### Workflow khi developer build
 
-# Kiểm tra DestinationRule
-kubectl get destinationrule -n yas -o yaml
+```
+developer_build triggers:
+  1. Scale down dev + staging (replicas=0)
+  2. Create yas-dev-* namespace
+  3. Deploy services
+  4. Auto-apply service mesh (via workflow)  ← TỰ ĐỘNG
+  5. Done
 
-# Debug với istioctl
-istioctl analyze -n yas
+developer_cleanup triggers:
+  1. Remove service mesh resources          ← TỰ ĐỘNG
+  2. Uninstall Helm releases
+  3. Delete namespace
 ```
 
-#### Authorization Policy quá strict (service bị chặn không mong muốn)
+---
+
+## 12. Troubleshooting
+
+### Pods không inject sidecar
 ```bash
-# Tạm thời switch sang PERMISSIVE để debug
-kubectl patch peerauthentication yas-strict-mtls -n yas \
-  --type merge -p '{"spec":{"mtls":{"mode":"PERMISSIVE"}}}'
+# Kiểm tra label
+kubectl get namespace $NS --show-labels | grep istio-injection
 
-# Kiểm tra logs Envoy proxy
-kubectl logs <pod-name> -n yas -c istio-proxy | grep "rbac"
-
-# Xem policy đang apply cho pod
-istioctl x describe pod <pod-name> -n yas
+# Nếu thiếu, apply lại
+kubectl label namespace $NS istio-injection=enabled --overwrite
+kubectl rollout restart deployment --all -n $NS
 ```
 
-#### Muốn tạm disable authorization policies
+### Service bị chặn không mong muốn
 ```bash
-# Xóa deny-all default (cho phép tất cả traffic)
-kubectl delete authorizationpolicy deny-all-default -n yas
+# Kiểm tra policy
+istioctl x describe pod $POD -n $NS
 
-# Hoặc xóa tất cả policies
-kubectl delete authorizationpolicy --all -n yas
+# Tạm tắt authorization
+kubectl delete authorizationpolicy deny-all-default -n $NS
+
+# Hoặc switch sang PERMISSIVE
+kubectl patch peerauthentication ${NS}-strict-mtls -n $NS \
+    --type merge -p '{"spec":{"mtls":{"mode":"PERMISSIVE"}}}'
+```
+
+### Xem Envoy proxy logs
+```bash
+kubectl logs $POD -n $NS -c istio-proxy | grep "rbac"
 ```
 
 ### Lệnh hữu ích
-
 ```bash
-# Xem tất cả Istio resources trong namespace yas
-kubectl get peerauthentication,destinationrule,virtualservice,authorizationpolicy -n yas
+# Liệt kê tất cả Istio resources
+kubectl get peerauthentication,destinationrule,virtualservice,authorizationpolicy -n $NS
 
-# Phân tích mesh config
-istioctl analyze -n yas
+# Phân tích cấu hình
+istioctl analyze -n $NS
 
-# Dashboard (mở trực tiếp Kiali)
+# Mở Kiali
 istioctl dashboard kiali
-
-# Xem proxy config
-istioctl proxy-config cluster <pod-name> -n yas
-istioctl proxy-config listener <pod-name> -n yas
-istioctl proxy-config route <pod-name> -n yas
 ```
 
 ---
