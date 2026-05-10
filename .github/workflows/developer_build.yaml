@@ -396,6 +396,32 @@ jobs:
               run: |
                   kubectl rollout status deployment --all -n ${{ env.TARGET_NAMESPACE }} --timeout=5m || true
 
+            - name: Apply Service Mesh (Istio mTLS + Policies)
+              run: |
+                  NS="${{ env.TARGET_NAMESPACE }}"
+                  echo "Applying service mesh configuration to namespace: $NS"
+
+                  # Check if Istio is installed
+                  if kubectl get namespace istio-system &>/dev/null; then
+                    # Enable sidecar injection
+                    kubectl label namespace "$NS" istio-injection=enabled --overwrite
+
+                    # Deploy service-mesh Helm chart
+                    helm upgrade --install service-mesh k8s/charts/service-mesh \
+                      --namespace "$NS" \
+                      --wait --timeout 2m || {
+                        echo "Warning: Service mesh deployment failed, continuing..."
+                      }
+
+                    # Restart pods to inject Envoy sidecars
+                    kubectl rollout restart deployment --all -n "$NS"
+                    kubectl rollout status deployment --all -n "$NS" --timeout=5m || true
+
+                    echo "Service mesh applied successfully"
+                  else
+                    echo "Istio not installed, skipping service mesh configuration"
+                  fi
+
             - name: Get Worker Node IP
               id: worker-ip
               run: |
@@ -437,6 +463,9 @@ jobs:
                   NS="${{ env.TARGET_NAMESPACE }}"
                   IP="${{ steps.worker-ip.outputs.worker_ip }}"
 
+                  BACKOFFICE_BFF_NP="${{ steps.nodeports.outputs.backoffice_bff_np }}"
+                  STOREFRONT_BFF_NP="${{ steps.nodeports.outputs.storefront_bff_np }}"
+
                   cat >> $GITHUB_STEP_SUMMARY << 'HEADER'
                   ## 🎉 Developer Build Deployed Successfully
 
@@ -449,31 +478,58 @@ jobs:
                   echo "" >> $GITHUB_STEP_SUMMARY
 
                   cat >> $GITHUB_STEP_SUMMARY << 'ACCESS'
-                  ### 🔗 Service Access (NodePort)
+                  ### 🔗 How to Access Your Deployment
+
+                  > ⚠️ **IMPORTANT**: You must access applications through the **BFF (Gateway) ports**, NOT the UI ports directly.
+                  > BFF acts as a Spring Cloud Gateway that routes both the frontend UI (`/**`) and API calls (`/api/**`).
+                  > Accessing UI ports directly will result in **404 errors** on all API calls.
 
                   **Step 1: Add to your hosts file** (`C:\Windows\System32\drivers\etc\hosts` or `/etc/hosts`):
                   ACCESS
 
                   echo '```' >> $GITHUB_STEP_SUMMARY
-                  echo "$IP    dev.yas.local" >> $GITHUB_STEP_SUMMARY
+                  echo "127.0.0.1    dev.yas.local" >> $GITHUB_STEP_SUMMARY
                   echo '```' >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
 
-                  echo "**Step 2: Access services:**" >> $GITHUB_STEP_SUMMARY
+                  echo "**Step 2: Set up SSH tunnel** (forward BFF ports to localhost):" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
-                  echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
-                  echo "|---------|-----|" >> $GITHUB_STEP_SUMMARY
-                  echo "| Backoffice BFF | \`http://$IP:${{ steps.nodeports.outputs.backoffice_bff_np }}\` |" >> $GITHUB_STEP_SUMMARY
-                  echo "| Storefront BFF | \`http://$IP:${{ steps.nodeports.outputs.storefront_bff_np }}\` |" >> $GITHUB_STEP_SUMMARY
-                  echo "| Backoffice UI | \`http://$IP:${{ steps.nodeports.outputs.backoffice_ui_np }}\` |" >> $GITHUB_STEP_SUMMARY
-                  echo "| Storefront UI | \`http://$IP:${{ steps.nodeports.outputs.storefront_ui_np }}\` |" >> $GITHUB_STEP_SUMMARY
-                  echo "| Nginx API GW | \`http://$IP:${{ steps.nodeports.outputs.nginx_np }}\` |" >> $GITHUB_STEP_SUMMARY
+                  echo '```bash' >> $GITHUB_STEP_SUMMARY
+                  echo "ssh -i <YOUR_SSH_KEY> \\" >> $GITHUB_STEP_SUMMARY
+                  echo "  -L ${BACKOFFICE_BFF_NP}:${IP}:${BACKOFFICE_BFF_NP} \\" >> $GITHUB_STEP_SUMMARY
+                  echo "  -L ${STOREFRONT_BFF_NP}:${IP}:${STOREFRONT_BFF_NP} \\" >> $GITHUB_STEP_SUMMARY
+                  echo "  <USER>@<GCP_EXTERNAL_IP>" >> $GITHUB_STEP_SUMMARY
+                  echo '```' >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
 
-                  echo "**All NodePort services:**" >> $GITHUB_STEP_SUMMARY
+                  echo "**Step 3: Open in browser:**" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "| Application | Access URL | Description |" >> $GITHUB_STEP_SUMMARY
+                  echo "|-------------|-----------|-------------|" >> $GITHUB_STEP_SUMMARY
+                  echo "| 🏪 Storefront | \`http://localhost:${STOREFRONT_BFF_NP}\` | Customer-facing storefront (via BFF gateway) |" >> $GITHUB_STEP_SUMMARY
+                  echo "| 🔧 Backoffice | \`http://localhost:${BACKOFFICE_BFF_NP}\` | Admin backoffice panel (via BFF gateway) |" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+
+                  cat >> $GITHUB_STEP_SUMMARY << 'DETAILS'
+                  <details>
+                  <summary>📡 All NodePort Services (for debugging)</summary>
+
+                  DETAILS
+
+                  echo "| Service | Type | NodePort | Purpose |" >> $GITHUB_STEP_SUMMARY
+                  echo "|---------|------|----------|---------|" >> $GITHUB_STEP_SUMMARY
+                  echo "| backoffice-bff | Gateway | \`${BACKOFFICE_BFF_NP}\` | ✅ **Use this** for Backoffice |" >> $GITHUB_STEP_SUMMARY
+                  echo "| storefront-bff | Gateway | \`${STOREFRONT_BFF_NP}\` | ✅ **Use this** for Storefront |" >> $GITHUB_STEP_SUMMARY
+                  echo "| backoffice-ui | UI only | \`${{ steps.nodeports.outputs.backoffice_ui_np }}\` | ⚠️ Internal - no API routing |" >> $GITHUB_STEP_SUMMARY
+                  echo "| storefront-ui | UI only | \`${{ steps.nodeports.outputs.storefront_ui_np }}\` | ⚠️ Internal - no API routing |" >> $GITHUB_STEP_SUMMARY
+                  echo "| nginx | API GW | \`${{ steps.nodeports.outputs.nginx_np }}\` | ⚠️ Internal - backend API proxy |" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+
                   echo '```' >> $GITHUB_STEP_SUMMARY
                   kubectl get svc -n "$NS" -o custom-columns='SERVICE:.metadata.name,TYPE:.spec.type,PORT:.spec.ports[0].port,NODEPORT:.spec.ports[0].nodePort' --no-headers 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "Unable to retrieve" >> $GITHUB_STEP_SUMMARY
                   echo '```' >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "</details>" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
 
                   echo "### 📦 Image Tags" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,24 @@
+# ============================================================
+# STANDALONE YAML (không dùng Helm)
+# ============================================================
+# File này là fallback nếu không muốn dùng Helm chart.
+# Thay thế ${NAMESPACE} bằng namespace thực tế:
+#
+#   export NAMESPACE=yas-dev-john-42
+#   envsubst < peer-authentication.yaml | kubectl apply -f -
+#
+# HOẶC dùng Helm chart (khuyến nghị):
+#   helm upgrade --install service-mesh ../../charts/service-mesh -n <NAMESPACE>
+# ============================================================
+
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: ${NAMESPACE}-strict-mtls
+  namespace: ${NAMESPACE}
+  labels:
+    app.kubernetes.io/part-of: yas
+    app.kubernetes.io/managed-by: istio
+spec:
+  mtls:
+    mode: STRICT

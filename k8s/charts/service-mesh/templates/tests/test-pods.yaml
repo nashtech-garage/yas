@@ -1,0 +1,80 @@
+# ============================================================
+# Test Pods for Authorization Policy Verification
+# ============================================================
+# Only rendered when test pods are requested (helm test or manual)
+#
+# Usage:
+#   helm test service-mesh -n <NAMESPACE>
+#   OR
+#   kubectl apply -f (helm template output)
+# ============================================================
+
+# --- Test Pod: DENIED (không trong allow-list) ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-client
+  namespace: {{ .Release.Namespace }}
+  labels:
+    purpose: authorization-testing
+    {{- include "service-mesh.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-client
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: test-client
+    purpose: authorization-testing
+  annotations:
+    sidecar.istio.io/inject: "true"
+    "helm.sh/hook": test
+spec:
+  serviceAccountName: test-client
+  containers:
+    - name: curl
+      image: curlimages/curl:8.5.0
+      command:
+        - sleep
+        - "86400"
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+        requests:
+          memory: "32Mi"
+          cpu: "50m"
+  restartPolicy: Never
+
+---
+# --- Test Pod: ALLOWED (sử dụng storefront-bff SA) ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-allowed-client
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: test-allowed-client
+    purpose: authorization-testing
+  annotations:
+    sidecar.istio.io/inject: "true"
+    "helm.sh/hook": test
+spec:
+  serviceAccountName: storefront-bff
+  containers:
+    - name: curl
+      image: curlimages/curl:8.5.0
+      command:
+        - sleep
+        - "86400"
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+        requests:
+          memory: "32Mi"
+          cpu: "50m"
+  restartPolicy: Never

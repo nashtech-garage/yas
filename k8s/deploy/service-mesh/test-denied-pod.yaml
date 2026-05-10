@@ -1,0 +1,100 @@
+# ============================================================
+# Test Pod - Kiểm tra Authorization Policy
+# ============================================================
+# Pod này deploy một container curl đơn giản trong namespace yas
+# NHƯNG KHÔNG nằm trong allow-list của bất kỳ AuthorizationPolicy nào.
+#
+# Mục đích:
+#   - Verify rằng deny-all-default policy hoạt động
+#   - Curl từ pod này tới bất kỳ service nào → HTTP 403 RBAC: access denied
+#
+# Sử dụng:
+#   kubectl apply -f test-denied-pod.yaml
+#   kubectl exec -n yas test-client -- curl -v http://product.yas:80/product/
+#   → Expected: HTTP 403 "RBAC: access denied"
+#
+#   kubectl exec -n yas test-client -- curl -v http://payment.yas:80/payment/
+#   → Expected: HTTP 403 "RBAC: access denied"
+#
+# Cleanup:
+#   kubectl delete -f test-denied-pod.yaml
+# ============================================================
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-client
+  namespace: yas
+  labels:
+    app: test-client
+    purpose: authorization-testing
+  annotations:
+    sidecar.istio.io/inject: "true"  # Inject Envoy sidecar để mTLS hoạt động
+spec:
+  serviceAccountName: test-client
+  containers:
+    - name: curl
+      image: curlimages/curl:8.5.0
+      command:
+        - sleep
+        - "86400"  # Giữ pod chạy 24h để test
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+        requests:
+          memory: "32Mi"
+          cpu: "50m"
+  restartPolicy: Never
+
+---
+# ServiceAccount riêng cho test-client
+# Không nằm trong allow-list → sẽ bị deny
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-client
+  namespace: yas
+  labels:
+    purpose: authorization-testing
+
+---
+# ============================================================
+# Test Pod - ALLOWED (để so sánh)
+# ============================================================
+# Pod này giả lập gọi từ storefront-bff service account
+# để verify rằng ALLOW policy hoạt động
+#
+# Sử dụng:
+#   kubectl apply -f test-denied-pod.yaml
+#   kubectl exec -n yas test-allowed-client -- curl -v http://product.yas:80/product/
+#   → Expected: HTTP 200 OK
+# ============================================================
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-allowed-client
+  namespace: yas
+  labels:
+    app: test-allowed-client
+    purpose: authorization-testing
+  annotations:
+    sidecar.istio.io/inject: "true"
+spec:
+  # Sử dụng storefront-bff SA → nằm trong allow-list của nhiều services
+  serviceAccountName: storefront-bff
+  containers:
+    - name: curl
+      image: curlimages/curl:8.5.0
+      command:
+        - sleep
+        - "86400"
+      resources:
+        limits:
+          memory: "64Mi"
+          cpu: "100m"
+        requests:
+          memory: "32Mi"
+          cpu: "50m"
+  restartPolicy: Never
