@@ -4,11 +4,12 @@ set -x
 #Read configuration value from cluster-config.yaml file
 read -rd '' DOMAIN POSTGRESQL_USERNAME POSTGRESQL_PASSWORD \
 BOOTSTRAP_ADMIN_USERNAME BOOTSTRAP_ADMIN_PASSWORD \
-KEYCLOAK_BACKOFFICE_REDIRECT_URL KEYCLOAK_STOREFRONT_REDIRECT_URL \
 < <(yq -r '.domain,
   .postgresql.username, .postgresql.password,
-  .keycloak.bootstrapAdmin.username, .keycloak.bootstrapAdmin.password,
-  .keycloak.backofficeRedirectUrl, .keycloak.storefrontRedirectUrl' ./cluster-config.yaml)
+  .keycloak.bootstrapAdmin.username, .keycloak.bootstrapAdmin.password' ./cluster-config.yaml)
+
+KEYCLOAK_BACKOFFICE_REDIRECT_URLS=$(yq -o=json '.keycloak.backofficeRedirectUrls' ./cluster-config.yaml)
+KEYCLOAK_STOREFRONT_REDIRECT_URLS=$(yq -o=json '.keycloak.storefrontRedirectUrls' ./cluster-config.yaml)
 
 #Install CRD keycloak
 kubectl create namespace keycloak --dry-run=client -o yaml | kubectl apply -f -
@@ -24,8 +25,8 @@ helm upgrade --install keycloak ./keycloak/keycloak \
 --set postgresql.password="$POSTGRESQL_PASSWORD" \
 --set bootstrapAdmin.username="$BOOTSTRAP_ADMIN_USERNAME" \
 --set bootstrapAdmin.password="$BOOTSTRAP_ADMIN_PASSWORD" \
---set backofficeRedirectUrl="$KEYCLOAK_BACKOFFICE_REDIRECT_URL" \
---set storefrontRedirectUrl="$KEYCLOAK_STOREFRONT_REDIRECT_URL"
+--set-json backofficeRedirectUrls="$KEYCLOAK_BACKOFFICE_REDIRECT_URLS" \
+--set-json storefrontRedirectUrls="$KEYCLOAK_STOREFRONT_REDIRECT_URLS"
 
 # Patch CoreDNS to resolve identity.<DOMAIN> inside the cluster.
 # Pods cannot read the host's /etc/hosts, so identity.yas.local.com (used by BFF
