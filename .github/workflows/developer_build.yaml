@@ -149,7 +149,7 @@ jobs:
                   )
                   # Deduplicate and fetch
                   printf '%s\n' "${BRANCHES[@]}" | sort -u | while read -r b; do
-                    git fetch origin "$b" --depth=1 2>/dev/null || echo "⚠ Could not fetch branch: $b"
+                    git fetch origin "$b" 2>/dev/null || echo "⚠ Could not fetch branch: $b"
                   done
 
             - name: Resolve all tags
@@ -162,12 +162,9 @@ jobs:
                     if [ "$branch" == "main" ]; then
                       echo "main"
                     else
-                      # Tìm commit gần nhất đụng vào thư mục chứa code của service
-                      local commit_hash=$(git log -1 --pretty=format:%h origin/$branch -- "$service_path" 2>/dev/null)
-                      
-                      # Nếu không có commit nào đụng vào thư mục đó, fallback về hash của cả nhánh
+                      local commit_hash=$(git log -1 --pretty=format:%H origin/$branch -- "$service_path" 2>/dev/null | cut -c1-7)
                       if [ -z "$commit_hash" ]; then
-                        commit_hash=$(git rev-parse --short=7 origin/$branch 2>/dev/null || echo "$branch")
+                        commit_hash=$(git rev-parse origin/$branch 2>/dev/null | cut -c1-7 || echo "$branch")
                       fi
                       
                       echo "$commit_hash"
