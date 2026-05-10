@@ -403,7 +403,7 @@ jobs:
 
             - name: Wait for Rollout
               run: |
-                  kubectl rollout status deployment --all -n ${{ env.TARGET_NAMESPACE }} --timeout=5m || true
+                  kubectl rollout status deployment -n ${{ env.TARGET_NAMESPACE }} --timeout=5m || true
 
             - name: Apply Service Mesh (Istio mTLS + Policies)
               run: |
@@ -423,8 +423,8 @@ jobs:
                       }
 
                     # Restart pods to inject Envoy sidecars
-                    kubectl rollout restart deployment --all -n "$NS"
-                    kubectl rollout status deployment --all -n "$NS" --timeout=5m || true
+                    kubectl rollout restart deployment -n "$NS"
+                    kubectl rollout status deployment -n "$NS" --timeout=5m || true
 
                     echo "Service mesh applied successfully"
                   else
