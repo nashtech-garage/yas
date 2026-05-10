@@ -157,33 +157,45 @@ jobs:
               run: |
                   resolve_tag() {
                     local branch=$1
+                    local service_path=$2
+                    
                     if [ "$branch" == "main" ]; then
                       echo "main"
                     else
-                      git rev-parse --short=7 origin/$branch 2>/dev/null || echo "$branch"
+                      # Tìm commit gần nhất đụng vào thư mục chứa code của service
+                      local commit_hash=$(git log -1 --pretty=format:%h origin/$branch -- "$service_path" 2>/dev/null)
+                      
+                      # Nếu không có commit nào đụng vào thư mục đó, fallback về hash của cả nhánh
+                      if [ -z "$commit_hash" ]; then
+                        commit_hash=$(git rev-parse --short=7 origin/$branch 2>/dev/null || echo "$branch")
+                      fi
+                      
+                      echo "$commit_hash"
                     fi
                   }
 
-                  echo "cart_tag=$(resolve_tag ${{ inputs.cart_branch }})" >> $GITHUB_OUTPUT
-                  echo "customer_tag=$(resolve_tag ${{ inputs.customer_branch }})" >> $GITHUB_OUTPUT
-                  echo "inventory_tag=$(resolve_tag ${{ inputs.inventory_branch }})" >> $GITHUB_OUTPUT
-                  echo "location_tag=$(resolve_tag ${{ inputs.location_branch }})" >> $GITHUB_OUTPUT
-                  echo "media_tag=$(resolve_tag ${{ inputs.media_branch }})" >> $GITHUB_OUTPUT
-                  echo "order_tag=$(resolve_tag ${{ inputs.order_branch }})" >> $GITHUB_OUTPUT
-                  echo "payment_tag=$(resolve_tag ${{ inputs.payment_branch }})" >> $GITHUB_OUTPUT
-                  echo "payment_paypal_tag=$(resolve_tag ${{ inputs.payment_paypal_branch }})" >> $GITHUB_OUTPUT
-                  echo "product_tag=$(resolve_tag ${{ inputs.product_branch }})" >> $GITHUB_OUTPUT
-                  echo "promotion_tag=$(resolve_tag ${{ inputs.promotion_branch }})" >> $GITHUB_OUTPUT
-                  echo "rating_tag=$(resolve_tag ${{ inputs.rating_branch }})" >> $GITHUB_OUTPUT
-                  echo "recommendation_tag=$(resolve_tag ${{ inputs.recommendation_branch }})" >> $GITHUB_OUTPUT
-                  echo "search_tag=$(resolve_tag ${{ inputs.search_branch }})" >> $GITHUB_OUTPUT
-                  echo "tax_tag=$(resolve_tag ${{ inputs.tax_branch }})" >> $GITHUB_OUTPUT
-                  echo "webhook_tag=$(resolve_tag ${{ inputs.webhook_branch }})" >> $GITHUB_OUTPUT
-                  echo "backoffice_bff_tag=$(resolve_tag ${{ inputs.backoffice_bff_branch }})" >> $GITHUB_OUTPUT
-                  echo "storefront_bff_tag=$(resolve_tag ${{ inputs.storefront_bff_branch }})" >> $GITHUB_OUTPUT
-                  echo "storefront_tag=$(resolve_tag ${{ inputs.storefront_branch }})" >> $GITHUB_OUTPUT
-                  echo "backoffice_tag=$(resolve_tag ${{ inputs.backoffice_branch }})" >> $GITHUB_OUTPUT
-                  echo "sampledata_tag=$(resolve_tag ${{ inputs.sampledata_branch }})" >> $GITHUB_OUTPUT
+                  # Truyền đúng tên thư mục nằm trong repo yas-cd
+                  echo "cart_tag=$(resolve_tag ${{ inputs.cart_branch }} cart)" >> $GITHUB_OUTPUT
+                  echo "customer_tag=$(resolve_tag ${{ inputs.customer_branch }} customer)" >> $GITHUB_OUTPUT
+                  echo "inventory_tag=$(resolve_tag ${{ inputs.inventory_branch }} inventory)" >> $GITHUB_OUTPUT
+                  echo "location_tag=$(resolve_tag ${{ inputs.location_branch }} location)" >> $GITHUB_OUTPUT
+                  echo "media_tag=$(resolve_tag ${{ inputs.media_branch }} media)" >> $GITHUB_OUTPUT
+                  echo "order_tag=$(resolve_tag ${{ inputs.order_branch }} order)" >> $GITHUB_OUTPUT
+                  echo "payment_tag=$(resolve_tag ${{ inputs.payment_branch }} payment)" >> $GITHUB_OUTPUT
+                  echo "payment_paypal_tag=$(resolve_tag ${{ inputs.payment_paypal_branch }} payment-paypal)" >> $GITHUB_OUTPUT
+                  echo "product_tag=$(resolve_tag ${{ inputs.product_branch }} product)" >> $GITHUB_OUTPUT
+                  echo "promotion_tag=$(resolve_tag ${{ inputs.promotion_branch }} promotion)" >> $GITHUB_OUTPUT
+                  echo "rating_tag=$(resolve_tag ${{ inputs.rating_branch }} rating)" >> $GITHUB_OUTPUT
+                  echo "recommendation_tag=$(resolve_tag ${{ inputs.recommendation_branch }} recommendation)" >> $GITHUB_OUTPUT
+                  echo "search_tag=$(resolve_tag ${{ inputs.search_branch }} search)" >> $GITHUB_OUTPUT
+                  echo "tax_tag=$(resolve_tag ${{ inputs.tax_branch }} tax)" >> $GITHUB_OUTPUT
+                  echo "webhook_tag=$(resolve_tag ${{ inputs.webhook_branch }} webhook)" >> $GITHUB_OUTPUT
+
+                  echo "backoffice_bff_tag=$(resolve_tag ${{ inputs.backoffice_bff_branch }} backoffice-bff)" >> $GITHUB_OUTPUT
+                  echo "storefront_bff_tag=$(resolve_tag ${{ inputs.storefront_bff_branch }} storefront-bff)" >> $GITHUB_OUTPUT
+                  echo "backoffice_tag=$(resolve_tag ${{ inputs.backoffice_branch }} backoffice)" >> $GITHUB_OUTPUT
+                  echo "storefront_tag=$(resolve_tag ${{ inputs.storefront_branch }} storefront)" >> $GITHUB_OUTPUT
+                  echo "sampledata_tag=$(resolve_tag ${{ inputs.sampledata_branch }} sampledata)" >> $GITHUB_OUTPUT
 
     # ─── Job 2: Scale down dev & staging via GitOps ────────────────────────
     scale-down-environments:
