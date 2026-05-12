@@ -5,6 +5,7 @@ read:
 backend:
   replicas: 1
 loki:
+  useTestSchema: true
   commonConfig:
     replication_factor: 1
   auth_enabled: false

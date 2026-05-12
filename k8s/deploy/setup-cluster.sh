@@ -38,7 +38,8 @@ helm upgrade --install pgadmin ./postgres/pgadmin \
 
 #Install strimzi-kafka-operator
 helm upgrade --install kafka-operator strimzi/strimzi-kafka-operator \
---create-namespace --namespace kafka
+--create-namespace --namespace kafka \
+--version 0.45.0
 
 #Install kafka and postgresql connector
 helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
@@ -86,7 +87,8 @@ helm upgrade --install cert-manager jetstack/cert-manager \
 
 #Install opentelemetry-operator
 helm upgrade --install opentelemetry-operator open-telemetry/opentelemetry-operator \
---create-namespace --namespace observability
+--create-namespace --namespace observability \
+--version 0.45.0
 
 #Install opentelemetry-collector
 helm upgrade --install opentelemetry-collector ./observability/opentelemetry \

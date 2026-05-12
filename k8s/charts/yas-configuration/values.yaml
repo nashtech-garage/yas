@@ -58,7 +58,7 @@ applicationConfig:
       oauth2:
         resourceserver:
           jwt:
-            issuer-uri: http://identity.yas.local.com/realms/Yas
+            issuer-uri: http://keycloak-service.keycloak
 
     datasource:
       url:
@@ -71,8 +71,8 @@ applicationConfig:
 
   springdoc:
     oauthflow:
-      authorization-url: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/auth
-      token-url: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/token
+      authorization-url: http://keycloak-service.keycloak/protocol/openid-connect/auth
+      token-url: http://keycloak-service.keycloak/protocol/openid-connect/token
 
   yas:
     services:
@@ -213,7 +213,7 @@ backofficeBffExtraConfig:
         client:
           provider:
             keycloak:
-              issuer-uri: http://identity.yas.local.com/realms/Yas
+              issuer-uri: http://keycloak-service.keycloak
           registration:
             api-client:
               provider: keycloak
@@ -233,7 +233,7 @@ storefrontBffExtraConfig:
         client:
           provider:
             keycloak:
-              issuer-uri: http://identity.yas.local.com/realms/Yas
+              issuer-uri: http://keycloak-service.keycloak
           registration:
             api-client:
               provider: keycloak
@@ -261,7 +261,7 @@ customerApplicationConfig:
 # Search application config custom
 searchApplicationConfig:
   elasticsearch:
-    url: elasticsearch-es-http.elasticsearch
+    url: elasticsearch-es-http.elasticsearch.svc.cluster.local    # Modify the internal url of service
     username: ${ELASTICSEARCH_USERNAME}
     password: ${ELASTICSEARCH_PASSWORD}
 

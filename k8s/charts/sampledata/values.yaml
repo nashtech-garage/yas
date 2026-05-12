@@ -1,6 +1,6 @@
 backend:
   image:
-    repository: ghcr.io/nashtech-garage/yas-sampledata
+    repository: bync/sampledata
     tag: latest
 
   nameOverride: sampledata
