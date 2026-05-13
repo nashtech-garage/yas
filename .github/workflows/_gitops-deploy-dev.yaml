@@ -40,6 +40,65 @@ jobs:
           token: ${{ secrets.gitops_pat }}
           path: gitops
 
+      - name: Scale down staging
+        run: |
+          cd gitops
+          for service_dir in clusters/staging/*/; do
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".ui.replicaCount = 0" -i "$values_file"
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".backend.replicaCount = 0" -i "$values_file"
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              yq e ".reloader.reloader.enableHA = true" -i "$values_file"
+              yq e ".reloader.reloader.deployment.replicas = 0" -i "$values_file"
+            else
+              yq e ".replicaCount = 0" -i "$values_file"
+            fi
+          done
+          yq e "(select(.kind == \"Deployment\") | .spec.replicas) = 0" -i clusters/staging/nginx/nginx.yaml
+
+      - name: Commit and push scale-down
+        id: scale_down
+        run: |
+          cd gitops
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@devops-hcmus.com"
+
+          git add clusters/staging/
+
+          if git diff --staged --quiet; then
+            echo "Staging already at 0, skipping scale-down commit"
+            echo "scaled_down=false" >> $GITHUB_OUTPUT
+          else
+            echo "scaled_down=true" >> $GITHUB_OUTPUT
+            git commit -m "chore: scale down staging before dev deploy [${{ inputs.service }}]"
+
+            for i in $(seq 1 15); do
+              if git push; then
+                break
+              fi
+              echo "Push attempt $i failed, retrying..."
+              if ! git pull --rebase origin main; then
+                git rebase --abort 2>/dev/null || true
+              fi
+              [ $i -eq 15 ] && exit 1
+              sleep $((RANDOM % 10 + 5))
+            done
+          fi
+
+      - name: Wait for staging pods to terminate
+        # Only wait when staging was actually scaled down in this run.
+        # If staging was already at 0 (concurrent deploys), skip to avoid unnecessary delay.
+        if: steps.scale_down.outputs.scaled_down == 'true'
+        run: sleep 90
+
+      - name: Pull latest after wait
+        run: |
+          cd gitops
+          git pull --rebase origin main
+
       - name: Read current replicas from state
         id: read_state
         run: |
@@ -93,38 +152,18 @@ jobs:
           [ "$NGINX_REPLICAS" = "null" ] || [ -z "$NGINX_REPLICAS" ] && NGINX_REPLICAS=1
           yq e "(select(.kind == \"Deployment\") | .spec.replicas) = $NGINX_REPLICAS" -i clusters/dev/nginx/nginx.yaml
 
-      - name: Scale down staging
-        run: |
-          cd gitops
-          for service_dir in clusters/staging/*/; do
-            values_file="${service_dir}values.yaml"
-            [ -f "$values_file" ] || continue
-            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
-              yq e ".ui.replicaCount = 0" -i "$values_file"
-            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
-              yq e ".backend.replicaCount = 0" -i "$values_file"
-            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
-              yq e ".reloader.reloader.enableHA = true" -i "$values_file"
-              yq e ".reloader.reloader.deployment.replicas = 0" -i "$values_file"
-            else
-              yq e ".replicaCount = 0" -i "$values_file"
-            fi
-          done
-          yq e "(select(.kind == \"Deployment\") | .spec.replicas) = 0" -i clusters/staging/nginx/nginx.yaml
-
       - name: Save dev replicas to state
         run: |
           cd gitops
           yq e ".dev.${{ inputs.service }} = ${{ steps.read_state.outputs.replicas }}" -i state.yaml
 
-      - name: Commit and push
+      - name: Commit and push scale-up
         run: |
           cd gitops
           git config user.name "ci-bot"
           git config user.email "ci-bot@devops-hcmus.com"
 
-          git add clusters/dev/
-          git add clusters/staging/ state.yaml
+          git add clusters/dev/ state.yaml
 
           if git diff --staged --quiet; then
             echo "No changes to commit"
