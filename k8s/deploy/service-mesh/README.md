@@ -59,6 +59,7 @@ k8s/
 │       ├── install-istio.sh       # Cài Istio system (1 lần)
 │       ├── apply-mesh.sh          # Apply mesh cho NS active
 │       ├── remove-mesh.sh         # Xoá mesh khỏi NS
+│       ├── test-service-mesh.sh   # ⭐ Script test tự động
 │       ├── README.md              # File này
 │       ├── peer-authentication.yaml    # Standalone (fallback)
 │       ├── destination-rules.yaml      # Standalone (fallback)
@@ -253,12 +254,35 @@ retry:
 
 ## 9. Kịch bản Test
 
+### Chạy Test Tự Động (Khuyến nghị)
+
+```bash
+cd k8s/deploy/service-mesh
+chmod +x test-service-mesh.sh
+./test-service-mesh.sh              # Auto-detect namespace
+./test-service-mesh.sh yas          # Hoặc chỉ định namespace
+```
+
+Script tự động chạy tất cả test cases và hiển thị kết quả ✅ PASS / ❌ FAIL.
+
+### Giải thích HTTP Status Code
+
+| HTTP Code | Ý nghĩa | Layer |
+|---|---|---|
+| **403** | `RBAC: access denied` - Istio chặn | Istio AuthorizationPolicy (network) |
+| **401** | Unauthorized - App yêu cầu JWT token | Spring Security (application) |
+| **200** | OK - Request thành công | Application |
+
+> **Lưu ý**: Khi test ALLOW policy, dùng `/actuator/health` thay vì `/product/` để tránh bị 401 từ app-level auth. Mục đích test là chứng minh **Istio policy hoạt động**, không phải app auth.
+> - Test ALLOW: HTTP code **≠ 403** → Istio cho phép traffic đi qua ✅
+> - Test DENY: HTTP code **= 403** → Istio chặn traffic ✅
+
 ### Test 1: mTLS Verification
 
 ```bash
 NS=yas  # namespace đang active
 POD=$(kubectl get pod -n $NS -o jsonpath='{.items[0].metadata.name}')
-istioctl x describe pod $POD.$NS
+istioctl x describe pod $POD -n $NS
 # Expected: mTLS mode: STRICT
 ```
 
@@ -273,9 +297,12 @@ kubectl apply -f <(helm template service-mesh k8s/charts/service-mesh \
 kubectl wait --for=condition=ready pod/test-allowed-client -n $NS --timeout=120s
 
 # storefront-bff SA → product: ALLOWED
+# Dùng /actuator/health để tránh 401 từ Spring Security
 kubectl exec -n $NS test-allowed-client -- \
-    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/product/
-# Expected: 200 (Hoặc 1 phản hồi từ service đích)
+    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/actuator/health
+# Expected: 200 (hoặc bất kỳ code nào ≠ 403)
+# Nếu nhận 401 → Istio policy ALLOW hoạt động, app yêu cầu JWT (bình thường)
+# Nếu nhận 403 → Istio policy DENY → cần kiểm tra AuthorizationPolicy
 ```
 
 ### Test 3: Authorization DENY
@@ -286,12 +313,12 @@ kubectl wait --for=condition=ready pod/test-client -n $NS --timeout=120s
 
 # test-client SA → product: DENIED
 kubectl exec -n $NS test-client -- \
-    curl -v http://product.$NS:80/product/
+    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/actuator/health
 # Expected: HTTP 403 RBAC: access denied
 
 # test-client SA → payment: DENIED
 kubectl exec -n $NS test-client -- \
-    curl -v http://payment.$NS:80/payment/
+    curl -s -o /dev/null -w "%{http_code}" http://payment.$NS:80/actuator/health
 # Expected: HTTP 403 RBAC: access denied
 ```
 
@@ -302,17 +329,33 @@ NS=yas
 CART_POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=cart -o jsonpath='{.items[0].metadata.name}')
 
 # Cart → Payment: DENIED (cart không trong allow-list của payment)
-    kubectl debug exec -n $NS $CART_POD -c cart -- \
-        curl -v http://payment.$NS:80/payment/
+kubectl exec -n $NS $CART_POD -c cart -- \
+    curl -s -o /dev/null -w "%{http_code}" http://payment.$NS:80/actuator/health
 # Expected: HTTP 403 RBAC: access denied
 ```
 
-### Test 5: Retry Evidence
+### Test 5: Cross-service ALLOW
+
+```bash
+NS=yas
+ORDER_POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=order -o jsonpath='{.items[0].metadata.name}')
+
+# Order → Payment: ALLOWED (order nằm trong allow-list của payment)
+kubectl exec -n $NS $ORDER_POD -c order -- \
+    curl -s -o /dev/null -w "%{http_code}" http://payment.$NS:80/actuator/health
+# Expected: HTTP ≠ 403 (200 hoặc 401)
+```
+
+### Test 6: Retry Evidence
 
 ```bash
 NS=yas
 POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=product -o jsonpath='{.items[0].metadata.name}')
 
+# Kiểm tra VirtualService retry config
+kubectl get virtualservice product-retry -n $NS -o yaml | grep -A5 retries
+
+# Kiểm tra Envoy retry stats
 kubectl exec -n $NS $POD -c istio-proxy -- \
     pilot-agent request GET stats | grep -E "upstream_rq_retry|upstream_rq_5xx"
 ```
@@ -320,7 +363,7 @@ kubectl exec -n $NS $POD -c istio-proxy -- \
 ### Cleanup Test Pods
 
 ```bash
-kubectl delete pod test-client test-allowed-client -n $NS
+kubectl delete pod test-client test-allowed-client -n $NS --grace-period=0 --force
 kubectl delete sa test-client -n $NS
 ```
 
