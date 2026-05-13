@@ -1,6 +1,7 @@
 # Service Mesh Configuration - Istio + Kiali cho YAS Microservices
 
 ## Mục lục
+
 - [1. Tổng quan](#1-tổng-quan)
 - [2. Kiến trúc](#2-kiến-trúc)
 - [3. Prerequisites](#3-prerequisites)
@@ -19,14 +20,17 @@
 ## 1. Tổng quan
 
 ### Vấn đề
+
 Do tài nguyên máy tính hạn chế, chỉ **1 trong 3 namespace** chạy tại một thời điểm:
+
 - `yas` (dev environment - GitOps)
-- `staging` (staging environment - GitOps)  
+- `staging` (staging environment - GitOps)
 - `yas-dev-*` (developer build - tạo động)
 
 Khi namespace A chạy → namespace B,C bị scale về 0.
 
 ### Giải pháp
+
 Service mesh được đóng gói thành **Helm chart** (`k8s/charts/service-mesh/`) → deploy vào **bất kỳ namespace nào** đang active:
 
 ```bash
@@ -96,13 +100,13 @@ k8s/
 ### Access Matrix (Authorization)
 
 | Target ↓ / Source → | storefront-bff | backoffice-bff | nginx | order | cart | payment |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **product** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **cart** | ✅ | ✅ | ✅ | ✅ | — | ❌ |
-| **order** | ✅ | ✅ | ✅ | — | ❌ | ✅ |
-| **payment** | ❌ | ❌ | ✅ | ✅ | ❌ | — |
-| **customer** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| **inventory** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| ------------------- | :------------: | :------------: | :---: | :---: | :--: | :-----: |
+| **product**         |       ✅       |       ✅       |  ✅   |  ✅   |  ✅  |   ❌    |
+| **cart**            |       ✅       |       ✅       |  ✅   |  ✅   |  —   |   ❌    |
+| **order**           |       ✅       |       ✅       |  ✅   |   —   |  ❌  |   ✅    |
+| **payment**         |       ❌       |       ❌       |  ✅   |  ✅   |  ❌  |    —    |
+| **customer**        |       ✅       |       ✅       |  ✅   |  ✅   |  ❌  |   ❌    |
+| **inventory**       |       ✅       |       ✅       |  ✅   |  ✅   |  ❌  |   ❌    |
 
 ✅ = Allowed | ❌ = Denied | — = Self
 
@@ -131,6 +135,7 @@ chmod +x install-istio.sh
 ```
 
 Verify:
+
 ```bash
 kubectl get pods -n istio-system
 # istiod, kiali, prometheus, grafana, jaeger phải Running
@@ -183,14 +188,14 @@ helm upgrade --install service-mesh k8s/charts/service-mesh \
 ```yaml
 # PeerAuthentication (server-side) - yêu cầu client gửi mTLS
 PeerAuthentication:
-  mtls:
-    mode: STRICT  # Reject plaintext traffic
+    mtls:
+        mode: STRICT # Reject plaintext traffic
 
-# DestinationRule (client-side) - cấu hình client gửi mTLS  
+# DestinationRule (client-side) - cấu hình client gửi mTLS
 DestinationRule:
-  trafficPolicy:
-    tls:
-      mode: ISTIO_MUTUAL  # Istio tự quản lý certificates
+    trafficPolicy:
+        tls:
+            mode: ISTIO_MUTUAL # Istio tự quản lý certificates
 ```
 
 ### Verify
@@ -213,18 +218,20 @@ kubectl get peerauthentication -n $NS
 ### Chiến lược: Deny-by-Default + Allow-List
 
 Helm chart tự động tạo:
+
 1. **`deny-all-default`** → chặn tất cả traffic
 2. **`allow-<service>-access`** → cho phép các caller cụ thể
 
 ### Customize allow list
 
 Chỉnh trong `values.yaml`:
+
 ```yaml
 backendServices:
-  - name: payment
-    allowedCallers:
-      - order        # Chỉ order được gọi payment
-      # Thêm service khác nếu cần
+    - name: payment
+      allowedCallers:
+          - order # Chỉ order được gọi payment
+          # Thêm service khác nếu cần
 ```
 
 ---
@@ -236,10 +243,10 @@ backendServices:
 ```yaml
 # values.yaml
 retry:
-  attempts: 3          # Retry 3 lần
-  perTryTimeout: 5s    # Timeout mỗi lần: 5s
-  retryOn: "5xx,connect-failure,refused-stream,reset"
-  timeout: 30s         # Timeout tổng: 30s
+    attempts: 3 # Retry 3 lần
+    perTryTimeout: 5s # Timeout mỗi lần: 5s
+    retryOn: "5xx,connect-failure,refused-stream,reset"
+    timeout: 30s # Timeout tổng: 30s
 ```
 
 ---
@@ -247,14 +254,16 @@ retry:
 ## 9. Kịch bản Test
 
 ### Test 1: mTLS Verification
+
 ```bash
 NS=yas  # namespace đang active
 POD=$(kubectl get pod -n $NS -o jsonpath='{.items[0].metadata.name}')
-istioctl x describe pod $POD -n $NS
+istioctl x describe pod $POD.$NS
 # Expected: mTLS mode: STRICT
 ```
 
 ### Test 2: Authorization ALLOW
+
 ```bash
 NS=yas
 
@@ -266,10 +275,11 @@ kubectl wait --for=condition=ready pod/test-allowed-client -n $NS --timeout=120s
 # storefront-bff SA → product: ALLOWED
 kubectl exec -n $NS test-allowed-client -- \
     curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/product/
-# Expected: 200
+# Expected: 200 (Hoặc 1 phản hồi từ service đích)
 ```
 
 ### Test 3: Authorization DENY
+
 ```bash
 NS=yas
 kubectl wait --for=condition=ready pod/test-client -n $NS --timeout=120s
@@ -286,17 +296,19 @@ kubectl exec -n $NS test-client -- \
 ```
 
 ### Test 4: Cross-service DENY
+
 ```bash
 NS=yas
 CART_POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=cart -o jsonpath='{.items[0].metadata.name}')
 
 # Cart → Payment: DENIED (cart không trong allow-list của payment)
-kubectl exec -n $NS $CART_POD -c cart -- \
-    curl -v http://payment.$NS:80/payment/
+    kubectl debug exec -n $NS $CART_POD -c cart -- \
+        curl -v http://payment.$NS:80/payment/
 # Expected: HTTP 403 RBAC: access denied
 ```
 
 ### Test 5: Retry Evidence
+
 ```bash
 NS=yas
 POD=$(kubectl get pod -n $NS -l app.kubernetes.io/name=product -o jsonpath='{.items[0].metadata.name}')
@@ -306,6 +318,7 @@ kubectl exec -n $NS $POD -c istio-proxy -- \
 ```
 
 ### Cleanup Test Pods
+
 ```bash
 kubectl delete pod test-client test-allowed-client -n $NS
 kubectl delete sa test-client -n $NS
@@ -363,6 +376,7 @@ developer_cleanup triggers:
 ## 12. Troubleshooting
 
 ### Pods không inject sidecar
+
 ```bash
 # Kiểm tra label
 kubectl get namespace $NS --show-labels | grep istio-injection
@@ -373,6 +387,7 @@ kubectl rollout restart deployment --all -n $NS
 ```
 
 ### Service bị chặn không mong muốn
+
 ```bash
 # Kiểm tra policy
 istioctl x describe pod $POD -n $NS
@@ -386,11 +401,13 @@ kubectl patch peerauthentication ${NS}-strict-mtls -n $NS \
 ```
 
 ### Xem Envoy proxy logs
+
 ```bash
 kubectl logs $POD -n $NS -c istio-proxy | grep "rbac"
 ```
 
 ### Lệnh hữu ích
+
 ```bash
 # Liệt kê tất cả Istio resources
 kubectl get peerauthentication,destinationrule,virtualservice,authorizationpolicy -n $NS
