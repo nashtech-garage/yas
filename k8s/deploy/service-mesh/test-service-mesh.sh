@@ -75,6 +75,15 @@ log_info() {
     echo -e "    ${CYAN}ℹ️  $1${NC}"
 }
 
+# Sanitize HTTP code: extract only the last 3-digit number
+sanitize_http_code() {
+    local raw="$1"
+    # Extract last 3-digit number from output (handles error messages leaking in)
+    local code
+    code=$(echo "$raw" | grep -oE '[0-9]{3}' | tail -1)
+    echo "${code:-000}"
+}
+
 # -----------------------------------------------
 # Detect namespace
 # -----------------------------------------------
@@ -147,7 +156,8 @@ log_info "Total DestinationRules: ${DR_COUNT}"
 # mTLS describe pod
 log_test "mTLS - Pod mTLS status (istioctl)"
 
-SAMPLE_POD=$(kubectl get pod -n "$NS" -l app.kubernetes.io/part-of=yas --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+# Use broad selector: any running pod with istio-proxy sidecar
+SAMPLE_POD=$(kubectl get pods -n "$NS" --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
 
 if [ -n "$SAMPLE_POD" ] && command -v istioctl &>/dev/null; then
     MTLS_OUTPUT=$(istioctl x describe pod "$SAMPLE_POD" -n "$NS" 2>&1 || true)
@@ -159,7 +169,7 @@ if [ -n "$SAMPLE_POD" ] && command -v istioctl &>/dev/null; then
         log_pass "Pod exists with sidecar (mTLS is enforced by PeerAuthentication)"
     fi
 elif [ -z "$SAMPLE_POD" ]; then
-    log_skip "No running pod found with label app.kubernetes.io/part-of=yas"
+    log_skip "No running pod found in namespace $NS"
 else
     log_skip "istioctl not installed, skipping pod-level mTLS check"
 fi
@@ -288,10 +298,11 @@ if [ "$ALLOW_POD_READY" == "Running" ]; then
 
     # Test ALLOW: storefront-bff → product
     log_test "Authorization ALLOW - storefront-bff → product (actuator/health)"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://product.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://product.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_fail "Got 403 RBAC denied (policy should ALLOW storefront-bff → product)"
@@ -303,10 +314,11 @@ if [ "$ALLOW_POD_READY" == "Running" ]; then
 
     # Test ALLOW: storefront-bff → cart
     log_test "Authorization ALLOW - storefront-bff → cart (actuator/health)"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://cart.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://cart.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_fail "Got 403 RBAC denied (policy should ALLOW storefront-bff → cart)"
@@ -318,10 +330,11 @@ if [ "$ALLOW_POD_READY" == "Running" ]; then
 
     # Test ALLOW: storefront-bff → order
     log_test "Authorization ALLOW - storefront-bff → order (actuator/health)"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://order.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://order.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_fail "Got 403 RBAC denied (policy should ALLOW storefront-bff → order)"
@@ -333,10 +346,11 @@ if [ "$ALLOW_POD_READY" == "Running" ]; then
 
     # Test ALLOW: storefront-bff → customer
     log_test "Authorization ALLOW - storefront-bff → customer (actuator/health)"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://customer.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://customer.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_fail "Got 403 RBAC denied (policy should ALLOW storefront-bff → customer)"
@@ -358,10 +372,11 @@ if [ "$DENY_POD_READY" == "Running" ]; then
 
     # Test DENY: test-client → product
     log_test "Authorization DENY - unknown SA → product"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://product.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://product.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_pass "HTTP 403 RBAC: access denied (deny-all policy working)"
@@ -373,10 +388,11 @@ if [ "$DENY_POD_READY" == "Running" ]; then
 
     # Test DENY: test-client → payment
     log_test "Authorization DENY - unknown SA → payment"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://payment.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://payment.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_pass "HTTP 403 RBAC: access denied (deny-all policy working)"
@@ -388,10 +404,11 @@ if [ "$DENY_POD_READY" == "Running" ]; then
 
     # Test DENY: test-client → cart
     log_test "Authorization DENY - unknown SA → cart"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://cart.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://cart.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_pass "HTTP 403 RBAC: access denied (deny-all policy working)"
@@ -403,10 +420,11 @@ if [ "$DENY_POD_READY" == "Running" ]; then
 
     # Test DENY: test-client → order
     log_test "Authorization DENY - unknown SA → order"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://order.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://order.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_pass "HTTP 403 RBAC: access denied (deny-all policy working)"
@@ -418,10 +436,11 @@ if [ "$DENY_POD_READY" == "Running" ]; then
 
     # Test DENY: test-client → storefront-bff
     log_test "Authorization DENY - unknown SA → storefront-bff"
-    HTTP_CODE=$(kubectl exec -n "$NS" test-client -- \
+    RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://storefront-bff.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://storefront-bff.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_pass "HTTP 403 RBAC: access denied (deny-all policy working)"
@@ -437,17 +456,78 @@ else
 fi
 
 # ============================================================
-# TEST 6: Cross-service DENY
+# TEST 6: Cross-service tests (deploy pods with specific SAs)
 # ============================================================
+# App containers (cart, order) don't have curl installed.
+# Deploy dedicated test pods with their ServiceAccounts instead.
+
+log_header "CROSS-SERVICE TESTS"
+
+echo -e "  Deploying cross-service test pods..."
+
+# Create test pod with cart SA (cart should be DENIED to payment)
+cat <<EOF | kubectl apply -f - 2>/dev/null
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-cart-client
+  namespace: $NS
+  labels:
+    app: test-cart-client
+    purpose: authorization-testing
+  annotations:
+    sidecar.istio.io/inject: "true"
+spec:
+  serviceAccountName: cart
+  containers:
+    - name: curl
+      image: curlimages/curl:8.5.0
+      command: ["sleep", "86400"]
+      resources:
+        limits: { memory: "64Mi", cpu: "100m" }
+        requests: { memory: "32Mi", cpu: "50m" }
+  restartPolicy: Never
+EOF
+
+# Create test pod with order SA (order should be ALLOWED to payment)
+cat <<EOF | kubectl apply -f - 2>/dev/null
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-order-client
+  namespace: $NS
+  labels:
+    app: test-order-client
+    purpose: authorization-testing
+  annotations:
+    sidecar.istio.io/inject: "true"
+spec:
+  serviceAccountName: order
+  containers:
+    - name: curl
+      image: curlimages/curl:8.5.0
+      command: ["sleep", "86400"]
+      resources:
+        limits: { memory: "64Mi", cpu: "100m" }
+        requests: { memory: "32Mi", cpu: "50m" }
+  restartPolicy: Never
+EOF
+
+echo -e "  Waiting for cross-service test pods..."
+kubectl wait --for=condition=ready pod/test-cart-client -n "$NS" --timeout=120s 2>/dev/null || true
+kubectl wait --for=condition=ready pod/test-order-client -n "$NS" --timeout=120s 2>/dev/null || true
+sleep 3
+
+# Cross-service DENY: cart SA → payment
 log_test "Cross-service DENY - cart → payment (not in allow-list)"
 
-CART_POD=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name=cart --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
-
-if [ -n "$CART_POD" ]; then
-    HTTP_CODE=$(kubectl exec -n "$NS" "$CART_POD" -c cart -- \
+CART_POD_READY=$(kubectl get pod test-cart-client -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+if [ "$CART_POD_READY" == "Running" ]; then
+    RAW_CODE=$(kubectl exec -n "$NS" test-cart-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://payment.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://payment.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_pass "HTTP 403 - cart correctly denied access to payment"
@@ -457,19 +537,19 @@ if [ -n "$CART_POD" ]; then
         log_fail "HTTP ${HTTP_CODE} (expected 403 - cart should NOT reach payment)"
     fi
 else
-    log_skip "No running cart pod found"
+    log_skip "test-cart-client pod not ready"
 fi
 
-# Cross-service ALLOW: order → payment (order IS in allow-list)
+# Cross-service ALLOW: order SA → payment
 log_test "Cross-service ALLOW - order → payment (in allow-list)"
 
-ORDER_POD=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name=order --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
-
-if [ -n "$ORDER_POD" ]; then
-    HTTP_CODE=$(kubectl exec -n "$NS" "$ORDER_POD" -c order -- \
+ORDER_POD_READY=$(kubectl get pod test-order-client -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+if [ "$ORDER_POD_READY" == "Running" ]; then
+    RAW_CODE=$(kubectl exec -n "$NS" test-order-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://payment.${NS}:80/actuator/health" 2>/dev/null || echo "000")
+        "http://payment.${NS}:80/actuator/health" 2>&1 || echo "000")
+    HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
         log_fail "HTTP 403 - order should be ALLOWED to access payment"
@@ -479,7 +559,7 @@ if [ -n "$ORDER_POD" ]; then
         log_pass "HTTP ${HTTP_CODE} - order correctly allowed access to payment"
     fi
 else
-    log_skip "No running order pod found"
+    log_skip "test-order-client pod not ready"
 fi
 
 # ============================================================
@@ -531,7 +611,7 @@ fi
 log_header "CLEANUP"
 
 echo -e "  Removing test pods..."
-kubectl delete pod test-client test-allowed-client -n "$NS" --grace-period=0 --force 2>/dev/null || true
+kubectl delete pod test-client test-allowed-client test-cart-client test-order-client -n "$NS" --grace-period=0 --force 2>/dev/null || true
 kubectl delete sa test-client -n "$NS" 2>/dev/null || true
 echo -e "  ${GREEN}Cleanup done${NC}"
 
