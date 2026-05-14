@@ -288,20 +288,20 @@ kubectl wait --for=condition=ready pod/test-allowed-client -n "$NS" --timeout=12
 sleep 5
 
 # --- Test: ALLOW (storefront-bff SA → various services) ---
-# Dùng /actuator/prometheus (exposed trên tất cả services)
-# Tránh 401 từ app-level auth hoặc missing health endpoint
-# Kết quả: != 403 = PASS (Istio policy ALLOW hoạt động)
+# Dùng /<SERVICE>/actuator/prometheus (service context path + actuator endpoint)
+# Tránh auth issues, chỉ test xem Istio policy có cho phép hay không
+# Kết quả: != 403 = PASS (Istio policy ALLOW hoạt động), 404 cũng OK (endpoint not found nhưng request passed through)
 
 ALLOW_POD_READY=$(kubectl get pod test-allowed-client -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
 
 if [ "$ALLOW_POD_READY" == "Running" ]; then
 
     # Test ALLOW: storefront-bff → product
-    log_test "Authorization ALLOW - storefront-bff → product (actuator/prometheus)"
+    log_test "Authorization ALLOW - storefront-bff → product (product/actuator/prometheus)"
     RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://product.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://product.${NS}:80/product/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -313,11 +313,11 @@ if [ "$ALLOW_POD_READY" == "Running" ]; then
     fi
 
     # Test ALLOW: storefront-bff → cart
-    log_test "Authorization ALLOW - storefront-bff → cart (actuator/prometheus)"
+    log_test "Authorization ALLOW - storefront-bff → cart (cart/actuator/prometheus)"
     RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://cart.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://cart.${NS}:80/cart/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -329,11 +329,11 @@ if [ "$ALLOW_POD_READY" == "Running" ]; then
     fi
 
     # Test ALLOW: storefront-bff → order
-    log_test "Authorization ALLOW - storefront-bff → order (actuator/prometheus)"
+    log_test "Authorization ALLOW - storefront-bff → order (order/actuator/prometheus)"
     RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://order.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://order.${NS}:80/order/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -345,11 +345,11 @@ if [ "$ALLOW_POD_READY" == "Running" ]; then
     fi
 
     # Test ALLOW: storefront-bff → customer
-    log_test "Authorization ALLOW - storefront-bff → customer (actuator/prometheus)"
+    log_test "Authorization ALLOW - storefront-bff → customer (customer/actuator/prometheus)"
     RAW_CODE=$(kubectl exec -n "$NS" test-allowed-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://customer.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://customer.${NS}:80/customer/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -375,7 +375,7 @@ if [ "$DENY_POD_READY" == "Running" ]; then
     RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://product.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://product.${NS}:80/product/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -391,7 +391,7 @@ if [ "$DENY_POD_READY" == "Running" ]; then
     RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://payment.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://payment.${NS}:80/payment/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -407,7 +407,7 @@ if [ "$DENY_POD_READY" == "Running" ]; then
     RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://cart.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://cart.${NS}:80/cart/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -423,7 +423,7 @@ if [ "$DENY_POD_READY" == "Running" ]; then
     RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://order.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://order.${NS}:80/order/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then
@@ -439,7 +439,7 @@ if [ "$DENY_POD_READY" == "Running" ]; then
     RAW_CODE=$(kubectl exec -n "$NS" test-client -- \
         curl -s -o /dev/null -w "%{http_code}" \
         --connect-timeout 5 --max-time 10 \
-        "http://storefront-bff.${NS}:80/actuator/prometheus" 2>&1 || echo "000")
+        "http://storefront-bff.${NS}:80/storefront-bff/actuator/prometheus" 2>&1 || echo "000")
     HTTP_CODE=$(sanitize_http_code "$RAW_CODE")
 
     if [ "$HTTP_CODE" == "403" ]; then

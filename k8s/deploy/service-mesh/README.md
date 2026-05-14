@@ -267,13 +267,16 @@ Script tự động chạy tất cả test cases và hiển thị kết quả �
 
 ### Giải thích HTTP Status Code
 
-| HTTP Code | Ý nghĩa | Layer |
-|---|---|---|
-| **403** | `RBAC: access denied` - Istio chặn | Istio AuthorizationPolicy (network) |
-| **401** | Unauthorized - App yêu cầu JWT token | Spring Security (application) |
-| **200** | OK - Request thành công | Application |
+| HTTP Code | Ý nghĩa                              | Layer                               |
+| --------- | ------------------------------------ | ----------------------------------- |
+| **403**   | `RBAC: access denied` - Istio chặn   | Istio AuthorizationPolicy (network) |
+| **401**   | Unauthorized - App yêu cầu JWT token | Spring Security (application)       |
+| **200**   | OK - Request thành công              | Application                         |
 
-> **Lưu ý**: Khi test ALLOW policy, dùng `/actuator/health` thay vì `/product/` để tránh bị 401 từ app-level auth. Mục đích test là chứng minh **Istio policy hoạt động**, không phải app auth.
+> **Lưu ý**: Khi test ALLOW policy, dùng `/actuator/prometheus` thay vì các endpoint có auth. Các service có context path: `/product`, `/cart`, `/order`, `/payment`, etc.
+> Endpoint đầy đủ: `http://product.yas:80/product/actuator/prometheus`
+> Mục đích test là chứng minh **Istio policy hoạt động**, không phải app auth.
+>
 > - Test ALLOW: HTTP code **≠ 403** → Istio cho phép traffic đi qua ✅
 > - Test DENY: HTTP code **= 403** → Istio chặn traffic ✅
 
@@ -297,11 +300,11 @@ kubectl apply -f <(helm template service-mesh k8s/charts/service-mesh \
 kubectl wait --for=condition=ready pod/test-allowed-client -n $NS --timeout=120s
 
 # storefront-bff SA → product: ALLOWED
-# Dùng /actuator/health để tránh 401 từ Spring Security
+# Dùng /product/actuator/prometheus (context path + actuator endpoint)
 kubectl exec -n $NS test-allowed-client -- \
-    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/actuator/health
-# Expected: 200 (hoặc bất kỳ code nào ≠ 403)
-# Nếu nhận 401 → Istio policy ALLOW hoạt động, app yêu cầu JWT (bình thường)
+    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/product/actuator/prometheus
+# Expected: 200, 404, hoặc bất kỳ code nào ≠ 403
+# Nếu nhận 404 → Istio policy ALLOW hoạt động, nhưng endpoint không tồn tại (OK)
 # Nếu nhận 403 → Istio policy DENY → cần kiểm tra AuthorizationPolicy
 ```
 
@@ -313,12 +316,12 @@ kubectl wait --for=condition=ready pod/test-client -n $NS --timeout=120s
 
 # test-client SA → product: DENIED
 kubectl exec -n $NS test-client -- \
-    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/actuator/health
+    curl -s -o /dev/null -w "%{http_code}" http://product.$NS:80/product/actuator/prometheus
 # Expected: HTTP 403 RBAC: access denied
 
 # test-client SA → payment: DENIED
 kubectl exec -n $NS test-client -- \
-    curl -s -o /dev/null -w "%{http_code}" http://payment.$NS:80/actuator/health
+    curl -s -o /dev/null -w "%{http_code}" http://payment.$NS:80/payment/actuator/prometheus
 # Expected: HTTP 403 RBAC: access denied
 ```
 
