@@ -38,7 +38,6 @@ helm.sh/chart: {{ include "ui.chart" . }}
 {{ include "ui.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
@@ -50,6 +49,7 @@ Selector labels
 app.kubernetes.io/name: {{ include "ui.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "ui.name" . }}
+version: {{ .Chart.AppVersion | default "latest" | quote }}
 {{- end }}
 
 {{/*

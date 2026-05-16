@@ -11,7 +11,11 @@ metadata:
     {{- include "service-mesh.labels" . | nindent 4 }}
 spec:
   mtls:
+    {{- if .Values.allowNodePort }}
+    mode: PERMISSIVE
+    {{- else }}
     mode: {{ .Values.mtls.mode }}
+    {{- end }}
 ---
 # ============================================================
 # DestinationRule - Wildcard mTLS for all services
