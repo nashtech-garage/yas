@@ -29,3 +29,6 @@ hs_err_pid*
 .settings*
 .vscode
 *.iml
+
+# flatten-maven-plugin
+.flattened-pom.xml

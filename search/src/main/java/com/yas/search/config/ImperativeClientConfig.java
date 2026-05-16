@@ -17,9 +17,15 @@ public class ImperativeClientConfig extends ElasticsearchConfiguration {
 
     @Override
     public ClientConfiguration clientConfiguration() {
+        String url = elasticsearchConfig.getUrl()
+            .replace("https://", "")
+            .replace("http://", "");
+    
         return ClientConfiguration.builder()
-                .connectedTo(elasticsearchConfig.getUrl())
-                .withBasicAuth(elasticsearchConfig.getUsername(), elasticsearchConfig.getPassword())
+                .connectedTo(url)
+                .usingSsl()
+                .withBasicAuth(elasticsearchConfig.getUsername(), 
+                            elasticsearchConfig.getPassword())
                 .build();
     }
 }

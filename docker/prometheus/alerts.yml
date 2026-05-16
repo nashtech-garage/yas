@@ -1,0 +1,116 @@
+groups:
+  - name: bff_alerts
+    interval: 30s
+    rules:
+      # High Error Rate Alert
+      - alert: BFFHighErrorRate
+        expr: |
+          (rate(bff_requests_errors[5m]) / rate(bff_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          service: backoffice-bff
+        annotations:
+          summary: "BFF Error Rate High"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+          dashboard: "http://grafana/d/bff-overview"
+
+      # High Latency Alert (p95 > 1s)
+      - alert: BFFHighLatency
+        expr: |
+          histogram_quantile(0.95, bff_request_latency_bucket) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: backoffice-bff
+        annotations:
+          summary: "BFF Request Latency High"
+          description: "p95 latency is {{ $value | humanizeDuration }} for the last 5 minutes"
+          dashboard: "http://grafana/d/bff-overview"
+
+      # Service Down Alert
+      - alert: BFFServiceDown
+        expr: |
+          up{job="bff-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: backoffice-bff
+        annotations:
+          summary: "BFF Service is Down"
+          description: "BFF has been down for more than 1 minute"
+
+      # High Request Rate (potential DDoS)
+      - alert: BFFHighRequestRate
+        expr: |
+          rate(bff_requests_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: backoffice-bff
+        annotations:
+          summary: "BFF Request Rate Abnormally High"
+          description: "Request rate is {{ $value | humanize }} req/s"
+
+      # Cache Hit Ratio Low
+      - alert: BFFLowCacheHitRatio
+        expr: |
+          (bff_cache_hits / (bff_cache_hits + bff_cache_misses)) < 0.5
+        for: 10m
+        labels:
+          severity: info
+          service: backoffice-bff
+        annotations:
+          summary: "BFF Cache Hit Ratio is Low"
+          description: "Cache hit ratio is only {{ $value | humanizePercentage }}"
+
+      # Downstream Service Errors
+      - alert: DownstreamServiceError
+        expr: |
+          rate(bff_downstream_calls_total{status="failed"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: backoffice-bff
+        annotations:
+          summary: "Downstream Service Error"
+          description: "Service {{ $labels.service }} is experiencing errors"
+
+  - name: infrastructure_alerts
+    interval: 30s
+    rules:
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: |
+          (jvm_memory_used_bytes / jvm_memory_max_bytes) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High Memory Usage Detected"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: |
+          process_cpu_usage > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU Usage Detected"
+          description: "CPU usage is {{ $value | humanizePercentage }}"
+
+      # Too Many Threads
+      - alert: HighThreadCount
+        expr: |
+          jvm_threads_live_threads > 500
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High Thread Count"
+          description: "Live thread count is {{ $value }}"

@@ -1,8 +1,0 @@
-ui:
-  image:
-    repository: ghcr.io/nashtech-garage/yas-backoffice
-    tag: latest
-  nameOverride: backoffice-ui
-  fullnameOverride: backoffice-ui
-  ingress:
-    enabled: false

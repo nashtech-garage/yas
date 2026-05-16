@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'SERVICE',
+            choices: [
+                'tax', 'cart', 'order', 'customer', 'product',
+                'inventory', 'payment', 'payment-paypal', 'promotion',
+                'rating', 'location', 'media', 'search',
+                'recommendation', 'webhook', 'storefront-bff', 'backoffice-bff'
+            ],
+            description: 'Chọn service muốn reset về tag main'
+        )
+    }
+
+    stages {
+        stage('Reset Image Tag to main') {
+            steps {
+                script {
+                    withCredentials([string(
+                        credentialsId: 'github-token',
+                        variable: 'GH_TOKEN'
+                    )]) {
+                        sh """
+                            git clone https://\${GH_TOKEN}@github.com/thannthai/yas-gitops.git
+                            cd yas-gitops
+                            git config user.email "jenkins@ci.com"
+                            git config user.name "Jenkins"
+
+                            # Reset tag về main trong values-dev.yaml (chỉ ảnh hưởng namespace dev)
+                            sed -i 's|tag:.*|tag: main|' charts/${params.SERVICE}/values-dev.yaml
+                            git add charts/${params.SERVICE}/values-dev.yaml
+
+                            if ! git diff --cached --quiet; then
+                                git commit -m "cleanup: reset ${params.SERVICE} to main"
+                                git push
+                                echo "✅ Reset ${params.SERVICE} về tag main"
+                            else
+                                echo "⚠️ ${params.SERVICE} đã ở tag main rồi — không cần reset"
+                            fi
+
+                            cd ..
+                            rm -rf yas-gitops
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Đã reset ${params.SERVICE} về image main — ArgoCD sẽ tự sync"
+        }
+        failure {
+            echo "❌ Reset thất bại!"
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

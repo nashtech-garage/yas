@@ -2,6 +2,10 @@ global:
   scrape_interval: 2s
   evaluation_interval: 2s
 
+# Load alert rules
+rule_files:
+  - '/etc/prometheus/alerts.yml'
+
 scrape_configs:
 - job_name: otel-collector
   static_configs:

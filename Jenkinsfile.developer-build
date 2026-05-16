@@ -1,0 +1,243 @@
+// ============================================================================
+// Jenkinsfile.developer-build
+// Job này dành cho developer muốn test code của mình trên K8s
+//
+// Cách dùng:
+//   - Vào Jenkins → developer_build job
+//   - Điền branch của service mình đang làm (vd: dev_tax_service)
+//   - Các service khác mặc định dùng tag "latest" từ Docker Hub
+//   - Job sẽ build image → push Docker Hub → update GitOps → ArgoCD tự deploy
+// ============================================================================
+
+// Map dùng để truyền shortSha giữa Build stage và Deploy stage
+// (không dùng env["key"] = value vì Jenkins sandbox chặn putAt trên EnvActionImpl)
+def serviceTags = [:]
+
+def SERVICES = [
+    'backoffice-bff', 'cart', 'customer', 'inventory', 'location',
+    'media', 'order', 'payment', 'payment-paypal', 'product',
+    'promotion', 'rating', 'recommendation', 'search',
+    'storefront-bff', 'tax', 'webhook'
+]
+
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK 21'
+        maven 'Maven 3'
+    }
+
+    // ========================================================================
+    // PARAMETERS — Developer điền branch cho service mình đang làm việc
+    // Các service khác để trống → giữ nguyên image hiện tại, không đụng vào
+    // ========================================================================
+    parameters {
+        string(name: 'tax',            defaultValue: '', description: 'Branch của tax service (để trống = giữ nguyên)')
+        string(name: 'cart',           defaultValue: '', description: 'Branch của cart service')
+        string(name: 'order',          defaultValue: '', description: 'Branch của order service')
+        string(name: 'customer',       defaultValue: '', description: 'Branch của customer service')
+        string(name: 'product',        defaultValue: '', description: 'Branch của product service')
+        string(name: 'inventory',      defaultValue: '', description: 'Branch của inventory service')
+        string(name: 'payment',        defaultValue: '', description: 'Branch của payment service')
+        string(name: 'payment_paypal', defaultValue: '', description: 'Branch của payment-paypal service')
+        string(name: 'promotion',      defaultValue: '', description: 'Branch của promotion service')
+        string(name: 'rating',         defaultValue: '', description: 'Branch của rating service')
+        string(name: 'location',       defaultValue: '', description: 'Branch của location service')
+        string(name: 'media',          defaultValue: '', description: 'Branch của media service')
+        string(name: 'search',         defaultValue: '', description: 'Branch của search service')
+        string(name: 'recommendation', defaultValue: '', description: 'Branch của recommendation service')
+        string(name: 'webhook',        defaultValue: '', description: 'Branch của webhook service')
+        string(name: 'storefront_bff', defaultValue: '', description: 'Branch của storefront-bff service')
+        string(name: 'backoffice_bff', defaultValue: '', description: 'Branch của backoffice-bff service')
+    }
+
+    stages {
+        // ====================================================================
+        // STAGE 1: Xác định service nào cần build từ branch custom
+        // ====================================================================
+        stage('Resolve Parameters') {
+            steps {
+                script {
+                    def paramToService = [
+                        'tax'            : 'tax',
+                        'cart'           : 'cart',
+                        'order'          : 'order',
+                        'customer'       : 'customer',
+                        'product'        : 'product',
+                        'inventory'      : 'inventory',
+                        'payment'        : 'payment',
+                        'payment_paypal' : 'payment-paypal',
+                        'promotion'      : 'promotion',
+                        'rating'         : 'rating',
+                        'location'       : 'location',
+                        'media'          : 'media',
+                        'search'         : 'search',
+                        'recommendation' : 'recommendation',
+                        'webhook'        : 'webhook',
+                        'storefront_bff' : 'storefront-bff',
+                        'backoffice_bff' : 'backoffice-bff',
+                    ]
+
+                    env.SERVICES_TO_BUILD = ''
+                    paramToService.each { param, svc ->
+                        def branch = params[param]?.trim()
+                        if (branch) {
+                            echo "✅ ${svc} → sẽ build từ branch: ${branch}"
+                            env.SERVICES_TO_BUILD += "${svc}:${branch},"
+                        }
+                    }
+
+                    if (!env.SERVICES_TO_BUILD) {
+                        error("❌ Chưa điền branch cho service nào cả. Hãy nhập ít nhất 1 service.")
+                    }
+
+                    echo "📋 Services cần build: ${env.SERVICES_TO_BUILD}"
+                }
+            }
+        }
+
+        // ====================================================================
+        // STAGE 2: Checkout từng branch, build JAR + Docker image, push lên Docker Hub
+        // ====================================================================
+        stage('Build & Push Custom Branches') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+
+                        def entries = env.SERVICES_TO_BUILD.split(',').findAll { it }
+                        entries.each { entry ->
+                            // split(':', 2) để tránh lỗi nếu tên branch chứa dấu ':'
+                            def parts  = entry.split(':', 2)
+                            def svc    = parts[0]
+                            def branch = parts[1]
+
+                            stage("Build ${svc} @ ${branch}") {
+                                echo "🔧 Checkout ${svc} từ branch: ${branch}"
+
+                                checkout([
+                                    $class: 'GitSCM',
+                                    branches: [[name: "*/${branch}"]],
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                                ])
+
+                                // Lấy commit SHA của branch này
+                                def commitSha = sh(
+                                    script: 'git rev-parse HEAD',
+                                    returnStdout: true
+                                ).trim()
+                                def shortSha = commitSha.take(7)
+
+                                echo "📌 Commit SHA: ${shortSha}"
+
+                                // Build JAR
+                                sh "mvn clean package -pl ${svc} -am -DskipTests -q"
+
+                                // Build & push Docker image (chỉ khi có Dockerfile)
+                                if (!fileExists("${svc}/Dockerfile")) {
+                                    echo "⚠️ ${svc}: không có Dockerfile — bỏ qua Docker build"
+                                } else {
+                                    // Lấy DOCKER_USER vào Groovy variable (withCredentials chỉ bind shell env)
+                                    def imageTag = "${env.DOCKER_USER}/yas-${svc}:${shortSha}"
+                                    sh """
+                                        docker build --platform linux/amd64 \
+                                            -t ${imageTag} \
+                                            ./${svc}
+                                        docker push ${imageTag}
+                                        docker rmi ${imageTag} || true
+                                        echo "✅ Pushed: ${imageTag}"
+                                    """
+                                }
+
+                                // Lưu shortSha vào Groovy Map để dùng ở stage Deploy
+                                serviceTags[svc] = shortSha
+                            }
+                        }
+
+                        sh 'docker logout'
+                    }
+                }
+            }
+        }
+
+        // ====================================================================
+        // STAGE 3: Update yas-gitops repo → ArgoCD tự động deploy lên namespace dev
+        //   - Service có branch custom → update tag = commit SHA vừa build
+        //   - Service còn lại         → giữ nguyên, không đụng vào
+        // ====================================================================
+        stage('Deploy to Dev via GitOps') {
+            steps {
+                script {
+                    withCredentials([string(
+                        credentialsId: 'github-token',
+                        variable: 'GH_TOKEN'
+                    )]) {
+                        sh """
+                            # Dọn thư mục cũ nếu còn sót từ build fail trước
+                            rm -rf yas-gitops
+                            git clone https://\${GH_TOKEN}@github.com/thannthai/yas-gitops.git
+                            cd yas-gitops
+                            git config user.email "jenkins@ci.com"
+                            git config user.name "Jenkins"
+                        """
+
+                        def entries = env.SERVICES_TO_BUILD.split(',').findAll { it }
+                        entries.each { entry ->
+                            // split(':', 2) nhất quán với Build stage
+                            def parts    = entry.split(':', 2)
+                            def svc      = parts[0]
+                            def shortSha = serviceTags[svc]
+
+                            sh """
+                                cd yas-gitops
+                                # developer-build chỉ update values-dev.yaml (namespace dev)
+                                # values-staging.yaml do CI pipeline (merge main) quản lý
+                                sed -i 's|tag:.*|tag: ${shortSha}|' charts/${svc}/values-dev.yaml
+                                git add charts/${svc}/values-dev.yaml
+                                echo "✅ Updated ${svc} → ${shortSha} (dev)"
+                            """
+                        }
+
+                        sh """
+                            cd yas-gitops
+                            if ! git diff --cached --quiet; then
+                                git commit -m "developer-build: update services [${new Date().format('yyyy-MM-dd HH:mm')}]"
+                                git push
+                                echo "✅ Pushed to yas-gitops — ArgoCD sẽ tự sync"
+                            else
+                                echo "⚠️ Không có thay đổi — bỏ qua push"
+                            fi
+                            cd ..
+                            rm -rf yas-gitops
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    // ========================================================================
+    // POST
+    // ========================================================================
+    post {
+        success {
+            echo '══════════════════════════════════════════════'
+            echo '✅ Developer Build & Deploy THÀNH CÔNG!'
+            echo '   ArgoCD sẽ sync và deploy lên namespace dev'
+            echo '══════════════════════════════════════════════'
+        }
+        failure {
+            echo '══════════════════════════════════════════════'
+            echo '❌ Developer Build & Deploy THẤT BẠI!'
+            echo '══════════════════════════════════════════════'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
