@@ -48,13 +48,8 @@ backendServices:
       - storefront-bff
       - backoffice-bff
       - payment
-      - payment-paypal
   - name: payment
     allowedCallers:
-      - order
-  - name: payment-paypal
-    allowedCallers:
-      - payment
       - order
   - name: customer
     allowedCallers:

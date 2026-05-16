@@ -93,6 +93,7 @@ spec:
           image: nginx:1.25-alpine
           ports:
             - containerPort: 80
+              name: http
           volumeMounts:
             - name: config
               mountPath: /etc/nginx/conf.d
@@ -112,3 +113,4 @@ spec:
   ports:
     - port: 80
       targetPort: 80
+      name: http

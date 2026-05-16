@@ -38,6 +38,8 @@ helm.sh/chart: {{ include "ui.chart" . }}
 {{ include "ui.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app: {{ include "ui.name" . }}
+version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}

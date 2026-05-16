@@ -92,7 +92,6 @@ spec:
               - "cluster.local/ns/yas/sa/backoffice-bff"
               - "cluster.local/ns/yas/sa/default"
               - "cluster.local/ns/yas/sa/payment"
-              - "cluster.local/ns/yas/sa/payment-paypal"
       to:
         - operation:
             ports: ["80"]
@@ -113,29 +112,6 @@ spec:
     - from:
         - source:
             principals:
-              - "cluster.local/ns/yas/sa/order"
-              - "cluster.local/ns/yas/sa/default"
-      to:
-        - operation:
-            ports: ["80"]
-
----
-# --- ALLOW: Payment-Paypal Service ---
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: allow-payment-paypal-access
-  namespace: yas
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: payment-paypal
-  action: ALLOW
-  rules:
-    - from:
-        - source:
-            principals:
-              - "cluster.local/ns/yas/sa/payment"
               - "cluster.local/ns/yas/sa/order"
               - "cluster.local/ns/yas/sa/default"
       to:
