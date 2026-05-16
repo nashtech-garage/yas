@@ -10,6 +10,6 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "backend.fullname" . }}
   endpoints:
-    - port: 'metric'
+    - port: 'http-metric'
       path: '/actuator/prometheus'
   {{- end }}

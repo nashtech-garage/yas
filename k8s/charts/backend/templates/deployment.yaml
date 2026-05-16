@@ -86,7 +86,7 @@ spec:
             - name: http
               containerPort: {{ .Values.httpPort }}
               protocol: TCP
-            - name: metric
+            - name: http-metric
               containerPort: {{ .Values.metricPort }}
           lifecycle:
             {{ toYaml .Values.lifecycle | nindent 12 }}

@@ -72,6 +72,11 @@ spec:
         - source:
             namespaces:
               - "{{ $.Values.ingressNamespace }}"
+      {{- if $.Values.allowNodePort }}
+        # Allow external traffic via NodePort (no mTLS identity)
+        - source:
+            notPrincipals: ["_never_match_"]
+      {{- end }}
       to:
         - operation:
             ports: ["80"]
@@ -100,6 +105,11 @@ spec:
             namespaces:
               - "{{ $.Release.Namespace }}"
               - "{{ $.Values.ingressNamespace }}"
+      {{- if $.Values.allowNodePort }}
+        # Allow external traffic via NodePort (no mTLS identity)
+        - source:
+            notPrincipals: ["_never_match_"]
+      {{- end }}
 ---
 {{- end }}
 
@@ -125,6 +135,11 @@ spec:
             namespaces:
               - "{{ .Release.Namespace }}"
               - "{{ .Values.ingressNamespace }}"
+      {{- if .Values.allowNodePort }}
+        # Allow external traffic via NodePort (no mTLS identity)
+        - source:
+            notPrincipals: ["_never_match_"]
+      {{- end }}
       to:
         - operation:
             ports: ["80"]

@@ -38,7 +38,6 @@ helm.sh/chart: {{ include "backend.chart" . }}
 {{ include "backend.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-app: {{ include "backend.name" . }}
 version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -50,6 +49,7 @@ Selector labels
 {{- define "backend.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "backend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "backend.name" . }}
 {{- end }}
 
 {{/*

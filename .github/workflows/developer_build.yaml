@@ -415,9 +415,10 @@ jobs:
                     # Enable sidecar injection
                     kubectl label namespace "$NS" istio-injection=enabled --overwrite
 
-                    # Deploy service-mesh Helm chart
+                    # Deploy service-mesh Helm chart (with NodePort access enabled)
                     helm upgrade --install service-mesh k8s/charts/service-mesh \
                       --namespace "$NS" \
+                      --set allowNodePort=true \
                       --wait --timeout 2m || {
                         echo "Warning: Service mesh deployment failed, continuing..."
                       }

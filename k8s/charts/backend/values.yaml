@@ -108,7 +108,7 @@ terminationGracePeriodSeconds: 45
 startupProbe:
   httpGet:
     path: /actuator/health/liveness
-    port: metric
+    port: http-metric
   initialDelaySeconds: 60
   periodSeconds: 10
   failureThreshold: 60
@@ -121,7 +121,7 @@ livenessProbe:
   successThreshold: 1
   httpGet:
     path: /actuator/health/liveness
-    port: metric
+    port: http-metric
 
 readinessProbe:
   initialDelaySeconds: 0
@@ -130,7 +130,7 @@ readinessProbe:
   successThreshold: 1
   httpGet:
     path: /actuator/health/readiness
-    port: metric
+    port: http-metric
 
 serviceMonitor:
   enabled: true

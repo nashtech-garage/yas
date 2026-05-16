@@ -132,6 +132,10 @@ nginxGateway:
 # Ingress namespace (cho phép traffic từ ingress vào BFF/UI)
 ingressNamespace: ingress-nginx
 
+# Cho phép external traffic qua NodePort (developer build)
+# Khi true, BFF/UI/Nginx services sẽ accept traffic không có mTLS identity
+allowNodePort: false
+
 # Services cần retry policy (subset của backendServices)
 retryServices:
   - product
