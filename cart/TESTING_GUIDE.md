@@ -2,7 +2,7 @@
 
 Tài liệu này cung cấp cái nhìn tổng quan về cách Unit Test được thiết lập cho `cart-service`, cũng như hướng dẫn chi tiết để Developer clone code về có thể chạy thử nghiệm và tích hợp quy trình này lên Jenkins CI/CD.
 
-## 1. Yêu cầu & Cấu hình
+## 1. Yêu cầu & Cấu hìnhh
 Dự án được xây dựng dựa trên **Java 21**, spring-boot 3.x. Để phục vụ việc test:
 1.  **Cập nhật Parent POM (`yas/pom.xml`)**: Đã nâng cấp `lombok` từ phiên bản `1.18.34` lên `1.18.36`. Điều này đảm bảo tương thích khi build với một số JDK mới (như JDK 25), tránh lỗi `ExceptionInInitializerError: com.sun.tools.javac.code.TypeTag`.
 2.  **Cập nhật Module POM (`yas/cart/pom.xml`)**: 
