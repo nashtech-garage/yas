@@ -1,0 +1,52 @@
+name: Developer Build CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Input target branch for deployment (e.g., feature/update-customer)'
+        required: true
+        type: string
+
+jobs:
+  deploy-to-k8s:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          fetch-depth: 0 
+
+      - name: Detect Changed Service and Commit ID
+        id: vars
+        run: |
+          COMMIT_ID=$(git rev-parse --short HEAD)
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+          
+          SERVICE_NAME=$(git diff --name-only origin/main...HEAD | head -1 | awk -F'/' '{print $1}')
+          if [ -z "$SERVICE_NAME" ]; then
+            exit 1
+          fi
+          echo "service_name=$SERVICE_NAME" >> $GITHUB_ENV
+
+      - name: Set up K8s context
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG_DATA }}
+
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
+      - name: Deploy to Kubernetes
+        run: |
+          helm dependency build ./k8s/charts/${{ env.service_name }}
+          
+          helm upgrade --install ${{ env.service_name }} ./k8s/charts/${{ env.service_name }} \
+            --namespace yas \
+            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ env.service_name }} \
+            --set backend.image.tag=${{ env.commit_id }}
