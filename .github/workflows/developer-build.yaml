@@ -49,4 +49,5 @@ jobs:
           helm upgrade --install ${{ env.service_name }} ./k8s/charts/${{ env.service_name }} \
             --namespace yas \
             --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ env.service_name }} \
-            --set backend.image.tag=${{ env.commit_id }}
+            --set backend.image.tag=${{ env.commit_id }} \
+            --set backend.serviceMonitor.enabled=false
