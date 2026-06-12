@@ -44,6 +44,12 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
+          helm repo add stakater https://stakater.github.io/stakater-charts
+          helm repo update
+          
+          helm dependency build ./k8s/charts/yas-configuration
+          helm upgrade --install yas-configuration ./k8s/charts/yas-configuration --namespace yas --create-namespace
+
           helm dependency build ./k8s/charts/${{ env.service_name }}
           
           helm upgrade --install ${{ env.service_name }} ./k8s/charts/${{ env.service_name }} \
