@@ -21,7 +21,7 @@ jobs:
       - name: Detect Changed Service and Commit ID
         id: vars
         run: |
-          COMMIT_ID=$(git rev-parse --short HEAD)
+          COMMIT_ID=$(git rev-parse HEAD | cut -c1-7)
           echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
           
           SERVICE_NAME=$(git diff --name-only origin/main...HEAD | head -1 | awk -F'/' '{print $1}')
