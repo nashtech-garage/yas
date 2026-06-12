@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import BrandGeneralInformation from '../../../modules/catalog/components/BrandGeneralInformation';
 import { BRAND_URL } from '../../../constants/Common';
 import { handleCreatingResponse } from '../../../common/services/ResponseStatusHandlingService';
-
+// test pipline
 const BrandCreate: NextPage = () => {
   const router = useRouter();
   const {

@@ -13,9 +13,6 @@
     <name>media</name>
     <description>Yas Media service</description>
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-media</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>

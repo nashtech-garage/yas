@@ -9,7 +9,7 @@ type OptionSelectProps<T extends FieldValues> = {
   labelText: string;
   field: Path<T>;
   register: UseFormRegister<T>;
-  registerOptions?: RegisterOptions;
+  registerOptions?: RegisterOptions<T, Path<T>>;
   error?: string;
   options?: Option[];
   defaultValue?: string | number;

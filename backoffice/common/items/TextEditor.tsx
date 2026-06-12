@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 
-const ReactQuill = dynamic(import('react-quill'), { ssr: false });
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export interface TextEditorProps {
   field: string;

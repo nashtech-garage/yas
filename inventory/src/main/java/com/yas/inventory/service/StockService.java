@@ -86,14 +86,14 @@ public class StockService {
     public List<StockVm> getStocksByWarehouseIdAndProductNameAndSku(Long warehouseId,
                                                                     String productName,
                                                                     String productSku) {
-        HashMap<Long, ProductInfoVm> productInfoVmHashMap =
-            (HashMap<Long, ProductInfoVm>) warehouseService.getProductWarehouse(
-                    warehouseId,
-                    productName,
-                    productSku,
-                    FilterExistInWhSelection.YES)
-                .parallelStream()
-                .collect(Collectors.toMap(ProductInfoVm::id, productInfoVm -> productInfoVm));
+        List<ProductInfoVm> productWarehouse = warehouseService.getProductWarehouse(
+                warehouseId,
+                productName,
+                productSku,
+                FilterExistInWhSelection.YES);
+
+        HashMap<Long, ProductInfoVm> productInfoVmHashMap = productWarehouse.stream()
+                .collect(Collectors.toMap(ProductInfoVm::id, productInfo -> productInfo, (a, b) -> a, HashMap::new));
 
         List<Stock> stocks = stockRepository.findByWarehouseIdAndProductIdIn(
             warehouseId,
@@ -112,11 +112,11 @@ public class StockService {
     public void updateProductQuantityInStock(final StockQuantityUpdateVm requestBody) {
         List<StockQuantityVm> stockQuantityVms = requestBody.stockQuantityList();
         List<Stock> stocks =
-            stockRepository.findAllById(stockQuantityVms.parallelStream().map(StockQuantityVm::stockId).toList());
+            stockRepository.findAllById(stockQuantityVms.stream().map(StockQuantityVm::stockId).toList());
 
         for (final Stock stock : stocks) {
             StockQuantityVm stockQuantityVm = stockQuantityVms
-                .parallelStream()
+                .stream()
                 .filter(stockQuantityPostVm -> stockQuantityPostVm.stockId().equals(stock.getId()))
                 .findFirst()
                 .orElse(null);
@@ -127,7 +127,7 @@ public class StockService {
 
             Long adjustedQuantity = stockQuantityVm.quantity() != null ? stockQuantityVm.quantity() : 0;
 
-            if (adjustedQuantity < 0 && adjustedQuantity > stock.getQuantity()) {
+            if (adjustedQuantity < 0 && -adjustedQuantity > stock.getQuantity()) {
                 throw new BadRequestException(ApiConstant.INVALID_ADJUSTED_QUANTITY);
             }
 
@@ -137,7 +137,7 @@ public class StockService {
         stockHistoryService.createStockHistories(stocks, stockQuantityVms);
 
         //Update stock quantity for product
-        List<ProductQuantityPostVm> productQuantityPostVms = stocks.parallelStream()
+        List<ProductQuantityPostVm> productQuantityPostVms = stocks.stream()
             .map(ProductQuantityPostVm::fromModel)
             .toList();
         if (!productQuantityPostVms.isEmpty()) {

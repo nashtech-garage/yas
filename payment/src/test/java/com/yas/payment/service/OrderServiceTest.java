@@ -108,4 +108,20 @@ class OrderServiceTest {
         assertThat(result.paymentId()).isEqualTo(78910L);
         assertThat(result.paymentStatus()).isEqualTo("SUCCESS");
     }
+
+    @Test
+    void testHandleLongFallback_ShouldThrowException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            orderService.handleLongFallback(throwable);
+        });
+    }
+
+    @Test
+    void testHandlePaymentOrderStatusFallback_ShouldThrowException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            orderService.handlePaymentOrderStatusFallback(throwable);
+        });
+    }
 }
