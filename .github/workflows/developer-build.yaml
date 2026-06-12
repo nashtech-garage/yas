@@ -50,5 +50,4 @@ jobs:
             --namespace yas \
             --create-namespace \
             --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ env.service_name }} \
-            --set backend.image.tag=${{ env.commit_id }} \
-            --set backend.serviceMonitor.enabled=false
+            --set backend.image.tag=${{ env.commit_id }}
