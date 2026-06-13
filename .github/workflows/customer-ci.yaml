@@ -145,11 +145,13 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.TAG }}
 
       - name: Update values.yaml (GitOps)
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          sed -i 's/tag: .*/tag: ${{ env.COMMIT_ID }}/g' k8s/charts/customer/values.yaml
           git config --global user.email "bot@github.com"
           git config --global user.name "GitOps Bot"
+          git fetch origin
+          git checkout -B gitops origin/gitops 2>/dev/null || git checkout -B gitops
+          sed -i 's/tag: .*/tag: ${{ env.COMMIT_ID }}/g' k8s/charts/customer/values.yaml
           git add k8s/charts/customer/values.yaml
           git commit -m "ArgoCD: Update customer tag to ${{ env.COMMIT_ID }}"
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin gitops
