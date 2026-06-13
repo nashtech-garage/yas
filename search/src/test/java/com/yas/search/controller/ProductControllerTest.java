@@ -2,6 +2,7 @@ package com.yas.search.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -19,6 +20,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -58,7 +60,7 @@ class ProductControllerTest {
         );
 
         ProductListGetVm mockResponse = new ProductListGetVm(
-            List.of(productGetVm), 0, 1, 1, 1, true, Map.of()
+            List.of(productGetVm), 0, 12, 1, 1, true, Map.of()
         );
 
 
@@ -93,6 +95,43 @@ class ProductControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.productNames[0].name").value("Product1"));
+    }
+
+    @Test
+    void testFindProductAdvance_whenRequestUsesDefaultParams_thenMapToCriteriaDto() throws Exception {
+        ProductGetVm productGetVm = new ProductGetVm(
+            1L,
+            "Sample Product",
+            "sample-product",
+            123L,
+            29.99,
+            true,
+            true,
+            false,
+            true,
+            ZonedDateTime.now()
+        );
+
+        ProductListGetVm mockResponse = new ProductListGetVm(
+            List.of(productGetVm), 0, 12, 1, 1, true, Map.of()
+        );
+
+        when(productService.findProductAdvance(any(ProductCriteriaDto.class))).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/storefront/catalog-search")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.products[0].id").value(productGetVm.id()))
+            .andExpect(jsonPath("$.pageNo").value(0))
+            .andExpect(jsonPath("$.pageSize").value(12));
+
+        ArgumentCaptor<ProductCriteriaDto> captor = ArgumentCaptor.forClass(ProductCriteriaDto.class);
+        verify(productService).findProductAdvance(captor.capture());
+        ProductCriteriaDto actual = captor.getValue();
+        org.junit.jupiter.api.Assertions.assertEquals("", actual.keyword());
+        org.junit.jupiter.api.Assertions.assertEquals(0, actual.page());
+        org.junit.jupiter.api.Assertions.assertEquals(12, actual.size());
+        org.junit.jupiter.api.Assertions.assertEquals(com.yas.search.constant.enums.SortType.DEFAULT, actual.sortType());
     }
 
 }

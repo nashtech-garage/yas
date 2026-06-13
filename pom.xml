@@ -39,15 +39,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>25</java.version>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <yas.version>1.0-SNAPSHOT</yas.version>
         <revision>1.0-SNAPSHOT</revision>
 
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>hcmus-devops-project1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-yas-parent</sonar.projectKey>
+        <sonar.projectKey>hcmus-devops-project1_yas</sonar.projectKey>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <org.lombok.version>1.18.42</org.lombok.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>

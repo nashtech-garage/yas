@@ -20,5 +20,8 @@ paths = [
   '''test-realm.json''',
   '''realm-export''',
   '''keycloak-yas-realm-import.yaml''',
-  '''target'''
+  '''target''',
+  '''automation-ui/backoffice/src/test/java/com/yas/automation/ui/steps/LoginSteps.java''',
+  '''automation-ui/storefront/src/test/java/com/yas/automation/ui/steps/LoginSteps.java''',
+  '''k8s/charts/yas-configuration/values.yaml'''
 ]

@@ -1,3 +1,4 @@
+// Test
 package com.yas.customer.service;
 
 import com.yas.commonlibrary.exception.AccessDeniedException;
@@ -126,10 +127,10 @@ class CustomerServiceTest {
     void testGetCustomers_hasError_throwForbiddenException() {
 
         when(usersResource.search(any(), anyInt(), anyInt()))
-            .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
+                .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
 
         AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
-            () -> customerService.getCustomers(1));
+                () -> customerService.getCustomers(1));
 
         assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
     }
@@ -159,7 +160,7 @@ class CustomerServiceTest {
 
         CustomerProfileRequestVm customerProfileRequestVm = getCustomerProfileRequestVm();
         NotFoundException thrown = assertThrows(NotFoundException.class,
-            () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
+                () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
         assertTrue(thrown.getMessage().contains("User not found"));
     }
 
@@ -190,7 +191,7 @@ class CustomerServiceTest {
     @Test
     void testGetCustomerByEmail_isInValidEmail_throwWrongEmailFormatException() {
         WrongEmailFormatException thrown = assertThrows(WrongEmailFormatException.class,
-            () -> customerService.getCustomerByEmail("invalid-email"));
+                () -> customerService.getCustomerByEmail("invalid-email"));
         assertTrue(thrown.getMessage().contains("Wrong email format for invalid-email"));
     }
 
@@ -198,7 +199,7 @@ class CustomerServiceTest {
     void testGetCustomerByEmail_searchResultIsEmpty_throwNotFoundException() {
         when(usersResource.search(VALID_EMAIL, true)).thenReturn(List.of());
         NotFoundException thrown = assertThrows(NotFoundException.class,
-            () -> customerService.getCustomerByEmail(VALID_EMAIL));
+                () -> customerService.getCustomerByEmail(VALID_EMAIL));
         assertTrue(thrown.getMessage().contains("User with email " + VALID_EMAIL + " not found"));
     }
 
@@ -206,10 +207,10 @@ class CustomerServiceTest {
     void testGetCustomerByEmail_isAbnormalCase_throwForbiddenException() {
 
         when(usersResource.search(VALID_EMAIL, true))
-            .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
+                .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
 
         AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
-            () -> customerService.getCustomerByEmail(VALID_EMAIL));
+                () -> customerService.getCustomerByEmail(VALID_EMAIL));
 
         assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
     }
@@ -233,10 +234,10 @@ class CustomerServiceTest {
     void testGetCustomerProfile_isAbnormalCase_throwForbiddenException() {
 
         when(usersResource.get(USER_NAME))
-            .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
+                .thenThrow(new AccessDeniedException(ACCESS_DENIED_MESSAGE));
 
         AccessDeniedException thrown = assertThrows(AccessDeniedException.class,
-            () -> customerService.getCustomerProfile(USER_NAME));
+                () -> customerService.getCustomerProfile(USER_NAME));
 
         assertTrue(thrown.getMessage().contains(ACCESS_DENIED_MESSAGE));
     }
@@ -275,7 +276,7 @@ class CustomerServiceTest {
     @Test
     void testCreateUser_isNormalCase_returnCustomerPostVm() {
         CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
-            "Doe", "123", "ADMIN");
+                "Doe", "123", "ADMIN");
         Response response = mock(Response.class);
 
         when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
@@ -288,7 +289,8 @@ class CustomerServiceTest {
         when(usersResource.get("1")).thenReturn(userResource);
 
         when(realmResource.users().search(anyString(), anyBoolean())).thenReturn(Collections.emptyList());
-        when(realmResource.users().search(any(), any(), any(), anyString(), any(), any())).thenReturn(Collections.emptyList());
+        when(realmResource.users().search(any(), any(), any(), anyString(), any(), any()))
+                .thenReturn(Collections.emptyList());
 
         RolesResource rolesResource = mock(RolesResource.class);
         when(realmResource.roles()).thenReturn(rolesResource);
@@ -311,10 +313,10 @@ class CustomerServiceTest {
     @Test
     void testCreateUser_whenUsernameAlreadyExisted_thenThrowDuplicateException() {
         CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
-            "Doe", "123", "ADMIN");
+                "Doe", "123", "ADMIN");
 
         when(realmResource.users().search(anyString(), anyBoolean()))
-            .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+                .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
 
         assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
     }
