@@ -127,10 +127,12 @@ jobs:
       - name: Set Docker Tag
         id: docker_tag
         run: |
+          COMMIT_ID=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "TAG=latest" >> $GITHUB_ENV
           else
-            echo "TAG=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+            echo "TAG=$COMMIT_ID" >> $GITHUB_ENV
           fi
 
       - name: Build and push Docker images
@@ -138,13 +140,15 @@ jobs:
         with:
           context: ./customer
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.TAG }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.COMMIT_ID }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.TAG }}
 
       - name: Update values.yaml (GitOps)
         run: |
-          sed -i 's/tag: .*/tag: ${{ env.TAG }}/g' k8s/charts/customer/values.yaml
+          sed -i 's/tag: .*/tag: ${{ env.COMMIT_ID }}/g' k8s/charts/customer/values.yaml
           git config --global user.email "bot@github.com"
           git config --global user.name "GitOps Bot"
           git add k8s/charts/customer/values.yaml
-          git commit -m "ArgoCD: Update customer tag to ${{ env.TAG }}"
+          git commit -m "ArgoCD: Update customer tag to ${{ env.COMMIT_ID }}"
           git push
