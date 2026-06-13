@@ -145,6 +145,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.TAG }}
 
       - name: Update values.yaml (GitOps)
+        if: github.event_name == 'push'
         run: |
           sed -i 's/tag: .*/tag: ${{ env.COMMIT_ID }}/g' k8s/charts/customer/values.yaml
           git config --global user.email "bot@github.com"
