@@ -17,10 +17,15 @@ pipeline {
         stage('Check Skip') {
             steps {
                 script {
-                    def changedFiles = sh(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim().split('\n')
-                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') } ? 'true' : 'false'
+                    sh 'git fetch origin main:refs/remotes/origin/main || true'
+                    def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
+                    def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
+                    echo "Changed files in PR: ${changedFiles.join(', ')}"
+                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' } ? 'true' : 'false'
                     if (env.DOCS_ONLY == 'true') {
-                        echo "📄 Only documentation files changed — skipping CI stages."
+                        echo "📄 Only documentation/CI files changed — skipping CI stages."
+                    } else {
+                        echo "🔨 Code changes detected — running full pipeline."
                     }
                 }
             }
