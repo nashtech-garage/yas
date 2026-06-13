@@ -1,0 +1,22 @@
+.pagination-helper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.pagination-tool {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.pagination-tool :global(.form-control),
+.pagination-tool select {
+  height: 36.5px;
+  margin: 0 5px;
+}
+
+.pagination-tool :global(.form-control) {
+  width: 45px;
+}

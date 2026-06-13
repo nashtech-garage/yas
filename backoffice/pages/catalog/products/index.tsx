@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Button, InputGroup, Stack, Table } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import { FaSearch } from 'react-icons/fa';
-import ReactPaginate from 'react-paginate';
 
 import type { Brand } from '../../../modules/catalog/models/Brand';
 import type { Product } from '../../../modules/catalog/models/Product';
@@ -15,13 +14,14 @@ import ModalDeleteCustom from '../../../common/items/ModalDeleteCustom';
 import { handleDeletingResponse } from '../../../common/services/ResponseStatusHandlingService';
 import moment from 'moment';
 import { ExportProduct } from '../../../modules/catalog/components';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PRODUCT_PAGE_SIZE } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
 
 const ProductList: NextPage = () => {
   let typingTimeOutRef: null | ReturnType<typeof setTimeout> = null;
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [pageNo, setPageNo] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(1);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [brandName, setBrandName] = useState<string>('');
   const [productName, setProductName] = useState<string>('');
@@ -30,6 +30,12 @@ const ProductList: NextPage = () => {
   const [productNameWantToDelete, setProductNameWantToDelete] = useState<string>('');
   const [productIdWantToDelete, setProductIdWantToDelete] = useState<number>(-1);
 
+  const { pageNo, totalPage, setTotalPage, paginationControls, changePage } = usePagination({
+    initialPageNo: DEFAULT_PAGE_NUMBER,
+    initialItemsPerPage: DEFAULT_PRODUCT_PAGE_SIZE,
+  });
+
+  const itemsPerPage = paginationControls?.itemsPerPage?.value ?? DEFAULT_PRODUCT_PAGE_SIZE;
   const handleClose: any = () => setShowModalDelete(false);
   const handleDelete: any = () => {
     if (productIdWantToDelete == -1) {
@@ -39,7 +45,7 @@ const ProductList: NextPage = () => {
       .then((response) => {
         setShowModalDelete(false);
         handleDeletingResponse(response, productNameWantToDelete);
-        getProducts(pageNo, productName, brandName).then((data) => {
+        getProducts(pageNo, itemsPerPage, productName, brandName).then((data) => {
           setTotalPage(data.totalPages);
           setProducts(data.productContent);
           setLoading(false);
@@ -53,12 +59,12 @@ const ProductList: NextPage = () => {
   useEffect(() => {
     setLoading(true);
 
-    getProducts(pageNo, productName, brandName).then((data) => {
+    getProducts(pageNo, itemsPerPage, productName, brandName).then((data) => {
       setTotalPage(data.totalPages);
       setProducts(data.productContent);
       setLoading(false);
     });
-  }, [pageNo, brandName, productName]);
+  }, [pageNo, itemsPerPage, brandName, productName]);
 
   useEffect(() => {
     setLoading(true);
@@ -76,12 +82,8 @@ const ProductList: NextPage = () => {
     typingTimeOutRef = setTimeout(() => {
       let inputValue = (document.getElementById('product-name') as HTMLInputElement).value;
       setProductName(inputValue);
-      setPageNo(0);
+      changePage({ selected: DEFAULT_PAGE_NUMBER });
     }, 500);
-  };
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -107,7 +109,7 @@ const ProductList: NextPage = () => {
           <Form.Select
             id="brand-filter"
             onChange={(e) => {
-              setPageNo(0);
+              changePage({ selected: DEFAULT_PAGE_NUMBER });
               setBrandName(e.target.value);
             }}
             className={styles.filterButton}
@@ -197,18 +199,12 @@ const ProductList: NextPage = () => {
         handleDelete={handleDelete}
         action="delete"
       />
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
+      {totalPage > 0 && (
+        <Pagination
+          pageNo={pageNo}
+          totalPage={totalPage}
+          paginationControls={paginationControls}
           onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
         />
       )}
     </>

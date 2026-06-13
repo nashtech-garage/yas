@@ -1,23 +1,24 @@
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
+import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { PromotionListRequest, PromotionPage } from 'modules/promotion/models/Promotion';
 import { deletePromotion, getPromotions } from 'modules/promotion/services/PromotionService';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
 
 const PromotionList: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [promotionPage, setPromotionPage] = useState<PromotionPage>();
   const [couponCode, setCouponCode] = useState<string>('');
   const [promotionName, setPromotionName] = useState<string>('');
-  const [pageNo, setPageNo] = useState<number>(DEFAULT_PAGE_NUMBER);
-  const [totalPage, setTotalPage] = useState<number>(1);
   const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
   const [promotionNameWantToDelete, setPromotionNameWantToDelete] = useState<string>('');
   const [promotionIdWantToDelete, setPromotionIdWantToDelete] = useState<number>(-1);
+
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   useEffect(() => {
     setIsLoading(true);
@@ -40,10 +41,6 @@ const PromotionList: NextPage = () => {
       pageSize: DEFAULT_PAGE_SIZE,
       promotionName: promotionName,
     };
-  };
-
-  const changePage = ({ selected }: any) => {
-    setPageNo(selected);
   };
 
   const convertToStringDate = (date: Date | string) => {
@@ -164,19 +161,8 @@ const PromotionList: NextPage = () => {
         handleDelete={handleDeletePromotion}
         action="delete"
       />
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
-          onPageChange={changePage}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
-        />
+      {totalPage > 0 && (
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

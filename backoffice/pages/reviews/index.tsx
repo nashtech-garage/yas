@@ -4,23 +4,23 @@ import queryString from 'query-string';
 import { useEffect, useState } from 'react';
 import { Stack, Table } from 'react-bootstrap';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import ReactPaginate from 'react-paginate';
 import { toast } from 'react-toastify';
 
 import RatingSearch from 'modules/rating/components/RatingSearch';
 import { RatingSearchForm } from 'modules/rating/models/RatingSearchForm';
 import type { Rating } from '../../modules/rating/models/Rating';
 import { deleteRatingById, getRatings } from '../../modules/rating/services/RatingService';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from 'constants/Common';
+import Pagination from 'common/components/Pagination';
+import usePagination from '@commonHooks/usePagination';
 
 const Reviews: NextPage = () => {
   const { register, watch, handleSubmit } = useForm<RatingSearchForm>();
   const [isLoading, setLoading] = useState(false);
-
   const [ratingList, setRatingList] = useState<Rating[]>([]);
-  const [pageNo, setPageNo] = useState<number>(0);
-  const [totalPage, setTotalPage] = useState<number>(1);
   const [isDelete, setDelete] = useState<boolean>(false);
-  const ratingPageSize = 10;
+
+  const { pageNo, totalPage, setTotalPage, changePage } = usePagination();
 
   const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
 
@@ -29,7 +29,7 @@ const Reviews: NextPage = () => {
       queryString.stringify({
         ...watchAllFields,
         pageNo: pageNo,
-        pageSize: ratingPageSize,
+        pageSize: DEFAULT_PAGE_SIZE,
         createdFrom: moment(watchAllFields.createdFrom).format(),
         createdTo: moment(watchAllFields.createdTo).format(),
       })
@@ -50,7 +50,7 @@ const Reviews: NextPage = () => {
 
   const onSubmitSearch: SubmitHandler<RatingSearchForm> = async (data) => {
     handleGetRating();
-    setPageNo(0);
+    changePage({ selected: DEFAULT_PAGE_NUMBER });
   };
 
   const handleDeleteRating = (ratingId: number) => {
@@ -60,10 +60,6 @@ const Reviews: NextPage = () => {
         setDelete(!isDelete);
       })
       .catch((error) => console.log(error));
-  };
-
-  const handlePageChange = ({ selected }: any) => {
-    setPageNo(selected);
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -145,19 +141,8 @@ const Reviews: NextPage = () => {
             ))}
         </tbody>
       </Table>
-      {totalPage > 1 && (
-        <ReactPaginate
-          forcePage={pageNo}
-          previousLabel={'Previous'}
-          nextLabel={'Next'}
-          pageCount={totalPage}
-          onPageChange={handlePageChange}
-          containerClassName={'pagination-container'}
-          previousClassName={'previous-btn'}
-          nextClassName={'next-btn'}
-          disabledClassName={'pagination-disabled'}
-          activeClassName={'pagination-active'}
-        />
+      {totalPage > 0 && (
+        <Pagination pageNo={pageNo} totalPage={totalPage} onPageChange={changePage} />
       )}
     </>
   );

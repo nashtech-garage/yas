@@ -31,8 +31,9 @@ export async function deleteCategory(id: number) {
 
 export async function getProductsByCategory(
   pageNo: number,
+  pageSize: number,
   categorySlug: string
 ): Promise<ProductThumbnails> {
-  const url = `/api/product/storefront/category/${categorySlug}/products?pageNo=${pageNo}`;
+  const url = `/api/product/storefront/category/${categorySlug}/products?pageNo=${pageNo}&pageSize=${pageSize}`;
   return (await apiClientService.get(url)).json();
 }
