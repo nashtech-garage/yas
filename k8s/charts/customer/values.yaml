@@ -1,7 +1,7 @@
 backend:
   image:
     repository: ghcr.io/nashtech-garage/yas-customer
-    tag: latest
+    tag: acf4f93
 
   nameOverride: customer
   fullnameOverride: customer
