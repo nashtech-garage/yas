@@ -151,4 +151,4 @@ jobs:
           git config --global user.name "GitOps Bot"
           git add k8s/charts/customer/values.yaml
           git commit -m "ArgoCD: Update customer tag to ${{ env.COMMIT_ID }}"
-          git push
+          git push origin HEAD:${{ github.ref_name }}
