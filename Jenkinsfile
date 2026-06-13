@@ -14,7 +14,25 @@ pipeline {
             }
         }
 
+        stage('Check Skip') {
+            steps {
+                script {
+                    sh 'git fetch origin main:refs/remotes/origin/main || true'
+                    def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
+                    def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
+                    echo "Changed files in PR: ${changedFiles.join(', ')}"
+                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' } ? 'true' : 'false'
+                    if (env.DOCS_ONLY == 'true') {
+                        echo "📄 Only documentation/CI files changed — skipping CI stages."
+                    } else {
+                        echo "🔨 Code changes detected — running full pipeline."
+                    }
+                }
+            }
+        }
+
         stage('Secret Scanning') {
+            when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 sh '''
                     gitleaks detect --source . \
@@ -32,6 +50,7 @@ pipeline {
             }
         }
         stage('Monorepo Execution') {
+            when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 script {
                     def changedFiles = sh(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim().split('\n')
@@ -57,6 +76,7 @@ pipeline {
         }
 
         stage('Code Quality') {
+            when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh 'mvn sonar:sonar -Dsonar.projectKey=yas -Dsonar.java.binaries=.'
@@ -64,6 +84,7 @@ pipeline {
             }
         }
         stage('Quality Gate') {
+            when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
@@ -71,6 +92,7 @@ pipeline {
             }
         }
         stage('Coverage Report') {
+            when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 script {
                     def changedFiles = sh(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim().split('\n')
@@ -104,6 +126,7 @@ pipeline {
         }
 
         stage('Dependency Scan') {
+            when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                     sh 'snyk auth $SNYK_TOKEN'
