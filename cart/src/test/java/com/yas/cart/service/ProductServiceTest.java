@@ -2,11 +2,14 @@ package com.yas.cart.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import com.yas.commonlibrary.config.ServiceUrlConfig;
 import com.yas.cart.viewmodel.ProductThumbnailVm;
+import com.yas.commonlibrary.config.ServiceUrlConfig;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +65,60 @@ class ProductServiceTest {
         assertThat(result.get(0).id()).isEqualTo(1);
         assertThat(result.get(1).id()).isEqualTo(2);
         assertThat(result.get(2).id()).isEqualTo(3);
+    }
+
+    @Test
+    void getProductById_whenProductsExist_shouldReturnFirstProduct() {
+        ProductService productServiceSpy = Mockito.spy(productService);
+        ProductThumbnailVm product = getProductThumbnailVms().getFirst();
+
+        doReturn(List.of(product)).when(productServiceSpy).getProducts(List.of(product.id()));
+
+        ProductThumbnailVm result = productServiceSpy.getProductById(product.id());
+
+        assertThat(result).isEqualTo(product);
+    }
+
+    @Test
+    void getProductById_whenProductsAreEmpty_shouldReturnNull() {
+        ProductService productServiceSpy = Mockito.spy(productService);
+
+        doReturn(Collections.emptyList()).when(productServiceSpy).getProducts(List.of(1L));
+
+        ProductThumbnailVm result = productServiceSpy.getProductById(1L);
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void existsById_whenProductExists_shouldReturnTrue() {
+        ProductService productServiceSpy = Mockito.spy(productService);
+        ProductThumbnailVm product = getProductThumbnailVms().getFirst();
+
+        doReturn(List.of(product)).when(productServiceSpy).getProducts(List.of(product.id()));
+
+        boolean result = productServiceSpy.existsById(product.id());
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void existsById_whenProductDoesNotExist_shouldReturnFalse() {
+        ProductService productServiceSpy = Mockito.spy(productService);
+
+        doReturn(Collections.emptyList()).when(productServiceSpy).getProducts(List.of(1L));
+
+        boolean result = productServiceSpy.existsById(1L);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void handleProductThumbnailFallback_shouldRethrowThrowable() {
+        RuntimeException throwable = new RuntimeException("product service unavailable");
+
+        assertThatThrownBy(() -> productService.handleProductThumbnailFallback(throwable))
+            .isSameAs(throwable);
     }
 
     private List<ProductThumbnailVm> getProductThumbnailVms() {
