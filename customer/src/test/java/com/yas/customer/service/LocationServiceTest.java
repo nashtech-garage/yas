@@ -4,6 +4,7 @@ package com.yas.customer.service;
 import static com.yas.customer.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,8 @@ import com.yas.customer.config.ServiceUrlConfig;
 import com.yas.customer.viewmodel.address.AddressDetailVm;
 import com.yas.customer.viewmodel.address.AddressPostVm;
 import com.yas.customer.viewmodel.address.AddressVm;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -167,6 +170,50 @@ class LocationServiceTest {
             203L,
             303L
         );
+    }
+
+    @Test
+    void testHandleAddressDetailListFallback_throwsOriginalException() throws Exception {
+        RuntimeException exception = new RuntimeException("boom");
+
+        RuntimeException thrown = assertThrows(RuntimeException.class,
+            () -> invokeFallback("handleAddressDetailListFallback", exception));
+
+        assertThat(thrown.getMessage()).isEqualTo("boom");
+    }
+
+    @Test
+    void testHandleAddressDetailFallback_throwsOriginalException() throws Exception {
+        RuntimeException exception = new RuntimeException("boom");
+
+        RuntimeException thrown = assertThrows(RuntimeException.class,
+            () -> invokeFallback("handleAddressDetailFallback", exception));
+
+        assertThat(thrown.getMessage()).isEqualTo("boom");
+    }
+
+    @Test
+    void testHandleAddressFallback_throwsOriginalException() throws Exception {
+        RuntimeException exception = new RuntimeException("boom");
+
+        RuntimeException thrown = assertThrows(RuntimeException.class,
+            () -> invokeFallback("handleAddressFallback", exception));
+
+        assertThat(thrown.getMessage()).isEqualTo("boom");
+    }
+
+    private void invokeFallback(String methodName, Throwable throwable) throws Exception {
+        Method method = LocationService.class.getDeclaredMethod(methodName, Throwable.class);
+        method.setAccessible(true);
+        try {
+            method.invoke(locationService, throwable);
+        } catch (InvocationTargetException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw ex;
+        }
     }
 
 }
