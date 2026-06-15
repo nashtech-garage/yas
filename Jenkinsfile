@@ -335,6 +335,78 @@ pipeline {
                 }
             }
         }
+
+        // =========================
+        // PUSH DOCKER IMAGES PHASE
+        // =========================
+        stage('Push Docker Images') {
+            when {
+                expression { env.CHANGED_SERVICES?.trim() }
+            }
+            steps {
+                script {
+                    echo " ===== START DOCKER BUILD & PUSH PHASE ===== "
+                    def commitId = sh(
+                        script: "git rev-parse --short HEAD",
+                        returnStdout: true
+                    ).trim()
+                    echo "Target image tag (Commit ID): ${commitId}"
+
+                    def rawServices = env.CHANGED_SERVICES?.trim() 
+                        ? env.CHANGED_SERVICES.split(',').collect { it.trim() } 
+                        : []
+                    def services = rawServices.unique()
+
+                    def dockerUsername = 'your_docker_hub_username' // Giá trị mặc định
+                    def dockerCredsId = 'docker-hub-credentials'   // Giá trị mặc định
+
+                    if (fileExists('.env')) {
+                        def lines = readFile('.env').split('\n')
+                        for (line in lines) {
+                            def trimmedLine = line.trim()
+                            if (trimmedLine.startsWith('DOCKER_HUB_USERNAME')) {
+                                def parts = trimmedLine.split('=', 2)
+                                if (parts.size() == 2) dockerUsername = parts[1].trim()
+                            }
+                            if (trimmedLine.startsWith('DOCKER_HUB_CREDS_ID')) {
+                                def parts = trimmedLine.split('=', 2)
+                                if (parts.size() == 2) dockerCredsId = parts[1].trim()
+                            }
+                        }
+                    }
+
+                    withCredentials([usernamePassword(credentialsId: dockerCredsId, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    }
+
+                    def jobs = [:]
+
+                    for (svc in services) {
+                        def serviceName = svc
+                        if (fileExists("${serviceName}/Dockerfile")) {
+                            jobs[serviceName] = {
+                                echo "=== Building Docker image for: ${serviceName} ==="
+                                dir(serviceName) {
+                                    sh "docker build -t ${dockerUsername}/yas-${serviceName}:${commitId} ."
+                                    echo "=== Pushing Docker image for: ${serviceName} ==="
+                                    sh "docker push ${dockerUsername}/yas-${serviceName}:${commitId}"
+                                    echo "=== Cleaning up local image: ${serviceName} ==="
+                                    sh "docker rmi ${dockerUsername}/yas-${serviceName}:${commitId} || true"
+                                }
+                            }
+                        } else {
+                            echo "Skipping ${serviceName} because no Dockerfile was found."
+                        }
+                    }
+
+                    if (jobs.size() > 0) {
+                        parallel jobs
+                    } else {
+                        echo "No containerized services to build/push."
+                    }
+                }
+            }
+        }
     }
 
     post {
