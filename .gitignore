@@ -29,3 +29,6 @@ hs_err_pid*
 .settings*
 .vscode
 *.iml
+out
+out/**
+*.bkp

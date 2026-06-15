@@ -1,0 +1,34 @@
+@startuml Order Lifecycle
+title Order Lifecycle
+[*] --> PAYMENT_CONFIRMED #d4e6f1: order-created from checkout 
+PAYMENT_CONFIRMED -down-> READY_TO_SHIP #d4e6f1: prepare-parcel
+READY_TO_SHIP -down-> SHIPPED #d4e6f1: ship-parcel
+SHIPPED --> RECEIVED #d4e6f1: deliver-parcel
+RECEIVED -down-> CONFIRMED #d4e6f1: confirm-receipt
+
+PAYMENT_CONFIRMED -right-> CANCEL_REQUESTED #f1948a: cancel
+CANCEL_REQUESTED --> REFUND_PROCESSING #f1948a: refund
+REFUND_PROCESSING --> CANCELLED #f1948a: confirm-refund
+
+READY_TO_SHIP -right-> CANCEL_REQUESTED #f1948a: cancel
+SHIPPED -down-> SHIPMENT_FAILED #f1948a: report-failure
+SHIPMENT_FAILED --> REFUND_PROCESSING: confirm-failure
+
+
+SHIPPED -right-> CANCEL_REQUESTED: cancel
+CONFIRMED --> [*]
+CANCELLED --> [*]
+
+PAYMENT_CONFIRMED : prepare-parcel
+PAYMENT_CONFIRMED: cancel
+REFUND_PROCESSING: confirm-refund
+CANCEL_REQUESTED: refund
+READY_TO_SHIP: ship-parcel
+READY_TO_SHIP: cancel
+SHIPPED: deliver-parcel
+SHIPPED: report-failure
+SHIPPED: cancel
+SHIPMENT_FAILED: confirm-failure
+RECEIVED: confirm-receipt
+
+@enduml

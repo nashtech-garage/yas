@@ -1,0 +1,155 @@
+@startuml Payment Flow
+
+title Payment Flow
+
+actor Customer as customer #fad7a0
+
+box YAS
+    participant "Storefront" as storefront #fdf2e9        
+    participant "Order Service" as order_service #3498db    
+    entity "Checkout" as checkout #3498db
+    entity "Order" as order #3498db
+    participant "Shopping Cart" as shopping_cart #a9cce3
+    participant "Promotion Service" as promotion_service #8af1f0
+    participant "Payment Service" as payment_service #73c6b6
+    participant "Inventory Service" as inventory_service #808b96
+    entity "Checkout Payment" as checkout_payment #73c6b6
+    participant "Notification Service" as notification_service #fad7a0
+end box 
+
+box "Payment Provider" #eafaf1
+    participant "Payment Provider" as payment_provider #73c6b6
+    entity "Payment Provider: Checkout" as payment_provider_checkout #73c6b6
+end box
+
+customer -> storefront: Proceed to payment
+activate storefront #fdf2e9   
+  storefront -> order_service: POST /order/checkouts/{checkout_id}/process-payment
+  activate order_service #3498db
+    order_service -> checkout **: find by {checkout_id}
+    order_service <-- checkout: checkout
+    order_service -> promotion_service: POST /promotion/promotions/{PROMOCODE}/usage {checkout_id, state: APPLIED}
+    activate promotion_service #8af1f0
+    promotion_service --> order_service: 201 CREATED 
+    deactivate promotion_service
+    alt #f1948a "Fail to apply"
+    order_service --> storefront: 400 BAD REQUEST {ERROR_CODE: PROMOCODE_RAN_OUT| PROMOCODE_EXPIRED}
+    storefront --> customer:  PROMOCODE ran out of usage| Promocode expired
+    end
+    order_service -> inventory_service: POST /inventory/products/stocks { product_items }
+    note right of order_service
+      lock stocks for product_items
+      product_items:
+        - product_id
+        - quantity
+    end note
+    activate inventory_service #808b96
+      inventory_service --> order_service: confirmation { product_items }
+      note right of inventory_service
+        Stock confirmation, list out state of stock
+        {
+          <product_id_01>: OK,
+          <product_id_02>: OUT_OF_STOCK,
+          <product_id_03>: OK
+        }
+      end note
+    deactivate inventory_service
+    alt #f1948a "any out of stock"
+      order_service --> promotion_service: Event: rollback promocode usage
+      order_service --> storefront: 400 Bad Request { ERROR_CODE: OUT_OF_STOCK, payload: { <product_id_02>: OUT_OF_STOCK } }
+      storefront --> customer: out of stock error
+    end
+    order_service -> checkout: update { status=PAYMENT_PROCESSING }
+    order_service -> payment_service: POST /payment/payments { checkout }
+    note right of order_service
+      checkout includes:
+        - payment_method
+        - product_items
+        - shipment_fees
+        - taxes
+    end note 
+    activate payment_service #73c6b6 
+      payment_service -> checkout_payment **: create { status=(payment_type is COD ? PROCESSING : NEW), payment_provider_checkout_id, checkout_id, product_items, shipment_fees, taxes, payment_type: checkout.payment_method }
+      order_service <-- payment_service: checkout_payment
+      note right of order_service
+        checkout_payment:
+          - payment_provider_checkout_id
+          - checkout
+          - payment_type
+      end note
+    deactivate payment_service
+    storefront <-- order_service: checkout_payment    
+    checkout_payment --> payment_service: [CDC Create Event]
+  deactivate order_service
+  activate payment_service #73c6b6 
+    alt payment_type is NOT COD:
+      payment_service  -> payment_provider: POST /checkout/orders { checkout_id, product_items, shipment_fees, taxes }
+      activate payment_provider #73c6b6          
+        payment_provider -> payment_provider_checkout **: create checkout
+        payment_provider <-- payment_provider_checkout: { payment_provider_checkout_id }
+        payment_service <-- payment_provider: { checkout_id, payment_provider_checkout_id }
+      deactivate payment_provider
+      payment_service -> checkout_payment: update { status=PROCESSING, payment_provider_checkout_id }
+    end 
+  deactivate payment_service
+  loop reload to get payment information util payment status is PROCESSING and payment_provider_checkout_id existing (if not COD)
+    storefront -> payment_service: GET /payment/payments/checkout/{checkout_id} 
+    activate payment_service #73c6b6
+      storefront <-- payment_service: { status=PROCESSING, payment_provider_checkout_id }
+    deactivate payment_service
+  end 
+  storefront --> customer: redirect to payment_provider : Payment Provider: Checkout { payment_provider_checkout_id }
+deactivate storefront
+activate customer
+  customer -> payment_provider: execute payment { payment_provider_checkout_id }
+deactivate customer
+activate payment_provider #73c6b6
+  payment_provider -> payment_provider_checkout: update { status=COMPETED, payment_provider_checkout_id }  
+  payment_provider --> payment_service: { checkout_id, payment_provider_checkout_id, status=COMPETED/FAILURE }
+  activate payment_service #73c6b6
+    payment_service -> checkout_payment: update { status=COMPLETED }
+    payment_service --> notification_service: Event: PaymentCompleted { checkout_payment }
+    activate notification_service #fad7a0
+      notification_service --> customer: notification for payment completion
+    deactivate notification_service
+    payment_service --> order_service: Event: PaymentCompleted { checkout_id }
+  deactivate payment_service
+  activate order_service #3498db
+    order_service -> checkout: update { status=PAYMENT_CONFIRMED }
+    order_service -> order**:  create { checkout_id, status=PAYMENT_CONFIRMED }
+    activate order #3498db
+      order --> shopping_cart: [CDC Create Order Event]
+      activate shopping_cart #a9cce3
+        shopping_cart --> shopping_cart: update for remove order items     
+      deactivate shopping_cart      
+      order_service <-- order: order
+    deactivate order
+    
+    order_service --> notification_service
+    activate notification_service #fad7a0
+      notification_service --> customer: notification for order creation
+    deactivate notification_service
+  deactivate order_service
+  payment_provider --> customer: redirect to storefront with confirmation
+deactivate payment_provider
+activate customer
+  customer -> storefront: confirmation page
+deactivate customer
+activate storefront #fdf2e9
+  storefront --> customer: show payment confirmation
+  loop "reload to get order"
+    storefront -> order_service: GET /order/orders/checkout/{checkout_id}
+    activate order_service #3498db
+      order_service -> order: find order by {checkout_id}
+      activate order #3498db
+        order_service <-- order: order
+      deactivate order
+      storefront <-- order_service: order
+    deactivate order_service    
+    storefront --> customer: redirect to order details
+  end 
+deactivate storefront
+
+@enduml
+
+

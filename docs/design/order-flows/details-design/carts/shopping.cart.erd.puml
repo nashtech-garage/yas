@@ -1,0 +1,21 @@
+@startuml
+
+entity card_items {
+  * product_id: int8
+  * customer_id: UUID
+  --
+  * quantity: int8
+  created_at: timestamp
+  created_by: UUID
+  last_updated_at: timestamp  
+  last_updated_by: UUID
+}
+
+note right of card_items
+  - Primary Key: product_id, customer_id
+  - product_id: reference ID to Product Service
+  - customer_id: reference UUID to Customer Service
+  - quantity: number of product in cart, default value is 0
+end note
+
+@enduml
