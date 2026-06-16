@@ -1,245 +1,321 @@
 package com.yas.order.service;
 
-import static com.yas.order.utils.SecurityContextUtils.setSubjectUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.ForbiddenException;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.order.mapper.CheckoutMapperImpl;
+import com.yas.order.mapper.CheckoutMapper;
 import com.yas.order.model.Checkout;
 import com.yas.order.model.CheckoutItem;
+import com.yas.order.model.Order;
 import com.yas.order.model.enumeration.CheckoutState;
-import com.yas.order.repository.CheckoutItemRepository;
 import com.yas.order.repository.CheckoutRepository;
+import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutItemVm;
 import com.yas.order.viewmodel.checkout.CheckoutPaymentMethodPutVm;
 import com.yas.order.viewmodel.checkout.CheckoutPostVm;
+import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
+import com.yas.order.viewmodel.checkout.CheckoutVm;
 import com.yas.order.viewmodel.product.ProductCheckoutListVm;
-import com.yas.order.viewmodel.product.ProductGetCheckoutListVm;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.instancio.Instancio;
-import static org.instancio.Select.field;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {CheckoutMapperImpl.class, CheckoutService.class})
+@ExtendWith(MockitoExtension.class)
 class CheckoutServiceTest {
 
-    @MockitoBean
-    CheckoutRepository checkoutRepository;
+    @Mock
+    private CheckoutRepository checkoutRepository;
 
-    @MockitoBean
-    CheckoutItemRepository checkoutItemRepository;
+    @Mock
+    private OrderService orderService;
 
-    @MockitoBean
-    OrderService orderService;
+    @Mock
+    private ProductService productService;
 
-    @MockitoBean
-    ProductService productService;
+    @Mock
+    private CheckoutMapper checkoutMapper;
 
-    @Autowired
-    CheckoutService checkoutService;
+    @InjectMocks
+    private CheckoutService checkoutService;
 
-    CheckoutPostVm checkoutPostVm;
-    List<CheckoutItem> checkoutItems;
-    Checkout checkoutCreated;
-    String checkoutId = UUID.randomUUID().toString();
-    List<ProductCheckoutListVm> productCheckoutListVms;
-    ProductGetCheckoutListVm productGetCheckoutListVm;
-    Map<Long, ProductCheckoutListVm> productCheckoutListVmMap;
+    private Checkout checkout;
+    private CheckoutItem checkoutItem;
+    private CheckoutPostVm checkoutPostVm;
+    private CheckoutItemPostVm checkoutItemPostVm;
+    private ProductCheckoutListVm productCheckoutListVm;
 
     @BeforeEach
     void setUp() {
-
-        checkoutPostVm = Instancio.of(CheckoutPostVm.class)
-                .supply(field(CheckoutPostVm.class, "shippingAddressId"), gen -> Long.toString(gen.longRange(1, 10000)))
-                .create();
-        checkoutCreated = Checkout.builder()
-                .id(checkoutId)
+        checkout = Checkout.builder()
+                .id("checkout-123")
                 .checkoutState(CheckoutState.PENDING)
-                .note(checkoutPostVm.note())
-                .email(checkoutPostVm.email())
-                .promotionCode(checkoutPostVm.promotionCode())
+                .email("test@test.com")
+                .note("Test note")
+                .promotionCode("PROMO")
                 .build();
-        checkoutCreated.setCreatedBy("test-create-by");
-        setSubjectUpSecurityContext(checkoutCreated.getCreatedBy());
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(mock(Jwt.class));
+        checkout.setCreatedBy("user123");
 
-        checkoutItems = checkoutPostVm.checkoutItemPostVms().stream()
-                .map(itemVm -> CheckoutItem.builder()
-                .id(Instancio.create(Long.class))
-                .productId(itemVm.productId())
-                .quantity(itemVm.quantity())
-                .description(itemVm.description())
-                .checkout(checkoutCreated)
-                .build()
-                ).toList();
+        checkoutItem = CheckoutItem.builder()
+                .id(1L)
+                .productId(100L)
+                .quantity(2)
+                .checkout(checkout)
+                .productPrice(BigDecimal.valueOf(50))
+                .build();
 
-        productCheckoutListVms = checkoutItems.stream().map(t -> {
-            return Instancio.of(ProductCheckoutListVm.class)
-                    .set(field(ProductCheckoutListVm.class, "id"), t.getProductId())
-                    .create();
-        }).toList();
-        productGetCheckoutListVm = new ProductGetCheckoutListVm(
-                productCheckoutListVms,
-                0,
-                productCheckoutListVms.size(),
-                productCheckoutListVms.size(),
-                1,
-                true);
-        productCheckoutListVmMap = productCheckoutListVms.stream()
-                .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
+        checkoutItemPostVm = new CheckoutItemPostVm(100L, "Test description", 2);
+        checkoutPostVm = new CheckoutPostVm(
+                "test@test.com", "Test note", "PROMO", "10", "11", "12", List.of(checkoutItemPostVm)
+        );
+
+        productCheckoutListVm = ProductCheckoutListVm.builder()
+                .id(100L)
+                .name("Product Name")
+                .price(50.0)
+                .taxClassId(10L)
+                .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void setupSecurityContext(String userId) {
+        SecurityContext context = mock(SecurityContext.class);
+        Jwt jwt = mock(Jwt.class);
+        when(jwt.getSubject()).thenReturn(userId);
+        JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, List.of(), "test-name");
+        when(context.getAuthentication()).thenReturn(token);
+        SecurityContextHolder.setContext(context);
+    }
+
+    // --- createCheckout ---
+
+    @Test
+    void createCheckout_ShouldCreateAndReturnCheckoutVm() {
+        setupSecurityContext("user123");
+
+        Checkout mockCheckout = new Checkout();
+        when(checkoutMapper.toModel(checkoutPostVm)).thenReturn(mockCheckout);
+        when(checkoutMapper.toModel(checkoutItemPostVm)).thenReturn(checkoutItem);
+
+        when(productService.getProductInfomation(any(Set.class), anyInt(), anyInt()))
+                .thenReturn(Map.of(100L, productCheckoutListVm));
+
+        when(checkoutRepository.save(any(Checkout.class))).thenAnswer(i -> {
+            Checkout c = i.getArgument(0);
+            c.setId("checkout-123");
+            return c;
+        });
+
+        CheckoutVm checkoutVmMock = CheckoutVm.builder().id("checkout-123").email("test@test.com").note("note").promotionCode("PROMO").build();
+        when(checkoutMapper.toVm(any(Checkout.class))).thenReturn(checkoutVmMock);
+
+        CheckoutItemVm itemVmMock = new CheckoutItemVm(1L, 100L, "Name", "Desc", 2, BigDecimal.TEN, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, "checkout-123");
+        when(checkoutMapper.toVm(any(CheckoutItem.class))).thenReturn(itemVmMock);
+
+        CheckoutVm result = checkoutService.createCheckout(checkoutPostVm);
+
+        verify(checkoutMapper, times(1)).toModel(checkoutPostVm);
+        verify(checkoutMapper, times(1)).toModel(checkoutItemPostVm);
+        verify(productService, times(1)).getProductInfomation(any(Set.class), anyInt(), anyInt());
+        verify(checkoutRepository, times(1)).save(any(Checkout.class));
+        verify(checkoutMapper, times(1)).toVm(any(Checkout.class));
+        verify(checkoutMapper, times(1)).toVm(any(CheckoutItem.class));
+
+        assertThat(result).isNotNull();
+        assertThat(result.checkoutItemVms()).hasSize(1);
     }
 
     @Test
-    void testCreateCheckout_whenNormalCase_returnCheckout() {
-        checkoutCreated.setCheckoutItems(checkoutItems);
-        when(checkoutRepository.save(any())).thenReturn(checkoutCreated);
-        when(checkoutItemRepository.saveAll(anyCollection())).thenReturn(checkoutItems);
-        when(productService.getProductInfomation(any(Set.class), anyInt(), anyInt())).thenReturn(productCheckoutListVmMap);
-        var res = checkoutService.createCheckout(checkoutPostVm);
+    void createCheckout_WhenProductNotFound_ShouldThrowNotFoundException() {
+        setupSecurityContext("user123");
 
-        assertThat(res)
-                .hasFieldOrPropertyWithValue("id", checkoutId)
-                .hasFieldOrPropertyWithValue("email", checkoutPostVm.email())
-                .hasFieldOrPropertyWithValue("promotionCode", checkoutPostVm.promotionCode())
-                .hasFieldOrPropertyWithValue("note", checkoutPostVm.note());
+        Checkout mockCheckout = new Checkout();
+        when(checkoutMapper.toModel(checkoutPostVm)).thenReturn(mockCheckout);
+        when(checkoutMapper.toModel(checkoutItemPostVm)).thenReturn(checkoutItem);
 
-        assertThat(res.checkoutItemVms())
-                .hasSize(checkoutPostVm.checkoutItemPostVms().size())
-                .allMatch(item -> item.checkoutId().equals(checkoutId));
+        when(productService.getProductInfomation(any(Set.class), anyInt(), anyInt()))
+                .thenReturn(Map.of());
+
+        assertThrows(NotFoundException.class, () -> checkoutService.createCheckout(checkoutPostVm));
+
+        verify(checkoutMapper, times(1)).toModel(checkoutPostVm);
+        verify(checkoutMapper, times(1)).toModel(checkoutItemPostVm);
+        verify(productService, times(1)).getProductInfomation(any(Set.class), anyInt(), anyInt());
+        verify(checkoutRepository, times(0)).save(any(Checkout.class));
+    }
+
+    // --- getCheckoutPendingStateWithItemsById ---
+
+    @Test
+    void getCheckoutPendingStateWithItemsById_WhenValidAndOwnedByUser_ShouldReturnVmWithItems() {
+        setupSecurityContext("user123");
+        checkout.setCheckoutItems(List.of(checkoutItem));
+
+        when(checkoutRepository.findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING))
+                .thenReturn(Optional.of(checkout));
+
+        CheckoutVm checkoutVmMock = CheckoutVm.builder().id("checkout-123").email("test@test.com").note("note").promotionCode("PROMO").build();
+        when(checkoutMapper.toVm(checkout)).thenReturn(checkoutVmMock);
+
+        CheckoutItemVm itemVmMock = new CheckoutItemVm(1L, 100L, "Name", "Desc", 2, BigDecimal.TEN, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, "checkout-123");
+        when(checkoutMapper.toVm(checkoutItem)).thenReturn(itemVmMock);
+
+        CheckoutVm result = checkoutService.getCheckoutPendingStateWithItemsById("checkout-123");
+
+        verify(checkoutRepository, times(1)).findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING);
+        verify(checkoutMapper, times(1)).toVm(checkout);
+        verify(checkoutMapper, times(1)).toVm(checkoutItem);
+
+        assertThat(result).isNotNull();
+        assertThat(result.checkoutItemVms()).hasSize(1);
     }
 
     @Test
-    void testCreateCheckout_whenCheckoutItemsIsEmpty_throwError() {
+    void getCheckoutPendingStateWithItemsById_WhenValidButNoItems_ShouldReturnVmWithoutItems() {
+        setupSecurityContext("user123");
+        checkout.setCheckoutItems(List.of());
 
-        when(checkoutRepository.save(any())).thenReturn(checkoutCreated);
-        when(checkoutItemRepository.saveAll(anyCollection())).thenReturn(List.of());
+        when(checkoutRepository.findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING))
+                .thenReturn(Optional.of(checkout));
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> checkoutService.createCheckout(checkoutPostVm));
-        assertThat(exception).hasMessage("PRODUCT_NOT_FOUND");
+        CheckoutVm checkoutVmMock = CheckoutVm.builder().id("checkout-123").email("test@test.com").note("note").promotionCode("PROMO").build();
+        when(checkoutMapper.toVm(checkout)).thenReturn(checkoutVmMock);
+
+        CheckoutVm result = checkoutService.getCheckoutPendingStateWithItemsById("checkout-123");
+
+        verify(checkoutRepository, times(1)).findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING);
+        verify(checkoutMapper, times(1)).toVm(checkout);
+        verify(checkoutMapper, times(0)).toVm(any(CheckoutItem.class));
+
+        assertThat(result).isNotNull();
+        assertThat(result.checkoutItemVms()).isNull();
     }
 
     @Test
-    void testGetCheckoutPendingStateWithItemsById_whenNormalCase_returnCheckoutVm() {
-        checkoutCreated.setCheckoutItems(checkoutItems);
-        when(checkoutRepository.findByIdAndCheckoutState(anyString(), eq(CheckoutState.PENDING)))
-                .thenReturn(Optional.ofNullable(checkoutCreated));
-        when(checkoutItemRepository.findAllByCheckoutId(anyString())).thenReturn(checkoutItems);
+    void getCheckoutPendingStateWithItemsById_WhenNotOwnedByUser_ShouldThrowForbiddenException() {
+        setupSecurityContext("user999");
 
-        var res = checkoutService.getCheckoutPendingStateWithItemsById("1");
+        when(checkoutRepository.findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING))
+                .thenReturn(Optional.of(checkout));
 
-        assertThat(res)
-                .hasFieldOrPropertyWithValue("id", checkoutId)
-                .hasFieldOrPropertyWithValue("promotionCode", checkoutPostVm.promotionCode())
-                .hasFieldOrPropertyWithValue("email", checkoutPostVm.email())
-                .hasFieldOrPropertyWithValue("note", checkoutPostVm.note());
+        assertThrows(ForbiddenException.class, () -> checkoutService.getCheckoutPendingStateWithItemsById("checkout-123"));
 
-        assertThat(res.checkoutItemVms())
-                .allMatch(item -> item.checkoutId().equals(checkoutId))
-                .hasSize(checkoutPostVm.checkoutItemPostVms().size());
+        verify(checkoutRepository, times(1)).findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING);
+        verify(checkoutMapper, times(0)).toVm(any(Checkout.class));
     }
 
     @Test
-    void testGetCheckoutPendingStateWithItemsById_whenNotEqualsCreateBy_throwForbidden() {
+    void getCheckoutPendingStateWithItemsById_WhenNotFound_ShouldThrowNotFoundException() {
+        when(checkoutRepository.findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING))
+                .thenReturn(Optional.empty());
 
-        when(checkoutRepository.findByIdAndCheckoutState(anyString(), eq(CheckoutState.PENDING)))
-                .thenReturn(Optional.ofNullable(checkoutCreated));
-        setSubjectUpSecurityContext("test--by");
+        assertThrows(NotFoundException.class, () -> checkoutService.getCheckoutPendingStateWithItemsById("checkout-123"));
 
-        Assertions.assertThrows(ForbiddenException.class,
-                () -> checkoutService.getCheckoutPendingStateWithItemsById("1"),
-                "You don't have permission to access this page");
+        verify(checkoutRepository, times(1)).findByIdAndCheckoutState("checkout-123", CheckoutState.PENDING);
+    }
 
+    // --- updateCheckoutStatus ---
+
+    @Test
+    void updateCheckoutStatus_WhenOwnedByUser_ShouldUpdateAndReturnOrderId() {
+        setupSecurityContext("user123");
+        com.yas.order.viewmodel.checkout.CheckoutStatusPutVm putVm =
+            new com.yas.order.viewmodel.checkout.CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
+
+        when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.of(checkout));
+        when(checkoutRepository.save(checkout)).thenReturn(checkout);
+
+        Order order = new Order();
+        order.setId(10L);
+        when(orderService.findOrderByCheckoutId("checkout-123")).thenReturn(order);
+
+        Long result = checkoutService.updateCheckoutStatus(putVm);
+
+        verify(checkoutRepository, times(1)).findById("checkout-123");
+        verify(checkoutRepository, times(1)).save(checkout);
+        verify(orderService, times(1)).findOrderByCheckoutId("checkout-123");
+
+        assertThat(result).isEqualTo(10L);
+        assertThat(checkout.getCheckoutState()).isEqualTo(CheckoutState.COMPLETED);
     }
 
     @Test
-    void testGetCheckoutPendingStateWithItemsById_whenNormalCase_returnCheckoutVmWithoutCheckoutItems() {
-        when(checkoutRepository.findByIdAndCheckoutState(anyString(), eq(CheckoutState.PENDING)))
-                .thenReturn(Optional.ofNullable(checkoutCreated));
-        when(checkoutItemRepository.findAllByCheckoutId(anyString())).thenReturn(List.of());
+    void updateCheckoutStatus_WhenNotOwnedByUser_ShouldThrowForbiddenException() {
+        setupSecurityContext("user999");
+        com.yas.order.viewmodel.checkout.CheckoutStatusPutVm putVm =
+            new com.yas.order.viewmodel.checkout.CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
 
-        var res = checkoutService.getCheckoutPendingStateWithItemsById("1");
+        when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.of(checkout));
 
-        assertThat(res)
-                .hasFieldOrPropertyWithValue("id", checkoutId)
-                .hasFieldOrPropertyWithValue("promotionCode", checkoutPostVm.promotionCode())
-                .hasFieldOrPropertyWithValue("note", checkoutPostVm.note())
-                .hasFieldOrPropertyWithValue("email", checkoutPostVm.email());
+        assertThrows(ForbiddenException.class, () -> checkoutService.updateCheckoutStatus(putVm));
 
-        assertThat(res.checkoutItemVms()).isNull();
+        verify(checkoutRepository, times(1)).findById("checkout-123");
+        verify(checkoutRepository, times(0)).save(any());
+        verify(orderService, times(0)).findOrderByCheckoutId(any());
     }
 
     @Test
-    void testUpdateCheckoutPaymentMethod_whenCheckoutExists_thenUpdatePaymentMethod() {
-        // Arrange
-        String id = "123";
-        Checkout checkout = new Checkout();
-        checkout.setId(id);
+    void updateCheckoutStatus_WhenNotFound_ShouldThrowNotFoundException() {
+        com.yas.order.viewmodel.checkout.CheckoutStatusPutVm putVm =
+            new com.yas.order.viewmodel.checkout.CheckoutStatusPutVm("checkout-123", CheckoutState.COMPLETED.name());
 
-        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("new-payment-method-id");
+        when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.empty());
 
-        when(checkoutRepository.findById(id)).thenReturn(Optional.of(checkout));
+        assertThrows(NotFoundException.class, () -> checkoutService.updateCheckoutStatus(putVm));
 
-        // Act
-        checkoutService.updateCheckoutPaymentMethod(id, request);
+        verify(checkoutRepository, times(1)).findById("checkout-123");
+    }
 
-        // Assert
-        verify(checkoutRepository).save(checkout);
-        assertThat(checkout.getPaymentMethodId()).isEqualTo(request.paymentMethodId());
+    // --- updateCheckoutPaymentMethod ---
+
+    @Test
+    void updateCheckoutPaymentMethod_WhenFound_ShouldUpdate() {
+        CheckoutPaymentMethodPutVm putVm = new CheckoutPaymentMethodPutVm("METHOD_1");
+
+        when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.of(checkout));
+        when(checkoutRepository.save(checkout)).thenReturn(checkout);
+
+        checkoutService.updateCheckoutPaymentMethod("checkout-123", putVm);
+
+        verify(checkoutRepository, times(1)).findById("checkout-123");
+        verify(checkoutRepository, times(1)).save(checkout);
+
+        assertThat(checkout.getPaymentMethodId()).isEqualTo("METHOD_1");
     }
 
     @Test
-    void testUpdateCheckoutPaymentMethod_whenCheckoutNotFound_thenThrowNotFoundException() {
-        // Arrange
-        String id = "invalid-id";
-        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm("new-payment-method-id");
+    void updateCheckoutPaymentMethod_WhenNotFound_ShouldThrowNotFoundException() {
+        CheckoutPaymentMethodPutVm putVm = new CheckoutPaymentMethodPutVm("METHOD_1");
 
-        when(checkoutRepository.findById(id)).thenReturn(Optional.empty());
+        when(checkoutRepository.findById("checkout-123")).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(NotFoundException.class, () -> checkoutService.updateCheckoutPaymentMethod(id, request));
-    }
+        assertThrows(NotFoundException.class, () -> checkoutService.updateCheckoutPaymentMethod("checkout-123", putVm));
 
-    @Test
-    void testUpdateCheckoutPaymentMethod_whenPaymentMethodIdIsNull_thenDoNotUpdate() {
-        // Arrange
-        String id = "123";
-        Checkout checkout = new Checkout();
-        checkout.setId(id);
-
-        CheckoutPaymentMethodPutVm request = new CheckoutPaymentMethodPutVm(null);
-
-        when(checkoutRepository.findById(id)).thenReturn(Optional.of(checkout));
-
-        // Act
-        checkoutService.updateCheckoutPaymentMethod(id, request);
-
-        // Assert
-        verify(checkoutRepository).save(checkout);
-        assertThat(checkout.getPaymentMethodId()).isNull();
+        verify(checkoutRepository, times(1)).findById("checkout-123");
+        verify(checkoutRepository, times(0)).save(any());
     }
 }

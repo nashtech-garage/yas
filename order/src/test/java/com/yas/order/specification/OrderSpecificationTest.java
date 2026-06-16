@@ -30,6 +30,78 @@ class OrderSpecificationTest {
     private final Root<OrderItem> orderItemRoot = mock(Root.class);
 
     @Test
+    void testExistsByCreatedByAndInProductIdAndOrderStatusCompleted() {
+        Specification<Order> spec = OrderSpecification.existsByCreatedByAndInProductIdAndOrderStatusCompleted("user123", List.of(1L, 2L));
+        assertNotNull(spec);
+    }
+
+    @Test
+    void testFindMyOrders() {
+        Specification<Order> spec = OrderSpecification.findMyOrders("user123", "Product", OrderStatus.COMPLETED);
+        assertNotNull(spec);
+        Subquery subquery = mock(Subquery.class);
+        when(query.subquery(any(Class.class))).thenReturn(subquery);
+        when(subquery.from(any(Class.class))).thenReturn(mock(Root.class));
+        when(subquery.select(any())).thenReturn(subquery);
+        when(root.get(anyString())).thenReturn(mock(Path.class));
+        when(criteriaBuilder.equal(any(), anyString())).thenReturn(mock(Predicate.class));
+        when(criteriaBuilder.and(any(), any(), any())).thenReturn(mock(Predicate.class));
+        CriteriaBuilder.In inMock = mock(CriteriaBuilder.In.class);
+        when(criteriaBuilder.in(any())).thenReturn(inMock);
+        when(inMock.value(any())).thenReturn(inMock);
+        spec.toPredicate(root, query, criteriaBuilder);
+    }
+
+    @Test
+    void testFindOrderByWithMulCriteria() {
+        Specification<Order> spec = OrderSpecification.findOrderByWithMulCriteria(
+            List.of(OrderStatus.COMPLETED), "123", "USA", "email@e.com", "product", ZonedDateTime.now(), ZonedDateTime.now());
+        assertNotNull(spec);
+        Subquery subquery = mock(Subquery.class);
+        when(query.subquery(any(Class.class))).thenReturn(subquery);
+        when(subquery.from(any(Class.class))).thenReturn(mock(Root.class));
+        when(subquery.select(any())).thenReturn(subquery);
+        when(query.getResultType()).thenReturn((Class) Order.class);
+        when(root.fetch(anyString(), any())).thenReturn(null);
+        when(root.get(anyString())).thenReturn(mock(Path.class));
+        when(criteriaBuilder.and(any(), any(), any(), any(), any(), any())).thenReturn(mock(Predicate.class));
+        CriteriaBuilder.In inMock = mock(CriteriaBuilder.In.class);
+        when(criteriaBuilder.in(any())).thenReturn(inMock);
+        when(inMock.value(any())).thenReturn(inMock);
+        spec.toPredicate(root, query, criteriaBuilder);
+    }
+
+    @Test
+    void testHasProductInOrderItems() {
+        Specification<Order> spec = OrderSpecification.hasProductInOrderItems(List.of(1L));
+        assertNotNull(spec);
+        Subquery<OrderItem> subqueryMock = mock(Subquery.class);
+        when(query.subquery(OrderItem.class)).thenReturn(subqueryMock);
+        when(subqueryMock.from(OrderItem.class)).thenReturn(orderItemRoot);
+        when(subqueryMock.select(any())).thenReturn(subqueryMock);
+        when(subqueryMock.where(any(Predicate.class))).thenReturn(subqueryMock);
+        when(criteriaBuilder.exists(any())).thenReturn(mock(Predicate.class));
+        when(root.get(anyString())).thenReturn(mock(Path.class));
+        when(orderItemRoot.get(anyString())).thenReturn(mock(Path.class));
+        spec.toPredicate(root, query, criteriaBuilder);
+    }
+
+    @Test
+    void testWithProductName() {
+        Specification<Order> spec = OrderSpecification.withProductName("Prod");
+        assertNotNull(spec);
+        Subquery<Long> subqueryMock = mock(Subquery.class);
+        when(query.subquery(Long.class)).thenReturn(subqueryMock);
+        when(subqueryMock.from(OrderItem.class)).thenReturn(orderItemRoot);
+        when(subqueryMock.select(any())).thenReturn(subqueryMock);
+        when(subqueryMock.where(any(Predicate.class))).thenReturn(subqueryMock);
+        when(criteriaBuilder.exists(any())).thenReturn(mock(Predicate.class));
+        when(root.get(anyString())).thenReturn(mock(Path.class));
+        when(orderItemRoot.get(anyString())).thenReturn(mock(Path.class));
+        spec.toPredicate(root, query, criteriaBuilder);
+    }
+
+    @Test
     void testHasCreatedBy_whenNormalCase_thenSuccess() {
 
         String createdBy = "user123";

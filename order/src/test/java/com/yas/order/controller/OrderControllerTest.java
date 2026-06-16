@@ -181,7 +181,6 @@ class OrderControllerTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Date parameter conversion requires full Spring Boot context")
     void testGetOrders_whenRequestIsValid_thenReturnOrderListVm() throws Exception {
 
         OrderListVm orderListVm = new OrderListVm(
@@ -198,16 +197,14 @@ class OrderControllerTest {
             any()
         )).thenReturn(orderListVm);
 
-        mockMvc.perform(get("/backoffice/orders")
-                .param("createdFrom", "1970-01-01T00:00:00Z")
-                .param("createdTo", ZonedDateTime.now().toString())
-                .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.content()
-                .json(objectWriter.writeValueAsString(orderListVm)));
-    }
-
-    @Test
+          mockMvc.perform(get("/backoffice/orders")
+                  .param("createdFrom", "1970-01-01T00:00:00Z")
+                  .param("createdTo", "2026-04-26T00:00:00Z")
+                  .accept(MediaType.APPLICATION_JSON))
+              .andExpect(status().isOk())
+              .andExpect(MockMvcResultMatchers.content()
+                  .json(objectWriter.writeValueAsString(orderListVm)));
+      }    @Test
     void testGetLatestOrders_whenRequestIsValid_thenReturnOrderListVm() throws Exception {
 
         List<OrderBriefVm> list = new ArrayList<>();
@@ -221,10 +218,8 @@ class OrderControllerTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Flaky assertion based on current time")
     void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        // Note: JavaTimeModule registration removed - not used for this test
         OrderRequest orderRequest = new OrderRequest();
         byte[] csvBytes = "ID,Name,Tags\n1,Alice,tag1,tag2\n2,Bob,tag3,tag4\n".getBytes();
 
@@ -234,14 +229,11 @@ class OrderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(orderRequest)))
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=Orders_" +
-                    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss")) + ".csv"))
-            .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
-    }
-
-    private OrderVm getOrderVm() {
+              .andExpect(status().isOk())
+              .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION,
+                  org.hamcrest.Matchers.startsWith("attachment; filename=Orders_")))
+              .andExpect(MockMvcResultMatchers.content().bytes(csvBytes));
+      }    private OrderVm getOrderVm() {
 
         OrderAddressVm shippingAddress = new OrderAddressVm(
             1L,
