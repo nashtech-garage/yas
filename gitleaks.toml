@@ -22,3 +22,14 @@ paths = [
   '''keycloak-yas-realm-import.yaml''',
   '''target'''
 ]
+# False positives from upstream YAS repository (dev/demo Keycloak credentials, not real secrets)
+commits = [
+  "af2c9421030761ec4eccb0994a6c576592be113b",
+  "8dc5e08456e8fa8c970b7b0cadcffdcd15d77e39",
+  "f3d6c4a83259ca06fc9bc1889b9369d11b423256",
+  "2192b03da8ca22e188ecf17f693fb9fbe9376811",
+  "b2294a232aa1eea10b9814cf6ece03c5871b98d7",
+  "e8fb3139974eb1a27b224416742c6902300ffee3",
+  "0cac9558db4e4aa004d72e47e652384d6f32a666",
+  "14f0528e9d235c13db92db3bf5e9f3b1cf5b1a7e"
+]

@@ -29,3 +29,8 @@ hs_err_pid*
 .settings*
 .vscode
 *.iml
+
+# OS X
+.DS_Store
+.AppleDouble
+.LSOverride

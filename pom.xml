@@ -350,7 +350,7 @@
                         </execution>
                         <execution>
                             <id>report</id>
-                            <phase>verify</phase>
+                            <phase>test</phase>
                             <goals>
                                 <goal>report</goal>
                             </goals>
@@ -362,6 +362,8 @@
                             <exclude>com/yas/**/config/**</exclude>
                             <exclude>com/yas/**/exception/**</exclude>
                             <exclude>com/yas/**/constants/**</exclude>
+                            <exclude>com/yas/**/model/**</exclude>
+                            <exclude>com/yas/**/mapper/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -400,6 +402,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

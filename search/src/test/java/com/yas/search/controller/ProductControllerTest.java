@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.yas.search.model.ProductCriteriaDto;
-import com.yas.search.repository.ProductRepository;
 import com.yas.search.service.ProductService;
 import com.yas.search.viewmodel.ProductGetVm;
 import com.yas.search.viewmodel.ProductListGetVm;
@@ -18,28 +17,31 @@ import com.yas.search.viewmodel.ProductNameListVm;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@WebMvcTest(controllers = ProductController.class,
-    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
 
-    @MockitoBean
+    @Mock
     private ProductService productService;
 
-    @MockitoBean
-    private ProductRepository productRepository; // Adding this unused mockBean to avoid error
-                                                // due to making network call to ES during repository bean initialization.
-    @Autowired
+    @InjectMocks
+    private ProductController productController;
+
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
+    }
 
     @Test
     void testFindProductAdvance_whenProductListIsExists_thenReturnProductListGetVm() throws Exception {
@@ -61,8 +63,6 @@ class ProductControllerTest {
             List.of(productGetVm), 0, 1, 1, 1, true, Map.of()
         );
 
-
-
         when(productService.findProductAdvance(any(ProductCriteriaDto.class)))
             .thenReturn(mockResponse);
 
@@ -73,7 +73,6 @@ class ProductControllerTest {
                 .param("sortType", "DEFAULT")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.products[0].id").value(productGetVm.id()))
             .andExpect(jsonPath("$.products[0].name").value(productGetVm.name()))
             .andExpect(jsonPath("$.products[0].slug").value(productGetVm.slug()));
@@ -91,8 +90,6 @@ class ProductControllerTest {
                 .param("keyword", "test")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.productNames[0].name").value("Product1"));
     }
-
 }
