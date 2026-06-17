@@ -247,4 +247,6 @@ class CartItemControllerTest {
             verify(cartItemService).deleteCartItem(PRODUCT_ID_SAMPLE);
         }
     }
+
+    // Additional nested test classes can be added here to cover other endpoints or scenarios, such as handling exceptions, edge cases, etc.
 }
