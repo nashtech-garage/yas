@@ -21,14 +21,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor//Test
 @Service
 public class MediaServiceImpl implements MediaService {
 
     private final MediaVmMapper mediaVmMapper;
     private final MediaRepository mediaRepository;
     private final FileSystemRepository fileSystemRepository;
-    private final YasConfig yasConfig;
+    private final YasConfig yasConfig;//test5
 
     @Override
     @SneakyThrows

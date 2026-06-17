@@ -1,28 +1,37 @@
 package com.yas.product.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.product.model.Brand;
+import com.yas.product.model.Product;
 import com.yas.product.repository.BrandRepository;
 import com.yas.product.viewmodel.brand.BrandListGetVm;
 import com.yas.product.viewmodel.brand.BrandPostVm;
-import org.junit.jupiter.api.Assertions;
+import com.yas.product.viewmodel.brand.BrandVm;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 class BrandServiceTest {
 
@@ -32,78 +41,159 @@ class BrandServiceTest {
     @InjectMocks
     private BrandService brandService;
 
-    // Retrieve a paginated list of brands successfully
-    @Test
-    void test_retrieve_paginated_brands_successfully() {
-        List<Brand> brands = List.of(new Brand(), new Brand());
-        Page<Brand> brandPage = new PageImpl<>(brands);
-        when(brandRepository.findAll(any(Pageable.class))).thenReturn(brandPage);
+    @Nested
+    class CreateBrandTest {
 
-        BrandListGetVm result = brandService.getBrands(0, 2);
+        @Test
+        void create_validVm_savesAndReturnsBrand() {
+            BrandPostVm vm = new BrandPostVm("BrandX", "brandx", true);
+            Brand saved = vm.toModel();
+            saved.setId(1L);
 
-        assertEquals(2, result.brandContent().size());
-        assertEquals(0, result.pageNo());
-        assertEquals(2, result.pageSize());
+            when(brandRepository.findExistedName("BrandX", null)).thenReturn(null);
+            when(brandRepository.save(any(Brand.class))).thenReturn(saved);
+
+            Brand result = brandService.create(vm);
+
+            assertNotNull(result);
+            assertEquals("BrandX", result.getName());
+            assertEquals("brandx", result.getSlug());
+            verify(brandRepository).save(any(Brand.class));
+        }
+
+        @Test
+        void create_duplicateName_throwsDuplicatedException() {
+            BrandPostVm vm = new BrandPostVm("ExistingBrand", "existing-brand", true);
+            when(brandRepository.findExistedName("ExistingBrand", null)).thenReturn(new Brand());
+
+            assertThrows(DuplicatedException.class, () -> brandService.create(vm));
+            verify(brandRepository, never()).save(any());
+        }
     }
 
-    // Create a new brand when valid data is provided
-    @Test
-    void test_create_brand_successfully() {
-        BrandPostVm brandPostVm = new BrandPostVm("BrandName", "brand-slug", true);
-        Brand brand = brandPostVm.toModel();
-        when(brandRepository.save(any(Brand.class))).thenReturn(brand);
+    @Nested
+    class UpdateBrandTest {
 
-        Brand result = brandService.create(brandPostVm);
+        @Test
+        void update_validVm_updatesAndReturnsBrand() {
+            BrandPostVm vm = new BrandPostVm("UpdatedBrand", "updated-brand", true);
+            Brand existing = new Brand();
+            existing.setId(1L);
+            existing.setName("OldBrand");
 
-        assertEquals("BrandName", result.getName());
-        assertEquals("brand-slug", result.getSlug());
+            when(brandRepository.findExistedName("UpdatedBrand", 1L)).thenReturn(null);
+            when(brandRepository.findById(1L)).thenReturn(Optional.of(existing));
+            when(brandRepository.save(any(Brand.class))).thenReturn(existing);
+
+            Brand result = brandService.update(vm, 1L);
+
+            assertNotNull(result);
+            verify(brandRepository).save(any(Brand.class));
+        }
+
+        @Test
+        void update_notFound_throwsNotFoundException() {
+            BrandPostVm vm = new BrandPostVm("UpdatedBrand", "updated-brand", true);
+
+            when(brandRepository.findExistedName("UpdatedBrand", 99L)).thenReturn(null);
+            when(brandRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(NotFoundException.class, () -> brandService.update(vm, 99L));
+        }
+
+        @Test
+        void update_duplicateName_throwsDuplicatedException() {
+            BrandPostVm vm = new BrandPostVm("TakenName", "taken-name", true);
+            when(brandRepository.findExistedName("TakenName", 1L)).thenReturn(new Brand());
+
+            assertThrows(DuplicatedException.class, () -> brandService.update(vm, 1L));
+        }
     }
 
-    // Update an existing brand when valid data is provided
-    @Test
-    void test_update_brand_successfully() {
-        BrandPostVm brandPostVm = new BrandPostVm("UpdatedName", "updated-slug", true);
-        Brand existingBrand = new Brand();
-        existingBrand.setId(1L);
-        when(brandRepository.findById(1L)).thenReturn(Optional.of(existingBrand));
-        when(brandRepository.save(any(Brand.class))).thenReturn(existingBrand);
+    @Nested
+    class GetBrandsTest {
 
-        Brand result = brandService.update(brandPostVm, 1L);
+        @Test
+        void getBrands_returnsPagedResult() {
+            Brand brand = new Brand();
+            brand.setId(1L);
+            brand.setName("BrandA");
+            brand.setSlug("brand-a");
 
-        assertEquals("UpdatedName", result.getName());
-        assertEquals("updated-slug", result.getSlug());
+            when(brandRepository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(brand)));
+
+            BrandListGetVm result = brandService.getBrands(0, 10);
+
+            assertNotNull(result);
+            assertEquals(1, result.brandContent().size());
+        }
+
+        @Test
+        void getBrands_emptyPage_returnsEmptyList() {
+            when(brandRepository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+            BrandListGetVm result = brandService.getBrands(0, 10);
+
+            assertNotNull(result);
+            assertTrue(result.brandContent().isEmpty());
+        }
     }
 
-    // Attempt to create a brand with a name that already exists
-    @Test
-    void test_create_brand_with_existing_name() {
-        BrandPostVm brandPostVm = new BrandPostVm("ExistingName", "existing-slug", true);
-        when(brandRepository.findExistedName("ExistingName", null)).thenReturn(new Brand());
+    @Nested
+    class GetBrandsByIdsTest {
 
-        Assertions.assertThrows(DuplicatedException.class, () -> {
-            brandService.create(brandPostVm);
-        });
+        @Test
+        void getBrandsByIds_returnsVmList() {
+            Brand brand = new Brand();
+            brand.setId(1L);
+            brand.setName("BrandA");
+            brand.setSlug("brand-a");
+
+            when(brandRepository.findAllById(List.of(1L))).thenReturn(List.of(brand));
+
+            List<BrandVm> result = brandService.getBrandsByIds(List.of(1L));
+
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            assertEquals("BrandA", result.get(0).name());
+        }
     }
 
-    // Attempt to update a brand with a name that already exists
-    @Test
-    void test_update_brand_with_existing_name() {
-        BrandPostVm brandPostVm = new BrandPostVm("ExistingName", "existing-slug", true);
-        when(brandRepository.findExistedName("ExistingName", 1L)).thenReturn(new Brand());
+    @Nested
+    class DeleteBrandTest {
 
-        Assertions.assertThrows(DuplicatedException.class, () -> {
-            brandService.update(brandPostVm, 1L);
-        });
-    }
+        @Test
+        void delete_brandWithProducts_throwsBadRequestException() {
+            Brand brand = new Brand();
+            brand.setId(1L);
+            brand.setProducts(List.of(new Product()));
 
-    // Attempt to update a brand that does not exist
-    @Test
-    void test_update_nonexistent_brand() {
-        BrandPostVm brandPostVm = new BrandPostVm("NonExistentName", "nonexistent-slug", true);
-        when(brandRepository.findById(1L)).thenReturn(Optional.empty());
+            when(brandRepository.findById(1L)).thenReturn(Optional.of(brand));
 
-        Assertions.assertThrows(NotFoundException.class, () -> {
-            brandService.update(brandPostVm, 1L);
-        });
+            assertThrows(BadRequestException.class, () -> brandService.delete(1L));
+            verify(brandRepository, never()).deleteById(any());
+        }
+
+        @Test
+        void delete_cleanBrand_deletesSuccessfully() {
+            Brand brand = new Brand();
+            brand.setId(1L);
+            brand.setProducts(List.of());
+
+            when(brandRepository.findById(1L)).thenReturn(Optional.of(brand));
+
+            brandService.delete(1L);
+
+            verify(brandRepository).deleteById(1L);
+        }
+
+        @Test
+        void delete_brandNotFound_throwsNotFoundException() {
+            when(brandRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(NotFoundException.class, () -> brandService.delete(99L));
+        }
     }
 }

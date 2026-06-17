@@ -24,7 +24,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor//tesstt
 public class ProductService extends AbstractCircuitBreakFallbackHandler {
 
     private final RestClient restClient;
@@ -67,7 +67,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
                 .body(buildProductQuantityItems(orderVm.orderItemVms()))
                 .retrieve();
     }
-
+//tesst
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handleProductInfomationFallback")
     public Map<Long, ProductCheckoutListVm> getProductInfomation(Set<Long> ids, int pageNo, int pageSize) {
