@@ -84,6 +84,23 @@ class MediaServiceTest {
         verify(restClient, times(0)).get();
     }
 
+    @Test
+    public void fallbackGetMediaVmMap_shouldReturnEmptyMap() throws Exception {
+        // Given
+        var cod = new PaymentProvider();
+        cod.setId(PaymentMethod.COD.name());
+        cod.setMediaId(1L);
+        List<PaymentProvider> providers = List.of(cod);
+        Throwable throwable = new RuntimeException("Media service down");
+
+        // When
+        java.util.Map<Long, MediaVm> result = (java.util.Map<Long, MediaVm>) org.springframework.test.util.ReflectionTestUtils.invokeMethod(
+                mediaService, "fallbackGetMediaVmMap", providers, throwable);
+
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
     private void mockRestClientGetMethod(RestClient restClient) {
         RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
         when(restClient.get()).thenReturn(requestHeadersUriSpec);

@@ -15,6 +15,7 @@
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>nashtech-garage_yas-order</sonar.projectKey>
+        <argLine></argLine>
     </properties>
     <dependencies>
         <dependency>
@@ -71,13 +72,48 @@
     </dependencies>
     <build>
         <plugins>
+            <!--
+                FIX 1: Bỏ toàn bộ khai báo jacoco-maven-plugin override ở đây.
+                Root pom đã quản lý JaCoCo đầy đủ qua pluginManagement (phase verify,
+                prepare-agent + report). Jenkinsfile chạy "mvnw verify -DskipITs"
+                là đủ để sinh jacoco.csv. Override phase thành "test" ở đây gây
+                conflict và report chạy 2 lần khi Jenkinsfile gọi thêm jacoco:report.
+            -->
+
+            <!--
+                FIX 2: Bỏ -javaagent mockito trong argLine.
+                Root pom dùng Spring Boot 4.0.2 → Mockito 5.x bundled sẵn.
+                Mockito 5 dùng inline mock maker mặc định, không cần javaagent.
+                Quan trọng hơn: ${mockito.version} KHÔNG được định nghĩa trong root
+                pom → Maven resolve thành literal string → JVM crash khi load agent.
+                @{argLine} một mình là đủ để JaCoCo agent hoạt động đúng.
+            -->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine}</argLine>
+                    <reportFormat>xml</reportFormat>
+                    <failIfNoTests>false</failIfNoTests>
+                    <skipTests>false</skipTests>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*Spec.java</include>
+                    </includes>
+                </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

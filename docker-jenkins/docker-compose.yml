@@ -1,0 +1,15 @@
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins_master
+    privileged: true
+    user: root # Chạy quyền root để có thể truy cập docker.sock của host
+    ports:
+      - "8899:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # Cho phép Jenkins gọi Docker host
+    restart: unless-stopped
+volumes:
+  jenkins_data:

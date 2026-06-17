@@ -13,18 +13,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class SampleDataService {
     private final DataSource productDataSource;
     private final DataSource mediaDataSource;
+    private final SqlScriptExecutor sqlScriptExecutor;
 
     @Autowired
     public SampleDataService(@Qualifier("productDataSource") DataSource productDataSource,
-                     @Qualifier("mediaDataSource") DataSource mediaDataSource) {
+                             @Qualifier("mediaDataSource") DataSource mediaDataSource,
+                             SqlScriptExecutor sqlScriptExecutor) {
         this.productDataSource = productDataSource;
         this.mediaDataSource = mediaDataSource;
+        this.sqlScriptExecutor = sqlScriptExecutor;
     }
 
     public SampleDataVm createSampleData() {
-        SqlScriptExecutor executor = new SqlScriptExecutor();
-        executor.executeScriptsForSchema(productDataSource, "public", "classpath*:db/product/*.sql");
-        executor.executeScriptsForSchema(mediaDataSource, "public", "classpath*:db/media/*.sql");
+        sqlScriptExecutor.executeScriptsForSchema(productDataSource, "public", "classpath*:db/product/*.sql");
+        sqlScriptExecutor.executeScriptsForSchema(mediaDataSource, "public", "classpath*:db/media/*.sql");
         return new SampleDataVm("Insert Sample Data successfully!");
     }
 }

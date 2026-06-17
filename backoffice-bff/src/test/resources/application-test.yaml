@@ -1,0 +1,14 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ~
+        registration:
+          api-client:
+            provider: keycloak
+  data:
+    redis:
+      host: localhost
+      port: 6379
