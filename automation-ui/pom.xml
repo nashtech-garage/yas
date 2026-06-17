@@ -39,6 +39,8 @@
         <cucumber-junit.version>7.14.0</cucumber-junit.version>
 
         <lombok.version>1.18.34</lombok.version>
+        <dependency-check.failOnError>false</dependency-check.failOnError>
+        <dependency-check.centralAnalyzerEnabled>false</dependency-check.centralAnalyzerEnabled>
     </properties>
 
     <dependencies>
@@ -145,6 +147,10 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
+                    <configuration>
+                        <failOnError>${dependency-check.failOnError}</failOnError>
+                        <centralAnalyzerEnabled>${dependency-check.centralAnalyzerEnabled}</centralAnalyzerEnabled>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>

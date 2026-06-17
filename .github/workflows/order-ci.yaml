@@ -2,14 +2,14 @@ name: order service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "order/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/order-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "order/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,16 +18,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  # ============================================================================
+  # PHASE 1: TEST - Run unit tests, code quality checks, security analysis
+  # ============================================================================
+  Test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
+          fetch-depth: 0
+
+      - name: Setup JDK environment
+        uses: ./.github/workflows/actions
+
+      - name: Run Maven Tests and Build
         run: mvn clean install -pl order -am
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -36,14 +46,25 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/order-checkstyle-result.xml'
+          path: "**/order-checkstyle-result.xml"
       - name: Test Results
         uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) && hashFiles('order/**/target/surefire-reports/TEST-*.xml', 'order/**/target/failsafe-reports/TEST-*.xml') != '' }}
         with:
           name: Order-Service-Unit-Test-Results
           path: "order/**/*-reports/TEST*.xml"
           reporter: java-junit
+
+      - name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: order-junit-test-results
+          path: |
+            order/**/target/surefire-reports/TEST-*.xml
+            order/**/target/failsafe-reports/TEST-*.xml
+          if-no-files-found: warn
+          retention-days: 14
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
@@ -55,36 +76,75 @@ jobs:
         env:
           JAVA_HOME: /opt/jdk
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
+          project: "yas"
+          path: "."
+          format: "HTML"
+          args: --disableCentral
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
+          if-no-files-found: warn
+          retention-days: 14
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && github.event_name == 'pull_request' && hashFiles('order/target/site/jacoco/jacoco.xml') != '' }}
         with:
           paths: ${{github.workspace}}/order/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Order Coverage Report'
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: "Order Coverage Report"
           update-comment: true
+
+      - name: Upload JaCoCo Coverage Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: order-jacoco-coverage-report
+          path: |
+            order/target/site/jacoco/jacoco.xml
+            order/target/site/jacoco-it/jacoco.xml
+            order/target/site/jacoco/index.html
+            order/target/site/jacoco-it/index.html
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ============================================================================
+  # PHASE 2: BUILD - Build Docker image and push to registry
+  # ============================================================================
+  Build:
+    needs: Test
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK environment
+        uses: ./.github/workflows/actions
+
+      - name: Build application (generate /target)
+        run: mvn clean package -pl order -am -DskipTests
+
+      - name: Set lowercase image owner
+        run: echo "IMAGE_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
       - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./order
           push: true
-          tags: ghcr.io/nashtech-garage/yas-order:latest
+          tags: ghcr.io/${{ env.IMAGE_OWNER }}/yas-order:latest

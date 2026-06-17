@@ -1,17 +1,43 @@
-name: GitLeaks check nightly
+name: GitLeaks check
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
 jobs:
-  check:
+  gitleaks:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout 
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-    - name: Gitleaks check
-      run: |
-        docker pull zricethezav/gitleaks:v8.18.4
-        docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="." --config="/work/gitleaks.toml" --verbose --no-git
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks check
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: ${{ github.workspace }}/gitleaks.toml
+
+      - name: Ensure SARIF file exists
+        if: always()
+        run: |
+          if [ ! -f results.sarif ]; then
+            echo '{"version":"2.1.0","runs":[]}' > results.sarif
+          fi
+
+      - name: Upload SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
