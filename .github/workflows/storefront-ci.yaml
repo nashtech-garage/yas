@@ -2,13 +2,13 @@ name: storefront service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/storefront-ci.yaml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront/**"
       - ".github/workflows/actions/action.yaml"
@@ -16,44 +16,78 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  # ============================================================================
+  # PHASE 1: TEST - Run linting, prettier, security checks, SonarCloud analysis
+  # ============================================================================
+  Test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
+
+      - name: Install dependencies
+        run: npm ci
         working-directory: storefront
-      - run: npm run build
+
+      - name: Build application
+        run: npm run build
         working-directory: storefront
-      - run: npm run lint
+
+      - name: Run linting
+        run: npm run lint
         working-directory: storefront
-      - run: npx prettier --check .
+
+      - name: Run Prettier check
+        run: npx prettier --check .
         working-directory: storefront
+
       - name: SonarCloud Scan
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: SonarSource/sonarcloud-github-action@master
         with:
           projectBaseDir: storefront
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ============================================================================
+  # PHASE 2: BUILD - Build Docker image and push to registry
+  # ============================================================================
+  Build:
+    needs: Test
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set lowercase image owner
+        run: echo "IMAGE_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
       - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./storefront
           push: true
-          tags: ghcr.io/nashtech-garage/yas-storefront:latest
+          tags: ghcr.io/${{ env.IMAGE_OWNER }}/yas-storefront:latest

@@ -1,0 +1,132 @@
+name: Java Test & Coverage CI
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "common-library/**"
+      - "pom.xml"
+      - ".github/workflows/test-coverage.yaml"
+  pull_request:
+    branches: ["**"]
+    paths:
+      - "common-library/**"
+      - "pom.xml"
+      - ".github/workflows/test-coverage.yaml"
+  workflow_dispatch:
+
+jobs:
+  # ============================================================================
+  # PHASE TEST — Chạy unit test + integration test, generate report, check coverage
+  # ============================================================================
+  Test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write # Cần để publish test report lên GitHub UI
+      pull-requests: write # Cần để comment coverage lên PR
+
+    env:
+      # Chỉ chạy các step tốn tài nguyên khi từ repo gốc (không phải fork)
+      FROM_ORIGINAL_REPOSITORY: >-
+        ${{ github.event.pull_request.head.repo.full_name == github.repository
+            || github.ref == 'refs/heads/main' }}
+
+    steps:
+      # ------------------------------------------------------------------
+      # 1. Checkout source code (fetch-depth=0 cần cho SonarCloud + JaCoCo)
+      # ------------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ------------------------------------------------------------------
+      # 2. Setup JDK 25 + cache Maven dependencies (dùng composite action có sẵn)
+      # ------------------------------------------------------------------
+      - name: Setup JDK & Maven cache
+        uses: ./.github/workflows/actions
+
+      # ------------------------------------------------------------------
+      # 3. Chạy toàn bộ test (unit + integration) + JaCoCo coverage check
+      #    - mvn verify: chạy surefire (unit) + failsafe (IT) + jacoco:check
+      #    - jacoco:check sẽ FAIL build nếu coverage < 70% (đã cấu hình pom.xml)
+      # ------------------------------------------------------------------
+      - name: Run Tests & Coverage Check
+        run: mvn verify --batch-mode --no-transfer-progress
+
+      # ------------------------------------------------------------------
+      # 4. Publish JUnit XML report lên GitHub Checks tab
+      #    - Hiển thị từng test case PASS/FAIL trực tiếp trên GitHub UI
+      #    - Chạy cả khi test fail (success() || failure())
+      # ------------------------------------------------------------------
+      - name: Publish Unit Test Report
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Unit Test Results
+          # Surefire (unit test) viết report vào thư mục surefire-reports
+          path: "**/target/surefire-reports/TEST-*.xml"
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Publish Integration Test Report
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Integration Test Results
+          # Failsafe (integration test *IT.java) viết vào failsafe-reports
+          path: "**/target/failsafe-reports/TEST-*.xml"
+          reporter: java-junit
+          fail-on-error: false
+
+      # ------------------------------------------------------------------
+      # 5. Upload JUnit XML test results làm artifact (download & xem lại)
+      #    - always() đảm bảo upload dù test PASS hay FAIL
+      #    - retention-days: giữ artifact 14 ngày
+      # ------------------------------------------------------------------
+      - name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: junit-test-results
+          path: |
+            **/target/surefire-reports/TEST-*.xml
+            **/target/failsafe-reports/TEST-*.xml
+          retention-days: 14
+
+      # ------------------------------------------------------------------
+      # 6. Upload JaCoCo XML report làm artifact (dùng cho SonarCloud / download)
+      # ------------------------------------------------------------------
+      - name: Upload JaCoCo Coverage Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: jacoco-coverage-report
+          # jacoco/jacoco.xml   = unit test coverage
+          # jacoco-it/jacoco.xml = integration test coverage
+          path: |
+            **/target/site/jacoco/jacoco.xml
+            **/target/site/jacoco-it/jacoco.xml
+            **/target/site/jacoco/index.html
+            **/target/site/jacoco-it/index.html
+          retention-days: 14
+
+      # ------------------------------------------------------------------
+      # 6. Comment coverage summary lên Pull Request
+      #    - madrapps/jacoco-report đọc jacoco.xml và post comment lên PR
+      #    - min-coverage-overall: ngưỡng toàn project
+      #    - min-coverage-changed-files: ngưỡng cho file thay đổi trong PR
+      # ------------------------------------------------------------------
+      - name: Add Coverage Comment to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && github.event_name == 'pull_request' }}
+        with:
+          paths: "**/target/site/jacoco/jacoco.xml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: "JaCoCo Coverage Report"
+          update-comment: true
+          pass-emoji: "✅"
+          fail-emoji: "❌"
