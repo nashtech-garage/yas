@@ -1,0 +1,21 @@
+name: "Gitleaks Scan Action"
+
+inputs:
+  version:
+    description: "Version of Gitleaks"
+    required: true
+    default: "v8.18.4"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+    - name: Run Gitleaks Scan
+      shell: bash
+      run: |
+        docker pull zricethezav/gitleaks:${{ inputs.version }}
+        docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:${{ inputs.version }} detect --source="." --config="/work/gitleaks.toml" --verbose --no-git

@@ -29,3 +29,9 @@ hs_err_pid*
 .settings*
 .vscode
 *.iml
+.gitnexus
+
+AGENTS.md
+CLAUDE.md
+.claude
+analysis
