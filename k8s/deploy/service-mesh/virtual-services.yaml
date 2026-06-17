@@ -1,0 +1,248 @@
+# ============================================================
+# VirtualService - Retry Policies cho YAS Services
+# ============================================================
+# Cấu hình retry tự động khi service trả về lỗi 5xx.
+#
+# Retry policy:
+#   - retryOn: 5xx, connect-failure, refused-stream, reset
+#   - attempts: 3 (retry tối đa 3 lần)
+#   - perTryTimeout: 5s (timeout mỗi lần retry)
+#   - retryRemoteLocalities: true (retry tới pod khác nếu có)
+#
+# Timeout:
+#   - timeout tổng: 30s cho mỗi request
+# ============================================================
+
+# --- Product Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: product-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    app.kubernetes.io/managed-by: istio
+    purpose: retry-policy
+spec:
+  hosts:
+    - product.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: product.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Cart Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: cart-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - cart.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: cart.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Order Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - order.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: order.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Payment Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: payment-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - payment.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: payment.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Customer Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: customer-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - customer.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: customer.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Inventory Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: inventory-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - inventory.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: inventory.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Media Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: media-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - media.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: media.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Search Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: search-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - search.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: search.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true
+
+---
+# --- Recommendation Service Retry ---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: recommendation-retry
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    purpose: retry-policy
+spec:
+  hosts:
+    - recommendation.yas.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: recommendation.yas.svc.cluster.local
+            port:
+              number: 80
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: "5xx,connect-failure,refused-stream,reset"
+        retryRemoteLocalities: true

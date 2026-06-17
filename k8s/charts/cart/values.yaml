@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-cart
-    tag: latest
+    repository: danzgne/yas-cart
+    tag: main
 
   nameOverride: cart
   fullnameOverride: cart

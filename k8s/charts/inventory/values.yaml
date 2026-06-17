@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-inventory
-    tag: latest
+    repository: danzgne/yas-inventory
+    tag: main
 
   nameOverride: inventory
   fullnameOverride: inventory

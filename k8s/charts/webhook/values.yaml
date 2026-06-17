@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-webhook
-    tag: latest
+    repository: danzgne/yas-webhook
+    tag: main
 
   nameOverride: webhook
   fullnameOverride: webhook

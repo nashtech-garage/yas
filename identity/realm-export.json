@@ -647,6 +647,8 @@
       "secret": "TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF",
       "redirectUris": [
         "http://backoffice/*",
+        "http://backoffice.dev.yas.local.com/*",
+        "http://backoffice.staging.yas.local.com/*",
         "http://localhost:3000/*",
         "http://localhost:8087/*"
       ],
@@ -989,6 +991,8 @@
       "secret": "ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn",
       "redirectUris": [
         "http://storefront/*",
+        "http://storefront.dev.yas.local.com/*",
+        "http://storefront.staging.yas.local.com/*",
         "http://localhost:8087/*"
       ],
       "webOrigins": [],

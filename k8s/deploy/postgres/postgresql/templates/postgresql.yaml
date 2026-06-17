@@ -7,6 +7,7 @@ metadata:
     team: acid
 
 spec:
+  dockerImage: "ghcr.io/zalando/spilo-15:3.2-p1"
   streams:
     - applicationId: product_db_stream_appid
       database: product
@@ -43,8 +44,8 @@ spec:
     promotion: {{ .Values.username }}
     rating: {{ .Values.username }}
     tax: {{ .Values.username }}
-    recommendation: { { .Values.username } }
-    webhook: { { .Values.username } }
+    recommendation: {{ .Values.username }}
+    webhook: {{ .Values.username }}
     grafana: {{ .Values.username }}
   patroni:
     slots:
@@ -94,5 +95,23 @@ spec:
         plugin: wal2json
   allowedSourceRanges:
   # IP ranges to access your cluster go here
+  initContainers:
+    - name: remove-stale-pid
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          PID_FILE=/home/postgres/pgdata/pgroot/data/postmaster.pid
+          if [ -f "$PID_FILE" ]; then
+            echo "Found stale postmaster.pid, removing..."
+            rm -f "$PID_FILE"
+            echo "Done."
+          else
+            echo "No stale postmaster.pid found."
+          fi
+      volumeMounts:
+        - name: pgdata
+          mountPath: /home/postgres/pgdata
   resources:
     {{ toYaml .Values.resources | nindent 4 }}

@@ -1,0 +1,76 @@
+{{- if .Values.mtls.enabled }}
+# ============================================================
+# PeerAuthentication - mTLS for namespace {{ .Release.Namespace }}
+# ============================================================
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: {{ .Release.Namespace }}-strict-mtls
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" . | nindent 4 }}
+spec:
+  mtls:
+    mode: {{ .Values.mtls.mode }}
+---
+# ============================================================
+# DestinationRule - Wildcard mTLS for all services
+# ============================================================
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Namespace }}-default-mtls
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" . | nindent 4 }}
+spec:
+  host: "*.{{ .Release.Namespace }}.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+---
+# --- Per-service DestinationRules ---
+{{- range .Values.backendServices }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .name }}-mtls
+  namespace: {{ $.Release.Namespace }}
+spec:
+  host: {{ .name }}.{{ $.Release.Namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      http:
+        maxRequestsPerConnection: 100
+      tcp:
+        maxConnections: 100
+---
+{{- end }}
+{{- range .Values.bffServices }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ . }}-mtls
+  namespace: {{ $.Release.Namespace }}
+spec:
+  host: {{ . }}.{{ $.Release.Namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+---
+{{- end }}
+{{- if .Values.nginxGateway.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: nginx-mtls
+  namespace: {{ .Release.Namespace }}
+spec:
+  host: nginx.{{ .Release.Namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+{{- end }}
+{{- end }}

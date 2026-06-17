@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-payment-paypal
-    tag: latest
+    repository: danzgne/yas-payment-paypal
+    tag: main
 
   nameOverride: payment-paypal
   fullnameOverride: payment-paypal

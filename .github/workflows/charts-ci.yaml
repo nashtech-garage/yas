@@ -1,11 +1,12 @@
 name: release charts ci
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "k8s/charts/**"
-      - ".github/workflows/charts-ci.yaml"
+  workflow_dispatch: # disabled auto-trigger, run manually if needed
+  # push:
+  #   branches: [ "main" ]
+  #   paths:
+  #     - "k8s/charts/**"
+  #     - ".github/workflows/charts-ci.yaml"
 
 jobs:
   release-charts:

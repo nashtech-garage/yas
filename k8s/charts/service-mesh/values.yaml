@@ -1,0 +1,150 @@
+# ============================================================
+# Service Mesh Helm Chart - Values
+# ============================================================
+# Tham số hoá toàn bộ cấu hình Service Mesh.
+# Deploy vào bất kỳ namespace nào bằng:
+#   helm upgrade --install service-mesh ./service-mesh -n <NAMESPACE>
+# ============================================================
+
+# --- mTLS Configuration ---
+mtls:
+  enabled: true
+  mode: STRICT  # STRICT | PERMISSIVE | DISABLE
+
+# --- Retry Policy ---
+retry:
+  enabled: true
+  attempts: 3
+  perTryTimeout: 5s
+  retryOn: "5xx,connect-failure,refused-stream,reset"
+  timeout: 30s
+
+# --- Authorization Policy ---
+authorization:
+  enabled: true
+
+# --- Services trong mesh ---
+# Danh sách tất cả backend services (port 80)
+backendServices:
+  - name: product
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - order
+      - cart
+      - search
+      - recommendation
+      - inventory
+      - promotion
+      - rating
+      - sampledata
+  - name: cart
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - order
+  - name: order
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - payment
+      - payment-paypal
+  - name: payment
+    allowedCallers:
+      - order
+  - name: payment-paypal
+    allowedCallers:
+      - payment
+      - order
+  - name: customer
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - order
+      - sampledata
+  - name: inventory
+    allowedCallers:
+      - backoffice-bff
+      - storefront-bff
+      - order
+      - product
+      - sampledata
+  - name: media
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - product
+      - sampledata
+  - name: location
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - order
+      - sampledata
+  - name: tax
+    allowedCallers:
+      - backoffice-bff
+      - order
+      - product
+      - sampledata
+  - name: promotion
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - order
+      - product
+      - sampledata
+  - name: rating
+    allowedCallers:
+      - storefront-bff
+      - backoffice-bff
+      - product
+      - sampledata
+  - name: search
+    allowedCallers:
+      - storefront-bff
+      - sampledata
+  - name: recommendation
+    allowedCallers:
+      - storefront-bff
+      - sampledata
+  - name: webhook
+    allowedCallers:
+      - backoffice-bff
+      - order
+      - payment
+  - name: sampledata
+    allowedCallers:
+      - backoffice-bff
+
+# BFF services (nhận traffic từ ingress)
+bffServices:
+  - storefront-bff
+  - backoffice-bff
+
+# UI services
+uiServices:
+  - storefront-ui
+  - backoffice-ui
+  - swagger-ui
+
+# Nginx API Gateway label selector
+nginxGateway:
+  enabled: true
+  labelKey: app
+  labelValue: nginx
+
+# Ingress namespace (cho phép traffic từ ingress vào BFF/UI)
+ingressNamespace: ingress-nginx
+
+# Services cần retry policy (subset của backendServices)
+retryServices:
+  - product
+  - cart
+  - order
+  - payment
+  - customer
+  - inventory
+  - media
+  - search
+  - recommendation

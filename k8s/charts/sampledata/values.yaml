@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-sampledata
-    tag: latest
+    repository: danzgne/yas-sampledata
+    tag: main
 
   nameOverride: sampledata
   fullnameOverride: sampledata
