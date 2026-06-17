@@ -39,7 +39,7 @@ public class ProductService {
     public ProductService(ElasticsearchOperations elasticsearchOperations) {
         this.elasticsearchOperations = elasticsearchOperations;
     }
-
+// Test9 10111tttttttttttttt
     public ProductListGetVm findProductAdvance(ProductCriteriaDto productCriteria) {
         NativeQueryBuilder nativeQuery = NativeQuery.builder()
                 .withAggregation("categories", Aggregation.of(a -> a
@@ -95,7 +95,7 @@ public class ProductService {
                 productPage.getTotalPages(),
                 productPage.isLast(),
                 getAggregations(searchHitsResult));
-    }
+    }// Test 4
 
     private void extractedTermsFilter(String fieldValues, String productField, BoolQuery.Builder b) {
         if (StringUtils.isBlank(fieldValues)) {

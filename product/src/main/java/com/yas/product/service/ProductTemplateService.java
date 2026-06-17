@@ -30,7 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductTemplateService {
+public class ProductTemplateService {//testtt
     private final ProductAttributeRepository productAttributeRepository;
     private final ProductAttributeTemplateRepository productAttributeTemplateRepository;
     private final ProductAttributeGroupRepository productAttributeGroupRepository;
