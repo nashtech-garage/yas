@@ -346,11 +346,26 @@ pipeline {
             steps {
                 script {
                     echo " ===== START DOCKER BUILD & PUSH PHASE ===== "
+                    
+                    // Determine current branch dynamically
+                    def branchName = env.BRANCH_NAME ?: sh(
+                        script: "git rev-parse --abbrev-ref HEAD",
+                        returnStdout: true
+                    ).trim()
+                    echo "Current Branch: ${branchName}"
+
+                    // Get the latest commit ID (short SHA)
                     def commitId = sh(
                         script: "git rev-parse --short HEAD",
                         returnStdout: true
                     ).trim()
-                    echo "Target image tag (Commit ID): ${commitId}"
+                    
+                    // Determine tag based on branch name
+                    def imageTag = commitId
+                    if (branchName == 'main' || branchName == 'master' || branchName == 'origin/main' || branchName == 'origin/master') {
+                        imageTag = 'latest'
+                    }
+                    echo "Target image tag: ${imageTag}"
 
                     def rawServices = env.CHANGED_SERVICES?.trim() 
                         ? env.CHANGED_SERVICES.split(',').collect { it.trim() } 
@@ -387,11 +402,11 @@ pipeline {
                             jobs[serviceName] = {
                                 echo "=== Building Docker image for: ${serviceName} ==="
                                 dir(serviceName) {
-                                    sh "docker build -t ${dockerUsername}/yas-${serviceName}:${commitId} ."
+                                    sh "docker build -t ${dockerUsername}/yas-${serviceName}:${imageTag} ."
                                     echo "=== Pushing Docker image for: ${serviceName} ==="
-                                    sh "docker push ${dockerUsername}/yas-${serviceName}:${commitId}"
+                                    sh "docker push ${dockerUsername}/yas-${serviceName}:${imageTag}"
                                     echo "=== Cleaning up local image: ${serviceName} ==="
-                                    sh "docker rmi ${dockerUsername}/yas-${serviceName}:${commitId} || true"
+                                    sh "docker rmi ${dockerUsername}/yas-${serviceName}:${imageTag} || true"
                                 }
                             }
                         } else {
