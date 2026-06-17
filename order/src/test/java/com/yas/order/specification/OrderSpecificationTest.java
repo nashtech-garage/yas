@@ -147,4 +147,139 @@ class OrderSpecificationTest {
 
         assertNotNull(predicate);
     }
+
+    // ==========================================
+    // TESTS CHO CÁC NHÁNH RỖNG/NULL (TĂNG MẠNH BRANCH COVERAGE)
+    // ==========================================
+
+    @Test
+    void testHasOrderStatus_whenNull_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.hasOrderStatus(null);
+        assertEquals(expected, spec.toPredicate(root, query, criteriaBuilder));
+    }
+
+    @Test
+    void testWithEmail_whenEmpty_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.withEmail("");
+        assertEquals(expected, spec.toPredicate(root, query, criteriaBuilder));
+    }
+
+    @Test
+    void testWithOrderStatus_whenEmpty_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.withOrderStatus(List.of());
+        assertEquals(expected, spec.toPredicate(root, query, criteriaBuilder));
+    }
+
+    @Test
+    void testWithBillingPhoneNumber_whenEmpty_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.withBillingPhoneNumber("");
+        assertEquals(expected, spec.toPredicate(root, query, criteriaBuilder));
+    }
+
+    @Test
+    void testWithCountryName_whenEmpty_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.withCountryName("");
+        assertEquals(expected, spec.toPredicate(root, query, criteriaBuilder));
+    }
+
+    @Test
+    void testWithDateRange_whenNull_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.withDateRange(null, null);
+        assertEquals(expected, spec.toPredicate(root, query, criteriaBuilder));
+    }
+
+    @Test
+    void testHasProductInOrderItems_whenQueryNull_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.hasProductInOrderItems(List.of(1L));
+        // Truyền query = null để rơi vào nhánh if (query == null)
+        assertEquals(expected, spec.toPredicate(root, null, criteriaBuilder)); 
+    }
+
+    @Test
+    void testHasProductNameInOrderItems_whenQueryNull_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.hasProductNameInOrderItems("Name");
+        assertEquals(expected, spec.toPredicate(root, null, criteriaBuilder)); 
+    }
+
+    @Test
+    void testWithProductName_whenQueryNull_thenReturnConjunction() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        Specification<Order> spec = OrderSpecification.withProductName("Name");
+        assertEquals(expected, spec.toPredicate(root, null, criteriaBuilder));
+    }
+
+    // ==========================================
+    // TESTS CHO CÁC HÀM TỔNG HỢP (COMPOSITE SPECIFICATIONS)
+    // ==========================================
+
+    @Test
+    void testFindOrderByWithMulCriteria_whenQueryIsNull_thenSkipFetch() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        when(criteriaBuilder.and(any(), any(), any(), any(), any(), any())).thenReturn(expected);
+        
+        Specification<Order> spec = OrderSpecification.findOrderByWithMulCriteria(
+            null, null, null, null, null, null, null);
+        
+        Predicate result = spec.toPredicate(root, null, criteriaBuilder);
+        assertNotNull(result);
+        
+        // Đảm bảo không gọi root.fetch() vì query == null
+        org.mockito.Mockito.verify(root, org.mockito.Mockito.never()).fetch(anyString(), any());
+    }
+
+   @Test
+    void testFindMyOrders_Success() {
+        Predicate expected = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expected);
+        when(criteriaBuilder.equal(any(), any())).thenReturn(expected);
+        when(criteriaBuilder.and(any(), any(), any())).thenReturn(expected);
+        
+        Path pathMock = mock(Path.class);
+        when(root.get(anyString())).thenReturn(pathMock);
+
+        // FIX: Lót đường sẵn cho Subquery bên trong hàm hasProductNameInOrderItems
+        Subquery subqueryMock = mock(Subquery.class);
+        when(query.subquery(Long.class)).thenReturn(subqueryMock);
+        when(subqueryMock.from(OrderItem.class)).thenReturn(orderItemRoot);
+        when(subqueryMock.select(any())).thenReturn(subqueryMock);
+        when(subqueryMock.where(any(Predicate.class))).thenReturn(subqueryMock);
+
+        when(orderItemRoot.get(anyString())).thenReturn(pathMock);
+        jakarta.persistence.criteria.Expression expressionMock = mock(jakarta.persistence.criteria.Expression.class);
+        when(criteriaBuilder.lower(any())).thenReturn(expressionMock);
+        when(criteriaBuilder.like(any(), anyString())).thenReturn(expected);
+
+        CriteriaBuilder.In inMock = mock(CriteriaBuilder.In.class);
+        when(criteriaBuilder.in(any())).thenReturn(inMock);
+        when(inMock.value(any())).thenReturn(inMock); // FIX: Trả về inMock thay vì expected
+
+        Specification<Order> spec = OrderSpecification.findMyOrders("user1", "prod", OrderStatus.COMPLETED);
+        Predicate result = spec.toPredicate(root, query, criteriaBuilder);
+        
+        assertNotNull(result);
+    }
+    
+    @Test
+    void testExistsByCreatedByAndInProductIdAndOrderStatusCompleted() {
+        Specification<Order> spec = OrderSpecification.existsByCreatedByAndInProductIdAndOrderStatusCompleted("user", List.of(1L));
+        assertNotNull(spec);
+    }
 }
