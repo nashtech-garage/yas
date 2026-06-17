@@ -1,0 +1,22 @@
+{
+  "properties": [
+    {
+      "name": "yas.observability.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Master kill-switch. Set to false to completely disable the YAS observability starter.",
+      "defaultValue": true
+    },
+    {
+      "name": "yas.observability.log-export-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to install the OpenTelemetry Logback appender and export logs via OTLP.",
+      "defaultValue": true
+    },
+    {
+      "name": "yas.observability.service-namespace",
+      "type": "java.lang.String",
+      "description": "OTel resource attribute service.namespace applied to all telemetry from this service.",
+      "defaultValue": "yas-msa"
+    }
+  ]
+}

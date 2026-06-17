@@ -1,0 +1,25 @@
+<!--
+  Shared OTel Logback fragment for all YAS services.
+  Include from each service's logback-spring.xml
+-->
+<included>
+    <!-- Console appender with structured JSON + trace context -->
+    <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>trace_id</includeMdcKeyName>
+            <includeMdcKeyName>span_id</includeMdcKeyName>
+            <includeMdcKeyName>trace_flags</includeMdcKeyName>
+        </encoder>
+    </appender>
+
+    <!-- OTel MDC appender: injects trace_id / span_id into MDC -->
+    <appender name="OTEL_MDC"
+        class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
+        <appender-ref ref="CONSOLE_JSON"/>
+    </appender>
+
+    <!-- OTel log exporter: sends log records via OTLP -->
+    <appender name="OTEL_LOGS"
+        class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+    </appender>
+</included>

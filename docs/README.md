@@ -219,6 +219,8 @@ In yas, we use OpenTelemetry Java Agent which is attacthed to Spring Boot applic
 
 We use the Grafana to view the observability data
 
+> **Note:** The OpenTelemetry Java Agent has been replaced by Spring Boot 4's native `spring-boot-starter-opentelemetry` integration via the `yas-observability-starter` module. See [yas-observability-starter/README.md](../yas-observability-starter/README.md) for details.
+
 ## Prometheus Metrics Guide
 
 ### Introduction

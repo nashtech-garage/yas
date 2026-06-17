@@ -61,6 +61,10 @@
         </dependency>
         <dependency>
             <groupId>com.yas</groupId>
+            <artifactId>yas-observability-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yas</groupId>
             <artifactId>common-library</artifactId>
             <version>${revision}</version>
         </dependency>

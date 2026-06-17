@@ -21,4 +21,11 @@
         <sonar.projectKey>nashtech-garage_yas-delivery</sonar.projectKey>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.yas</groupId>
+            <artifactId>yas-observability-starter</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
