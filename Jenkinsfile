@@ -400,13 +400,14 @@ pipeline {
                         def serviceName = svc
                         if (fileExists("${serviceName}/Dockerfile")) {
                             jobs[serviceName] = {
-                                echo "=== Building Docker image for: ${serviceName} ==="
+                                echo "=== Building and Pushing Multi-Arch Docker image for: ${serviceName} ==="
                                 dir(serviceName) {
-                                    sh "docker build -t ${dockerUsername}/yas-${serviceName}:${imageTag} ."
-                                    echo "=== Pushing Docker image for: ${serviceName} ==="
-                                    sh "docker push ${dockerUsername}/yas-${serviceName}:${imageTag}"
-                                    echo "=== Cleaning up local image: ${serviceName} ==="
-                                    sh "docker rmi ${dockerUsername}/yas-${serviceName}:${imageTag} || true"
+                                    // Khởi tạo và sử dụng builder hỗ trợ multi-platform
+                                    sh "docker buildx create --use --name yas-builder || docker buildx use yas-builder"
+                                    sh "docker buildx inspect --bootstrap"
+                                    
+                                    // Build cho cả 2 nền tảng và push trực tiếp lên Docker Hub
+                                    sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
                                 }
                             }
                         } else {
