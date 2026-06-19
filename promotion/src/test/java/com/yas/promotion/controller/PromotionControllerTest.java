@@ -215,7 +215,6 @@ class PromotionControllerTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Date parameter conversion requires full Spring Boot context")
     void testListPromotions_whenValidRequest_thenReturnPromotionListVm() throws Exception {
 
         PromotionDetailVm promoDetail1 = PromotionDetailVm.builder()
@@ -264,8 +263,8 @@ class PromotionControllerTest {
                 .param("pageSize", "5")
                 .param("promotionName", "")
                 .param("couponCode", "")
-                .param("startDate", "1970-01-01T00:00:00Z")
-                .param("endDate", Instant.now().toString())
+                .param("startDate", "1970-01-01T00:00:00.000Z")
+                .param("endDate", "2099-12-31T23:59:59.000Z")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
