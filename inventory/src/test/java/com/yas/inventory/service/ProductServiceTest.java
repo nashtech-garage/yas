@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -135,5 +136,17 @@ class ProductServiceTest {
         when(requestBodyUriSpec.body(productQuantityPostVms)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
         assertDoesNotThrow(() -> productService.updateProductQuantity(productQuantityPostVms));
+    }
+
+    @Test
+    void testHandleProductInfoFallback_shouldThrowOriginalException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        assertThrows(RuntimeException.class, () -> productService.handleProductInfoFallback(throwable));
+    }
+
+    @Test
+    void testHandleProductInfoListFallback_shouldThrowOriginalException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        assertThrows(RuntimeException.class, () -> productService.handleProductInfoListFallback(throwable));
     }
 }

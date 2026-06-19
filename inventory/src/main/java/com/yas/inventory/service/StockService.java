@@ -127,7 +127,7 @@ public class StockService {
 
             Long adjustedQuantity = stockQuantityVm.quantity() != null ? stockQuantityVm.quantity() : 0;
 
-            if (adjustedQuantity < 0 && adjustedQuantity > stock.getQuantity()) {
+            if (adjustedQuantity < 0 && stock.getQuantity() + adjustedQuantity < 0) {
                 throw new BadRequestException(ApiConstant.INVALID_ADJUSTED_QUANTITY);
             }
 

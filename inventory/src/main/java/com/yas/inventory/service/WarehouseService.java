@@ -141,6 +141,10 @@ public class WarehouseService {
             .findById(id)
             .orElseThrow(() -> new NotFoundException(MessageCode.WAREHOUSE_NOT_FOUND, id));
 
+        if (stockRepository.existsByWarehouseId(id)) {
+            throw new DuplicatedException(MessageCode.WAREHOUSE_CANNOT_BE_DELETED, id);
+        }
+
         warehouseRepository.deleteById(id);
         locationService.deleteAddress(warehouse.getAddressId());
     }

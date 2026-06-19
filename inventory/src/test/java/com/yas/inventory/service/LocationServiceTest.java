@@ -4,6 +4,7 @@ import static com.yas.inventory.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -175,4 +176,15 @@ class LocationServiceTest {
         assertDoesNotThrow(() -> locationService.deleteAddress(addressId));
     }
 
+    @Test
+    void testHandleAddressDetailFallback_shouldThrowOriginalException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        assertThrows(RuntimeException.class, () -> locationService.handleAddressDetailFallback(throwable));
+    }
+
+    @Test
+    void testHandleAddressFallback_shouldThrowOriginalException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        assertThrows(RuntimeException.class, () -> locationService.handleAddressFallback(throwable));
+    }
 }

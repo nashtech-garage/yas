@@ -92,11 +92,11 @@ public class LocationService extends AbstractCircuitBreakFallbackHandler {
             .body(Void.class);
     }
 
-    private AddressDetailVm handleAddressDetailFallback(Throwable throwable) throws Throwable {
+    protected AddressDetailVm handleAddressDetailFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 
-    private AddressVm handleAddressFallback(Throwable throwable) throws Throwable {
+    protected AddressVm handleAddressFallback(Throwable throwable) throws Throwable {
         return handleTypedFallback(throwable);
     }
 }

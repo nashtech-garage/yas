@@ -274,5 +274,20 @@ class MediaServiceUnitTest {
         return media;
     }
 
+    @Test
+    void getFile_whenMediaFoundAndNameMatches_thenReturnMediaDto() throws Exception {
+        media.setFilePath("src/test/resources/test-file.txt");
+        media.setFileName("file");
+        when(mediaRepository.findById(1L)).thenReturn(Optional.of(media));
+
+        // create the file content and mock filesystem to return it
+        java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream("ok".getBytes());
+        when(fileSystemRepository.getFile(media.getFilePath())).thenReturn(bais);
+
+        var dto = mediaService.getFile(1L, "file");
+        assertNotNull(dto.getContent());
+        assertEquals(org.springframework.http.MediaType.valueOf(media.getMediaType()), dto.getMediaType());
+    }
+
 
 }

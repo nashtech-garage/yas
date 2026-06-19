@@ -157,7 +157,7 @@ public class AddressServiceTest {
     @Test
     void deleteAddress_givenAddressIdValid_thenSuccess() {
         generateTestData();
-        Long id = addressRepository.findAll().getFirst().getId();
+        Long id = addressRepository.findAll().get(0).getId();
         addressService.deleteAddress(id);
         // make a call to get the address with id which has been deleted -> throw error not found because deleted success.
         NotFoundException exception = assertThrows(NotFoundException.class, () -> addressService.getAddress(100000L));

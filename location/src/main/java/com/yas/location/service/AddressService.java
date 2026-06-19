@@ -28,11 +28,15 @@ public class AddressService {
 
     public AddressGetVm createAddress(AddressPostVm dto) {
         Address address = AddressPostVm.fromModel(dto);
-        stateOrProvinceRepository.findById(dto.stateOrProvinceId()).ifPresent(address::setStateOrProvince);
+        if (dto.stateOrProvinceId() != null) {
+            stateOrProvinceRepository.findById(dto.stateOrProvinceId()).ifPresent(address::setStateOrProvince);
+        }
         Country country = countryRepository.findById(dto.countryId())
             .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.COUNTRY_NOT_FOUND, dto.countryId()));
         address.setCountry(country);
-        districtRepository.findById(dto.districtId()).ifPresent(address::setDistrict);
+        if (dto.districtId() != null) {
+            districtRepository.findById(dto.districtId()).ifPresent(address::setDistrict);
+        }
         return AddressGetVm.fromModel(addressRepository.save(address));
     }
 

@@ -168,7 +168,7 @@ public class StateOrProvinceServiceTest {
         List<StateOrProvinceAndCountryGetNameVm> stateOrProvinceAndCountryGetNameVms =
             stateOrProvinceService.getStateOrProvinceAndCountryNames(List.of(stateOrProvince1.getId(), stateOrProvince2.getId()));
         assertNotNull(stateOrProvinceAndCountryGetNameVms);
-        assertEquals("country-1", stateOrProvinceAndCountryGetNameVms.getFirst().countryName());
+        assertEquals("country-1", stateOrProvinceAndCountryGetNameVms.get(0).countryName());
     }
 
     @Test
@@ -197,5 +197,15 @@ public class StateOrProvinceServiceTest {
         assertEquals(stateOrProvinceListGetVm.pageNo(), pageNo);
         assertEquals(stateOrProvinceListGetVm.pageSize(), pageSize);
         assertEquals(2, stateOrProvinceListGetVm.stateOrProvinceContent().size());
+    }
+
+    @Test
+    void getStateOrProvincePagination_EmptyResult_Success() {
+        generateTestData();
+        int pageNo = 0;
+        int pageSize = 2;
+        StateOrProvinceListGetVm stateOrProvinceListGetVm = stateOrProvinceService.getPageableStateOrProvinces(pageNo, pageSize, 999L);
+        assertNotNull(stateOrProvinceListGetVm);
+        assertEquals(0, stateOrProvinceListGetVm.totalElements());
     }
 }

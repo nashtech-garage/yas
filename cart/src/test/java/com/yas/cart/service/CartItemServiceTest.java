@@ -137,35 +137,33 @@ class CartItemServiceTest {
 
     @Nested
     class UpdateCartItemTest {
-        private CartItemPutVm cartItemPutVm;
-
-        @BeforeEach
-        void setUp() {
-            cartItemPutVm = new CartItemPutVm(1);
-        }
-
         @Test
         void testUpdateCartItem_whenProductNotFound_shouldThrowNotFoundException() {
-            Long notExistingProductId = -1L;
+            Long productId = -1L;
+            CartItemPutVm cartItemPutVm = new CartItemPutVm(5);
+            when(productService.existsById(productId)).thenReturn(false);
 
-            when(productService.existsById(notExistingProductId)).thenReturn(false);
-
-            assertThrows(NotFoundException.class,
-                () -> cartItemService.updateCartItem(notExistingProductId, cartItemPutVm));
+            assertThrows(NotFoundException.class, () -> cartItemService.updateCartItem(productId, cartItemPutVm));
         }
 
         @Test
-        void testUpdateCartItem_whenRequestIsValid_shouldReturnCartItem() {
+        void testUpdateCartItem_whenProductExists_shouldSaveAndReturn() {
+            Long productId = PRODUCT_ID_SAMPLE;
+            CartItemPutVm cartItemPutVm = new CartItemPutVm(5);
+            CartItem cartItem = CartItem.builder()
+                .customerId(CURRENT_USER_ID_SAMPLE)
+                .productId(productId)
+                .quantity(cartItemPutVm.quantity())
+                .build();
+
             mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
-            when(productService.existsById(PRODUCT_ID_SAMPLE)).thenReturn(true);
-            when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(productService.existsById(productId)).thenReturn(true);
+            when(cartItemRepository.save(any())).thenReturn(cartItem);
 
-            CartItemGetVm updatedCartItem = cartItemService.updateCartItem(PRODUCT_ID_SAMPLE, cartItemPutVm);
+            CartItemGetVm result = cartItemService.updateCartItem(productId, cartItemPutVm);
 
+            assertEquals(5, result.quantity());
             verify(cartItemRepository).save(any());
-            assertEquals(CURRENT_USER_ID_SAMPLE, updatedCartItem.customerId());
-            assertEquals(PRODUCT_ID_SAMPLE, updatedCartItem.productId());
-            assertEquals(cartItemPutVm.quantity(), updatedCartItem.quantity());
         }
     }
 
@@ -246,6 +244,69 @@ class CartItemServiceTest {
             verify(cartItemRepository).saveAll(List.of(existingCartItem));
             assertEquals(1, cartItemGetVms.size());
             assertEquals(expectedQuantity, cartItemGetVms.getFirst().quantity());
+        }
+    }
+
+    @Nested
+    class UpdateCartItemTest1 {
+        @Test
+        void testUpdateCartItem_whenProductNotFound_shouldThrowNotFoundException() {
+            Long productId = -1L;
+            CartItemPutVm cartItemPutVm = new CartItemPutVm(5);
+            when(productService.existsById(productId)).thenReturn(false);
+
+            assertThrows(NotFoundException.class, () -> cartItemService.updateCartItem(productId, cartItemPutVm));
+        }
+
+        @Test
+        void testUpdateCartItem_whenProductExists_shouldSaveAndReturn() {
+            Long productId = PRODUCT_ID_SAMPLE;
+            CartItemPutVm cartItemPutVm = new CartItemPutVm(5);
+            CartItem cartItem = CartItem.builder()
+                .customerId(CURRENT_USER_ID_SAMPLE)
+                .productId(productId)
+                .quantity(cartItemPutVm.quantity())
+                .build();
+
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            when(productService.existsById(productId)).thenReturn(true);
+            when(cartItemRepository.save(any())).thenReturn(cartItem);
+
+            CartItemGetVm result = cartItemService.updateCartItem(productId, cartItemPutVm);
+
+            assertEquals(5, result.quantity());
+            verify(cartItemRepository).save(any());
+        }
+    }
+
+    @Nested
+    class DeleteCartItemTest {
+        @Test
+        void testDeleteCartItem_shouldCallRepository() {
+            Long productId = PRODUCT_ID_SAMPLE;
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+
+            cartItemService.deleteCartItem(productId);
+
+            verify(cartItemRepository).deleteByCustomerIdAndProductId(CURRENT_USER_ID_SAMPLE, productId);
+        }
+    }
+
+    @Nested
+    class PerformAddCartItemTest {
+        @Test
+        void testPerformAddCartItem_whenPessimisticLockingFailure_shouldThrowInternalServerError() {
+            CartItemPostVm cartItemPostVm = CartItemPostVm.builder()
+                .productId(PRODUCT_ID_SAMPLE)
+                .quantity(1)
+                .build();
+            
+            mockCurrentUserId(CURRENT_USER_ID_SAMPLE);
+            when(productService.existsById(PRODUCT_ID_SAMPLE)).thenReturn(true);
+            when(cartItemRepository.findByCustomerIdAndProductId(anyString(), anyLong()))
+                .thenThrow(new PessimisticLockingFailureException("Lock failure"));
+
+            assertThrows(InternalServerErrorException.class, () -> cartItemService.addCartItem(cartItemPostVm));
         }
     }
 

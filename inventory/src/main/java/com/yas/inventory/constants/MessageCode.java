@@ -5,4 +5,5 @@ public final class MessageCode {
     public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
     public static final String NAME_ALREADY_EXITED = "NAME_ALREADY_EXITED";
     public static final String STOCK_ALREADY_EXISTED = "STOCK_ALREADY_EXISTED";
+    public static final String WAREHOUSE_CANNOT_BE_DELETED = "WAREHOUSE_CANNOT_BE_DELETED";
 }
