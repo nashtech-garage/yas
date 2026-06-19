@@ -1,0 +1,92 @@
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+services:
+  # =====================
+  # Jenkins CI/CD Server
+  # =====================
+  jenkins:
+    #image: jenkins/jenkins:latest-jdk21
+    build: .
+    container_name: jenkins
+    hostname: jenkins
+    restart: unless-stopped
+
+    user: root  # Run as root to allow Docker-in-Docker (DinD) functionality
+    
+    # Port mappings
+    ports:
+      - "8080:8080"      # Jenkins web UI
+      - "50000:50000"    # Agent communication port
+    
+    # Volumes for persistence and Docker-in-Docker
+    volumes:
+      # Jenkins home directory (configuration, jobs, plugins, etc.)
+      - jenkins_home:/var/jenkins_home
+      # Docker socket for Docker-in-Docker (DinD) - allows Jenkins to build images
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Docker CLI for DinD
+      - /usr/bin/docker:/usr/bin/docker
+    
+    # Environment variables
+    environment:
+      - JENKINS_OPTS=--httpPort=8080
+      - JAVA_OPTS=-Xmx4g -Xms2g
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/config-as-code.yaml
+    
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+
+    # Logging configuration
+    logging: *logging
+    
+    # Network configuration
+    networks:
+      - yas-network
+
+# Named volumes for data persistence
+volumes:
+  jenkins_home:
+    driver: local
+
+# Network configuration (attach to existing yas-network)
+networks:
+  yas-network:
+    external: true
+    name: yas-network
+
+# =====================
+# Usage Instructions:
+# =====================
+# 1. Start Jenkins container:
+#    docker network create yas-network
+#    docker-compose -f docker-compose.jenkins.yml up -d
+#
+# 2. Get initial admin password (needed for first login):
+#    docker-compose -f docker-compose.jenkins.yml exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+#
+# 3. Access Jenkins:
+#    http://localhost:8080
+#    Username: devops
+#    Password: Password123@
+#
+# 4. View logs:
+#    docker-compose -f docker-compose.jenkins.yml logs -f jenkins
+#
+# 5. Stop Jenkins:
+#    docker-compose -f docker-compose.jenkins.yml down
+#
+# 6. Stop and remove volumes (clean slate):
+#    docker-compose -f docker-compose.jenkins.yml down -v
+#
+# Notes:
+# - Docker-in-Docker support allows Jenkins to build and push Docker images
+# - Jenkins home data is persisted in the 'jenkins_home' volume
+# - Jenkins connects to the existing 'yas-network' for communication with other services
+# - Initial setup may take a few minutes as plugins are downloaded
+# - On Windows (WSL2), ensure Docker daemon is running

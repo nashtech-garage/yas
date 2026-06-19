@@ -47,6 +47,15 @@ class CartItemControllerIT extends AbstractControllerIT {
             .slug("product-slug")
             .thumbnailUrl("thumbnail-url")
             .build();
+        //make some changes to test this service
+        //make changes 02
+        //make changes 03
+        //make changes 04
+        //make changes 05
+        //mmake changes 06
+        //make changes 07
+        //mmake changes 08
+        //make changes 09
     }
 
     @AfterEach

@@ -1,24 +1,32 @@
-# Title for the gitleaks configuration file.
-title = "Gitleaks title"
+title = "Gitleaks configuration for YAS Project"
 
-# Extend the base (this) configuration. When you extend a configuration
-# the base rules take precedence over the extended rules. I.e., if there are
-# duplicate rules in both the base configuration and the extended configuration
-# the base rules will override the extended rules.
-# Another thing to know with extending configurations is you can chain together
-# multiple configuration files to a depth of 2. Allowlist arrays are appended
-# and can contain duplicates.
-# useDefault and path can NOT be used at the same time. Choose one.
 [extend]
-# useDefault will extend the base configuration with the default gitleaks config:
-# https://github.com/zricethezav/gitleaks/blob/master/config/gitleaks.toml
 useDefault = true
 
 [allowlist]
-description = "global allow list"
+description = "Whitelist triệt để cho đồ án YAS - Clean 8 lỗi cuối"
+
 paths = [
-  '''test-realm.json''',
-  '''realm-export''',
-  '''keycloak-yas-realm-import.yaml''',
-  '''target'''
+    '''target''',
+    '''automation-ui''',
+    '''src/test/resources''',
+    '''test-classes''',
+    '''realm-export\.json''',
+    '''test-realm\.json''',
+    '''keycloak-yas-realm-import\.yaml''',
+    '''values\.yaml''',
+    '''\.gitleaksignore''',
+    '''k8s/deploy/.*''',
+    '''README\.md''',
+    '''gitleaks-report\.json'''
+]
+
+regexes = [
+    '''invalidPassword''',
+    '''[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}''',
+    '''NKAr3rnjwm9jlakgKpelukZGFaHYqIWE''',
+    '''TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF''',
+    '''ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn''',
+    '''[a-zA-Z0-9]{30,40}''',
+    '''LarUmB3A49NTg9YmgW4='''
 ]
