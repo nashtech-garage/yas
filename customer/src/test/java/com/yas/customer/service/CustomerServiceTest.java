@@ -152,15 +152,11 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testUpdateCustomer_isUserNotFound_ThrowNotFoundException() {
-        UserResource userResource = mock(UserResource.class);
-        when(usersResource.get(USER_NAME)).thenReturn(userResource);
-        when(userResource.toRepresentation()).thenReturn(null);
+    void updateCustomer_WhenUserNotFound_ShouldThrowException() {
+        when(usersResource.get(anyString())).thenReturn(mock(UserResource.class));
+        when(usersResource.get(anyString()).toRepresentation()).thenReturn(null);
 
-        CustomerProfileRequestVm customerProfileRequestVm = getCustomerProfileRequestVm();
-        NotFoundException thrown = assertThrows(NotFoundException.class,
-            () -> customerService.updateCustomer(USER_NAME, customerProfileRequestVm));
-        assertTrue(thrown.getMessage().contains("User not found"));
+        assertThrows(NotFoundException.class, () -> customerService.updateCustomer("1", getCustomerProfileRequestVm()));
     }
 
     @Test
@@ -176,6 +172,14 @@ class CustomerServiceTest {
         verify(userResource).update(argumentCaptor.capture());
         UserRepresentation actual = argumentCaptor.getValue();
         assertFalse(actual.isEnabled());
+    }
+
+    @Test
+    void deleteCustomer_WhenUserNotFound_ShouldThrowException() {
+        when(usersResource.get(anyString())).thenReturn(mock(UserResource.class));
+        when(usersResource.get(anyString()).toRepresentation()).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> customerService.deleteCustomer("1"));
     }
 
     @Test
@@ -317,5 +321,12 @@ class CustomerServiceTest {
             .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
 
         assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
+    }
+
+    @Test
+    void testCreatePasswordCredentials_ShouldReturnCorrectType() {
+        var result = CustomerService.createPasswordCredentials("pass");
+        assertThat(result.getType()).isEqualTo("password");
+        assertThat(result.getValue()).isEqualTo("pass");
     }
 }

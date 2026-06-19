@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
-
+//"Test trigger pipeline"
 import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +61,7 @@ class MediaControllerIT extends AbstractControllerIT {
         media.setCaption("test");
         media.setFileName("file");
         media.setMediaType("image/jpeg");
-
+        
         media = mediaRepository.save(media);
 
         when(yasConfig.publicUrl()).thenReturn("/media/");
@@ -87,6 +87,7 @@ class MediaControllerIT extends AbstractControllerIT {
 
     @AfterEach
     public void clearTestData() {
+        media = null;
         mediaRepository.deleteAll();
     }
 

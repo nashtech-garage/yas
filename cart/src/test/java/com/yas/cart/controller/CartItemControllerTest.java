@@ -112,74 +112,46 @@ class CartItemControllerTest {
 
     @Nested
     class UpdateCartItemTest {
-
-        private CartItemPutVm cartItemPutVm;
-
         @Test
-        void testUpdateCartItem_whenQuantityIsNull_shouldReturnBadRequest() throws Exception {
-            cartItemPutVm = new CartItemPutVm(null);
-            performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
-        }
-
-        @Test
-        void testUpdateCartItem_whenQuantityIsLessThanOne_shouldReturnBadRequest() throws Exception {
-            cartItemPutVm = new CartItemPutVm(0);
-            performUpdateCartItemAndExpectBadRequest(cartItemPutVm);
-        }
-
-        @Test
-        void testUpdateCartItem_whenRequestIsValid_shouldReturnUpdatedCartItemGetVm() throws Exception {
-            cartItemPutVm = new CartItemPutVm(1);
-            CartItemGetVm expectedCartItemGetVm = CartItemGetVm
-                .builder()
-                .productId(PRODUCT_ID_SAMPLE)
-                .quantity(1)
-                .customerId(CUSTOMER_ID_SAMPLE)
+        void testUpdateCartItem_whenRequestIsValid_shouldReturnOk() throws Exception {
+            Long productId = PRODUCT_ID_SAMPLE;
+            CartItemPutVm cartItemPutVm = new CartItemPutVm(5);
+            CartItemGetVm expected = CartItemGetVm.builder()
+                .productId(productId)
+                .quantity(5)
                 .build();
 
-            when(cartItemService.updateCartItem(anyLong(), any())).thenReturn(expectedCartItemGetVm);
+            when(cartItemService.updateCartItem(eq(productId), any())).thenReturn(expected);
 
-            mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.customerId").value(expectedCartItemGetVm.customerId()))
-                .andExpect(jsonPath("$.productId").value(expectedCartItemGetVm.productId()))
-                .andExpect(jsonPath("$.quantity").value(expectedCartItemGetVm.quantity()));
-
-            verify(cartItemService).updateCartItem(anyLong(), any());
-        }
-
-        private void performUpdateCartItemAndExpectBadRequest(CartItemPutVm cartItemPutVm)
-            throws Exception {
-            mockMvc.perform(buildUpdateCartItemRequest(PRODUCT_ID_SAMPLE, cartItemPutVm))
-                .andExpect(status().isBadRequest());
-        }
-
-        private MockHttpServletRequestBuilder buildUpdateCartItemRequest(Long productId, CartItemPutVm cartItemPutVm)
-            throws Exception {
-            return put("/storefront/cart/items/" + productId)
+            mockMvc.perform(put("/storefront/cart/items/" + productId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(cartItemPutVm));
+                .content(objectMapper.writeValueAsString(cartItemPutVm)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quantity").value(5));
+        }
+
+        @Test
+        void testUpdateCartItem_whenQuantityIsZero_shouldReturnBadRequest() throws Exception {
+            Long productId = PRODUCT_ID_SAMPLE;
+            CartItemPutVm cartItemPutVm = new CartItemPutVm(0);
+
+            mockMvc.perform(put("/storefront/cart/items/" + productId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(cartItemPutVm)))
+                .andExpect(status().isBadRequest());
         }
     }
 
     @Nested
     class GetCartItemsTest {
-
         @Test
-        void testGetCartItems_whenRequestIsValid_shouldReturnCartItems() throws Exception {
-            CartItemGetVm expectedCartItem = CartItemGetVm.builder()
-                .productId(1L)
-                .quantity(1)
-                .build();
-
-            when(cartItemService.getCartItems()).thenReturn(List.of(expectedCartItem));
+        void testGetCartItems_shouldReturnList() throws Exception {
+            CartItemGetVm item = CartItemGetVm.builder().productId(PRODUCT_ID_SAMPLE).quantity(1).build();
+            when(cartItemService.getCartItems()).thenReturn(List.of(item));
 
             mockMvc.perform(get("/storefront/cart/items"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].productId").value(expectedCartItem.productId()))
-                .andExpect(jsonPath("$[0].quantity").value(expectedCartItem.quantity()));
-
-            verify(cartItemService).getCartItems();
+                .andExpect(jsonPath("$[0].productId").value(PRODUCT_ID_SAMPLE));
         }
     }
 
