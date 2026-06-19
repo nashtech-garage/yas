@@ -1,0 +1,89 @@
+// Jenkins Multibranch Pipeline for the 'media' service
+// Job name: yas-media-ci
+// Place this file at: media/Jenkinsfile
+
+pipeline {
+
+    // Run on any available Jenkins agent
+    agent any
+
+    // Use the JDK and Maven installations configured in Jenkins Global Tool Configuration
+    tools {
+        jdk   'jdk-21'
+        maven 'maven-3.9'
+    }
+
+    environment {
+        // Identifies which service this pipeline belongs to
+        SERVICE_NAME = 'media'
+    }
+
+    options {
+        // Abort the entire build if it exceeds 15 minutes
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
+    stages {
+
+        // Stage 1 — Checkout source code from SCM (configured in the Multibranch job)
+        stage('checkout') {
+            steps {
+                echo 'Check out source code'
+                checkout scm
+            }
+        }
+
+        // Stage 2 — Build the shared common-library so downstream services can resolve it
+        stage('build_common_library') {
+            steps {
+                echo 'Build common-library'
+                // Install common-library into the local Maven repository; skip tests for speed
+                bat 'cd common-library && mvn clean install -DskipTests'
+            }
+        }
+
+        // Stage 3 — Run unit tests for the media service and publish results
+        stage('test') {
+            steps {
+                echo 'Run unit tests'
+                // Execute the full test lifecycle inside the service directory
+                bat "cd %SERVICE_NAME% && mvn clean test"
+            }
+            post {
+                // Always publish test and coverage reports, even when tests fail
+                always {
+                    echo 'Publish media-test-report'
+                    // Publish JUnit XML results; allowEmptyResults prevents failure when no XML found
+                    junit allowEmptyResults: true,
+                          testResults: '**/surefire-reports/*.xml'
+
+                    echo 'Publish media-coverage'
+                    // Publish JaCoCo code-coverage report
+                    jacoco(
+                        execPattern:   '**/jacoco.exec',
+                        classPattern:  '**/classes',
+                        sourcePattern: '**/src/main/java'
+                    )
+                }
+            }
+        }
+
+        // Stage 4 — Package the service JAR (only reached when Test stage succeeds)
+        stage('build') {
+            steps {
+                echo 'Build JAR'
+                // Package the application, skipping redundant test execution
+                bat "cd %SERVICE_NAME% && mvn package -DskipTests"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline yas-media-ci completed successfully."
+        }
+        failure {
+            echo "Pipeline yas-media-ci failed. Check stage logs above."
+        }
+    }
+}

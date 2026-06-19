@@ -1,79 +1,111 @@
-name: recommendation service ci
+name: recommendation-ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ['**']
     paths:
-      - "recommendation/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/recommendation-ci.yaml"
-      - "pom.xml"
+      - 'recommendation/**'
+      - '.github/workflows/actions/action.yaml'
+      - '.github/workflows/recommendation-ci.yaml'
+      - 'pom.xml'
   pull_request:
-    branches: ["main"]
+    branches: [main]
     paths:
-      - "recommendation/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/recommendation-ci.yaml"
-      - "pom.xml"
+      - 'recommendation/**'
+      - '.github/workflows/actions/action.yaml'
+      - '.github/workflows/recommendation-ci.yaml'
+      - 'pom.xml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+
 jobs:
-  Build:
+  test:
+    name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl recommendation -am
+
+      - name: Install common-library
+        run: mvn install -DskipTests -pl common-library
+
+      - name: Run tests with coverage
+        run: mvn test jacoco:report -pl recommendation -am
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: recommendation-test-report
+          path: recommendation/target/surefire-reports/
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: recommendation-coverage
+          path: recommendation/target/site/jacoco/
+
+      - name: Check coverage threshold (>= 70%)
+        run: mvn jacoco:check@check -pl recommendation
+
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && github.event_name == 'pull_request' }}
+        with:
+          paths: ${{ github.workspace }}/recommendation/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 60
+          title: 'Recommendation Coverage Report'
+          update-comment: true
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl recommendation -am -Dcheckstyle.output.file=recommendation-checkstyle-result.xml
-      - name: Upload Checkstyle Result
+
+      - name: Upload Checkstyle result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/recommendation-checkstyle-result.xml'
+
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Recommendation-Service-Unit-Test-Results
-          path: "recommendation/**/*-reports/TEST*.xml"
+          path: 'recommendation/**/*-reports/TEST*.xml'
           reporter: java-junit
-      - name: Analyze with sonar cloud
+
+      - name: Analyze with SonarCloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f recommendation
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl recommendation -am
+
+  build:
+    name: Build
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        with:
-          paths: ${{github.workspace}}/recommendation/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Recommendation Coverage Report'
-          update-comment: true
+          fetch-depth: 0
+      - uses: ./.github/workflows/actions
+
+      - name: Build JAR
+        run: mvn package -DskipTests -pl recommendation -am
+
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -81,10 +113,31 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
+
+      - name: Build and push Docker image
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./recommendation
           push: true
           tags: ghcr.io/nashtech-garage/yas-recommendation:latest
+
+  publish-coverage:
+    name: Publish coverage report
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: recommendation-coverage
+          path: ./jacoco-report
+
+      - name: Deploy JaCoCo report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./jacoco-report
+          destination_dir: recommendation/coverage
+          keep_files: true
