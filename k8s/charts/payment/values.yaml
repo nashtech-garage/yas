@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-payment
-    tag: latest
+    repository: danzgne/yas-payment
+    tag: main
 
   nameOverride: payment
   fullnameOverride: payment

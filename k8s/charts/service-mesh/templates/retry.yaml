@@ -1,0 +1,31 @@
+{{- if .Values.retry.enabled }}
+# ============================================================
+# VirtualService Retry Policies for namespace {{ .Release.Namespace }}
+# ============================================================
+{{- range .Values.retryServices }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ . }}-retry
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" $ | nindent 4 }}
+    purpose: retry-policy
+spec:
+  hosts:
+    - {{ . }}.{{ $.Release.Namespace }}.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: {{ . }}.{{ $.Release.Namespace }}.svc.cluster.local
+            port:
+              number: 80
+      timeout: {{ $.Values.retry.timeout }}
+      retries:
+        attempts: {{ $.Values.retry.attempts }}
+        perTryTimeout: {{ $.Values.retry.perTryTimeout }}
+        retryOn: {{ $.Values.retry.retryOn | quote }}
+        retryRemoteLocalities: true
+---
+{{- end }}
+{{- end }}

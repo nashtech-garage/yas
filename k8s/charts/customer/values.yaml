@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-customer
-    tag: latest
+    repository: danzgne/yas-customer
+    tag: main
 
   nameOverride: customer
   fullnameOverride: customer

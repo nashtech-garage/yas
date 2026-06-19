@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-product
-    tag: latest
+    repository: danzgne/yas-product
+    tag: main
 
   nameOverride: product
   fullnameOverride: product

@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-rating
-    tag: latest
+    repository: danzgne/yas-rating
+    tag: main
 
   nameOverride: rating
   fullnameOverride: rating

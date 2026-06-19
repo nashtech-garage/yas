@@ -1,10 +1,27 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-location
-    tag: latest
+    repository: danzgne/yas-location
+    tag: main
 
   nameOverride: location
   fullnameOverride: location
   databaseName: location
   ingress:
     enabled: false
+
+  initContainers:
+    - name: clear-liquibase-lock
+      image: postgres:alpine
+      command:
+        - sh
+        - -c
+        - |
+          PGPASSWORD="$POSTGRESQL_PASSWORD" psql \
+            -h postgresql.postgres \
+            -U "$POSTGRESQL_USERNAME" \
+            -d location \
+            -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'databasechangeloglock') THEN UPDATE databasechangeloglock SET locked = false, lockgranted = NULL, lockedby = NULL WHERE id = 1; END IF; END \$\$;"
+      envFrom:
+        - secretRef:
+            name: yas-postgresql-credentials-secret

@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-tax
-    tag: latest
+    repository: danzgne/yas-tax
+    tag: main
 
   nameOverride: tax
   fullnameOverride: tax

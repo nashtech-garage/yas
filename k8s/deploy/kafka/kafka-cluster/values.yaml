@@ -1,5 +1,6 @@
 kafka:
   replicas: 1
+  kraftMode: false  # true = KRaft (Strimzi 0.36+), false = ZooKeeper (Strimzi 0.35.x with debezium image)
 zookeeper:
   replicas: 1
   storeSize: 5Gi

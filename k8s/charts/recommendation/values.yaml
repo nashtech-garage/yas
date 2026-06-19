@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-recommendation
-    tag: latest
+    repository: danzgne/yas-recommendation
+    tag: main
 
   nameOverride: recommendation
   fullnameOverride: recommendation

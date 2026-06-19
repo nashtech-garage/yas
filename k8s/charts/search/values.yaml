@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-search
-    tag: latest
+    repository: danzgne/yas-search
+    tag: main
 
   nameOverride: search
   fullnameOverride: search

@@ -1,0 +1,20 @@
+{{- if .Values.kafka.kraftMode }}
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: combined
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  replicas: {{ .Values.kafka.replicas }}
+  roles:
+    - controller
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 100Gi
+        deleteClaim: false
+{{- end }}

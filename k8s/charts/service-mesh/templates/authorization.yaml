@@ -1,0 +1,147 @@
+{{- if .Values.authorization.enabled }}
+# ============================================================
+# DENY-ALL Default Policy for namespace {{ .Release.Namespace }}
+# ============================================================
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all-default
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" . | nindent 4 }}
+    purpose: security-baseline
+spec:
+  {}
+
+---
+# ============================================================
+# ALLOW Policies for Backend Services
+# ============================================================
+{{- range .Values.backendServices }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-{{ .name }}-access
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" $ | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .name }}
+  action: ALLOW
+  rules:
+    - from:
+        # Nginx API Gateway (default SA)
+        - source:
+            principals:
+              - "cluster.local/ns/{{ $.Release.Namespace }}/sa/default"
+        {{- range .allowedCallers }}
+        # {{ . }}
+        - source:
+            principals:
+              - "cluster.local/ns/{{ $.Release.Namespace }}/sa/{{ . }}"
+        {{- end }}
+      to:
+        - operation:
+            ports: ["80"]
+---
+{{- end }}
+
+# ============================================================
+# ALLOW Policies for BFF Services
+# ============================================================
+{{- range .Values.bffServices }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-{{ . }}-access
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" $ | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ . }}
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/{{ $.Release.Namespace }}/sa/default"
+        - source:
+            namespaces:
+              - "{{ $.Values.ingressNamespace }}"
+      {{- if $.Values.allowNodePort }}
+        # Allow external traffic via NodePort (no mTLS identity)
+        - source:
+            notPrincipals: ["_never_match_"]
+      {{- end }}
+      to:
+        - operation:
+            ports: ["80"]
+---
+{{- end }}
+
+# ============================================================
+# ALLOW Policies for UI Services
+# ============================================================
+{{- range .Values.uiServices }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-{{ . }}-access
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" $ | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ . }}
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces:
+              - "{{ $.Release.Namespace }}"
+              - "{{ $.Values.ingressNamespace }}"
+      {{- if $.Values.allowNodePort }}
+        # Allow external traffic via NodePort (no mTLS identity)
+        - source:
+            notPrincipals: ["_never_match_"]
+      {{- end }}
+---
+{{- end }}
+
+{{- if .Values.nginxGateway.enabled }}
+# ============================================================
+# ALLOW Policy for Nginx API Gateway
+# ============================================================
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nginx-access
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{ .Values.nginxGateway.labelKey }}: {{ .Values.nginxGateway.labelValue }}
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces:
+              - "{{ .Release.Namespace }}"
+              - "{{ .Values.ingressNamespace }}"
+      {{- if .Values.allowNodePort }}
+        # Allow external traffic via NodePort (no mTLS identity)
+        - source:
+            notPrincipals: ["_never_match_"]
+      {{- end }}
+      to:
+        - operation:
+            ports: ["80"]
+{{- end }}
+{{- end }}

@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-order
-    tag: latest
+    repository: danzgne/yas-order
+    tag: main
 
   nameOverride: order
   fullnameOverride: order

@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-media
-    tag: latest
+    repository: danzgne/yas-media
+    tag: main
 
   nameOverride: media
   fullnameOverride: media

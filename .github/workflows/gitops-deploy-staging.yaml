@@ -1,0 +1,301 @@
+name: GitOps Deploy Staging
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  # ── Java / Spring Boot services ──────────────────────────────────────────
+  build-java:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: cart
+            values-key: backend
+          - service: customer
+            values-key: backend
+          - service: inventory
+            values-key: backend
+          - service: location
+            values-key: backend
+          - service: media
+            values-key: backend
+          - service: order
+            values-key: backend
+          - service: payment
+            values-key: backend
+          - service: product
+            values-key: backend
+          - service: promotion
+            values-key: backend
+          - service: rating
+            values-key: backend
+          - service: recommendation
+            values-key: backend
+          - service: sampledata
+            values-key: backend
+          - service: search
+            values-key: backend
+          - service: tax
+            values-key: backend
+          - service: webhook
+            values-key: backend
+          - service: backoffice-bff
+            values-key: backend
+          - service: storefront-bff
+            values-key: backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/workflows/actions
+
+      - name: Build
+        run: mvn clean install -pl ${{ matrix.service }} -am -DskipTests
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ matrix.service }}:${{ github.ref_name }}
+
+  # ── Frontend services ─────────────────────────────────────────────────────
+  build-storefront:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: storefront
+
+      - name: Build
+        run: npm run build
+        working-directory: storefront
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./storefront
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/yas-storefront:${{ github.ref_name }}
+
+  build-backoffice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backoffice
+
+      - name: Build
+        run: npm run build
+        working-directory: backoffice
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backoffice
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/yas-backoffice:${{ github.ref_name }}
+
+  # ── GitOps update (runs after all builds complete) ────────────────────────
+  update-gitops:
+    needs: [build-java, build-storefront, build-backoffice]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract tag name
+        id: tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout gitops repo
+        uses: actions/checkout@v4
+        with:
+          repository: devops-hcmus/gitops
+          token: ${{ secrets.GITOPS_PAT }}
+          ref: main
+
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.1
+
+      - name: Scale all dev services to 0
+        run: |
+          for service_dir in clusters/dev/*/; do
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".ui.replicaCount = 0" -i "$values_file"
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".backend.replicaCount = 0" -i "$values_file"
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              yq e ".reloader.reloader.enableHA = true" -i "$values_file"
+              yq e ".reloader.reloader.deployment.replicas = 0" -i "$values_file"
+            else
+              yq e ".replicaCount = 0" -i "$values_file"
+            fi
+          done
+          yq e "(select(.kind == \"Deployment\") | .spec.replicas) = 0" -i clusters/dev/nginx/nginx.yaml
+
+      - name: Commit and push scale-down
+        id: scale_down
+        run: |
+          TAG="${{ steps.tag.outputs.TAG }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add clusters/dev/
+
+          if git diff --staged --quiet; then
+            echo "Dev already at 0, skipping scale-down commit"
+            echo "scaled_down=false" >> $GITHUB_OUTPUT
+          else
+            echo "scaled_down=true" >> $GITHUB_OUTPUT
+            git commit -m "chore: scale down dev before staging deploy [$TAG]"
+
+            for i in $(seq 1 15); do
+              if git push; then
+                break
+              fi
+              echo "Push attempt $i failed, retrying..."
+              if ! git pull --rebase origin main; then
+                git rebase --abort 2>/dev/null || true
+              fi
+              [ $i -eq 15 ] && exit 1
+              sleep $((RANDOM % 10 + 5))
+            done
+          fi
+
+      - name: Wait for dev pods to terminate
+        # Only wait when dev was actually scaled down in this run.
+        # If dev was already at 0 (concurrent deploys), skip to avoid unnecessary delay.
+        if: steps.scale_down.outputs.scaled_down == 'true'
+        run: sleep 90
+
+      - name: Pull latest after wait
+        run: git pull --rebase origin main
+
+      - name: Update all staging services
+        run: |
+          TAG="${{ steps.tag.outputs.TAG }}"
+
+          for service_dir in clusters/staging/*/; do
+            service=$(basename "$service_dir")
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+
+            REPLICAS=$(yq e ".staging.$service" state.yaml)
+            [ "$REPLICAS" = "null" ] || [ -z "$REPLICAS" ] && REPLICAS=1
+
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".ui.image.tag = \"$TAG\"" -i "$values_file"
+              yq e ".ui.replicaCount = $REPLICAS" -i "$values_file"
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".backend.image.tag = \"$TAG\"" -i "$values_file"
+              yq e ".backend.replicaCount = $REPLICAS" -i "$values_file"
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              yq e ".reloader.reloader.enableHA = true" -i "$values_file"
+              yq e ".reloader.reloader.deployment.replicas = $REPLICAS" -i "$values_file"
+            else
+              yq e ".replicaCount = $REPLICAS" -i "$values_file"
+            fi
+          done
+
+          NGINX_REPLICAS=$(yq e ".staging.nginx" state.yaml)
+          [ "$NGINX_REPLICAS" = "null" ] || [ -z "$NGINX_REPLICAS" ] && NGINX_REPLICAS=1
+          yq e "(select(.kind == \"Deployment\") | .spec.replicas) = $NGINX_REPLICAS" -i clusters/staging/nginx/nginx.yaml
+
+      - name: Save staging replicas to state
+        run: |
+          for service_dir in clusters/staging/*/; do
+            service=$(basename "$service_dir")
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              REPLICAS=$(yq e '.ui.replicaCount' "$values_file")
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              REPLICAS=$(yq e '.backend.replicaCount' "$values_file")
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              REPLICAS=$(yq e '.reloader.reloader.deployment.replicas' "$values_file")
+            else
+              REPLICAS=$(yq e '.replicaCount' "$values_file")
+            fi
+
+            if [ "$REPLICAS" != "null" ] && [ -n "$REPLICAS" ]; then
+              yq e ".staging.$service = $REPLICAS" -i state.yaml
+            fi
+          done
+          NGINX_REPLICAS=$(yq e '(select(.kind == "Deployment") | .spec.replicas)' clusters/staging/nginx/nginx.yaml)
+          [ "$NGINX_REPLICAS" != "null" ] && [ -n "$NGINX_REPLICAS" ] && yq e ".staging.nginx = $NGINX_REPLICAS" -i state.yaml
+
+      - name: Update staging targetRevision
+        run: |
+          TAG="${{ steps.tag.outputs.TAG }}"
+          for file in apps/staging/*.yaml; do
+            if grep -q "repoURL: https://github.com/devops-hcmus/yas-cd" "$file"; then
+              sed -i "/repoURL: https:\/\/github.com\/devops-hcmus\/yas-cd/{n;s/targetRevision: .*/targetRevision: $TAG/}" "$file"
+            fi
+          done
+
+      - name: Commit and push scale-up
+        run: |
+          TAG="${{ steps.tag.outputs.TAG }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add apps/staging/ clusters/staging/ state.yaml
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "cd(staging): release $TAG [skip ci]"
+
+          for i in $(seq 1 15); do
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "ERROR: Uncommitted changes detected before pull"
+              exit 1
+            fi
+
+            if git push; then
+              exit 0
+            fi
+
+            echo "Push attempt $i failed, retrying..."
+            if ! git pull --rebase origin main; then
+              git rebase --abort 2>/dev/null || true
+              [ $i -eq 15 ] && exit 1
+            fi
+
+            sleep $((RANDOM % 10 + 5))
+          done
+
+          exit 1

@@ -1,0 +1,194 @@
+name: GitOps Deploy Dev (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: "Helm chart / gitops cluster folder name (e.g. product, backoffice-ui)"
+        required: true
+        type: string
+      env:
+        description: "Target environment: dev or staging"
+        required: true
+        type: string
+      tag:
+        description: "Image tag to write into values.yaml"
+        required: true
+        type: string
+      values-key:
+        description: "Top-level Helm values key: backend (Java services) or ui (frontend services)"
+        required: false
+        type: string
+        default: "backend"
+    secrets:
+      gitops_pat:
+        required: true
+      DOCKERHUB_USERNAME:
+        required: false
+
+jobs:
+  update-gitops:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.1
+
+      - name: Checkout gitops repo
+        uses: actions/checkout@v4
+        with:
+          repository: devops-hcmus/gitops
+          token: ${{ secrets.gitops_pat }}
+          path: gitops
+
+      - name: Scale down staging
+        run: |
+          cd gitops
+          for service_dir in clusters/staging/*/; do
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".ui.replicaCount = 0" -i "$values_file"
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".backend.replicaCount = 0" -i "$values_file"
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              yq e ".reloader.reloader.enableHA = true" -i "$values_file"
+              yq e ".reloader.reloader.deployment.replicas = 0" -i "$values_file"
+            else
+              yq e ".replicaCount = 0" -i "$values_file"
+            fi
+          done
+          yq e "(select(.kind == \"Deployment\") | .spec.replicas) = 0" -i clusters/staging/nginx/nginx.yaml
+
+      - name: Commit and push scale-down
+        id: scale_down
+        run: |
+          cd gitops
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@devops-hcmus.com"
+
+          git add clusters/staging/
+
+          if git diff --staged --quiet; then
+            echo "Staging already at 0, skipping scale-down commit"
+            echo "scaled_down=false" >> $GITHUB_OUTPUT
+          else
+            echo "scaled_down=true" >> $GITHUB_OUTPUT
+            git commit -m "chore: scale down staging before dev deploy [${{ inputs.service }}]"
+
+            for i in $(seq 1 15); do
+              if git push; then
+                break
+              fi
+              echo "Push attempt $i failed, retrying..."
+              if ! git pull --rebase origin main; then
+                git rebase --abort 2>/dev/null || true
+              fi
+              [ $i -eq 15 ] && exit 1
+              sleep $((RANDOM % 10 + 5))
+            done
+          fi
+
+      - name: Wait for staging pods to terminate
+        # Only wait when staging was actually scaled down in this run.
+        # If staging was already at 0 (concurrent deploys), skip to avoid unnecessary delay.
+        if: steps.scale_down.outputs.scaled_down == 'true'
+        run: sleep 90
+
+      - name: Pull latest after wait
+        run: |
+          cd gitops
+          git pull --rebase origin main
+
+      - name: Read current replicas from state
+        id: read_state
+        run: |
+          cd gitops
+          REPLICAS=$(yq e ".dev.${{ inputs.service }}" state.yaml)
+          if [ "$REPLICAS" = "null" ] || [ -z "$REPLICAS" ]; then
+            REPLICAS=1
+          fi
+          echo "replicas=$REPLICAS" >> $GITHUB_OUTPUT
+
+      - name: Update image tag and restore replicas
+        run: |
+          yq e ".${{ inputs.values-key }}.image.tag = \"${{ inputs.tag }}\"" \
+            -i gitops/clusters/dev/${{ inputs.service }}/values.yaml
+          yq e ".${{ inputs.values-key }}.replicaCount = ${{ steps.read_state.outputs.replicas }}" \
+            -i gitops/clusters/dev/${{ inputs.service }}/values.yaml
+
+      - name: Update media initContainer image when sampledata changes
+        if: inputs.service == 'sampledata'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_TAG: ${{ inputs.tag }}
+        run: |
+          yq e ".backend.initContainers[0].image = \"${DOCKERHUB_USERNAME}/yas-sampledata:${IMAGE_TAG}\"" \
+            -i gitops/clusters/dev/media/values.yaml
+
+      - name: Restore all dev services replicas
+        run: |
+          cd gitops
+          for service_dir in clusters/dev/*/; do
+            service=$(basename "$service_dir")
+            values_file="${service_dir}values.yaml"
+            [ -f "$values_file" ] || continue
+            [ "$service" = "${{ inputs.service }}" ] && continue
+
+            REPLICAS=$(yq e ".dev.$service" state.yaml)
+            [ "$REPLICAS" = "null" ] || [ -z "$REPLICAS" ] && REPLICAS=1
+
+            if yq e '.ui | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".ui.replicaCount = $REPLICAS" -i "$values_file"
+            elif yq e '.backend | has("image")' "$values_file" | grep -q "true"; then
+              yq e ".backend.replicaCount = $REPLICAS" -i "$values_file"
+            elif yq e '.reloader | has("reloader")' "$values_file" | grep -q "true"; then
+              yq e ".reloader.reloader.enableHA = true" -i "$values_file"
+              yq e ".reloader.reloader.deployment.replicas = $REPLICAS" -i "$values_file"
+            else
+              yq e ".replicaCount = $REPLICAS" -i "$values_file"
+            fi
+          done
+          NGINX_REPLICAS=$(yq e ".dev.nginx" state.yaml)
+          [ "$NGINX_REPLICAS" = "null" ] || [ -z "$NGINX_REPLICAS" ] && NGINX_REPLICAS=1
+          yq e "(select(.kind == \"Deployment\") | .spec.replicas) = $NGINX_REPLICAS" -i clusters/dev/nginx/nginx.yaml
+
+      - name: Save dev replicas to state
+        run: |
+          cd gitops
+          yq e ".dev.${{ inputs.service }} = ${{ steps.read_state.outputs.replicas }}" -i state.yaml
+
+      - name: Commit and push scale-up
+        run: |
+          cd gitops
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@devops-hcmus.com"
+
+          git add clusters/dev/ state.yaml
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore(${{ inputs.service }}): ${{ inputs.env }} -> ${{ inputs.tag }}"
+
+          for i in $(seq 1 15); do
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "ERROR: Uncommitted changes detected before pull"
+              exit 1
+            fi
+
+            if git push; then
+              exit 0
+            fi
+
+            echo "Push attempt $i failed, retrying..."
+            if ! git pull --rebase origin main; then
+              git rebase --abort 2>/dev/null || true
+              [ $i -eq 15 ] && exit 1
+            fi
+
+            sleep $((RANDOM % 10 + 5))
+          done
+
+          exit 1

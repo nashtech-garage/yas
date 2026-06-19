@@ -48,6 +48,8 @@ Selector labels
 {{- define "backend.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "backend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "backend.name" . }}
+version: {{ .Chart.AppVersion | default "latest" | quote }}
 {{- end }}
 
 {{/*

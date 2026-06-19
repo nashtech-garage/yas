@@ -1,7 +1,8 @@
 backend:
+  replicaCount: 1
   image:
-    repository: ghcr.io/nashtech-garage/yas-promotion
-    tag: latest
+    repository: danzgne/yas-promotion
+    tag: main
 
   nameOverride: promotion
   fullnameOverride: promotion

@@ -4,6 +4,9 @@
 
 replicaCount: 1
 
+strategy:
+  type: Recreate
+
 image:
   repository: ""
   pullPolicy: IfNotPresent
@@ -13,6 +16,12 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+# hostAliases intentionally empty.
+# All cluster-internal domains (identity.yas.local.com, api.yas.local.com, etc.)
+# are resolved via CoreDNS hosts block, patched dynamically by setup scripts.
+# This avoids hardcoding ClusterIPs that change on every cluster recreate.
+hostAliases: []
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -74,6 +83,14 @@ extraVolumes: []
 #    configMap:
 #      name: example-extra-configmap
 
+initContainers:
+  - name: wait-for-postgres
+    image: busybox:stable
+    command:
+      - sh
+      - -c
+      - until nc -z postgresql.postgres 5432; do echo "Waiting for postgres..."; sleep 3; done; echo "Postgres is ready"
+
 extraVolumeMounts: []
 #  - mountPath: /example-path
 #    name: volume-extra-example
@@ -88,21 +105,32 @@ lifecycle:
 
 terminationGracePeriodSeconds: 45
 
-livenessProbe:
+startupProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: http-metric
+  initialDelaySeconds: 60
   periodSeconds: 10
-  failureThreshold: 12
+  failureThreshold: 60
+  successThreshold: 1
+
+livenessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  failureThreshold: 3
   successThreshold: 1
   httpGet:
     path: /actuator/health/liveness
-    port: metric
+    port: http-metric
 
 readinessProbe:
+  initialDelaySeconds: 0
   periodSeconds: 10
-  failureThreshold: 12
+  failureThreshold: 3
   successThreshold: 1
   httpGet:
     path: /actuator/health/readiness
-    port: metric
+    port: http-metric
 
 serviceMonitor:
   enabled: true

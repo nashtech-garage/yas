@@ -1,0 +1,62 @@
+{{- if .Values.mtls.enabled }}
+# ============================================================
+# DestinationRules for External Services (outside mesh)
+# ============================================================
+# These services don't have Istio sidecars. Without DISABLE TLS,
+# Envoy would try mTLS handshake and fail (426 Upgrade Required).
+{{- range .Values.externalServices }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ext-{{ .host | replace "." "-" | trunc 63 }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" $ | nindent 4 }}
+    purpose: external-service
+spec:
+  host: {{ .host }}
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+{{- end }}
+
+# ============================================================
+# ServiceEntry + DestinationRule for identity.yas.local.com
+# ============================================================
+# BFF services call Keycloak via "identity.yas.local.com" (resolved
+# by CoreDNS to Keycloak's ClusterIP). Without a ServiceEntry,
+# Envoy treats this as an unknown host and may block or mangle traffic.
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: keycloak-identity
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" . | nindent 4 }}
+    purpose: external-service
+spec:
+  hosts:
+    - identity.yas.local.com
+  location: MESH_INTERNAL
+  ports:
+    - number: 80
+      name: http
+      protocol: HTTP
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ext-keycloak-identity
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "service-mesh.labels" . | nindent 4 }}
+    purpose: external-service
+spec:
+  host: identity.yas.local.com
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+{{- end }}
