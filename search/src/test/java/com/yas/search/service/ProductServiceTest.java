@@ -161,6 +161,35 @@ class ProductServiceTest {
 
         verify(elasticsearchOperations).search(any(NativeQuery.class), eq(Product.class));
     }
+    @Test
+    void testFindProductAdvance_whenFiltersAreNullOrEmpty_ShouldHitBlankBranches() {
+        SearchHits<Product> searchHits = getSearchHits();
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        // Giả lập nhánh: Các chuỗi filter bị rỗng ("" hoặc null), giá min/max đều null
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "test", 0, 10, "", null, "", null, null, SortType.DEFAULT);
+        
+        ProductListGetVm result = productService.findProductAdvance(criteriaDto);
+        
+        assertNotNull(result);
+        verify(elasticsearchOperations, times(1)).search(any(NativeQuery.class), eq(Product.class));
+    }
+
+    @Test
+    void testFindProductAdvance_whenMultipleValuesAndPartialRange_ShouldHitLoopAndRangeBranches() {
+        SearchHits<Product> searchHits = getSearchHits();
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        // Giả lập nhánh: Có dấu phẩy để chạy vòng lặp for, minPrice = null nhưng maxPrice = 100.0
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "test", 0, 10, "BrandA,BrandB", "CatA,CatB", "AttrA", null, 100.0, SortType.PRICE_ASC);
+        
+        ProductListGetVm result = productService.findProductAdvance(criteriaDto);
+        
+        assertNotNull(result);
+        verify(elasticsearchOperations, times(1)).search(any(NativeQuery.class), eq(Product.class));
+    }
 
     private static SearchHits<Product> getSearchHits() {
 

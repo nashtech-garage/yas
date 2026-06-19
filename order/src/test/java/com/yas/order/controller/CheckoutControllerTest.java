@@ -7,18 +7,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import com.yas.order.model.enumeration.CheckoutState;
 import com.yas.order.service.CheckoutService;
-import com.yas.order.viewmodel.checkout.CheckoutItemPostVm;
-import com.yas.order.viewmodel.checkout.CheckoutItemVm;
-import com.yas.order.viewmodel.checkout.CheckoutPostVm;
-import com.yas.order.viewmodel.checkout.CheckoutStatusPutVm;
-import com.yas.order.viewmodel.checkout.CheckoutVm;
-
 import com.yas.order.viewmodel.checkout.*;
 
 import java.math.BigDecimal;
@@ -29,30 +21,31 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@WebMvcTest(controllers = CheckoutController.class,
-    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 class CheckoutControllerTest {
 
-    @MockitoBean
+    @Mock
     private CheckoutService checkoutService;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private CheckoutController checkoutController;
 
+    private MockMvc mockMvc;
     private ObjectWriter objectWriter;
 
     @BeforeEach
     void setUp() {
+        // Khởi tạo MockMvc hoàn toàn độc lập, không phụ thuộc vào Spring Context
+        mockMvc = MockMvcBuilders.standaloneSetup(checkoutController).build();
         objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 

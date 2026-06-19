@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.instancio.Instancio;
 import static org.instancio.Select.field;
 import org.junit.jupiter.api.Assertions;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,8 +85,11 @@ class CheckoutServiceTest {
                 .email(checkoutPostVm.email())
                 .promotionCode(checkoutPostVm.promotionCode())
                 .build();
-        checkoutCreated.setCreatedBy("test-create-by");
-        setSubjectUpSecurityContext(checkoutCreated.getCreatedBy());
+       // Dòng 87 mới: Dùng Reflection để ép giá trị vào biến private
+        org.springframework.test.util.ReflectionTestUtils.setField(checkoutCreated, "createdBy", "test-create-by");
+
+// Dòng 88 mới: Truyền trực tiếp chuỗi "test-create-by" vào hàm Context luôn thay vì phải get ra
+        setSubjectUpSecurityContext("test-create-by");
         when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(mock(Jwt.class));
 
         checkoutItems = checkoutPostVm.checkoutItemPostVms().stream()

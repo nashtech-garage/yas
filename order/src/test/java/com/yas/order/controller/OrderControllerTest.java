@@ -9,8 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import com.yas.order.model.enumeration.DeliveryMethod;
@@ -20,15 +18,7 @@ import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.model.enumeration.PaymentStatus;
 import com.yas.order.model.request.OrderRequest;
 import com.yas.order.service.OrderService;
-import com.yas.order.viewmodel.order.OrderBriefVm;
-import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
-import com.yas.order.viewmodel.order.OrderGetVm;
-import com.yas.order.viewmodel.order.OrderItemPostVm;
-import com.yas.order.viewmodel.order.OrderItemVm;
-import com.yas.order.viewmodel.order.OrderListVm;
-import com.yas.order.viewmodel.order.OrderPostVm;
-import com.yas.order.viewmodel.order.OrderVm;
-import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
+import com.yas.order.viewmodel.order.*;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressVm;
 import java.math.BigDecimal;
@@ -41,31 +31,31 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@WebMvcTest(controllers = OrderController.class,
-    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 class OrderControllerTest {
 
-    @MockitoBean
+    @Mock
     private OrderService orderService;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private OrderController orderController;
 
+    private MockMvc mockMvc;
     private ObjectWriter objectWriter;
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(orderController).build();
         objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -224,7 +214,6 @@ class OrderControllerTest {
     @org.junit.jupiter.api.Disabled("Flaky assertion based on current time")
     void testExportCsv_whenRequestIsValid_thenReturnCsvFile() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        // Note: JavaTimeModule registration removed - not used for this test
         OrderRequest orderRequest = new OrderRequest();
         byte[] csvBytes = "ID,Name,Tags\n1,Alice,tag1,tag2\n2,Bob,tag3,tag4\n".getBytes();
 
