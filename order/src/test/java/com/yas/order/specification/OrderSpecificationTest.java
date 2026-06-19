@@ -101,7 +101,8 @@ class OrderSpecificationTest {
         when(root.get("orderStatus")).thenReturn(pathMock);
         when(pathMock.in(any(Collection.class))).thenReturn(mock(Predicate.class));
 
-        Specification<Order> spec = OrderSpecification.withOrderStatus(List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));
+        Specification<Order> spec = OrderSpecification
+                .withOrderStatus(List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));
         Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
 
         assertNotNull(predicate);
@@ -147,4 +148,145 @@ class OrderSpecificationTest {
 
         assertNotNull(predicate);
     }
+
+    @Test
+    void testHasOrderStatus_whenNull_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.hasOrderStatus(null);
+        Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testHasProductInOrderItems_whenQueryNull_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.hasProductInOrderItems(List.of(1L, 2L));
+        Predicate predicate = spec.toPredicate(root, null, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testHasProductInOrderItems_whenQueryExists_thenReturnExistsPredicate() {
+        CriteriaQuery<?> criteriaQuery = mock(CriteriaQuery.class);
+        Subquery<OrderItem> subquery = mock(Subquery.class);
+        Root<OrderItem> subRoot = mock(Root.class);
+        Path<Object> orderIdPath = mock(Path.class);
+        Path<Object> rootIdPath = mock(Path.class);
+        Path<Object> productIdPath = mock(Path.class);
+        Predicate equalPredicate = mock(Predicate.class);
+        Predicate andPredicate = mock(Predicate.class);
+        Predicate existsPredicate = mock(Predicate.class);
+
+        when(criteriaQuery.subquery(OrderItem.class)).thenReturn(subquery);
+        when(subquery.from(OrderItem.class)).thenReturn(subRoot);
+        when(subRoot.get("orderId")).thenReturn(orderIdPath);
+        when(root.get("id")).thenReturn(rootIdPath);
+        when(subRoot.get("productId")).thenReturn(productIdPath);
+        when(criteriaBuilder.equal(orderIdPath, rootIdPath)).thenReturn(equalPredicate);
+        when(productIdPath.in(List.of(10L, 20L))).thenReturn(mock(Predicate.class));
+        when(criteriaBuilder.and(any(Predicate.class), any(Predicate.class))).thenReturn(andPredicate);
+        when(subquery.select(subRoot)).thenReturn(subquery);
+        when(subquery.where(andPredicate)).thenReturn(subquery);
+        when(criteriaBuilder.exists(subquery)).thenReturn(existsPredicate);
+
+        Specification<Order> spec = OrderSpecification.hasProductInOrderItems(List.of(10L, 20L));
+        Predicate predicate = spec.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertEquals(existsPredicate, predicate);
+    }
+
+    @Test
+    void testHasProductNameInOrderItems_whenQueryNull_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.hasProductNameInOrderItems("abc");
+        Predicate predicate = spec.toPredicate(root, null, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testWithEmail_whenEmpty_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.withEmail("");
+        Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testWithOrderStatus_whenEmpty_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.withOrderStatus(List.of());
+        Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testWithProductName_whenQueryNull_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.withProductName("abc");
+        Predicate predicate = spec.toPredicate(root, null, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testWithProductName_whenEmpty_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.withProductName("");
+        Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testWithBillingPhoneNumber_whenEmpty_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.withBillingPhoneNumber("");
+        Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testWithCountryName_whenEmpty_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.withCountryName("");
+        Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
+    @Test
+    void testWithDateRange_whenNull_thenReturnConjunction() {
+        Predicate expectedPredicate = mock(Predicate.class);
+        when(criteriaBuilder.conjunction()).thenReturn(expectedPredicate);
+
+        Specification<Order> spec = OrderSpecification.withDateRange(null, null);
+        Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+        assertEquals(expectedPredicate, predicate);
+    }
+
 }
