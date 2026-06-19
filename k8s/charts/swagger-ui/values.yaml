@@ -51,8 +51,9 @@ urls: "[{ url: 'http://api.yas.local.com/product/v3/api-docs', name: 'Product' }
       { url: 'http://api.yas.local.com/search/v3/api-docs', name: 'Search'}]"
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 8080
+  nodePort: 30082
 
 ingress:
   enabled: true

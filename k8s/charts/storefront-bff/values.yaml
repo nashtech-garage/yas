@@ -5,6 +5,9 @@ backend:
 
   nameOverride: storefront-bff
   fullnameOverride: storefront-bff
+  service:
+    type: NodePort
+    nodePort: 30085
 
   deployment:
     annotations:

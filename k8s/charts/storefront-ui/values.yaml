@@ -4,6 +4,9 @@ ui:
     tag: latest
   nameOverride: storefront-ui
   fullnameOverride: storefront-ui
+  service:
+    type: NodePort
+    nodePort: 30080
 #  extraVolumes:
 #    - name: storefront-env-production
 #      configMap:

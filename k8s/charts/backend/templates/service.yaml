@@ -11,9 +11,15 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
     - port: {{ .Values.metricPort }}
       targetPort: metric
       protocol: TCP
       name: metric
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.metricNodePort }}
+      nodePort: {{ .Values.service.metricNodePort }}
+      {{- end }}
   selector:
     {{- include "backend.selectorLabels" . | nindent 4 }}

@@ -4,5 +4,8 @@ ui:
     tag: latest
   nameOverride: backoffice-ui
   fullnameOverride: backoffice-ui
+  service:
+    type: NodePort
+    nodePort: 30081
   ingress:
     enabled: false

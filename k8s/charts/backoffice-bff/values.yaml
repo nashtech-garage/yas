@@ -5,6 +5,9 @@ backend:
 
   nameOverride: backoffice-bff
   fullnameOverride: backoffice-bff
+  service:
+    type: NodePort
+    nodePort: 30086
   deployment:
     annotations:
       configmap.reloader.stakater.com/reload: "yas-gateway-routes-config-configmap,backoffice-bff-extra-configmap"
