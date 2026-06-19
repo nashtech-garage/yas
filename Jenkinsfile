@@ -1,5 +1,32 @@
 #!/usr/bin/env groovy
 
+def dockerImageName(String service) {
+    def dockerImageNames = [
+        'product'        : 'product-service',
+        'order'          : 'order-service',
+        'customer'       : 'customer-service',
+        'inventory'      : 'inventory-service',
+        'location'       : 'location-service',
+        'media'          : 'media-service',
+        'payment'        : 'payment-service',
+        'payment-paypal' : 'payment-paypal-service',
+        'promotion'      : 'promotion-service',
+        'rating'         : 'rating-service',
+        'search'         : 'search-service',
+        'cart'           : 'cart-service',
+        'recommendation' : 'recommendation-service',
+        'sampledata'     : 'sampledata-service',
+        'webhook'        : 'webhook-service',
+        'tax'            : 'tax-service',
+        'backoffice-bff' : 'backoffice-bff',
+        'storefront-bff' : 'storefront-bff',
+        'backoffice'     : 'backoffice',
+        'storefront'     : 'storefront'
+    ]
+
+    return dockerImageNames.get(service, service)
+}
+
 pipeline {
 //    agent any
     agent {
@@ -24,6 +51,8 @@ pipeline {
         SONAR_PROJECT_KEY = 'devops-yas_yas'
         DOCKER_REGISTRY_CREDS = credentials('docker-hub-credentials')
         REGISTRY_URL = 'docker.io'
+        DOCKER_NAMESPACE = 'anhhnus'
+        DEFAULT_IMAGE_TAG = 'main'
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
         GIT_BRANCH_NAME = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
         BUILD_VERSION = "${env.BUILD_NUMBER}-${GIT_COMMIT_SHORT}"
@@ -508,15 +537,50 @@ pipeline {
             when { expression { env.GIT_BRANCH_NAME == 'main' } }
             steps {
                 script {
-                    def services = env.TARGET_SERVICES_LIST.split(',')
+                    def services = [
+                        'product',
+                        'order',
+                        'customer',
+                        'inventory',
+                        'location',
+                        'media',
+                        'payment',
+                        'payment-paypal',
+                        'promotion',
+                        'rating',
+                        'search',
+                        'cart',
+                        'recommendation',
+                        'sampledata',
+                        'backoffice-bff',
+                        'storefront-bff',
+                        'webhook',
+                        'tax',
+                        'backoffice',
+                        'storefront'
+                    ]
+                    def mavenServices = services.findAll { fileExists("${it}/pom.xml") }.join(',')
+
+                    sh "mvn install -pl ${mavenServices} -am -DskipTests -Dmaven.clean.failOnError=false"
+
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', 
                                     passwordVariable: 'REGISTRY_PASSWORD', usernameVariable: 'REGISTRY_USERNAME')]) {
                         sh "echo '${REGISTRY_PASSWORD}' | docker login -u '${REGISTRY_USERNAME}' --password-stdin ${env.REGISTRY_URL}"
                         for (service in services) {
                             if (fileExists("${service}/Dockerfile")) {
-                                def imageName = service.replace('-', '_')
-                                sh "docker build -t ${env.REGISTRY_URL}/nashtech-garage/${imageName}:${env.BUILD_VERSION} ${service}"
-                                sh "docker push ${env.REGISTRY_URL}/nashtech-garage/${imageName}:${env.BUILD_VERSION}"
+                                def imageRepository = "${env.REGISTRY_URL}/${env.DOCKER_NAMESPACE}/${dockerImageName(service)}"
+                                sh """
+                                    docker build \
+                                        -t ${imageRepository}:${env.DEFAULT_IMAGE_TAG} \
+                                        -t ${imageRepository}:${env.GIT_COMMIT_SHORT} \
+                                        -t ${imageRepository}:${env.BUILD_VERSION} \
+                                        ${service}
+                                """
+                                sh "docker push ${imageRepository}:${env.DEFAULT_IMAGE_TAG}"
+                                sh "docker push ${imageRepository}:${env.GIT_COMMIT_SHORT}"
+                                sh "docker push ${imageRepository}:${env.BUILD_VERSION}"
+                            } else {
+                                echo "Skipping ${service}: Dockerfile not found"
                             }
                         }
                     }
