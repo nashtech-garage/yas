@@ -2,7 +2,7 @@ name: release charts ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "k8s/charts/**"
       - ".github/workflows/charts-ci.yaml"

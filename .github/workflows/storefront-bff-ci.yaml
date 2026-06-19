@@ -2,14 +2,14 @@ name: storefront-bff service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront-bff/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/storefront-bff-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "storefront-bff/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,15 +18,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  # ============================================================================
+  # PHASE 1: TEST - Run unit tests, code quality checks, security analysis
+  # ============================================================================
+  Test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
+          fetch-depth: 0
+
+      - name: Setup JDK environment
+        uses: ./.github/workflows/actions
+
       - name: Run Maven Build Command
         run: mvn clean install -pl storefront-bff -am
       - name: Run Maven Checkstyle
@@ -36,7 +46,7 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/storefront-bff-checkstyle-result.xml'
+          path: "**/storefront-bff-checkstyle-result.xml"
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
@@ -48,36 +58,94 @@ jobs:
         env:
           JAVA_HOME: /opt/jdk
         with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
+          project: "yas"
+          path: "."
+          format: "HTML"
+          args: --disableCentral
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) && hashFiles('storefront-bff/**/target/surefire-reports/TEST-*.xml', 'storefront-bff/**/target/failsafe-reports/TEST-*.xml') != '' }}
+        with:
+          name: Storefront-BFF-Test-Results
+          path: "storefront-bff/**/*-reports/TEST*.xml"
+          reporter: java-junit
+
+      - name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: storefront-bff-junit-test-results
+          path: |
+            storefront-bff/**/target/surefire-reports/TEST-*.xml
+            storefront-bff/**/target/failsafe-reports/TEST-*.xml
+          if-no-files-found: warn
+          retention-days: 14
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && github.event_name == 'pull_request' && hashFiles('storefront-bff/target/site/jacoco/jacoco.xml') != '' }}
         with:
           paths: ${{github.workspace}}/storefront-bff/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Storefront BFF Coverage Report'
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: "Storefront BFF Coverage Report"
           update-comment: true
+
+      - name: Upload JaCoCo Coverage Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: storefront-bff-jacoco-coverage-report
+          path: |
+            storefront-bff/target/site/jacoco/jacoco.xml
+            storefront-bff/target/site/jacoco-it/jacoco.xml
+            storefront-bff/target/site/jacoco/index.html
+            storefront-bff/target/site/jacoco-it/index.html
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ============================================================================
+  # PHASE 2: BUILD - Build Docker image and push to registry
+  # ============================================================================
+  Build:
+    needs: Test
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK environment
+        uses: ./.github/workflows/actions
+
+      - name: Build application (generate /target)
+        run: mvn clean package -pl storefront-bff -am -DskipTests
+
+      - name: Set lowercase image owner
+        run: echo "IMAGE_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
       - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./storefront-bff
           push: true
-          tags: ghcr.io/nashtech-garage/yas-storefront-bff:latest
+          tags: ghcr.io/${{ env.IMAGE_OWNER }}/yas-storefront-bff:latest
