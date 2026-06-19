@@ -179,6 +179,17 @@ class CustomerServiceTest {
     }
 
     @Test
+    void testDeleteCustomer_isUserNotFound_ThrowNotFoundException() {
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_NAME)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(null);
+
+        NotFoundException thrown = assertThrows(NotFoundException.class,
+            () -> customerService.deleteCustomer(USER_NAME));
+        assertTrue(thrown.getMessage().contains("User not found"));
+    }
+
+    @Test
     void testGetCustomerByEmail_isNormalCase_returnCustomerAdminVm() {
         when(usersResource.search(VALID_EMAIL, true)).thenReturn(getUserRepresentations());
         CustomerAdminVm adminVm = customerService.getCustomerByEmail(VALID_EMAIL);
@@ -314,6 +325,18 @@ class CustomerServiceTest {
             "Doe", "123", "ADMIN");
 
         when(realmResource.users().search(anyString(), anyBoolean()))
+            .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+
+        assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
+    }
+
+    @Test
+    void testCreateUser_whenEmailAlreadyExisted_thenThrowDuplicateException() {
+        CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
+            "Doe", "123", "ADMIN");
+
+        when(realmResource.users().search(anyString(), anyBoolean())).thenReturn(Collections.emptyList());
+        when(realmResource.users().search(null, null, null, customerPostVm.email(), 0, 1))
             .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
 
         assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));

@@ -16,6 +16,8 @@
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>nashtech-garage_yas-storefront-bff</sonar.projectKey>
+        <!-- FIX: default rỗng để @{argLine} không bị literal khi jacoco chưa inject -->
+        <argLine></argLine>
     </properties>
     <dependencies>
         <dependency>
@@ -38,6 +40,11 @@
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -48,6 +55,52 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <!-- Inject JaCoCo agent vào argLine trước khi test chạy -->
+                    <!-- Override excludes từ parent: bỏ config/** vì SecurityConfig cần đo coverage -->
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/yas/**/*Application.class</exclude>
+                                <exclude>com/yas/**/exception/**</exclude>
+                                <exclude>com/yas/**/constants/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- Sinh report (xml + csv + html) sau phase test -->
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/yas/**/*Application.class</exclude>
+                                <exclude>com/yas/**/exception/**</exclude>
+                                <exclude>com/yas/**/constants/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine}</argLine>
+                    <reportFormat>xml</reportFormat>
+                    <failIfNoTests>false</failIfNoTests>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                    </includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
