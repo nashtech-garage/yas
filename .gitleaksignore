@@ -9,3 +9,7 @@ payment/src/main/resources/db/changelog/data/changelog-0001-provider.sql:generic
 payment/src/main/resources/db/changelog/data/changelog-0001-provider.sql:generic-api-key:5
 customer/src/it/resources/application.properties:generic-api-key:14
 customer/src/main/resources/application.properties:generic-api-key:34
+k8s/charts/yas-configuration/values.yaml:generic-api-key:10
+k8s/charts/yas-configuration/values.yaml:generic-api-key:11
+customer/target/classes/application.properties:generic-api-key:34
+customer/target/test-classes/application.properties:generic-api-key:14

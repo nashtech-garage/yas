@@ -164,5 +164,24 @@ class CustomerControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile" + "/test")
                 .contentType("application/json"))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
+    } 
+
+    // New test
+    @Test
+    void testGetCustomerByEmail_whenCustomerNotFound_returnNotFound() throws Exception {
+        when(customerService.getCustomerByEmail("notfound@gmail.com"))
+            .thenThrow(new com.yas.commonlibrary.exception.NotFoundException("Customer not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL + "/{email}", "notfound@gmail.com")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testCreateCustomer_whenMissingBody_returnBadRequest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post(BACK_OFFICE_CUSTOMER_BASE_URL)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 }

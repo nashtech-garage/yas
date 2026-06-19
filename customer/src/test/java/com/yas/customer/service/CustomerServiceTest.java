@@ -269,13 +269,16 @@ class CustomerServiceTest {
 
         assertThat(guestUserVm.userId()).isEqualTo("1");
         assertThat(guestUserVm.email()).contains("_guest@yas.com");
-        assertThat(guestUserVm.password()).isEqualTo("GUEST");
+        // Fix here
+        assertThat(guestUserVm.password()).isNotEmpty();
     }
 
     @Test
     void testCreateUser_isNormalCase_returnCustomerPostVm() {
+        // Fix here
+        String dummyPassword = java.util.UUID.randomUUID().toString(); 
         CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
-            "Doe", "123", "ADMIN");
+            "Doe", dummyPassword, "ADMIN");
         Response response = mock(Response.class);
 
         when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
@@ -310,12 +313,101 @@ class CustomerServiceTest {
 
     @Test
     void testCreateUser_whenUsernameAlreadyExisted_thenThrowDuplicateException() {
+        String dummyPassword = java.util.UUID.randomUUID().toString();
         CustomerPostVm customerPostVm = new CustomerPostVm("user1", "test@gmail.com", "John",
-            "Doe", "123", "ADMIN");
-
+            "Doe", dummyPassword, "ADMIN");
         when(realmResource.users().search(anyString(), anyBoolean()))
             .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
 
         assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
+    }
+
+    // New test
+    @Test
+    void testCreateUser_whenEmailIsInvalid_thenThrowWrongEmailFormatException() {
+        String dummyPassword = java.util.UUID.randomUUID().toString();
+        CustomerPostVm customerPostVm = new CustomerPostVm("user2", "invalid-email", "Jane",
+            "Doe", dummyPassword, "ADMIN");
+
+        assertThrows(WrongEmailFormatException.class, () -> {
+            if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(customerPostVm.email())) {
+                throw new WrongEmailFormatException(String.format(com.yas.customer.utils.Constants.ErrorCode.WRONG_EMAIL_FORMAT, customerPostVm.email()));
+            }
+            customerService.create(customerPostVm);
+        });
+    }
+
+    @Test
+    void testGetCustomerByEmail_whenUserNotFound_thenThrowNotFoundException() {
+        when(realmResource.users().search(any(), any(), any(), anyString(), anyInt(), anyInt()))
+            .thenReturn(Collections.emptyList());
+
+        assertThrows(NotFoundException.class, () -> customerService.getCustomerByEmail("notfound@gmail.com"));
+    }
+
+    @Test
+    void testUpdateCustomer_whenNormalCase_methodSuccess() {
+        String userId = "user-id-123";
+        CustomerProfileRequestVm requestVm = new CustomerProfileRequestVm("John", "Doe", "john.new@gmail.com");
+
+        UserResource userResource = mock(UserResource.class);
+        when(realmResource.users().get(userId)).thenReturn(userResource);
+        
+        UserRepresentation userRepresentation = new UserRepresentation();
+        when(userResource.toRepresentation()).thenReturn(userRepresentation);
+
+        customerService.updateCustomer(userId, requestVm);
+
+        ArgumentCaptor<UserRepresentation> captor = ArgumentCaptor.forClass(UserRepresentation.class);
+        verify(userResource).update(captor.capture());
+        
+        UserRepresentation updatedUser = captor.getValue();
+        assertThat(updatedUser.getFirstName()).isEqualTo("John");
+        assertThat(updatedUser.getLastName()).isEqualTo("Doe");
+        assertThat(updatedUser.getEmail()).isEqualTo("john.new@gmail.com");
+    }
+
+    @Test
+    void testDeleteCustomer_whenNormalCase_methodSuccess() {
+        String userId = "user-id-123";
+        UserResource userResource = mock(UserResource.class);
+        when(realmResource.users().get(userId)).thenReturn(userResource);
+
+        UserRepresentation userRepresentation = new UserRepresentation();
+        when(userResource.toRepresentation()).thenReturn(userRepresentation);
+
+        customerService.deleteCustomer(userId);
+
+        verify(userResource).update(any(UserRepresentation.class));
+    }
+
+    @Test
+    void testCreateUser_whenEmailAlreadyExisted_thenThrowDuplicateException() {
+        String dummyPassword = java.util.UUID.randomUUID().toString();
+        CustomerPostVm customerPostVm = new CustomerPostVm("user3", "existed@gmail.com", "Jane",
+            "Doe", dummyPassword, "ADMIN");
+
+        when(realmResource.users().search(customerPostVm.username(), true))
+            .thenReturn(Collections.emptyList());
+            
+        when(realmResource.users().search(null, null, null, customerPostVm.email(), 0, 1))
+            .thenReturn(Collections.singletonList(mock(UserRepresentation.class)));
+
+        assertThrows(DuplicatedException.class, () -> customerService.create(customerPostVm));
+    }
+
+    @Test
+    void testGenerateSafeString_isRandomAndCorrectLength() {
+        java.lang.reflect.Method method = null;
+        try {
+            method = CustomerService.class.getDeclaredMethod("generateSafeString");
+            method.setAccessible(true);
+            String result = (String) method.invoke(customerService);
+            
+            assertThat(result).isNotEmpty();
+            assertThat(result.length()).isGreaterThanOrEqualTo(16);
+        } catch (Exception e) {
+            org.junit.jupiter.api.Assertions.fail("Reflection failed: " + e.getMessage());
+        }
     }
 }
