@@ -4,6 +4,8 @@ package com.yas.customer.service;
 import static com.yas.customer.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -123,6 +125,103 @@ class LocationServiceTest {
         AddressVm result = locationService.createAddress(addressPostVm);
 
         assertEquals(addressVm, result);
+    }
+
+    // test khi danh sach rong
+    @Test
+    void testGetAddressesByIdList_whenIdsEmpty_returnEmptyList() {
+
+        List<Long> ids = Collections.emptyList();
+
+        when(serviceUrlConfig.location()).thenReturn(INVENTORY_URL);
+
+        setUpSecurityContext("test");
+
+        RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
+
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(URI.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+
+        when(responseSpec.body(new ParameterizedTypeReference<List<AddressDetailVm>>() {}))
+                .thenReturn(Collections.emptyList());
+
+        List<AddressDetailVm> result = locationService.getAddressesByIdList(ids);
+
+        assertThat(result).isEmpty();
+    }
+
+    // test khi api tra ve null
+    @Test
+    void testGetAddressById_whenApiReturnNull() {
+
+        Long id = 10L;
+
+        when(serviceUrlConfig.location()).thenReturn(INVENTORY_URL);
+
+        setUpSecurityContext("test");
+
+        RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
+
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(URI.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+
+        when(responseSpec.body(AddressDetailVm.class)).thenReturn(null);
+
+        AddressDetailVm result = locationService.getAddressById(id);
+
+        assertThat(result).isNull();
+    }
+
+    // test create adress khi api null
+    @Test
+    void testCreateAddress_whenApiReturnNull() {
+
+        when(serviceUrlConfig.location()).thenReturn(INVENTORY_URL);
+
+        setUpSecurityContext("test");
+
+        RestClient.RequestBodyUriSpec requestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+
+        when(restClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(any(URI.class))).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
+
+        AddressPostVm addressPostVm = getAddressPostVm();
+
+        when(requestBodyUriSpec.body(addressPostVm)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
+
+        when(responseSpec.body(AddressVm.class)).thenReturn(null);
+
+        AddressVm result = locationService.createAddress(addressPostVm);
+
+        assertThat(result).isNull();
+    }
+
+    // test khi rest client throw exception
+    @Test
+    void testGetAddressById_whenRestClientThrowException() {
+
+        Long id = 1L;
+
+        when(serviceUrlConfig.location()).thenReturn(INVENTORY_URL);
+
+        setUpSecurityContext("test");
+
+        RestClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(RestClient.RequestHeadersUriSpec.class);
+
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(URI.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
+
+        when(requestHeadersUriSpec.retrieve()).thenThrow(new RuntimeException("API error"));
+
+        assertThrows(RuntimeException.class,
+                () -> locationService.getAddressById(id));
     }
 
     private AddressDetailVm getAddressDetailVm() {
