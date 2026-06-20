@@ -1,0 +1,11 @@
+ui:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-backoffice
+    tag: latest
+  nameOverride: backoffice-ui
+  fullnameOverride: backoffice-ui
+  service:
+    type: NodePort
+    nodePort: 30081
+  ingress:
+    enabled: false

@@ -121,3 +121,43 @@ Nếu sau khi đăng nhập bạn bị điều hướng sai địa chỉ:
    kubectl get secret keycloak-credentials -n keycloak -o jsonpath="{.data.password}" | base64 --decode
    ```
 3. Đăng nhập và vào mục **Clients**, chỉnh sửa **Valid Redirect URIs** để trỏ chính xác về các địa chỉ NodePort của bạn (ví dụ: `http://storefront-ui.dev.yas.local.com:30080/*`).
+
+---
+
+## 7. Cài đặt và cấu hình GitOps với ArgoCD (Tuần 3)
+
+### A. Cài đặt ArgoCD lên Cluster
+1. Đảm bảo bạn đang ở thư mục gốc của dự án.
+2. Di chuyển vào thư mục `k8s/deploy/` và chạy file script cài đặt:
+   ```bash
+   cd k8s/deploy/
+   ./setup-argocd.sh
+   ```
+   *Script này sẽ cài đặt ArgoCD, cấu hình NodePort `30088` (HTTP) / `30089` (HTTPS) cho giao diện quản trị, và in ra mật khẩu admin mặc định sau khi cài xong.*
+
+3. Để truy cập giao diện quản trị ArgoCD UI, hãy thêm bản ghi DNS sau vào file `hosts`:
+   ```text
+   <WORKER_NODE_IP> argocd.yas.local.com
+   ```
+   Sau đó mở trình duyệt và truy cập: `http://argocd.yas.local.com:30088` (Tài khoản mặc định: `admin`, mật khẩu lấy từ kết quả chạy script trên).
+
+### B. Tạo các File Application cho các Microservice
+Để ArgoCD nhận diện được 22 dịch vụ của YAS mà không cần viết thủ công hàng chục file YAML cấu hình trùng lặp, hãy khởi chạy script sinh file tự động:
+```bash
+./generate-argocd-apps.sh
+```
+*Script sẽ tự động phát hiện URL Git remote và nhánh Git hiện tại của bạn, sau đó tạo ra 44 file Application tương ứng với môi trường `dev` (trong thư mục `argocd/apps/dev/`) và môi trường `staging` (trong thư mục `argocd/apps/staging/`).*
+
+### C. Triển khai (Bootstrap) bằng mô hình App-of-Apps
+Để bắt đầu đồng bộ hóa toàn bộ các ứng dụng lên K8s thông qua GitOps:
+* **Môi trường dev**:
+  ```bash
+  kubectl apply -f ../../argocd/yas-dev-bootstrap.yaml
+  ```
+* **Môi trường staging** (Có cấu hình tự động đồng bộ - Auto Sync, tự động sửa lỗi lệch cấu hình - Self Heal, và tự động thu hồi tài nguyên cũ - Prune):
+  ```bash
+  kubectl apply -f ../../argocd/yas-staging-bootstrap.yaml
+  ```
+
+Sau khi chạy lệnh, truy cập giao diện ArgoCD Web UI để theo dõi trạng thái đồng bộ và sức khỏe (`Synced` và `Healthy`) của toàn bộ hệ thống microservices.
+
