@@ -26,6 +26,44 @@ processors=4
 
 ---
 
+## 1.5. Khởi tạo cụm Kubernetes (Khuyên dùng k3d)
+
+Để tiết kiệm RAM (phù hợp với máy 16GB RAM) và tối ưu hóa hiệu năng, chúng tôi khuyên dùng **k3d** (chạy cụm k3s nhẹ trong Docker) thay vì Minikube nặng nề.
+
+### A. Khởi tạo cụm k3d
+Chạy lệnh khởi tạo cụm `yas-cluster` với các cổng NodePort được map sẵn ra ngoài Windows host:
+
+* **Trên Windows Host (Sử dụng file k3d.exe có sẵn ở root dự án)**:
+  Mở CMD hoặc PowerShell tại thư mục dự án và chạy:
+  ```powershell
+  .\k3d.exe cluster create yas-cluster --api-port 6550 -p "30080:30080@server:0" -p "30081:30081@server:0" -p "30082:30082@server:0" -p "30084:30084@server:0" -p "30085:30085@server:0" -p "30086:30086@server:0" -p "30088:30088@server:0" -p "30089:30089@server:0" --agents 1
+  ```
+
+* **Trên WSL2 (Linux)**:
+  Cài đặt k3d nếu chưa có:
+  ```bash
+  curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.6.0 bash
+  ```
+  Khởi tạo cụm:
+  ```bash
+  k3d cluster create yas-cluster --api-port 6550 -p "30080:30080@server:0" -p "30081:30081@server:0" -p "30082:30082@server:0" -p "30084:30084@server:0" -p "30085:30085@server:0" -p "30086:30086@server:0" -p "30088:30088@server:0" -p "30089:30089@server:0" --agents 1
+  ```
+
+### B. Đồng bộ Kubeconfig cho WSL
+Để các script chạy trong WSL nhận diện được cụm K8s vừa tạo từ Windows:
+1. Trên **Windows host**, xuất cấu hình ra file tạm trong thư mục dự án:
+   ```powershell
+   .\k3d.exe kubeconfig get yas-cluster > yas-kubeconfig.yaml
+   ```
+2. Trên **WSL**, copy file cấu hình này vào thư mục cấu hình mặc định của kubectl:
+   ```bash
+   mkdir -p ~/.kube
+   cp yas-kubeconfig.yaml ~/.kube/config
+   chmod 600 ~/.kube/config
+   ```
+
+---
+
 ## 2. Triển khai Keycloak và các dịch vụ bổ trợ hạ tầng
 
 Để khởi động các dịch vụ nền tảng (PostgreSQL, Kafka, Elasticsearch, Redis, Keycloak, v.v.):
@@ -80,11 +118,21 @@ Chúng tôi đã cấu hình các cổng **NodePort** tĩnh trong phạm vi từ
 
 ## 5. Cấu hình phân giải file hosts (DNS)
 
-Thêm các bản ghi dưới đây vào file `hosts` trên hệ điều hành của bạn để có thể gọi tên miền thay vì IP thô:
-- **Windows**: `C:\Windows\System32\drivers\etc\hosts` (Mở Notepad dưới quyền Administrator để sửa)
-- **Linux/macOS**: `/etc/hosts` (Sửa bằng lệnh `sudo nano /etc/hosts`)
+Để gọi tên miền thay vì IP thô khi chạy cục bộ, bạn cần cấu hình file `hosts` của máy tính.
 
-Thay thế `<WORKER_NODE_IP>` bằng IP của cluster (ví dụ `127.0.0.1` nếu dùng Docker Desktop, hoặc dùng lệnh `minikube ip` để lấy IP máy ảo):
+### A. Tự động cấu hình trên Windows (Khuyên dùng)
+Chúng tôi đã chuẩn bị sẵn một script PowerShell để tự động kiểm tra và thêm các bản ghi DNS cần thiết vào file hosts của bạn.
+1. Mở **Windows PowerShell** dưới quyền quản trị viên (**Run as Administrator**).
+2. Di chuyển vào thư mục dự án và chạy script:
+   ```powershell
+   Set-ExecutionPolicy Bypass -Scope Process -Force
+   .\scripts\update-hosts.ps1
+   ```
+
+### B. Cấu hình thủ công
+Nếu bạn dùng hệ điều hành khác hoặc muốn sửa thủ công, hãy thêm các dòng dưới đây vào file hosts (`C:\Windows\System32\drivers\etc\hosts` trên Windows hoặc `/etc/hosts` trên Linux/macOS):
+
+Thay thế `<WORKER_NODE_IP>` bằng IP của cluster (ví dụ `127.0.0.1` nếu dùng Docker Desktop/k3d, hoặc dùng lệnh `minikube ip` để lấy IP máy ảo):
 ```text
 # --- Cấu hình ánh xạ tên miền YAS Local NodePort ---
 <WORKER_NODE_IP> storefront-ui.dev.yas.local.com

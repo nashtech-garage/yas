@@ -8,8 +8,8 @@ echo "=========================================================="
 # Create the namespace for ArgoCD
 kubectl create namespace argocd || true
 
-# Apply the official stable ArgoCD manifests
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# Apply the official stable ArgoCD manifests with server-side apply and force conflicts
+kubectl apply --server-side --force-conflicts -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 echo "⏳ Waiting for ArgoCD server to deploy..."
 kubectl rollout status deployment/argocd-server -n argocd --timeout=300s

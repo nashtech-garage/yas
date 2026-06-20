@@ -25,7 +25,36 @@ Tài liệu này cung cấp toàn bộ hướng dẫn cần thiết để xây d
   processors=4
   ```
 
-### Các bước khởi động cluster local (bằng Minikube):
+### Các bước khởi động cluster local:
+
+#### Lựa chọn 1: Sử dụng k3d (Khuyên dùng - Nhẹ, tiết kiệm RAM)
+Để tiết kiệm RAM (phù hợp với hệ thống 16GB RAM) và tối ưu hóa hiệu năng, chúng tôi khuyên dùng **k3d** thay vì Minikube:
+
+* **Trên Windows Host (Sử dụng k3d.exe có sẵn ở root dự án)**:
+  Mở CMD hoặc PowerShell tại thư mục dự án và chạy:
+  ```powershell
+  .\k3d.exe cluster create yas-cluster --api-port 6550 -p "30080:30080@server:0" -p "30081:30081@server:0" -p "30082:30082@server:0" -p "30084:30084@server:0" -p "30085:30085@server:0" -p "30086:30086@server:0" -p "30088:30088@server:0" -p "30089:30089@server:0" --agents 1
+  ```
+  Xuất file kubeconfig cho WSL sử dụng:
+  ```powershell
+  .\k3d.exe kubeconfig get yas-cluster > yas-kubeconfig.yaml
+  ```
+  Và trên WSL copy cấu hình này vào thư mục:
+  ```bash
+  mkdir -p ~/.kube && cp yas-kubeconfig.yaml ~/.kube/config && chmod 600 ~/.kube/config
+  ```
+
+* **Trên WSL2 (Linux)**:
+  Cài đặt k3d nếu chưa có:
+  ```bash
+  curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.6.0 bash
+  ```
+  Khởi tạo cụm:
+  ```bash
+  k3d cluster create yas-cluster --api-port 6550 -p "30080:30080@server:0" -p "30081:30081@server:0" -p "30082:30082@server:0" -p "30084:30084@server:0" -p "30085:30085@server:0" -p "30086:30086@server:0" -p "30088:30088@server:0" -p "30089:30089@server:0" --agents 1
+  ```
+
+#### Lựa chọn 2: Sử dụng Minikube (Yêu cầu RAM tối thiểu 24GB)
 ```bash
 # Khởi động cụm cluster với cấu hình tài nguyên đủ mạnh
 minikube start --disk-size='40000mb' --memory='16g'
@@ -38,11 +67,21 @@ minikube addons enable ingress
 
 ## 3. Cấu hình file hosts cục bộ
 
-Thêm các bản ghi sau vào file `hosts` của bạn để phân giải tên miền thay vì truy cập bằng IP thô:
-* **Windows**: `C:\Windows\System32\drivers\etc\hosts` (Sửa bằng Notepad mở dưới quyền Administrator)
-* **Linux/macOS**: `/etc/hosts` (Sửa bằng `sudo nano /etc/hosts`)
+Để gọi tên miền thay vì IP thô khi chạy cục bộ, bạn cần cấu hình file `hosts` của máy tính.
 
-*(Thay thế `<WORKER_NODE_IP>` bằng IP của cluster, ví dụ `127.0.0.1` nếu dùng Docker Desktop, hoặc dùng lệnh `minikube ip` để lấy IP máy ảo)*
+### A. Tự động cấu hình trên Windows (Khuyên dùng)
+Chúng tôi đã chuẩn bị sẵn một script PowerShell để tự động kiểm tra và thêm các bản ghi DNS cần thiết vào file hosts của bạn.
+1. Mở **Windows PowerShell** dưới quyền quản trị viên (**Run as Administrator**).
+2. Di chuyển vào thư mục dự án và chạy script:
+   ```powershell
+   Set-ExecutionPolicy Bypass -Scope Process -Force
+   .\scripts\update-hosts.ps1
+   ```
+
+### B. Cấu hình thủ công
+Nếu bạn dùng hệ điều hành khác hoặc muốn sửa thủ công, hãy thêm các dòng dưới đây vào file hosts (`C:\Windows\System32\drivers\etc\hosts` trên Windows hoặc `/etc/hosts` trên Linux/macOS):
+
+*(Thay thế `<WORKER_NODE_IP>` bằng IP của cluster, ví dụ `127.0.0.1` nếu dùng Docker Desktop/k3d, hoặc dùng lệnh `minikube ip` để lấy IP máy ảo)*
 ```text
 # --- Cấu hình ánh xạ tên miền YAS Local NodePort ---
 <WORKER_NODE_IP> storefront-ui.dev.yas.local.com
