@@ -35,6 +35,10 @@ def getModules() {
     env.AFFECTED_MODULES?.split(',')?.collect { it.trim() }?.findAll { it } ?: []
 }
 
+def getDockerModules() {
+    env.AFFECTED_DOCKER_MODULES?.split(',')?.collect { it.trim() }?.findAll { it } ?: []
+}
+
 pipeline {
     agent any
 
@@ -45,7 +49,12 @@ pipeline {
 
     environment {
         MVN_ARGS = '-B -ntp'
-        SERVICES = 'common-library backoffice-bff cart customer inventory location media order payment-paypal payment product promotion rating search storefront-bff tax webhook sampledata recommendation delivery'
+        // Maven modules are built and tested even when they are not deployed to Kubernetes.
+        MAVEN_MODULES = 'common-library backoffice-bff cart customer inventory location media order payment-paypal payment product promotion rating search storefront-bff tax webhook sampledata recommendation delivery'
+
+        // YAS applications installed by k8s/deploy/deploy-yas-applications.sh.
+        // Infrastructure such as Kafka, Keycloak and PostgreSQL uses upstream images.
+        DEPLOYABLE_SERVICES = 'backoffice backoffice-bff storefront storefront-bff cart customer inventory location media order payment payment-paypal product promotion rating search tax recommendation webhook sampledata'
         SNYK_HOME = tool name: 'snyk@latest'
         REVISION = '1.0-SNAPSHOT'
     }
@@ -91,7 +100,8 @@ pipeline {
         stage('Detect Changes') {
             steps {
                 script {
-                    def allModules = env.SERVICES.split(' ')
+                    def allModules = env.MAVEN_MODULES.split(' ')
+                    def allDockerModules = env.DEPLOYABLE_SERVICES.split(' ')
                     def changedFiles = computeChangedFiles()
 
                     // Detect rebuild all
@@ -106,26 +116,41 @@ pipeline {
                         }
                     }
 
+                    def affectedDockerModules = allDockerModules.findAll { module ->
+                        changedFiles.any { f ->
+                            f == module || f.startsWith("${module}/")
+                        }
+                    }
+
                     if (rebuildAll) {
                         affected = allModules
+                        affectedDockerModules = allDockerModules
                     }
 
                     // Handle dependency rebuild
                     env.MVN_MAKE_FLAGS = '-am'
                     if (affected.contains('common-library')) {
                         env.MVN_MAKE_FLAGS = '-am -amd'
+                        // All Maven services depend on the shared library.
+                        def backendDockerModules = allDockerModules.findAll { module ->
+                            allModules.contains(module)
+                        }
+                        affectedDockerModules = (affectedDockerModules + backendDockerModules).unique()
                     }
 
                     def affectedModulesCsv = affected.join(',')
+                    def affectedDockerModulesCsv = affectedDockerModules.join(',')
                     env.AFFECTED_MODULES = affectedModulesCsv
+                    env.AFFECTED_DOCKER_MODULES = affectedDockerModulesCsv
 
                     // Logging
                     echo "rebuildAll=${rebuildAll}"
                     echo "Affected modules: ${affectedModulesCsv}"
+                    echo "Affected Docker modules: ${affectedDockerModulesCsv}"
                     echo "Changed files:\n${changedFiles.join('\n')}"
 
-                    if (affectedModulesCsv?.trim()) {
-                        currentBuild.description = "${env.BRANCH_NAME ?: ''} | services: ${affectedModulesCsv}"
+                    if (affectedModulesCsv?.trim() || affectedDockerModulesCsv?.trim()) {
+                        currentBuild.description = "${env.BRANCH_NAME ?: ''} | services: ${affectedModulesCsv ?: affectedDockerModulesCsv}"
                     } else {
                         currentBuild.description = "${env.BRANCH_NAME ?: ''} | no service changes"
                     }
@@ -315,6 +340,63 @@ pipeline {
                             sonar:sonar \
                             -Dsonar.projectKey=yas-project
                     """
+                }
+            }
+        }
+
+        stage('Build and Push Docker Images') {
+            when {
+                expression { env.AFFECTED_DOCKER_MODULES?.trim() }
+            }
+            steps {
+                script {
+                    // Use the checked-out HEAD so the image tag always matches the
+                    // latest commit of the branch being built.
+                    def commitId = sh(
+                        script: 'git rev-parse HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    def dockerModules = getDockerModules().findAll { module ->
+                        fileExists("${module}/Dockerfile")
+                    }
+
+                    if (!dockerModules) {
+                        echo 'No affected module has a Dockerfile; skipping image publishing.'
+                        return
+                    }
+
+                    env.IMAGE_TAG = commitId
+                    echo "Building Docker images for: ${dockerModules.join(', ')}"
+                    echo "Docker image tag: ${env.IMAGE_TAG}"
+
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub-credentials',
+                            usernameVariable: 'DOCKERHUB_USERNAME',
+                            passwordVariable: 'DOCKERHUB_PASSWORD'
+                        )
+                    ]) {
+                        def buildAndPushCommands = dockerModules.collect { module ->
+                            """
+                            IMAGE="\${DOCKERHUB_USERNAME}/yas-${module}:\${IMAGE_TAG}"
+                            echo "Building \${IMAGE}"
+                            docker build --pull --tag "\${IMAGE}" "${module}"
+                            docker push "\${IMAGE}"
+                            """
+                        }.join('\n')
+
+                        sh """
+                            set -eu
+                            set +x
+                            echo "\${DOCKERHUB_PASSWORD}" | docker login \
+                                --username "\${DOCKERHUB_USERNAME}" \
+                                --password-stdin
+                            trap 'docker logout >/dev/null 2>&1 || true' EXIT
+
+                            ${buildAndPushCommands}
+                        """
+                    }
                 }
             }
         }
