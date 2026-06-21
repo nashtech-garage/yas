@@ -504,6 +504,14 @@ pipeline {
 
                     echo "Updating GitOps repo for services: ${builtServices}"
 
+                    // Download yq dynamically since it is not pre-installed on the agent
+                    echo "Downloading yq binary..."
+                    sh """
+                        ARCH=\$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/')
+                        curl -sL "https://github.com/mikefarah/yq/releases/download/v4.44.1/yq_linux_\${ARCH}" -o ./yq
+                        chmod +x ./yq
+                    """
+
                     // Clone the GitOps repository
                     sh "rm -rf gitops-repo"
                     
@@ -527,12 +535,12 @@ pipeline {
                             
                             if (isUi) {
                                 echo "Updating UI service [${svc}] (key: ${chartKey}) in GitOps values..."
-                                sh "yq e '.${chartKey}.ui.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
-                                sh "yq e '.${chartKey}.ui.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                                sh "../yq e '.${chartKey}.ui.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
+                                sh "../yq e '.${chartKey}.ui.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
                             } else {
                                 echo "Updating backend service [${svc}] (key: ${chartKey}) in GitOps values..."
-                                sh "yq e '.${chartKey}.backend.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
-                                sh "yq e '.${chartKey}.backend.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                                sh "../yq e '.${chartKey}.backend.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
+                                sh "../yq e '.${chartKey}.backend.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
                             }
                         }
 
