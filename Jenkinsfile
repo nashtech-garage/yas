@@ -428,6 +428,136 @@ pipeline {
                 }
             }
         }
+
+        // =========================
+        // UPDATE GITOPS REPO PHASE
+        // =========================
+        stage('Update GitOps') {
+            when {
+                expression { env.CHANGED_SERVICES?.trim() }
+            }
+            steps {
+                script {
+                    echo " ===== START GITOPS UPDATE PHASE ===== "
+                    
+                    // 1. Read configurations from .env
+                    def dockerUsername = 'your_docker_hub_username'
+                    def gitopsRepoUrl = 'your_gitops_repo_url'
+                    def gitopsCredsId = 'gitops-credentials'
+                    def gitopsValuesFile = 'dev/values.yaml'
+
+                    if (fileExists('.env')) {
+                        def lines = readFile('.env').split('\n')
+                        for (line in lines) {
+                            def trimmedLine = line.trim()
+                            if (trimmedLine.startsWith('DOCKER_HUB_USERNAME')) {
+                                def parts = trimmedLine.split('=', 2)
+                                if (parts.size() == 2) dockerUsername = parts[1].trim()
+                            }
+                            if (trimmedLine.startsWith('GITOPS_REPO_URL')) {
+                                def parts = trimmedLine.split('=', 2)
+                                if (parts.size() == 2) gitopsRepoUrl = parts[1].trim()
+                            }
+                            if (trimmedLine.startsWith('GITOPS_CREDS_ID')) {
+                                def parts = trimmedLine.split('=', 2)
+                                if (parts.size() == 2) gitopsCredsId = parts[1].trim()
+                            }
+                            if (trimmedLine.startsWith('GITOPS_VALUES_FILE')) {
+                                def parts = trimmedLine.split('=', 2)
+                                if (parts.size() == 2) gitopsValuesFile = parts[1].trim()
+                            }
+                        }
+                    }
+
+                    if (gitopsRepoUrl == 'your_gitops_repo_url' || !gitopsRepoUrl) {
+                        echo "GitOps repository URL not configured. Skipping GitOps update."
+                        return
+                    }
+
+                    // Get the latest commit ID (short SHA)
+                    def commitId = sh(
+                        script: "git rev-parse --short HEAD",
+                        returnStdout: true
+                    ).trim()
+                    
+                    // Determine tag based on branch name
+                    def branchName = env.BRANCH_NAME ?: sh(
+                        script: "git rev-parse --abbrev-ref HEAD",
+                        returnStdout: true
+                    ).trim()
+                    def imageTag = commitId
+                    if (branchName == 'main' || branchName == 'master' || branchName == 'origin/main' || branchName == 'origin/master') {
+                        imageTag = 'latest'
+                    }
+
+                    def rawServices = env.CHANGED_SERVICES?.trim() 
+                        ? env.CHANGED_SERVICES.split(',').collect { it.trim() } 
+                        : []
+                    def services = rawServices.unique()
+
+                    // Filter services to only those that have a Dockerfile (meaning we actually built and pushed their image)
+                    def builtServices = services.findAll { fileExists("${it}/Dockerfile") }
+                    if (builtServices.isEmpty()) {
+                        echo "No services built in this run. Skipping GitOps update."
+                        return
+                    }
+
+                    echo "Updating GitOps repo for services: ${builtServices}"
+
+                    // Clone the GitOps repository
+                    sh "rm -rf gitops-repo"
+                    
+                    withCredentials([usernamePassword(credentialsId: gitopsCredsId, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                        def repoHostAndPath = gitopsRepoUrl.replace("https://", "")
+                        sh "git clone https://\$GIT_USER:\$GIT_PASS@${repoHostAndPath} gitops-repo"
+                    }
+
+                    dir('gitops-repo') {
+                        // Check if the values file exists in the cloned repository
+                        if (!fileExists(gitopsValuesFile)) {
+                            error "GitOps values file not found at: ${gitopsValuesFile}"
+                        }
+
+                        // Run yq to update the YAML configuration for each built service
+                        for (svc in builtServices) {
+                            def isUi = (svc == 'backoffice' || svc == 'storefront')
+                            def chartKey = svc
+                            if (svc == 'backoffice') chartKey = 'backoffice-ui'
+                            if (svc == 'storefront') chartKey = 'storefront-ui'
+                            
+                            if (isUi) {
+                                echo "Updating UI service [${svc}] (key: ${chartKey}) in GitOps values..."
+                                sh "yq e '.${chartKey}.ui.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
+                                sh "yq e '.${chartKey}.ui.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                            } else {
+                                echo "Updating backend service [${svc}] (key: ${chartKey}) in GitOps values..."
+                                sh "yq e '.${chartKey}.backend.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
+                                sh "yq e '.${chartKey}.backend.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                            }
+                        }
+
+                        // Check git diff to see if anything changed
+                        def hasChanges = sh(script: "git diff --quiet || echo 'changes'", returnStdout: true).trim()
+                        if (hasChanges == 'changes') {
+                            echo "Changes detected in GitOps values. Committing and pushing..."
+                            sh "git config user.email 'jenkins-ci@yourdomain.com'"
+                            sh "git config user.name 'Jenkins CI'"
+                            sh "git add ${gitopsValuesFile}"
+                            sh "git commit -m 'ci: update service images to build ${imageTag} [skip ci]'"
+                            
+                            // Push back using authenticated URL
+                            withCredentials([usernamePassword(credentialsId: gitopsCredsId, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                                def repoHostAndPath = gitopsRepoUrl.replace("https://", "")
+                                sh "git push https://\$GIT_USER:\$GIT_PASS@${repoHostAndPath} HEAD:main || git push https://\$GIT_USER:\$GIT_PASS@${repoHostAndPath} HEAD:master"
+                            }
+                            echo "Successfully pushed changes to GitOps repository!"
+                        } else {
+                            echo "No changes in GitOps values file."
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
