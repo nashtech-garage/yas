@@ -372,10 +372,10 @@ pipeline {
                         : []
                     def services = rawServices.unique()
 
-                    def dockerUsername = 'your_docker_hub_username' // Giá trị mặc định
-                    def dockerCredsId = 'docker-hub-credentials'   // Giá trị mặc định
+                    def dockerUsername = env.DOCKER_HUB_USERNAME ?: 'your_docker_hub_username'
+                    def dockerCredsId = env.DOCKER_HUB_CREDS_ID ?: 'docker-hub-credentials'
 
-                    if (fileExists('.env')) {
+                    if (dockerUsername == 'your_docker_hub_username' && fileExists('.env')) {
                         def lines = readFile('.env').split('\n')
                         for (line in lines) {
                             def trimmedLine = line.trim()
@@ -441,28 +441,28 @@ pipeline {
                     echo " ===== START GITOPS UPDATE PHASE ===== "
                     
                     // 1. Read configurations from .env
-                    def dockerUsername = 'your_docker_hub_username'
-                    def gitopsRepoUrl = 'your_gitops_repo_url'
-                    def gitopsCredsId = 'gitops-credentials'
-                    def gitopsValuesFile = 'dev/values.yaml'
+                    def dockerUsername = env.DOCKER_HUB_USERNAME ?: 'your_docker_hub_username'
+                    def gitopsRepoUrl = env.GITOPS_REPO_URL ?: 'your_gitops_repo_url'
+                    def gitopsCredsId = env.GITOPS_CREDS_ID ?: 'gitops-credentials'
+                    def gitopsValuesFile = env.GITOPS_VALUES_FILE ?: 'dev/values.yaml'
 
                     if (fileExists('.env')) {
                         def lines = readFile('.env').split('\n')
                         for (line in lines) {
                             def trimmedLine = line.trim()
-                            if (trimmedLine.startsWith('DOCKER_HUB_USERNAME')) {
+                            if (trimmedLine.startsWith('DOCKER_HUB_USERNAME') && dockerUsername == 'your_docker_hub_username') {
                                 def parts = trimmedLine.split('=', 2)
                                 if (parts.size() == 2) dockerUsername = parts[1].trim()
                             }
-                            if (trimmedLine.startsWith('GITOPS_REPO_URL')) {
+                            if (trimmedLine.startsWith('GITOPS_REPO_URL') && gitopsRepoUrl == 'your_gitops_repo_url') {
                                 def parts = trimmedLine.split('=', 2)
                                 if (parts.size() == 2) gitopsRepoUrl = parts[1].trim()
                             }
-                            if (trimmedLine.startsWith('GITOPS_CREDS_ID')) {
+                            if (trimmedLine.startsWith('GITOPS_CREDS_ID') && gitopsCredsId == 'gitops-credentials') {
                                 def parts = trimmedLine.split('=', 2)
                                 if (parts.size() == 2) gitopsCredsId = parts[1].trim()
                             }
-                            if (trimmedLine.startsWith('GITOPS_VALUES_FILE')) {
+                            if (trimmedLine.startsWith('GITOPS_VALUES_FILE') && gitopsValuesFile == 'dev/values.yaml') {
                                 def parts = trimmedLine.split('=', 2)
                                 if (parts.size() == 2) gitopsValuesFile = parts[1].trim()
                             }
