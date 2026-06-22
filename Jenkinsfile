@@ -319,19 +319,13 @@ pipeline {
 
                             dir(serviceName) {
                                 if (serviceName in ["backoffice", "storefront"]) {
-                                    sh '''
-                                        set -e
-                                        echo "=== Building Node service: $(pwd) ==="
-                                        npm ci
-                                        npm run build
-                                    '''
+                                    echo "Skipping local npm build for ${serviceName} because it is built inside the Dockerfile during the Push Docker Images stage."
                                 } else {
                                     sh '''
                                         set -e
                                         echo "=== Building Java service: $(pwd) ==="
                                         java -version
-                                        chmod +x mvnw
-                                        ./mvnw clean package -DskipTests
+                                        mvn clean package -DskipTests
                                     '''
                                 }
                             }
