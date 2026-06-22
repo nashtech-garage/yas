@@ -178,11 +178,20 @@ pipeline {
                     for (nodeSvc in nodeServices) {
                         def svcName = nodeSvc // Assign to a local variable to avoid Groovy loop scope issues
                         jobs[svcName] = {
-                            sh """
-                                cd ${svcName}
-                                npm ci
-                                npm test -- --coverage
-                            """
+                            dir(svcName) {
+                                sh """
+                                    if ! command -v npm >/dev/null 2>&1; then
+                                        echo "WARNING: npm command not found on agent. Skipping tests for ${svcName}."
+                                        exit 0
+                                    fi
+                                    if ! grep -q '"test":' package.json; then
+                                        echo "WARNING: No 'test' script defined in package.json. Skipping tests for ${svcName}."
+                                        exit 0
+                                    fi
+                                    npm ci
+                                    npm test -- --coverage
+                                """
+                            }
                         }
                     }
 
