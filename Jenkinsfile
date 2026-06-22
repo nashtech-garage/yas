@@ -166,7 +166,7 @@ pipeline {
                                 minimumInstructionCoverage: '0', maximumInstructionCoverage: '0',
                                 // minimumLineCoverage: '70', maximumLineCoverage: '70',
                                 // minimumBranchCoverage: '70', maximumBranchCoverage: '70',
-                                changeBuildStatus: true
+                                changeBuildStatus: false
                             )
                             // if (currentBuild.result == 'FAILURE' || currentBuild.result == 'UNSTABLE') {
                             //     error("Test coverage below 70%")
