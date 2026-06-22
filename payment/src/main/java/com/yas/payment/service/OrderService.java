@@ -16,7 +16,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-@Slf4j
+@Slf4j // testttttt
 @RequiredArgsConstructor
 public class OrderService extends AbstractCircuitBreakFallbackHandler {
 
@@ -40,27 +40,27 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
                 .uri(url)
                 .headers(h -> h.setBearerAuth(jwt))
                 .body(checkoutStatusVm)
-            .retrieve()
-            .body(Long.class);
+                .retrieve()
+                .body(Long.class);
     }
 
     @Retry(name = "restApi")
     @CircuitBreaker(name = "restCircuitBreaker", fallbackMethod = "handlePaymentOrderStatusFallback")
     public PaymentOrderStatusVm updateOrderStatus(PaymentOrderStatusVm orderPaymentStatusVm) {
-        final String jwt =
-            ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+        final String jwt = ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getTokenValue();
         final URI url = UriComponentsBuilder
-            .fromUriString(serviceUrlConfig.order())
-            .path("/storefront/orders/status")
-            .buildAndExpand()
-            .toUri();
+                .fromUriString(serviceUrlConfig.order())
+                .path("/storefront/orders/status")
+                .buildAndExpand()
+                .toUri();
 
         return restClient.put()
-            .uri(url)
-            .headers(h -> h.setBearerAuth(jwt))
-            .body(orderPaymentStatusVm)
-            .retrieve()
-            .body(PaymentOrderStatusVm.class);
+                .uri(url)
+                .headers(h -> h.setBearerAuth(jwt))
+                .body(orderPaymentStatusVm)
+                .retrieve()
+                .body(PaymentOrderStatusVm.class);
     }
 
     protected Long handleLongFallback(Throwable throwable) throws Throwable {

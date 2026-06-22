@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@Service
+@Service // testttttttttttttTTst
 @RequiredArgsConstructor
 public class ProductSyncDataService {
 
@@ -31,12 +31,12 @@ public class ProductSyncDataService {
                 .uri(url)
                 .retrieve()
                 .body(ProductEsDetailVm.class);
-    }
+    }// test
 
     public void updateProduct(Long id) {
         ProductEsDetailVm productEsDetailVm = getProductEsDetailById(id);
-        Product product = productRepository.findById(id).orElseThrow(()
-                -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
 
         if (!productEsDetailVm.isPublished()) {
             productRepository.deleteById(id);
@@ -57,6 +57,7 @@ public class ProductSyncDataService {
         productRepository.save(product);
     }
 
+    // testtttt
     public void createProduct(Long id) {
         ProductEsDetailVm productEsDetailVm = getProductEsDetailById(id);
 

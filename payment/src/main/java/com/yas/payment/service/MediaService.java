@@ -22,7 +22,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
-@Service
+@Service // test
 public class MediaService extends AbstractCircuitBreakFallbackHandler {
 
     public static final String IDS_PARAMS = "ids";
@@ -45,10 +45,11 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
         final URI url = getMediasUrl(mediaIds);
         log.debug("Fetch media to get payment provider medias: {}", url);
         var medias = restClient.get()
-            .uri(url)
-            .headers(h -> h.setBearerAuth(extractJwt()))
-            .retrieve()
-            .body(new ParameterizedTypeReference<List<MediaVm>>() {});
+                .uri(url)
+                .headers(h -> h.setBearerAuth(extractJwt()))
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<MediaVm>>() {
+                });
 
         return medias.stream().collect(toMap(MediaVm::getId, identity()));
     }
@@ -61,14 +62,14 @@ public class MediaService extends AbstractCircuitBreakFallbackHandler {
 
     private URI getMediasUrl(Set<Long> mediaIds) {
         var iconIds = mediaIds.stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining(","));
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
         return UriComponentsBuilder
-            .fromUriString(serviceUrlConfig.media())
-            .path("/medias")
-            .queryParam(IDS_PARAMS, iconIds)
-            .build()
-            .toUri();
+                .fromUriString(serviceUrlConfig.media())
+                .path("/medias")
+                .queryParam(IDS_PARAMS, iconIds)
+                .build()
+                .toUri();
     }
 
     private Map<Long, MediaVm> fallbackGetMediaVmMap(List<PaymentProvider> providers,

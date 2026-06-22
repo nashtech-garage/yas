@@ -45,9 +45,9 @@
         <yas.version>1.0-SNAPSHOT</yas.version>
         <revision>1.0-SNAPSHOT</revision>
 
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>thuonghong</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-yas-parent</sonar.projectKey>
+        <sonar.projectKey>thuonghong_yas</sonar.projectKey>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <org.lombok.version>1.18.42</org.lombok.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -415,6 +415,31 @@
                                 <include>**/**IT.java</include>
                             </includes>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
