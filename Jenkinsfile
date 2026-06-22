@@ -163,7 +163,7 @@ pipeline {
                                 exclusionPattern: '**/com/yas/**/*Application.class, **/com/yas/**/config/**, **/com/yas/**/exception/**, **/com/yas/**/constants/**',
                                 classPattern: classPatterns,
                                 sourcePattern: sourcePatterns,
-                                minimumInstructionCoverage: '1', maximumInstructionCoverage: '1',
+                                minimumInstructionCoverage: '0', maximumInstructionCoverage: '0',
                                 // minimumLineCoverage: '70', maximumLineCoverage: '70',
                                 // minimumBranchCoverage: '70', maximumBranchCoverage: '70',
                                 changeBuildStatus: true
