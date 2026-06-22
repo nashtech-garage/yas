@@ -40,16 +40,12 @@ pipeline {
                         script: "git rev-parse HEAD",
                         returnStdout: true
                     ).trim()
-                    def mainCommit = sh(
-                        script: "git rev-parse origin/main",
-                        returnStdout: true
-                    ).trim()
                     echo "HEAD commit:        ${headCommit}"
-                    echo "origin/main commit: ${mainCommit}"
 
                     echo "========== RAW GIT DIFF =========="
+                    // So sánh với chính nhánh hiện tại (HEAD~1..HEAD), nếu clone nông (shallow clone) thì fallback sang git show
                     def changedFilesRaw = sh(
-                        script: "git diff --name-only origin/main..HEAD",
+                        script: "git diff --name-only HEAD~1..HEAD || git show --name-only --format='' HEAD",
                         returnStdout: true
                     ).trim()
                     echo "Raw output from git diff:\n[${changedFilesRaw}]"
