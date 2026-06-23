@@ -91,7 +91,7 @@ terminationGracePeriodSeconds: 45
 livenessProbe:
   initialDelaySeconds: 300
   periodSeconds: 10
-  failureThreshold: 12
+  failureThreshold: 120
   successThreshold: 1
   httpGet:
     path: /actuator/health/liveness
@@ -100,7 +100,7 @@ livenessProbe:
 readinessProbe:
   initialDelaySeconds: 300
   periodSeconds: 10
-  failureThreshold: 12
+  failureThreshold: 120
   successThreshold: 1
   httpGet:
     path: /actuator/health/readiness

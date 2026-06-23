@@ -196,7 +196,7 @@ gatewayRoutesConfig:
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
-          - id: ui
+          - id: nextjs
             uri: ${UI_HOST}
             predicates:
               - Path=/**
