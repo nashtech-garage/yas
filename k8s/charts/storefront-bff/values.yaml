@@ -1,6 +1,6 @@
 backend:
   image:
-    repository: dorayakiiiiz/yas-storefront-bff
+    repository: ghcr.io/nashtech-garage/yas-storefront-bff
     tag: latest
 
   nameOverride: storefront-bff
