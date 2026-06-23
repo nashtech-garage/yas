@@ -64,7 +64,7 @@ pipeline {
                         "customer", "location", "inventory", "tax",
                         "search", "recommendation", "promotion",
                         "payment", "payment-paypal", "webhook", "sampledata",
-                        "common-library", "delivery"
+                        "common-library", "delivery", "swagger"
                     ]
 
                     def changed = []
@@ -527,19 +527,25 @@ pipeline {
 
                         // Run yq to update the YAML configuration for each built service
                         for (svc in builtServices) {
-                            def isUi = (svc == 'backoffice' || svc == 'storefront')
-                            def chartKey = svc
-                            if (svc == 'backoffice') chartKey = 'backoffice-ui'
-                            if (svc == 'storefront') chartKey = 'storefront-ui'
-                            
-                            if (isUi) {
-                                echo "Updating UI service [${svc}] (key: ${chartKey}) in GitOps values..."
-                                sh "../yq e '.${chartKey}.ui.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
-                                sh "../yq e '.${chartKey}.ui.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                            if (svc == 'swagger') {
+                                echo "Updating Swagger UI service [${svc}] (key: swagger-ui) in GitOps values..."
+                                sh "../yq e '.swagger-ui.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
+                                sh "../yq e '.swagger-ui.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
                             } else {
-                                echo "Updating backend service [${svc}] (key: ${chartKey}) in GitOps values..."
-                                sh "../yq e '.${chartKey}.backend.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
-                                sh "../yq e '.${chartKey}.backend.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                                def isUi = (svc == 'backoffice' || svc == 'storefront')
+                                def chartKey = svc
+                                if (svc == 'backoffice') chartKey = 'backoffice-ui'
+                                if (svc == 'storefront') chartKey = 'storefront-ui'
+                                
+                                if (isUi) {
+                                    echo "Updating UI service [${svc}] (key: ${chartKey}) in GitOps values..."
+                                    sh "../yq e '.${chartKey}.ui.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
+                                    sh "../yq e '.${chartKey}.ui.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                                } else {
+                                    echo "Updating backend service [${svc}] (key: ${chartKey}) in GitOps values..."
+                                    sh "../yq e '.${chartKey}.backend.image.repository = \"${dockerUsername}/yas-${svc}\"' -i ${gitopsValuesFile}"
+                                    sh "../yq e '.${chartKey}.backend.image.tag = \"${imageTag}\"' -i ${gitopsValuesFile}"
+                                }
                             }
                         }
 
