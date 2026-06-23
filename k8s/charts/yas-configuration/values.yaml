@@ -99,104 +99,104 @@ gatewayRoutesConfig:
       gateway:
         routes:
           - id: product_api
-            uri: http://product
+            uri: http://product.yas.svc.cluster.local
             predicates:
               - Path=/api/product/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: location_api
-            uri: http://location
+            uri: http://location.yas.svc.cluster.local
             predicates:
               - Path=/api/location/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: inventory_api
-            uri: http://inventory
+            uri: http://inventory.yas.svc.cluster.local
             predicates:
               - Path=/api/inventory/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: cart_api
-            uri: http://cart
+            uri: http://cart.yas.svc.cluster.local
             predicates:
               - Path=/api/cart/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: customer_api
-            uri: http://customer
+            uri: http://customer.yas.svc.cluster.local
             predicates:
               - Path=/api/customer/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: media_api
-            uri: http://media
+            uri: http://media.yas.svc.cluster.local
             predicates:
               - Path=/api/media/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: rating_api
-            uri: http://rating
+            uri: http://rating.yas.svc.cluster.local
             predicates:
               - Path=/api/rating/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: tax_api
-            uri: http://tax
+            uri: http://tax.yas.svc.cluster.local
             predicates:
               - Path=/api/tax/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: promotion_api
-            uri: http://protion
+            uri: http://promotion.yas.svc.cluster.local
             predicates:
               - Path=/api/promotion/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: search_api
-            uri: http://search
+            uri: http://search.yas.svc.cluster.local
             predicates:
               - Path=/api/search/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: order_api
-            uri: http://order
+            uri: http://order.yas.svc.cluster.local
             predicates:
               - Path=/api/order/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: recommendation_api
-            uri: http://recommendation
+            uri: http://recommendation.yas.svc.cluster.local
             predicates:
               - Path=/api/recommendation/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: webhook_api
-            uri: http://webhook
+            uri: http://webhook.yas.svc.cluster.local
             predicates:
               - Path=/api/webhook/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
           - id: sampledata_api
-            uri: http://sampledata
+            uri: http://sampledata.yas.svc.cluster.local
             predicates:
               - Path=/api/sampledata/**
             filters:
               - RewritePath=/api/(?<segment>.*), /$\{segment}
               - TokenRelay=
-          - id: ui
+          - id: nextjs
             uri: ${UI_HOST}
             predicates:
               - Path=/**
