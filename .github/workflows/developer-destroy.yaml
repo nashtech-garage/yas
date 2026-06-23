@@ -18,30 +18,18 @@ jobs:
           ref: ${{ github.event.inputs.branch_name }}
           fetch-depth: 0 
 
-      - name: Detect Changed Service
-        id: vars
-        run: |
-          SERVICE_NAME=$(git diff --name-only origin/main...HEAD | head -1 | awk -F'/' '{print $1}')
-          if [ -z "$SERVICE_NAME" ]; then
-            echo "Error: Could not detect any changed service. Branch may be invalid."
-            exit 1
-          fi
-          echo "Detected service: $SERVICE_NAME"
-          echo "service_name=$SERVICE_NAME" >> $GITHUB_ENV
-
       - name: Set up K8s context
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG_DATA }}
 
-      - name: Install Helm
+      - name: Uninstall Helm Releases
         run: |
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-          chmod 700 get_helm.sh
-          ./get_helm.sh
-
-      - name: Uninstall Helm Release
-        run: |
-          echo "Uninstalling service: ${{ env.service_name }}"
-          helm uninstall ${{ env.service_name }} --namespace yas --ignore-not-found
+          SERVICES="product cart order customer inventory tax media search storefront-bff storefront-ui backoffice-bff backoffice-ui swagger-ui sampledata"
+          
+          echo "Bắt đầu gỡ bỏ 14 microservices..."
+          for svc in $SERVICES; do
+            helm uninstall $svc --namespace yas --ignore-not-found
+          done
+          echo "Đã gỡ bỏ sạch sẽ các ứng dụng. Tầng hạ tầng (DB, Keycloak) vẫn được giữ nguyên!"

@@ -3,6 +3,10 @@ name: Developer Build CD
 on:
   workflow_dispatch:
     inputs:
+      target_service:
+        description: 'Service to test (e.g., customer, tax, product)'
+        required: true
+        type: string
       branch_name:
         description: 'Input target branch for deployment (e.g., feature/update-customer)'
         required: true
@@ -18,17 +22,11 @@ jobs:
           ref: ${{ github.event.inputs.branch_name }}
           fetch-depth: 0 
 
-      - name: Detect Changed Service and Commit ID
+      - name: Get Commit ID
         id: vars
         run: |
           COMMIT_ID=$(git rev-parse HEAD | cut -c1-7)
           echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
-          
-          SERVICE_NAME=$(git diff --name-only origin/main...HEAD | head -1 | awk -F'/' '{print $1}')
-          if [ -z "$SERVICE_NAME" ]; then
-            exit 1
-          fi
-          echo "service_name=$SERVICE_NAME" >> $GITHUB_ENV
 
       - name: Set up K8s context
         uses: azure/k8s-set-context@v3
@@ -44,10 +42,26 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          helm dependency build ./k8s/charts/${{ env.service_name }}
+          SERVICES="product cart order customer inventory tax media search storefront-bff storefront-ui backoffice-bff backoffice-ui swagger-ui sampledata"
           
-          helm upgrade --install ${{ env.service_name }} ./k8s/charts/${{ env.service_name }} \
-            --namespace yas \
-            --create-namespace \
-            --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ env.service_name }} \
-            --set backend.image.tag=${{ env.commit_id }}
+          for svc in $SERVICES; do
+            echo "Deploying $svc..."
+            
+            # Nếu là storefront-ui hoặc backoffice-ui thì trỏ thư mục k8s tương ứng
+            CHART_DIR=$svc
+            
+            # Gắn tag mặc định là latest, riêng target_service sẽ lấy commit_id
+            TAG="latest"
+            if [ "$svc" == "${{ github.event.inputs.target_service }}" ]; then
+              TAG="${{ env.commit_id }}"
+            fi
+            
+            helm dependency build ./k8s/charts/$CHART_DIR
+            
+            helm upgrade --install $svc ./k8s/charts/$CHART_DIR \
+              --namespace yas \
+              --create-namespace \
+              --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-$svc \
+              --set backend.image.tag=$TAG \
+              --wait=false
+          done
