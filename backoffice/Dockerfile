@@ -9,6 +9,7 @@ RUN npm ci
 
 # Rebuild the source code only when needed
 FROM node:20-alpine AS builder
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -17,8 +18,11 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 RUN npm run build
+RUN ls -la
+RUN ls -la .next
 
 # Production image, copy all the files and run next
 FROM node:20-alpine AS runner
