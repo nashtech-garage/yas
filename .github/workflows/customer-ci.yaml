@@ -119,12 +119,14 @@ jobs:
         with:
           sarif_file: snyk-results.sarif
       - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           
       - name: Set Docker Tag
+        if: github.event_name != 'pull_request'
         id: docker_tag
         run: |
           COMMIT_ID=$(echo ${{ github.sha }} | cut -c1-7)
@@ -136,6 +138,7 @@ jobs:
           fi
 
       - name: Build and push Docker images
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
           context: ./customer
