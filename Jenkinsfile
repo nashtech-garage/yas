@@ -393,30 +393,26 @@ pipeline {
                         sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
                     }
 
-                    def jobs = [:]
-
+                    def builtCount = 0
                     for (svc in services) {
                         def serviceName = svc
                         if (fileExists("${serviceName}/Dockerfile")) {
-                            jobs[serviceName] = {
-                                echo "=== Building and Pushing Multi-Arch Docker image for: ${serviceName} ==="
-                                dir(serviceName) {
-                                    // Khởi tạo và sử dụng builder hỗ trợ multi-platform
-                                    sh "docker buildx create --use --name yas-builder || docker buildx use yas-builder"
-                                    sh "docker buildx inspect --bootstrap"
-                                    
-                                    // Build cho cả 2 nền tảng và push trực tiếp lên Docker Hub
-                                    sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
-                                }
+                            echo "=== Building and Pushing Multi-Arch Docker image for: ${serviceName} ==="
+                            dir(serviceName) {
+                                // Khởi tạo và sử dụng builder hỗ trợ multi-platform
+                                sh "docker buildx create --use --name yas-builder || docker buildx use yas-builder"
+                                sh "docker buildx inspect --bootstrap"
+                                
+                                // Build cho cả 2 nền tảng và push trực tiếp lên Docker Hub
+                                sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
                             }
+                            builtCount++
                         } else {
                             echo "Skipping ${serviceName} because no Dockerfile was found."
                         }
                     }
 
-                    if (jobs.size() > 0) {
-                        parallel jobs
-                    } else {
+                    if (builtCount == 0) {
                         echo "No containerized services to build/push."
                     }
                 }
