@@ -24,6 +24,10 @@ GRAFANA_USERNAME GRAFANA_PASSWORD \
 helm upgrade --install postgres-operator postgres-operator-charts/postgres-operator \
  --create-namespace --namespace postgres
 
+echo "⏳ Waiting for Postgres Operator to be ready..."
+kubectl rollout status deployment/postgres-operator -n postgres --timeout=300s
+sleep 15
+
 #Install postgresql
 helm upgrade --install postgres ./postgres/postgresql \
 --create-namespace --namespace postgres \
@@ -39,6 +43,10 @@ helm upgrade --install pgadmin ./postgres/pgadmin \
 #Install strimzi-kafka-operator
 helm upgrade --install kafka-operator strimzi/strimzi-kafka-operator \
 --create-namespace --namespace kafka
+
+echo "⏳ Waiting for Strimzi Kafka Operator to be ready..."
+kubectl rollout status deployment/strimzi-cluster-operator -n kafka --timeout=300s
+sleep 15
 
 #Install kafka and postgresql connector
 helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
@@ -58,6 +66,10 @@ helm upgrade --install akhq akhq/akhq \
 helm upgrade --install elastic-operator elastic/eck-operator \
  --create-namespace --namespace elasticsearch
 
+echo "⏳ Waiting for Elastic Operator to be ready..."
+kubectl rollout status statefulset/elastic-operator -n elasticsearch --timeout=300s
+sleep 15
+
 # Install elasticsearch-cluster
 helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-cluster \
 --create-namespace --namespace elasticsearch \
@@ -67,7 +79,8 @@ helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-clust
 #Install loki
 helm upgrade --install loki grafana/loki \
  --create-namespace --namespace observability \
- -f ./observability/loki.values.yaml
+ -f ./observability/loki.values.yaml \
+ --set loki.useTestSchema=true
 
 #Install tempo
 helm upgrade --install tempo grafana/tempo \
@@ -87,6 +100,10 @@ helm upgrade --install cert-manager jetstack/cert-manager \
 #Install opentelemetry-operator
 helm upgrade --install opentelemetry-operator open-telemetry/opentelemetry-operator \
 --create-namespace --namespace observability
+
+echo "⏳ Waiting for OpenTelemetry Operator to be ready..."
+kubectl rollout status deployment/opentelemetry-operator -n observability --timeout=300s
+sleep 15
 
 #Install opentelemetry-collector
 helm upgrade --install opentelemetry-collector ./observability/opentelemetry \

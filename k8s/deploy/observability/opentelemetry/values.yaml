@@ -23,7 +23,7 @@ opentelemetryCollectorConfig:
           value: raw
 
   exporters:
-    logging:
+    debug:
       verbosity: detailed
     loki:
       endpoint: http://loki-gateway/loki/api/v1/push
