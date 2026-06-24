@@ -1,4 +1,4 @@
-name: customer service ci
+﻿name: customer service ci
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/workflows/actions
       - name: Run Maven Test
-        run: mvn -pl customer -am verify  # Chạy test và sinh JaCoCo report
+        run: mvn -pl customer -am verify  # Chay test va sinh JaCoCo report
       - name: Install Dependencies  # Install JARs cho job build
         run: mvn -pl customer -am install -DskipTests
       - name: Test Results
@@ -147,14 +147,14 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.COMMIT_ID }}
             ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.TAG }}
 
-      - name: Update values.yaml (GitOps)
+      - name: Update GitOps Repository (Cross-Repo)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
+          git clone https://x-access-token:${{ secrets.GITOPS_PAT }}@github.com/${{ github.repository_owner }}/yas-gitops.git
+          cd yas-gitops
           git config --global user.email "bot@github.com"
           git config --global user.name "GitOps Bot"
-          git fetch origin
-          git checkout -B gitops origin/gitops 2>/dev/null || git checkout -B gitops
-          sed -i 's/tag: .*/tag: ${{ env.COMMIT_ID }}/g' k8s/charts/customer/values.yaml
-          git add k8s/charts/customer/values.yaml
-          git commit -m "ArgoCD: Update customer tag to ${{ env.COMMIT_ID }}"
-          git push origin gitops
+          sed -i 's/customer: { tag: .* }/customer: { tag: "${{ env.COMMIT_ID }}" }/g' values-dev.yaml
+          git add values-dev.yaml
+          git commit -m "ArgoCD: Update customer dev tag to ${{ env.COMMIT_ID }}"
+          git push origin main
