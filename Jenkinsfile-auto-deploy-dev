@@ -116,6 +116,10 @@ pipeline {
                         ).trim()
 
                         if (hasDockerfile == 'yes') {
+                            if (fileExists("${svcDir}/pom.xml")) {
+                                echo "☕ Building Java project ${svcDir} with Maven..."
+                                sh "./mvnw clean package -DskipTests -f pom.xml -pl ${svcDir} -am -U -Drevision=1.0-SNAPSHOT"
+                            }
                             sh "docker build -t ${imageName}:${commitTag} -t ${imageName}:latest ${svcDir}/"
                             sh "docker push ${imageName}:${commitTag}"
                             sh "docker push ${imageName}:latest"
