@@ -410,7 +410,7 @@ pipeline {
                                 sh "docker buildx inspect --bootstrap"
                                 
                                 // Build cho cả 2 nền tảng và push trực tiếp lên Docker Hub
-                                sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
+                                sh "docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
                             }
                             builtCount++
                         } else {
