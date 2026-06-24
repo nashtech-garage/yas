@@ -96,8 +96,8 @@ pipeline {
                             echo "🚀 [CUSTOM] ${svc}: Sử dụng phiên bản thử nghiệm (commit) -> '${tagValue}'"
                         }
 
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} k8s/charts/${svc} " +
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} " +
                            "--namespace ${params.NAMESPACE} --create-namespace " +
                            "--set backend.image.repository=${imageRepository} " +
                            "--set backend.image.tag=${tagValue} " +
@@ -119,8 +119,8 @@ pipeline {
                             echo "🚀 [CUSTOM] ${svc}: Sử dụng phiên bản thử nghiệm (commit) -> '${tagValue}'"
                         }
 
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} k8s/charts/${svc} " +
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} " +
                            "--namespace ${params.NAMESPACE} --create-namespace " +
                            "--set ui.image.repository=${imageRepository} " +
                            "--set ui.image.tag=${tagValue} " +
@@ -141,7 +141,7 @@ pipeline {
                 script {
                     echo "▶ Deploy Swagger-UI..."
                     def dryRunFlag = params.DRY_RUN ? "--dry-run" : ""
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui k8s/charts/swagger-ui " +
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui helm/swagger-ui " +
                        "--namespace ${params.NAMESPACE} --create-namespace " +
                        "--set ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} " +
                        "--timeout ${env.HELM_TIMEOUT} " +
@@ -181,8 +181,8 @@ pipeline {
                             echo "🚀 [CUSTOM] ${svc}: Sử dụng phiên bản thử nghiệm (commit) -> '${tagValue}'"
                         }
                         
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
-                        def helmCmd = "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} k8s/charts/${svc} " +
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        def helmCmd = "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} " +
                                       "--namespace ${params.NAMESPACE} --create-namespace " +
                                       "--set backend.image.repository=${imageRepository} " +
                                       "--set backend.image.tag=${tagValue} " +
