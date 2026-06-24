@@ -45,8 +45,8 @@ pipeline {
                     echo "========== RAW GIT DIFF =========="
                     // So sánh với nhánh main (origin/main..HEAD)
                     def changedFilesRaw = sh(
-                        script: "git diff --name-only HEAD~1..HEAD || git show --name-only --format='' HEAD",
-                        // script: "git diff --name-only origin/main..HEAD",
+                        // script: "git diff --name-only HEAD~1..HEAD || git show --name-only --format='' HEAD",
+                        script: "git diff --name-only origin/main..HEAD",
                         returnStdout: true
                     ).trim()
                     echo "Raw output from git diff:\n[${changedFilesRaw}]"
