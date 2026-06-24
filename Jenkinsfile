@@ -405,12 +405,13 @@ pipeline {
                         if (fileExists("${serviceName}/Dockerfile")) {
                             echo "=== Building and Pushing Multi-Arch Docker image for: ${serviceName} ==="
                             dir(serviceName) {
-                                // Khởi tạo và sử dụng builder hỗ trợ multi-platform
-                                sh "docker buildx create --use --name yas-builder || docker buildx use yas-builder"
+                                // Xoá builder cũ (nếu có) và tạo mới để tránh cache lỗi từ build trước
+                                sh "docker buildx rm yas-builder || true"
+                                sh "docker buildx create --use --name yas-builder"
                                 sh "docker buildx inspect --bootstrap"
                                 
                                 // Build cho cả 2 nền tảng và push trực tiếp lên Docker Hub
-                                sh "docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
+                                sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
                             }
                             builtCount++
                         } else {
