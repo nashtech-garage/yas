@@ -88,11 +88,7 @@ pipeline {
                     // Retrieve short commit SHA from App Repo workspace
                     def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
 
-                    if (appBranch == 'dev' || appBranch == 'develop' || appBranch == 'origin/dev' || appBranch == 'origin/develop') {
-                        environment = 'dev'
-                        gitopsValuesFile = 'dev/values.yaml'
-                        imageTag = "dev-${commitId}"
-                    } else if (appBranch == 'staging' || appBranch == 'origin/staging') {
+                    if (appBranch == 'staging' || appBranch == 'origin/staging') {
                         environment = 'staging'
                         gitopsValuesFile = 'staging/values.yaml'
                         imageTag = "staging-${commitId}"
@@ -101,7 +97,10 @@ pipeline {
                         gitopsValuesFile = 'prod/values.yaml'
                         imageTag = 'latest'
                     } else {
-                        error "Unsupported branch: ${appBranch}"
+                        // Mặc định fallback về môi trường dev cho các nhánh khác (dev, develop, feat/*, v.v.)
+                        environment = 'dev'
+                        gitopsValuesFile = 'dev/values.yaml'
+                        imageTag = "dev-${commitId}"
                     }
                     
                     env.GITOPS_VALUES_FILE = gitopsValuesFile

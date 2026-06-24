@@ -362,12 +362,13 @@ pipeline {
                     
                     // Determine tag based on branch name
                     def imageTag = commitId
-                    if (branchName == 'dev' || branchName == 'develop' || branchName == 'origin/dev' || branchName == 'origin/develop') {
-                        imageTag = "dev-${commitId}"
-                    } else if (branchName == 'staging' || branchName == 'origin/staging') {
+                    if (branchName == 'staging' || branchName == 'origin/staging') {
                         imageTag = "staging-${commitId}"
                     } else if (branchName == 'main' || branchName == 'master' || branchName == 'origin/main' || branchName == 'origin/master') {
                         imageTag = 'latest'
+                    } else {
+                        // Mặc định fallback về tag dev cho các nhánh khác (dev, develop, feat/*, v.v.)
+                        imageTag = "dev-${commitId}"
                     }
                     echo "Target image tag: ${imageTag}"
 
