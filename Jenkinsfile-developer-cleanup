@@ -1,0 +1,102 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = 'chubedan4605'
+    }
+
+    parameters {
+        string(name: 'NAMESPACE', defaultValue: 'dev', description: 'Namespace cần dọn dẹp')
+        booleanParam(name: 'DRY_RUN', defaultValue: true, description: 'Chạy thử trước. Bỏ check để xóa THẬT.')
+    }
+
+    stages {
+        stage('Khởi tạo') {
+            steps {
+                echo "▶ Chuẩn bị dọn dẹp namespace: ${params.NAMESPACE}"
+                script {
+                    sh '''
+                        if ! command -v helm >/dev/null 2>&1; then
+                            echo "Helm chưa được cài đặt. Đang tải Helm..."
+                            curl -sSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
+                            tar -xzf helm.tar.gz
+                            mkdir -p bin
+                            mv linux-amd64/helm bin/helm
+                            chmod +x bin/helm
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Liệt kê Helm Releases') {
+            steps {
+                script {
+                    def releases = sh(
+                        script: "export PATH=\$WORKSPACE/bin:\$PATH; helm list -n ${params.NAMESPACE} -q 2>/dev/null || echo ''",
+                        returnStdout: true
+                    ).trim()
+
+                    if (!releases) {
+                        echo "⚠️ Không tìm thấy Helm release nào trong namespace '${params.NAMESPACE}'. Không cần cleanup."
+                        env.RELEASES = ''
+                    } else {
+                        echo "📋 Các Helm releases tìm thấy trong namespace '${params.NAMESPACE}':"
+                        releases.split('\n').each { r ->
+                            echo "  - ${r}"
+                        }
+                        env.RELEASES = releases
+                    }
+                }
+            }
+        }
+
+        stage('Xóa Helm Releases') {
+            when {
+                expression { env.RELEASES?.trim() }
+            }
+            steps {
+                script {
+                    def releaseList = env.RELEASES.split('\n')
+
+                    echo "=========================================================="
+                    echo "BẮT ĐẦU XÓA ${releaseList.size()} RELEASES TỪ NAMESPACE: ${params.NAMESPACE}"
+                    echo "CHẾ ĐỘ MÔ PHỎNG (DRY_RUN): ${params.DRY_RUN}"
+                    echo "=========================================================="
+
+                    releaseList.each { release ->
+                        echo "----------------------------------------------------------"
+                        if (params.DRY_RUN) {
+                            echo "⚙️ [DRY_RUN] Sẽ xóa release: ${release}"
+                            echo "⚙️ [DRY_RUN] Lệnh: helm uninstall ${release} -n ${params.NAMESPACE}"
+                        } else {
+                            echo "🗑️ Đang xóa release: ${release}..."
+                            sh "export PATH=\$WORKSPACE/bin:\$PATH; helm uninstall ${release} -n ${params.NAMESPACE} --wait || true"
+                            echo "✅ Đã xóa: ${release}"
+                        }
+                    }
+
+                    echo "=========================================================="
+                    if (params.DRY_RUN) {
+                        echo "⚙️ DRY_RUN hoàn tất. Không có gì bị xóa thực tế."
+                    } else {
+                        echo "🎉 ĐÃ DỌN DẸP XONG NAMESPACE: ${params.NAMESPACE}"
+                    }
+                    echo "=========================================================="
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✅ DEVELOPER CLEANUP COMPLETED SUCCESSFULLY."
+        }
+        failure {
+            echo "❌ DEVELOPER CLEANUP FAILED. Vui lòng kiểm tra log."
+        }
+    }
+}

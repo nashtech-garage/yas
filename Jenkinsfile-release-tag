@@ -1,0 +1,189 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = 'chubedan4605'
+        DOMAIN = 'yas.local'
+        HELM_TIMEOUT = '5m'
+        NAMESPACE = 'staging'
+    }
+
+    parameters {
+        string(name: 'RELEASE_TAG', defaultValue: '', description: 'Tag phiên bản release, ví dụ: v1.0.0')
+    }
+
+    options {
+        skipDefaultCheckout()
+    }
+
+    stages {
+        stage('Validate Tag') {
+            steps {
+                script {
+                    def tag = params.RELEASE_TAG?.trim()
+
+                    if (!tag) {
+                        // Cố gắng phát hiện tag từ Git
+                        checkout scm
+                        tag = sh(
+                            script: 'git describe --tags --exact-match HEAD 2>/dev/null || echo ""',
+                            returnStdout: true
+                        ).trim()
+                    }
+
+                    if (!tag || !(tag ==~ /^v\d+\.\d+\.\d+$/)) {
+                        error "❌ RELEASE_TAG không hợp lệ: '${tag}'. Yêu cầu format vX.Y.Z (ví dụ: v1.0.0)"
+                    }
+
+                    env.RELEASE_TAG = tag
+                    echo "📌 Release Tag hợp lệ: ${env.RELEASE_TAG}"
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                checkout scm
+                sh 'chmod +x mvnw || true'
+                echo "📌 Checkout hoàn tất cho tag: ${env.RELEASE_TAG}"
+            }
+        }
+
+        stage('Build & Push Docker Images') {
+            steps {
+                script {
+                    def services = [
+                        'cart', 'customer', 'delivery', 'inventory', 'location',
+                        'media', 'order', 'payment', 'payment-paypal', 'product',
+                        'promotion', 'rating', 'recommendation', 'search', 'tax',
+                        'backoffice-bff', 'storefront-bff',
+                        'sampledata', 'webhook'
+                    ]
+                    def releaseTag = env.RELEASE_TAG
+
+                    echo "=========================================================="
+                    echo "BUILD & PUSH TẤT CẢ SERVICES VỚI RELEASE TAG: ${releaseTag}"
+                    echo "=========================================================="
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    }
+
+                    services.each { svc ->
+                        def imageName = "${env.DOCKER_USERNAME}/${svc}"
+
+                        echo "----------------------------------------------------------"
+
+                        def hasDockerfile = sh(
+                            script: "test -f ${svc}/Dockerfile && echo 'yes' || echo 'no'",
+                            returnStdout: true
+                        ).trim()
+
+                        if (hasDockerfile == 'yes') {
+                            echo "🔨 Building: ${imageName}:${releaseTag}"
+                            sh "docker build -t ${imageName}:${releaseTag} ${svc}/"
+                            sh "docker push ${imageName}:${releaseTag}"
+                            echo "✅ Pushed: ${imageName}:${releaseTag}"
+                        } else {
+                            echo "⚠️ Bỏ qua ${svc}: Không tìm thấy Dockerfile"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to staging namespace') {
+            steps {
+                script {
+                    sh '''
+                        if ! command -v helm >/dev/null 2>&1; then
+                            echo "Helm chưa được cài đặt. Đang tải Helm..."
+                            curl -sSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
+                            tar -xzf helm.tar.gz
+                            mkdir -p bin
+                            mv linux-amd64/helm bin/helm
+                            chmod +x bin/helm
+                        fi
+                    '''
+
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo add stakater https://stakater.github.io/stakater-charts || true"
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo update"
+
+                    def releaseTag = env.RELEASE_TAG
+
+                    def allBackendServices = [
+                        'cart', 'customer', 'inventory', 'location', 'media', 'order', 'payment',
+                        'payment-paypal', 'product', 'promotion', 'rating', 'search', 'tax',
+                        'recommendation', 'webhook', 'sampledata'
+                    ]
+                    def bffServices = ['backoffice-bff', 'storefront-bff']
+                    def uiServices = ['backoffice-ui', 'storefront-ui']
+
+                    echo "=========================================================="
+                    echo "RELEASE DEPLOY VÀO NAMESPACE: ${env.NAMESPACE}"
+                    echo "RELEASE TAG: ${releaseTag}"
+                    echo "=========================================================="
+
+                    // Deploy BFF
+                    bffServices.each { svc ->
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+                        def hostName = svc.replace('-bff', '')
+
+                        echo "----------------------------------------------------------"
+                        echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
+
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=${hostName}.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    }
+
+                    // Deploy UI
+                    uiServices.each { svc ->
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}"
+
+                        echo "----------------------------------------------------------"
+                        echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
+
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set ui.image.repository=${imageRepo} --set ui.image.tag=${releaseTag} --timeout ${env.HELM_TIMEOUT}"
+                    }
+
+                    // Deploy Swagger
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui helm/swagger-ui --namespace ${env.NAMESPACE} --create-namespace --set ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+
+                    // Deploy Backend
+                    allBackendServices.each { svc ->
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+
+                        echo "----------------------------------------------------------"
+                        echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
+
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    }
+
+                    echo "=========================================================="
+                    echo "🎉 RELEASE DEPLOY VÀO STAGING HOÀN TẤT"
+                    echo "Release tag: ${releaseTag}"
+                    echo "=========================================================="
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✅ RELEASE TAG DEPLOY COMPLETED. Tag: ${env.RELEASE_TAG}, Namespace: ${env.NAMESPACE}"
+        }
+        failure {
+            echo "❌ RELEASE TAG DEPLOY FAILED. Vui lòng kiểm tra log."
+        }
+    }
+}

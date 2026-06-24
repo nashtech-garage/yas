@@ -49,23 +49,65 @@ jobs:
       }
       
       pipelineJob('developer_cleanup') {
-        description('Job thực hiện việc dọn dẹp tài nguyên.')
+        description('Xóa toàn bộ Helm releases của developer_build khỏi namespace trên K8s.')
+        parameters {
+          stringParam('NAMESPACE', 'dev', 'Namespace cần dọn dẹp (xóa toàn bộ Helm releases)')
+          booleanParam('DRY_RUN', true, 'Chạy thử trước. Bỏ check để xóa THẬT.')
+        }
         definition {
-          cps {
-            script('''
-              pipeline {
-                agent any
-                stages {
-                  stage('Cleanup Workspace') {
-                    steps {
-                      echo 'Đang tiến hành dọn dẹp tài nguyên (workspace)...'
-                      cleanWs()
-                    }
-                  }
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/chubedan4605/another_yas2.git')
+                  credentials('github-credentials')
                 }
+                branch('main')
               }
-            '''.stripIndent())
-            sandbox(true)
+            }
+            scriptPath('Jenkinsfile-developer-cleanup')
+          }
+        }
+      }
+
+      pipelineJob('auto_deploy_dev') {
+        description('Tự động build/push Docker image và deploy vào namespace dev khi main thay đổi.')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/chubedan4605/another_yas2.git')
+                  credentials('github-credentials')
+                }
+                branch('main')
+              }
+            }
+            scriptPath('Jenkinsfile-auto-deploy-dev')
+          }
+        }
+        triggers {
+          scm('H/5 * * * *')
+        }
+      }
+
+      pipelineJob('release_tag_deploy') {
+        description('Phát hiện release tag vX.Y.Z, build image theo tag, push Docker Hub và deploy vào staging.')
+        parameters {
+          stringParam('RELEASE_TAG', '', 'Tag phiên bản release, ví dụ: v1.0.0')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/chubedan4605/another_yas2.git')
+                  credentials('github-credentials')
+                }
+                branch('main')
+              }
+            }
+            scriptPath('Jenkinsfile-release-tag')
           }
         }
       }
