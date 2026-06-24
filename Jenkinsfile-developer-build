@@ -100,7 +100,7 @@ pipeline {
                         def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=${hostName}.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
                         
                         if (params.DRY_RUN) {
-                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
+                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"    
                         } else {
                             sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
                         }

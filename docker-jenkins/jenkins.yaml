@@ -38,6 +38,7 @@ jobs:
               git {
                 remote {
                   url('https://github.com/chubedan4605/another_yas2.git')
+                  credentials('github-credentials')
                 }
                 branch('main')
               }

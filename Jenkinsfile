@@ -15,7 +15,7 @@ pipeline {
         skipDefaultCheckout()
     }
 
-    stages {
+    stages { 
 
         stage('Checkout') {
             steps {
