@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/luc1fe4/yas.git'
-    targetRevision: 'feature/k8s-infra-setup'
+    targetRevision: 'main'
     path: k8s/charts/search
   destination:
     server: https://kubernetes.default.svc

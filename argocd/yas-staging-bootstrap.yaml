@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/luc1fe4/yas.git'
-    targetRevision: feature/k8s-infra-setup
+    targetRevision: v1.2.3
     path: argocd/apps/staging
   destination:
     server: https://kubernetes.default.svc
