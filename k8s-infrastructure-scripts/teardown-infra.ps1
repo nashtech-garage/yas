@@ -1,4 +1,4 @@
-Write-Host "Đang xóa toàn bộ hạ tầng chung và riêng..."
+Write-Host "Deleting all shared and environment-specific infrastructure..."
 
 # Xóa hạ tầng chung
 helm uninstall elasticsearch-cluster --namespace elasticsearch
@@ -26,4 +26,4 @@ helm uninstall yas-configuration --namespace dev
 helm uninstall keycloak --namespace staging
 helm uninstall yas-configuration --namespace staging
 
-Write-Host "Đã dọn dẹp sạch sẽ hạ tầng!"
+Write-Host "Infrastructure cleaned up successfully!"
