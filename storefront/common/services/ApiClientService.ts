@@ -27,14 +27,8 @@ const sendRequest = async (
     requestOptions.body = data;
   }
 
-  let url = endpoint;
-
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = `http://localhost${url.startsWith('/') ? '' : '/'}${url}`;
-  }
-
   try {
-    const response = await fetch(url, method === 'GET' ? undefined : requestOptions);
+    const response = await fetch(endpoint, method === 'GET' ? undefined : requestOptions);
 
     // Workaround to manually redirect in case of CORS error
     if (response.type == 'cors' && response.redirected) {
