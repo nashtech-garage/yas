@@ -50,4 +50,3 @@ USER nextjs
 EXPOSE 3000
 
 CMD ["node", "server.js"]
-# trigger to build this docker image
