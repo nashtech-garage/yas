@@ -143,7 +143,7 @@ pipeline {
                         echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
 
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=${hostName}.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=${hostName}.${env.NAMESPACE}.${env.DOMAIN} --set backend.service.type=ClusterIP --set backend.service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
                     }
 
                     // Deploy UI
@@ -154,11 +154,11 @@ pipeline {
                         echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
 
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set ui.image.repository=${imageRepo} --set ui.image.tag=${releaseTag} --timeout ${env.HELM_TIMEOUT}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set ui.image.repository=${imageRepo} --set ui.image.tag=${releaseTag} --set ui.service.type=ClusterIP --set ui.service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
                     }
 
                     // Deploy Swagger
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui helm/swagger-ui --namespace ${env.NAMESPACE} --create-namespace --set ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui helm/swagger-ui --namespace ${env.NAMESPACE} --create-namespace --set ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --set service.type=ClusterIP --set service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
 
                     // Deploy Backend
                     allBackendServices.each { svc ->
@@ -168,7 +168,7 @@ pipeline {
                         echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
 
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --set backend.service.type=ClusterIP --set backend.service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
                     }
 
                     echo "=========================================================="
