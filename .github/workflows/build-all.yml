@@ -1,0 +1,65 @@
+# =====================================================================
+# Build ALL services - tạo image baseline tag :main + :latest
+# Chạy TAY (workflow_dispatch). Xử lý 2 loại build:
+#   - maven: build jar (mvn) rồi docker build (Java services)
+#   - node:  docker build tự build npm bên trong (Next.js UI)
+# Đặt tại: .github/workflows/build-all.yml
+# =====================================================================
+name: Build ALL services (baseline main+latest)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-all:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { service: product, type: maven }
+          - { service: media, type: maven }
+          - { service: customer, type: maven }
+          - { service: cart, type: maven }
+          - { service: tax, type: maven }
+          - { service: order, type: maven }
+          - { service: rating, type: maven }
+          - { service: location, type: maven }
+          - { service: inventory, type: maven }
+          - { service: promotion, type: maven }
+          - { service: payment, type: maven }
+          - { service: search, type: maven }
+          - { service: storefront-bff, type: maven }
+          - { service: backoffice-bff, type: maven }
+          - { service: sampledata, type: maven }
+          - { service: storefront, type: node }
+          - { service: backoffice, type: node }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        if: matrix.type == 'maven'
+        uses: actions/setup-java@v4
+        with:
+          java-version: "25"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build jar with Maven (${{ matrix.service }})
+        if: matrix.type == 'maven'
+        run: mvn -B clean install -pl ${{ matrix.service }} -am -DskipTests
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push (main + latest)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ matrix.service }}:main
+            ${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ matrix.service }}:latest

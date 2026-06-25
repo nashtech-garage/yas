@@ -1,0 +1,97 @@
+# =====================================================================
+# CI Pipeline - Build & Push image lên Docker Hub khi push code
+# Luồng: push branch -> phát hiện service đổi (paths-filter) -> build -> push
+# Tag: main -> :main và :latest ; branch khác -> :<commit 7 ký tự>
+# Tự nhận diện: có pom.xml -> build Maven; không có -> Next.js (docker tự build).
+# Đặt tại: .github/workflows/ci.yml ; cần Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+# =====================================================================
+name: CI - Build & Push images
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            tax: ['tax/**']
+            product: ['product/**']
+            media: ['media/**']
+            customer: ['customer/**']
+            cart: ['cart/**']
+            order: ['order/**']
+            rating: ['rating/**']
+            location: ['location/**']
+            inventory: ['inventory/**']
+            promotion: ['promotion/**']
+            payment: ['payment/**']
+            search: ['search/**']
+            sampledata: ['sampledata/**']
+            storefront-bff: ['storefront-bff/**']
+            backoffice-bff: ['backoffice-bff/**']
+            storefront: ['storefront/**']
+            backoffice: ['backoffice/**']
+
+  build-and-push:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.services != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect build type (maven hay node)
+        id: type
+        run: |
+          if [ -f "${{ matrix.service }}/pom.xml" ]; then
+            echo "maven=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "maven=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up JDK 25
+        if: steps.type.outputs.maven == 'true'
+        uses: actions/setup-java@v4
+        with:
+          java-version: "25"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build jar with Maven (${{ matrix.service }})
+        if: steps.type.outputs.maven == 'true'
+        run: mvn -B clean install -pl ${{ matrix.service }} -am -DskipTests
+
+      - name: Determine image tags
+        id: meta
+        run: |
+          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ matrix.service }}"
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "tags=$IMAGE:main,$IMAGE:latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "tags=$IMAGE:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
