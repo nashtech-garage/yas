@@ -1,0 +1,21 @@
+﻿backend:
+  image:
+    repository: dorayakiiiiz/yas-media
+    tag: latest
+
+  nameOverride: media
+  fullnameOverride: media
+  databaseName: media
+  ingress:
+    enabled: false
+  extraVolumes:
+    - name: media-application
+      configMap:
+        name: media-application-configmap
+  extraVolumeMounts:
+    - name: media-application
+      mountPath: /opt/yas/media
+  extraApplicationConfigPaths:
+    - /opt/yas/media/media-application.yaml
+
+

@@ -1,0 +1,8 @@
+﻿ui:
+  image:
+    repository: dorayakiiiiz/yas-backoffice
+    tag: latest
+  nameOverride: backoffice-ui
+  fullnameOverride: backoffice-ui
+  ingress:
+    enabled: false
