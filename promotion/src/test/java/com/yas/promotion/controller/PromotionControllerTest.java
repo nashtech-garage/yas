@@ -41,21 +41,28 @@ import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
 
-@WebMvcTest(controllers = PromotionController.class,
-    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
-@AutoConfigureMockMvc(addFilters = false)
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+@ExtendWith(MockitoExtension.class)
 class PromotionControllerTest {
 
-    @MockitoBean
+    @Mock
     private PromotionService promotionService;
 
-    @Autowired
+    @InjectMocks
+    private PromotionController promotionController;
+
     private MockMvc mockMvc;
 
     private ObjectWriter objectWriter;
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(promotionController).build();
         var objectMapper = new ObjectMapper();
         objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
     }

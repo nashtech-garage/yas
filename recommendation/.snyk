@@ -1,0 +1,15 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+ignore:
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKAI-16321394':
+    - '*':
+        reason: 'No fix available for Spring AI pgvector 1.0.0-M2 without upgrading to newer milestone which requires changing dependencies structure.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKCLOUD-16624644':
+    - '*':
+        reason: 'No fix available for Spring AI 1.0.0-M2 dependencies without major upgrades which are breaking changes.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKCLOUD-16624645':
+    - '*':
+        reason: 'No fix available for Spring AI 1.0.0-M2 dependencies without major upgrades which are breaking changes.'
+        expires: '2027-06-24T00:00:00.000Z'

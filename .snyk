@@ -1,0 +1,47 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+ignore:
+  'GHSA-gcpx-xqc6-8mgv':
+    - '*':
+        reason: 'No fix available for Next.js 14 compiler vulnerability without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JS-NEXT-16638674':
+    - '*':
+        reason: 'No fix available for Next.js 14 without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JS-NEXT-16638680':
+    - '*':
+        reason: 'No fix available for Next.js 14 without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JS-NEXT-16638682':
+    - '*':
+        reason: 'No fix available for Next.js 14 without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JS-NEXT-16638683':
+    - '*':
+        reason: 'No fix available for Next.js 14 without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JS-NEXT-15954202':
+    - '*':
+        reason: 'No fix available for Next.js 14 without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JS-NEXT-15104645':
+    - '*':
+        reason: 'No fix available for Next.js 14 without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JS-NEXT-15921797':
+    - '*':
+        reason: 'No fix available for Next.js 14 without upgrading to Next.js 15+, which is a major breaking change.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKAI-16321394':
+    - '*':
+        reason: 'No fix available for Spring AI pgvector 1.0.0-M2 without upgrading to newer milestone which requires changing dependencies structure.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKCLOUD-16624644':
+    - '*':
+        reason: 'No fix available for Spring AI 1.0.0-M2 dependencies without major upgrades which are breaking changes.'
+        expires: '2027-06-24T00:00:00.000Z'
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKCLOUD-16624645':
+    - '*':
+        reason: 'No fix available for Spring AI 1.0.0-M2 dependencies without major upgrades which are breaking changes.'
+        expires: '2027-06-24T00:00:00.000Z'

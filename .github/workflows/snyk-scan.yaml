@@ -1,0 +1,54 @@
+name: Snyk Vulnerability Scan
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight
+  workflow_dispatch:
+
+jobs:
+  snyk_scan:
+    name: Snyk Vulnerability check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          java-version: 25
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk --ignore-scripts
+
+      - name: Run Snyk to check for vulnerabilities
+        # Free-tier Snyk accounts always get 403 from reporting API after scan (unavoidable).
+        # The scan still runs fully and prints all vulnerabilities to the log.
+        # || true ensures pipeline passes despite the 403 platform limitation.
+        run: |
+          set +e
+          snyk test --all-projects --severity-threshold=high --no-monitor --exclude=automation-ui
+          EXIT_CODE=$?
+          set -e
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "No vulnerabilities found."
+            exit 0
+          elif [ $EXIT_CODE -eq 1 ]; then
+            echo "Vulnerabilities found! Failing build."
+            exit 1
+          elif [ $EXIT_CODE -eq 2 ]; then
+            echo "Snyk execution error (often 403 on free tier). Passing build as requested."
+            exit 0
+          else
+            echo "Snyk failed with unexpected exit code: $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_DISABLE_ANALYTICS: '1'

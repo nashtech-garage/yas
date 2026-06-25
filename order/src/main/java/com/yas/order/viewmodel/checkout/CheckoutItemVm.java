@@ -1,5 +1,7 @@
 package com.yas.order.viewmodel.checkout;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import lombok.Builder;
 

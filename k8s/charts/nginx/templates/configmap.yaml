@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nginx.fullname" . }}-config
+  labels:
+    {{- include "nginx.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name _;
+
+      # Use kube-dns for service resolution
+      resolver kube-dns.kube-system.svc.cluster.local valid=5s;
+
+      client_max_body_size 30m;
+
+      location /media/ {
+        proxy_pass http://media.yas.svc.cluster.local;
+      }
+      location /swagger-ui/ {
+        proxy_pass http://swagger-ui.yas.svc.cluster.local:8080;
+      }
+      location /product/ {
+        proxy_pass http://product.yas.svc.cluster.local;
+      }
+      location /customer/ {
+        proxy_pass http://customer.yas.svc.cluster.local;
+      }
+      location /cart/ {
+        proxy_pass http://cart.yas.svc.cluster.local;
+      }
+      location /rating/ {
+        proxy_pass http://rating.yas.svc.cluster.local;
+      }
+      location /order/ {
+        proxy_pass http://order.yas.svc.cluster.local;
+      }
+      location /location/ {
+        proxy_pass http://location.yas.svc.cluster.local;
+      }
+      location /inventory/ {
+        proxy_pass http://inventory.yas.svc.cluster.local;
+      }
+      location /tax/ {
+        proxy_pass http://tax.yas.svc.cluster.local;
+      }
+      location /promotion/ {
+        proxy_pass http://promotion.yas.svc.cluster.local;
+      }
+      location /search/ {
+        set $docker_search_host "search.yas.svc.cluster.local";
+        proxy_pass http://$docker_search_host;
+      }
+      location /payment/ {
+        proxy_pass http://payment.yas.svc.cluster.local;
+      }
+      location /webhook/ {
+        set $docker_webhook_host "webhook.yas.svc.cluster.local";
+        proxy_pass http://$docker_webhook_host;
+      }
+      location /sampledata/ {
+        proxy_pass http://sampledata.yas.svc.cluster.local;
+      }
+      location /recommendation/ {
+        set $docker_recommendation_host "recommendation.yas.svc.cluster.local";
+        proxy_pass http://$docker_recommendation_host;
+      }
+    }

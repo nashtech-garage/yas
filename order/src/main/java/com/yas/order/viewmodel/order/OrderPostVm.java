@@ -1,5 +1,7 @@
 package com.yas.order.viewmodel.order;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import com.yas.order.model.enumeration.DeliveryMethod;
 import com.yas.order.model.enumeration.PaymentMethod;
 import com.yas.order.model.enumeration.PaymentStatus;

@@ -59,6 +59,9 @@ function mapCartItemsToDetailedItems(
 export async function getNumberCartItems(): Promise<number> {
   const response = await apiClientService.get(CART_BASE_URL);
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      return 0; // Unauthenticated guest user
+    }
     await throwDetailedError(response);
   }
   const cartItems = await response.json();

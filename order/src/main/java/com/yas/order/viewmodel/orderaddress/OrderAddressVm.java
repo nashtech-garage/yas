@@ -1,5 +1,7 @@
 package com.yas.order.viewmodel.orderaddress;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import com.yas.order.model.OrderAddress;
 import lombok.Builder;
 

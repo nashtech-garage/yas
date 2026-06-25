@@ -183,6 +183,26 @@ class RatingServiceTest {
     }
 
     @Test
+    void createRating_WhenCustomerServiceReturnsNull_ShouldThrowNotFoundException() {
+        RatingPostVm ratingPostVm = RatingPostVm.builder().content("comment 4").productName("product3").star(4).productId(3L).build();
+
+        Jwt jwt = mock(Jwt.class);
+        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        when(authentication.getToken()).thenReturn(jwt);
+        when(authentication.getName()).thenReturn(userId);
+        when(jwt.getSubject()).thenReturn(userId);
+        when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong()))
+            .thenReturn(new OrderExistsByProductAndUserGetVm(true));
+        when(customerService.getCustomer()).thenReturn(null);
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> ratingService.createRating(ratingPostVm));
+
+        assertEquals("CUSTOMER user1 is not found", exception.getMessage());
+    }
+
+    @Test
     void deleteRating_ValidRatingId_ShouldSuccess() {
         Long id = ratingRepository.findAll().getFirst().getId();
         ratingService.deleteRating(id);
