@@ -88,6 +88,7 @@ pipeline {
                             if (fileExists("${svc}/pom.xml")) {
                                 echo "🔨 Building Java project ${svc} with Maven..."
                                 sh "./mvnw clean package -DskipTests -f pom.xml -pl ${svc} -am -U -Drevision=1.0-SNAPSHOT"
+                                sh "rm -f ${svc}/target/*-tests.jar || true"
                             }
                             echo "🔨 Building: ${imageName}:${releaseTag}"
                             sh "docker build -t ${imageName}:${releaseTag} ${svc}/"
