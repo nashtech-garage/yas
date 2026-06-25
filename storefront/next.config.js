@@ -16,7 +16,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   experimental: {
-    cpus: 2,
+    cpus: 4,
   },
 };
 
