@@ -12,30 +12,30 @@ pipeline {
         string(name: 'NAMESPACE', defaultValue: 'dev', description: 'K8s Namespace triển khai (Ví dụ: dev, staging, qa)')
         booleanParam(name: 'DRY_RUN', defaultValue: false, description: 'Chạy mô phỏng (Dry Run) trước. Bỏ check để deploy THỰC TẾ lên K8s.')
         
-        // --- Danh sách tham số tag của Backend Services ---
-        string(name: 'TAG_cart', defaultValue: 'latest', description: 'Commit ID / Tag cho cart')
-        string(name: 'TAG_customer', defaultValue: 'latest', description: 'Commit ID / Tag cho customer')
-        string(name: 'TAG_delivery', defaultValue: 'latest', description: 'Commit ID / Tag cho delivery')
-        string(name: 'TAG_inventory', defaultValue: 'latest', description: 'Commit ID / Tag cho inventory')
-        string(name: 'TAG_location', defaultValue: 'latest', description: 'Commit ID / Tag cho location')
-        string(name: 'TAG_media', defaultValue: 'latest', description: 'Commit ID / Tag cho media')
-        string(name: 'TAG_order', defaultValue: 'latest', description: 'Commit ID / Tag cho order')
-        string(name: 'TAG_payment', defaultValue: 'latest', description: 'Commit ID / Tag cho payment')
-        string(name: 'TAG_payment_paypal', defaultValue: 'latest', description: 'Commit ID / Tag cho payment-paypal')
-        string(name: 'TAG_product', defaultValue: 'latest', description: 'Commit ID / Tag cho product')
-        string(name: 'TAG_promotion', defaultValue: 'latest', description: 'Commit ID / Tag cho promotion')
-        string(name: 'TAG_rating', defaultValue: 'latest', description: 'Commit ID / Tag cho rating')
-        string(name: 'TAG_search', defaultValue: 'latest', description: 'Commit ID / Tag cho search')
-        string(name: 'TAG_tax', defaultValue: 'latest', description: 'Commit ID / Tag cho tax')
-        string(name: 'TAG_recommendation', defaultValue: 'latest', description: 'Commit ID / Tag cho recommendation')
-        string(name: 'TAG_webhook', defaultValue: 'latest', description: 'Commit ID / Tag cho webhook')
-        string(name: 'TAG_sampledata', defaultValue: 'latest', description: 'Commit ID / Tag cho sampledata')
+        // --- Danh sách tham số branch của Backend Services ---
+        string(name: 'BRANCH_cart', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ cart (Ví dụ: main, dev_tax_service)')
+        string(name: 'BRANCH_customer', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ customer')
+        string(name: 'BRANCH_delivery', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ delivery')
+        string(name: 'BRANCH_inventory', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ inventory')
+        string(name: 'BRANCH_location', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ location')
+        string(name: 'BRANCH_media', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ media')
+        string(name: 'BRANCH_order', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ order')
+        string(name: 'BRANCH_payment', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ payment')
+        string(name: 'BRANCH_payment_paypal', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ payment-paypal')
+        string(name: 'BRANCH_product', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ product')
+        string(name: 'BRANCH_promotion', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ promotion')
+        string(name: 'BRANCH_rating', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ rating')
+        string(name: 'BRANCH_search', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ search')
+        string(name: 'BRANCH_tax', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ tax')
+        string(name: 'BRANCH_recommendation', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ recommendation')
+        string(name: 'BRANCH_webhook', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ webhook')
+        string(name: 'BRANCH_sampledata', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ sampledata')
 
-        // --- Danh sách tham số tag của Frontend & BFF ---
-        string(name: 'TAG_backoffice_bff', defaultValue: 'latest', description: 'Commit ID / Tag cho backoffice-bff')
-        string(name: 'TAG_storefront_bff', defaultValue: 'latest', description: 'Commit ID / Tag cho storefront-bff')
-        string(name: 'TAG_backoffice_ui', defaultValue: 'latest', description: 'Commit ID / Tag cho backoffice-ui (Frontend)')
-        string(name: 'TAG_storefront_ui', defaultValue: 'latest', description: 'Commit ID / Tag cho storefront-ui (Frontend)')
+        // --- Danh sách tham số branch của Frontend & BFF ---
+        string(name: 'BRANCH_backoffice_bff', defaultValue: 'main', description: 'Nhánh git để deploy cho backoffice-bff')
+        string(name: 'BRANCH_storefront_bff', defaultValue: 'main', description: 'Nhánh git để deploy cho storefront-bff')
+        string(name: 'BRANCH_backoffice_ui', defaultValue: 'main', description: 'Nhánh git để deploy cho backoffice-ui')
+        string(name: 'BRANCH_storefront_ui', defaultValue: 'main', description: 'Nhánh git để deploy cho storefront-ui')
     }
 
     stages {
@@ -84,16 +84,17 @@ pipeline {
 
                     // Deploy BFF
                     bffServices.each { svc ->
-                        def paramName = "TAG_${svc.replace('-', '_')}"
-                        def tagValue = params."${paramName}"
+                        def paramName = "BRANCH_${svc.replace('-', '_')}"
+                        def branchValue = params."${paramName}"
+                        def tagValue = resolveBranchToTag(branchValue, svc)
                         def imageRepository = "${env.DOCKER_USERNAME}/${svc}"
                         def hostName = svc.replace('-bff', '')
                         
                         echo "----------------------------------------------------------"
-                        if (tagValue == 'latest' || tagValue == 'main') {
-                            echo "✅ [FALLBACK] ${svc}: Sử dụng phiên bản mặc định -> 'latest'"
+                        if (branchValue == 'latest' || branchValue == 'main' || !branchValue) {
+                            echo "✅ [DEFAULT] ${svc}: Sử dụng nhánh mặc định '${branchValue}' -> Tag 'latest'"
                         } else {
-                            echo "🚀 [CUSTOM] ${svc}: Sử dụng phiên bản thử nghiệm (commit) -> '${tagValue}'"
+                            echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
                         }
 
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
@@ -108,15 +109,16 @@ pipeline {
 
                     // Deploy UI
                     uiServices.each { svc ->
-                        def paramName = "TAG_${svc.replace('-', '_')}"
-                        def tagValue = params."${paramName}"
+                        def paramName = "BRANCH_${svc.replace('-', '_')}"
+                        def branchValue = params."${paramName}"
+                        def tagValue = resolveBranchToTag(branchValue, svc)
                         def imageRepository = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}" // Image thường bỏ hậu tố -ui
                         
                         echo "----------------------------------------------------------"
-                        if (tagValue == 'latest' || tagValue == 'main') {
-                            echo "✅ [FALLBACK] ${svc}: Sử dụng phiên bản mặc định -> 'latest'"
+                        if (branchValue == 'latest' || branchValue == 'main' || !branchValue) {
+                            echo "✅ [DEFAULT] ${svc}: Sử dụng nhánh mặc định '${branchValue}' -> Tag 'latest'"
                         } else {
-                            echo "🚀 [CUSTOM] ${svc}: Sử dụng phiên bản thử nghiệm (commit) -> '${tagValue}'"
+                            echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
                         }
 
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
@@ -170,15 +172,16 @@ pipeline {
                     echo "=========================================================="
 
                     backendServices.each { svc ->
-                        def paramName = "TAG_${svc.replace('-', '_')}"
-                        def tagValue = params."${paramName}"
+                        def paramName = "BRANCH_${svc.replace('-', '_')}"
+                        def branchValue = params."${paramName}"
+                        def tagValue = resolveBranchToTag(branchValue, svc)
                         def imageRepository = "${env.DOCKER_USERNAME}/${svc}"
                         
                         echo "----------------------------------------------------------"
-                        if (tagValue == 'latest' || tagValue == 'main') {
-                            echo "✅ [FALLBACK] ${svc}: Sử dụng phiên bản mặc định -> 'latest'"
+                        if (branchValue == 'latest' || branchValue == 'main' || !branchValue) {
+                            echo "✅ [DEFAULT] ${svc}: Sử dụng nhánh mặc định '${branchValue}' -> Tag 'latest'"
                         } else {
-                            echo "🚀 [CUSTOM] ${svc}: Sử dụng phiên bản thử nghiệm (commit) -> '${tagValue}'"
+                            echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
                         }
                         
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
@@ -213,5 +216,27 @@ pipeline {
         failure {
             echo "❌ DEVELOPER BUILD FAILED. Vui lòng kiểm tra log ở trên để xem chi tiết lỗi Kubernetes/Helm."
         }
+    }
+}
+
+def resolveBranchToTag(String branchName, String serviceName) {
+    if (!branchName || branchName == 'main' || branchName == 'latest') {
+        return 'latest'
+    }
+    try {
+        def remoteRef = sh(script: "git ls-remote origin refs/heads/${branchName}", returnStdout: true).trim()
+        if (remoteRef) {
+            def commitHash = remoteRef.split()[0]
+            if (commitHash && commitHash.length() >= 7) {
+                def shortHash = commitHash.substring(0, 7)
+                echo "Resolved branch '${branchName}' for service '${serviceName}' to commit tag: ${shortHash}"
+                return shortHash
+            }
+        }
+        echo "⚠️ Branch '${branchName}' for service '${serviceName}' not found or invalid remote ref. Falling back to 'latest'."
+        return 'latest'
+    } catch (Exception e) {
+        echo "⚠️ Error resolving branch '${branchName}' for service '${serviceName}': ${e.message}. Falling back to 'latest'."
+        return 'latest'
     }
 }

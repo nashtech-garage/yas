@@ -76,17 +76,7 @@ helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-clust
 --set elasticsearch.replicas="$ELASTICSEARCH_REPLICAES" \
 --set kibana.ingress.hostname="kibana.$DOMAIN"
 
-#Install loki
-helm upgrade --install loki grafana/loki \
- --create-namespace --namespace observability \
- -f ./observability/loki.values.yaml \
- --set loki.useTestSchema=true
-
-#Install tempo
-helm upgrade --install tempo grafana/tempo \
---create-namespace --namespace observability \
--f ./observability/tempo.values.yaml
-
+# cert-manager is kept as it might be used by other parts
 #Install cert manager
 helm upgrade --install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
@@ -97,44 +87,57 @@ helm upgrade --install cert-manager jetstack/cert-manager \
   --set webhook.timeoutSeconds=4 \
   --set admissionWebhooks.certManager.create=true
 
-#Install opentelemetry-operator
-helm upgrade --install opentelemetry-operator open-telemetry/opentelemetry-operator \
---create-namespace --namespace observability
-
-echo "⏳ Waiting for OpenTelemetry Operator to be ready..."
-kubectl rollout status deployment/opentelemetry-operator -n observability --timeout=300s
-sleep 15
-
-#Install opentelemetry-collector
-helm upgrade --install opentelemetry-collector ./observability/opentelemetry \
---create-namespace --namespace observability
-
-#Install promtail
-helm upgrade --install promtail grafana/promtail \
---create-namespace --namespace observability \
---values ./observability/promtail.values.yaml
-
-#Install prometheus + grafana
-grafana_hostname="grafana.$DOMAIN" yq -i '.hostname=env(grafana_hostname)' ./observability/prometheus.values.yaml
-postgresql_username="$POSTGRESQL_USERNAME" yq -i '.grafana."grafana.ini".database.user=env(postgresql_username)' ./observability/prometheus.values.yaml
-postgresql_password="$POSTGRESQL_PASSWORD" yq -i '.grafana."grafana.ini".database.password=env(postgresql_password)' ./observability/prometheus.values.yaml
-helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
- --create-namespace --namespace observability \
--f ./observability/prometheus.values.yaml \
-
-#Install grafana operator
-helm upgrade --install grafana-operator oci://ghcr.io/grafana-operator/helm-charts/grafana-operator \
---version v5.0.2 \
---create-namespace --namespace observability
-
-#Add datasource and dashboard to grafana
-helm upgrade --install grafana ./observability/grafana \
---create-namespace --namespace observability \
---set hotname="grafana.$DOMAIN" \
---set grafana.username="$GRAFANA_USERNAME" \
---set grafana.password="$GRAFANA_PASSWORD" \
---set postgresql.username="$POSTGRESQL_USERNAME" \
---set postgresql.password="$POSTGRESQL_PASSWORD"
+# [Observability Disabled] Observability (Prometheus, Grafana, Loki, Tempo, OpenTelemetry, Promtail) has been commented out to optimize RAM usage.
+#
+# #Install loki
+# helm upgrade --install loki grafana/loki \
+#  --create-namespace --namespace observability \
+#  -f ./observability/loki.values.yaml \
+#  --set loki.useTestSchema=true
+# 
+# #Install tempo
+# helm upgrade --install tempo grafana/tempo \
+# --create-namespace --namespace observability \
+# -f ./observability/tempo.values.yaml
+# 
+# #Install opentelemetry-operator
+# helm upgrade --install opentelemetry-operator open-telemetry/opentelemetry-operator \
+# --create-namespace --namespace observability
+# 
+# echo "⏳ Waiting for OpenTelemetry Operator to be ready..."
+# kubectl rollout status deployment/opentelemetry-operator -n observability --timeout=300s
+# sleep 15
+# 
+# #Install opentelemetry-collector
+# helm upgrade --install opentelemetry-collector ./observability/opentelemetry \
+# --create-namespace --namespace observability
+# 
+# #Install promtail
+# helm upgrade --install promtail grafana/promtail \
+# --create-namespace --namespace observability \
+# --values ./observability/promtail.values.yaml
+# 
+# #Install prometheus + grafana
+# grafana_hostname="grafana.$DOMAIN" yq -i '.hostname=env(grafana_hostname)' ./observability/prometheus.values.yaml
+# postgresql_username="$POSTGRESQL_USERNAME" yq -i '.grafana."grafana.ini".database.user=env(postgresql_username)' ./observability/prometheus.values.yaml
+# postgresql_password="$POSTGRESQL_PASSWORD" yq -i '.grafana."grafana.ini".database.password=env(postgresql_password)' ./observability/prometheus.values.yaml
+# helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+#  --create-namespace --namespace observability \
+# -f ./observability/prometheus.values.yaml \
+# 
+# #Install grafana operator
+# helm upgrade --install grafana-operator oci://ghcr.io/grafana-operator/helm-charts/grafana-operator \
+# --version v5.0.2 \
+# --create-namespace --namespace observability
+# 
+# #Add datasource and dashboard to grafana
+# helm upgrade --install grafana ./observability/grafana \
+# --create-namespace --namespace observability \
+# --set hotname="grafana.$DOMAIN" \
+# --set grafana.username="$GRAFANA_USERNAME" \
+# --set grafana.password="$GRAFANA_PASSWORD" \
+# --set postgresql.username="$POSTGRESQL_USERNAME" \
+# --set postgresql.password="$POSTGRESQL_PASSWORD"
 
 helm upgrade --install zookeeper ./zookeeper \
  --namespace zookeeper --create-namespace
