@@ -97,14 +97,14 @@ pipeline {
                             echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
                         }
 
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} k8s/charts/${svc} " +
-                           "--namespace ${params.NAMESPACE} --create-namespace " +
-                           "--set backend.image.repository=${imageRepository} " +
-                           "--set backend.image.tag=${tagValue} " +
-                           "--set backend.ingress.host=${hostName}.${params.NAMESPACE}.${env.DOMAIN} " +
-                           "--timeout ${env.HELM_TIMEOUT} " +
-                           "${dryRunFlag}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=${hostName}.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                        
+                        if (params.DRY_RUN) {
+                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"    
+                        } else {
+                            sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                        }
                     }
 
                     // Deploy UI
@@ -121,13 +121,14 @@ pipeline {
                             echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
                         }
 
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} k8s/charts/${svc} " +
-                           "--namespace ${params.NAMESPACE} --create-namespace " +
-                           "--set ui.image.repository=${imageRepository} " +
-                           "--set ui.image.tag=${tagValue} " +
-                           "--timeout ${env.HELM_TIMEOUT} " +
-                           "${dryRunFlag}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --set ui.image.repository=${imageRepository} --set ui.image.tag=${tagValue} --timeout ${env.HELM_TIMEOUT}"
+                        
+                        if (params.DRY_RUN) {
+                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
+                        } else {
+                            sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                        }
                     }
                     
                     if (!params.DRY_RUN) {
@@ -143,11 +144,13 @@ pipeline {
                 script {
                     echo "▶ Deploy Swagger-UI..."
                     def dryRunFlag = params.DRY_RUN ? "--dry-run" : ""
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui k8s/charts/swagger-ui " +
-                       "--namespace ${params.NAMESPACE} --create-namespace " +
-                       "--set ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} " +
-                       "--timeout ${env.HELM_TIMEOUT} " +
-                       "${dryRunFlag}"
+                    def helmCmd = "helm upgrade --install swagger-ui helm/swagger-ui --namespace ${params.NAMESPACE} --create-namespace --set ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    
+                    if (params.DRY_RUN) {
+                        echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
+                    } else {
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                    }
                        
                     if (!params.DRY_RUN) {
                         echo "⏳ Tạm dừng 10s sau khi cài Swagger..."
@@ -184,15 +187,14 @@ pipeline {
                             echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
                         }
                         
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build k8s/charts/${svc}"
-                        def helmCmd = "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} k8s/charts/${svc} " +
-                                      "--namespace ${params.NAMESPACE} --create-namespace " +
-                                      "--set backend.image.repository=${imageRepository} " +
-                                      "--set backend.image.tag=${tagValue} " +
-                                      "--set backend.ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} " +
-                                      "--timeout ${env.HELM_TIMEOUT} " +
-                                      "${dryRunFlag}"
-                        sh "${helmCmd}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                        
+                        if (params.DRY_RUN) {
+                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
+                        } else {
+                            sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                        }
                     }
                     
                     echo "=========================================================="

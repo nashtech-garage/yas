@@ -1,14 +1,19 @@
 services:
   jenkins:
-    image: jenkins/jenkins:lts
+    build: .
     container_name: jenkins_master
     privileged: true
     user: root # Chạy quyền root để có thể truy cập docker.sock của host
+    environment:
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
+      - KUBECONFIG=/var/jenkins_home/.kube/config
     ports:
       - "8899:8080"
       - "50000:50000"
     volumes:
       - jenkins_data:/var/jenkins_home
+      - ./jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml # Nạp JCasC
+      - ./kubeconfig-docker:/var/jenkins_home/.kube/config
       - /var/run/docker.sock:/var/run/docker.sock # Cho phép Jenkins gọi Docker host
     restart: unless-stopped
 volumes:

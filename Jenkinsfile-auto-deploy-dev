@@ -1,0 +1,229 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = 'chubedan4605'
+        DOMAIN = 'yas.local'
+        HELM_TIMEOUT = '5m'
+        NAMESPACE = 'dev'
+    }
+
+    options {
+        skipDefaultCheckout()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                checkout scm
+                sh 'chmod +x mvnw || true'
+                script {
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: 'git rev-parse --short=8 HEAD',
+                        returnStdout: true
+                    ).trim()
+                    echo "📌 Commit ID: ${env.GIT_COMMIT_SHORT}"
+                }
+            }
+        }
+
+        stage('Detect Changed Services') {
+            steps {
+                script {
+                    sh "git fetch --no-tags --prune origin +refs/heads/main:refs/remotes/origin/main || true"
+
+                    def changedFiles = sh(
+                        script: """
+                            FILES=""
+                            if git rev-parse --verify origin/main >/dev/null 2>&1; then
+                                FILES=\$(git diff --name-only HEAD~1..HEAD)
+                            fi
+                            if [ -z "\$FILES" ]; then
+                                git ls-files
+                            else
+                                echo "\$FILES"
+                            fi
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed files:\n${changedFiles}"
+
+                    def services = [
+                        'cart', 'customer', 'delivery', 'inventory', 'location',
+                        'media', 'order', 'payment', 'payment-paypal', 'product',
+                        'promotion', 'rating', 'recommendation', 'search', 'tax',
+                        'backoffice-bff', 'storefront-bff', 'identity',
+                        'sampledata', 'webhook',
+                        'backoffice', 'storefront'
+                    ]
+
+                    def affected = services.findAll { svc ->
+                        changedFiles && (changedFiles =~ /(?m)^${java.util.regex.Pattern.quote(svc)}\//)
+                    }
+
+                    // Nếu file nền tảng thay đổi (pom.xml, common-library, etc.) -> build all
+                    def rootFiles = ['pom.xml', 'common-library/', '.github/', 'mvnw']
+                    def rootChanged = rootFiles.any { rf ->
+                        changedFiles.split('\n').any { f -> f.startsWith(rf) }
+                    }
+
+                    if (rootChanged) {
+                        echo "⚠️ Root/foundation files changed. Building ALL services."
+                        affected = services
+                    }
+
+                    def result = affected.isEmpty() ? 'none' : affected.join(',')
+                    env.CHANGED_SERVICES = result
+                    echo "🔍 Services to build/deploy: ${env.CHANGED_SERVICES}"
+                }
+            }
+        }
+
+        stage('Build & Push Docker Images') {
+            when {
+                expression { env.CHANGED_SERVICES != 'none' }
+            }
+            steps {
+                script {
+                    def services = env.CHANGED_SERVICES.split(',')
+                    def commitTag = env.GIT_COMMIT_SHORT
+
+                    echo "=========================================================="
+                    echo "BUILD & PUSH ${services.size()} SERVICE(S) VỚI TAG: ${commitTag}"
+                    echo "=========================================================="
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    }
+
+                    services.each { svc ->
+                        def svcDir = svc
+                        def imageName = "${env.DOCKER_USERNAME}/${svc}"
+
+                        echo "----------------------------------------------------------"
+                        echo "🔨 Building: ${imageName}:${commitTag}"
+
+                        // Check if Dockerfile exists
+                        def hasDockerfile = sh(
+                            script: "test -f ${svcDir}/Dockerfile && echo 'yes' || echo 'no'",
+                            returnStdout: true
+                        ).trim()
+
+                        if (hasDockerfile == 'yes') {
+                            if (fileExists("${svcDir}/pom.xml")) {
+                                echo "☕ Building Java project ${svcDir} with Maven..."
+                                sh "./mvnw clean package -DskipTests -f pom.xml -pl ${svcDir} -am -U -Drevision=1.0-SNAPSHOT"
+                            }
+                            sh "docker build -t ${imageName}:${commitTag} -t ${imageName}:latest ${svcDir}/"
+                            sh "docker push ${imageName}:${commitTag}"
+                            sh "docker push ${imageName}:latest"
+                            echo "✅ Pushed: ${imageName}:${commitTag} + :latest"
+                        } else {
+                            echo "⚠️ Bỏ qua ${svc}: Không tìm thấy Dockerfile trong ${svcDir}/"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to dev namespace') {
+            steps {
+                script {
+                    sh '''
+                        if ! command -v helm >/dev/null 2>&1; then
+                            echo "Helm chưa được cài đặt. Đang tải Helm..."
+                            curl -sSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
+                            tar -xzf helm.tar.gz
+                            mkdir -p bin
+                            mv linux-amd64/helm bin/helm
+                            chmod +x bin/helm
+                        fi
+                    '''
+
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo add stakater https://stakater.github.io/stakater-charts || true"
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo update"
+
+                    def allBackendServices = [
+                        'cart', 'customer', 'inventory', 'location', 'media', 'order', 'payment',
+                        'payment-paypal', 'product', 'promotion', 'rating', 'search', 'tax',
+                        'recommendation', 'webhook', 'sampledata'
+                    ]
+                    def bffServices = ['backoffice-bff', 'storefront-bff']
+                    def uiServices = ['backoffice-ui', 'storefront-ui']
+                    def commitTag = env.GIT_COMMIT_SHORT
+                    def changedList = env.CHANGED_SERVICES == 'none' ? [] : env.CHANGED_SERVICES.split(',').toList()
+
+                    echo "=========================================================="
+                    echo "AUTO DEPLOY VÀO NAMESPACE: ${env.NAMESPACE}"
+                    echo "=========================================================="
+
+                    // Deploy BFF
+                    bffServices.each { svc ->
+                        def tag = changedList.contains(svc) ? commitTag : 'latest'
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+                        def hostName = svc.replace('-bff', '')
+
+                        echo "----------------------------------------------------------"
+                        echo changedList.contains(svc) ?
+                            "🚀 [UPDATED] ${svc} -> tag: ${tag}" :
+                            "✅ [STABLE] ${svc} -> tag: latest"
+
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${tag} --set backend.ingress.host=${hostName}.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    }
+
+                    // Deploy UI
+                    uiServices.each { svc ->
+                        def tag = changedList.contains(svc.replace('-ui', '')) ? commitTag : 'latest'
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}"
+
+                        echo "----------------------------------------------------------"
+                        echo "✅ [UI] ${svc} -> tag: ${tag}"
+
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set ui.image.repository=${imageRepo} --set ui.image.tag=${tag} --timeout ${env.HELM_TIMEOUT}"
+                    }
+
+                    // Deploy Swagger
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui helm/swagger-ui --namespace ${env.NAMESPACE} --create-namespace --set ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+
+                    // Deploy Backend
+                    allBackendServices.each { svc ->
+                        def tag = changedList.contains(svc) ? commitTag : 'latest'
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+
+                        echo "----------------------------------------------------------"
+                        echo changedList.contains(svc) ?
+                            "🚀 [UPDATED] ${svc} -> tag: ${tag}" :
+                            "✅ [STABLE] ${svc} -> tag: latest"
+
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${tag} --set backend.ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    }
+
+                    echo "=========================================================="
+                    echo "🎉 AUTO DEPLOY VÀO DEV HOÀN TẤT"
+                    echo "=========================================================="
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✅ AUTO DEPLOY DEV COMPLETED SUCCESSFULLY. Commit: ${env.GIT_COMMIT_SHORT}"
+        }
+        failure {
+            echo "❌ AUTO DEPLOY DEV FAILED. Vui lòng kiểm tra log."
+        }
+    }
+}
