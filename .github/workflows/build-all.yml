@@ -1,38 +1,44 @@
 # =====================================================================
-# Build ALL services - tạo image baseline tag :main + :latest cho 11 service
-# Chạy TAY (workflow_dispatch) - bấm "Run workflow" trên tab Actions.
-# Dùng để có đủ image default cho Thành viên B deploy.
-# Đặt file tại: .github/workflows/build-all.yml
+# Build ALL services - tạo image baseline tag :main + :latest
+# Chạy TAY (workflow_dispatch). Xử lý 2 loại build:
+#   - maven: build jar (mvn) rồi docker build (Java services)
+#   - node:  docker build tự build npm bên trong (Next.js UI)
+# Đặt tại: .github/workflows/build-all.yml
 # =====================================================================
 name: Build ALL services (baseline main+latest)
 
 on:
-  workflow_dispatch: # chỉ chạy khi bấm tay
+  workflow_dispatch:
 
 jobs:
   build-all:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false # 1 service lỗi không hủy các service khác
+      fail-fast: false
       matrix:
-        service:
-          [
-            product,
-            media,
-            customer,
-            cart,
-            tax,
-            order,
-            rating,
-            location,
-            inventory,
-            promotion,
-            payment,
-          ]
+        include:
+          - { service: product, type: maven }
+          - { service: media, type: maven }
+          - { service: customer, type: maven }
+          - { service: cart, type: maven }
+          - { service: tax, type: maven }
+          - { service: order, type: maven }
+          - { service: rating, type: maven }
+          - { service: location, type: maven }
+          - { service: inventory, type: maven }
+          - { service: promotion, type: maven }
+          - { service: payment, type: maven }
+          - { service: search, type: maven }
+          - { service: storefront-bff, type: maven }
+          - { service: backoffice-bff, type: maven }
+          - { service: sampledata, type: maven }
+          - { service: storefront, type: node }
+          - { service: backoffice, type: node }
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up JDK 25
+        if: matrix.type == 'maven'
         uses: actions/setup-java@v4
         with:
           java-version: "25"
@@ -40,6 +46,7 @@ jobs:
           cache: "maven"
 
       - name: Build jar with Maven (${{ matrix.service }})
+        if: matrix.type == 'maven'
         run: mvn -B clean install -pl ${{ matrix.service }} -am -DskipTests
 
       - name: Log in to Docker Hub

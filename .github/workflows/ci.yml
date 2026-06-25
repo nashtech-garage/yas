@@ -1,21 +1,18 @@
 # =====================================================================
-# CI Pipeline - Build & Push image lên Docker Hub
-# Luồng: push code lên branch bất kỳ -> phát hiện service nào đổi
-#        -> build jar (Maven) -> docker build -> push Docker Hub
-# Tag:  branch main  -> :main và :latest
-#       branch khác  -> :<commit-id 7 ký tự>
-# Đặt file này tại: .github/workflows/ci.yml
-# Cần GitHub Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+# CI Pipeline - Build & Push image lên Docker Hub khi push code
+# Luồng: push branch -> phát hiện service đổi (paths-filter) -> build -> push
+# Tag: main -> :main và :latest ; branch khác -> :<commit 7 ký tự>
+# Tự nhận diện: có pom.xml -> build Maven; không có -> Next.js (docker tự build).
+# Đặt tại: .github/workflows/ci.yml ; cần Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
 # =====================================================================
 name: CI - Build & Push images
 
 on:
   push:
-    branches: ["**"] # mọi branch
-  workflow_dispatch: # cho phép bấm chạy tay
+    branches: ["**"]
+  workflow_dispatch:
 
 jobs:
-  # ---- Bước 1: phát hiện service nào có code thay đổi ----
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -37,8 +34,13 @@ jobs:
             inventory: ['inventory/**']
             promotion: ['promotion/**']
             payment: ['payment/**']
+            search: ['search/**']
+            sampledata: ['sampledata/**']
+            storefront-bff: ['storefront-bff/**']
+            backoffice-bff: ['backoffice-bff/**']
+            storefront: ['storefront/**']
+            backoffice: ['backoffice/**']
 
-  # ---- Bước 2: build + push image cho từng service thay đổi ----
   build-and-push:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.services != '[]' }}
@@ -50,7 +52,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Detect build type (maven hay node)
+        id: type
+        run: |
+          if [ -f "${{ matrix.service }}/pom.xml" ]; then
+            echo "maven=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "maven=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set up JDK 25
+        if: steps.type.outputs.maven == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: "25"
@@ -58,6 +70,7 @@ jobs:
           cache: "maven"
 
       - name: Build jar with Maven (${{ matrix.service }})
+        if: steps.type.outputs.maven == 'true'
         run: mvn -B clean install -pl ${{ matrix.service }} -am -DskipTests
 
       - name: Determine image tags
