@@ -28,10 +28,9 @@ const sendRequest = async (
   }
 
   let url = endpoint;
-  if (url.startsWith('http://storefront/api')) {
-    url = url.replace('http://storefront/api', 'http://localhost:9000');
-  } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = `http://localhost:9000${url.startsWith('/') ? '' : '/'}${url}`;
+
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = `http://localhost${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   try {
