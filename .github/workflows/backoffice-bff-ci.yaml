@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
+      checks: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -39,7 +41,33 @@ jobs:
         uses: ./.github/workflows/actions
 
       - name: Run Unit Tests & Generate JaCoCo Report
-        run: mvn clean verify -f backoffice-bff
+        run: mvn clean verify -pl backoffice-bff -am -B
+
+      - name: Quality Gate - Check Coverage >= 70%
+        run: |
+          JACOCO_CSV=backoffice-bff/target/site/jacoco/jacoco.csv
+          if [ ! -f "$JACOCO_CSV" ]; then
+            echo "ERROR: jacoco.csv not found at $JACOCO_CSV"
+            exit 1
+          fi
+          COVERAGE=$(awk -F"," 'NR>1 { missed += $4; covered += $5 } END { if (missed+covered > 0) printf "%.2f", covered/(missed+covered)*100; else print "0" }' "$JACOCO_CSV")
+          echo "CURRENT COVERAGE: ${COVERAGE}%"
+          PASS=$(echo "$COVERAGE >= 70" | bc -l)
+          if [ "$PASS" -ne 1 ]; then
+            echo "FAILED: Coverage ${COVERAGE}% is below the required 70% threshold."
+            exit 1
+          fi
+          echo "PASSED: Coverage ${COVERAGE}% meets the required 70% threshold."
+
+      - name: Add Coverage Report to PR
+        uses: Madrapps/jacoco-report@v1.6.1
+        if: github.event_name == 'pull_request'
+        with:
+          paths: backoffice-bff/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          title: 'Backoffice BFF Coverage Report'
+          update-comment: true
 
       - name: Upload Test & Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -50,8 +78,93 @@ jobs:
             backoffice-bff/target/surefire-reports/*.xml
             backoffice-bff/target/site/jacoco/
 
+  # ------------------------------------------------------------------ #
+  # Job Security: SonarCloud                                            #
+  # ------------------------------------------------------------------ #
+  security:
+    needs: [detect-changes, test]
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java/Maven
+        uses: ./.github/workflows/actions
+
+      - name: Download Test & Coverage Artifacts (từ job test)
+        uses: actions/download-artifact@v4
+        with:
+          name: backoffice-bff-test-coverage-reports
+          path: backoffice-bff/target/site/jacoco/
+
+      - name: Compile & SonarCloud Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn clean compile sonar:sonar \
+            -pl backoffice-bff -am \
+            -DskipTests -DskipITs \
+            -Dsonar.projectKey=TrNhDuong_yas_devops \
+            -Dsonar.organization=trnhduong \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -B --no-transfer-progress
+
   build:
-    needs: test
+    needs: security
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ---------------------------------------------------------------- #
+      # SonarCloud: quét chất lượng code + bảo mật                      #
+      # ---------------------------------------------------------------- #
+      - name: Setup Java/Maven
+        uses: ./.github/workflows/actions
+
+      - name: Download Test & Coverage Artifacts (từ job test)
+        uses: actions/download-artifact@v4
+        with:
+          name: backoffice-bff-test-coverage-reports
+          path: backoffice-bff/target/site/jacoco/
+
+      - name: Compile & SonarCloud Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn clean compile sonar:sonar \
+            -pl backoffice-bff -am \
+            -DskipTests -DskipITs \
+            -Dsonar.projectKey=TrNhDuong_yas_devops \
+            -Dsonar.organization=trnhduong \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -B --no-transfer-progress
+
+
+  build:
+    needs: security
     if: needs.detect-changes.outputs.service == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -95,4 +208,3 @@ jobs:
       - name: Push Docker Image
         if: github.ref == 'refs/heads/main'
         run: docker push ghcr.io/${{ env.OWNER_LC }}/yas-backoffice-bff:latest
-

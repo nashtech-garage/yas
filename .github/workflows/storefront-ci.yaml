@@ -26,6 +26,10 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.service == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -38,7 +42,7 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         working-directory: storefront
 
       - name: Build
@@ -58,8 +62,94 @@ jobs:
         continue-on-error: true
         working-directory: storefront
 
+      - name: Run Unit Tests & Generate Coverage Report
+        run: npm run test:coverage -- --ci
+        working-directory: storefront
+
+      - name: Code Coverage Quality Gate (Console)
+        run: |
+          SUMMARY="storefront/coverage/coverage-summary.json"
+          if [ -f "$SUMMARY" ]; then
+            node -e "
+              const s = require('./$SUMMARY').total;
+              const overall = Math.min(s.lines.pct, s.functions.pct, s.branches.pct, s.statements.pct);
+              const pct = parseFloat(overall).toFixed(2);
+              process.stdout.write('===========================================\n');
+              process.stdout.write(' STOREFRONT SERVICE COVERAGE: ' + pct + '%\n');
+              process.stdout.write('===========================================\n');
+              if (overall < 70) {
+                process.stdout.write(' FAILED: Coverage below minimum 70%\n');
+                process.exit(1);
+              }
+            "
+          else
+            echo "::error::coverage-summary.json not found. Check Jest configuration!"
+            exit 1
+          fi
+
+      - name: Add Coverage Report to PR
+        if: github.event_name == 'pull_request'
+        uses: AthleticNet/comment-test-coverage@1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: storefront/coverage/coverage-summary.json
+          title: Storefront Service Coverage Report
+
+      - name: Upload Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storefront-coverage-report
+          path: storefront/coverage/
+
+  security:
+    needs:
+      - detect-changes
+      - test
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download Test & Coverage Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: storefront-coverage-report
+          path: storefront/coverage/
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: storefront
+          args: >
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.organization=trnhduong
+            -Dsonar.projectKey=TrNhDuong_yas_devops 
+            -Dsonar.sources=common,modules,pages,utils
+            -Dsonar.tests=common,modules,utils
+            -Dsonar.test.inclusions=**/*.test.ts,**/*.test.tsx
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.exclusions=coverage/**,node_modules/**,public/**,.next/**
+
   build:
-    needs: test
+    needs:
+      - detect-changes
+      - security
     if: needs.detect-changes.outputs.service == 'true'
     runs-on: ubuntu-latest
     permissions:

@@ -1,4 +1,4 @@
-﻿name: sampledata service ci
+name: sampledata service ci
 
 on:
   push:
@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
+      checks: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -39,7 +41,47 @@ jobs:
         uses: ./.github/workflows/actions
 
       - name: Run Unit Tests & Generate JaCoCo Report
-        run: mvn clean verify -pl sampledata -am
+        run: mvn clean verify -pl sampledata -am -B
+
+      - name: Quality Gate (Console)
+        run: |
+          awk -F"," 'NR>1 { missed += $4; covered += $5 } END {
+            if (missed+covered > 0) {
+              pct = covered/(missed+covered)*100
+              printf "CURRENT COVERAGE: %.2f%%\n", pct
+              if (pct < 70) { print "FAIL: Coverage below 70%"; exit 1 }
+              else { print "PASS: Coverage meets threshold" }
+            } else { print "ERROR: No coverage data found"; exit 1 }
+          }' sampledata/target/site/jacoco/jacoco.csv
+
+      - name: Add Coverage Report to PR
+        uses: Madrapps/jacoco-report@v1.6.1
+        if: github.event_name == 'pull_request'
+        with:
+          paths: sampledata/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          title: '## 🔬 sampledata - Coverage Report'
+
+      - name: Quality Gate (Console)
+        run: |
+          awk -F"," 'NR>1 { missed += $4; covered += $5 } END {
+            if (missed+covered > 0) {
+              pct = covered/(missed+covered)*100
+              printf "CURRENT COVERAGE: %.2f%%\n", pct
+              if (pct < 70) { print "FAIL: Coverage below 70%"; exit 1 }
+              else { print "PASS: Coverage meets threshold" }
+            } else { print "ERROR: No coverage data found"; exit 1 }
+          }' sampledata/target/site/jacoco/jacoco.csv
+
+      - name: Add Coverage Report to PR
+        uses: Madrapps/jacoco-report@v1.6.1
+        if: github.event_name == 'pull_request'
+        with:
+          paths: sampledata/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          title: '## 🔬 sampledata - Coverage Report'
 
       - name: Upload Test & Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -50,8 +92,50 @@ jobs:
             sampledata/target/surefire-reports/*.xml
             sampledata/target/site/jacoco/
 
+  # ------------------------------------------------------------------ #
+  # Job Security: SonarCloud                                            #
+  # ------------------------------------------------------------------ #
+  security:
+    needs: [detect-changes, test]
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java/Maven
+        uses: ./.github/workflows/actions
+
+      - name: Download Test & Coverage Artifacts (từ job test)
+        uses: actions/download-artifact@v4
+        with:
+          name: sampledata-test-coverage-reports
+          path: sampledata/target/site/jacoco/
+
+      - name: Compile & SonarCloud Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn clean compile sonar:sonar \
+            -pl sampledata -am \
+            -DskipTests -DskipITs \
+            -Dsonar.projectKey=TrNhDuong_yas_devops \
+            -Dsonar.organization=trnhduong \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -B --no-transfer-progress
+
   build:
-    needs: test
+    needs: security
     if: needs.detect-changes.outputs.service == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -95,4 +179,3 @@ jobs:
       - name: Push Docker Image
         if: github.ref == 'refs/heads/main'
         run: docker push ghcr.io/${{ env.OWNER_LC }}/yas-sampledata:latest
-

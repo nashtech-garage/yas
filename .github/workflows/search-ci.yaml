@@ -53,8 +53,8 @@ jobs:
               printf "===========================================\n"
               printf " SEARCH SERVICE COVERAGE: %.2f%%\n", coverage
               printf "===========================================\n"
-              if (coverage < 10) {
-                printf " FAILED: Coverage thấp hơn mức tối thiểu 10%%\n"
+              if (coverage < 70) {
+                printf " FAILED: Coverage thấp hơn mức tối thiểu 70%%\n"
                 exit 1
               }
             }' $REPORT_CSV
@@ -69,7 +69,7 @@ jobs:
         with:
           paths: search/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 10
+          min-coverage-overall: 70
           title: 'Báo cáo độ phủ - Search Service'
           update-comment: true
 
@@ -82,8 +82,50 @@ jobs:
             search/target/surefire-reports/*.xml
             search/target/site/jacoco/
 
+  # ------------------------------------------------------------------ #
+  # Job Security: SonarCloud                                            #
+  # ------------------------------------------------------------------ #
+  security:
+    needs: [detect-changes, test]
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java/Maven
+        uses: ./.github/workflows/actions
+
+      - name: Download Test & Coverage Artifacts (from job test)
+        uses: actions/download-artifact@v4
+        with:
+          name: search-test-coverage-reports
+          path: search/target/site/jacoco/
+
+      - name: Compile & SonarCloud Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn clean compile sonar:sonar \
+            -pl search -am \
+            -DskipTests -DskipITs \
+            -Dsonar.projectKey=TrNhDuong_yas_devops \
+            -Dsonar.organization=trnhduong \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -B --no-transfer-progress
+
   build:
-    needs: test
+    needs: [detect-changes, security]
     if: needs.detect-changes.outputs.service == 'true'
     runs-on: ubuntu-latest
     permissions:
