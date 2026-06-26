@@ -66,7 +66,7 @@ jobs:
           paths: backoffice-bff/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
-          title: 'Backoffice BFF Coverage Report'
+          title: "Backoffice BFF Coverage Report"
           update-comment: true
 
       - name: Upload Test & Coverage Artifacts
@@ -78,9 +78,6 @@ jobs:
             backoffice-bff/target/surefire-reports/*.xml
             backoffice-bff/target/site/jacoco/
 
-  # ------------------------------------------------------------------ #
-  # Job Security: SonarCloud                                            #
-  # ------------------------------------------------------------------ #
   security:
     needs: [detect-changes, test]
     if: needs.detect-changes.outputs.service == 'true'
@@ -98,7 +95,7 @@ jobs:
       - name: Setup Java/Maven
         uses: ./.github/workflows/actions
 
-      - name: Download Test & Coverage Artifacts (từ job test)
+      - name: Download Test & Coverage Artifacts
         uses: actions/download-artifact@v4
         with:
           name: backoffice-bff-test-coverage-reports
@@ -121,55 +118,11 @@ jobs:
             -B --no-transfer-progress
 
   build:
-    needs: security
+    needs: [detect-changes, security]
     if: needs.detect-changes.outputs.service == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
-      security-events: write
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # ---------------------------------------------------------------- #
-      # SonarCloud: quét chất lượng code + bảo mật                      #
-      # ---------------------------------------------------------------- #
-      - name: Setup Java/Maven
-        uses: ./.github/workflows/actions
-
-      - name: Download Test & Coverage Artifacts (từ job test)
-        uses: actions/download-artifact@v4
-        with:
-          name: backoffice-bff-test-coverage-reports
-          path: backoffice-bff/target/site/jacoco/
-
-      - name: Compile & SonarCloud Scan
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn clean compile sonar:sonar \
-            -pl backoffice-bff -am \
-            -DskipTests -DskipITs \
-            -Dsonar.projectKey=TrNhDuong_yas_devops \
-            -Dsonar.organization=trnhduong \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=$SONAR_TOKEN \
-            -Dsonar.java.binaries=target/classes \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-            -B --no-transfer-progress
-
-
-  build:
-    needs: security
-    if: needs.detect-changes.outputs.service == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -178,33 +131,12 @@ jobs:
         uses: ./.github/workflows/actions
 
       - name: Build Package (Skip Tests)
-        run: mvn clean package -f backoffice-bff -DskipTests
+        run: mvn clean package -pl backoffice-bff -am -DskipTests
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Lowercase Repository Owner
-        run: |
-          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
-        env:
-          OWNER: '${{ github.repository_owner }}'
-
-      - name: Build Docker Image
-        uses: docker/build-push-action@v6
+      - name: Build and push Docker image to Docker Hub
+        uses: ./.github/workflows/actions/docker-build-push
         with:
           context: ./backoffice-bff
-          load: true
-          push: false
-          tags: ghcr.io/${{ env.OWNER_LC }}/yas-backoffice-bff:latest
-
-      - name: Log in to GHCR
-        if: github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push Docker Image
-        if: github.ref == 'refs/heads/main'
-        run: docker push ghcr.io/${{ env.OWNER_LC }}/yas-backoffice-bff:latest
+          image-name: yas-backoffice-bff
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}

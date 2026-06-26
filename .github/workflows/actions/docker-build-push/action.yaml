@@ -1,0 +1,76 @@
+name: Docker build and push
+description: Build Docker image and push to Docker Hub with commit SHA tag
+
+inputs:
+  context:
+    description: Docker build context
+    required: true
+  image-name:
+    description: Docker image name, for example yas-tax
+    required: true
+  dockerhub-username:
+    description: Docker Hub username
+    required: true
+  dockerhub-token:
+    description: Docker Hub access token
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Prepare Docker tags
+      id: docker_tags
+      shell: bash
+      env:
+        DOCKERHUB_USERNAME: ${{ inputs.dockerhub-username }}
+        IMAGE_NAME: ${{ inputs.image-name }}
+        COMMIT_SHA: ${{ github.sha }}
+        BRANCH_NAME: ${{ github.ref_name }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "$DOCKERHUB_USERNAME" ]; then
+          echo "DOCKERHUB_USERNAME is empty. Please set GitHub variable DOCKERHUB_USERNAME."
+          exit 1
+        fi
+
+        IMAGE="docker.io/${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
+
+        {
+          echo "tags<<EOF"
+          echo "${IMAGE}:${COMMIT_SHA}"
+
+          if [ "$BRANCH_NAME" = "main" ]; then
+            echo "${IMAGE}:main"
+            echo "${IMAGE}:latest"
+          fi
+
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+
+        echo "Generated tags:"
+        echo "${IMAGE}:${COMMIT_SHA}"
+
+        if [ "$BRANCH_NAME" = "main" ]; then
+          echo "${IMAGE}:main"
+          echo "${IMAGE}:latest"
+        fi
+
+    - name: Login to Docker Hub
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: docker/login-action@v3
+      with:
+        username: ${{ inputs.dockerhub-username }}
+        password: ${{ inputs.dockerhub-token }}
+
+    - name: Build and optionally push image
+      uses: docker/build-push-action@v6
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.context }}/Dockerfile
+        push: ${{ github.event_name != 'pull_request' }}
+        load: ${{ github.event_name == 'pull_request' }}
+        tags: ${{ steps.docker_tags.outputs.tags }}
