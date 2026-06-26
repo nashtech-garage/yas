@@ -3,10 +3,8 @@ interface RequestOptions {
   headers: {
     [key: string]: string;
   };
-  body?: string | FormData;
+  body?: string;
 }
-
-const API_BASE = 'http://api.yas.local.com';
 
 const sendRequest = async (
   method: string,
@@ -15,7 +13,6 @@ const sendRequest = async (
   contentType: string | null = null
 ) => {
   const defaultContentType = 'application/json; charset=UTF-8';
-
   const requestOptions: RequestOptions = {
     method: method.toUpperCase(),
     headers: {
@@ -30,21 +27,11 @@ const sendRequest = async (
     requestOptions.body = data;
   }
 
-  let url = endpoint;
-
-  // giữ logic cũ nếu vẫn còn gọi storefront/api
-  if (url.startsWith('http://storefront/api')) {
-    url = url.replace('http://storefront/api', API_BASE);
-  }
-  // nếu là relative URL thì luôn ép về API_BASE
-  else if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
-  }
-
   try {
-    const response = await fetch(url, method === 'GET' ? undefined : requestOptions);
+    const response = await fetch(endpoint, method === 'GET' ? undefined : requestOptions);
 
-    if (response.type === 'cors' && response.redirected) {
+    // Workaround to manually redirect in case of CORS error
+    if (response.type == 'cors' && response.redirected) {
       window.location.href = response.url;
     }
 

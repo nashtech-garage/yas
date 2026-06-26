@@ -17,7 +17,7 @@ COPY . .
 ENV NODE_OPTIONS="--max-old-space-size=3072"
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Verify next.config.js exists and contains correct config before building
+# Verify next.config.js exists and contains correct config before buildinggg
 RUN ls -la next.config.js && cat next.config.js
 
 RUN npm run build && ls -la .next && ls -la .next/standalone
