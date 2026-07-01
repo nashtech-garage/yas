@@ -86,11 +86,26 @@ pipeline {
                             returnStatus: true
                         )
                         if (exitCode != 0) {
-                            echo "WARNING: SonarQube unavailable or analysis failed (exit ${exitCode}) — skipping Quality Gate."
+                            echo "WARNING: SonarQube unavailable or analysis failed (exit ${exitCode}) — Quality Gate will be skipped."
                             currentBuild.result = 'UNSTABLE'
-                            return
+                            env.SONAR_SKIPPED = 'true'
                         }
-                        // Sonar analysis succeeded — check quality gate within same context
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            when {
+                allOf {
+                    expression { env.DOCS_ONLY == 'false' }
+                    expression { env.SONAR_SKIPPED != 'true' }
+                }
+            }
+            steps {
+                script {
+                    // waitForQualityGate requires SonarQube context to read task ID
+                    withSonarQubeEnv('SonarQube') {
                         try {
                             timeout(time: 5, unit: 'MINUTES') {
                                 waitForQualityGate abortPipeline: false
