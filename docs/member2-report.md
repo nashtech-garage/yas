@@ -419,12 +419,21 @@ COMMIT_ID=$(git rev-parse --short HEAD)
 GITOPS_REPO="https://${GH_TOKEN}@github.com/com-suon-bi-cha/gitops-manifest-k8s.git"
 WORKDIR="/tmp/gitops-update-$$"
 
-# Detect which services changed (compare vs main merge-base)
-MERGE_BASE=$(git merge-base origin/main HEAD)
-CHANGED_FILES=$(git diff --name-only "${MERGE_BASE}" HEAD)
+# Detect which services changed:
+# - On main branch: compare HEAD vs HEAD~1 (merge-base == HEAD → diff rỗng)
+# - On feature branch: compare vs merge-base with origin/main
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "${CURRENT_BRANCH}" = "main" ]; then
+    CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+else
+    MERGE_BASE=$(git merge-base origin/main HEAD)
+    CHANGED_FILES=$(git diff --name-only "${MERGE_BASE}" HEAD)
+fi
 
 echo "=== Updating environment: ${ENV} ==="
 echo "Commit: ${COMMIT_ID}"
+echo "Branch: ${CURRENT_BRANCH}"
+echo "Changed files: ${CHANGED_FILES}"
 
 git clone "${GITOPS_REPO}" "${WORKDIR}"
 cd "${WORKDIR}/environments/${ENV}"
@@ -932,6 +941,7 @@ git push origin v1.0.0
 | `get contextual object from internal APIs` ở `Quality Gate` stage | `waitForQualityGate` cần SonarQube task context lưu trong thread-local của `withSonarQubeEnv` — tách ra stage riêng thì mất context | Wrap `waitForQualityGate` trong `withSonarQubeEnv` ở cả stage `Quality Gate` |
 | `get contextual object from internal APIs` ở `Update GitOps — Staging` | `sh()` được gọi bên trong `when { expression {} }` — Jenkins evaluate `when` trước khi allocate agent node, nên chưa có shell context | Chuyển `sh 'git tag --points-at HEAD'` vào stage `Check Skip` (đã có node context), lưu kết quả vào env var `GIT_TAG_MATCH`, `when` chỉ check env var thuần |
 | `Update GitOps — Dev` skip nhưng báo context error | `(env.GIT_BRANCH).replace()` trong `when{}` không ổn định trên Multibranch Pipeline | Dùng `env.BRANCH_NAME` (set bởi Multibranch plugin) thay vì `GIT_BRANCH`, set vào env var `BRANCH_IS_MAIN` từ `Check Skip` stage |
+| `update-gitops-manifest.sh` log "No service manifests to update" khi chạy trên branch `main` | Script dùng `git merge-base origin/main HEAD` — khi đang ở branch `main`, merge-base chính là `HEAD` nên diff trả về rỗng | Khi `CURRENT_BRANCH=main` thì dùng `git diff HEAD~1 HEAD` thay vì merge-base |
 
 ---
 
