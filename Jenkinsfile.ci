@@ -194,7 +194,6 @@ pipeline {
                 )]) {
                     script {
                         def commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        def branch = (env.GIT_BRANCH ?: '').replace('origin/', '')
                         def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
                         def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
 
@@ -213,7 +212,7 @@ pipeline {
                                 sh "docker build -t bingsu1103/${service}:${commitId} ./${service}/"
                                 sh "docker push bingsu1103/${service}:${commitId}"
 
-                                if (branch == 'main') {
+                                if (env.BRANCH_IS_MAIN == 'true') {
                                     sh "docker tag bingsu1103/${service}:${commitId} bingsu1103/${service}:latest"
                                     sh "docker push bingsu1103/${service}:latest"
                                 }

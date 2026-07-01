@@ -37,7 +37,7 @@ for env_var in "${!SERVICE_MAP[@]}"; do
     svc="${SERVICE_MAP[$env_var]}"
     tag="${!env_var:-latest}"
     echo "  ${svc} → ${tag}"
-    kustomize edit set image "bingsu1103/${svc}=bingsu1103/${svc}:${tag}"
+    kustomize edit set image "bingsu1103/${svc}:${tag}"
 done
 
 echo "=== Applying to namespace developer-build ==="
