@@ -1,0 +1,45 @@
+pipeline {
+    agent { label 'gcp-k8s-agent' }
+
+    stages {
+        stage('Cleanup developer-build') {
+            steps {
+                withCredentials([file(credentialsId: 'gcp-kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    echo "Cleaning up namespace: developer-build"
+
+                    # Xóa workloads — giữ namespace + secrets
+                    kubectl delete deployments --all -n developer-build \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
+
+                    kubectl delete services --all -n developer-build \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
+
+                    kubectl delete configmaps --all -n developer-build \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
+
+                    kubectl delete replicasets --all -n developer-build \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
+
+                    kubectl delete pods --all -n developer-build \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
+
+                    echo ""
+                    echo "Verify cleanup:"
+                    kubectl get all -n developer-build --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify
+                    echo "developer-build namespace cleared (namespace preserved)"
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Cleanup completed"
+        }
+        failure {
+            echo "Cleanup failed"
+        }
+    }
+}
