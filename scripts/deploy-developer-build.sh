@@ -42,7 +42,8 @@ done
 
 echo "=== Applying to namespace developer-build ==="
 # Apply trực tiếp (bypass ArgoCD — faster for developer use)
-kubectl apply -k . --namespace developer-build --kubeconfig="${KUBECONFIG}" --insecure-skip-tls-verify
+# --validate=false: bỏ qua lỗi ExternalName service bị patch thành NodePort (identity-service)
+kubectl apply -k . --namespace developer-build --kubeconfig="${KUBECONFIG}" --insecure-skip-tls-verify --validate=false
 
 echo "=== Waiting for pods to be ready ==="
 kubectl rollout status deployment --all -n developer-build \
