@@ -51,7 +51,7 @@ UPDATED=0
 for svc in $SERVICES; do
     if echo "${CHANGED_FILES}" | grep -q "^${svc}/"; then
         echo "Updating ${svc} → ${COMMIT_ID}"
-        kustomize edit set image "bingsu1103/${svc}=bingsu1103/${svc}:${COMMIT_ID}"
+        kustomize edit set image "bingsu1103/${svc}:${COMMIT_ID}"
         UPDATED=$((UPDATED + 1))
     fi
 done
