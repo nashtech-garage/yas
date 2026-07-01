@@ -794,14 +794,30 @@ git push origin feature/test-tax
 **Thực hiện:**
 
 ```bash
-# Tạo PR trên GitHub: feat/tv2-cicd-pipelines → main
-# Merge PR
-# Jenkins CI tự trigger trên branch main
+# Merge PR #39 (test/gitops-dev-trigger → main)
+gh pr merge 39 --merge --admin
+# Jenkins CI tự trigger trên branch main (build #3)
 ```
 
-**Kết quả mong đợi:**
-- Image `bingsu1103/<service>:latest` và `bingsu1103/<service>:<commit-id>` được push
-- Repo `gitops-manifest-k8s` có commit mới: `ci(dev): update X service(s) to <commit-id>`
+**Console output (kết quả thực tế):**
+
+```
+Branch: main — BRANCH_IS_MAIN=true
+Git tag at HEAD: '' — GIT_TAG_MATCH=false
+
+=== Updating environment: dev ===
+Mode: main/post-merge — diffing HEAD~1..HEAD
+Changed files: tax/src/main/java/com/yas/tax/viewmodel/taxclass/TaxClassVm.java
+Updating tax → 90b90e58
+[main e50bbb3] ci(dev): update 1 service(s) to 90b90e58
+=== GitOps manifest updated ===
+Pipeline Succeeded
+Finished: SUCCESS
+```
+
+**Kết quả:**
+- Image `bingsu1103/tax:90b90e58` + `bingsu1103/tax:latest` được push lên Docker Hub
+- Repo `gitops-manifest-k8s` có commit mới: `ci(dev): update 1 service(s) to 90b90e58`
 - ArgoCD app `yas-dev` detect change → sync → pods rolling update trong namespace `dev`
 
 ![gitops-manifest-k8s — commit history — commit từ Jenkins CI](images/member2-report/12-gitops-commit-history-dev.png)
@@ -904,20 +920,52 @@ Finished: SUCCESS
 
 ### 9.5 Test Case 5: Staging deploy với git tag v*
 
-**Mục tiêu:** Push git tag `v1.0.0` → Jenkins detect → build image tag `v1.0.0` → gitops `environments/staging/` updated → ArgoCD yas-staging sync → pods trong namespace `staging`.
+**Mục tiêu:** Push git tag `v1.0.0` → Jenkins detect → build image → gitops `environments/staging/` updated → ArgoCD yas-staging sync → pods trong namespace `staging`.
 
 **Thực hiện:**
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
+# Jenkins Multibranch tự detect tag (TagDiscoveryTrait)
+# Build job v1.0.0 tự trigger
 ```
 
-**Kết quả mong đợi:**
-- Jenkins CI phát hiện HEAD có tag `v1.0.0`
-- Build và push `bingsu1103/<service>:v1.0.0`
-- `update-gitops-manifest.sh staging` chạy → gitops repo commit: `ci(staging): update X service(s) to <commit-id>`
+**Console output (kết quả thực tế):**
+
+```
+Git tag at HEAD: 'v1.0.0' — GIT_TAG_MATCH=true
+
+Stage "Update GitOps — Dev" skipped due to when conditional
+
+=== Updating environment: staging ===
+Mode: main/post-merge — diffing HEAD~1..HEAD
+Changed files: tax/src/main/java/com/yas/tax/viewmodel/taxclass/TaxClassVm.java
+Updating tax → 90b90e58
+[main e6d76a7] ci(staging): update 1 service(s) to 90b90e58
+=== GitOps manifest updated ===
+Pipeline Succeeded
+Finished: SUCCESS
+```
+
+**Kết quả:**
+- Jenkins Multibranch tự detect tag `v1.0.0` qua Discover Tags behaviour
+- `Update GitOps — Dev` bị skip đúng (chỉ chạy trên `main` branch)
+- `Update GitOps — Staging` chạy → gitops repo commit: `ci(staging): update 1 service(s) to 90b90e58`
+- Repo `gitops-manifest-k8s` xác nhận commit `e6d76a7` tại `2026-07-01T13:08:04Z`
 - ArgoCD app `yas-staging` sync → pods update trong namespace `staging`
+
+**Cấu hình Jenkins thêm cho tag support:**
+
+```
+YAS-Microservices-Pipeline → Configure
+→ Branch Sources → GitHub → Behaviours → Add
+→ "Discover tags"
+→ Property strategy: "Named exceptions"
+  - Default: Suppress automatic SCM triggering  (branches không auto-trigger)
+  - Exception: Tag → (empty, không suppress)    (tags tự trigger)
+→ Save
+```
 
 ![Docker Hub bingsu1103/tax/tags — thấy tag v1.0.0](images/member2-report/20-dockerhub-tax-tag-v1.0.0.png)
 

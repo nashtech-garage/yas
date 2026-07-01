@@ -36,6 +36,7 @@ pipeline {
                     // Resolve git tag at HEAD (safe: inside node/steps context)
                     def gitTag = sh(script: 'git tag --points-at HEAD 2>/dev/null || true', returnStdout: true).trim()
                     env.GIT_TAG_MATCH = (gitTag ==~ /v\d+\.\d+\.\d+.*/) ? 'true' : 'false'
+                    env.GIT_TAG_NAME  = gitTag
                     echo "Git tag at HEAD: '${gitTag}' — GIT_TAG_MATCH=${env.GIT_TAG_MATCH}"
                 }
             }
@@ -193,7 +194,6 @@ pipeline {
                 )]) {
                     script {
                         def commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        def branch = (env.GIT_BRANCH ?: '').replace('origin/', '')
                         def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
                         def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
 
@@ -212,10 +212,16 @@ pipeline {
                                 sh "docker build -t bingsu1103/${service}:${commitId} ./${service}/"
                                 sh "docker push bingsu1103/${service}:${commitId}"
 
-                                if (branch == 'main') {
+                                if (env.BRANCH_IS_MAIN == 'true') {
                                     sh "docker tag bingsu1103/${service}:${commitId} bingsu1103/${service}:latest"
                                     sh "docker push bingsu1103/${service}:latest"
                                 }
+
+                                if (env.GIT_TAG_MATCH == 'true') {
+                                    sh "docker tag bingsu1103/${service}:${commitId} bingsu1103/${service}:${env.GIT_TAG_NAME}"
+                                    sh "docker push bingsu1103/${service}:${env.GIT_TAG_NAME}"
+                                }
+
                                 echo "${service}:${commitId} pushed to Docker Hub"
                             } else {
                                 echo "${service}: no changes, skip build"
@@ -249,7 +255,7 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-pat', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
-                    sh 'bash scripts/update-gitops-manifest.sh staging'
+                    sh "bash scripts/update-gitops-manifest.sh staging '${env.GIT_TAG_NAME}'"
                 }
             }
         }
