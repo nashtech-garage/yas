@@ -7,5 +7,7 @@ helm repo update
 
 helm dependency build ../charts/yas-configuration
 helm upgrade --install yas-configuration ../charts/yas-configuration \
---namespace yas --create-namespace
+--namespace yas-dev --create-namespace
 
+helm upgrade --install yas-configuration ../charts/yas-configuration \
+--namespace yas-staging --create-namespace
