@@ -21,7 +21,7 @@ pipeline {
                     def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
                     def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
-                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' } ? 'true' : 'false'
+                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci' } ? 'true' : 'false'
                     if (env.DOCS_ONLY == 'true') {
                         echo "Only documentation/CI files changed — skipping CI stages."
                     } else {
@@ -203,13 +203,22 @@ pipeline {
                             'media', 'product', 'order', 'inventory', 'payment', 'promotion',
                             'rating', 'delivery', 'sampledata', 'recommendation', 'customer',
                             'location', 'cart', 'tax', 'search', 'webhook',
-                            'backoffice-bff', 'storefront-bff', 'payment-paypal'
+                            'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront',
+                            'swagger-ui', 'payment-paypal'
+                        ]
+                        def servicePaths = [
+                            'swagger-ui': 'k8s/charts/swagger-ui'
                         ]
 
                         for (service in services) {
-                            if (changedFiles.any { it.startsWith("${service}/") }) {
+                            def servicePath = servicePaths.get(service, service)
+                            if (changedFiles.any { it.startsWith("${servicePath}/") }) {
+                                if (!fileExists("${servicePath}/Dockerfile")) {
+                                    echo "${service}: no Dockerfile at ${servicePath}; skip Docker build"
+                                    continue
+                                }
                                 echo "Building Docker image for: ${service}"
-                                sh "docker build -t bingsu1103/${service}:${commitId} ./${service}/"
+                                sh "docker build -t bingsu1103/${service}:${commitId} ./${servicePath}/"
                                 sh "docker push bingsu1103/${service}:${commitId}"
 
                                 if (env.BRANCH_IS_MAIN == 'true') {
