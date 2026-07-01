@@ -16,9 +16,7 @@ storefrontRedirectUrls:
   - http://storefront.tthong.dev
 postgresql:
   username: yasadminuser
-  password: admin
   host: postgresql.postgres.svc.cluster.local
 
 bootstrapAdmin:
   username: admin
-  password: admin

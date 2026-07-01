@@ -1,18 +1,6 @@
-credentials:
-  postgresql:
-    username: yasadminuser
-    password: admin
-  elasticsearch:
-    username: elastic
-    password: changeme
-  keycloak:
-    backofficeBffClientSecret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
-    storefrontBffClientSecret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
-    customerManagementClientSecret: NKAr3rnjwm9jlakgKpelukZGFaHYqIWE
-  redis:
-    password: redis
-  openai:
-    apiKey: update-me
+# Credentials are now managed via SealedSecrets in k8s/sealed-secrets/
+# This file only contains non-secret configuration.
+# DO NOT add passwords here.
 
 #Genneral application.yaml for all microservice
 applicationConfig:

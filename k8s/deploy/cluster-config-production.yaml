@@ -20,7 +20,6 @@ envSubdomain:
 postgresql:
   replicas: 1
   username: yasadminuser
-  password: admin
   volumeSize: 50Gi
 
 kafka:
@@ -32,18 +31,10 @@ zookeeper:
 elasticsearch:
   replicas: 1
   username: yas
-  password: LarUmB3A49NTg9YmgW4=
-
-# Credentials for yas-configuration Helm chart (ArgoCD reads this)
-credentials:
-  elasticsearch:
-    username: yas
-    password: LarUmB3A49NTg9YmgW4=
 
 keycloak:
   bootstrapAdmin:
     username: admin
-    password: admin
   backofficeRedirectUrls:
     - http://backoffice.tthong.dev
     - http://backoffice.yas.local.com
@@ -52,7 +43,7 @@ keycloak:
     - http://storefront.yas.local.com
 
 redis:
-  password: redis
+  # password is managed by SealedSecret
 
 # Grafana and Prometheus are NOT deployed (project does not use them).
 # Observability stack: Loki + Tempo + Promtail + OpenTelemetry Collector only.

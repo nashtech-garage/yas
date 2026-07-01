@@ -79,4 +79,6 @@ spec:
       # syncPolicy: {} means ArgoCD will NEVER auto-deploy.
       # The Application shows "OutOfSync" in the Web UI.
       # A human must explicitly click "Sync" to deploy to production.
-      syncPolicy: {}
+      syncPolicy: 
+        syncOptions:
+          - CreateNamespace=true

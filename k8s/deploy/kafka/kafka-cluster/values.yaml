@@ -2,7 +2,6 @@ kafka:
   replicas: 1
 postgresql:
   username: yasadminuser
-  password: admin
   namespace: postgres
 debeziumConnect:
   image: ghcr.io/nashtech-garage/debezium-connect-postgresql:latest

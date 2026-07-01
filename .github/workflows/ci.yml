@@ -22,6 +22,7 @@ jobs:
       root: ${{ steps.filter-root.outputs.root }}
       services: ${{ steps.filter-services.outputs.changes }}
       frontend: ${{ steps.filter-frontend.outputs.changes }}
+      k8s: ${{ steps.filter-root.outputs.k8s }}
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -35,6 +36,8 @@ jobs:
               - '*'
               - '.*'
               - '.github/workflows/**'
+            k8s:
+              - 'k8s/**'
 
       - name: Filter Frontend Changes
         id: filter-frontend
@@ -129,6 +132,21 @@ jobs:
         with:
           source_path: root_files
 
+  # Scan k8s/ directory for plain-text secrets
+  gitleaks-scan-k8s:
+    needs: filter-changes
+    name: Gitleaks Scan k8s/
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Run Gitleaks on k8s/
+        if: ${{ needs.filter-changes.outputs.k8s == 'true' }}
+        uses: ./.github/workflows/actions/gitleaks-scan
+        with:
+          source_path: k8s
+
   # Run CI with dynamic matrix for changed backend services
   services-ci:
     needs: filter-changes
@@ -170,7 +188,7 @@ jobs:
     name: CI Gate Passed
     runs-on: ubuntu-latest
     if: always()
-    needs: [filter-changes, gitleaks-scan-root, services-ci, services-ci-node]
+    needs: [filter-changes, gitleaks-scan-root, gitleaks-scan-k8s, services-ci, services-ci-node]
     steps:
       - name: Check Status of All Triggered Services
         run: |

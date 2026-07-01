@@ -1,5 +1,4 @@
 username: yasadminuser
-password: admin
 replicas: 1
 postgresqlVersion: "15"
 volumeSize: "10Gi"

@@ -62,6 +62,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 helm repo add jetstack https://charts.jetstack.io
+helm repo add sealed-secrets https://bitnami.github.io/sealed-secrets
 helm repo update
 
 # --------------------------------------------------------------------------
@@ -148,6 +149,31 @@ kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=cert-manage
 # --------------------------------------------------------------------------
 helm upgrade --install opentelemetry-operator open-telemetry/opentelemetry-operator \
   --create-namespace --namespace observability
+
+# --------------------------------------------------------------------------
+# Sealed Secrets Operator
+# --------------------------------------------------------------------------
+kubectl create namespace kube-system --dry-run=client -o yaml | kubectl apply -f -
+helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+  --namespace kube-system \
+  --set keyRenewPeriod=0
+
+# Wait for Sealed Secrets controller to be ready
+echo "Waiting for Sealed Secrets deployment to be ready..."
+kubectl rollout status deployment/sealed-secrets -n kube-system --timeout=150s || sleep 30
+
+# Install kubeseal CLI locally on the master node if not already present
+if ! command -v kubeseal &> /dev/null; then
+  echo "Installing kubeseal CLI..."
+  KUBESEAL_VERSION="0.26.2"
+  curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz"
+  tar -xzf "kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz" kubeseal
+  sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+  rm -f "kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz" kubeseal
+  echo "kubeseal CLI installed successfully."
+else
+  echo "kubeseal CLI is already installed."
+fi
 
 # ============================================================================
 # INSTANCES — Per-environment isolated resources

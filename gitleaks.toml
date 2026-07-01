@@ -20,7 +20,12 @@ paths = [
   '''test-realm.json''',
   '''realm-export''',
   '''keycloak-yas-realm-import.yaml''',
-  '''target'''
+  '''target''',
+  '''sealed-secrets-public.key''',
+  '''k8s/sealed-secrets/.*\.yaml''',
+  '''k8s/deploy/SECRET_MNG.md''',
+  '''k8s/setup_server/setup-argocd-users.sh''',
+  '''k8s/deploy/deploy-yas-configuration.sh'''
 ]
 [[rules]]
     description = "Detect .env"
