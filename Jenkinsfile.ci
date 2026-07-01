@@ -86,31 +86,19 @@ pipeline {
                             returnStatus: true
                         )
                         if (exitCode != 0) {
-                            echo "WARNING: SonarQube unavailable or analysis failed (exit ${exitCode}) — marking UNSTABLE and continuing."
+                            echo "WARNING: SonarQube unavailable or analysis failed (exit ${exitCode}) — skipping Quality Gate."
                             currentBuild.result = 'UNSTABLE'
-                            env.SONAR_SKIPPED = 'true'
+                            return
                         }
-                    }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            when {
-                allOf {
-                    expression { env.DOCS_ONLY == 'false' }
-                    expression { env.SONAR_SKIPPED != 'true' }
-                }
-            }
-            steps {
-                script {
-                    try {
-                        timeout(time: 5, unit: 'MINUTES') {
-                            waitForQualityGate abortPipeline: false
+                        // Sonar analysis succeeded — check quality gate within same context
+                        try {
+                            timeout(time: 5, unit: 'MINUTES') {
+                                waitForQualityGate abortPipeline: false
+                            }
+                        } catch (Exception e) {
+                            echo "WARNING: Quality Gate check failed — ${e.message}"
+                            currentBuild.result = 'UNSTABLE'
                         }
-                    } catch (Exception e) {
-                        echo "WARNING: Quality Gate check failed — marking UNSTABLE. Error: ${e.message}"
-                        currentBuild.result = 'UNSTABLE'
                     }
                 }
             }
