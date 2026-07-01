@@ -204,13 +204,21 @@ pipeline {
                             'rating', 'delivery', 'sampledata', 'recommendation', 'customer',
                             'location', 'cart', 'tax', 'search', 'webhook',
                             'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront',
-                            'payment-paypal'
+                            'swagger-ui', 'payment-paypal'
+                        ]
+                        def servicePaths = [
+                            'swagger-ui': 'k8s/charts/swagger-ui'
                         ]
 
                         for (service in services) {
-                            if (changedFiles.any { it.startsWith("${service}/") }) {
+                            def servicePath = servicePaths.get(service, service)
+                            if (changedFiles.any { it.startsWith("${servicePath}/") }) {
+                                if (!fileExists("${servicePath}/Dockerfile")) {
+                                    echo "${service}: no Dockerfile at ${servicePath}; skip Docker build"
+                                    continue
+                                }
                                 echo "Building Docker image for: ${service}"
-                                sh "docker build -t bingsu1103/${service}:${commitId} ./${service}/"
+                                sh "docker build -t bingsu1103/${service}:${commitId} ./${servicePath}/"
                                 sh "docker push bingsu1103/${service}:${commitId}"
 
                                 if (branch == 'main') {
