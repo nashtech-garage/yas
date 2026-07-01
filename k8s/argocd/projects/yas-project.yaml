@@ -44,16 +44,34 @@ spec:
   # Each environment has its own namespace for full isolation.
   # --------------------------------------------------------------------------
   destinations:
-    # Dev environment — auto-deployed from main branch
+    # Application namespaces
     - namespace: dev
       server: https://kubernetes.default.svc
-
-    # Staging environment — auto-deployed from git tags
     - namespace: staging
       server: https://kubernetes.default.svc
-
-    # Production environment — MANUALLY synced (requires human in ArgoCD UI)
     - namespace: production
+      server: https://kubernetes.default.svc
+
+    # Infrastructure namespaces (required for SealedSecrets and operators)
+    - namespace: "postgres-*"
+      server: https://kubernetes.default.svc
+    - namespace: "kafka-*"
+      server: https://kubernetes.default.svc
+    - namespace: "elasticsearch-*"
+      server: https://kubernetes.default.svc
+    - namespace: "keycloak-*"
+      server: https://kubernetes.default.svc
+    - namespace: "redis-*"
+      server: https://kubernetes.default.svc
+    - namespace: "observability-*"
+      server: https://kubernetes.default.svc
+    - namespace: "zookeeper-*"
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+    - namespace: cert-manager
+      server: https://kubernetes.default.svc
+    - namespace: kube-system
       server: https://kubernetes.default.svc
 
   # --------------------------------------------------------------------------
