@@ -6,20 +6,38 @@ COMMIT_ID=$(git rev-parse --short HEAD)
 GITOPS_REPO="https://${GH_TOKEN}@github.com/com-suon-bi-cha/gitops-manifest-k8s.git"
 WORKDIR="/tmp/gitops-update-$$"
 
-# Detect which services changed:
-# - On main branch: compare HEAD vs HEAD~1 (already merged, so merge-base == HEAD)
-# - On feature branch: compare vs merge-base with origin/main
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "${CURRENT_BRANCH}" = "main" ]; then
-    CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
-else
-    MERGE_BASE=$(git merge-base origin/main HEAD)
-    CHANGED_FILES=$(git diff --name-only "${MERGE_BASE}" HEAD)
-fi
+# Detect which services changed.
+#
+# Strategy:
+#   1. Find merge-base between origin/main and HEAD.
+#   2. If merge-base == HEAD (detached-HEAD after merge, or HEAD is an ancestor
+#      of origin/main), the standard diff would be empty.
+#      In that case fall back to HEAD~1..HEAD — but only if the repo has at
+#      least 2 commits (guards against shallow clones / initial commit).
+#   3. Otherwise use the merge-base diff (feature-branch case).
+#
+MERGE_BASE=$(git merge-base origin/main HEAD 2>/dev/null || true)
+HEAD_SHA=$(git rev-parse HEAD)
 
 echo "=== Updating environment: ${ENV} ==="
-echo "Commit: ${COMMIT_ID}"
-echo "Branch: ${CURRENT_BRANCH}"
+echo "Commit:     ${COMMIT_ID}"
+echo "HEAD:       ${HEAD_SHA}"
+echo "Merge-base: ${MERGE_BASE}"
+
+if [ "${MERGE_BASE}" = "${HEAD_SHA}" ]; then
+    # HEAD is already on (or an ancestor of) origin/main — diff vs previous commit
+    PARENT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo 0)
+    if [ "${PARENT_COUNT}" -lt 2 ]; then
+        echo "WARNING: repo has only 1 commit, cannot diff HEAD~1. No services to update."
+        exit 0
+    fi
+    CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+    echo "Mode: main/post-merge — diffing HEAD~1..HEAD"
+else
+    CHANGED_FILES=$(git diff --name-only "${MERGE_BASE}" HEAD)
+    echo "Mode: feature branch — diffing merge-base..HEAD"
+fi
+
 echo "Changed files: ${CHANGED_FILES}"
 
 git clone "${GITOPS_REPO}" "${WORKDIR}"
