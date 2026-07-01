@@ -203,7 +203,8 @@ pipeline {
                             'media', 'product', 'order', 'inventory', 'payment', 'promotion',
                             'rating', 'delivery', 'sampledata', 'recommendation', 'customer',
                             'location', 'cart', 'tax', 'search', 'webhook',
-                            'backoffice-bff', 'storefront-bff', 'payment-paypal'
+                            'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront',
+                            'payment-paypal'
                         ]
 
                         for (service in services) {
