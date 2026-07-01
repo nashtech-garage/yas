@@ -72,7 +72,7 @@ pipeline {
                         }
 
                         // Lưu tag vào env var để script tiếp theo dùng
-                        env["TAG__${paramName.toUpperCase()}"] = tag
+                        env.setProperty("TAG__${paramName.toUpperCase()}", tag)
                     }
                 }
             }
