@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 
-ENV=${1:?Usage: update-gitops-manifest.sh <dev|staging>}
+ENV=${1:?Usage: update-gitops-manifest.sh <dev|staging> [image-tag]}
 COMMIT_ID=$(git rev-parse --short HEAD)
+# If an explicit image tag is provided (e.g. v1.0.0 for staging), use it;
+# otherwise fall back to the short commit SHA.
+IMAGE_TAG=${2:-${COMMIT_ID}}
 GITOPS_REPO="https://${GH_TOKEN}@github.com/com-suon-bi-cha/gitops-manifest-k8s.git"
 WORKDIR="/tmp/gitops-update-$$"
 
@@ -21,6 +24,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 echo "=== Updating environment: ${ENV} ==="
 echo "Commit:     ${COMMIT_ID}"
+echo "Image tag:  ${IMAGE_TAG}"
 echo "HEAD:       ${HEAD_SHA}"
 echo "Merge-base: ${MERGE_BASE}"
 
@@ -50,8 +54,8 @@ SERVICES="media product order inventory payment promotion rating delivery \
 UPDATED=0
 for svc in $SERVICES; do
     if echo "${CHANGED_FILES}" | grep -q "^${svc}/"; then
-        echo "Updating ${svc} → ${COMMIT_ID}"
-        kustomize edit set image "bingsu1103/${svc}:${COMMIT_ID}"
+        echo "Updating ${svc} → ${IMAGE_TAG}"
+        kustomize edit set image "bingsu1103/${svc}:${IMAGE_TAG}"
         UPDATED=$((UPDATED + 1))
     fi
 done
@@ -64,7 +68,7 @@ fi
 git config user.email "jenkins-ci@project.local"
 git config user.name "Jenkins CI"
 git add -A
-git commit -m "ci(${ENV}): update ${UPDATED} service(s) to ${COMMIT_ID}"
+git commit -m "ci(${ENV}): update ${UPDATED} service(s) to ${IMAGE_TAG}"
 git push
 
 rm -rf "${WORKDIR}"
