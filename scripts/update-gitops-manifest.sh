@@ -6,12 +6,20 @@ COMMIT_ID=$(git rev-parse --short HEAD)
 GITOPS_REPO="https://${GH_TOKEN}@github.com/com-suon-bi-cha/gitops-manifest-k8s.git"
 WORKDIR="/tmp/gitops-update-$$"
 
-# Detect which services changed (compare vs main merge-base)
-MERGE_BASE=$(git merge-base origin/main HEAD)
-CHANGED_FILES=$(git diff --name-only "${MERGE_BASE}" HEAD)
+# Detect which services changed:
+# - On main branch: compare HEAD vs HEAD~1 (already merged, so merge-base == HEAD)
+# - On feature branch: compare vs merge-base with origin/main
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "${CURRENT_BRANCH}" = "main" ]; then
+    CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+else
+    MERGE_BASE=$(git merge-base origin/main HEAD)
+    CHANGED_FILES=$(git diff --name-only "${MERGE_BASE}" HEAD)
+fi
 
 echo "=== Updating environment: ${ENV} ==="
 echo "Commit: ${COMMIT_ID}"
+echo "Branch: ${CURRENT_BRANCH}"
 echo "Changed files: ${CHANGED_FILES}"
 
 git clone "${GITOPS_REPO}" "${WORKDIR}"
