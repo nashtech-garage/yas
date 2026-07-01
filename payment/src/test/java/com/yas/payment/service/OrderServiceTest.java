@@ -10,7 +10,6 @@ import com.yas.payment.config.ServiceUrlConfig;
 import com.yas.payment.model.CapturedPayment;
 import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
-import com.yas.payment.viewmodel.CapturePaymentResponseVm;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import java.math.BigDecimal;

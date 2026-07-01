@@ -37,25 +37,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class MediaController {
     private final MediaService mediaService;
 
-    @PostMapping(path = "/medias", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/medias", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Ok",
-            content = @Content(schema = @Schema(implementation = NoFileMediaVm.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request",
-            content = @Content(schema = @Schema(implementation = ErrorVm.class)))})
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = NoFileMediaVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class))) })
     public ResponseEntity<Object> create(@ModelAttribute @Valid MediaPostVm mediaPostVm) {
         Media media = mediaService.saveMedia(mediaPostVm);
-        NoFileMediaVm noFileMediaVm =
-            new NoFileMediaVm(media.getId(), media.getCaption(), media.getFileName(), media.getMediaType());
+        NoFileMediaVm noFileMediaVm = new NoFileMediaVm(media.getId(), media.getCaption(), media.getFileName(),
+                media.getMediaType());
         return ResponseEntity.ok().body(noFileMediaVm);
     }
 
     @DeleteMapping("/medias/{id}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Deleted",
-            content = @Content(schema = @Schema(implementation = MediaVm.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request",
-            content = @Content(schema = @Schema(implementation = ErrorVm.class)))
+            @ApiResponse(responseCode = "204", description = "Deleted", content = @Content(schema = @Schema(implementation = MediaVm.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorVm.class)))
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         mediaService.removeMedia(id);
@@ -64,8 +60,7 @@ public class MediaController {
 
     @GetMapping("/medias/{id}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Ok",
-            content = @Content(schema = @Schema(implementation = MediaVm.class)))})
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = MediaVm.class))) })
     public ResponseEntity<MediaVm> get(@PathVariable Long id) {
         MediaVm media = mediaService.getMediaById(id);
         if (media == null) {
@@ -76,8 +71,7 @@ public class MediaController {
 
     @GetMapping("/medias")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Ok",
-            content = @Content(schema = @Schema(implementation = MediaVm.class)))})
+            @ApiResponse(responseCode = "200", description = "Ok", content = @Content(schema = @Schema(implementation = MediaVm.class))) })
     public ResponseEntity<List<MediaVm>> getByIds(@RequestParam @NotEmpty List<Long> ids) {
         var medias = mediaService.getMediaByIds(ids);
         if (medias.isEmpty()) {
@@ -92,8 +86,9 @@ public class MediaController {
         MediaDto mediaDto = mediaService.getFile(id, fileName);
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-            .contentType(mediaDto.getMediaType())
-            .body(new InputStreamResource(mediaDto.getContent()));
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .contentType(mediaDto.getMediaType())
+                .body(new InputStreamResource(mediaDto.getContent()));
     }
 }
+// TEST CHANGE

@@ -1,0 +1,265 @@
+\section{Chi Tiết Triển Khai}
+
+\subsection{Jenkins Infrastructure \& Pipeline}
+
+\subsubsection{Cài Đặt Jenkins Server}
+
+\paragraph{Môi Trường Triển Khai}
+
+\begin{table}[H]
+\centering
+\caption{Thông số môi trường Jenkins}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Thông số} & \textbf{Giá trị} \\
+\hline
+Phương thức triển khai & Virtual Machine Amazon EC2 \\
+\hline
+Phiên bản Jenkins & 2.555.1 \\
+\hline
+Hệ điều hành & Amazon Linux 2023 (kernel 6.1 AMI, architecture: arm64, instance: t3.small) \\
+\hline
+Phiên bản Java & Amazon Corretto 21 (OpenJDK 21.0.10 LTS) \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Plugin Đã Cài Đặt}
+
+\begin{table}[H]
+\centering
+\caption{Các plugin Jenkins đã cài đặt}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Plugin} & \textbf{Mục đích} \\
+\hline
+Git Plugin & Kết nối với GitHub repository \\
+\hline
+Pipeline & Chạy Jenkinsfile dạng Declarative/Scripted \\
+\hline
+Multibranch Pipeline & Tự động quét và build nhiều branch \\
+\hline
+JaCoCo Plugin & Publish báo cáo độ phủ unit test \\
+\hline
+Warnings Next Generation & Hiển thị kết quả phân tích tĩnh \\
+\hline
+GitHub Integration Plugin & Nhận sự kiện từ GitHub Webhook \\
+\hline
+\end{tabular}
+\end{table}
+
+Ngoài ra còn một số plugin được Jenkins recommend khi setup lần đầu tiên.
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/jenkins-dashboard.jpg}
+\caption{Jenkins Dashboard sau khi cài đặt thành công}
+\end{figure}
+
+\subsubsection{Cấu Hình GitHub Webhook}
+
+Webhook được tạo tại: \texttt{Repository > Settings > Webhooks > Add webhook}
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình GitHub Webhook}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Cấu hình} & \textbf{Giá trị} \\
+\hline
+Payload URL & \texttt{http://18.143.92.157:8080/github-webhook/} \\
+\hline
+Content type & \texttt{application/json} \\
+\hline
+Trigger events & Push events, Pull request events \\
+\hline
+Trạng thái & Active \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/webhook-config.jpg}
+\caption{Cấu hình Webhook trên GitHub}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/webhook-pr-trigger.jpg}
+\caption{Cấu hình trigger event Pull Request cho Webhook}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/webhook-ping-success.jpg}
+\caption{Webhook delivery thành công (ping event trả về HTTP 200)}
+\end{figure}
+
+\subsubsection{Thiết Lập Multibranch Pipeline}
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình Multibranch Pipeline Job}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Cấu hình} & \textbf{Giá trị} \\
+\hline
+Tên job & YAS \\
+\hline
+Loại job & Multibranch Pipeline \\
+\hline
+Branch Source & GitHub \\
+\hline
+URL Repository & \url{https://github.com/com-suon-bi-cha/yas.git} \\
+\hline
+Scan interval & 2 minute \\
+\hline
+Đường dẫn Jenkinsfile & \texttt{Jenkinsfile} (tại root) \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/multibranch-config-1.jpg}
+\caption{Cấu hình Multibranch Pipeline Job (1)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/multibranch-config-2.jpg}
+\caption{Cấu hình Multibranch Pipeline Job (2)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/multibranch-config-pat.jpg}
+\caption{Cấu hình Personal Access Token cho Multibranch Pipeline}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/multibranch-scan-branches.jpg}
+\caption{Multibranch Pipeline — danh sách branch được Jenkins phát hiện}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/pipeline-auto-trigger.jpg}
+\caption{Pipeline tự động kích hoạt sau khi push code}
+\end{figure}
+
+\subsubsection{Nội Dung Jenkinsfile}
+
+\paragraph{Cấu Trúc Pipeline}
+
+Pipeline gồm 7 stages theo thứ tự:
+
+\begin{lstlisting}[language=Java, caption={Cấu trúc Jenkinsfile}]
+pipeline {
+    agent { label 'individual-agent' }
+
+    stages {
+        stage('Pre-check')          { ... }
+        stage('Secret Scanning')    { ... }
+        stage('Monorepo Execution') { ... }
+        stage('Code Quality')       { ... }
+        stage('Quality Gate')       { ... }
+        stage('Coverage Report')    { ... }
+        stage('Dependency Scan')    { ... }
+    }
+}
+\end{lstlisting}
+
+\paragraph{Logic Monorepo Execution (Test $\rightarrow$ Upload $\rightarrow$ Build)}
+
+Đây là stage cốt lõi, thực hiện cả 2 giai đoạn \textbf{Test} và \textbf{Build}. Pipeline sử dụng \texttt{git diff} để chỉ xử lý service có thay đổi:
+
+\begin{lstlisting}[language=Java, caption={Logic Monorepo Execution trong Jenkinsfile}]
+stage('Monorepo Execution') {
+    steps {
+        script {
+            def changedFiles = sh(
+                script: 'git diff --name-only HEAD~1 HEAD',
+                returnStdout: true
+            ).trim().split('\n')
+
+            def services = [
+                'media', 'product', 'order', 'inventory',
+                'payment', 'promotion', 'rating', 'delivery',
+                'sampledata', 'recommendation', 'customer',
+                'location', 'cart', 'tax', 'search', 'webhook',
+                'common-library', 'backoffice-bff', 'storefront-bff'
+            ]
+
+            for (service in services) {
+                if (changedFiles.any { it.startsWith("${service}/") }) {
+                    sh "mvn test -pl ${service} -am"             // Test
+                    junit testResults: "${service}/target/surefire-reports/*.xml",
+                          allowEmptyResults: true                // Upload
+                    sh "mvn package -DskipTests -pl ${service} -am" // Build
+                }
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\textbf{Giải thích 3 bước:}
+\begin{itemize}
+    \item \texttt{mvn test} — chạy toàn bộ unit test của service, JaCoCo agent tự động thu thập coverage data.
+    \item \texttt{junit} — upload kết quả test (file XML) lên Jenkins UI để hiển thị trong Test Result.
+    \item \texttt{mvn package -DskipTests} — build artifact \texttt{.jar} mà không chạy lại test, tiết kiệm thời gian.
+\end{itemize}
+
+\subsubsection{Kiểm Tra Pipeline Hoạt Động}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/pipeline-all-stages-success.jpg}
+\caption{Tất cả stage pipeline chạy thành công}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/pipeline-build-history.jpg}
+\caption{Lịch sử build trên Jenkins}
+\end{figure}
+
+\subsubsection{Cấu Hình Agent Pool (Distributed Builds)}
+
+Master node (Built-In Node) của Jenkins chỉ có \textbf{2 GB RAM} (instance \texttt{t3.small}), không đủ tài nguyên để build/test các service Java lớn trong monorepo YAS. Nhóm triển khai mô hình \textbf{Distributed Builds} với một pool gồm 4 agent riêng biệt.
+
+\textbf{Lợi ích:}
+\begin{itemize}
+    \item \textbf{Giảm tải master node:} Master chỉ đảm nhiệm điều phối (scheduling), toàn bộ workload build/test được chuyển sang agent.
+    \item \textbf{Tận dụng tài nguyên cá nhân:} Mỗi thành viên cấu hình máy cá nhân làm agent, chủ động bật agent khi có thay đổi cần chạy pipeline.
+    \item \textbf{Song song hóa:} Nhiều pipeline có thể chạy đồng thời trên các agent khác nhau.
+    \item \textbf{Môi trường linh hoạt:} Agent có thể chạy trên nhiều kiến trúc khác nhau (aarch64, amd64).
+\end{itemize}
+
+\textbf{Danh sách agent:}
+\begin{itemize}
+    \item \texttt{anamap-agent}
+    \item \texttt{bingsu-agent}
+    \item \texttt{nhatdat-agent}
+    \item \texttt{tunah-agent}
+\end{itemize}
+
+Tất cả agent được gán chung label \texttt{individual-agent} để Jenkins có thể tự động phân phối job đến bất kỳ agent nào đang online.
+
+\begin{lstlisting}[language=Java, caption={Cấu hình agent label trong Jenkinsfile}]
+pipeline {
+    agent { label 'individual-agent' }
+    // ...
+}
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\reportimg{jenkins/agent-pool-nodes.png}
+\caption{Danh sách Nodes trên Jenkins: 4 agent + Built-In Node}
+\end{figure}
+
+

@@ -1,0 +1,27 @@
+\section{Tổng Quan Kiến Trúc Pipeline}
+
+Nhóm triển khai CI pipeline theo luồng sau:
+
+\begin{lstlisting}[language=sh, caption={Luồng CI Pipeline}]
+Developer Push / Pull Request
+            |
+            v
+    GitHub Webhook
+            |
+            v
+    Jenkins (Multibranch Pipeline)
+            |
+            |-- Stage 1: Pre-check          (Kiem tra Java, Maven, Gitleaks, Snyk)
+            |-- Stage 2: Secret Scanning    (Gitleaks)
+            |-- Stage 3: Monorepo Execution (Test + Build chi service co thay doi)
+            |-- Stage 4: Code Quality       (SonarQube)
+            |-- Stage 5: Quality Gate       (SonarQube Quality Gate)
+            |-- Stage 6: Coverage Report    (JaCoCo >= 70%)
+            |-- Stage 7: Dependency Scan    (Snyk)
+            |
+            v
+    GitHub Branch Protection
+    (Yeu cau 2 approvals + CI Pass moi cho phep merge)
+\end{lstlisting}
+
+\textbf{Tối ưu hóa Monorepo:} Pipeline chỉ kích hoạt build/test cho service có thay đổi, sử dụng \texttt{git diff} để phát hiện thư mục bị ảnh hưởng.

@@ -1,0 +1,138 @@
+pipeline {
+    agent { label 'gcp-k8s-agent' }
+
+    parameters {
+        string(name: 'media',           defaultValue: 'main', description: 'Branch for media service')
+        string(name: 'product',         defaultValue: 'main', description: 'Branch for product service')
+        string(name: 'order',           defaultValue: 'main', description: 'Branch for order service')
+        string(name: 'inventory',       defaultValue: 'main', description: 'Branch for inventory service')
+        string(name: 'payment',         defaultValue: 'main', description: 'Branch for payment service')
+        string(name: 'promotion',       defaultValue: 'main', description: 'Branch for promotion service')
+        string(name: 'rating',          defaultValue: 'main', description: 'Branch for rating service')
+        string(name: 'delivery',        defaultValue: 'main', description: 'Branch for delivery service')
+        string(name: 'customer',        defaultValue: 'main', description: 'Branch for customer service')
+        string(name: 'location',        defaultValue: 'main', description: 'Branch for location service')
+        string(name: 'cart',            defaultValue: 'main', description: 'Branch for cart service')
+        string(name: 'tax',             defaultValue: 'main', description: 'Branch for tax service')
+        string(name: 'search',          defaultValue: 'main', description: 'Branch for search service')
+        string(name: 'webhook',         defaultValue: 'main', description: 'Branch for webhook service')
+        string(name: 'backoffice_bff',  defaultValue: 'main', description: 'Branch for backoffice-bff')
+        string(name: 'storefront_bff',  defaultValue: 'main', description: 'Branch for storefront-bff')
+        string(name: 'payment_paypal',  defaultValue: 'main', description: 'Branch for payment-paypal')
+        string(name: 'recommendation',  defaultValue: 'main', description: 'Branch for recommendation')
+        string(name: 'sampledata',      defaultValue: 'main', description: 'Branch for sampledata')
+    }
+
+    stages {
+        stage('Resolve Image Tags') {
+            steps {
+                script {
+                    // Map: param name → service name (docker image name)
+                    def serviceParamMap = [
+                        'media':          'media',
+                        'product':        'product',
+                        'order':          'order',
+                        'inventory':      'inventory',
+                        'payment':        'payment',
+                        'promotion':      'promotion',
+                        'rating':         'rating',
+                        'delivery':       'delivery',
+                        'customer':       'customer',
+                        'location':       'location',
+                        'cart':           'cart',
+                        'tax':            'tax',
+                        'search':         'search',
+                        'webhook':        'webhook',
+                        'backoffice_bff': 'backoffice-bff',
+                        'storefront_bff': 'storefront-bff',
+                        'payment_paypal': 'payment-paypal',
+                        'recommendation': 'recommendation',
+                        'sampledata':     'sampledata'
+                    ]
+
+                    echo "=== Resolving image tags ==="
+                    serviceParamMap.each { paramName, serviceName ->
+                        def branch = params[paramName] ?: 'main'
+                        def tag = 'latest'
+
+                        if (branch != 'main') {
+                            // Lấy commit ID 7 ký tự đầu của branch trên remote
+                            def remoteCommit = sh(
+                                script: "git ls-remote origin refs/heads/${branch} | cut -c1-7",
+                                returnStdout: true
+                            ).trim()
+
+                            if (!remoteCommit) {
+                                error("Branch '${branch}' not found on remote for service '${serviceName}'")
+                            }
+                            tag = remoteCommit
+                            echo "  ${serviceName}: branch=${branch} → tag=${tag}"
+                        } else {
+                            echo "  ${serviceName}: main → tag=latest"
+                        }
+
+                        // Lưu tag vào env var để script tiếp theo dùng
+                        env.setProperty("TAG__${paramName.toUpperCase()}", tag)
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to developer-build') {
+            steps {
+                withCredentials([
+                    file(credentialsId: 'gcp-kubeconfig', variable: 'KUBECONFIG'),
+                    usernamePassword(credentialsId: 'github-pat', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')
+                ]) {
+                    sh 'bash scripts/deploy-developer-build.sh'
+                }
+            }
+        }
+
+        stage('Print Access Info') {
+            steps {
+                withCredentials([file(credentialsId: 'gcp-kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    echo ""
+                    echo "╔══════════════════════════════════════════════════╗"
+                    echo "║          Developer Build — Access Info            ║"
+                    echo "╚══════════════════════════════════════════════════╝"
+
+                    WORKER_IP=$(kubectl get nodes \
+                      -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify 2>/dev/null || \
+                      kubectl get nodes \
+                      -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify)
+
+                    echo "Worker Node IP: ${WORKER_IP}"
+                    echo ""
+                    echo "Add to /etc/hosts:"
+                    echo "  ${WORKER_IP}  yas.local.com"
+                    echo ""
+                    echo "Service Endpoints:"
+                    printf "%-25s %-10s %-20s\\n" "SERVICE" "PORT" "URL"
+                    printf "%-25s %-10s %-20s\\n" "-------" "----" "---"
+
+                    kubectl get svc -n developer-build --no-headers \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify | while read name type clusterip externalip ports age; do
+                        nodeport=$(echo $ports | grep -oE '[0-9]+:([0-9]+)/TCP' | grep -oE ':[0-9]+' | tr -d ':')
+                        if [ -n "$nodeport" ]; then
+                            printf "%-25s %-10s %-20s\\n" "$name" "$nodeport" "http://${WORKER_IP}:${nodeport}"
+                        fi
+                    done
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "developer_build deployed successfully"
+        }
+        failure {
+            echo "developer_build failed"
+        }
+    }
+}

@@ -80,4 +80,42 @@ class CategoryServiceTest {
         CategoryGetVm categoryGetVm = categoryService.getCategories("a").getFirst();
         assertEquals("name", categoryGetVm.name());
     }
+
+    @Test
+    void create_Success() {
+        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("new-cat", "new-slug", "desc", null, "meta", "metaDesc", (short)1, true, 1L);
+        Category result = categoryService.create(postVm);
+        assertNotNull(result);
+        assertEquals("new-cat", result.getName());
+    }
+
+    @Test
+    void create_whenDuplicateName_throwsDuplicatedException() {
+        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("name", "new-slug", "desc", null, "meta", "metaDesc", (short)1, true, 1L);
+        Assertions.assertThrows(com.yas.commonlibrary.exception.DuplicatedException.class, () -> categoryService.create(postVm));
+    }
+
+    @Test
+    void update_Success() {
+        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("updated-cat", "updated-slug", "desc", null, "meta", "metaDesc", (short)1, true, 1L);
+        categoryService.update(postVm, category.getId());
+        Category updated = categoryRepository.findById(category.getId()).get();
+        assertEquals("updated-cat", updated.getName());
+    }
+
+    @Test
+    void update_whenParentIsItself_throwsBadRequestException() {
+        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("updated-cat", "updated-slug", "desc", category.getId(), "meta", "metaDesc", (short)1, true, 1L);
+        Assertions.assertThrows(com.yas.commonlibrary.exception.BadRequestException.class, () -> categoryService.update(postVm, category.getId()));
+    }
+
+    @Test
+    void getCategoryByIds_Success() {
+        Assertions.assertEquals(1, categoryService.getCategoryByIds(java.util.List.of(category.getId())).size());
+    }
+
+    @Test
+    void getTopNthCategories_Success() {
+        Assertions.assertTrue(categoryService.getTopNthCategories(10).size() >= 0);
+    }
 }

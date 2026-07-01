@@ -1,0 +1,17 @@
+\section{Hình ảnh}
+Hình ảnh được thể hiện như hình~\ref{fig:my_label}, lưu ý flag \texttt{[H]} để disable floating (hình được hiển thị đúng vị trí, không trôi lên đầu trang).
+\begin{figure}%[H]
+\centering
+\includegraphics[scale=.4]{img/hcmus-logo.png}
+\caption{Hình ví dụ (logo HCMUS - updated 30/11/2022)}
+\label{fig:my_label}
+\end{figure}
+
+Hình~\ref{fig:my_label_with_H} cũng là hình ví dụ nhưng có tag \texttt{[H]}. Lưu ý là có tag \texttt{[H]} thì code ở đâu hình sẽ nằm ở đó, không quan trọng nội dung ít hay nhiều (trang giấy sẽ thừa 1 khúc như bạn thấy). Để hiểu hơn về positioning trong LaTeX, xin tham khảo \href{https://www.overleaf.com/learn/latex/Positioning_images_and_tables}{bài này}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=.4]{img/hcmus-logo.png}
+\caption{Hình ví dụ (logo HCMUS - updated 30/11/2022)}
+\label{fig:my_label_with_H}
+\end{figure}

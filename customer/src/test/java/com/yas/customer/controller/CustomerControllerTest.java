@@ -11,7 +11,6 @@ import org.springframework.boot.security.oauth2.server.resource.autoconfigure.se
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
-import com.yas.customer.CustomerApplication;
 import com.yas.customer.service.CustomerService;
 import com.yas.customer.util.SecurityContextUtils;
 import com.yas.customer.viewmodel.customer.CustomerAdminVm;

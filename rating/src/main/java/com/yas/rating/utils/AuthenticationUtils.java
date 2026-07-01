@@ -14,7 +14,7 @@ public class AuthenticationUtils {
     public static String extractUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof AnonymousAuthenticationToken) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
             throw new AccessDeniedException(Constants.ErrorCode.ACCESS_DENIED);
         }
 

@@ -1,0 +1,27 @@
+\section{Thuật toán}
+Dùng gói \texttt{algorithm} và \texttt{algpseudocode} để gõ đoạn thuật toán~\ref{alg:label}\footnote{Tất nhiên đây là dùng katana mổ ruồi!}
+
+\begin{algorithm}
+\caption{Thuật toán đếm xem nhiều gà hay nhiều chó hơn}
+\label{alg:label}
+\begin{algorithmic}
+\Function {GaChoSoNaoLonHon}{\textit{ga}, \textit{cho}}
+\State $soGa \gets 0$
+\State $soCho \gets 0$
+\For {$i \in [0, |ga| - 1]$}
+\State $soGa \gets soGa + 1$
+\EndFor
+\For {$i \in [0, |cho| - 1]$}
+\State $soCho \gets soCho + 1$
+\EndFor
+
+\If {$soGa > soCho$}
+\State\Return $soGa$
+\ElsIf {$soGa < soCho$}
+\State\Return $soCho$
+\Else 
+\State\Return \text{"bang nhau"}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}

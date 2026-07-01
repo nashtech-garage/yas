@@ -78,9 +78,9 @@ class ProductTemplateServiceTest {
 
     @AfterEach
     void tearDown() {
-        productAttributeTemplateRepository.deleteAll();
-        productAttributeRepository.deleteAll();
-        productTemplateRepository.deleteAll();
+        productAttributeTemplateRepository.deleteAllInBatch();
+        productAttributeRepository.deleteAllInBatch();
+        productTemplateRepository.deleteAllInBatch();
     }
 
     @Test
@@ -149,4 +149,23 @@ class ProductTemplateServiceTest {
         assertEquals(Constants.ErrorCode.PRODUCT_TEMPlATE_IS_NOT_FOUND, exception.getMessage());
     }
 
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void updateProductTemplate_WhenSuccess() {
+        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplateUpdated",
+                List.of(new ProductAttributeTemplatePostVm(productAttribute2.getId(), 0)));
+        productTemplateService.updateProductTemplate(productTemplate1.getId(), productTemplatePostVm);
+        ProductTemplate updated = productTemplateRepository.findById(productTemplate1.getId()).get();
+        assertEquals("productTemplateUpdated", updated.getName());
+    }
+
+    @Test
+    void saveProductTemplate_WhenProductAttributesNotFoundPartial_ThenThrowBadRequestException() {
+        List<ProductAttributeTemplatePostVm> listProductAttTemplates = new ArrayList<>();
+        listProductAttTemplates.add(new ProductAttributeTemplatePostVm(productAttribute1.getId(), 0));
+        listProductAttTemplates.add(new ProductAttributeTemplatePostVm(9999L, 0));
+        ProductTemplatePostVm productTemplatePostVm = new ProductTemplatePostVm("productTemplate3", listProductAttTemplates);
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> productTemplateService.saveProductTemplate(productTemplatePostVm));
+        assertThat(exception.getMessage()).isEqualTo(Constants.ErrorCode.PRODUCT_ATTRIBUTE_NOT_FOUND);
+    }
 }

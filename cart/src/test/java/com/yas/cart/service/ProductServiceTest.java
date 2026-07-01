@@ -40,6 +40,8 @@ class ProductServiceTest {
     @Test
     void getProducts_NormalCase_ReturnProductThumbnailVms() {
 
+
+        
         List<Long> ids = List.of(1L, 2L, 3L);
         URI url = UriComponentsBuilder
             .fromUriString("http://api.yas.local/media")

@@ -18,7 +18,6 @@ import com.yas.search.viewmodel.ProductNameGetVm;
 import com.yas.search.viewmodel.ProductNameListVm;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;

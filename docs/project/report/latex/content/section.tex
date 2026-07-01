@@ -1,0 +1,53 @@
+\section{Section}
+
+\subsection{Một số lưu ý}
+
+\subsubsection{Cài đặt offline}
+Template này yêu cầu cài đặt một số gói (package) nâng cao cho TexStudio:
+\begin{itemize}
+\item Để gõ thuật toán: \texttt{algorithm} và \texttt{algpseudocode}
+\item Để nhúng (chèn) code: \texttt{listings}
+\end{itemize}
+Các gói này được cài đặt thông qua lệnh
+\begin{lstlisting}[language=sh]
+sudo apt-get install texlive-full
+\end{lstlisting}
+Tuy nhiên kích thước gói đâu đó vào khoảng 5GB (!). Vì vậy tốt nhất nên xài Overleaf.
+
+\subsubsection{Sử dụng font khác}
+Tham khảo font typefaces tại \href{https://www.overleaf.com/learn/latex/Font_typefaces}{link này}.
+
+\subsubsection{Đánh số chỉ mục bằng chữ số La Mã}
+Mở file \texttt{main.tex} và bỏ comment dòng 
+\begin{lstlisting}[language=tex]
+% \renewcommand{\thesection}{\Roman{section}}
+% \renewcommand{\thesubsection}{\thesection.\Roman{subsection}}  
+\end{lstlisting}
+
+\subsection{Ví dụ}
+Ngày xửa ngày xưa, ở vương quốc VNUHCM - US, có một chàng hoàng tử ngồi cắm đầu viết doc\footnote{Đây là footnote, chú thích lại những gì cần chú ý.}.\\
+Mặc định muốn xuống dòng chỉ cần dùng $\backslash\backslash$  (2 lần dấu xẹt huyền).\\
+Nếu bạn muốn thụt đầu dòng khi bắt đầu paragraph mới, vào \texttt{main.tex} và disble dòng
+\begin{lstlisting}[language=tex]
+\setlength{\parindent}{0pt}
+\end{lstlisting}
+
+\subsection{First subsection}
+\subsubsection{First sub-subsection}
+Subsection để ví dụ thôi. Thêm vài ví dụ:
+\begin{itemize}
+    \item Dùng itemize
+    \item Vẫn là itemize
+\end{itemize}
+Sau đó xài enumerate:
+\begin{enumerate}
+    \item Dùng enumerate
+    \item Vẫn là enumerate
+\end{enumerate}
+Nhỏ hơn subsubsection thì xài \texttt{paragraph}:
+
+\paragraph{Đây là ví dụ cho paragraph}
+Lưu ý là paragraph không nằm trong Mục lục.
+
+\subsection{Chia nhỏ nội dung}
+Bạn có thể chia nhỏ nội dung của báo cáo thành các file \texttt{.tex} và dùng lệnh \texttt{input} để chèn vào báo cáo chính. Ví dụ có trong file \texttt{main.tex}.

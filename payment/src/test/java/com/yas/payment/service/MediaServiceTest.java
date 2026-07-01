@@ -1,6 +1,5 @@
 package com.yas.payment.service;
 
-import static com.yas.payment.util.SecurityContextUtils.setUpSecurityContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,7 +15,6 @@ import com.yas.payment.viewmodel.paymentprovider.MediaVm;
 import java.net.URI;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

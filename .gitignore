@@ -29,3 +29,14 @@ hs_err_pid*
 .settings*
 .vscode
 *.iml
+
+# OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# SSH / Cloud keys — NEVER commit these
+*.pem
+*.key
+gcp_key_pair*
+kubeconfig*
