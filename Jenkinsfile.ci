@@ -199,7 +199,7 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                withCredentials([string(credentialsId: 'github-pat', variable: 'GH_TOKEN')]) {
                     sh 'bash scripts/update-gitops-manifest.sh dev'
                 }
             }
@@ -213,7 +213,7 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                withCredentials([string(credentialsId: 'github-pat', variable: 'GH_TOKEN')]) {
                     sh 'bash scripts/update-gitops-manifest.sh staging'
                 }
             }

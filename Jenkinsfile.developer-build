@@ -82,7 +82,7 @@ pipeline {
             steps {
                 withCredentials([
                     file(credentialsId: 'gcp-kubeconfig', variable: 'KUBECONFIG'),
-                    string(credentialsId: 'github-token', variable: 'GH_TOKEN')
+                    string(credentialsId: 'github-pat', variable: 'GH_TOKEN')
                 ]) {
                     sh 'bash scripts/deploy-developer-build.sh'
                 }
