@@ -10,23 +10,23 @@ pipeline {
 
                     # Xóa workloads — giữ namespace + secrets
                     kubectl delete deployments --all -n developer-build \
-                      --kubeconfig=${KUBECONFIG} --ignore-not-found=true
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
 
                     kubectl delete services --all -n developer-build \
-                      --kubeconfig=${KUBECONFIG} --ignore-not-found=true
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
 
                     kubectl delete configmaps --all -n developer-build \
-                      --kubeconfig=${KUBECONFIG} --ignore-not-found=true
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
 
                     kubectl delete replicasets --all -n developer-build \
-                      --kubeconfig=${KUBECONFIG} --ignore-not-found=true
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
 
                     kubectl delete pods --all -n developer-build \
-                      --kubeconfig=${KUBECONFIG} --ignore-not-found=true
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify --ignore-not-found=true
 
                     echo ""
                     echo "Verify cleanup:"
-                    kubectl get all -n developer-build --kubeconfig=${KUBECONFIG}
+                    kubectl get all -n developer-build --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify
                     echo "developer-build namespace cleared (namespace preserved)"
                     '''
                 }

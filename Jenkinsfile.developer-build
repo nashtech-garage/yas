@@ -100,10 +100,10 @@ pipeline {
 
                     WORKER_IP=$(kubectl get nodes \
                       -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' \
-                      --kubeconfig=${KUBECONFIG} 2>/dev/null || \
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify 2>/dev/null || \
                       kubectl get nodes \
                       -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' \
-                      --kubeconfig=${KUBECONFIG})
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify)
 
                     echo "Worker Node IP: ${WORKER_IP}"
                     echo ""
@@ -115,7 +115,7 @@ pipeline {
                     printf "%-25s %-10s %-20s\\n" "-------" "----" "---"
 
                     kubectl get svc -n developer-build --no-headers \
-                      --kubeconfig=${KUBECONFIG} | while read name type clusterip externalip ports age; do
+                      --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify | while read name type clusterip externalip ports age; do
                         nodeport=$(echo $ports | grep -oE '[0-9]+:([0-9]+)/TCP' | grep -oE ':[0-9]+' | tr -d ':')
                         if [ -n "$nodeport" ]; then
                             printf "%-25s %-10s %-20s\\n" "$name" "$nodeport" "http://${WORKER_IP}:${nodeport}"
