@@ -1,0 +1,71 @@
+pipeline {
+    agent { label 'gcp-k8s-agent' }
+
+    parameters {
+        string(name: 'SOURCE_STOREFRONT_IMAGE', defaultValue: 'ghcr.io/nashtech-garage/yas-storefront:latest', description: 'Existing storefront UI image to mirror')
+        string(name: 'SOURCE_BACKOFFICE_IMAGE', defaultValue: 'ghcr.io/nashtech-garage/yas-backoffice:latest', description: 'Existing backoffice UI image to mirror')
+        string(name: 'TARGET_STOREFRONT_IMAGE', defaultValue: 'bingsu1103/storefront:latest', description: 'Docker Hub storefront target image')
+        string(name: 'TARGET_BACKOFFICE_IMAGE', defaultValue: 'bingsu1103/backoffice:latest', description: 'Docker Hub backoffice target image')
+        booleanParam(name: 'RESTART_DEV_UI', defaultValue: true, description: 'Restart dev UI deployments after pushing images')
+    }
+
+    stages {
+        stage('Mirror UI Images To Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-cred',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    set -eux
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+                    docker pull "$SOURCE_STOREFRONT_IMAGE"
+                    docker tag "$SOURCE_STOREFRONT_IMAGE" "$TARGET_STOREFRONT_IMAGE"
+                    docker push "$TARGET_STOREFRONT_IMAGE"
+
+                    docker pull "$SOURCE_BACKOFFICE_IMAGE"
+                    docker tag "$SOURCE_BACKOFFICE_IMAGE" "$TARGET_BACKOFFICE_IMAGE"
+                    docker push "$TARGET_BACKOFFICE_IMAGE"
+
+                    docker manifest inspect "$TARGET_STOREFRONT_IMAGE" >/dev/null
+                    docker manifest inspect "$TARGET_BACKOFFICE_IMAGE" >/dev/null
+                    '''
+                }
+            }
+        }
+
+        stage('Restart Dev UI Deployments') {
+            when { expression { return params.RESTART_DEV_UI } }
+            steps {
+                withCredentials([file(credentialsId: 'gcp-kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    set -eux
+                    kubectl rollout restart deployment/storefront-ui deployment/backoffice-ui \
+                      -n dev --kubeconfig="${KUBECONFIG}" --insecure-skip-tls-verify
+
+                    kubectl rollout status deployment/storefront-ui \
+                      -n dev --kubeconfig="${KUBECONFIG}" --insecure-skip-tls-verify --timeout=180s
+
+                    kubectl rollout status deployment/backoffice-ui \
+                      -n dev --kubeconfig="${KUBECONFIG}" --insecure-skip-tls-verify --timeout=180s
+
+                    kubectl get pods -n dev \
+                      -l 'app in (storefront-ui,backoffice-ui)' \
+                      --kubeconfig="${KUBECONFIG}" --insecure-skip-tls-verify
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'UI images mirrored to Docker Hub successfully.'
+        }
+        failure {
+            echo 'UI image mirror failed.'
+        }
+    }
+}

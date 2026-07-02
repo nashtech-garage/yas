@@ -21,7 +21,7 @@ pipeline {
                     def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
                     def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
-                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci' } ? 'true' : 'false'
+                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it.startsWith('Jenkinsfile') } ? 'true' : 'false'
                     if (env.DOCS_ONLY == 'true') {
                         echo "Only documentation/CI files changed — skipping CI stages."
                     } else {
@@ -67,10 +67,10 @@ pipeline {
                 script {
                     def changedFiles = sh(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim().split('\n')
                     def services = [
-                        'media', 'product', 'order', 'inventory', 'payment', 'promotion',
-                        'rating', 'delivery', 'sampledata', 'recommendation',
-                        'customer', 'location', 'cart', 'tax', 'search', 'webhook',
-                        'common-library', 'backoffice-bff', 'storefront-bff', 'payment-paypal'
+                        'common-library',
+                        'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
+                        'customer', 'cart', 'tax', 'search',
+                        'backoffice-bff', 'storefront-bff'
                     ]
 
                     for (service in services) {
@@ -136,10 +136,9 @@ pipeline {
                 script {
                     def changedFiles = sh(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim().split('\n')
                     def services = [
-                        'media', 'product', 'order', 'inventory', 'payment', 'promotion',
-                        'rating', 'delivery', 'sampledata', 'recommendation',
-                        'customer', 'location', 'cart', 'tax', 'search', 'webhook',
-                        'common-library', 'backoffice-bff', 'storefront-bff', 'payment-paypal'
+                        'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
+                        'customer', 'cart', 'tax', 'search',
+                        'backoffice-bff', 'storefront-bff'
                     ]
 
                     for (service in services) {
@@ -200,18 +199,25 @@ pipeline {
                         sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
 
                         def services = [
-                            'media', 'product', 'order', 'inventory', 'payment', 'promotion',
-                            'rating', 'delivery', 'sampledata', 'recommendation', 'customer',
-                            'location', 'cart', 'tax', 'search', 'webhook',
-                            'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront',
-                            'swagger-ui', 'payment-paypal'
-                        ]
-                        def servicePaths = [
-                            'swagger-ui': 'k8s/charts/swagger-ui'
+                            [image: 'media', path: 'media'],
+                            [image: 'product', path: 'product'],
+                            [image: 'order', path: 'order'],
+                            [image: 'inventory', path: 'inventory'],
+                            [image: 'payment', path: 'payment'],
+                            [image: 'sampledata', path: 'sampledata'],
+                            [image: 'customer', path: 'customer'],
+                            [image: 'cart', path: 'cart'],
+                            [image: 'tax', path: 'tax'],
+                            [image: 'search', path: 'search'],
+                            [image: 'backoffice-bff', path: 'backoffice-bff'],
+                            [image: 'storefront-bff', path: 'storefront-bff'],
+                            [image: 'backoffice', path: 'backoffice'],
+                            [image: 'storefront', path: 'storefront']
                         ]
 
-                        for (service in services) {
-                            def servicePath = servicePaths.get(service, service)
+                        for (serviceConfig in services) {
+                            def service = serviceConfig.image
+                            def servicePath = serviceConfig.path
                             if (changedFiles.any { it.startsWith("${servicePath}/") }) {
                                 if (!fileExists("${servicePath}/Dockerfile")) {
                                     echo "${service}: no Dockerfile at ${servicePath}; skip Docker build"

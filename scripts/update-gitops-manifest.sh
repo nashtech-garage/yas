@@ -47,13 +47,27 @@ echo "Changed files: ${CHANGED_FILES}"
 git clone "${GITOPS_REPO}" "${WORKDIR}"
 cd "${WORKDIR}/environments/${ENV}"
 
-SERVICES="media product order inventory payment promotion rating delivery \
-          sampledata recommendation customer location cart tax search webhook \
-          backoffice-bff storefront-bff payment-paypal"
+declare -A SERVICE_PATHS=(
+    ["media"]="media"
+    ["product"]="product"
+    ["order"]="order"
+    ["inventory"]="inventory"
+    ["payment"]="payment"
+    ["sampledata"]="sampledata"
+    ["customer"]="customer"
+    ["cart"]="cart"
+    ["tax"]="tax"
+    ["search"]="search"
+    ["backoffice-bff"]="backoffice-bff"
+    ["storefront-bff"]="storefront-bff"
+    ["backoffice"]="backoffice"
+    ["storefront"]="storefront"
+)
 
 UPDATED=0
-for svc in $SERVICES; do
-    if echo "${CHANGED_FILES}" | grep -q "^${svc}/"; then
+for svc in "${!SERVICE_PATHS[@]}"; do
+    source_path="${SERVICE_PATHS[$svc]}"
+    if echo "${CHANGED_FILES}" | grep -q "^${source_path}/"; then
         echo "Updating ${svc} → ${IMAGE_TAG}"
         kustomize edit set image "bingsu1103/${svc}:${IMAGE_TAG}"
         UPDATED=$((UPDATED + 1))
