@@ -51,12 +51,9 @@ pipeline {
                     echo "Changed files:\n${changedFiles}"
 
                     def services = [
-                        'cart', 'customer', 'delivery', 'inventory', 'location',
-                        'media', 'order', 'payment', 'payment-paypal', 'product',
-                        'promotion', 'rating', 'recommendation', 'search', 'tax',
-                        'backoffice-bff', 'storefront-bff', 'identity',
-                        'sampledata', 'webhook',
-                        'backoffice', 'storefront'
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'backoffice-bff', 'storefront-bff',
+                        'sampledata', 'backoffice', 'storefront'
                     ]
 
                     def affected = services.findAll { svc ->
@@ -150,9 +147,8 @@ pipeline {
                     sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo update"
 
                     def allBackendServices = [
-                        'cart', 'customer', 'inventory', 'location', 'media', 'order', 'payment',
-                        'payment-paypal', 'product', 'promotion', 'rating', 'search', 'tax',
-                        'recommendation', 'webhook', 'sampledata'
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'sampledata'
                     ]
                     def bffServices = ['backoffice-bff', 'storefront-bff']
                     def uiServices = ['backoffice-ui', 'storefront-ui']

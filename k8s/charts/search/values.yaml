@@ -1,4 +1,6 @@
 backend:
+  podAnnotations:
+    traffic.sidecar.istio.io/excludeOutboundPorts: "9200,5432,6379,5672"
   image:
     repository: ghcr.io/nashtech-garage/yas-search
     tag: latest

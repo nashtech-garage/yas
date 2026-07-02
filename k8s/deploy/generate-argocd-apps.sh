@@ -22,9 +22,8 @@ mkdir -p ../../argocd/apps/staging
 
 # List of all YAS charts
 services=(
-    "cart" "customer" "inventory" "location" "media" "order" "payment" 
-    "payment-paypal" "product" "promotion" "rating" "search" "tax" 
-    "recommendation" "webhook" "sampledata" "storefront-ui" "backoffice-ui" 
+    "cart" "customer" "inventory" "media" "order" "product" "search" "tax" 
+    "sampledata" "storefront-ui" "backoffice-ui" 
     "storefront-bff" "backoffice-bff" "swagger-ui" "yas-configuration"
 )
 
