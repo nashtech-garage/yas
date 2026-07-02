@@ -1,0 +1,5 @@
+data:
+  resource.customizations.ignoreDifferences.apps_Deployment: |
+    jsonPointers:
+    - /spec/template/spec/containers/0/image
+    - /spec/template/metadata/annotations/kubectl.kubernetes.io~1restartedAt

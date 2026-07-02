@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Cấu hình thông tin kết nối và định danh
-        DOCKER_USERNAME = 'chubedan4605'
+        DOCKER_USERNAME = 'besukem'
         DOMAIN = 'yas.local' // Tên miền base cho hệ thống (được ánh xạ qua file hosts của lập trình viên)
         HELM_TIMEOUT = '5m'
     }
