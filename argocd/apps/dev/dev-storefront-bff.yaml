@@ -1,4 +1,4 @@
-﻿apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: dev-storefront-bff
@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/luc1fe4/yas.git'
-    targetRevision: 'main'
+    targetRevision: 'clean-setup-ok'
     path: k8s/charts/storefront-bff
   destination:
     server: https://kubernetes.default.svc
