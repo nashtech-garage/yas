@@ -15,20 +15,12 @@ pipeline {
         // --- Danh sách tham số branch của Backend Services ---
         string(name: 'BRANCH_cart', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ cart (Ví dụ: main, dev_tax_service)')
         string(name: 'BRANCH_customer', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ customer')
-        string(name: 'BRANCH_delivery', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ delivery')
         string(name: 'BRANCH_inventory', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ inventory')
-        string(name: 'BRANCH_location', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ location')
         string(name: 'BRANCH_media', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ media')
         string(name: 'BRANCH_order', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ order')
-        string(name: 'BRANCH_payment', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ payment')
-        string(name: 'BRANCH_payment_paypal', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ payment-paypal')
         string(name: 'BRANCH_product', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ product')
-        string(name: 'BRANCH_promotion', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ promotion')
-        string(name: 'BRANCH_rating', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ rating')
         string(name: 'BRANCH_search', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ search')
         string(name: 'BRANCH_tax', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ tax')
-        string(name: 'BRANCH_recommendation', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ recommendation')
-        string(name: 'BRANCH_webhook', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ webhook')
         string(name: 'BRANCH_sampledata', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ sampledata')
 
         // --- Danh sách tham số branch của Frontend & BFF ---
@@ -164,9 +156,8 @@ pipeline {
             steps {
                 script {
                     def backendServices = [
-                        'cart', 'customer', 'inventory', 'location', 'media', 'order', 'payment', 
-                        'payment-paypal', 'product', 'promotion', 'rating', 'search', 'tax', 'recommendation', 
-                        'webhook', 'sampledata'
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'sampledata'
                     ]
                     def dryRunFlag = params.DRY_RUN ? "--dry-run" : ""
                     

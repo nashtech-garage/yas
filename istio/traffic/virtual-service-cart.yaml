@@ -1,0 +1,35 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cart-vs
+  namespace: dev
+spec:
+  hosts:
+    - cart
+  http:
+    - route:
+        - destination:
+            host: cart
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: 5xx,connect-failure,refused-stream
+      timeout: 10s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cart-vs
+  namespace: staging
+spec:
+  hosts:
+    - cart
+  http:
+    - route:
+        - destination:
+            host: cart
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: 5xx,connect-failure,refused-stream
+      timeout: 10s

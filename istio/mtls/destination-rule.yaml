@@ -1,0 +1,77 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: yas-services-mtls-dev
+  namespace: dev
+spec:
+  host: "*.dev.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: yas-services-mtls-staging
+  namespace: staging
+spec:
+  host: "*.staging.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: yas-services-mtls-sandbox
+  namespace: developer-sandbox
+spec:
+  host: "*.developer-sandbox.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+---
+# Disable mTLS for external services without Istio sidecar
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: elasticsearch-disable-mtls
+  namespace: dev
+spec:
+  host: "elasticsearch-es-http.elasticsearch.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: keycloak-disable-mtls
+  namespace: dev
+spec:
+  host: "keycloak-service.keycloak.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: redis-disable-mtls
+  namespace: dev
+spec:
+  host: "redis-master.redis.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: postgres-disable-mtls
+  namespace: dev
+spec:
+  host: "postgresql.postgres.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE

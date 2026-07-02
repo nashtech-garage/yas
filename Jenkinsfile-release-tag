@@ -54,11 +54,9 @@ pipeline {
             steps {
                 script {
                     def services = [
-                        'cart', 'customer', 'delivery', 'inventory', 'location',
-                        'media', 'order', 'payment', 'payment-paypal', 'product',
-                        'promotion', 'rating', 'recommendation', 'search', 'tax',
-                        'backoffice-bff', 'storefront-bff',
-                        'sampledata', 'webhook'
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'backoffice-bff', 'storefront-bff',
+                        'sampledata', 'backoffice', 'storefront'
                     ]
                     def releaseTag = env.RELEASE_TAG
 
@@ -122,9 +120,8 @@ pipeline {
                     def releaseTag = env.RELEASE_TAG
 
                     def allBackendServices = [
-                        'cart', 'customer', 'inventory', 'location', 'media', 'order', 'payment',
-                        'payment-paypal', 'product', 'promotion', 'rating', 'search', 'tax',
-                        'recommendation', 'webhook', 'sampledata'
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'sampledata'
                     ]
                     def bffServices = ['backoffice-bff', 'storefront-bff']
                     def uiServices = ['backoffice-ui', 'storefront-ui']
