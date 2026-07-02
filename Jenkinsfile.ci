@@ -29,9 +29,9 @@ pipeline {
                         diffRange = "${mergeBase} HEAD"
                     }
                     def changedFilesOutput = sh(script: "git diff --name-only ${diffRange}", returnStdout: true).trim()
-                    changedFiles = changedFilesOutput ? changedFilesOutput.split('\n') : []
+                    changedFiles = changedFilesOutput ? changedFilesOutput.readLines() : []
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
-                    env.DOCS_ONLY = (!changedFiles.isEmpty() && changedFiles.every {
+                    env.DOCS_ONLY = (changedFiles.size() > 0 && changedFiles.every {
                         it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci'
                     }) ? 'true' : 'false'
                     if (env.DOCS_ONLY == 'true') {
