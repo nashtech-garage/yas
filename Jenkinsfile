@@ -34,13 +34,21 @@ pipeline {
         stage('Secret Scanning') {
             when { expression { env.DOCS_ONLY == 'false' } }
             steps {
-                sh '''
-                    gitleaks detect --source . \
-                        --config gitleaks.toml \
-                        --report-format json \
-                        --report-path gitleaks-report.json \
-                        --exit-code 1
-                '''
+                script {
+                    sh 'git fetch origin main:refs/remotes/origin/main || true'
+                    def mergeBase = sh(script: 'git merge-base origin/main HEAD 2>/dev/null || git rev-parse HEAD~1', returnStdout: true).trim()
+                    def branchName = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replace('origin/', '')
+                    def logOpts = (branchName == 'main') ? 'HEAD~1..HEAD' : "${mergeBase}..HEAD"
+                    echo "Secret scan git range: ${logOpts}"
+                    sh """
+                        gitleaks detect --source . \
+                            --config gitleaks.toml \
+                            --log-opts "${logOpts}" \
+                            --report-format json \
+                            --report-path gitleaks-report.json \
+                            --exit-code 1
+                    """
+                }
             }
             post {
                 always {
