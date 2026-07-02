@@ -9,6 +9,13 @@ IMAGE_TAG=${2:-${COMMIT_ID}}
 GITOPS_REPO="https://${GH_TOKEN}@github.com/com-suon-bi-cha/gitops-manifest-k8s.git"
 WORKDIR="/tmp/gitops-update-$$"
 
+if [ "${ENV}" != "dev" ] && [ "${ENV}" != "staging" ]; then
+    echo "ERROR: ENV must be dev or staging, got '${ENV}'"
+    exit 1
+fi
+
+trap 'rm -rf "${WORKDIR}"' EXIT
+
 # Detect which services changed.
 #
 # Strategy:
@@ -28,7 +35,15 @@ echo "Image tag:  ${IMAGE_TAG}"
 echo "HEAD:       ${HEAD_SHA}"
 echo "Merge-base: ${MERGE_BASE}"
 
-if [ "${MERGE_BASE}" = "${HEAD_SHA}" ]; then
+UPDATE_ALL=false
+if [ "${ENV}" = "staging" ] && [ "$#" -ge 2 ]; then
+    UPDATE_ALL=true
+    echo "Mode: staging release — updating all scoped service images"
+fi
+
+if [ "${UPDATE_ALL}" = "true" ]; then
+    CHANGED_FILES=""
+elif [ "${MERGE_BASE}" = "${HEAD_SHA}" ]; then
     # HEAD is already on (or an ancestor of) origin/main — diff vs previous commit
     PARENT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo 0)
     if [ "${PARENT_COUNT}" -lt 2 ]; then
@@ -47,13 +62,27 @@ echo "Changed files: ${CHANGED_FILES}"
 git clone "${GITOPS_REPO}" "${WORKDIR}"
 cd "${WORKDIR}/environments/${ENV}"
 
-SERVICES="media product order inventory payment promotion rating delivery \
-          sampledata recommendation customer location cart tax search webhook \
-          backoffice-bff storefront-bff payment-paypal"
+declare -A SERVICE_PATHS=(
+    ["media"]="media"
+    ["product"]="product"
+    ["order"]="order"
+    ["inventory"]="inventory"
+    ["payment"]="payment"
+    ["sampledata"]="sampledata"
+    ["customer"]="customer"
+    ["cart"]="cart"
+    ["tax"]="tax"
+    ["search"]="search"
+    ["backoffice-bff"]="backoffice-bff"
+    ["storefront-bff"]="storefront-bff"
+    ["backoffice"]="backoffice"
+    ["storefront"]="storefront"
+)
 
 UPDATED=0
-for svc in $SERVICES; do
-    if echo "${CHANGED_FILES}" | grep -q "^${svc}/"; then
+for svc in "${!SERVICE_PATHS[@]}"; do
+    source_path="${SERVICE_PATHS[$svc]}"
+    if [ "${UPDATE_ALL}" = "true" ] || echo "${CHANGED_FILES}" | grep -q "^${source_path}/"; then
         echo "Updating ${svc} → ${IMAGE_TAG}"
         kustomize edit set image "bingsu1103/${svc}:${IMAGE_TAG}"
         UPDATED=$((UPDATED + 1))
@@ -71,5 +100,4 @@ git add -A
 git commit -m "ci(${ENV}): update ${UPDATED} service(s) to ${IMAGE_TAG}"
 git push
 
-rm -rf "${WORKDIR}"
 echo "=== GitOps manifest updated ==="

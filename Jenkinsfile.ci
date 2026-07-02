@@ -76,10 +76,10 @@ pipeline {
             steps {
                 script {
                     def services = [
-                        'media', 'product', 'order', 'inventory', 'payment', 'promotion',
-                        'rating', 'delivery', 'sampledata', 'recommendation',
-                        'customer', 'location', 'cart', 'tax', 'search', 'webhook',
-                        'common-library', 'backoffice-bff', 'storefront-bff', 'payment-paypal'
+                        'common-library',
+                        'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
+                        'customer', 'cart', 'tax', 'search',
+                        'backoffice-bff', 'storefront-bff'
                     ]
 
                     for (service in services) {
@@ -144,10 +144,9 @@ pipeline {
             steps {
                 script {
                     def services = [
-                        'media', 'product', 'order', 'inventory', 'payment', 'promotion',
-                        'rating', 'delivery', 'sampledata', 'recommendation',
-                        'customer', 'location', 'cart', 'tax', 'search', 'webhook',
-                        'common-library', 'backoffice-bff', 'storefront-bff', 'payment-paypal'
+                        'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
+                        'customer', 'cart', 'tax', 'search',
+                        'backoffice-bff', 'storefront-bff'
                     ]
 
                     for (service in services) {
@@ -206,11 +205,9 @@ pipeline {
                         sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
 
                         def services = [
-                            'media', 'product', 'order', 'inventory', 'payment', 'promotion',
-                            'rating', 'delivery', 'sampledata', 'recommendation', 'customer',
-                            'location', 'cart', 'tax', 'search', 'webhook',
-                            'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront',
-                            'swagger-ui', 'payment-paypal'
+                            'media', 'product', 'order', 'inventory', 'payment',
+                            'sampledata', 'customer', 'cart', 'tax', 'search',
+                            'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront'
                         ]
                         def servicePaths = [
                             'swagger-ui': 'k8s/charts/swagger-ui'
