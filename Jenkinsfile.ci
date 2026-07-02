@@ -20,19 +20,26 @@ pipeline {
             steps {
                 script {
                     sh 'git fetch origin main:refs/remotes/origin/main || true'
-                    def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
-                    def changedFilesOutput = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim()
+                    def branchName = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replace('origin/', '')
+                    def diffRange
+                    if (branchName == 'main') {
+                        diffRange = 'HEAD~1 HEAD'
+                    } else {
+                        def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
+                        diffRange = "${mergeBase} HEAD"
+                    }
+                    def changedFilesOutput = sh(script: "git diff --name-only ${diffRange}", returnStdout: true).trim()
                     changedFiles = changedFilesOutput ? changedFilesOutput.split('\n') : []
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
-                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci' } ? 'true' : 'false'
+                    env.DOCS_ONLY = (!changedFiles.isEmpty() && changedFiles.every {
+                        it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci'
+                    }) ? 'true' : 'false'
                     if (env.DOCS_ONLY == 'true') {
                         echo "Only documentation/CI files changed — skipping CI stages."
                     } else {
                         echo "Code changes detected — running full pipeline."
                     }
 
-                    // Resolve branch name (Multibranch sets BRANCH_NAME, fallback to GIT_BRANCH)
-                    def branchName = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replace('origin/', '')
                     env.BRANCH_IS_MAIN = (branchName == 'main') ? 'true' : 'false'
                     echo "Branch: ${branchName} — BRANCH_IS_MAIN=${env.BRANCH_IS_MAIN}"
 
