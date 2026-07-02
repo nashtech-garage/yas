@@ -75,3 +75,27 @@ spec:
   trafficPolicy:
     tls:
       mode: DISABLE
+---
+# Kafka has no Istio sidecar — disable mTLS for all Kafka ports
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: kafka-disable-mtls
+  namespace: dev
+spec:
+  host: "*.kafka.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+# Zookeeper (used by Kafka)
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: zookeeper-disable-mtls
+  namespace: dev
+spec:
+  host: "*.zookeeper.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE

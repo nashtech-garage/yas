@@ -7,7 +7,7 @@ spec:
     tls:
       selfSignedCertificate:
         disabled: true
-  version: 8.8.1
+  version: 7.17.10
   auth:
     fileRealm:
       - secretName: user-credentials-secret
@@ -16,3 +16,14 @@ spec:
       count: {{ .Values.elasticsearch.replicas }}
       config:
         node.store.allow_mmap: false
+      podTemplate:
+        spec:
+          containers:
+            - name: elasticsearch
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 250m
+                limits:
+                  memory: 1Gi
+                  cpu: 1000m
