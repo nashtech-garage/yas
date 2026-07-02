@@ -36,6 +36,7 @@ pipeline {
             steps {
                 script {
                     sh 'git fetch origin main:refs/remotes/origin/main || true'
+
                     def changedFilesOutput = sh(script: '''
                         MERGE_BASE=$(git merge-base origin/main HEAD 2>/dev/null || true)
                         HEAD_SHA=$(git rev-parse HEAD)
@@ -52,8 +53,6 @@ pipeline {
                     changedFiles = changedFilesOutput ? changedFilesOutput.split('\n') : []
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
 
-                    // Resolve branch name (Multibranch sets BRANCH_NAME, fallback to GIT_BRANCH)
-                    def branchName = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replace('origin/', '')
                     env.BRANCH_IS_MAIN = (branchName == 'main') ? 'true' : 'false'
                     echo "Branch: ${branchName} — BRANCH_IS_MAIN=${env.BRANCH_IS_MAIN}"
 

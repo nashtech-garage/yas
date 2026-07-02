@@ -2,7 +2,8 @@ package com.yas.tax.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
-
+//test
+//abc
 import com.yas.commonlibrary.IntegrationTestConfiguration;
 import com.yas.tax.model.TaxClass;
 import com.yas.tax.model.TaxRate;
