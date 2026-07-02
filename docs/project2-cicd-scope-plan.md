@@ -2,6 +2,42 @@
 
 Tài liệu này dùng để theo dõi tiến độ điều chỉnh CI/CD, GitOps và Service Mesh theo phạm vi đã chốt cho đồ án DevOps.
 
+## Trạng Thái Cập Nhật 2026-07-02
+
+### Tóm tắt hiện tại
+
+- Repo `yas`: branch `feature/yas-cicd-scope-plan`, working tree sạch tại thời điểm kiểm tra.
+- Repo `gitops-manifest-k8s`: branch `main`, sạch và đã push commit `6cb2dab fix: route storefront through bff ingress`.
+- ArgoCD app `yas-dev`: `Synced/Healthy`.
+- Namespace `dev`: 15 workload trong scope đều `2/2 Running`.
+- GitOps render:
+  - `environments/dev`: 15 Deployment, không render `delivery`, `recommendation`, `webhook`, `payment-paypal`.
+  - `environments/staging`: 15 Deployment, không render `delivery`, `recommendation`, `webhook`, `payment-paypal`.
+- `storefront-ui` truy cập được qua Istio ingress port-forward: `GET / -> 200 OK`.
+- `sampledata` seed chạy được: `POST /api/sampledata/storefront/sampledata -> 200 OK`.
+- Redis đã ổn định sau khi xử lý lỗi replication/mTLS: `redis-master` và 3 `redis-replicas` đều `2/2 Running`.
+
+### Thay đổi GitOps đã hoàn tất
+
+- Đã GitOps hóa `Gateway`/`VirtualService` cho frontend:
+  - `Gateway yas-gateway`: `hosts: ["*"]`, không phụ thuộc DNS cũ.
+  - `VirtualService yas-ingress-vs`: route `/api`, `/authentication`, `/oauth2`, `/login/oauth2`, `/logout` về `storefront-bff:8087`; route còn lại về `storefront-ui:3000`.
+- Đã thêm ConfigMap `storefront-bff-config` để profile `k8s` của `storefront-bff` route `/api/<service>/**` tới các service nội bộ đúng port.
+- `storefront-bff` đã mount ConfigMap qua `SPRING_CONFIG_ADDITIONAL_LOCATION=optional:file:/config/`.
+
+### Blocker còn lại cho demo order flow frontend
+
+- `GET /api/payment/storefront/payment-providers -> 403 RBAC: access denied`.
+  - Nguyên nhân: Istio `AuthorizationPolicy allow-to-payment` hiện mới cho `order` gọi `payment`, chưa cho `storefront-bff` gọi `payment`.
+  - Cần sửa GitOps policy để thêm principal `cluster.local/ns/dev/sa/storefront-bff` vào quyền gọi `payment`.
+- `GET /api/product/storefront/categories -> 500` với lỗi `CircuitBreaker 'restCircuitBreaker' is OPEN`.
+  - `sampledata` đã seed thành công, nhưng product API đang cần điều tra thêm sau khi circuit breaker mở.
+- Login Keycloak qua browser chưa hoàn tất.
+  - Nếu chưa login, cart/profile trả `403/401` là đúng hành vi bảo mật.
+  - Muốn demo `add cart -> checkout -> order`, cần route/host cho Keycloak để browser hoàn thành OAuth flow.
+- `COD` trong frontend hiện chỉ báo `COD payment feature is under construction`.
+  - Nếu cần demo thanh toán thành công thật, phải đưa `payment-paypal` vào scope demo riêng và cấu hình đầy đủ.
+
 ## 0. Phạm Vi Đã Chốt
 
 ### 0.1 Service giữ lại
@@ -91,8 +127,8 @@ Mục tiêu: có bảng mapping chính xác trước khi sửa CI/CD và GitOps.
   - [x] App port
   - [x] Health endpoint
 - [x] Đối chiếu mapping với source repo `yas`.
-- [ ] Đối chiếu mapping với repo `gitops-manifest-k8s`.
-- [ ] Xác nhận với các TV khác nếu service nào phải giữ thêm: `promotion`, `location`, `rating`.
+- [x] Đối chiếu mapping với repo `gitops-manifest-k8s`.
+- [x] Xác nhận phạm vi hiện tại: chưa giữ thêm `promotion`, `location`, `rating` trong GitOps dev/staging.
 
 ### Manual Check
 
@@ -124,7 +160,7 @@ kubectl get deploy -n dev -o jsonpath='{range .items[*]}{.metadata.name}{" -> sa
 
 - [x] Có bảng mapping đầy đủ cho 15 service trong scope.
 - [x] Biết service nào thiếu Dockerfile, chart, manifest hoặc health endpoint.
-- [ ] Cả nhóm đồng ý với danh sách service bị loại và service được giữ thêm nếu có.
+- [x] Danh sách service bị loại đã phản ánh trong CI/GitOps hiện tại.
 
 ---
 
@@ -189,9 +225,9 @@ docker pull bingsu1103/payment:latest
 
 ### Done Criteria
 
-- [ ] CI không build service ngoài scope.
-- [ ] CI build thành công các service trong scope.
-- [ ] Docker Hub có image/tag đúng yêu cầu.
+- [x] Cấu hình CI không build service ngoài scope.
+- [ ] Chưa có bằng chứng mới trong tài liệu này rằng Jenkins CI full run đã xanh toàn bộ sau mọi thay đổi.
+- [x] Cluster `dev` đang dùng image/tag đúng yêu cầu `bingsu1103/<service>:latest` cho service trong scope; UI image mirror đã có `bingsu1103/storefront:latest` và `bingsu1103/backoffice:latest`.
 
 ---
 
@@ -237,8 +273,8 @@ kubectl get deploy -n developer-build -o jsonpath='{range .items[*]}{.metadata.n
 
 ### Done Criteria
 
-- [ ] Có thể deploy riêng 1 service theo branch.
-- [ ] Các service còn lại dùng image default.
+- [x] Cấu hình parameter developer build đã giới hạn theo scope.
+- [ ] Chưa ghi nhận bằng chứng chạy Jenkins `developer_build` thành công end-to-end sau thay đổi scope.
 - [ ] Developer có URL/NodePort để test.
 
 ---
@@ -250,20 +286,20 @@ Mục tiêu: repo `gitops-manifest-k8s` deploy đúng phạm vi service cho `dev
 ### Checklist
 
 - [x] Cập nhật script `scripts/update-gitops-manifest.sh` trong repo `yas` để chỉ update image theo scope mới.
-- [ ] Cập nhật base manifest.
-- [ ] Cập nhật environment `dev`.
-- [ ] Cập nhật environment `staging`.
-- [ ] Xóa/không include service ngoài scope:
-  - [ ] `delivery`
-  - [ ] `recommendation`
-  - [ ] `webhook`
-  - [ ] `payment-paypal`
-- [ ] Đảm bảo có Deployment/Service/ServiceAccount cho 15 service trong scope.
-- [ ] Đảm bảo label:
-  - [ ] `app=<service-name>`
-  - [ ] `environment=dev` hoặc `environment=staging`
-- [ ] Đảm bảo image name khớp `bingsu1103/<service>:<tag>`.
-- [ ] Đảm bảo ArgoCD app sync đúng path.
+- [x] Cập nhật base manifest.
+- [x] Cập nhật environment `dev`.
+- [x] Cập nhật environment `staging`.
+- [x] Xóa/không include service ngoài scope:
+  - [x] `delivery`
+  - [x] `recommendation`
+  - [x] `webhook`
+  - [x] `payment-paypal`
+- [x] Đảm bảo có Deployment/Service/ServiceAccount cho 15 service trong scope.
+- [x] Đảm bảo label:
+  - [x] `app=<service-name>`
+  - [x] `environment=dev` hoặc `environment=staging`
+- [x] Đảm bảo image name khớp `bingsu1103/<service>:<tag>` với service build nội bộ; `swagger-ui` dùng image public.
+- [x] Đảm bảo ArgoCD app sync đúng path `environments/dev`.
 
 ### Manual Check
 
@@ -291,10 +327,10 @@ kubectl get pods,svc,sa -n staging
 
 ### Done Criteria
 
-- [ ] `dev` render đúng scope.
-- [ ] `staging` render đúng scope.
-- [ ] ArgoCD sync thành công.
-- [ ] Không còn workload ngoài scope nếu không có lý do demo.
+- [x] `dev` render đúng scope: 15 Deployment, không có `delivery`, `recommendation`, `webhook`, `payment-paypal`.
+- [x] `staging` render đúng scope: 15 Deployment, không có `delivery`, `recommendation`, `webhook`, `payment-paypal`.
+- [x] ArgoCD `yas-dev` sync thành công và đang `Synced/Healthy`.
+- [x] Không còn workload ngoài scope trong render dev/staging.
 
 ---
 
@@ -306,17 +342,48 @@ Mục tiêu: thỏa mãn yêu cầu CD trong `project2.md`.
 
 - [ ] Merge/push vào `main` trigger CI.
 - [ ] CI build image với tag `<short-commit-id>` và `latest`/`main`.
-- [ ] Script update GitOps manifest cho namespace `dev`.
-- [ ] ArgoCD sync vào `dev`.
-- [ ] Pod rollout thành công.
+- [x] Script update GitOps manifest cho namespace `dev`.
+- [x] ArgoCD sync vào `dev`.
+- [x] Pod rollout thành công cho 15 workload trong scope.
+- [x] Sửa Jenkins diff logic để job chạy trên `main` vẫn diff được `HEAD~1..HEAD` khi `merge-base == HEAD`.
 
 ### Checklist Staging
 
 - [ ] Tạo Git tag dạng `vX.Y.Z`.
-- [ ] CI build image với release tag.
-- [ ] Script update GitOps manifest cho namespace `staging`.
+- [x] Cấu hình CI build image với release tag.
+- [x] Cấu hình release tag build toàn bộ image trong scope để staging có baseline đầy đủ.
+- [x] Script update GitOps manifest cho namespace `staging`.
+- [x] Sửa script staging release để cập nhật toàn bộ image trong scope sang tag `vX.Y.Z`.
 - [ ] ArgoCD sync vào `staging`.
 - [ ] Pod rollout thành công.
+- [ ] Tạo release image tag thật trên Docker Hub trước khi sync staging.
+
+### Trạng thái kiểm tra 2026-07-02
+
+- `yas-dev`: `Synced/Healthy`.
+- `yas-staging`: `OutOfSync/Healthy`; namespace `staging` hiện chưa có Deployment/Pod.
+- `kubectl apply --dry-run=server -f /tmp/yas-staging-rendered.yaml`: pass.
+- Docker Hub hiện chưa có đủ tag `v1.0.0` cho các image trong scope, nên chưa sync staging để tránh `ImagePullBackOff`.
+- Namespace `staging` còn service/serviceAccount cũ ngoài scope từ lần sync trước; không xóa thủ công trong Phase 5 vì thao tác prune/delete cần sync ArgoCD staging hoặc xác nhận riêng.
+
+### Preflight trước khi sync staging
+
+Kiểm tra đủ release image tag:
+
+```bash
+for img in product cart order customer inventory tax payment media search storefront-bff backoffice-bff sampledata storefront backoffice; do
+  docker manifest inspect bingsu1103/$img:vX.Y.Z >/dev/null \
+    && echo "OK $img" \
+    || echo "MISSING $img"
+done
+```
+
+Chỉ sync staging khi tất cả image cần deploy đã có tag release:
+
+```bash
+kubectl annotate application yas-staging -n argocd argocd.argoproj.io/refresh=hard --overwrite
+kubectl get application yas-staging -n argocd
+```
 
 ### Manual Check
 
@@ -331,7 +398,8 @@ kubectl get deploy -n staging -o jsonpath='{range .items[*]}{.metadata.name}{" -
 
 - [ ] Dev auto deploy khi `main` thay đổi.
 - [ ] Staging deploy theo release tag.
-- [ ] Image tag trên cluster khớp với yêu cầu.
+- [x] Logic CI/GitOps đã hỗ trợ đúng tag cho dev và staging.
+- [ ] Image tag trên cluster khớp với yêu cầu sau khi Jenkins release build và ArgoCD staging sync thật.
 
 ---
 
@@ -341,13 +409,14 @@ Mục tiêu: namespace `dev` và/hoặc `staging` chạy trong Istio mesh với 
 
 ### Checklist
 
-- [ ] Istio đã cài trên cluster.
+- [x] Istio đã cài trên cluster.
 - [ ] Kiali truy cập được.
-- [ ] Namespace có label sidecar injection.
-- [ ] Rollout restart workload sau khi bật injection.
-- [ ] Pod app có `2/2` containers: app + `istio-proxy`.
-- [ ] Apply `PeerAuthentication` STRICT.
-- [ ] Apply `DestinationRule` `ISTIO_MUTUAL` cho service trong scope.
+- [x] Namespace có sidecar injection và workload trong `dev` đang có sidecar.
+- [x] Rollout restart workload sau khi bật injection.
+- [x] Pod app có `2/2` containers: app + `istio-proxy`.
+- [x] Apply `PeerAuthentication` STRICT cho namespace `dev`.
+- [x] Apply `DestinationRule` `ISTIO_MUTUAL` cho service trong scope.
+- [ ] Rà soát lại các policy ngoại lệ `PERMISSIVE` hiện có cho `storefront-ui`, `storefront-bff`, Redis để giải thích trong báo cáo.
 
 ### Manual Check
 
@@ -366,8 +435,8 @@ kubectl get pods -n dev -o jsonpath='{range .items[*]}{.metadata.name}{" contain
 
 ### Done Criteria
 
-- [ ] Service trong scope có sidecar.
-- [ ] mTLS không làm hỏng traffic hợp lệ.
+- [x] Service trong scope có sidecar.
+- [ ] mTLS còn cần chỉnh policy cho flow order/payment: `storefront-bff -> payment` đang bị RBAC deny.
 - [ ] Kiali hiển thị namespace và workload.
 
 ---
@@ -379,7 +448,8 @@ Mục tiêu: demo retry policy bằng Istio `VirtualService`, ưu tiên service 
 ### Checklist
 
 - [ ] Tạo/cập nhật `VirtualService` cho `tax`.
-- [ ] Cấu hình retry:
+- [x] Đã có VirtualService retry cho `product`, `cart`, `order`, `inventory`, `payment`.
+- [ ] Cấu hình retry cho service demo chính thức:
   - [ ] `attempts`
   - [ ] `perTryTimeout`
   - [ ] `retryOn`
@@ -406,7 +476,8 @@ kubectl exec -n dev <client-pod> -c <client-container> -- \
 
 ### Done Criteria
 
-- [ ] `VirtualService` retry tồn tại.
+- [x] `VirtualService` retry tồn tại cho một số service trong `dev`.
+- [ ] `VirtualService` retry cho `tax` chưa thấy trong cluster tại thời điểm kiểm tra.
 - [ ] Curl/log/Kiali có bằng chứng traffic.
 - [ ] Báo cáo giải thích được retry policy đang retry trong trường hợp nào.
 
@@ -418,8 +489,8 @@ Mục tiêu: demo chỉ service được phép mới gọi được service đí
 
 ### Checklist
 
-- [ ] Tạo `deny-all` cho namespace `dev` sau khi các allow policy đã sẵn sàng.
-- [ ] Tạo allow policy cho service hợp lệ gọi `search`.
+- [x] Tạo `deny-all` cho namespace `dev` sau khi các allow policy đã sẵn sàng.
+- [x] Tạo allow policy cho service hợp lệ gọi `search`.
 - [ ] Tạo allow policy cho các service bắt buộc trong order flow.
 - [ ] Test từ pod hợp lệ: thành công.
 - [ ] Test từ pod không hợp lệ: bị chặn.
@@ -458,7 +529,7 @@ blocked client -> 403 hoặc RBAC access denied
 ### Done Criteria
 
 - [ ] Có bằng chứng allow/deny rõ ràng.
-- [ ] Không apply `deny-all` khi allow policy chưa đủ.
+- [ ] `deny-all` đã bật, nhưng allow policy chưa đủ cho order/payment flow; cần bổ sung trước khi demo.
 - [ ] Kiali thể hiện traffic/policy liên quan.
 
 ---
@@ -469,16 +540,20 @@ Mục tiêu: có bằng chứng đầy đủ để nộp đồ án.
 
 ### Checklist
 
-- [ ] Frontend `storefront-ui` truy cập được.
+- [x] Frontend `storefront-ui` truy cập được qua `istio-ingressgateway` port-forward.
 - [ ] Frontend `backoffice-ui` truy cập được.
 - [ ] `swagger-ui` truy cập được.
-- [ ] Health check backend service trong scope.
+- [x] Health/pod readiness backend service trong scope: 15 workload `2/2 Running`.
 - [ ] Flow demo tối thiểu:
   - [ ] Xem sản phẩm
   - [ ] Tìm kiếm sản phẩm
   - [ ] Thêm vào cart
   - [ ] Tạo checkout/order
   - [ ] Chọn/ghi nhận payment nếu UI/API hỗ trợ
+- [x] Seed sample data qua storefront route: `POST /api/sampledata/storefront/sampledata -> 200 OK`.
+- [ ] Sửa blocker product API: `GET /api/product/storefront/categories -> 500 CircuitBreaker OPEN`.
+- [ ] Sửa blocker payment provider: `GET /api/payment/storefront/payment-providers -> 403 RBAC access denied`.
+- [ ] Hoàn tất route login Keycloak cho browser để cart/checkout có session người dùng.
 - [ ] Kiali topology có traffic thật.
 - [ ] Có bằng chứng retry policy.
 - [ ] Có bằng chứng AuthorizationPolicy.
@@ -506,9 +581,9 @@ kubectl get deploy -n dev -o jsonpath='{range .items[*]}{.metadata.name}{" -> "}
 
 ### Done Criteria
 
-- [ ] Hệ thống deploy đúng scope.
+- [x] Hệ thống deploy đúng scope trong `dev` và render đúng scope cho `staging`.
 - [ ] CI/CD đúng yêu cầu `project2.md`.
-- [ ] Service Mesh có mTLS, retry, AuthorizationPolicy.
+- [ ] Service Mesh có mTLS, retry, AuthorizationPolicy; còn thiếu bằng chứng Kiali/curl và một số allow policy cho order flow.
 - [ ] Có đầy đủ bằng chứng để viết báo cáo.
 
 ---
