@@ -1,4 +1,20 @@
 def changedFiles = []
+def backendServices = [
+    'common-library',
+    'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
+    'customer', 'cart', 'tax', 'search',
+    'backoffice-bff', 'storefront-bff'
+]
+def coverageServices = [
+    'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
+    'customer', 'cart', 'tax', 'search',
+    'backoffice-bff', 'storefront-bff'
+]
+def dockerServices = [
+    'media', 'product', 'order', 'inventory', 'payment',
+    'sampledata', 'customer', 'cart', 'tax', 'search',
+    'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront'
+]
 
 pipeline {
     agent { label 'gcp-k8s-agent' }
@@ -20,34 +36,56 @@ pipeline {
             steps {
                 script {
                     sh 'git fetch origin main:refs/remotes/origin/main || true'
-                    def branchName = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replace('origin/', '')
-                    def diffRange
-                    if (branchName == 'main') {
-                        diffRange = 'HEAD~1 HEAD'
-                    } else {
-                        def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
-                        diffRange = "${mergeBase} HEAD"
-                    }
-                    def changedFilesOutput = sh(script: "git diff --name-only ${diffRange}", returnStdout: true).trim()
-                    changedFiles = changedFilesOutput ? changedFilesOutput.readLines() : []
+
+                    def changedFilesOutput = sh(script: '''
+                        MERGE_BASE=$(git merge-base origin/main HEAD 2>/dev/null || true)
+                        HEAD_SHA=$(git rev-parse HEAD)
+                        if [ -z "${MERGE_BASE}" ]; then
+                            git diff --name-only HEAD~1 HEAD 2>/dev/null || true
+                        elif [ "${MERGE_BASE}" = "${HEAD_SHA}" ]; then
+                            if [ "$(git rev-list --count HEAD 2>/dev/null || echo 0)" -ge 2 ]; then
+                                git diff --name-only HEAD~1 HEAD
+                            fi
+                        else
+                            git diff --name-only "${MERGE_BASE}" HEAD
+                        fi
+                    ''', returnStdout: true).trim()
+                    changedFiles = changedFilesOutput ? changedFilesOutput.split('\n') : []
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
-                    env.DOCS_ONLY = (changedFiles.size() > 0 && changedFiles.every {
-                        it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci'
-                    }) ? 'true' : 'false'
-                    if (env.DOCS_ONLY == 'true') {
-                        echo "Only documentation/CI files changed — skipping CI stages."
-                    } else {
-                        echo "Code changes detected — running full pipeline."
-                    }
 
                     env.BRANCH_IS_MAIN = (branchName == 'main') ? 'true' : 'false'
                     echo "Branch: ${branchName} — BRANCH_IS_MAIN=${env.BRANCH_IS_MAIN}"
 
                     // Resolve git tag at HEAD (safe: inside node/steps context)
-                    def gitTag = sh(script: 'git tag --points-at HEAD 2>/dev/null || true', returnStdout: true).trim()
-                    env.GIT_TAG_MATCH = (gitTag ==~ /v\d+\.\d+\.\d+.*/) ? 'true' : 'false'
+                    def gitTag = sh(script: '''
+                        git tag --points-at HEAD 2>/dev/null \
+                            | grep -E '^v[0-9]+\\.[0-9]+\\.[0-9]+' \
+                            | head -n 1 || true
+                    ''', returnStdout: true).trim()
+                    env.GIT_TAG_MATCH = gitTag ? 'true' : 'false'
                     env.GIT_TAG_NAME  = gitTag
                     echo "Git tag at HEAD: '${gitTag}' — GIT_TAG_MATCH=${env.GIT_TAG_MATCH}"
+
+                    def globalImpact = changedFiles.any {
+                        it == 'pom.xml' ||
+                        it == 'mvnw' ||
+                        it == 'mvnw.cmd' ||
+                        it.startsWith('.mvn/') ||
+                        it.startsWith('common-library/')
+                    }
+                    env.GLOBAL_IMPACT = globalImpact ? 'true' : 'false'
+                    echo "GLOBAL_IMPACT=${env.GLOBAL_IMPACT}"
+
+                    env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci' } ? 'true' : 'false'
+                    if (env.GIT_TAG_MATCH == 'true') {
+                        env.DOCS_ONLY = 'false'
+                        echo "Release tag detected — forcing CI/CD stages for staging."
+                    }
+                    if (env.DOCS_ONLY == 'true') {
+                        echo "Only documentation/CI files changed — skipping CI stages."
+                    } else {
+                        echo "Code changes detected — running full pipeline."
+                    }
                 }
             }
         }
@@ -82,15 +120,8 @@ pipeline {
             when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 script {
-                    def services = [
-                        'common-library',
-                        'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
-                        'customer', 'cart', 'tax', 'search',
-                        'backoffice-bff', 'storefront-bff'
-                    ]
-
-                    for (service in services) {
-                        if (changedFiles.any { it.startsWith("${service}/") }) {
+                    for (service in backendServices) {
+                        if (env.GIT_TAG_MATCH == 'true' || env.GLOBAL_IMPACT == 'true' || changedFiles.any { it.startsWith("${service}/") }) {
                             echo "Processing service: ${service}"
                             sh "mvn test -pl ${service} -am"
                             junit testResults: "${service}/target/surefire-reports/*.xml", allowEmptyResults: true
@@ -113,9 +144,8 @@ pipeline {
                             returnStatus: true
                         )
                         if (exitCode != 0) {
-                            echo "WARNING: SonarQube unavailable or analysis failed (exit ${exitCode}) — Quality Gate will be skipped."
-                            currentBuild.result = 'UNSTABLE'
                             env.SONAR_SKIPPED = 'true'
+                            echo "WARNING: SonarQube analysis failed or is unavailable (exit ${exitCode}) — continuing CD stages."
                         }
                     }
                 }
@@ -135,11 +165,15 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         try {
                             timeout(time: 5, unit: 'MINUTES') {
-                                waitForQualityGate abortPipeline: false
+                                def qualityGate = waitForQualityGate abortPipeline: false
+                                env.SONAR_QG_STATUS = qualityGate.status
+                                if (qualityGate.status != 'OK') {
+                                    echo "WARNING: Quality Gate is '${qualityGate.status}' — continuing CD stages."
+                                }
                             }
                         } catch (Exception e) {
-                            echo "WARNING: Quality Gate check failed — ${e.message}"
-                            currentBuild.result = 'UNSTABLE'
+                            env.SONAR_SKIPPED = 'true'
+                            echo "WARNING: Quality Gate check failed — ${e.message}. Continuing CD stages."
                         }
                     }
                 }
@@ -150,14 +184,8 @@ pipeline {
             when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 script {
-                    def services = [
-                        'media', 'product', 'order', 'inventory', 'payment', 'sampledata',
-                        'customer', 'cart', 'tax', 'search',
-                        'backoffice-bff', 'storefront-bff'
-                    ]
-
-                    for (service in services) {
-                        if (changedFiles.any { it.startsWith("${service}/") }) {
+                    for (service in coverageServices) {
+                        if (env.GIT_TAG_MATCH == 'true' || env.GLOBAL_IMPACT == 'true' || changedFiles.any { it.startsWith("${service}/") }) {
                             echo "Publishing JaCoCo report for: ${service}"
                             jacoco(
                                 execPattern: "${service}/target/jacoco.exec",
@@ -211,18 +239,14 @@ pipeline {
 
                         sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
 
-                        def services = [
-                            'media', 'product', 'order', 'inventory', 'payment',
-                            'sampledata', 'customer', 'cart', 'tax', 'search',
-                            'backoffice-bff', 'storefront-bff', 'backoffice', 'storefront'
-                        ]
                         def servicePaths = [
                             'swagger-ui': 'k8s/charts/swagger-ui'
                         ]
+                        def buildAllImages = (env.GIT_TAG_MATCH == 'true' || env.GLOBAL_IMPACT == 'true')
 
-                        for (service in services) {
+                        for (service in dockerServices) {
                             def servicePath = servicePaths.get(service, service)
-                            if (changedFiles.any { it.startsWith("${servicePath}/") }) {
+                            if (buildAllImages || changedFiles.any { it.startsWith("${servicePath}/") }) {
                                 if (!fileExists("${servicePath}/Dockerfile")) {
                                     echo "${service}: no Dockerfile at ${servicePath}; skip Docker build"
                                     continue
