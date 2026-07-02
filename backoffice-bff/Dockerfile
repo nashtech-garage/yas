@@ -1,3 +1,4 @@
+## CI trigger: backoffice-bff service.
 FROM eclipse-temurin:25-jre-alpine
 RUN apk add --no-cache bash
 COPY target/backoffice*.jar app.jar
