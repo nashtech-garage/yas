@@ -1,3 +1,5 @@
+def changedFiles = []
+
 pipeline {
     agent { label 'gcp-k8s-agent' }
 
@@ -19,7 +21,8 @@ pipeline {
                 script {
                     sh 'git fetch origin main:refs/remotes/origin/main || true'
                     def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
-                    def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
+                    def changedFilesOutput = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim()
+                    changedFiles = changedFilesOutput ? changedFilesOutput.split('\n') : []
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
                     env.DOCS_ONLY = changedFiles.every { it.startsWith('docs/') || it.endsWith('.md') || it.endsWith('.pdf') || it == 'Jenkinsfile' || it == 'Jenkinsfile.ci' } ? 'true' : 'false'
                     if (env.DOCS_ONLY == 'true') {
@@ -45,13 +48,20 @@ pipeline {
         stage('Secret Scanning') {
             when { expression { env.DOCS_ONLY == 'false' } }
             steps {
-                sh '''
-                    gitleaks detect --source . \
-                        --config gitleaks.toml \
-                        --report-format json \
-                        --report-path gitleaks-report.json \
-                        --exit-code 1
-                '''
+                script {
+                    sh 'git fetch origin main:refs/remotes/origin/main || true'
+                    def mergeBase = sh(script: 'git merge-base origin/main HEAD 2>/dev/null || git rev-parse HEAD~1', returnStdout: true).trim()
+                    def logOpts = (env.BRANCH_IS_MAIN == 'true') ? 'HEAD~1..HEAD' : "${mergeBase}..HEAD"
+                    echo "Secret scan git range: ${logOpts}"
+                    sh """
+                        gitleaks detect --source . \
+                            --config gitleaks.toml \
+                            --log-opts "${logOpts}" \
+                            --report-format json \
+                            --report-path gitleaks-report.json \
+                            --exit-code 1
+                    """
+                }
             }
             post {
                 always {
@@ -65,7 +75,6 @@ pipeline {
             when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 script {
-                    def changedFiles = sh(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim().split('\n')
                     def services = [
                         'media', 'product', 'order', 'inventory', 'payment', 'promotion',
                         'rating', 'delivery', 'sampledata', 'recommendation',
@@ -134,7 +143,6 @@ pipeline {
             when { expression { env.DOCS_ONLY == 'false' } }
             steps {
                 script {
-                    def changedFiles = sh(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim().split('\n')
                     def services = [
                         'media', 'product', 'order', 'inventory', 'payment', 'promotion',
                         'rating', 'delivery', 'sampledata', 'recommendation',
@@ -194,8 +202,6 @@ pipeline {
                 )]) {
                     script {
                         def commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        def mergeBase = sh(script: 'git merge-base origin/main HEAD', returnStdout: true).trim()
-                        def changedFiles = sh(script: "git diff --name-only ${mergeBase} HEAD", returnStdout: true).trim().split('\n')
 
                         sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
 

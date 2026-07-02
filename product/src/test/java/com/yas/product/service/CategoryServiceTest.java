@@ -2,33 +2,40 @@ package com.yas.product.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.yas.product.ProductApplication;
+import com.yas.commonlibrary.exception.BadRequestException;
+import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.product.model.Category;
 import com.yas.product.repository.CategoryRepository;
-import com.yas.product.repository.ProductCategoryRepository;
 import com.yas.product.viewmodel.NoFileMediaVm;
 import com.yas.product.viewmodel.category.CategoryGetDetailVm;
 import com.yas.product.viewmodel.category.CategoryGetVm;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import com.yas.product.viewmodel.category.CategoryListGetVm;
+import com.yas.product.viewmodel.category.CategoryPostVm;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
-@SpringBootTest(classes = ProductApplication.class)
+@ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
-    @Autowired
+    @Mock
     private CategoryRepository categoryRepository;
-    @Autowired
-    private ProductCategoryRepository productCategoryRepository;
-    @MockitoBean
+    @Mock
     private MediaService mediaService;
-    @Autowired
+    @InjectMocks
     private CategoryService categoryService;
 
     private Category category;
@@ -36,8 +43,8 @@ class CategoryServiceTest {
 
     @BeforeEach
     void setUp() {
-
         category = new Category();
+        category.setId(1L);
         category.setName("name");
         category.setSlug("slug");
         category.setDescription("description");
@@ -46,76 +53,100 @@ class CategoryServiceTest {
         category.setDisplayOrder((short) 1);
         category.setIsPublished(true);
         category.setImageId(1L);
-        categoryRepository.save(category);
 
         noFileMediaVm = new NoFileMediaVm(1L, "caption", "fileName", "mediaType", "url");
     }
 
-    @AfterEach
-    void tearDown() {
-        productCategoryRepository.deleteAll();
-        categoryRepository.deleteAll();
-    }
-
     @Test
     void getCategoryById_Success() {
-        when(mediaService.getMedia(category.getImageId())).thenReturn(noFileMediaVm);
-        CategoryGetDetailVm categoryGetDetailVm = categoryService.getCategoryById(category.getId());
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(mediaService.getMedia(1L)).thenReturn(noFileMediaVm);
+
+        CategoryGetDetailVm categoryGetDetailVm = categoryService.getCategoryById(1L);
+
         assertNotNull(categoryGetDetailVm);
         assertEquals("name", categoryGetDetailVm.name());
     }
 
     @Test
     void getCategories_Success() {
-        when(mediaService.getMedia(any())).thenReturn(noFileMediaVm);
-        Assertions.assertEquals(1, categoryService.getCategories("name").size());
-        CategoryGetVm categoryGetVm = categoryService.getCategories("name").getFirst();
-        assertEquals("name", categoryGetVm.name());
+        when(categoryRepository.findByNameContainingIgnoreCase("name")).thenReturn(List.of(category));
+        when(mediaService.getMedia(anyLong())).thenReturn(noFileMediaVm);
+
+        List<CategoryGetVm> categories = categoryService.getCategories("name");
+
+        assertEquals(1, categories.size());
+        assertEquals("name", categories.getFirst().name());
     }
 
     @Test
     void getCategoriesPageable_Success() {
-        when(mediaService.getMedia(category.getImageId())).thenReturn(noFileMediaVm);
-        Assertions.assertEquals(1, categoryService.getPageableCategories(0, 1).categoryContent().size());
-        CategoryGetVm categoryGetVm = categoryService.getCategories("a").getFirst();
-        assertEquals("name", categoryGetVm.name());
+        when(categoryRepository.findAll(PageRequest.of(0, 1)))
+                .thenReturn(new PageImpl<>(List.of(category), PageRequest.of(0, 1), 1));
+
+        CategoryListGetVm response = categoryService.getPageableCategories(0, 1);
+
+        assertEquals(1, response.categoryContent().size());
+        assertEquals("name", response.categoryContent().getFirst().name());
     }
 
     @Test
     void create_Success() {
-        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("new-cat", "new-slug", "desc", null, "meta", "metaDesc", (short)1, true, 1L);
+        CategoryPostVm postVm = new CategoryPostVm("new-cat", "new-slug", "desc", null, "meta", "metaDesc", (short) 1, true, 1L);
+        when(categoryRepository.findExistedName("new-cat", null)).thenReturn(null);
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         Category result = categoryService.create(postVm);
+
         assertNotNull(result);
         assertEquals("new-cat", result.getName());
+        assertEquals("new-slug", result.getSlug());
     }
 
     @Test
     void create_whenDuplicateName_throwsDuplicatedException() {
-        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("name", "new-slug", "desc", null, "meta", "metaDesc", (short)1, true, 1L);
-        Assertions.assertThrows(com.yas.commonlibrary.exception.DuplicatedException.class, () -> categoryService.create(postVm));
+        CategoryPostVm postVm = new CategoryPostVm("name", "new-slug", "desc", null, "meta", "metaDesc", (short) 1, true, 1L);
+        when(categoryRepository.findExistedName("name", null)).thenReturn(category);
+
+        assertThrows(DuplicatedException.class, () -> categoryService.create(postVm));
     }
 
     @Test
     void update_Success() {
-        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("updated-cat", "updated-slug", "desc", null, "meta", "metaDesc", (short)1, true, 1L);
-        categoryService.update(postVm, category.getId());
-        Category updated = categoryRepository.findById(category.getId()).get();
-        assertEquals("updated-cat", updated.getName());
+        CategoryPostVm postVm = new CategoryPostVm("updated-cat", "updated-slug", "desc", null, "meta", "metaDesc", (short) 1, true, 1L);
+        when(categoryRepository.findExistedName("updated-cat", 1L)).thenReturn(null);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+
+        categoryService.update(postVm, 1L);
+
+        assertEquals("updated-cat", category.getName());
+        assertEquals("updated-slug", category.getSlug());
+        assertNull(category.getParent());
     }
 
     @Test
     void update_whenParentIsItself_throwsBadRequestException() {
-        com.yas.product.viewmodel.category.CategoryPostVm postVm = new com.yas.product.viewmodel.category.CategoryPostVm("updated-cat", "updated-slug", "desc", category.getId(), "meta", "metaDesc", (short)1, true, 1L);
-        Assertions.assertThrows(com.yas.commonlibrary.exception.BadRequestException.class, () -> categoryService.update(postVm, category.getId()));
+        CategoryPostVm postVm = new CategoryPostVm("updated-cat", "updated-slug", "desc", 1L, "meta", "metaDesc", (short) 1, true, 1L);
+        when(categoryRepository.findExistedName("updated-cat", 1L)).thenReturn(null);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+
+        assertThrows(BadRequestException.class, () -> categoryService.update(postVm, 1L));
     }
 
     @Test
     void getCategoryByIds_Success() {
-        Assertions.assertEquals(1, categoryService.getCategoryByIds(java.util.List.of(category.getId())).size());
+        when(categoryRepository.findAllById(List.of(1L))).thenReturn(List.of(category));
+
+        assertEquals(1, categoryService.getCategoryByIds(List.of(1L)).size());
     }
 
     @Test
     void getTopNthCategories_Success() {
-        Assertions.assertTrue(categoryService.getTopNthCategories(10).size() >= 0);
+        when(categoryRepository.findCategoriesOrderedByProductCount(PageRequest.of(0, 10))).thenReturn(List.of("name"));
+
+        List<String> categories = categoryService.getTopNthCategories(10);
+
+        assertEquals(List.of("name"), categories);
+        verify(categoryRepository).findCategoriesOrderedByProductCount(PageRequest.of(0, 10));
     }
 }
