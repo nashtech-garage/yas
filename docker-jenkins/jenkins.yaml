@@ -37,7 +37,7 @@ jobs:
             scm {
               git {
                 remote {
-                  url('https://github.com/chubedan4605/another_yas2.git')
+                  url('https://github.com/luc1fe4/yas.git')
                   credentials('github-credentials')
                 }
                 branch('main')
@@ -59,7 +59,7 @@ jobs:
             scm {
               git {
                 remote {
-                  url('https://github.com/chubedan4605/another_yas2.git')
+                  url('https://github.com/luc1fe4/yas.git')
                   credentials('github-credentials')
                 }
                 branch('main')
@@ -77,7 +77,7 @@ jobs:
             scm {
               git {
                 remote {
-                  url('https://github.com/chubedan4605/another_yas2.git')
+                  url('https://github.com/luc1fe4/yas.git')
                   credentials('github-credentials')
                 }
                 branch('main')
@@ -101,7 +101,7 @@ jobs:
             scm {
               git {
                 remote {
-                  url('https://github.com/chubedan4605/another_yas2.git')
+                  url('https://github.com/luc1fe4/yas.git')
                   credentials('github-credentials')
                 }
                 branch('main')
