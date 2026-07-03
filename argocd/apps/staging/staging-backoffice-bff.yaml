@@ -1,4 +1,4 @@
-﻿apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: staging-backoffice-bff
@@ -11,6 +11,10 @@ spec:
     repoURL: 'https://github.com/luc1fe4/yas.git'
     targetRevision: 'main'
     path: k8s/charts/backoffice-bff
+    helm:
+      values: |
+        service:
+          nodePort: 30196
   destination:
     server: https://kubernetes.default.svc
     namespace: staging
