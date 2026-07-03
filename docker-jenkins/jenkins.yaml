@@ -4,33 +4,25 @@ jenkins:
 jobs:
   - script: >
       pipelineJob('developer_build') {
-        description('Pipeline triển khai tự động các service dựa theo tham số tag của nhà phát triển.')
+        description('Pipeline triển khai tự động các service dựa theo tham số branch của nhà phát triển.')
         parameters {
           stringParam('NAMESPACE', 'dev', 'K8s Namespace triển khai (Ví dụ: dev, staging, qa)')
           booleanParam('DRY_RUN', false, 'Chạy mô phỏng (Dry Run) trước. Bỏ check để deploy THỰC TẾ lên K8s.')
           
-          stringParam('TAG_cart', 'latest', 'Commit ID / Tag cho cart')
-          stringParam('TAG_customer', 'latest', 'Commit ID / Tag cho customer')
-          stringParam('TAG_delivery', 'latest', 'Commit ID / Tag cho delivery')
-          stringParam('TAG_inventory', 'latest', 'Commit ID / Tag cho inventory')
-          stringParam('TAG_location', 'latest', 'Commit ID / Tag cho location')
-          stringParam('TAG_media', 'latest', 'Commit ID / Tag cho media')
-          stringParam('TAG_order', 'latest', 'Commit ID / Tag cho order')
-          stringParam('TAG_payment', 'latest', 'Commit ID / Tag cho payment')
-          stringParam('TAG_payment_paypal', 'latest', 'Commit ID / Tag cho payment-paypal')
-          stringParam('TAG_product', 'latest', 'Commit ID / Tag cho product')
-          stringParam('TAG_promotion', 'latest', 'Commit ID / Tag cho promotion')
-          stringParam('TAG_rating', 'latest', 'Commit ID / Tag cho rating')
-          stringParam('TAG_search', 'latest', 'Commit ID / Tag cho search')
-          stringParam('TAG_tax', 'latest', 'Commit ID / Tag cho tax')
-          stringParam('TAG_recommendation', 'latest', 'Commit ID / Tag cho recommendation')
-          stringParam('TAG_webhook', 'latest', 'Commit ID / Tag cho webhook')
-          stringParam('TAG_sampledata', 'latest', 'Commit ID / Tag cho sampledata')
+          stringParam('BRANCH_cart', 'main', 'Nhánh git để deploy cho dịch vụ cart')
+          stringParam('BRANCH_customer', 'main', 'Nhánh git để deploy cho dịch vụ customer')
+          stringParam('BRANCH_inventory', 'main', 'Nhánh git để deploy cho dịch vụ inventory')
+          stringParam('BRANCH_media', 'main', 'Nhánh git để deploy cho dịch vụ media')
+          stringParam('BRANCH_order', 'main', 'Nhánh git để deploy cho dịch vụ order')
+          stringParam('BRANCH_product', 'main', 'Nhánh git để deploy cho dịch vụ product')
+          stringParam('BRANCH_search', 'main', 'Nhánh git để deploy cho dịch vụ search')
+          stringParam('BRANCH_tax', 'main', 'Nhánh git để deploy cho dịch vụ tax')
+          stringParam('BRANCH_sampledata', 'main', 'Nhánh git để deploy cho dịch vụ sampledata')
           
-          stringParam('TAG_backoffice_bff', 'latest', 'Commit ID / Tag cho backoffice-bff')
-          stringParam('TAG_storefront_bff', 'latest', 'Commit ID / Tag cho storefront-bff')
-          stringParam('TAG_backoffice_ui', 'latest', 'Commit ID / Tag cho backoffice-ui (Frontend)')
-          stringParam('TAG_storefront_ui', 'latest', 'Commit ID / Tag cho storefront-ui (Frontend)')
+          stringParam('BRANCH_backoffice_bff', 'main', 'Nhánh git để deploy cho backoffice-bff')
+          stringParam('BRANCH_storefront_bff', 'main', 'Nhánh git để deploy cho storefront-bff')
+          stringParam('BRANCH_backoffice_ui', 'main', 'Nhánh git để deploy cho backoffice-ui (Frontend)')
+          stringParam('BRANCH_storefront_ui', 'main', 'Nhánh git để deploy cho storefront-ui (Frontend)')
         }
         definition {
           cpsScm {
@@ -52,7 +44,7 @@ jobs:
         description('Xóa toàn bộ Helm releases của developer_build khỏi namespace trên K8s.')
         parameters {
           stringParam('NAMESPACE', 'dev', 'Namespace cần dọn dẹp (xóa toàn bộ Helm releases)')
-          booleanParam('DRY_RUN', true, 'Chạy thử trước. Bỏ check để xóa THẬT.')
+          booleanParam('DRY_RUN', true, 'Chạy thử trước. Bỏ check để xóa THẠT.')
         }
         definition {
           cpsScm {

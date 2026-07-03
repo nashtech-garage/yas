@@ -46,8 +46,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "media.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "media.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: media
+app.kubernetes.io/instance: media
 {{- end }}
 
 {{/*

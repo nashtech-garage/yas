@@ -46,8 +46,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "order.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "order.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: order
+app.kubernetes.io/instance: order
 {{- end }}
 
 {{/*

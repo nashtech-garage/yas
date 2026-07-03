@@ -46,8 +46,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "tax.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "tax.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: tax
+app.kubernetes.io/instance: tax
 {{- end }}
 
 {{/*

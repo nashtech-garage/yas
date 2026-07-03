@@ -46,8 +46,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "search.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "search.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: search
+app.kubernetes.io/instance: search
 {{- end }}
 
 {{/*

@@ -46,8 +46,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "swagger-ui.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "swagger-ui.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: swagger-ui
+app.kubernetes.io/instance: swagger-ui
 {{- end }}
 
 {{/*

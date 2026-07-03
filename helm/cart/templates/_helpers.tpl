@@ -46,8 +46,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "cart.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "cart.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: cart
+app.kubernetes.io/instance: cart
 {{- end }}
 
 {{/*

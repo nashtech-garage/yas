@@ -46,8 +46,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "backoffice-ui.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "backoffice-ui.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: backoffice-ui
+app.kubernetes.io/instance: backoffice-ui
 {{- end }}
 
 {{/*
