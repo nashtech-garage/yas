@@ -1,5 +1,5 @@
 import { Input } from '@commonItems/Input';
-import { EMAIL_PATTERN } from 'modules/catalog/constants/validationPattern';
+import { EMAIL_PATTERN } from '../../../modules/catalog/constants/validationPattern';
 import { FieldErrorsImpl, UseFormRegister } from 'react-hook-form';
 import { Customer, CustomerCreateVM } from '../models/Customer';
 

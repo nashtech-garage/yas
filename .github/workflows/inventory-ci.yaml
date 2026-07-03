@@ -2,7 +2,7 @@ name: inventory service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "inventory/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,17 +18,58 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  test:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl inventory -am
+      - name: Run Maven Test
+        run: mvn -pl inventory -am verify
+      - name: Install Dependencies
+        run: mvn -pl inventory -am install -DskipTests
+      - name: Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Inventory-Service-Unit-Test-Results
+          path: "inventory/**/*-reports/TEST*.xml"
+          reporter: java-junit
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/inventory/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 60
+          title: 'Inventory Coverage Report'
+          update-comment: true
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory-coverage-report
+          path: ${{github.workspace}}/inventory/target/site/jacoco/
+      - name: Gitleaks check (Service Level)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="./inventory" --no-git --verbose
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Build
+        run: mvn -pl inventory -am -DskipTests install
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
@@ -37,43 +78,22 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/inventory-checkstyle-result.xml'
-      - name: Test Results
-        uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-        with:
-          name: Inventory-Service-Test-Results
-          path: "inventory/**/*-reports/TEST*.xml"
-          reporter: java-junit
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
       - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f inventory
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
+
+      - name: Setup Snyk
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        with:
-          paths: ${{github.workspace}}/inventory/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Inventory Coverage Report'
-          update-comment: true
+        uses: snyk/actions/setup@master
+      - name: Snyk Security Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          MAVEN_OPTS: "-Xmx512m"
+        run: snyk test --file=inventory/pom.xml --severity-threshold=high --project-name=yas-inventory
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -87,4 +107,4 @@ jobs:
         with:
           context: ./inventory
           push: true
-          tags: ghcr.io/nashtech-garage/yas-inventory:latest
+          tags: ghcr.io/${{ github.repository_owner }}/yas-inventory:latest

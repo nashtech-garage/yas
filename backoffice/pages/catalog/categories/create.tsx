@@ -10,7 +10,7 @@ import { Category } from '@catalogModels/Category';
 import { createCategory, getCategories } from '@catalogServices/CategoryService';
 import { CheckBox, Input, TextArea } from '@commonItems/Input';
 import { handleCreatingResponse } from '@commonServices/ResponseStatusHandlingService';
-import { CATEGORIES_URL } from 'constants/Common';
+import { CATEGORIES_URL } from '../../../constants/Common';
 
 const CategoryCreate: NextPage = () => {
   const router = useRouter();

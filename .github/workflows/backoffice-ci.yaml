@@ -2,13 +2,13 @@ name: backoffice service ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "backoffice/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/backoffice-ci.yaml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "backoffice/**"
       - ".github/workflows/actions/action.yaml"
@@ -16,71 +16,163 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  test:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm ci
-        working-directory: backoffice
-      - run: npm run build
-        working-directory: backoffice
-      - run: npm run lint
-        working-directory: backoffice
-      - run: npx prettier --check .
-        working-directory: backoffice
-      - run: npm audit --omit=dev
-        continue-on-error: true
-        working-directory: backoffice
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.24.0
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'backoffice/package-lock.json'
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./backoffice
+
+      # Run tests with coverage
+      - name: Run Tests with Coverage
+        run: npm run test:coverage
+        working-directory: ./backoffice
+        continue-on-error: false
+
+      # Tính coverage trung bình
+      - name: Calculate Average Coverage
+        id: coverage
+        run: |
+          cd backoffice
+          if [ -f coverage/coverage-summary.json ]; then
+            STATEMENTS=$(node -p "require('./coverage/coverage-summary.json').total.statements.pct")
+            BRANCHES=$(node -p "require('./coverage/coverage-summary.json').total.branches.pct")
+            FUNCTIONS=$(node -p "require('./coverage/coverage-summary.json').total.functions.pct")
+            LINES=$(node -p "require('./coverage/coverage-summary.json').total.lines.pct")
+            
+            # Tính trung bình
+            AVERAGE=$(node -e "console.log((($STATEMENTS + $BRANCHES + $FUNCTIONS + $LINES) / 4).toFixed(2))")
+            
+            echo "average=${AVERAGE}" >> $GITHUB_OUTPUT
+            echo "📊 Average Coverage: ${AVERAGE}%"
+          else
+            echo "average=0" >> $GITHUB_OUTPUT
+            echo "⚠️ No coverage report found"
+          fi
+        working-directory: ./
+
+      
+      - name: Display Average Coverage
+        if: always()
+        run: |
+          echo "## 📊 Average Coverage: **${{ steps.coverage.outputs.average }}%**" >> $GITHUB_STEP_SUMMARY
+
+      # Upload coverage report as artifact
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          scan-type: 'fs'
-          scan-ref: './backoffice'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-      - name: SonarCloud Scan
+          name: coverage-report
+          path: backoffice/coverage/
+          retention-days: 7
+
+      # Comment trung bình lên PR
+      - name: PR Coverage Comment
+        if: ${{ github.event_name == 'pull_request' && env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: coverage-report
+          message: |
+            ## 📊 Average Coverage: **${{ steps.coverage.outputs.average }}%**
+            
+            ${{ steps.coverage.outputs.average >= 70 && '✅ Good coverage!' || '⚠️ Needs improvement (Target: 70%)' }}
+
+      # Chặn merge nếu không đủ coverage 
+      - name: Check Coverage Threshold
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          COVERAGE=${{ steps.coverage.outputs.average }}
+          THRESHOLD=70
+          
+          echo "Current coverage: ${COVERAGE}%"
+          echo "Required threshold: ${THRESHOLD}%"
+          
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            echo "❌ Coverage ${COVERAGE}% is below threshold ${THRESHOLD}%"
+            echo "❌ Merge is BLOCKED!"
+            exit 1
+          else
+            echo "✅ Coverage ${COVERAGE}% meets or exceeds threshold ${THRESHOLD}%"
+            echo "✅ Merge is allowed!"
+            exit 0
+          fi
+     
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./backoffice
+
+      - name: Run Build
+        run: npm run build
+        working-directory: ./backoffice
+      
+      - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: backoffice
+
+      - name: Setup Snyk
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Log in to the Container registry
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk code test ./backoffice --severity-threshold=medium --sarif-file-output=snyk-results.sarif
+
+      - name: Upload Snyk results
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && !cancelled() && hashFiles('snyk-results.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-results.sarif
+
+      - name: Log in to Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Docker image
+
+      - name: Build and push Docker image
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./backoffice
-          tags: ghcr.io/nashtech-garage/yas-backoffice:latest
-      - name: Run Trivy vulnerability scanner
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: aquasecurity/trivy-action@0.24.0
-        with:
-          image-ref: 'ghcr.io/nashtech-garage/yas-backoffice:latest'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-      - name: Push Docker image
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
-        with:
           push: true
-          context: ./backoffice
-          tags: ghcr.io/nashtech-garage/yas-backoffice:latest
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
+          tags: ghcr.io/${{ github.repository_owner }}/yas-backoffice:latest

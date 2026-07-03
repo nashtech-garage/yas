@@ -1,7 +1,7 @@
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
 import { CheckBox } from 'common/items/Input';
 import { useEffect, useState } from 'react';
-import { Input } from 'common/items/Input';
+import { Input } from '../../../common/items/Input';
 import { TaxRate } from '../models/TaxRate';
 import { TaxClass } from '../models/TaxClass';
 import { Country } from '@locationModels/Country';

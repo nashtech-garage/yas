@@ -1,0 +1,35 @@
+name: Developer Destroy CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Input target branch for destruction (e.g., dev_customer_service)'
+        required: true
+        type: string
+
+jobs:
+  delete-from-k8s:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          fetch-depth: 0 
+
+      - name: Set up K8s context
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG_DATA }}
+
+      - name: Uninstall Helm Releases
+        run: |
+          SERVICES="product cart order customer inventory tax media search storefront-bff storefront-ui backoffice-bff backoffice-ui swagger-ui sampledata"
+          
+          echo "Bắt đầu gỡ bỏ 14 microservices..."
+          for svc in $SERVICES; do
+            helm uninstall $svc --namespace yas --ignore-not-found
+          done
+          echo "Đã gỡ bỏ sạch sẽ các ứng dụng. Tầng hạ tầng (DB, Keycloak) vẫn được giữ nguyên!"

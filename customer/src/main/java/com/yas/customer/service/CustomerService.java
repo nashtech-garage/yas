@@ -128,7 +128,10 @@ public class CustomerService {
         RealmResource realmResource = keycloak.realm(keycloakPropsConfig.getRealm());
         String randomGuestName = generateSafeString();
         String guestUserEmail = randomGuestName + "_guest@yas.com";
-        CredentialRepresentation credential = createPasswordCredentials(GUEST);
+
+        // Use random password
+        String guestPassword = generateSafeString();
+        CredentialRepresentation credential = createPasswordCredentials(guestPassword);
 
         // Define user
         UserRepresentation user = new UserRepresentation();
@@ -148,7 +151,7 @@ public class CustomerService {
         // Assign realm role GUEST to user
         userResource.roles().realmLevel().add(Collections.singletonList(guestRealmRole));
 
-        return new GuestUserVm(userId, guestUserEmail, GUEST);
+        return new GuestUserVm(userId, guestUserEmail, guestPassword);
     }
 
     private String generateSafeString() {

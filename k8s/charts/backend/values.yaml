@@ -89,26 +89,28 @@ lifecycle:
 terminationGracePeriodSeconds: 45
 
 livenessProbe:
+  initialDelaySeconds: 300
   periodSeconds: 10
-  failureThreshold: 12
+  failureThreshold: 120
   successThreshold: 1
   httpGet:
     path: /actuator/health/liveness
     port: metric
 
 readinessProbe:
+  initialDelaySeconds: 300
   periodSeconds: 10
-  failureThreshold: 12
+  failureThreshold: 120
   successThreshold: 1
   httpGet:
     path: /actuator/health/readiness
     port: metric
 
 serviceMonitor:
-  enabled: true
+  enabled: false
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 80
 
 ingress:
