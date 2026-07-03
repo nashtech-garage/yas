@@ -46,7 +46,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "storefront-bff.selectorLabels" -}}
-app.kubernetes.io/name: storefront-bff
+app.kubernetes.io/name: backend
 app.kubernetes.io/instance: storefront-bff
 {{- end }}
 
