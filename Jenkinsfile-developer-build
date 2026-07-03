@@ -217,11 +217,13 @@ pipeline {
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
                         } else {
-                            // 2. CHÈN LỆNH XÓA ĐÍNH DANH VÀO ĐÂY (Chỉ chạy khi không phải dry-run)
-                            echo "🛠️ Tự động dọn dẹp Deployment cũ cho ${svc} để tránh lỗi kẹt selector..."
+                            echo "🛠️ Tự động dọn dẹp bản cài cũ của ${svc} để giải phóng selector..."
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
-                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found=true
+                                
+                                # 🛠️ DÙNG HELM UNINSTALL THAY VÌ KUBECTL ĐỂ TRÁNH LỖI NOT FOUND
+                                helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                
                                 ${helmCmd}
                             """
                         }
