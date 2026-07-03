@@ -13,7 +13,7 @@ spec:
     path: k8s/charts/backoffice-ui
     helm:
       parameters:
-        - name: service.nodePort
+        - name: ui.service.nodePort
           value: "30191"
   destination:
     server: https://kubernetes.default.svc

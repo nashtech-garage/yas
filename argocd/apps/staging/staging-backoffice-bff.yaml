@@ -13,7 +13,7 @@ spec:
     path: k8s/charts/backoffice-bff
     helm:
       parameters:
-        - name: service.nodePort
+        - name: backend.service.nodePort
           value: "30196"
   destination:
     server: https://kubernetes.default.svc
