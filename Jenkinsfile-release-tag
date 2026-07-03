@@ -100,77 +100,65 @@ pipeline {
             }
         }
 
-        stage('Deploy to staging namespace') {
+        stage('Deploy to staging namespace (GitOps)') {
             steps {
                 script {
-                    sh '''
-                        if ! command -v helm >/dev/null 2>&1; then
-                            echo "Helm chưa được cài đặt. Đang tải Helm..."
-                            curl -sSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
-                            tar -xzf helm.tar.gz
-                            mkdir -p bin
-                            mv linux-amd64/helm bin/helm
-                            chmod +x bin/helm
-                        fi
-                    '''
-
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo add stakater https://stakater.github.io/stakater-charts || true"
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo update"
-
                     def releaseTag = env.RELEASE_TAG
-
-                    def allBackendServices = [
+                    
+                    def services = [
                         'cart', 'customer', 'inventory', 'media', 'order',
-                        'product', 'search', 'tax', 'sampledata'
+                        'product', 'search', 'tax', 'sampledata', 'backoffice-bff', 'storefront-bff',
+                        'backoffice-ui', 'storefront-ui'
                     ]
-                    def bffServices = ['backoffice-bff', 'storefront-bff']
-                    def uiServices = ['backoffice-ui', 'storefront-ui']
+                    def otherApps = ['swagger-ui', 'yas-configuration']
 
                     echo "=========================================================="
-                    echo "RELEASE DEPLOY VÀO NAMESPACE: ${env.NAMESPACE}"
-                    echo "RELEASE TAG: ${releaseTag}"
+                    echo "🔄 UPDATING GITOPS MANIFESTS FOR STAGING (RELEASE: ${releaseTag})"
                     echo "=========================================================="
 
-                    // Deploy BFF
-                    bffServices.each { svc ->
+                    // Update services with release tags
+                    services.each { svc ->
+                        def chartName = svc
                         def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
-                        def hostName = svc.replace('-bff', '')
+                        if (svc == 'backoffice-ui') {
+                            imageRepo = "${env.DOCKER_USERNAME}/backoffice"
+                        } else if (svc == 'storefront-ui') {
+                            imageRepo = "${env.DOCKER_USERNAME}/storefront"
+                        }
 
-                        echo "----------------------------------------------------------"
-                        echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
-
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=${hostName}.${env.NAMESPACE}.${env.DOMAIN} --set backend.service.type=ClusterIP --set backend.service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
+                        def yamlFile = "argocd/apps/staging/staging-${chartName}.yaml"
+                        echo "📝 Updating tag in GitOps manifest: ${yamlFile} -> tag=${releaseTag}, repo=${imageRepo}, revision=${releaseTag}"
+                        sh "python3 scripts/update-gitops-tag.py ${yamlFile} ${releaseTag} ${imageRepo} ${releaseTag}"
                     }
 
-                    // Deploy UI
-                    uiServices.each { svc ->
-                        def imageRepo = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}"
-
-                        echo "----------------------------------------------------------"
-                        echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
-
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set ui.image.repository=${imageRepo} --set ui.image.tag=${releaseTag} --set ui.service.type=ClusterIP --set ui.service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
+                    // Update targetRevision for other apps
+                    otherApps.each { app ->
+                        def yamlFile = "argocd/apps/staging/staging-${app}.yaml"
+                        echo "📝 Updating revision in GitOps manifest: ${yamlFile} -> revision=${releaseTag}"
+                        sh "python3 scripts/update-gitops-tag.py ${yamlFile} none none ${releaseTag}"
                     }
 
-                    // Deploy Swagger
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui helm/swagger-ui --namespace ${env.NAMESPACE} --create-namespace --set ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --set service.type=ClusterIP --set service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
+                    echo "----------------------------------------------------------"
+                    echo "📤 Committing and Pushing GitOps updates back to Git..."
+                    sh "git config user.name 'Jenkins CI'"
+                    sh "git config user.email 'jenkins@yas.local'"
+                    sh "git add argocd/apps/staging/"
 
-                    // Deploy Backend
-                    allBackendServices.each { svc ->
-                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+                    def commitMsg = "chore(staging): release version ${releaseTag} [skip ci]"
+                    sh "git commit -m '${commitMsg}' || echo 'No Git changes to commit'"
 
-                        echo "----------------------------------------------------------"
-                        echo "🚀 [RELEASE] ${svc} -> tag: ${releaseTag}"
-
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${releaseTag} --set backend.ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --set backend.service.type=ClusterIP --set backend.service.nodePort=null --timeout ${env.HELM_TIMEOUT}"
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-credentials',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                    )]) {
+                        sh "git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/luc1fe4/yas.git"
+                        sh "git push origin HEAD:main"
                     }
 
                     echo "=========================================================="
-                    echo "🎉 RELEASE DEPLOY VÀO STAGING HOÀN TẤT"
-                    echo "Release tag: ${releaseTag}"
+                    echo "🎉 GITOPS RELEASE DEPLOY TRIGGER HOÀN TẤT"
+                    echo "ArgoCD will automatically reconcile staging namespace to tag: ${releaseTag}"
                     echo "=========================================================="
                 }
             }

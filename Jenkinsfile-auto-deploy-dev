@@ -129,40 +129,54 @@ pipeline {
             }
         }
 
-        stage('Deploy to dev namespace') {
+        stage('Deploy to dev namespace (GitOps)') {
             steps {
                 script {
-                    // Hệ thống đang dùng ArgoCD (nâng cao) để quản lý namespace dev.
-                    // Job này chỉ cần trigger ArgoCD hard refresh sau khi push image mới lên Docker Hub.
-                    // ArgoCD sẽ tự detect image mới và deploy vào namespace dev.
+                    def services = env.CHANGED_SERVICES.split(',')
+                    def commitTag = env.GIT_COMMIT_SHORT
 
                     echo "=========================================================="
-                    echo "🔄 TRIGGER ARGOCD REFRESH CHO NAMESPACE: ${env.NAMESPACE}"
-                    echo "Commit: ${env.GIT_COMMIT_SHORT}"
-                    echo "Services vừa build: ${env.CHANGED_SERVICES}"
+                    echo "🔄 UPDATING GITOPS MANIFESTS FOR DEV"
+                    echo "Commit: ${commitTag}"
+                    echo "Services to update: ${env.CHANGED_SERVICES}"
                     echo "=========================================================="
 
-                    // Lấy danh sách ArgoCD apps quản lý namespace dev
-                    def argoApps = sh(
-                        script: """kubectl get application -n argocd \
-                            -o jsonpath='{range .items[?(@.spec.destination.namespace=="${env.NAMESPACE}")]}{.metadata.name}{"\\n"}{end}' 2>/dev/null || true""",
-                        returnStdout: true
-                    ).trim()
-
-                    if (argoApps) {
-                        argoApps.split('\n').each { app ->
-                            echo "  🔄 Hard refresh ArgoCD app: ${app}"
-                            sh """kubectl annotate application ${app} -n argocd \
-                                argocd.argoproj.io/refresh=hard --overwrite 2>/dev/null || true"""
+                    services.each { svc ->
+                        def chartName = svc
+                        if (svc == 'storefront') {
+                            chartName = 'storefront-ui'
+                        } else if (svc == 'backoffice') {
+                            chartName = 'backoffice-ui'
                         }
-                        echo "✅ Đã trigger refresh ${argoApps.split('\n').size()} ArgoCD apps."
-                        echo "⏳ ArgoCD sẽ tự động sync và deploy image mới trong vài phút."
-                    } else {
-                        echo "⚠️ Không tìm thấy ArgoCD app nào cho namespace ${env.NAMESPACE}."
+                        
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+                        def yamlFile = "argocd/apps/dev/dev-${chartName}.yaml"
+
+                        echo "📝 Updating tag in GitOps manifest: ${yamlFile} -> tag=${commitTag}, repo=${imageRepo}"
+                        sh "python3 scripts/update-gitops-tag.py ${yamlFile} ${commitTag} ${imageRepo} main"
+                    }
+
+                    echo "----------------------------------------------------------"
+                    echo "📤 Committing and Pushing GitOps updates back to Git..."
+                    sh "git config user.name 'Jenkins CI'"
+                    sh "git config user.email 'jenkins@yas.local'"
+                    sh "git add argocd/apps/dev/"
+                    
+                    def commitMsg = "chore(dev): update image tags to ${commitTag} [skip ci]"
+                    sh "git commit -m '${commitMsg}' || echo 'No Git changes to commit'"
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-credentials',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                    )]) {
+                        sh "git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/luc1fe4/yas.git"
+                        sh "git push origin HEAD:main"
                     }
 
                     echo "=========================================================="
-                    echo "🎉 TRIGGER ARGOCD REFRESH HOÀN TẤT"
+                    echo "🎉 GITOPS DEPLOY TRIGGER HOÀN TẤT"
+                    echo "ArgoCD will automatically reconcile the changes shortly."
                     echo "=========================================================="
                 }
             }

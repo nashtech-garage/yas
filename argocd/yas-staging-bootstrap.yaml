@@ -20,10 +20,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  # Prevent ArgoCD from reverting image tags set by Jenkins release pipeline
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      jsonPointers:
-        - /spec/template/spec/containers/0/image
-        - /spec/template/metadata/annotations/kubectl.kubernetes.io~1restartedAt
+

@@ -103,3 +103,23 @@ jobs:
           }
         }
       }
+
+      multibranchPipelineJob('yas_ci') {
+        description('CI Pipeline tự động quét và build cho mọi branch có commit mới.')
+        branchSources {
+          branchSource {
+            source {
+              git {
+                id('yas-ci-git')
+                remote('https://github.com/luc1fe4/yas.git')
+                credentialsId('github-credentials')
+              }
+            }
+          }
+        }
+        orphanedItemStrategy {
+          discardOldItems {
+            numToKeep(10)
+          }
+        }
+      }
