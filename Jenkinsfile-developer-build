@@ -194,7 +194,7 @@ pipeline {
                     echo "=========================================================="
                     echo "TIẾN HÀNH DEPLOY BACKEND MICROSERVICES"
                     echo "=========================================================="
-
+                    
                     backendServices.each { svc ->
                         def paramName = "BRANCH_${svc.replace('-', '_')}"
                         def branchValue = params."${paramName}"
@@ -208,13 +208,22 @@ pipeline {
                             echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
                         }
                         
+                        // 1. Build dependencies như bình thường
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --force --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                        
+                        // Định nghĩa lệnh helm upgrade động theo biến của hệ thống
+                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --force --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT} ${dryRunFlag}"
                         
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
                         } else {
-                            sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                            // 2. CHÈN LỆNH XÓA ĐÍNH DANH VÀO ĐÂY (Chỉ chạy khi không phải dry-run)
+                            echo "🛠️ Tự động dọn dẹp Deployment cũ cho ${svc} để tránh lỗi kẹt selector..."
+                            sh """
+                                export PATH=\$WORKSPACE/bin:\$PATH
+                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found=true
+                                ${helmCmd}
+                            """
                         }
                     }
                     
