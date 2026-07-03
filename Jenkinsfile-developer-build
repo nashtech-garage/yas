@@ -216,14 +216,18 @@ pipeline {
                         
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
-                        } else {
+                        } } else {
                             echo "🛠️ Tự động dọn dẹp bản cài cũ của ${svc} để giải phóng selector..."
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
                                 
-                                # 🛠️ DÙNG HELM UNINSTALL THAY VÌ KUBECTL ĐỂ TRÁNH LỖI NOT FOUND
+                                # 1. Gỡ cài đặt bản cũ
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
                                 
+                                # 2. ⏳ NGỦ 10 GIÂY ĐỂ KUBERNETES KỊP XÓA SẠCH SERVICEACCOUNT CŨ TRÊN CLUSTER
+                                sleep 10
+                                
+                                # 3. Tiến hành cài đặt mới hoàn toàn
                                 ${helmCmd}
                             """
                         }
