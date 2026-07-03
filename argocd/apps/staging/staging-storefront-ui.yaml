@@ -12,9 +12,9 @@ spec:
     targetRevision: 'main'
     path: k8s/charts/storefront-ui
     helm:
-      values: |
-        service:
-          nodePort: 30190
+      parameters:
+        - name: service.nodePort
+          value: "30190"
   destination:
     server: https://kubernetes.default.svc
     namespace: staging
