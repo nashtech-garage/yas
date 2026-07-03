@@ -216,7 +216,7 @@ pipeline {
                         
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
-                        } } else {
+                        } else {
                             echo "🛠️ Tự động dọn dẹp bản cài cũ của ${svc} để giải phóng selector..."
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
