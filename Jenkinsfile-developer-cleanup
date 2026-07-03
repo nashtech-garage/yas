@@ -86,6 +86,37 @@ pipeline {
                 }
             }
         }
+
+        stage('Resume ArgoCD AutoSync') {
+            when {
+                expression { !params.DRY_RUN }
+            }
+            steps {
+                script {
+                    echo "▶️ Khôi phục ArgoCD automated sync cho namespace ${params.NAMESPACE}..."
+
+                    def argoApps = sh(
+                        script: """kubectl get application -n argocd \
+                            -o jsonpath='{range .items[?(@.spec.destination.namespace=="${params.NAMESPACE}")]}{.metadata.name}{"\\n"}{end}' 2>/dev/null || true""",
+                        returnStdout: true
+                    ).trim()
+
+                    if (argoApps) {
+                        argoApps.split('\n').each { app ->
+                            echo "  ▶️ Resuming ArgoCD app: ${app}"
+                            sh """kubectl patch application ${app} -n argocd --type merge \
+                                -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}' || true"""
+                            // Trigger hard refresh để ArgoCD sync lại ngay
+                            sh """kubectl annotate application ${app} -n argocd \
+                                argocd.argoproj.io/refresh=hard --overwrite 2>/dev/null || true"""
+                        }
+                        echo "✅ Đã resume ${argoApps.split('\n').size()} ArgoCD apps. ArgoCD sẽ restore namespace về trạng thái chuẩn."
+                    } else {
+                        echo "ℹ️ Không có ArgoCD app nào cần resume."
+                    }
+                }
+            }
+        }
     }
 
     post {

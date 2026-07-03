@@ -132,79 +132,37 @@ pipeline {
         stage('Deploy to dev namespace') {
             steps {
                 script {
-                    sh '''
-                        if ! command -v helm >/dev/null 2>&1; then
-                            echo "Helm chưa được cài đặt. Đang tải Helm..."
-                            curl -sSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
-                            tar -xzf helm.tar.gz
-                            mkdir -p bin
-                            mv linux-amd64/helm bin/helm
-                            chmod +x bin/helm
-                        fi
-                    '''
-
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo add stakater https://stakater.github.io/stakater-charts || true"
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo update"
-
-                    def allBackendServices = [
-                        'cart', 'customer', 'inventory', 'media', 'order',
-                        'product', 'search', 'tax', 'sampledata'
-                    ]
-                    def bffServices = ['backoffice-bff', 'storefront-bff']
-                    def uiServices = ['backoffice-ui', 'storefront-ui']
-                    def commitTag = env.GIT_COMMIT_SHORT
-                    def changedList = env.CHANGED_SERVICES == 'none' ? [] : env.CHANGED_SERVICES.split(',').toList()
+                    // Hệ thống đang dùng ArgoCD (nâng cao) để quản lý namespace dev.
+                    // Job này chỉ cần trigger ArgoCD hard refresh sau khi push image mới lên Docker Hub.
+                    // ArgoCD sẽ tự detect image mới và deploy vào namespace dev.
 
                     echo "=========================================================="
-                    echo "AUTO DEPLOY VÀO NAMESPACE: ${env.NAMESPACE}"
+                    echo "🔄 TRIGGER ARGOCD REFRESH CHO NAMESPACE: ${env.NAMESPACE}"
+                    echo "Commit: ${env.GIT_COMMIT_SHORT}"
+                    echo "Services vừa build: ${env.CHANGED_SERVICES}"
                     echo "=========================================================="
 
-                    // Deploy BFF
-                    bffServices.each { svc ->
-                        def tag = changedList.contains(svc) ? commitTag : 'latest'
-                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
-                        def hostName = svc.replace('-bff', '')
+                    // Lấy danh sách ArgoCD apps quản lý namespace dev
+                    def argoApps = sh(
+                        script: """kubectl get application -n argocd \
+                            -o jsonpath='{range .items[?(@.spec.destination.namespace=="${env.NAMESPACE}")]}{.metadata.name}{"\\n"}{end}' 2>/dev/null || true""",
+                        returnStdout: true
+                    ).trim()
 
-                        echo "----------------------------------------------------------"
-                        echo changedList.contains(svc) ?
-                            "🚀 [UPDATED] ${svc} -> tag: ${tag}" :
-                            "✅ [STABLE] ${svc} -> tag: latest"
-
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${tag} --set backend.ingress.host=${hostName}.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
-                    }
-
-                    // Deploy UI
-                    uiServices.each { svc ->
-                        def tag = changedList.contains(svc.replace('-ui', '')) ? commitTag : 'latest'
-                        def imageRepo = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}"
-
-                        echo "----------------------------------------------------------"
-                        echo "✅ [UI] ${svc} -> tag: ${tag}"
-
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set ui.image.repository=${imageRepo} --set ui.image.tag=${tag} --timeout ${env.HELM_TIMEOUT}"
-                    }
-
-                    // Deploy Swagger
-                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install swagger-ui helm/swagger-ui --namespace ${env.NAMESPACE} --create-namespace --set ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
-
-                    // Deploy Backend
-                    allBackendServices.each { svc ->
-                        def tag = changedList.contains(svc) ? commitTag : 'latest'
-                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
-
-                        echo "----------------------------------------------------------"
-                        echo changedList.contains(svc) ?
-                            "🚀 [UPDATED] ${svc} -> tag: ${tag}" :
-                            "✅ [STABLE] ${svc} -> tag: latest"
-
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
-                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm upgrade --install ${svc} helm/${svc} --namespace ${env.NAMESPACE} --create-namespace --set backend.image.repository=${imageRepo} --set backend.image.tag=${tag} --set backend.ingress.host=api.${env.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    if (argoApps) {
+                        argoApps.split('\n').each { app ->
+                            echo "  🔄 Hard refresh ArgoCD app: ${app}"
+                            sh """kubectl annotate application ${app} -n argocd \
+                                argocd.argoproj.io/refresh=hard --overwrite 2>/dev/null || true"""
+                        }
+                        echo "✅ Đã trigger refresh ${argoApps.split('\n').size()} ArgoCD apps."
+                        echo "⏳ ArgoCD sẽ tự động sync và deploy image mới trong vài phút."
+                    } else {
+                        echo "⚠️ Không tìm thấy ArgoCD app nào cho namespace ${env.NAMESPACE}."
                     }
 
                     echo "=========================================================="
-                    echo "🎉 AUTO DEPLOY VÀO DEV HOÀN TẤT"
+                    echo "🎉 TRIGGER ARGOCD REFRESH HOÀN TẤT"
                     echo "=========================================================="
                 }
             }
