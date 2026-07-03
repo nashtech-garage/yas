@@ -12,9 +12,9 @@ spec:
     targetRevision: 'main'
     path: k8s/charts/backoffice-bff
     helm:
-      values: |
-        service:
-          nodePort: 30196
+      parameters:
+        - name: service.nodePort
+          value: "30196"
   destination:
     server: https://kubernetes.default.svc
     namespace: staging

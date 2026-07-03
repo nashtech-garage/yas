@@ -12,9 +12,9 @@ spec:
     targetRevision: 'main'
     path: k8s/charts/swagger-ui
     helm:
-      values: |
-        service:
-          nodePort: 30192
+      parameters:
+        - name: service.nodePort
+          value: "30192"
   destination:
     server: https://kubernetes.default.svc
     namespace: staging
