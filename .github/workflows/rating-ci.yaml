@@ -1,4 +1,4 @@
-name: rating service ci
+﻿name: rating service ci
 
 on:
   push:
@@ -54,12 +54,12 @@ jobs:
               printf " RATING SERVICE COVERAGE: %.2f%%\n", coverage
               printf "===========================================\n"
               if (coverage < 70) {
-                printf " FAILED: Coverage thấp hơn mức tối thiểu 70%%\n"
+                printf " FAILED: Coverage tháº¥p hÆ¡n má»©c tá»‘i thiá»ƒu 70%%\n"
                 exit 1
               }
             }' $REPORT_CSV
           else
-            echo "::error::Không tìm thấy file jacoco.csv. Kiểm tra cấu hình jacoco-maven-plugin!"
+            echo "::error::KhĂ´ng tĂ¬m tháº¥y file jacoco.csv. Kiá»ƒm tra cáº¥u hĂ¬nh jacoco-maven-plugin!"
             exit 1
           fi
 
@@ -70,7 +70,7 @@ jobs:
           paths: rating/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
-          title: 'Báo cáo độ phủ - Rating Service'
+          title: 'BĂ¡o cĂ¡o Ä‘á»™ phá»§ - Rating Service'
           update-comment: true
 
       - name: Upload Test & Coverage Artifacts
@@ -126,7 +126,7 @@ jobs:
 
   build:
     needs: [detect-changes, security]
-    if: needs.detect-changes.outputs.service == 'true'
+    if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read

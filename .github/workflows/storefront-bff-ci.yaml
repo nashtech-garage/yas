@@ -1,4 +1,4 @@
-name: storefront-bff service ci
+﻿name: storefront-bff service ci
 
 on:
   push:
@@ -61,7 +61,7 @@ jobs:
           paths: storefront-bff/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
-          title: '## 🔬 storefront-bff - Coverage Report'
+          title: '## đŸ”¬ storefront-bff - Coverage Report'
 
       - name: Code Coverage Quality Gate (Console)
         run: |
@@ -74,12 +74,12 @@ jobs:
               printf " STOREFRONT-BFF SERVICE COVERAGE: %.2f%%\n", coverage
               printf "===========================================\n"
               if (coverage < 70) {
-                printf " FAILED: Coverage thấp hơn mức tối thiểu 70%%\n"
+                printf " FAILED: Coverage tháº¥p hÆ¡n má»©c tá»‘i thiá»ƒu 70%%\n"
                 exit 1
               }
             }' $REPORT_CSV
           else
-            echo "::error::Không tìm thấy file jacoco.csv. Kiểm tra cấu hình jacoco-maven-plugin!"
+            echo "::error::KhĂ´ng tĂ¬m tháº¥y file jacoco.csv. Kiá»ƒm tra cáº¥u hĂ¬nh jacoco-maven-plugin!"
             exit 1
           fi
 
@@ -90,7 +90,7 @@ jobs:
           paths: storefront-bff/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
-          title: 'Báo cáo độ phủ - Storefront BFF Service'
+          title: 'BĂ¡o cĂ¡o Ä‘á»™ phá»§ - Storefront BFF Service'
           update-comment: true
 
       - name: Upload Test & Coverage Artifacts
@@ -122,7 +122,7 @@ jobs:
       - name: Setup Java/Maven
         uses: ./.github/workflows/actions
 
-      - name: Download Test & Coverage Artifacts (từ job test)
+      - name: Download Test & Coverage Artifacts (tá»« job test)
         uses: actions/download-artifact@v4
         with:
           name: storefront-bff-test-coverage-reports
@@ -146,7 +146,7 @@ jobs:
 
   build:
     needs: security
-    if: needs.detect-changes.outputs.service == 'true'
+    if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
