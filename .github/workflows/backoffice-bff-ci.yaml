@@ -119,7 +119,7 @@ jobs:
 
   build:
     needs: [detect-changes, security]
-    if: needs.detect-changes.outputs.service == 'true'
+    if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read

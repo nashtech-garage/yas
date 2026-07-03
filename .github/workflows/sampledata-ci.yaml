@@ -1,4 +1,4 @@
-name: sampledata service ci
+﻿name: sampledata service ci
 
 on:
   push:
@@ -61,7 +61,7 @@ jobs:
           paths: sampledata/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
-          title: '## 🔬 sampledata - Coverage Report'
+          title: '## đŸ”¬ sampledata - Coverage Report'
 
       - name: Quality Gate (Console)
         run: |
@@ -81,7 +81,7 @@ jobs:
           paths: sampledata/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
-          title: '## 🔬 sampledata - Coverage Report'
+          title: '## đŸ”¬ sampledata - Coverage Report'
 
       - name: Upload Test & Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -112,7 +112,7 @@ jobs:
       - name: Setup Java/Maven
         uses: ./.github/workflows/actions
 
-      - name: Download Test & Coverage Artifacts (từ job test)
+      - name: Download Test & Coverage Artifacts (tá»« job test)
         uses: actions/download-artifact@v4
         with:
           name: sampledata-test-coverage-reports
@@ -136,7 +136,7 @@ jobs:
 
   build:
     needs: security
-    if: needs.detect-changes.outputs.service == 'true'
+    if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
