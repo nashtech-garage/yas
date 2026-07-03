@@ -53,7 +53,7 @@ urls: "[{ url: 'http://api.yas.local.com/product/v3/api-docs', name: 'Product' }
 service:
   type: NodePort
   port: 8080
-  nodePort: 30082
+  nodePort: 30083
 
 ingress:
   enabled: true
