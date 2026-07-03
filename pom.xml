@@ -55,6 +55,8 @@
         <opentelemetry-logback.vesion>2.17.1-alpha</opentelemetry-logback.vesion>
         <opentelemetry-api.version>1.62.0</opentelemetry-api.version>
         <opentelemetry-semconv.version>1.37.0</opentelemetry-semconv.version>
+        <!-- Override to fix SNYK-JAVA-CHQOSLOGBACK-17675439 (Expression Injection, High Severity) -->
+        <logback.version>1.5.36</logback.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
         <keycloak-spring-security-adapter.version>25.0.3</keycloak-spring-security-adapter.version>
@@ -78,6 +80,17 @@
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-api</artifactId>
                 <version>${opentelemetry-api.version}</version>
+            </dependency>
+            <!-- Override logback-core/logback-classic to fix SNYK-JAVA-CHQOSLOGBACK-17675439 (Expression Injection) -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.logstash.logback</groupId>
