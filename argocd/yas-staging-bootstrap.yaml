@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/luc1fe4/yas.git'
-    targetRevision: v1.2.3
+    targetRevision: main
     path: argocd/apps/staging
   destination:
     server: https://kubernetes.default.svc
@@ -20,3 +20,10 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+  # Prevent ArgoCD from reverting image tags set by Jenkins release pipeline
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/spec/containers/0/image
+        - /spec/template/metadata/annotations/kubectl.kubernetes.io~1restartedAt
