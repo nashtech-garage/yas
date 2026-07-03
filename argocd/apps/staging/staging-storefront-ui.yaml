@@ -13,7 +13,7 @@ spec:
     path: k8s/charts/storefront-ui
     helm:
       parameters:
-        - name: service.nodePort
+        - name: ui.service.nodePort
           value: "30190"
   destination:
     server: https://kubernetes.default.svc

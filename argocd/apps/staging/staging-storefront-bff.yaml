@@ -13,7 +13,7 @@ spec:
     path: k8s/charts/storefront-bff
     helm:
       parameters:
-        - name: service.nodePort
+        - name: backend.service.nodePort
           value: "30195"
   destination:
     server: https://kubernetes.default.svc
