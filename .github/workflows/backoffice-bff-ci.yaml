@@ -2,47 +2,54 @@ name: backoffice-bff service ci
 
 on:
   push:
-    branches: ["main"]
+  # Kích hoạt trên mọi nhánh để build và push image với tag commit SHA lên Docker Hub
+    branches: ['**']
     paths:
-      - "backoffice-bff/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/backoffice-bff-ci.yaml"
-      - "pom.xml"
+      - 'backoffice-bff/**'
+      - '.github/workflows/actions/action.yaml'
+      - '.github/workflows/backoffice-bff-ci.yaml'
+      - 'pom.xml'
   pull_request:
-    branches: ["main"]
+    branches: ['main']
     paths:
-      - "backoffice-bff/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/backoffice-bff-ci.yaml"
-      - "pom.xml"
+      - 'backoffice-bff/**'
+      - '.github/workflows/actions/action.yaml'
+      - '.github/workflows/backoffice-bff-ci.yaml'
+      - 'pom.xml'
   workflow_dispatch:
 
 jobs:
   Build:
     runs-on: ubuntu-latest
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      FROM_ORIGINAL_REPOSITORY: "${{ github.event.pull_request.head.repo.full_name == github.repository || github.repository == 'VyBui13/yas' }}"
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+
       - uses: ./.github/workflows/actions
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -f backoffice-bff -Dcheckstyle.output.file=backoffice-bff-checkstyle-result.xml
+
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: "**/backoffice-bff-checkstyle-result.xml"
+          path: '**/backoffice-bff-checkstyle-result.xml'
+
       - name: Run Maven Verify
         run: mvn clean verify -f backoffice-bff
+
       - name: Analyze with sonar cloud
         continue-on-error: true
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f backoffice-bff
+
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -50,10 +57,31 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
+
+      - name: Build and push Docker images (GHCR)
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./backoffice-bff
           push: true
           tags: ghcr.io/vybui13/yas-backoffice-bff:latest
+
+      - name: Get short SHA
+        if: ${{ github.ref != 'refs/heads/main' }}
+        id: slug
+        run: echo "sha=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        if: ${{ github.ref != 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker images (Docker Hub)
+        if: ${{ github.ref != 'refs/heads/main' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backoffice-bff
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/yas-backoffice-bff:${{ steps.slug.outputs.sha }}
