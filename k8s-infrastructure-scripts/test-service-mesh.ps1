@@ -1,4 +1,4 @@
-# SCRIPT TEST: Kich ban test Service Mesh cho demo
+﻿# SCRIPT TEST: Kich ban test Service Mesh cho demo
 # Chay SAU KHI ArgoCD da sync xong 14 services + Istio policies
 
 $ErrorActionPreference = "Continue"

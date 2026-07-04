@@ -1,4 +1,4 @@
-# 03-setup-argocd-advanced.ps1
+﻿# 03-setup-argocd-advanced.ps1
 Write-Host "=============================================="
 Write-Host "  SETUP ARGOCD AND ROOT APP (ADVANCED GITOPS) "
 Write-Host "=============================================="
