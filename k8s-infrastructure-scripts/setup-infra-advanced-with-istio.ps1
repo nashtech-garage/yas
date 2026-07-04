@@ -1,4 +1,4 @@
-Write-Host "--- SETUP ADVANCED INFRASTRUCTURE (GITOPS) WITH ISTIO SERVICE MESH ---"
+﻿Write-Host "--- SETUP ADVANCED INFRASTRUCTURE (GITOPS) WITH ISTIO SERVICE MESH ---"
 minikube addons enable ingress
 
 Write-Host "1. Configuring CoreDNS..."
