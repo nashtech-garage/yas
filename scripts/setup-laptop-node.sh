@@ -117,8 +117,8 @@ deploy_yas() {
     fi
 
     # Run the same Helm deploy logic (mirrors run-yas-setup.ps1)
-    cd "$(dirname "$0")/.." || exit 1
-    bash k8s/deploy/setup-cluster.sh
+    cd "$(dirname "$0")/../k8s/deploy" || exit 1
+    bash setup-cluster.sh
     log "YAS deployment complete! Run: kubectl get pods -A"
 }
 
