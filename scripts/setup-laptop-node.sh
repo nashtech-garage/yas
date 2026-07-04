@@ -118,6 +118,8 @@ deploy_yas() {
 
     # Run the same Helm deploy logic (mirrors run-yas-setup.ps1)
     cd "$(dirname "$0")/../k8s/deploy" || exit 1
+    bash setup-keycloak.sh
+    bash setup-redis.sh
     bash setup-cluster.sh
     log "YAS deployment complete! Run: kubectl get pods -A"
 }
