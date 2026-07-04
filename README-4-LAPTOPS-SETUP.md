@@ -178,3 +178,15 @@ kubectl apply -f istio/security/authz-policies.yaml
 * Cổng mặc định của Kiali Dashboard là `30089`.
 * Đường dẫn truy cập: `http://<IP-Tailscale-Laptop-A>:30089` (hoặc `http://kiali.yas.local.com:30089`).
 * Bạn có thể xem Graph/Topology của các dịch vụ đang chạy, kiểm tra các luồng traffic thực tế để làm báo cáo đồ án.
+
+---
+
+## 📈 Bước 7: Hệ thống Giám sát & Tracing (Observability - Grafana)
+Vì đã bật lại toàn bộ hệ thống Observability (Prometheus, Grafana, Loki, Tempo, OpenTelemetry) trong script deploy, bạn có thể giám sát chi tiết log, metrics và tracing:
+
+* **Đường dẫn truy cập**: `http://grafana.yas.local.com` (Đã được cấu hình Ingress chạy trực tiếp qua cổng `80`).
+* **Tài khoản đăng nhập**: 
+  * Username: `admin`
+  * Password: `admin` (Được cấu hình trong [prometheus.values.yaml](file:///c:/Users/Admin/Documents/A-devops/yas/k8s/deploy/observability/prometheus.values.yaml)).
+* **Thành quả**: Trong Grafana đã được tích hợp sẵn các datasource cho Loki (Logs), Tempo (Traces) và Prometheus (Metrics) để bạn truy vấn dữ liệu chi tiết của 14 services đúng theo ảnh chụp trong dự án gốc.
+

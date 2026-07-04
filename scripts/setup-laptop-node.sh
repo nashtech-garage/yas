@@ -139,6 +139,7 @@ update_hosts() {
     echo "$MASTER_IP  akhq.yas.local.com"
     echo "$MASTER_IP  kibana.yas.local.com"
     echo "$MASTER_IP  pgadmin.yas.local.com"
+    echo "$MASTER_IP  grafana.yas.local.com"
 }
 
 # ── Main ─────────────────────────────────────────────────────────────────
