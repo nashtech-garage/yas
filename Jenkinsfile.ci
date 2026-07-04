@@ -54,7 +54,11 @@ pipeline {
                     echo "Changed files in PR: ${changedFiles.join(', ')}"
 
                     // Resolve branch name (Multibranch sets BRANCH_NAME, fallback to GIT_BRANCH)
-                    def branchName = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '').replace('origin/', '')
+                    def branchName = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: '')
+                        .replaceFirst('^refs/remotes/origin/', '')
+                        .replaceFirst('^refs/heads/', '')
+                        .replaceFirst('^origin/', '')
+                        .replaceFirst('^\\*/', '')
                     env.BRANCH_IS_MAIN = (branchName == 'main') ? 'true' : 'false'
                     echo "Branch: ${branchName} — BRANCH_IS_MAIN=${env.BRANCH_IS_MAIN}"
 
