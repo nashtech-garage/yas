@@ -54,6 +54,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4+k3s1" sh -s - server
     --node-label="node-role=$NODE_ROLE" \
     --node-label="kubernetes.io/hostname=k3s-server-0" \
     --tls-san="$TAILSCALE_IP" \
+    --kube-apiserver-arg="service-node-port-range=1-65535" \
     --write-kubeconfig-mode=644
 
 echo "    Waiting for k3s to start..."
