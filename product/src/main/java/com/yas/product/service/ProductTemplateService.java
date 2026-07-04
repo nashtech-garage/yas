@@ -30,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class ProductTemplateService {
     private final ProductAttributeRepository productAttributeRepository;
     private final ProductAttributeTemplateRepository productAttributeTemplateRepository;

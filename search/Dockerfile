@@ -1,3 +1,4 @@
+## CI trigger: search service.
 FROM eclipse-temurin:25-jre-alpine
 RUN apk add --no-cache bash
 COPY target/search*.jar app.jar

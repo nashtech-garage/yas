@@ -1,0 +1,63 @@
+\section{Checklist Yêu Cầu Đồ Án}
+
+\subsection{Yêu cầu bắt buộc}
+
+\begin{table}[H]
+\centering
+\caption{Checklist yêu cầu bắt buộc}
+\begin{tabular}{|c|p{10cm}|c|}
+\hline
+\textbf{\#} & \textbf{Yêu cầu} & \textbf{Trạng thái} \\
+\hline
+1 & Công cụ CI/CD: Jenkins & Hoàn thành \\
+\hline
+2 & Fork repository về GitHub của nhóm & Hoàn thành \\
+\hline
+3 & Branch Protection: cấm push thẳng vào \texttt{main}, yêu cầu 2 approvals + CI pass & Hoàn thành \\
+\hline
+4 & Multibranch Pipeline: Jenkins tự quét và chạy pipeline cho từng branch & Hoàn thành \\
+\hline
+5 & Pipeline có ít nhất 2 giai đoạn: Test và Build & Hoàn thành \\
+\hline
+6 & Upload kết quả test và báo cáo độ phủ & Hoàn thành \\
+\hline
+7 & Monorepo Optimization: chỉ build/test service có thay đổi & Hoàn thành \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Yêu cầu nâng cao}
+
+\begin{table}[H]
+\centering
+\caption{Checklist yêu cầu nâng cao}
+\begin{tabular}{|c|p{10cm}|c|}
+\hline
+\textbf{\#} & \textbf{Yêu cầu} & \textbf{Trạng thái} \\
+\hline
+a & Unit test cho từng service, tạo branch riêng biệt & Hoàn thành \\
+\hline
+b & Pipeline fail khi coverage < 70\% (JaCoCo Gate) & Hoàn thành \\
+\hline
+c & Tích hợp Gitleaks, SonarQube, Snyk & Hoàn thành \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Yêu cầu nộp bài}
+
+\begin{table}[H]
+\centering
+\caption{Thông tin nộp bài}
+\begin{tabular}{|c|p{6cm}|p{7cm}|}
+\hline
+\textbf{\#} & \textbf{Yêu cầu} & \textbf{Giá trị} \\
+\hline
+1 & Link GitHub Repository & \url{https://github.com/com-suon-bi-cha/yas} \\
+\hline
+2 & Pull Request đang ở trạng thái Open & \url{https://github.com/com-suon-bi-cha/yas/pull/33} \\
+\hline
+3 & File báo cáo & \texttt{23120205\_23120207\_23120208\_23120231.docx} \\
+\hline
+\end{tabular}
+\end{table}

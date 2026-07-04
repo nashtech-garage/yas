@@ -1,0 +1,205 @@
+\subsection{Security Scanning}
+
+\subsubsection{Tích Hợp Gitleaks --- Quét Secret Bị Lộ}
+
+Gitleaks là công cụ quét mã nguồn để phát hiện các thông tin nhạy cảm bị commit nhầm vào repository, bao gồm API key, mật khẩu, token truy cập và các credential khác.
+
+\begin{lstlisting}[language=Java, caption={Stage Secret Scanning trong Jenkinsfile}]
+stage('Secret Scanning') {
+    steps {
+        sh '''
+            gitleaks detect --source . \
+                --config gitleaks.toml \
+                --report-format json \
+                --report-path gitleaks-report.json \
+                --exit-code 1
+        '''
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'gitleaks-report.json',
+                             allowEmptyArchive: true
+        }
+    }
+}
+\end{lstlisting}
+
+Pipeline sẽ dừng lại (FAIL) ngay tại stage này nếu Gitleaks phát hiện secret bị lộ.
+
+\paragraph{Xử Lý False Positive}
+
+Sau lần chạy đầu tiên, Gitleaks phát hiện \textbf{13 findings} trong lịch sử commit --- tất cả đều là Keycloak client secret từ \textbf{upstream repository} (nashtech-garage/yas), không phải secret thật của nhóm. Xử lý bằng cách thêm \texttt{commits} vào \texttt{allowlist} trong \texttt{gitleaks.toml}:
+
+\begin{lstlisting}[caption={Cấu hình allowlist trong gitleaks.toml}]
+[allowlist]
+description = "global allow list"
+paths = [ '''test-realm.json''', '''realm-export''', ... ]
+commits = [
+  "af2c9421030761ec4eccb0994a6c576592be113b",
+  "8dc5e08456e8fa8c970b7b0cadcffdcd15d77e39",
+  ...
+]
+\end{lstlisting}
+
+Sử dụng \texttt{commits} allowlist thay vì \texttt{paths} để đảm bảo chính xác --- chỉ bỏ qua đúng các commit từ upstream, không bỏ qua các secret thật có thể xuất hiện trong tương lai.
+
+\begin{figure}[H]
+\centering
+\reportimg{security/gitleaks-scan-success.png}
+\caption{Stage Secret Scanning chạy thành công (không phát hiện secret)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{security/gitleaks-scan-failed.png}
+\caption{Pipeline thất bại khi Gitleaks phát hiện secret}
+\end{figure}
+
+\subsubsection{Tích Hợp SonarQube --- Phân Tích Chất Lượng Code}
+
+\paragraph{Cài Đặt SonarQube Server}
+
+\begin{table}[H]
+\centering
+\caption{Thông số SonarQube Server}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Thông số} & \textbf{Giá trị} \\
+\hline
+Phương thức triển khai & Docker (deploy trên Jenkins server) \\
+\hline
+Phiên bản SonarQube & v26.4.0.121862 (Community Build) \\
+\hline
+Địa chỉ truy cập & \texttt{http://18.140.115.86:9000} \\
+\hline
+Project Key & \texttt{yas} \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Các Bước Kết Nối Jenkins Với SonarQube}
+
+\begin{enumerate}
+    \item Cài plugin \textbf{SonarQube Scanner} trên Jenkins.
+    \item Tạo token trên SonarQube: \texttt{My Account > Security > Generate Tokens}.
+    \item Lưu token vào Jenkins Credentials với ID \texttt{sonarqube-token}.
+    \item Thêm SonarQube server: \texttt{Manage Jenkins > System > SonarQube servers}.
+    \item Tạo webhook từ SonarQube về Jenkins: \texttt{Administration > Configuration > Webhooks}.
+\end{enumerate}
+
+\begin{lstlisting}[language=Java, caption={Stage Code Quality và Quality Gate trong Jenkinsfile}]
+stage('Code Quality') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh 'mvn sonar:sonar -Dsonar.projectKey=yas \
+                -Dsonar.java.binaries=.'
+        }
+    }
+}
+stage('Quality Gate') {
+    steps {
+        timeout(time: 5, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
+\end{lstlisting}
+
+\paragraph{Kết Quả Phân Tích}
+
+SonarQube phân tích toàn bộ monorepo \texttt{yas} với \textbf{21k Lines of Code}. Kết quả Quality Gate: \textbf{Passed}.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả phân tích SonarQube}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Chỉ số} & \textbf{Kết quả} \\
+\hline
+Security & 0 issues \\
+\hline
+Reliability & 45 issues \\
+\hline
+Maintainability & 152 issues \\
+\hline
+Coverage & 0.0\% (chưa tích hợp JaCoCo report) \\
+\hline
+Duplications & 3.5\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Lưu ý:} Coverage hiển thị 0.0\% trên SonarQube vì pipeline chưa cấu hình \texttt{sonar.coverage.jacoco.xmlReportPaths}. Độ phủ test thực tế được đo và enforce bằng JaCoCo plugin trực tiếp trên Jenkins (xem phần Coverage Gate).
+
+\begin{figure}[H]
+\centering
+\reportimg{security/sonarqube-dashboard.png}
+\caption{SonarQube Dashboard: project \texttt{yas} với Quality Gate Passed}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{security/sonarqube-pipeline-stages.png}
+\caption{Jenkins pipeline: stage Code Quality và Quality Gate chạy thành công}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{security/sonarqube-build-success.png}
+\caption{Jenkins build summary: pipeline hoàn thành thành công}
+\end{figure}
+
+\subsubsection{Tích Hợp Snyk --- Quét Lỗ Hổng Dependency}
+
+\begin{table}[H]
+\centering
+\caption{Thông số cấu hình Snyk}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Thông số} & \textbf{Giá trị} \\
+\hline
+Tài khoản Snyk & \url{https://app.snyk.io} \\
+\hline
+Phương thức xác thực & API Token (lưu trong Jenkins Credentials với ID \texttt{snyk-token}) \\
+\hline
+Phương thức tích hợp & Snyk CLI (\texttt{snyk test} + \texttt{snyk monitor}) \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{lstlisting}[language=Java, caption={Stage Dependency Scan trong Jenkinsfile}]
+stage('Dependency Scan') {
+    steps {
+        withCredentials([string(credentialsId: 'snyk-token',
+                                variable: 'SNYK_TOKEN')]) {
+            sh 'snyk auth $SNYK_TOKEN'
+            sh 'snyk test --all-projects --json > snyk-report.json || true'
+            sh 'snyk monitor --all-projects || true'
+        }
+    }
+}
+\end{lstlisting}
+
+\texttt{snyk test} quét và báo cáo vulnerability. \texttt{snyk monitor} đẩy kết quả lên Snyk dashboard. Cả hai dùng \texttt{|| true} để pipeline không FAIL khi phát hiện vulnerability mức thấp.
+
+Snyk phát hiện tổng cộng \textbf{55 Critical, 179 High, 140 Medium, 71 Low} trên tất cả các module (lỗ hổng trong thư viện bên thứ ba).
+
+\begin{figure}[H]
+\centering
+\reportimg{security/snyk-dashboard.png}
+\caption{Snyk Dashboard: danh sách project và vulnerability được phát hiện}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{security/snyk-scan-success.png}
+\caption{Stage Dependency Scan trong Jenkins pipeline chạy thành công}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{security/snyk-full-pipeline.png}
+\caption{Toàn bộ pipeline chạy thành công với đầy đủ Security Stages}
+\end{figure}
+
+

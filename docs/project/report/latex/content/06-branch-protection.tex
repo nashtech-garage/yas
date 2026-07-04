@@ -1,0 +1,73 @@
+\subsection{Branch Protection}
+
+\subsubsection{Cấu Hình Branch Protection Trên GitHub}
+
+Cấu hình tại: \texttt{GitHub Repository > Settings > Branches > Add branch protection rule}
+
+\begin{table}[H]
+\centering
+\caption{Các rule Branch Protection đã cấu hình}
+\begin{tabular}{|p{5cm}|c|p{5.5cm}|}
+\hline
+\textbf{Rule} & \textbf{Giá trị} & \textbf{Mục đích} \\
+\hline
+Branch name pattern & \texttt{main} & Áp dụng cho nhánh chính \\
+\hline
+Require a pull request before merging & Bật & Bắt buộc tạo PR, cấm push trực tiếp \\
+\hline
+Required number of approvals & 2 & Cần ít nhất 2 thành viên approve \\
+\hline
+Require status checks to pass & Bật & Jenkins CI phải pass trước khi merge \\
+\hline
+Require branches to be up to date & Bật & Branch phải được sync với \texttt{main} \\
+\hline
+Do not allow bypassing above settings & Bật & Admin cũng phải tuân thủ quy tắc \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\reportimg{branch-protection/require-pr-approvals.png}
+\caption{Cấu hình bắt buộc tạo Pull Request và số lượng Approval}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{branch-protection/require-status-checks.png}
+\caption{Cấu hình bắt buộc Status Checks (Jenkins CI) phải pass}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{branch-protection/require-branch-update.png}
+\caption{Cấu hình bắt buộc cập nhật nhánh trước khi merge}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{branch-protection/no-admin-bypass.png}
+\caption{Cấu hình không cho phép Admin lách luật}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{branch-protection/push-rejected.png}
+\caption{Push trực tiếp vào nhánh \texttt{main} bị từ chối}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{branch-protection/pr-review-ci-status.png}
+\caption{Pull Request hiển thị yêu cầu 2 lượt approve và CI check phải pass}
+\end{figure}
+
+\subsubsection{Pull Request Demo (Trạng Thái Open)}
+
+Theo yêu cầu nộp bài, nhóm duy trì ít nhất một PR ở trạng thái Open trên GitHub.
+
+\begin{figure}[H]
+\centering
+\reportimg{branch-protection/pr-open-demo.png}
+\caption{Pull Request \#33 đang ở trạng thái Open, yêu cầu 2 approvals và CI pass}
+\end{figure}

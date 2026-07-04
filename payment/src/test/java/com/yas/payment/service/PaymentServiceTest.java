@@ -7,7 +7,6 @@ import com.yas.payment.model.enumeration.PaymentMethod;
 import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.repository.PaymentRepository;
 import com.yas.payment.service.provider.handler.PaymentHandler;
-import com.yas.payment.service.provider.handler.PaypalHandler;
 import com.yas.payment.viewmodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +14,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -29,11 +29,16 @@ public class UserAddressService {
         this.locationService = locationService;
     }
 
-    public List<ActiveAddressVm> getUserAddressList() {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (userId.equals("anonymousUser")) {
+    private String getUserId() {
+        org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || "anonymousUser".equals(auth.getName())) {
             throw new AccessDeniedException(Constants.ErrorCode.UNAUTHENTICATED);
         }
+        return auth.getName();
+    }
+
+    public List<ActiveAddressVm> getUserAddressList() {
+        String userId = getUserId();
 
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         List<AddressDetailVm> addressVmList = locationService.getAddressesByIdList(
@@ -54,10 +59,7 @@ public class UserAddressService {
     }
 
     public AddressDetailVm getAddressDefault() {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (userId.equals("anonymousUser")) {
-            throw new AccessDeniedException(Constants.ErrorCode.UNAUTHENTICATED);
-        }
+        String userId = getUserId();
 
         UserAddress userAddress = userAddressRepository.findByUserIdAndIsActiveTrue(userId)
             .orElseThrow(() -> new NotFoundException(Constants.ErrorCode.USER_ADDRESS_NOT_FOUND));
@@ -66,7 +68,7 @@ public class UserAddressService {
     }
 
     public UserAddressVm createAddress(AddressPostVm addressPostVm) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserId();
 
         // Fetch all existing addresses for the user
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
@@ -81,7 +83,7 @@ public class UserAddressService {
     }
 
     public void deleteAddress(Long id) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserId();
         UserAddress userAddress = userAddressRepository.findOneByUserIdAndAddressId(userId, id);
         if (userAddress == null) {
             throw new NotFoundException(Constants.ErrorCode.USER_ADDRESS_NOT_FOUND);
@@ -90,7 +92,7 @@ public class UserAddressService {
     }
 
     public void chooseDefaultAddress(Long id) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = getUserId();
         List<UserAddress> userAddressList = userAddressRepository.findAllByUserId(userId);
         for (UserAddress userAddress : userAddressList) {
             userAddress.setIsActive(Objects.equals(userAddress.getAddressId(), id));

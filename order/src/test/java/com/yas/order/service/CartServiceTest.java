@@ -4,7 +4,6 @@ import static com.yas.order.utils.SecurityContextUtils.setUpSecurityContext;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.yas.order.config.ServiceUrlConfig;
@@ -17,16 +16,13 @@ import com.yas.order.viewmodel.order.OrderVm;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 class CartServiceTest {
 

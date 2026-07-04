@@ -1,0 +1,643 @@
+\section{Unit Test --- Chi Tiết Từng Module}
+
+\subsection{Hướng Dẫn Chung Chạy Test}
+
+Do project sử dụng cấu trúc monorepo với thuộc tính \texttt{\$\{revision\}}, lệnh phải chạy từ bên trong thư mục module tương ứng:
+
+\begin{lstlisting}[language=sh, caption={Lệnh chạy test và tạo report JaCoCo}]
+cd /path/to/yas/<module>
+./mvnw -f ../pom.xml test -pl <module> -am
+./mvnw -f ../pom.xml test jacoco:report -pl <module> -am
+open target/site/jacoco/index.html
+\end{lstlisting}
+
+% --------- NHÓM 1: TV2 (10 modules) ---------
+\subsection{Module \texttt{media}}
+
+Branch: \texttt{test/media}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module media}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{MediaControllerTest.java} & MediaController (5 endpoints) & 8 \\
+\hline
+\texttt{MediaServiceUnitTest.java} & MediaService & 13 \\
+\hline
+\texttt{FileSystemRepositoryTest.java} & FileSystemRepository & 4 \\
+\hline
+\texttt{StringUtilsTest.java} & StringUtils & 11 \\
+\hline
+\texttt{FileTypeValidatorTest.java} & FileTypeValidator & 6 \\
+\hline
+\textbf{Tổng} & & \textbf{42} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Lưu Ý Kỹ Thuật:} Annotation \texttt{@WebMvcTest} cần loại trừ \texttt{OAuth2ResourceServerAutoConfiguration} để tránh lỗi load ApplicationContext trong môi trường test:
+
+\begin{lstlisting}[language=Java, caption={Cấu hình @WebMvcTest cho MediaController}]
+@WebMvcTest(controllers = MediaController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
+@AutoConfigureMockMvc(addFilters = false)
+class MediaControllerTest { ... }
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả Coverage --- module media (Tổng: 80\%)}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Package} & \textbf{Instructions} & \textbf{Branches} \\
+\hline
+\texttt{controller} & 100\% & 100\% \\
+\hline
+\texttt{service} & 89\% & 90\% \\
+\hline
+\texttt{utils} & 92\% & 100\% \\
+\hline
+\texttt{viewmodel} & 86\% & n/a \\
+\hline
+\texttt{repository} & 73\% & 62\% \\
+\hline
+\texttt{model} & 100\% & n/a \\
+\hline
+\texttt{mapper} & 38\% & 7\% \\
+\hline
+\textbf{Tổng} & \textbf{80\%} & \textbf{65\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/media-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module media (80\%)}
+\end{figure}
+
+\subsection{Module \texttt{product}}
+
+Branch: \texttt{test/product}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module product}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{ProductService*Test.java} (10 file) & ProductService & nhiều \\
+\hline
+\texttt{CategoryServiceTest.java} & CategoryService & nhiều \\
+\hline
+\texttt{MediaServiceTest.java} & MediaService & 4 \\
+\hline
+\texttt{ProductConverterTest.java} & ProductConverter & nhiều \\
+\hline
+\textbf{Tổng} & & \textbf{178} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả Coverage --- module product (Tổng: 71\%)}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Package} & \textbf{Instructions} & \textbf{Branches} \\
+\hline
+\texttt{controller} & 87\% & 58\% \\
+\hline
+\texttt{service} & 64\% & 46\% \\
+\hline
+\texttt{validation} & 93\% & 50\% \\
+\hline
+\textbf{Tổng} & \textbf{71\%} & \textbf{47\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/product-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module product (71\%)}
+\end{figure}
+
+\subsection{Module \texttt{order}}
+
+Branch: \texttt{test/order}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module order}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{OrderServiceCreateTest.java} & createOrder & 1 \\
+\hline
+\texttt{OrderServiceGetTest.java} & getOrderWithItemsById, getAllOrder, ... & 11 \\
+\hline
+\texttt{OrderServiceStatusTest.java} & updateOrderPaymentStatus, rejectOrder, ... & 7 \\
+\hline
+\texttt{OrderServiceOtherTest.java} & isOrderCompleted, exportCsv & 4 \\
+\hline
+\texttt{CheckoutServiceTest.java} & CheckoutService & 8 \\
+\hline
+\textbf{Tổng} & & \textbf{31+} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả Coverage --- module order (Tổng: 76\%)}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Package} & \textbf{Instructions} & \textbf{Branches} \\
+\hline
+\texttt{service} & 77\% & 75\% \\
+\hline
+\texttt{specification} & 43\% & 34\% \\
+\hline
+\texttt{mapper} & 76\% & 44\% \\
+\hline
+\textbf{Tổng} & \textbf{76\%} & \textbf{47\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/order-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module order (76\%)}
+\end{figure}
+
+\subsection{Module \texttt{inventory}}
+
+Branch: \texttt{test/inventory}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module inventory}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{WarehouseServiceTest.java} & WarehouseService & 9 \\
+\hline
+\texttt{StockServiceTest.java} & StockService & 6 \\
+\hline
+\texttt{StockHistoryServiceTest.java} & StockHistoryService & 2 \\
+\hline
+\texttt{LocationServiceTest.java} & LocationService & 4 \\
+\hline
+\texttt{ProductServiceTest.java} & ProductService & 3 \\
+\hline
+\textbf{Tổng} & & \textbf{24+} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{89\%} | Branches \textbf{70\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/inventory-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module inventory (89\%)}
+\end{figure}
+
+\subsection{Module \texttt{payment}}
+
+Branch: \texttt{test/payment}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module payment}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{PaymentControllerTest.java} & PaymentController & 3 \\
+\hline
+\texttt{PaymentProviderControllerTest.java} & PaymentProviderController & 3 \\
+\hline
+\texttt{PaymentProviderServiceTest.java} & PaymentProviderService & 7 \\
+\hline
+\texttt{OrderServiceTest.java} & OrderService & 2 \\
+\hline
+\texttt{PaypalHandlerTest.java} & PaypalHandler & 3 \\
+\hline
+\texttt{PaymentServiceTest.java} & PaymentService & 2 \\
+\hline
+\texttt{MediaServiceTest.java} & MediaService & 2 \\
+\hline
+\textbf{Tổng} & & \textbf{22} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{72.33\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/payment-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module payment (72.33\%)}
+\end{figure}
+
+\subsection{Module \texttt{promotion}}
+
+Branch: \texttt{test/promotion}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module promotion}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{PromotionControllerTest.java} & PromotionController & 11 \\
+\hline
+\texttt{PromotionServiceTest.java} & PromotionService & 14 \\
+\hline
+\texttt{ProductServiceTest.java} & ProductService & 5 \\
+\hline
+\texttt{PromotionValidatorTest.java} & PromotionValidator & 8 \\
+\hline
+\texttt{ErrorVmTest.java} & ErrorVm & 2 \\
+\hline
+\texttt{AuthenticationUtilsTest.java} & AuthenticationUtils & 3 \\
+\hline
+\texttt{MessagesUtilsTest.java} & MessagesUtils & 2 \\
+\hline
+\textbf{Tổng} & & \textbf{51} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{82.07\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/promotion-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module promotion (82.07\%)}
+\end{figure}
+
+\subsection{Module \texttt{rating}}
+
+Branch: \texttt{test/rating}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module rating}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{RatingServiceTest.java} & RatingService & 14 \\
+\hline
+\texttt{OrderServiceTest.java} & OrderService & 2 \\
+\hline
+\texttt{AuthenticationUtilsTest.java} & AuthenticationUtils & 2 \\
+\hline
+\texttt{ConstantsTest.java} & Constants & 1 \\
+\hline
+\texttt{MessagesUtilsTest.java} & MessagesUtils & 2 \\
+\hline
+\texttt{RatingTest.java} & Rating (model) & 2 \\
+\hline
+\textbf{Tổng} & & \textbf{23} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{84.56\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/rating-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module rating (84.56\%)}
+\end{figure}
+
+\subsection{Module \texttt{delivery}}
+
+Branch: \texttt{test/delivery}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module delivery}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{DeliveryApplicationTests.java} & DeliveryApplication & 1 \\
+\hline
+\texttt{DeliveryControllerTest.java} & DeliveryController & 1 \\
+\hline
+\texttt{DeliveryServiceTest.java} & DeliveryService & 1 \\
+\hline
+\textbf{Tổng} & & \textbf{3} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{100\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/delivery-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module delivery (100\%)}
+\end{figure}
+
+\subsection{Module \texttt{sampledata}}
+
+Branch: \texttt{test/sampledata}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module sampledata}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{ErrorVmTest.java} & ErrorVm & 2 \\
+\hline
+\texttt{SampleDataVmTest.java} & SampleDataVm & 1 \\
+\hline
+\texttt{MessagesUtilsTest.java} & MessagesUtils & 1 \\
+\hline
+\texttt{SampleDataControllerTest.java} & SampleDataController & 1 \\
+\hline
+\texttt{SampleDataServiceTest.java} & SampleDataService & 1 \\
+\hline
+\textbf{Tổng} & & \textbf{6} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{81.37\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/sampledata-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module sampledata (81.37\%)}
+\end{figure}
+
+\subsection{Module \texttt{recommendation}}
+
+Branch: \texttt{test/recommendation}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module recommendation}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{EmbeddingQueryControllerTest.java} & EmbeddingQueryController & 3 \\
+\hline
+\texttt{VectorQueryTest.java} & VectorQuery & 2 \\
+\hline
+\texttt{BaseVectorRepositoryTest.java} & BaseVectorRepository & 3 \\
+\hline
+\texttt{ProductVectorRepositoryTest.java} & ProductVectorRepository & 4 \\
+\hline
+\texttt{DefaultDocumentFormatterTest.java} & DefaultDocumentFormatter & 1 \\
+\hline
+\textbf{Tổng} & & \textbf{13} \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{86.32\%} | Branches \textbf{48.05\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/recommendation-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module recommendation (86.32\%)}
+\end{figure}
+
+% --------- NHÓM 2: TV4 (6 modules + common-library) ---------
+\subsection{Module \texttt{customer}}
+
+Branch: \texttt{test/customer}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module customer}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{CustomerControllerTest.java} & CustomerController & 7 \\
+\hline
+\texttt{LocationControllerTest.java} & LocationController & 5 \\
+\hline
+\texttt{UserAddressControllerTest.java} & UserAddressController & 5 \\
+\hline
+\texttt{CustomerServiceTest.java} & CustomerService & 15 \\
+\hline
+\texttt{LocationServiceTest.java} & LocationService & 3 \\
+\hline
+\texttt{UserAddressServiceTest.java} & UserAddressService & 10 \\
+\hline
+\texttt{MessagesUtilsTest.java} & MessagesUtils & 2 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{87\%} | Branches \textbf{87\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/customer-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module customer (87\%)}
+\end{figure}
+
+\subsection{Module \texttt{location}}
+
+Branch: \texttt{test/location}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module location}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{AddressControllerTest.java} & AddressController & 6 \\
+\hline
+\texttt{CountryControllerTest.java} & CountryController & 6 \\
+\hline
+\texttt{StateOrProvinceControllerTest.java} & StateOrProvinceController & 6 \\
+\hline
+\texttt{AddressServiceTest.java} & AddressService & 9 \\
+\hline
+\texttt{CountryServiceTest.java} & CountryService & 13 \\
+\hline
+\texttt{DistrictServiceTest.java} & DistrictService & 1 \\
+\hline
+\texttt{StateOrProvinceServiceTest.java} & StateOrProvinceService & 14 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{87\%} | Branches \textbf{100\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/location-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module location (87\%)}
+\end{figure}
+
+\subsection{Module \texttt{cart}}
+
+Branch: \texttt{test/cart}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module cart}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{CartItemServiceTest.java} & CartItemService & 10 \\
+\hline
+\texttt{ProductServiceTest.java} & ProductService & 1 \\
+\hline
+\texttt{CartItemControllerTest.java} & CartItemController & 12 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{88\%} | Branches \textbf{68\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/cart-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module cart (88\%)}
+\end{figure}
+
+\subsection{Module \texttt{tax}}
+
+Branch: \texttt{test/tax}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module tax}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{TaxClassServiceTest.java} & TaxClassService & 8 \\
+\hline
+\texttt{TaxRateServiceTest.java} & TaxRateService & 15 \\
+\hline
+\texttt{TaxClassControllerTest.java} & TaxClassController & 6 \\
+\hline
+\texttt{TaxRateControllerTest.java} & TaxRateController & 7 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{87\%} | Branches \textbf{100\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/tax-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module tax (87\%)}
+\end{figure}
+
+\subsection{Module \texttt{search}}
+
+Branch: \texttt{test/search}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module search}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{ProductServiceTest.java} & ProductService & 4 \\
+\hline
+\texttt{ProductSyncDataServiceTest.java} & ProductSyncDataService & 7 \\
+\hline
+\texttt{ProductControllerTest.java} & ProductController & 2 \\
+\hline
+\texttt{ProductSyncDataConsumerTest.java} & ProductSyncDataConsumer & 3 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{85\%} | Branches \textbf{61\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/search-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module search (85\%)}
+\end{figure}
+
+\subsection{Module \texttt{webhook}}
+
+Branch: \texttt{test/webhook}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module webhook}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{WebhookControllerTest.java} & WebhookController & 6 \\
+\hline
+\texttt{WebhookServiceTest.java} & WebhookService & 11 \\
+\hline
+\texttt{EventServiceTest.java} & EventService & 1 \\
+\hline
+\texttt{OrderEventServiceTest.java} & OrderEventService & 4 \\
+\hline
+\texttt{ProductEventServiceTest.java} & ProductEventService & 2 \\
+\hline
+\texttt{WebhookMapperTest.java} & WebhookMapper & 7 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{78\%} | Branches \textbf{65\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/webhook-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module webhook (78\%)}
+\end{figure}
+
+\subsection{Module \texttt{common-library}}
+
+Branch: \texttt{test/common-library-datetime-utils}
+
+\begin{table}[H]
+\centering
+\caption{Danh sách file test --- module common-library}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{File Test} & \textbf{Lớp được kiểm thử} & \textbf{Test case} \\
+\hline
+\texttt{ErrorVmTest.java} & ErrorVm & 2 \\
+\hline
+\texttt{AuthenticationUtilsTest.java} & AuthenticationUtils & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Kết Quả Coverage:} Instructions \textbf{93.9\%} | Branches \textbf{68.8\%} --- Đạt $\geq$ 70\%
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage/common-library-coverage.png}
+\caption{Báo cáo JaCoCo Coverage --- module common-library (93.9\%)}
+\end{figure}

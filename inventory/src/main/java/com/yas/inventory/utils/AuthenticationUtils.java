@@ -16,7 +16,7 @@ public class AuthenticationUtils {
     public static String extractUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof AnonymousAuthenticationToken) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
             throw new AccessDeniedException(ApiConstant.ACCESS_DENIED);
         }
 
@@ -26,6 +26,14 @@ public class AuthenticationUtils {
     }
 
     public static String extractJwt() {
-        return ((Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getTokenValue();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException(ApiConstant.ACCESS_DENIED);
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof Jwt jwt)) {
+            throw new AccessDeniedException(ApiConstant.ACCESS_DENIED);
+        }
+        return jwt.getTokenValue();
     }
 }

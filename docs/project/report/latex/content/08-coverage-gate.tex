@@ -1,0 +1,94 @@
+\subsection{Coverage Gate}
+
+JaCoCo (Java Code Coverage) đo lường độ phủ của unit test trên mã nguồn. Coverage Gate là cơ chế tự động làm thất bại pipeline khi độ phủ thấp hơn ngưỡng quy định. Nhóm đặt ngưỡng là \textbf{70\% instruction coverage}.
+
+\subsubsection{Cấu Hình Trong \texttt{pom.xml}}
+
+Thêm cấu hình \texttt{check} goal vào JaCoCo plugin để pipeline tự động fail khi coverage không đạt:
+
+\begin{lstlisting}[language=XML, caption={Cấu hình JaCoCo Coverage Gate trong pom.xml}]
+<plugin>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>prepare-agent</id>
+            <goals><goal>prepare-agent</goal></goals>
+        </execution>
+        <execution>
+            <id>report</id>
+            <goals><goal>report</goal></goals>
+        </execution>
+        <execution>
+            <id>check</id>
+            <goals><goal>check</goal></goals>
+            <configuration>
+                <rules>
+                    <rule>
+                        <element>BUNDLE</element>
+                        <limits>
+                            <limit>
+                                <counter>INSTRUCTION</counter>
+                                <value>COVEREDRATIO</value>
+                                <minimum>0.70</minimum>
+                            </limit>
+                        </limits>
+                    </rule>
+                </rules>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+\end{lstlisting}
+
+Khi coverage < 70\%, lệnh \texttt{mvn verify} hoặc \texttt{mvn jacoco:check} sẽ trả về BUILD FAILURE.
+
+\subsubsection{Cấu Hình Stage Trong Jenkinsfile}
+
+\begin{lstlisting}[language=Java, caption={Stage Coverage Report trong Jenkinsfile}]
+stage('Coverage Report') {
+    steps {
+        script {
+            for (service in services) {
+                if (changedFiles.any { it.startsWith("${service}/") }) {
+                    jacoco(
+                        execPattern: "${service}/target/jacoco.exec",
+                        classPattern: "${service}/target/classes",
+                        sourcePattern: "${service}/src/main/java",
+                        minimumInstructionCoverage: '70',
+                        changeBuildStatus: true
+                    )
+                }
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+Tham số \texttt{changeBuildStatus: true} cho phép plugin JaCoCo trên Jenkins tự động đổi trạng thái build sang FAILURE nếu coverage không đạt ngưỡng.
+
+\subsubsection{Hình Ảnh Minh Chứng}
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage-gate/jacoco-pom-config.png}
+\caption{Cấu hình JaCoCo Coverage Gate trong file pom.xml}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage-gate/pipeline-fail-below-70.png}
+\caption{Pipeline thất bại khi coverage dưới ngưỡng 70\%}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage-gate/pipeline-pass-above-70.png}
+\caption{Pipeline thành công sau khi bổ sung đủ unit test}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\reportimg{coverage-gate/jacoco-jenkins-report.png}
+\caption{Báo cáo JaCoCo Coverage hiển thị trong giao diện Jenkins}
+\end{figure}

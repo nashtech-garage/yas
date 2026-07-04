@@ -1,0 +1,63 @@
+\documentclass[12pt]{article}
+
+\usepackage{hcmus-report-template}
+
+% Disable indentation on new paragraphs
+\setlength{\parindent}{0pt}
+
+% Line spacing 1.5
+\renewcommand{\baselinestretch}{1.5}
+
+% Graphic path
+\graphicspath{{img/}}
+
+% Define course name, report name and report title.
+\newcommand{\coursename}{DevOps}
+\newcommand{\reportname}{Xây dựng CI Pipeline cho hệ thống YAS --- Yet Another Shop}
+\newcommand{\reporttitle}{Báo Cáo Đồ Án 1: Triển Khai Hệ Thống CI}
+
+\newcommand{\studentname}{%
+  Ngô Gia An (23120205)\\%
+  Nguyễn Bảo An (23120207)\\%
+  Dương Tuấn Anh (23120208)\\%
+  Trương Nhật Đạt (23120231)%
+}
+\newcommand{\teachername}{Giáo viên hướng dẫn}
+
+% Header
+\lhead{\reporttitle}
+\rhead{%
+  Trường Đại học Khoa học Tự nhiên - ĐHQG HCM\\%
+  \coursename%
+}
+
+% Footer
+\newcommand{\leftfooter}{Nhóm: com-suon-bi-cha}
+\lfoot{\leftfooter}
+
+% ============ DOCUMENT ============
+\begin{document}
+
+\pagenumbering{roman}
+\input{content/title.tex}
+
+\tableofcontents
+\pagebreak
+\listoffigures
+\pagebreak
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{content/01-thong-tin-nhom.tex}
+\input{content/02-checklist.tex}
+\input{content/03-phan-cong.tex}
+\input{content/04-tong-quan.tex}
+\input{content/05-jenkins.tex}
+\input{content/06-branch-protection.tex}
+\input{content/07-security.tex}
+\input{content/08-coverage-gate.tex}
+\input{content/09-unit-test.tex}
+\input{content/10-ket-qua-coverage.tex}
+
+\end{document}

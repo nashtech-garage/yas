@@ -3,8 +3,6 @@ package com.yas.promotion.validation;
 import com.yas.promotion.model.enumeration.DiscountType;
 import com.yas.promotion.model.enumeration.UsageType;
 import com.yas.promotion.viewmodel.PromotionDto;
-import com.yas.promotion.viewmodel.PromotionPostVm;
-import com.yas.promotion.viewmodel.PromotionPutVm;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.collections4.CollectionUtils;

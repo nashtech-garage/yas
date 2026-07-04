@@ -1,0 +1,29 @@
+\section{Bảng biểu}
+Bảng biểu được thể hiện như bảng~\ref{tab:my_label}, lưu ý flag \texttt{[H]} để disable floating (bảng được hiển thị đúng vị trí, không trôi lên đầu trang). Bảng~\ref{tab:my_label} là một trường hợp không sử dụng tag \texttt{[H]} và bảng bị trôi tít lên đầu trang:
+\begin{table}%[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Tên con vật} & \textbf{Số chân} \\ \hline
+Gà & 2 \\ \hline
+Chó & 4 \\ \hline
+Trần Hoàng Tử & 2 \\ \hline
+\end{tabular}
+\caption{Số chân của một số con vật, không có tag \texttt{[H]}}
+\label{tab:my_label}
+\end{table}
+
+Bảng~\ref{tab:my_label_with_H_tag} thể hiện bảng biểu với tag \texttt{[H]}\footnote{Tương tự cách sử dụng tag \texttt{[H]} với hình}. Để không phải mất thời gian tuổi trẻ ngồi chỉnh table, xài \href{https://www.tablesgenerator.com}{https://www.tablesgenerator.com}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Tên con vật} & \textbf{Số chân} \\ \hline
+Gà & 2 \\ \hline
+Chó & 4 \\ \hline
+Trần Hoàng Tử & 2 \\ \hline
+\end{tabular}
+\caption{Số chân của một số con vật, có tag \texttt{[H]}}
+\label{tab:my_label_with_H_tag}
+\end{table}.
