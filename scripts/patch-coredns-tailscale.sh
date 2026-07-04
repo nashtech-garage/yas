@@ -48,14 +48,15 @@ NEW_HOST_ENTRY="$KEYCLOAK_IP identity.$DOMAIN"
 echo ""
 echo "==> Patching CoreDNS ConfigMap..."
 CURRENT_NODEHOSTS=$(kubectl get configmap coredns -n kube-system \
-    -o jsonpath='{.data.NodeHosts}' | \
-    grep -v "identity\.$DOMAIN")
+    -o jsonpath='{.data.NodeHosts}' 2>/dev/null | \
+    grep -v "identity\.$DOMAIN" || true)
 
-kubectl patch configmap coredns -n kube-system --type=merge -p "{
-  \"data\": {
-    \"NodeHosts\": \"${CURRENT_NODEHOSTS}\n${KEYCLOAK_IP} identity.${DOMAIN}\"
-  }
-}"
+export NEW_NODEHOSTS="${CURRENT_NODEHOSTS}
+${KEYCLOAK_IP} identity.${DOMAIN}"
+
+kubectl get configmap coredns -n kube-system -o yaml | \
+  yq '.data.NodeHosts = env(NEW_NODEHOSTS)' | \
+  kubectl apply -f -
 
 echo "    Added: $NEW_HOST_ENTRY"
 
