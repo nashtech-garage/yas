@@ -2,4 +2,4 @@ FROM eclipse-temurin:25-jre-alpine
 COPY target/customer*.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 
-# Trigger build and push customer service
+# Trigger build and push customer service - trigger build 1
