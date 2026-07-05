@@ -409,9 +409,12 @@ pipeline {
                                 sh "docker buildx rm yas-builder || true"
                                 sh "docker buildx create --use --name yas-builder"
                                 sh "docker buildx inspect --bootstrap"
+
+                                // Build cho cả 2 nền tảng và push trực tiếp lên Docker Hub
+                                sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
                                 
-                                // Build cho nền tảng linux/amd64 và push trực tiếp lên Docker Hub
-                                sh "docker buildx build --platform linux/amd64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
+                                // // Build cho nền tảng linux/amd64 và push trực tiếp lên Docker Hub
+                                // sh "docker buildx build --platform linux/amd64 -t ${dockerUsername}/yas-${serviceName}:${imageTag} --push ."
                             }
                             builtCount++
                         } else {
