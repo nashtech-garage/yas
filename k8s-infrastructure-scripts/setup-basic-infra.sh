@@ -43,6 +43,7 @@ kubectl apply -f /tmp/coredns-patch.yaml
 kubectl rollout restart deployment coredns -n kube-system
 
 echo "2. Installing yas-configuration (Namespace: yas)..."
+helm dependency build ../k8s/charts/yas-configuration
 helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --namespace yas --create-namespace
 
 echo "3. Installing PostgreSQL (Shared)..."

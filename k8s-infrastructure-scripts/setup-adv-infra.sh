@@ -90,6 +90,7 @@ kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resourc
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
 
 echo "8. Installing yas-configuration & Keycloak for DEV environment..."
+helm dependency build ../k8s/charts/yas-configuration
 helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --namespace dev --create-namespace
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/kubernetes.yml -n dev
 helm upgrade --install keycloak ../k8s/deploy/keycloak/keycloak --namespace dev --create-namespace
