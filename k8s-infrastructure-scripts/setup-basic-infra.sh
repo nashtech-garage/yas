@@ -53,9 +53,9 @@ helm upgrade --install postgres-operator postgres-operator-charts/postgres-opera
 helm upgrade --install postgres ../k8s/deploy/postgres/postgresql --namespace postgres --create-namespace --set auth.postgresPassword=admin
 
 echo "4. Installing Keycloak (Namespace: yas)..."
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/kubernetes.yml -n yas
+kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
+kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
+kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/kubernetes.yml -n yas
 helm upgrade --install keycloak ../k8s/deploy/keycloak/keycloak --namespace yas --create-namespace
 
 echo "5. Installing Redis (Shared)..."
