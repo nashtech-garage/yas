@@ -48,7 +48,8 @@ urls: "[{ url: 'http://api.yas.local.com/product/v3/api-docs', name: 'Product' }
       { url: 'http://api.yas.local.com/inventory/v3/api-docs', name: 'Inventory'},
       { url: 'http://api.yas.local.com/tax/v3/api-docs', name: 'Tax' },
       { url: 'http://api.yas.local.com/promotion/v3/api-docs', name: 'Promotion'},
-      { url: 'http://api.yas.local.com/search/v3/api-docs', name: 'Search'}]"
+      { url: 'http://api.yas.local.com/search/v3/api-docs', name: 'Search'},
+      { url: 'http://api.yas.local.com/sampledata/v3/api-docs', name: 'Sampledata'}]"
 
 service:
   type: NodePort
