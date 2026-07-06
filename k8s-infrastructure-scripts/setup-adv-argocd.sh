@@ -12,7 +12,7 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 echo -e "\n[*] Waiting for ArgoCD Server to start (about 30s-1m)..."
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 kubectl wait --for=condition=available deployment/argocd-repo-server -n argocd --timeout=300s
-kubectl wait --for=condition=available deployment/argocd-application-controller -n argocd --timeout=300s
+kubectl rollout status statefulset/argocd-application-controller -n argocd --timeout=300s
 
 echo -e "\n[*] The default login password for 'admin' is:"
 ARGOCD_PASS=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
