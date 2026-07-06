@@ -237,6 +237,7 @@ backofficeBffExtraConfig:
             predicates:
               - Path=/**
 
+
 storefrontBffExtraConfig:
   spring:
     data:
