@@ -1,4 +1,4 @@
-﻿credentials:
+credentials:
   postgresql:
     username: yasadminuser
     password: admin
@@ -220,6 +220,21 @@ backofficeBffExtraConfig:
               client-id: backoffice-bff
               client-secret: ${KEYCLOAK_BACKOFFICE_BFF_CLIENT_SECRET}
               scope: openid, profile, email, roles
+    cloud:
+      gateway:
+        routes:
+          - id: api
+            uri: http://nginx
+            predicates:
+              - Path=/api/**
+            filters:
+              - DedupeResponseHeader=Origin Access-Control-Request-Method Access-Control-Request-Headers
+              - TokenRelay=
+              - StripPrefix=1
+          - id: nextjs
+            uri: http://backoffice-ui:80
+            predicates:
+              - Path=/**
 
 storefrontBffExtraConfig:
   spring:
