@@ -89,6 +89,8 @@ kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.
 kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
 
 echo "8. Installing yas-configuration & Keycloak for DEV environment..."
+helm repo add stakater https://stakater.github.io/stakater-charts
+helm repo update
 helm dependency build ../k8s/charts/yas-configuration
 helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --namespace dev --create-namespace
 kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/kubernetes.yml -n dev
