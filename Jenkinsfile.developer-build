@@ -1,0 +1,191 @@
+// Jenkins job: developer_build
+// Purpose: build selected feature branches, update yas-cd developer overlay through GitOps,
+// and let ArgoCD reconcile the developer namespace. No direct kubectl apply/delete.
+
+pipeline {
+    agent {
+        label 'yas-build-worker'
+    }
+
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 60, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        string(name: 'cart', defaultValue: 'main', description: 'Branch for cart')
+        string(name: 'customer', defaultValue: 'main', description: 'Branch for customer')
+        string(name: 'inventory', defaultValue: 'main', description: 'Branch for inventory')
+        string(name: 'location', defaultValue: 'main', description: 'Branch for location')
+        string(name: 'media', defaultValue: 'main', description: 'Branch for media')
+        string(name: 'order', defaultValue: 'main', description: 'Branch for order')
+        string(name: 'payment', defaultValue: 'main', description: 'Branch for payment')
+        string(name: 'payment_paypal', defaultValue: 'main', description: 'Branch for payment-paypal')
+        string(name: 'product', defaultValue: 'main', description: 'Branch for product')
+        string(name: 'search', defaultValue: 'main', description: 'Branch for search')
+        string(name: 'tax', defaultValue: 'main', description: 'Branch for tax')
+        string(name: 'backoffice_bff', defaultValue: 'main', description: 'Branch for backoffice-bff')
+        string(name: 'storefront_bff', defaultValue: 'main', description: 'Branch for storefront-bff')
+        string(name: 'backoffice_ui', defaultValue: 'main', description: 'Branch for backoffice-ui')
+        string(name: 'storefront_ui', defaultValue: 'main', description: 'Branch for storefront-ui')
+    }
+
+    environment {
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
+        GITOPS_REPO              = 'git@github.com:emanhthangngot/yas-cd.git'
+        GITOPS_BRANCH            = 'main'
+        GITOPS_CREDENTIALS_ID    = 'github-gitops-ssh'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    def jdkHome = tool name: 'JDK-25', type: 'jdk'
+                    env.JAVA_HOME = jdkHome
+                    env.PATH = "${jdkHome}/bin:${env.PATH}"
+                    def mvnHome = tool name: 'Maven', type: 'maven'
+                    env.M2_HOME = mvnHome
+                    env.PATH = "${mvnHome}/bin:${env.PATH}"
+                }
+                checkout scm
+            }
+        }
+
+        stage('Build selected developer images') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: "${env.DOCKERHUB_CREDENTIALS_ID}",
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                    )
+                ]) {
+                    sh '''#!/usr/bin/env bash
+                        set -euo pipefail
+
+                        service_field() {
+                            local selector="$1"
+                            local field="$2"
+                            awk -v selector="$selector" -v field="$field" '
+                                function reset() { name = ""; path = ""; dockerfile = ""; imageName = ""; deploy = ""; type = "" }
+                                function emit_if_match() {
+                                    if (!emitted && name == selector && deploy == "true") {
+                                        if (field == "path") print path
+                                        else if (field == "dockerfile") print dockerfile
+                                        else if (field == "imageName") print imageName
+                                        else if (field == "type") print type
+                                        emitted = 1
+                                        exit
+                                    }
+                                }
+                                $1 == "-" && $2 == "name:" {
+                                    emit_if_match()
+                                    reset()
+                                    name = $3
+                                    next
+                                }
+                                $1 == "path:" { path = $2; next }
+                                $1 == "dockerfile:" { dockerfile = $2; next }
+                                $1 == "imageName:" { imageName = $2; next }
+                                $1 == "type:" { type = $2; next }
+                                $1 == "deploy:" { deploy = $2; next }
+                                END { emit_if_match() }
+                            ' services.yaml
+                        }
+
+                        param_for_service() {
+                            echo "$1" | tr '-' '_'
+                        }
+
+                        : > .developer-preview-assignments
+                        base_ref="$(git rev-parse HEAD)"
+                        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
+                        for service in cart customer inventory location media order payment payment-paypal product search tax backoffice-bff storefront-bff backoffice-ui storefront-ui; do
+                            param="$(param_for_service "$service")"
+                            branch="${!param:-main}"
+                            [ "$branch" != "main" ] || continue
+
+                            commit_tag="$(git ls-remote origin "refs/heads/${branch}" | awk '{print substr($1,1,12)}')"
+                            if [ -z "$commit_tag" ]; then
+                                echo "branch not found for ${service}: ${branch}" >&2
+                                exit 1
+                            fi
+
+                            dockerfile="$(service_field "$service" dockerfile)"
+                            service_path="$(service_field "$service" path)"
+                            image_name="$(service_field "$service" imageName)"
+                            service_type="$(service_field "$service" type)"
+                            image_ref="docker.io/${DOCKERHUB_USERNAME}/${image_name}"
+
+                            git fetch origin "${branch}:${branch}" --force
+                            git checkout "$branch"
+                            if [ "$service_type" != "ui" ]; then
+                                echo "Packaging ${service} from ${branch}"
+                                mvn -B -ntp -DskipTests -pl "$service_path" -am package
+                            fi
+                            echo "Building ${service} from ${branch}: ${image_ref}:${commit_tag}"
+                            docker build -f "$dockerfile" -t "${image_ref}:${commit_tag}" "$service_path"
+                            docker push "${image_ref}:${commit_tag}"
+                            echo "${service}=${commit_tag}" >> .developer-preview-assignments
+                            git checkout "$base_ref"
+                        done
+
+                        if [ ! -s .developer-preview-assignments ]; then
+                            echo "No service branch was selected; set at least one service parameter to a feature branch." >&2
+                            exit 1
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Update GitOps developer overlay') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: "${env.GITOPS_CREDENTIALS_ID}",
+                        keyFileVariable: 'GITOPS_SSH_KEY'
+                    )
+                ]) {
+                    sh '''#!/usr/bin/env bash
+                        set -euo pipefail
+
+                        export GIT_SSH_COMMAND="ssh -i ${GITOPS_SSH_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+
+                        rm -rf yas-cd-work
+                        git clone "$GITOPS_REPO" yas-cd-work
+                        cd yas-cd-work
+                        git checkout "$GITOPS_BRANCH"
+                        cp ../services.yaml services.yaml
+
+                        mapfile -t assignments < ../.developer-preview-assignments
+                        scripts/prepare-developer-preview.sh "${assignments[@]}"
+
+                        git status --short
+                        git config user.name "jenkins-cd"
+                        git config user.email "jenkins-cd@local"
+                        git add services.yaml overlays
+                        git commit -m "cd(lab2): prepare developer preview [skip ci]"
+                        git pull --rebase origin "$GITOPS_BRANCH"
+                        git push origin "$GITOPS_BRANCH"
+                    '''
+                }
+            }
+        }
+
+        stage('Print Access Info') {
+            steps {
+                sh '''#!/usr/bin/env bash
+                    set -euo pipefail
+                    echo "Developer preview requested. After ArgoCD sync:"
+                    echo "  http://yas.developer.local:30846/"
+                    echo "Add yas.developer.local to /etc/hosts with the GCP VM external IP."
+                '''
+            }
+        }
+    }
+}
