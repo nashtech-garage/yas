@@ -56,13 +56,12 @@ then
 fi
 istioctl install --set profile=demo -y
 
-echo "Enabling Istio Injection for 'dev' and 'staging' namespaces..."
+echo "Enabling Istio Injection for 'dev' namespace..."
 kubectl label namespace dev istio-injection=enabled --overwrite
-kubectl label namespace staging istio-injection=enabled --overwrite
 
 echo "Installing Kiali and Prometheus..."
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.26/samples/addons/prometheus.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.26/samples/addons/kiali.yaml
+kubectl apply -f https://cdn.jsdelivr.net/gh/istio/istio@release-1.26/samples/addons/prometheus.yaml
+kubectl apply -f https://cdn.jsdelivr.net/gh/istio/istio@release-1.26/samples/addons/kiali.yaml
 
 echo "3. Installing PostgreSQL (Shared)..."
 helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
@@ -86,19 +85,16 @@ helm upgrade --install elastic-operator elastic/eck-operator --namespace elastic
 helm upgrade --install elasticsearch-cluster ../k8s/deploy/elasticsearch/elasticsearch-cluster --namespace elasticsearch --set elasticsearch.replicas=1 --set kibana.ingress.hostname=kibana.yas.local.com
 
 echo "7. Installing Keycloak CRDs (Shared)..."
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
+kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
+kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
 
 echo "8. Installing yas-configuration & Keycloak for DEV environment..."
 helm dependency build ../k8s/charts/yas-configuration
 helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --namespace dev --create-namespace
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/kubernetes.yml -n dev
+kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/kubernetes.yml -n dev
 helm upgrade --install keycloak ../k8s/deploy/keycloak/keycloak --namespace dev --create-namespace
 
-echo "9. Installing yas-configuration & Keycloak for STAGING environment..."
-helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --namespace staging --create-namespace
-kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.2/kubernetes/kubernetes.yml -n staging
-helm upgrade --install keycloak ../k8s/deploy/keycloak/keycloak --namespace staging --create-namespace
+echo "9. (STAGING DA DUOC BO QUA THEO YEU CAU DE TIET KIEM RAM)"
 
 echo "10. Naming and labeling complete. Istio Policies will be automatically deployed by ArgoCD (yas-gitops)!"
 
