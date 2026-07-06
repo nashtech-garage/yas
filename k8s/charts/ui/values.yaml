@@ -53,7 +53,7 @@ service:
 
 ingress:
   enabled: false
-  className: "nginx"
+  className: "traefik"
   annotations: {}
   host: chart-example.local
   path: /
