@@ -56,14 +56,14 @@ CURRENT_NODEHOSTS=$(kubectl get configmap coredns -n kube-system \
 export NEW_NODEHOSTS="${CURRENT_NODEHOSTS}
 ${KEYCLOAK_IP} identity.${DOMAIN}"
 
-# Step 1: Read the current config map
-kubectl get configmap coredns -n kube-system -o yaml > /tmp/coredns-patch.yaml
+# Step 1: Read the current config map in JSON format
+kubectl get configmap coredns -n kube-system -o json > /tmp/coredns-patch.json
 
-# Step 2: Modify it in-place using yq
-yq -i '.data.NodeHosts = env(NEW_NODEHOSTS)' /tmp/coredns-patch.yaml
+# Step 2: Modify it in-place using python3
+python3 -c "import json, os; d = json.load(open('/tmp/coredns-patch.json')); d['data']['NodeHosts'] = os.environ['NEW_NODEHOSTS']; json.dump(d, open('/tmp/coredns-patched.json', 'w'))"
 
 # Step 3: Apply the modified config map back
-kubectl apply -f /tmp/coredns-patch.yaml
+kubectl apply -f /tmp/coredns-patched.json
 
 echo "    Added: $NEW_HOST_ENTRY"
 

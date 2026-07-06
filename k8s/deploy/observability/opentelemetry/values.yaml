@@ -30,6 +30,9 @@ opentelemetryCollectorConfig:
     otlphttp:
       endpoint: http://tempo:4318
   service:
+    telemetry:
+      metrics:
+        address: 0.0.0.0:8889
     pipelines:
       logs:
         receivers: [loki]
