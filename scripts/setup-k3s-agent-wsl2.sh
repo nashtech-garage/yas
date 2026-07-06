@@ -52,7 +52,8 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4+k3s1" \
     sh -s - agent \
         --node-ip="$TAILSCALE_IP" \
         --flannel-iface=tailscale0 \
-        --node-label="node-role=$NODE_ROLE"
+        --node-label="node-role=$NODE_ROLE" \
+        --node-label="type=light"
 
 echo ""
 echo "    Waiting 20s for agent to register..."

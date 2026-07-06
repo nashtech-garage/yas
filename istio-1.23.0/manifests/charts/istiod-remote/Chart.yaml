@@ -1,0 +1,11 @@
+apiVersion: v2
+appVersion: 1.23.0
+description: Helm chart for a remote cluster using an external istio control plane
+icon: https://istio.io/latest/favicons/android-192x192.png
+keywords:
+- istio
+- external-istiod
+name: istiod-remote
+sources:
+- https://github.com/istio/istio
+version: 1.23.0

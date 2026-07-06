@@ -1,9 +1,15 @@
 write:
   replicas: 1
+  nodeSelector:
+    type: heavy
 read:
   replicas: 1
+  nodeSelector:
+    type: heavy
 backend:
   replicas: 1
+  nodeSelector:
+    type: heavy
 loki:
   commonConfig:
     replication_factor: 1
@@ -14,7 +20,8 @@ storage:
   type: 'filesystem'
 minio:
   enabled: true
-
+  nodeSelector:
+    type: heavy
 monitoring:
   selfMonitoring:
     enabled: false

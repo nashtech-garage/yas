@@ -2,7 +2,11 @@ hostname: &hostname grafana.yas.local.com
 prometheus:
   prometheusSpec:
     enableRemoteWriteReceiver: true
+    nodeSelector:
+      type: heavy
 grafana:
+  nodeSelector:
+    type: heavy
   grafana.ini:
     database:
       type: postgres

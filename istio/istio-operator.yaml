@@ -47,7 +47,7 @@ spec:
     accessLogFormat: >
       [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%
       %PROTOCOL%" %RESPONSE_CODE% %RESPONSE_FLAGS%
-      %UPSTREAM_SERVICE_TIME%ms retries=%RESP(X-ENVOY-ATTEMPT-COUNT)%
+      %DURATION%ms retries=%RESP(X-ENVOY-ATTEMPT-COUNT)%
       "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%"
     # Enable distributed tracing → Jaeger
     defaultConfig:

@@ -85,8 +85,14 @@ helm upgrade --install traefik traefik/traefik \
 # ── Apply node labels ──────────────────────────────────────────
 echo ""
 echo "==> Applying node labels..."
-kubectl label node $(kubectl get node -o jsonpath='{.items[0].metadata.name}') \
-    node-role=$NODE_ROLE --overwrite
+MASTER_NODE_NAME=$(kubectl get node -o jsonpath='{.items[0].metadata.name}')
+kubectl label node $MASTER_NODE_NAME node-role=$NODE_ROLE --overwrite
+kubectl label node $MASTER_NODE_NAME type=heavy --overwrite
+
+# Remove NoSchedule taint on Master node to allow running microservices and DBs
+echo "==> Removing master taints to allow scheduling workloads..."
+kubectl taint node $MASTER_NODE_NAME node-role.kubernetes.io/master:NoSchedule- --ignore-not-found=true || true
+kubectl taint node $MASTER_NODE_NAME node-role.kubernetes.io/control-plane:NoSchedule- --ignore-not-found=true || true
 
 # ── Expose NodePorts (via Windows host — firewall rules) ───────
 echo ""
