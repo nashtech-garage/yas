@@ -4,4 +4,5 @@ COPY target/backoffice*.jar app.jar
 COPY wait-for-it.sh wait-for-it.sh
 RUN chmod +x wait-for-it.sh
 ENTRYPOINT ["java","-jar","/app.jar"]
-# Trigger build and push backoffice-bff service
+# Trigger build and push backoffice-bff service - trigger build 1
+
