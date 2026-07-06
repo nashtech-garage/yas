@@ -1,0 +1,251 @@
+global:
+  domain: dev.yas.local.com
+
+product:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-product
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+cart:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-cart
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+order:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-order
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+customer:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-customer
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+inventory:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-inventory
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+tax:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-tax
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+media:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-media
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+search:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-search
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+sampledata:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-sampledata
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+
+storefront-ui:
+  ui:
+    image:
+      repository: ghcr.io/23122004/yas-storefront-ui
+      tag: main
+    resources:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 96Mi
+    extraEnvs:
+      - name: API_BASE_PATH
+        value: "http://storefront.dev.yas.local.com/api"
+
+backoffice-ui:
+  ui:
+    image:
+      repository: ghcr.io/23122004/yas-backoffice-ui
+      tag: main
+    resources:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 96Mi
+
+storefront-bff:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-storefront-bff
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: SPRING_PROFILES_ACTIVE
+        value: prod
+      - name: UI_HOST
+        value: "http://storefront-ui:3000"
+      - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+        value: "http://nginx-dev"
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+    ingress:
+      host: storefront.dev.yas.local.com
+
+backoffice-bff:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-backoffice-bff
+      tag: main
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+    extraEnvs:
+      - name: SPRING_PROFILES_ACTIVE
+        value: prod
+      - name: UI_HOST
+        value: "http://backoffice-ui:3000"
+      - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+        value: "http://nginx-dev"
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+    ingress:
+      host: backoffice.dev.yas.local.com
+
+swagger-ui:
+  image:
+    repository: ghcr.io/23122004/yas-swagger-ui
+    tag: main
+  resources:
+    requests:
+      cpu: 5m
+      memory: 16Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
+  ingress:
+    enabled: true
+    host: api.dev.yas.local.com
+    hosts:
+      - host: api.dev.yas.local.com
+        paths:
+          - path: /swagger-ui
+            pathType: ImplementationSpecific
+  urls: "[{ url: 'http://api.dev.yas.local.com/product/v3/api-docs', name: 'Product' },
+        { url: 'http://api.dev.yas.local.com/media/v3/api-docs', name: 'Media' },
+        { url: 'http://api.dev.yas.local.com/customer/v3/api-docs', name: 'Customer' }, 
+        { url: 'http://api.dev.yas.local.com/cart/v3/api-docs', name: 'Cart'},
+        { url: 'http://api.dev.yas.local.com/order/v3/api-docs', name: 'Order'},
+        { url: 'http://api.dev.yas.local.com/inventory/v3/api-docs', name: 'Inventory'},
+        { url: 'http://api.dev.yas.local.com/tax/v3/api-docs', name: 'Tax' },
+        { url: 'http://api.dev.yas.local.com/search/v3/api-docs', name: 'Search'}]"

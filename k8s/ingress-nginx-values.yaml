@@ -1,0 +1,11 @@
+controller:
+  metrics:
+    enabled: true
+    service:
+      servicePort: "9090"
+  podAnnotations:
+    prometheus.io/port: "10254"
+    prometheus.io/scrape: "true"
+  replicaCount: 2
+  service:
+    type: LoadBalancer

@@ -1,0 +1,36 @@
+YAS Service Mesh — Test Evidence  (2026-07-05 12:15 UTC)
+======================================================================
+
+### mTLS: PeerAuthentication STRICT (namespace yas)
+NAME                               MODE         AGE
+backoffice-bff-public-entrypoint   PERMISSIVE   8d
+default-strict-mtls                STRICT       8d
+storefront-bff-public-entrypoint   PERMISSIVE   8d
+swagger-ui-public-entrypoint       PERMISSIVE   8d
+
+### SCENARIO 1 — AuthorizationPolicy ALLOW  (SA=order -> product)
+$ curl http://product.yas.svc.cluster.local/
+HTTP 404  (reached app; not blocked)
+
+### SCENARIO 2 — AuthorizationPolicy DENY  (SA=default -> product)
+$ curl http://product.yas.svc.cluster.local/
+RBAC: access denied
+HTTP 403
+
+### Envoy RBAC deny log (product istio-proxy):
+[2026-07-05T12:15:47.506Z] "GET / HTTP/1.1" 403 - rbac_access_denied_matched_policy[none] - "-" 0 19 9 - "-" "curl/8.10.1" "ec9108d8-2a3f-9906-bb1e-992fb55eedea" "product.yas.svc.cluster.local" "-" inbound|80|| - 10.108.2.34:80 10.108.2.9:34284 outbound_.80_._.product.yas.svc.cluster.local default
+
+### SCENARIO 3 — VirtualService RETRY (retryOn 5xx, attempts=3)
+One client request to httpbin /status/500:
+  client received: HTTP 500
+  httpbin server received: 4 requests  (= 1 original + 3 retries)
+
+### VirtualService retry policies in yas:
+NAME            GATEWAYS   HOSTS                               AGE
+httpbin-retry              ["httpbin.yas.svc.cluster.local"]   11m
+order-retry                ["order.yas.svc.cluster.local"]     8d
+tax-retry                  ["tax.yas.svc.cluster.local"]       8d
+
+### Kiali service graph (namespace yas):
+  30 nodes / 16 edges — product, cart, order, tax, customer, inventory,
+  search, media, storefront-bff/ui, backoffice-bff/ui, swagger-ui, postgres, kafka.

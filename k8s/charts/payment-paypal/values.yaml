@@ -1,4 +1,5 @@
 backend:
+  replicaCount: 0
   image:
     repository: ghcr.io/nashtech-garage/yas-payment-paypal
     tag: latest

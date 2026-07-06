@@ -60,7 +60,10 @@ const TaxRateEdit: NextPage = () => {
             router.push(TAX_RATE_URL).catch((error) => console.log(error));
           }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          setLoading(false);
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);

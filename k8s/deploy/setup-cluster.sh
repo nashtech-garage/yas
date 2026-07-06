@@ -38,7 +38,8 @@ helm upgrade --install pgadmin ./postgres/pgadmin \
 
 #Install strimzi-kafka-operator
 helm upgrade --install kafka-operator strimzi/strimzi-kafka-operator \
---create-namespace --namespace kafka
+--create-namespace --namespace kafka \
+--version 0.45.2
 
 #Install kafka and postgresql connector
 helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
@@ -67,7 +68,8 @@ helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-clust
 #Install loki
 helm upgrade --install loki grafana/loki \
  --create-namespace --namespace observability \
- -f ./observability/loki.values.yaml
+ -f ./observability/loki.values.yaml \
+ --set loki.useTestSchema=true
 
 #Install tempo
 helm upgrade --install tempo grafana/tempo \

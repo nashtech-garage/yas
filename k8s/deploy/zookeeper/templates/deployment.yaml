@@ -47,17 +47,15 @@ spec:
               containerPort: 2181
               protocol: TCP
           livenessProbe:
-            exec:
-              command:
-                - bash
-                - -c
-                - "(echo ruok | nc localhost 2181) || exit 1"
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 10
+            periodSeconds: 10
           readinessProbe:
-            exec:
-              command:
-                - bash
-                - -c
-                - "(echo ruok | nc localhost 2181) || exit 1"
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

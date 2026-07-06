@@ -7,6 +7,19 @@ metadata:
 spec:
   replicas: 1
   bootstrapServers: kafka-cluster-kafka-bootstrap:9092
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+  template:
+    pod:
+      tolerations:
+        - key: "node.kubernetes.io/memory-pressure"
+          operator: "Exists"
+          effect: "NoSchedule"
   image: {{ .Values.debeziumConnect.image }}
   config:
     config.providers: secrets

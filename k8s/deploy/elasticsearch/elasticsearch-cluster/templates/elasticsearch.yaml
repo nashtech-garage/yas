@@ -7,7 +7,7 @@ spec:
     tls:
       selfSignedCertificate:
         disabled: true
-  version: 8.8.1
+  version: 9.2.3
   auth:
     fileRealm:
       - secretName: user-credentials-secret
@@ -16,3 +16,22 @@ spec:
       count: {{ .Values.elasticsearch.replicas }}
       config:
         node.store.allow_mmap: false
+        xpack.security.http.ssl.enabled: false
+      podTemplate:
+        spec:
+          tolerations:
+            - key: "node.kubernetes.io/memory-pressure"
+              operator: "Exists"
+              effect: "NoSchedule"
+          containers:
+            - name: elasticsearch
+              env:
+                - name: ES_JAVA_OPTS
+                  value: "-Xms512m -Xmx512m"
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 250m
+                limits:
+                  memory: 1Gi
+                  cpu: 1

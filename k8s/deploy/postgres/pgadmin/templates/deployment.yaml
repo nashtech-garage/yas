@@ -5,6 +5,8 @@ metadata:
   labels:
     {{- include "pgadmin.labels" . | nindent 4 }}
 spec:
+  strategy:
+    type: Recreate
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -53,10 +55,14 @@ spec:
             httpGet:
               path: /
               port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /
               port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:

@@ -80,6 +80,10 @@ spec:
               containerPort: {{ .Values.metricPort }}
           lifecycle:
             {{ toYaml .Values.lifecycle | nindent 12 }}
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -97,5 +101,9 @@ spec:
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
         {{- toYaml . | nindent 8 }}
       {{- end }}

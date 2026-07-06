@@ -2,7 +2,7 @@ name: release charts ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "k8s/charts/**"
       - ".github/workflows/charts-ci.yaml"
@@ -34,5 +34,6 @@ jobs:
         uses: helm/chart-releaser-action@v1.5.0
         with:
           charts_dir: k8s/charts
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

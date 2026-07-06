@@ -9,7 +9,7 @@ spec:
     url: http://prometheus-grafana
     adminPassword:
       name: grafana-admin-credentials
-      key: username
+      key: password
     adminUser:
       name: grafana-admin-credentials
-      key: password
+      key: username

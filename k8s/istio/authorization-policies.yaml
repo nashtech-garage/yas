@@ -1,0 +1,49 @@
+# Istio AuthorizationPolicy for the YAS mesh (namespace: yas)
+#
+# Requirement (huy_job): "only allow order-service to call product-service,
+# block other services" + prove enforcement with curl from a pod.
+#
+# Design note:
+#   product is called by more than just order in the live shop (the BFFs and
+#   cart browse products). A literal "order-only" rule would break the running
+#   storefront that must stay demoable. So the APPLIED policy below is an
+#   allow-list of product's *real* callers; every other workload identity is
+#   implicitly DENIED (an ALLOW policy denies anything not matched).
+#
+#   The exact assignment scenario (product reachable ONLY from order) is shipped
+#   separately in authorization-policy-strict-demo.yaml for a clean allow/deny
+#   demonstration.
+#
+# How enforcement is proven:
+#   ALLOW  -> exec into `order` pod, curl product  => HTTP 200
+#   DENY   -> exec into `tax`   pod, curl product  => HTTP 403 (RBAC: access denied)
+#
+# Principals are the SPIFFE identities minted from each service's ServiceAccount
+# under STRICT mTLS: cluster.local/ns/yas/sa/<service>.
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: product-allow-callers
+  namespace: yas
+  labels:
+    app.kubernetes.io/part-of: yas
+    security.istio.io/purpose: service-to-service-authz
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: product
+  action: ALLOW
+  rules:
+    # Legitimate internal callers of product-service. Every other workload
+    # identity is implicitly DENIED. kube-probe liveness/readiness traffic is
+    # auto-rewritten by Istio to the pilot-agent (:15020) and bypasses authz,
+    # so no health-path exception is required here.
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/yas/sa/order
+              - cluster.local/ns/yas/sa/cart
+              - cluster.local/ns/yas/sa/search
+              - cluster.local/ns/yas/sa/storefront-bff
+              - cluster.local/ns/yas/sa/backoffice-bff

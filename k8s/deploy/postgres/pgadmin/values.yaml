@@ -20,17 +20,11 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 podAnnotations: {}
-podSecurityContext: {}
-# fsGroup: 2000
-
-securityContext: {}
-# capabilities:
-#   drop:
-#   - ALL
-# readOnlyRootFilesystem: true
-# runAsNonRoot: true
-# runAsUser: 1000
-
+podSecurityContext:
+  fsGroup: 5050
+securityContext:
+  runAsUser: 5050
+  runAsGroup: 5050
 pgadmin:
   user: admin@yas.com
   password: admin

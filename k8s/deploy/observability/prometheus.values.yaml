@@ -2,7 +2,22 @@ hostname: &hostname grafana.yas.local.com
 prometheus:
   prometheusSpec:
     enableRemoteWriteReceiver: true
+    tolerations:
+      - key: "node.kubernetes.io/memory-pressure"
+        operator: "Exists"
+        effect: "NoSchedule"
+alertmanager:
+  alertmanagerSpec:
+    tolerations:
+      - key: "node.kubernetes.io/memory-pressure"
+        operator: "Exists"
+        effect: "NoSchedule"
 grafana:
+  assertNoLeakedSecrets: false
+  tolerations:
+    - key: "node.kubernetes.io/memory-pressure"
+      operator: "Exists"
+      effect: "NoSchedule"
   grafana.ini:
     database:
       type: postgres
@@ -18,3 +33,44 @@ grafana:
     enabled: true
     hosts:
       - *hostname
+prometheusOperator:
+  tolerations:
+    - key: "node.kubernetes.io/memory-pressure"
+      operator: "Exists"
+      effect: "NoSchedule"
+  admissionWebhooks:
+    patch:
+      tolerations:
+        - key: "node.kubernetes.io/memory-pressure"
+          operator: "Exists"
+          effect: "NoSchedule"
+  livenessProbe:
+    timeoutSeconds: 10
+    initialDelaySeconds: 30
+  readinessProbe:
+    timeoutSeconds: 10
+    initialDelaySeconds: 30
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 150m
+      memory: 256Mi
+  livenessProbe:
+    initialDelaySeconds: 30
+    timeoutSeconds: 5
+  readinessProbe:
+    initialDelaySeconds: 30
+    timeoutSeconds: 5
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                  - pool-ij7dmpaq8-3cbimb

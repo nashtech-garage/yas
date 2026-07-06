@@ -1,5 +1,11 @@
 # Compiled class file
 *.class
+teammate-kubeconfig.yaml
+.claude/
+
+# Downloaded Istio release (used by k8s/istio/install-istio.sh, not project source)
+/istio-*/
+istioctl
 
 # Log file
 *.log

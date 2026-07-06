@@ -1,0 +1,160 @@
+name: CD - Deploy Dev
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'k8s/environments/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-and-push:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: product
+            context: product
+            image: yas-product
+            type: backend
+          - service: cart
+            context: cart
+            image: yas-cart
+            type: backend
+          - service: order
+            context: order
+            image: yas-order
+            type: backend
+          - service: customer
+            context: customer
+            image: yas-customer
+            type: backend
+          - service: inventory
+            context: inventory
+            image: yas-inventory
+            type: backend
+          - service: tax
+            context: tax
+            image: yas-tax
+            type: backend
+          - service: media
+            context: media
+            image: yas-media
+            type: backend
+          - service: search
+            context: search
+            image: yas-search
+            type: backend
+          - service: storefront-bff
+            context: storefront-bff
+            image: yas-storefront-bff
+            type: backend
+          - service: storefront-ui
+            context: storefront
+            image: yas-storefront-ui
+            type: ui
+          - service: backoffice-bff
+            context: backoffice-bff
+            image: yas-backoffice-bff
+            type: backend
+          - service: backoffice-ui
+            context: backoffice
+            image: yas-backoffice-ui
+            type: ui
+          - service: sampledata
+            context: sampledata
+            image: yas-sampledata
+            type: backend
+          - service: swagger-ui
+            context: swagger-ui
+            image: yas-swagger-ui
+            type: static
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        if: matrix.type == 'backend'
+        uses: actions/setup-java@v4
+        with:
+          java-version: "25"
+          distribution: temurin
+          cache: maven
+
+      - name: Build backend jar
+        if: matrix.type == 'backend'
+        run: mvn -B -ntp -DskipTests clean package -pl ${{ matrix.context }} -am
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare image tags
+        id: tags
+        shell: bash
+        run: |
+          image="ghcr.io/23122004/${{ matrix.image }}"
+          tags="${image}:${{ github.sha }},${image}:main"
+          echo "tags=${tags}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.context }}
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+  deploy:
+    name: Update GitOps Config
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update tags in values.yaml
+        shell: bash
+        run: |
+          
+          yq -i '.product.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.cart.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.order.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.customer.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.inventory.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.tax.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.media.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.search.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.sampledata.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          
+          yq -i '.storefront-ui.ui.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.backoffice-ui.ui.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          
+          yq -i '.storefront-bff.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          yq -i '.backoffice-bff.backend.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+          
+          yq -i '.swagger-ui.image.tag = "${{ github.sha }}"' k8s/environments/dev/values.yaml
+
+      - name: Commit and push changes
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/environments/dev/values.yaml
+          git commit -m "chore(dev): update image tags to ${{ github.sha }} [skip ci]" || exit 0
+          git push

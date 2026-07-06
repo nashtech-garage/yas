@@ -38,6 +38,10 @@ spec:
               value: {{ .Values.baseUrl }}
             - name: URLS
               value: {{ .Values.urls | quote }}
+          volumeMounts:
+            - name: nginx-template
+              mountPath: /etc/nginx/templates/default.conf.template
+              subPath: default.conf.template
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -52,6 +56,10 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: nginx-template
+          configMap:
+            name: {{ include "swagger-ui.fullname" . }}-nginx-template
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

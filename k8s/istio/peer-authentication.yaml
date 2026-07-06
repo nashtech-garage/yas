@@ -1,0 +1,36 @@
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default-strict-mtls
+  namespace: yas
+spec:
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default-strict-mtls
+  namespace: dev
+spec:
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default-strict-mtls
+  namespace: staging
+spec:
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default-strict-mtls
+  namespace: yas-developer
+spec:
+  mtls:
+    mode: STRICT
+

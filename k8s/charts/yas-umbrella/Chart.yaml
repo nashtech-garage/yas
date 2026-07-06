@@ -1,0 +1,52 @@
+apiVersion: v2
+name: yas-umbrella
+description: Umbrella chart for all YAS business microservices
+type: application
+version: 1.0.0
+appVersion: "latest"
+dependencies:
+  - name: yas-configuration
+    version: 0.4.0
+    repository: "file://../yas-configuration"
+  - name: product
+    version: 0.1.0
+    repository: "file://../product"
+  - name: cart
+    version: 0.2.0
+    repository: "file://../cart"
+  - name: order
+    version: 0.2.0
+    repository: "file://../order"
+  - name: customer
+    version: 0.1.0
+    repository: "file://../customer"
+  - name: inventory
+    version: 0.1.0
+    repository: "file://../inventory"
+  - name: tax
+    version: 0.1.0
+    repository: "file://../tax"
+  - name: media
+    version: 0.1.0
+    repository: "file://../media"
+  - name: search
+    version: 0.1.0
+    repository: "file://../search"
+  - name: storefront-bff
+    version: 0.1.0
+    repository: "file://../storefront-bff"
+  - name: storefront-ui
+    version: 0.1.0
+    repository: "file://../storefront-ui"
+  - name: backoffice-bff
+    version: 0.1.0
+    repository: "file://../backoffice-bff"
+  - name: backoffice-ui
+    version: 0.1.0
+    repository: "file://../backoffice-ui"
+  - name: swagger-ui
+    version: 0.1.0
+    repository: "file://../swagger-ui"
+  - name: sampledata
+    version: 0.1.0
+    repository: "file://../sampledata"

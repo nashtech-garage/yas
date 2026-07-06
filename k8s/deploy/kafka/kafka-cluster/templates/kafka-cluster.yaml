@@ -20,6 +20,23 @@ spec:
         port: 9094
         type: nodeport
         tls: false
+    livenessProbe:
+      initialDelaySeconds: 90
+      timeoutSeconds: 10
+      periodSeconds: 15
+      failureThreshold: 6
+    readinessProbe:
+      initialDelaySeconds: 90
+      timeoutSeconds: 10
+      periodSeconds: 15
+      failureThreshold: 6
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1.5Gi
+        cpu: 1
     storage:
       type: jbod
       volumes:
@@ -33,12 +50,71 @@ spec:
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
+    template:
+      pod:
+        tolerations:
+          - key: "node.kubernetes.io/memory-pressure"
+            operator: "Exists"
+            effect: "NoSchedule"
   zookeeper:
     replicas: {{ .Values.zookeeper.replicas }}
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 100m
+      limits:
+        memory: 1Gi
+        cpu: 500m
     storage:
       type: persistent-claim
       size: {{ .Values.zookeeper.storeSize }}
       deleteClaim: false
+    template:
+      pod:
+        tolerations:
+          - key: "node.kubernetes.io/memory-pressure"
+            operator: "Exists"
+            effect: "NoSchedule"
   entityOperator:
-    topicOperator: {}
-    userOperator: {}
+    topicOperator:
+      resources:
+        requests:
+          memory: 256Mi
+          cpu: 100m
+        limits:
+          memory: 512Mi
+          cpu: 200m
+      livenessProbe:
+        initialDelaySeconds: 90
+        timeoutSeconds: 10
+        periodSeconds: 15
+        failureThreshold: 6
+      readinessProbe:
+        initialDelaySeconds: 90
+        timeoutSeconds: 10
+        periodSeconds: 15
+        failureThreshold: 6
+    userOperator:
+      resources:
+        requests:
+          memory: 256Mi
+          cpu: 100m
+        limits:
+          memory: 512Mi
+          cpu: 200m
+      livenessProbe:
+        initialDelaySeconds: 90
+        timeoutSeconds: 10
+        periodSeconds: 15
+        failureThreshold: 6
+      readinessProbe:
+        initialDelaySeconds: 90
+        timeoutSeconds: 10
+        periodSeconds: 15
+        failureThreshold: 6
+    template:
+      pod:
+        tolerations:
+          - key: "node.kubernetes.io/memory-pressure"
+            operator: "Exists"
+            effect: "NoSchedule"
