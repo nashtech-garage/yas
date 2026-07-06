@@ -96,7 +96,10 @@ helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --names
 kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/kubernetes.yml -n dev
 helm upgrade --install keycloak ../k8s/deploy/keycloak/keycloak --namespace dev --create-namespace
 
-echo "9. (STAGING DA DUOC BO QUA THEO YEU CAU DE TIET KIEM RAM)"
+echo "9. Installing yas-configuration & Keycloak for STAGING environment..."
+helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --namespace staging --create-namespace
+kubectl apply -f https://cdn.jsdelivr.net/gh/keycloak/keycloak-k8s-resources@26.0.2/kubernetes/kubernetes.yml -n staging
+helm upgrade --install keycloak ../k8s/deploy/keycloak/keycloak --namespace staging --create-namespace
 
 echo "10. Naming and labeling complete. Istio Policies will be automatically deployed by ArgoCD (yas-gitops)!"
 
