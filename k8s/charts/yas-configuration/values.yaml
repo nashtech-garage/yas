@@ -19,6 +19,7 @@ applicationConfig:
   server:
     shutdown: graceful
     port: 80
+    forward-headers-strategy: framework
 
   management:
     otlp:

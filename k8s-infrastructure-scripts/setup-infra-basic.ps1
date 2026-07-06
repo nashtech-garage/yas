@@ -45,6 +45,7 @@ helm upgrade --install yas-configuration ../k8s/charts/yas-configuration --names
 
 Write-Host "3. Installing PostgreSQL (Shared)..."
 helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+helm repo update
 helm upgrade --install postgres-operator postgres-operator-charts/postgres-operator --namespace postgres --create-namespace
 helm upgrade --install postgres ../k8s/deploy/postgres/postgresql --namespace postgres --create-namespace --set auth.postgresPassword=admin
 
@@ -55,15 +56,17 @@ kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resourc
 helm upgrade --install keycloak ../k8s/deploy/keycloak/keycloak --namespace yas --create-namespace
 
 Write-Host "5. Installing Redis (Shared)..."
-helm install redis oci://registry-1.docker.io/bitnamicharts/redis -n redis --create-namespace --set auth.password=redis
+helm upgrade --install redis oci://registry-1.docker.io/bitnamicharts/redis -n redis --create-namespace --set auth.password=redis
 
 Write-Host "6. Installing Kafka (Shared)..."
 helm repo add strimzi https://strimzi.io/charts/
+helm repo update
 helm upgrade --install kafka-operator strimzi/strimzi-kafka-operator --version 0.38.0 --namespace kafka --create-namespace
 helm upgrade --install kafka-cluster ../k8s/deploy/kafka/kafka-cluster --namespace kafka --set kafka.replicas=1 --set zookeeper.replicas=1 --set postgresql.username=yasadminuser --set postgresql.password=admin
 
 Write-Host "7. Installing Elasticsearch (Shared)..."
 helm repo add elastic https://helm.elastic.co
+helm repo update
 helm upgrade --install elastic-operator elastic/eck-operator --namespace elasticsearch --create-namespace
 helm upgrade --install elasticsearch-cluster ../k8s/deploy/elasticsearch/elasticsearch-cluster --namespace elasticsearch --set elasticsearch.replicas=1 --set kibana.ingress.hostname=kibana.yas.local.com
 
