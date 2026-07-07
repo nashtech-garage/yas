@@ -2,89 +2,198 @@ name: backoffice service ci
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
     paths:
       - "backoffice/**"
-      - ".github/workflows/actions/action.yaml"
       - ".github/workflows/backoffice-ci.yaml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "backoffice/**"
-      - ".github/workflows/actions/action.yaml"
       - ".github/workflows/backoffice-ci.yaml"
   workflow_dispatch:
+
+permissions:
+  contents: write
+  checks: write
+  pull-requests: write
+  packages: write
 
 jobs:
   Build:
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-        working-directory: backoffice
-      - run: npm run build
-        working-directory: backoffice
-      - run: npm run lint
-        working-directory: backoffice
-      - run: npx prettier --check .
-        working-directory: backoffice
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v5
-        with:
-          projectBaseDir: backoffice
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: SonarCloud Summary
-        if: always()
-        run: |
-          if [ "${{ steps.sonar.outcome }}" = "success" ]; then
-            ICON="🟢"
-            STATUS="PASS"
-          else
-            ICON="🔴"
-            STATUS="FAIL"
-          fi
 
-          {
-            echo "## SonarCloud Report"
-            echo ""
-            echo "| Item | Value |"
-            echo "|------|-------|"
-            echo "| Status | $ICON **$STATUS** |"
-            echo "| Raw Outcome | \`${{ steps.sonar.outcome }}\` |"
-            echo "| Final Conclusion | \`${{ steps.sonar.conclusion }}\` |"
-            echo "| Service | \`${SERVICE_NAME}\` |"
-            echo "| Branch | \`${{ github.ref_name }}\` |"
-            echo "| Commit | \`${{ github.sha }}\` |"
-            echo "| Actor | \`${{ github.actor }}\` |"
-            echo ""
-            echo "### Dashboard"
-            echo "https://sonarcloud.io/dashboard?id=<YOUR_PROJECT_KEY>"
-            echo ""
-            echo "### Notes"
-            echo "- If status = FAIL, open Sonar step logs."
-            echo "- Check Quality Gate, coverage, bugs, vulnerabilities."
-            echo "- If using continue-on-error, workflow still continues."
-          } >> $GITHUB_STEP_SUMMARY
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backoffice
+
+      - name: Build application
+        run: npm run build
+        working-directory: backoffice
+
+  Test:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backoffice
+
+      - name: Run tests if present
+        run: npm test --if-present
+        working-directory: backoffice
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: backoffice
+
+      - name: Check formatting
+        run: npx prettier --check .
+        working-directory: backoffice
+
+  Docker:
+    needs: [Build, Test]
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REPOSITORY: ghcr.io/nashtech-garage/yas-backoffice
+      IMAGE_TAG: sha-${{ github.sha }}
+      VALUES_FILE: k8s/charts/backoffice-ui/values.yaml
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./backoffice
           push: true
-          tags: ghcr.io/nashtech-garage/yas-backoffice:latest
+          tags: |
+            ${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_REPOSITORY }}:latest
+
+      - name: Update Helm image tag
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["VALUES_FILE"])
+          tag = os.environ["IMAGE_TAG"]
+          text = path.read_text(encoding="utf-8")
+          lines = text.splitlines(keepends=True)
+          in_image = False
+          image_indent = None
+          updated = False
+
+          for index, line in enumerate(lines):
+              stripped = line.strip()
+              indent = len(line) - len(line.lstrip())
+
+              if stripped == "image:":
+                  in_image = True
+                  image_indent = indent
+                  continue
+
+              if not in_image:
+                  continue
+
+              if stripped and indent <= image_indent:
+                  in_image = False
+                  image_indent = None
+                  continue
+
+              if stripped.startswith("tag:"):
+                  prefix = line[:indent]
+                  newline = "\r\n" if line.endswith("\r\n") else "\n" if line.endswith("\n") else ""
+                  lines[index] = prefix + "tag: " + tag + newline
+                  updated = True
+                  break
+
+          if not updated:
+              raise SystemExit("Could not find image.tag in " + str(path))
+
+          path.write_text("".join(lines), encoding="utf-8")
+          print("Updated " + str(path) + " image tag to " + tag)
+          PY
+
+      - name: Commit updated image tag
+        run: |
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+
+          if git diff --quiet -- "$VALUES_FILE"; then
+            echo "No Helm values change to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$VALUES_FILE"
+          git commit -m "ci: update backoffice image tag to $IMAGE_TAG"
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:"$GITHUB_REF_NAME"; then
+              exit 0
+            fi
+            echo "Push failed, rebasing and retrying ($attempt/3)."
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            sleep $((attempt * 5))
+          done
+
+          exit 1
+
+  SonarCloud:
+    needs: [Build, Test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        id: sonar
+        uses: SonarSource/sonarcloud-github-action@v5
+        with:
+          projectBaseDir: backoffice
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud Summary
+        if: always()
+        run: |
+          if [ "${{ steps.sonar.outcome }}" = "success" ]; then STATUS="PASS"; else STATUS="FAIL"; fi
+          echo "## SonarCloud Report: backoffice" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | **$STATUS** |" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Backoffice |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY

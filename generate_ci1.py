@@ -1,13 +1,47 @@
 import os
 
-# Danh sách các service Java cần tạo CI
+
+# Java services that have a Dockerfile and a Helm values file under k8s/charts.
 JAVA_SERVICES = [
-    "search", "promotion", "customer", "inventory", "payment", "order", 
-    "tax", "rating", "location", "storefront-bff", "backoffice-bff"
-    , "product", "media", "payment-paypal", "webhook", "cart", "recommendation"
+    "search",
+    "promotion",
+    "customer",
+    "inventory",
+    "payment",
+    "order",
+    "tax",
+    "rating",
+    "location",
+    "storefront-bff",
+    "backoffice-bff",
+    "product",
+    "media",
+    "payment-paypal",
+    "webhook",
+    "sampledata",
+    "cart",
+    "recommendation",
 ]
 
-TEMPLATE = """name: {service} service ci
+REGISTRY = "ghcr.io"
+IMAGE_NAMESPACE = "nashtech-garage"
+
+UI_SERVICES = [
+    {
+        "service": "backoffice",
+        "service_cap": "Backoffice",
+        "chart": "backoffice-ui",
+        "image_name": "yas-backoffice",
+    },
+    {
+        "service": "storefront",
+        "service_cap": "Storefront",
+        "chart": "storefront-ui",
+        "image_name": "yas-storefront",
+    },
+]
+
+JAVA_TEMPLATE = """name: {service} service ci
 
 on:
   push:
@@ -26,6 +60,12 @@ on:
       - "pom.xml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  checks: write
+  pull-requests: write
+  packages: write
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -38,14 +78,15 @@ jobs:
 
       - name: Run Maven Build Command
         run: mvn clean install -pl {service} -am -DskipTests
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-assets-{service}
           path: |
-            **/target/*.jar
-            **/target/classes/
-            **/target/generated-sources/
+            {service}/target/*.jar
+            {service}/target/classes/
+            {service}/target/generated-sources/
           retention-days: 1
 
       - name: Run Maven Checkstyle
@@ -56,22 +97,6 @@ jobs:
         with:
           path: '**/{service}-checkstyle-result.xml'
 
-      - name: Log in to the Container registry
-        if: ${{{{ github.ref == 'refs/heads/main' }}}}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{{{ github.actor }}}}
-          password: ${{{{ secrets.GITHUB_TOKEN }}}}
-
-      - name: Build and push Docker images
-        if: ${{{{ github.ref == 'refs/heads/main' }}}}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./{service}
-          push: true
-          tags: ghcr.io/nashtech-garage/yas-{service}:latest
-
   Test:
     needs: Build
     runs-on: ubuntu-latest
@@ -80,7 +105,6 @@ jobs:
       - uses: ./.github/workflows/actions
 
       - name: Run Unit Tests & Generate JaCoCo Report
-        # Vì JaCoCo nằm trong pluginManagement, ta gọi trực tiếp goal để ép nó chạy
         run: |
           mvn clean verify \\
           org.jacoco:jacoco-maven-plugin:0.8.14:prepare-agent \\
@@ -99,10 +123,10 @@ jobs:
       - name: Write Test Summary to Job
         if: always()
         run: |
-          echo "## 🧪 Test Result: {service}" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Result: {service}" >> $GITHUB_STEP_SUMMARY
           TEST_FILES=$(find {service}/target/surefire-reports -name "TEST-*.xml" 2>/dev/null || true)
           if [ -z "$TEST_FILES" ]; then
-            echo "❌ Không tìm thấy file kết quả test." >> $GITHUB_STEP_SUMMARY
+            echo "No test result files found." >> $GITHUB_STEP_SUMMARY
           else
             TOTAL_TESTS=0; TOTAL_FAILURES=0; TOTAL_ERRORS=0; TOTAL_SKIPPED=0
             for FILE in $TEST_FILES; do
@@ -118,10 +142,10 @@ jobs:
             TOTAL_PASSED=$((TOTAL_TESTS - TOTAL_FAILURES - TOTAL_ERRORS - TOTAL_SKIPPED))
             echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
             echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-            echo "| ✅ Passed | $TOTAL_PASSED |" >> $GITHUB_STEP_SUMMARY
-            echo "| ❌ Failures | $TOTAL_FAILURES |" >> $GITHUB_STEP_SUMMARY
-            echo "| ⚠️ Errors | $TOTAL_ERRORS |" >> $GITHUB_STEP_SUMMARY
-            echo "| ⏭️ Skipped | $TOTAL_SKIPPED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | $TOTAL_PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failures | $TOTAL_FAILURES |" >> $GITHUB_STEP_SUMMARY
+            echo "| Errors | $TOTAL_ERRORS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Skipped | $TOTAL_SKIPPED |" >> $GITHUB_STEP_SUMMARY
             echo "| **Total** | **$TOTAL_TESTS** |" >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -130,11 +154,119 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report-{service}
-          # Upload đúng file jacoco.xml từ folder site
           path: {service}/target/site/jacoco/jacoco.xml
           retention-days: 1
+
+  Docker:
+    needs: [Build, Test]
+    if: ${{{{ github.event_name != 'pull_request' }}}}
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REPOSITORY: {registry}/{image_namespace}/yas-{service}
+      IMAGE_TAG: sha-${{{{ github.sha }}}}
+      VALUES_FILE: k8s/charts/{service}/values.yaml
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{{{ github.ref_name }}}}
+
+      - uses: ./.github/workflows/actions
+
+      - name: Prepare Docker build artifact
+        run: mvn clean package -pl {service} -am -DskipTests
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: {registry}
+          username: ${{{{ github.actor }}}}
+          password: ${{{{ secrets.GITHUB_TOKEN }}}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./{service}
+          push: true
+          tags: |
+            ${{{{ env.IMAGE_REPOSITORY }}}}:${{{{ env.IMAGE_TAG }}}}
+            ${{{{ env.IMAGE_REPOSITORY }}}}:latest
+
+      - name: Update Helm image tag
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["VALUES_FILE"])
+          tag = os.environ["IMAGE_TAG"]
+          text = path.read_text(encoding="utf-8")
+          lines = text.splitlines(keepends=True)
+          in_image = False
+          image_indent = None
+          updated = False
+
+          for index, line in enumerate(lines):
+              stripped = line.strip()
+              indent = len(line) - len(line.lstrip())
+
+              if stripped == "image:":
+                  in_image = True
+                  image_indent = indent
+                  continue
+
+              if not in_image:
+                  continue
+
+              if stripped and indent <= image_indent:
+                  in_image = False
+                  image_indent = None
+                  continue
+
+              if stripped.startswith("tag:"):
+                  prefix = line[:indent]
+                  newline = "\\r\\n" if line.endswith("\\r\\n") else "\\n" if line.endswith("\\n") else ""
+                  lines[index] = prefix + "tag: " + tag + newline
+                  updated = True
+                  break
+
+          if not updated:
+              raise SystemExit("Could not find image.tag in " + str(path))
+
+          path.write_text("".join(lines), encoding="utf-8")
+          print("Updated " + str(path) + " image tag to " + tag)
+          PY
+
+      - name: Commit updated image tag
+        run: |
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+
+          if git diff --quiet -- "$VALUES_FILE"; then
+            echo "No Helm values change to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$VALUES_FILE"
+          git commit -m "ci: update {service} image tag to $IMAGE_TAG"
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:"$GITHUB_REF_NAME"; then
+              exit 0
+            fi
+            echo "Push failed, rebasing and retrying ($attempt/3)."
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            sleep $((attempt * 5))
+          done
+
+          exit 1
+
   SonarCloud:
-    needs: [Build, Test] # Cần cả Build để lấy class và Test để lấy Jacoco
+    needs: [Build, Test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -157,23 +289,21 @@ jobs:
         id: sonar
         env:
           SONAR_TOKEN: ${{{{ secrets.SONAR_TOKEN }}}}
-        # Lưu ý: Không dùng 'clean' ở đây vì sẽ làm mất artifact vừa download
         run: >
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           -pl {service} -am -f pom.xml
           -Dsonar.coverage.jacoco.xmlReportPaths={service}/target/site/jacoco/jacoco.xml
+
       - name: SonarCloud Summary
         if: always()
         run: |
-          if [ "${{{{ steps.sonar.outcome }}}}" = "success" ]; then ICON="🟢"; STATUS="PASS"; else ICON="🔴"; STATUS="FAIL"; fi
-          {{
-            echo "## SonarCloud Report: {service}"
-            echo "| Item | Value |"
-            echo "|------|-------|"
-            echo "| Status | $ICON **$STATUS** |"
-            echo "### Dashboard"
-            echo "https://sonarcloud.io/dashboard?id=<YOUR_PROJECT_KEY>"
-          }} >> $GITHUB_STEP_SUMMARY
+          if [ "${{{{ steps.sonar.outcome }}}}" = "success" ]; then ICON="PASS"; else ICON="FAIL"; fi
+          echo "## SonarCloud Report: {service}" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | **$ICON** |" >> $GITHUB_STEP_SUMMARY
+          echo "### Dashboard" >> $GITHUB_STEP_SUMMARY
+          echo "https://sonarcloud.io/dashboard?id=<YOUR_PROJECT_KEY>" >> $GITHUB_STEP_SUMMARY
 
   Check-Coverage:
     needs: Test
@@ -193,9 +323,8 @@ jobs:
         if: github.event.before != '0000000000000000000000000000000000000000'
         uses: madrapps/jacoco-report@v1.6.1
         with:
-          # Chỉ định chính xác file đã download về
-          paths: ${{{{github.workspace}}}}/target/jacoco-results/jacoco.xml
-          token: ${{{{secrets.GITHUB_TOKEN}}}}
+          paths: ${{{{ github.workspace }}}}/target/jacoco-results/jacoco.xml
+          token: ${{{{ secrets.GITHUB_TOKEN }}}}
           min-coverage-overall: 70
           min-coverage-changed-files: 60
           title: '{service_cap} Coverage Report'
@@ -209,22 +338,225 @@ jobs:
           [ -z "$COVERAGE" ] && COVERAGE=0
           [ -z "$CHANGED" ] && CHANGED=0
           THRESHOLD=70
-          if (( $(echo "$COVERAGE >= $THRESHOLD" | bc -l) )); then ICON="✅"; STATUS="PASSED"; else ICON="❌"; STATUS="FAILED"; fi
+          if (( $(echo "$COVERAGE >= $THRESHOLD" | bc -l) )); then STATUS="PASSED"; else STATUS="FAILED"; fi
 
-          echo "## 📊 Coverage Summary: {service}" >> $GITHUB_STEP_SUMMARY
+          echo "## Coverage Summary: {service}" >> $GITHUB_STEP_SUMMARY
           echo "| Metric | Value | Threshold | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Overall Coverage | $COVERAGE% | $THRESHOLD% | $ICON $STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Overall Coverage | $COVERAGE% | $THRESHOLD% | $STATUS |" >> $GITHUB_STEP_SUMMARY
           echo "| Changed Files | $CHANGED% | 60% | - |" >> $GITHUB_STEP_SUMMARY
+
       - name: Enforce Threshold
         run: |
           THRESHOLD=70
           COVERAGE=${{{{ steps.jacoco_report.outputs.coverage-overall }}}}
           if (( $(echo "$COVERAGE <= $THRESHOLD" | bc -l) )); then
-            echo "Độ bao phủ code ($COVERAGE%) thấp hơn yêu cầu ($THRESHOLD%)!"
+            echo "Code coverage ($COVERAGE%) is lower than required ($THRESHOLD%)."
             exit 1
           fi
 """
+
+UI_TEMPLATE = """name: {service} service ci
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "{service}/**"
+      - ".github/workflows/{service}-ci.yaml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "{service}/**"
+      - ".github/workflows/{service}-ci.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  checks: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: {service}
+
+      - name: Build application
+        run: npm run build
+        working-directory: {service}
+
+  Test:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: {service}
+
+      - name: Run tests if present
+        run: npm test --if-present
+        working-directory: {service}
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: {service}
+
+      - name: Check formatting
+        run: npx prettier --check .
+        working-directory: {service}
+
+  Docker:
+    needs: [Build, Test]
+    if: ${{{{ github.event_name != 'pull_request' }}}}
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REPOSITORY: {registry}/{image_namespace}/{image_name}
+      IMAGE_TAG: sha-${{{{ github.sha }}}}
+      VALUES_FILE: k8s/charts/{chart}/values.yaml
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{{{ github.ref_name }}}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: {registry}
+          username: ${{{{ github.actor }}}}
+          password: ${{{{ secrets.GITHUB_TOKEN }}}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./{service}
+          push: true
+          tags: |
+            ${{{{ env.IMAGE_REPOSITORY }}}}:${{{{ env.IMAGE_TAG }}}}
+            ${{{{ env.IMAGE_REPOSITORY }}}}:latest
+
+      - name: Update Helm image tag
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["VALUES_FILE"])
+          tag = os.environ["IMAGE_TAG"]
+          text = path.read_text(encoding="utf-8")
+          lines = text.splitlines(keepends=True)
+          in_image = False
+          image_indent = None
+          updated = False
+
+          for index, line in enumerate(lines):
+              stripped = line.strip()
+              indent = len(line) - len(line.lstrip())
+
+              if stripped == "image:":
+                  in_image = True
+                  image_indent = indent
+                  continue
+
+              if not in_image:
+                  continue
+
+              if stripped and indent <= image_indent:
+                  in_image = False
+                  image_indent = None
+                  continue
+
+              if stripped.startswith("tag:"):
+                  prefix = line[:indent]
+                  newline = "\\r\\n" if line.endswith("\\r\\n") else "\\n" if line.endswith("\\n") else ""
+                  lines[index] = prefix + "tag: " + tag + newline
+                  updated = True
+                  break
+
+          if not updated:
+              raise SystemExit("Could not find image.tag in " + str(path))
+
+          path.write_text("".join(lines), encoding="utf-8")
+          print("Updated " + str(path) + " image tag to " + tag)
+          PY
+
+      - name: Commit updated image tag
+        run: |
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+
+          if git diff --quiet -- "$VALUES_FILE"; then
+            echo "No Helm values change to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$VALUES_FILE"
+          git commit -m "ci: update {service} image tag to $IMAGE_TAG"
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:"$GITHUB_REF_NAME"; then
+              exit 0
+            fi
+            echo "Push failed, rebasing and retrying ($attempt/3)."
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            sleep $((attempt * 5))
+          done
+
+          exit 1
+
+  SonarCloud:
+    needs: [Build, Test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        id: sonar
+        uses: SonarSource/sonarcloud-github-action@v5
+        with:
+          projectBaseDir: {service}
+        env:
+          GITHUB_TOKEN: ${{{{ secrets.GITHUB_TOKEN }}}}
+          SONAR_TOKEN: ${{{{ secrets.SONAR_TOKEN }}}}
+
+      - name: SonarCloud Summary
+        if: always()
+        run: |
+          if [ "${{{{ steps.sonar.outcome }}}}" = "success" ]; then STATUS="PASS"; else STATUS="FAIL"; fi
+          echo "## SonarCloud Report: {service}" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | **$STATUS** |" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | {service_cap} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{{{ github.sha }}}} |" >> $GITHUB_STEP_SUMMARY
+"""
+
 
 def main():
     output_dir = ".github/workflows"
@@ -233,12 +565,33 @@ def main():
 
     for service in JAVA_SERVICES:
         service_cap = service.replace("-", " ").title().replace(" ", "")
-        content = TEMPLATE.format(service=service, service_cap=service_cap)
-        
+        content = JAVA_TEMPLATE.format(
+            service=service,
+            service_cap=service_cap,
+            registry=REGISTRY,
+            image_namespace=IMAGE_NAMESPACE,
+        )
+
         file_path = os.path.join(output_dir, f"{service}-ci.yaml")
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
         print(f"Generated: {file_path}")
+
+    for ui_service in UI_SERVICES:
+        content = UI_TEMPLATE.format(
+            service=ui_service["service"],
+            service_cap=ui_service["service_cap"],
+            chart=ui_service["chart"],
+            image_name=ui_service["image_name"],
+            registry=REGISTRY,
+            image_namespace=IMAGE_NAMESPACE,
+        )
+
+        file_path = os.path.join(output_dir, f"{ui_service['service']}-ci.yaml")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"Generated: {file_path}")
+
 
 if __name__ == "__main__":
     main()
