@@ -124,7 +124,10 @@ pipeline {
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
-                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                
+                                # Thêm '|| true' ở cuối hoặc bọc lỗi để nếu 'kubectl: not found' thì pipeline VẪN CHẠY TIẾP
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found 2>/dev/null || true
+                                
                                 sleep 5
                                 ${helmCmd}
                             """
@@ -150,7 +153,10 @@ pipeline {
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
-                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                
+                                # Tương tự như trên, đảm bảo thiếu lệnh kubectl không làm sập build
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found 2>/dev/null || true
+                                
                                 sleep 5
                                 ${helmCmd}
                             """
