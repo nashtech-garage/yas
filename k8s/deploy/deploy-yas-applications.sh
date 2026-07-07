@@ -9,7 +9,7 @@ helm repo update
 NAMESPACE=${1:-dev}
 
 read -rd '' DOMAIN \
-< <(yq -r '.domain' ./cluster-config.yaml)
+< <(python3 -c "import yaml; cfg = yaml.safe_load(open('./cluster-config.yaml')); print(cfg.get('domain', ''))")
 
 helm dependency build ../charts/backoffice-bff
 helm upgrade --install backoffice-bff ../charts/backoffice-bff \
