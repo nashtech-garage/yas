@@ -13,9 +13,9 @@
 	<name>webhook</name>
 	<description>YAS Webhook service</description>
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>yas-devops-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-webhook</sonar.projectKey>
+        <sonar.projectKey>dorayakiiiiz_yas-devops-1-customer</sonar.projectKey>
     </properties>
 	<dependencies>
 		<dependency>

@@ -8,7 +8,7 @@ import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import type { WarehouseDetail } from '@inventoryModels/WarehouseDetail';
 import { deleteWarehouse, getPageableWarehouses } from '@inventoryServices/WarehouseService';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WAREHOUSE_URL } from 'constants/Common';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WAREHOUSE_URL } from '../../../constants/Common';
 
 const WarehouseList: NextPage = () => {
   const [warehouseIdWantToDelete, setWarehouseIdWantToDelete] = useState<number>(-1);

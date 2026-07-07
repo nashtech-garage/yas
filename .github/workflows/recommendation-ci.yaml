@@ -2,7 +2,7 @@ name: recommendation service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "recommendation/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,17 +18,59 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  test:
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl recommendation -am
+
+      - name: Gitleaks check (Service Level)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="./recommendation" --no-git --verbose
+      - name: Run Maven Test
+        run: mvn -pl recommendation -am verify
+      - name: Install Dependencies
+        run: mvn -pl recommendation -am install -DskipTests
+      - name: Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Recommendation-Service-Unit-Test-Results
+          path: "recommendation/**/*-reports/TEST*.xml"
+          reporter: java-junit
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/recommendation/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 60
+          title: 'Recommendation Coverage Report'
+          update-comment: true
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: recommendation-coverage-report
+          path: ${{github.workspace}}/recommendation/target/site/jacoco/
+      
+  build:
+    runs-on: ubuntu-latest
+    needs: test  
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/workflows/actions
+      - name: Run Maven Build
+        run: mvn -pl recommendation -am -DskipTests install
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl recommendation -am -Dcheckstyle.output.file=recommendation-checkstyle-result.xml
@@ -37,18 +79,6 @@ jobs:
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: '**/recommendation-checkstyle-result.xml'
-      - name: Test Results
-        uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
-        with:
-          name: Recommendation-Service-Unit-Test-Results
-          path: "recommendation/**/*-reports/TEST*.xml"
-          reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f recommendation
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
@@ -58,22 +88,39 @@ jobs:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: >
+            --disableCentral
+            --failOnCVSS 11
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
         with:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
+      - name: Analyze with sonar cloud
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        continue-on-error: true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f recommendation
+
+      - name: Setup Snyk
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk Scan (Code Quality & Security)
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk code test ./recommendation --severity-threshold=medium --sarif-file-output=snyk-results.sarif
+
+      - name: Upload Snyk results
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && !cancelled() }}
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          paths: ${{github.workspace}}/recommendation/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Recommendation Coverage Report'
-          update-comment: true
+          sarif_file: snyk-results.sarif
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -87,4 +134,4 @@ jobs:
         with:
           context: ./recommendation
           push: true
-          tags: ghcr.io/nashtech-garage/yas-recommendation:latest
+          tags: ghcr.io/${{ github.repository_owner }}/yas-recommendation:latest

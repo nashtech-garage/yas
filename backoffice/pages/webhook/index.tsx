@@ -8,7 +8,7 @@ import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import type { Webhook } from '@webhookModels/Webhook';
 import { deleteWebhook, getWebhooks } from '@webhookServices/WebhookService';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WEBHOOKS_URL } from 'constants/Common';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, WEBHOOKS_URL } from '../../constants/Common';
 
 const WebhookList: NextPage = () => {
   const [webhookClassIdWantToDelete, setWebhookIdWantToDelete] = useState<number>(-1);

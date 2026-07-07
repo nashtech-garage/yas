@@ -20,6 +20,11 @@
 
         <spring-ai.version>1.0.0-M2</spring-ai.version>
         <commons-text.version>1.12.0</commons-text.version>
+
+        <!-- sonar cloud -->
+        <sonar.organization>yas-devops-1</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.projectKey>dorayakiiiiz_yas-devops-1-recommendation</sonar.projectKey>
     </properties>
 
     <dependencies>
@@ -103,6 +108,12 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- jacoco -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

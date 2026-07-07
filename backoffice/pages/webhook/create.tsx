@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import WebhookInformation from '@webhookComponents/WebhookInformation';
-import { WEBHOOKS_URL } from 'constants/Common';
+import { WEBHOOKS_URL } from '../../constants/Common';
 import { handleCreatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import EventInformation from '@webhookComponents/EventInformation';
 import { ContentType } from '@webhookModels/ContentType';

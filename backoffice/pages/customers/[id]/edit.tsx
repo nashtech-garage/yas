@@ -1,8 +1,8 @@
 import { handleUpdatingResponse } from '@commonServices/ResponseStatusHandlingService';
 import { CUSTOMER_URL, ResponseStatus } from '@constants/Common';
-import CustomerBaseInformation from 'modules/customer/components/CustomerBaseInformation';
-import { Customer, CustomerCreateVM, CustomerUpdateVM } from 'modules/customer/models/Customer';
-import { getCustomer, updateCustomer } from 'modules/customer/services/CustomerService';
+import CustomerBaseInformation from '../../../modules/customer/components/CustomerBaseInformation';
+import { Customer, CustomerCreateVM, CustomerUpdateVM } from '../../../modules/customer/models/Customer';
+import { getCustomer, updateCustomer } from '../../../modules/customer/services/CustomerService';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';

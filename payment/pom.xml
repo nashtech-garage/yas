@@ -12,9 +12,9 @@
     <name>payment</name>
     <description>Payment Service for Yas Project</description>
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>yas-devops-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-payment</sonar.projectKey>
+        <sonar.projectKey>dorayakiiiiz_yas-devops-1-customer</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>
@@ -87,6 +87,11 @@
             <version>${revision}</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
