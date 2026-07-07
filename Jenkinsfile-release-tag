@@ -153,7 +153,7 @@ pipeline {
                         passwordVariable: 'GIT_TOKEN'
                     )]) {
                         sh "git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/luc1fe4/yas.git"
-                        sh "git push origin HEAD:main"
+                        sh "git push origin HEAD:gitops-staging"
                     }
 
                     echo "=========================================================="
