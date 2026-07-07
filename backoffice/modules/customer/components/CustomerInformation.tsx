@@ -1,5 +1,5 @@
 import { Input, Select } from '@commonItems/Input';
-import { USER_NAME_PATTERN } from 'modules/catalog/constants/validationPattern';
+import { USER_NAME_PATTERN } from '../../../modules/catalog/constants/validationPattern';
 import { FieldErrorsImpl, UseFormRegister, UseFormWatch } from 'react-hook-form';
 import { CustomerCreateVM } from '../models/Customer';
 import CustomerBaseInformation from './CustomerBaseInformation';

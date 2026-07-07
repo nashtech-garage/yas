@@ -1,4 +1,4 @@
-name: customer service ci
+﻿name: customer service ci
 
 on:
   push:
@@ -28,8 +28,8 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/workflows/actions
       - name: Run Maven Test
-        run: mvn -pl customer -am verify  # Chạy test và sinh JaCoCo report
-      - name: Install Dependencies  # Thêm step này để install JARs cho job build
+        run: mvn -pl customer -am verify  # Chay test va sinh JaCoCo report
+      - name: Install Dependencies  # Install JARs cho job build
         run: mvn -pl customer -am install -DskipTests
       - name: Test Results
         uses: dorny/test-reporter@v1
@@ -37,7 +37,7 @@ jobs:
         with:
           name: Customer-Service-Unit-Test-Results
           path: "customer/**/*-reports/TEST*.xml"
-          reporter: java-junit
+          reporter: java-junit  
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -53,6 +53,9 @@ jobs:
         with:
           name: customer-coverage-report
           path: ${{github.workspace}}/customer/target/site/jacoco/
+      - name: Gitleaks check (Service Level)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/work -w /work zricethezav/gitleaks:v8.18.4 detect --source="./customer" --no-git --verbose
 
   build:
     runs-on: ubuntu-latest
@@ -85,6 +88,9 @@ jobs:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: >
+            --disableCentral
+            --failOnCVSS 11
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
@@ -112,17 +118,43 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-results.sarif
-      - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Set Docker Tag
+        if: github.event_name != 'pull_request'
+        id: docker_tag
+        run: |
+          COMMIT_ID=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "TAG=latest" >> $GITHUB_ENV
+          else
+            echo "TAG=$COMMIT_ID" >> $GITHUB_ENV
+          fi
+
       - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
           context: ./customer
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/yas-customer:latest  # Chỉnh namespace cho repo fork
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.COMMIT_ID }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/yas-customer:${{ env.TAG }}
+
+      - name: Update GitOps Repository (Cross-Repo)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git clone https://x-access-token:${{ secrets.GITOPS_PAT }}@github.com/${{ github.repository_owner }}/yas-gitops.git
+          cd yas-gitops
+          git config --global user.email "bot@github.com"
+          git config --global user.name "GitOps Bot"
+          sed -i 's/customer: { tag: .* }/customer: { tag: "${{ env.COMMIT_ID }}" }/g' values-dev.yaml
+          git add values-dev.yaml
+          git commit -m "ArgoCD: Update customer dev tag to ${{ env.COMMIT_ID }}"
+          git push origin main
