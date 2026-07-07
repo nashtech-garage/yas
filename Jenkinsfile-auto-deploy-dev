@@ -130,6 +130,9 @@ pipeline {
         }
 
         stage('Deploy to dev namespace (GitOps)') {
+            when {
+                expression { env.CHANGED_SERVICES != 'none' }
+            }
             steps {
                 script {
                     def services = env.CHANGED_SERVICES.split(',')
