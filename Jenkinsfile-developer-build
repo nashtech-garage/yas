@@ -113,19 +113,21 @@ pipeline {
                         def hostName = svc.replace('-bff', '')
                         
                         echo "----------------------------------------------------------"
-                        if (branchValue == 'latest' || branchValue == 'main' || !branchValue) {
-                            echo "✅ [DEFAULT] ${svc}: Sử dụng nhánh mặc định '${branchValue}' -> Tag 'latest'"
-                        } else {
-                            echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
-                        }
-
+                        
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
                         def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --force --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=${hostName}.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
                         
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"    
                         } else {
-                            sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                            // SỬA TẠI ĐÂY: Chủ động xóa bản cũ trước khi cài mới
+                            echo "🛠️ Gỡ cài đặt cũ của ${svc} để tránh lỗi Immutable Selector..."
+                            sh """
+                                export PATH=\$WORKSPACE/bin:\$PATH
+                                helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                sleep 5
+                                ${helmCmd}
+                            """
                         }
                     }
 
@@ -134,14 +136,9 @@ pipeline {
                         def paramName = "BRANCH_${svc.replace('-', '_')}"
                         def branchValue = params."${paramName}"
                         def tagValue = resolveBranchToTag(branchValue, svc)
-                        def imageRepository = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}" // Image thường bỏ hậu tố -ui
+                        def imageRepository = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}"
                         
                         echo "----------------------------------------------------------"
-                        if (branchValue == 'latest' || branchValue == 'main' || !branchValue) {
-                            echo "✅ [DEFAULT] ${svc}: Sử dụng nhánh mặc định '${branchValue}' -> Tag 'latest'"
-                        } else {
-                            echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
-                        }
 
                         sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
                         def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --force --set ui.image.repository=${imageRepository} --set ui.image.tag=${tagValue} --timeout ${env.HELM_TIMEOUT}"
@@ -149,7 +146,14 @@ pipeline {
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
                         } else {
-                            sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                            // SỬA TẠI ĐÂY: Chủ động xóa bản cũ trước khi cài mới
+                            echo "🛠️ Gỡ cài đặt cũ của ${svc} để tránh lỗi Immutable Selector..."
+                            sh """
+                                export PATH=\$WORKSPACE/bin:\$PATH
+                                helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                sleep 5
+                                ${helmCmd}
+                            """
                         }
                     }
                     
