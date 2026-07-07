@@ -6,6 +6,7 @@ pipeline {
         DOCKER_USERNAME = 'besukem'
         DOMAIN = 'yas.local' // Tên miền base cho hệ thống (được ánh xạ qua file hosts của lập trình viên)
         HELM_TIMEOUT = '5m'
+        PATH = "${WORKSPACE}/bin:${env.PATH}"
     }
 
     parameters {
