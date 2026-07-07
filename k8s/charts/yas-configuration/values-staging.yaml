@@ -233,7 +233,7 @@ backofficeBffExtraConfig:
               - TokenRelay=
               - StripPrefix=1
           - id: nextjs
-            uri: http://backoffice-ui:80
+            uri: http://backoffice-ui:3000
             predicates:
               - Path=/**
 
