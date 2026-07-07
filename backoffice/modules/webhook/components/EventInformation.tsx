@@ -20,7 +20,7 @@ const EventInformation = ({ events, setValue, getValue: _getValue }: Props) => {
     getEvents().then((data) => {
       setAllEvents(data);
       listCheckEvent = [];
-      if (events !== undefined && latestCheckedEvent.length === 0) {
+      if (events && events !== undefined && latestCheckedEvent.length === 0) {
         events.map((item: any) => {
           listCheckEvent.push(item);
         });

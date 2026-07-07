@@ -11,7 +11,7 @@
     <version>${revision}</version>
     <name>customer</name>
     <description>YAS Customer service</description>
-
+        
     <properties>
         <sonar.organization>yas-devops-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-spring-boot-starter</artifactId>
-        </dependency>
+        </dependency> 
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>

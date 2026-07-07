@@ -1,0 +1,67 @@
+name: Developer Build CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_service:
+        description: 'Service to test (e.g., customer, tax, product)'
+        required: true
+        type: string
+      branch_name:
+        description: 'Input target branch for deployment (e.g., feature/update-customer)'
+        required: true
+        type: string
+
+jobs:
+  deploy-to-k8s:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          fetch-depth: 0 
+
+      - name: Get Commit ID
+        id: vars
+        run: |
+          COMMIT_ID=$(git rev-parse HEAD | cut -c1-7)
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+
+      - name: Set up K8s context
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG_DATA }}
+
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
+      - name: Deploy to Kubernetes
+        run: |
+          SERVICES="product cart order customer inventory tax media search storefront-bff storefront-ui backoffice-bff backoffice-ui swagger-ui sampledata"
+          
+          for svc in $SERVICES; do
+            echo "Deploying $svc..."
+            
+            # Nếu là storefront-ui hoặc backoffice-ui thì trỏ thư mục k8s tương ứng
+            CHART_DIR=$svc
+            
+            # Gắn tag mặc định là latest, riêng target_service sẽ lấy commit_id
+            TAG="latest"
+            if [ "$svc" == "${{ github.event.inputs.target_service }}" ]; then
+              TAG="${{ env.commit_id }}"
+            fi
+            
+            helm dependency build ./k8s/charts/$CHART_DIR
+            
+            helm upgrade --install $svc ./k8s/charts/$CHART_DIR \
+              --namespace yas \
+              --create-namespace \
+              --set backend.image.repository=${{ secrets.DOCKERHUB_USERNAME }}/yas-$svc \
+              --set backend.image.tag=$TAG \
+              --wait=false
+          done

@@ -184,4 +184,22 @@ class CustomerControllerTest {
                 .content(""))
             .andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
+
+    @Test
+    void testGetCustomerById_whenNormalCase_responseCustomerVm() throws Exception {
+        CustomerVm customerVm = new CustomerVm(
+            "12345",
+            "john_doe",
+            "john.doe@example.com",
+            "John",
+            "Doe"
+        );
+        when(customerService.getCustomerProfile("12345")).thenReturn(customerVm);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                    BACK_OFFICE_CUSTOMER_BASE_URL + "/profile/{id}", "12345")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(customerVm)));
+    }
 }

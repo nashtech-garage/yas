@@ -193,4 +193,43 @@ class LocationServiceTest {
         assertThat(result.get(0).contactName()).isEqualTo("John Doe");
     }
 
+    @Test
+    void testHandleAddressDetailListFallback() throws Throwable {
+        java.lang.reflect.Method method = LocationService.class.getDeclaredMethod("handleAddressDetailListFallback", Throwable.class);
+        method.setAccessible(true);
+        Throwable t = new RuntimeException("Test Exception");
+        
+        try {
+            method.invoke(locationService, t);
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            assertThat(e.getCause()).isEqualTo(t);
+        }
+    }
+
+    @Test
+    void testHandleAddressDetailFallback() throws Throwable {
+        java.lang.reflect.Method method = LocationService.class.getDeclaredMethod("handleAddressDetailFallback", Throwable.class);
+        method.setAccessible(true);
+        Throwable t = new RuntimeException("Test Exception");
+        
+        try {
+            method.invoke(locationService, t);
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            assertThat(e.getCause()).isEqualTo(t);
+        }
+    }
+
+    @Test
+    void testHandleAddressFallback() throws Throwable {
+        java.lang.reflect.Method method = LocationService.class.getDeclaredMethod("handleAddressFallback", Throwable.class);
+        method.setAccessible(true);
+        Throwable t = new RuntimeException("Test Exception");
+        
+        try {
+            method.invoke(locationService, t);
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            assertThat(e.getCause()).isEqualTo(t);
+        }
+    }
+
 }

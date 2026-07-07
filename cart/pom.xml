@@ -14,9 +14,9 @@
     <description>YAS Cart service</description>
 
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
+        <sonar.organization>yas-devops-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-cart</sonar.projectKey>
+        <sonar.projectKey>dorayakiiiiz_yas-devops-1-cart</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>
@@ -86,6 +86,28 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

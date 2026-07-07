@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:ci": "vitest run --coverage --reporter=junit --reporter=default"
   },
   "dependencies": {
     "@fortawesome/fontawesome-common-types": "^6.4.0",
@@ -36,13 +39,21 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
-    "@types/node": "18.0.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^20.11.24",
     "@types/react": "18.0.14",
     "@types/react-csv": "^1.1.3",
     "@types/react-dom": "18.0.5",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-istanbul": "^1.0.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "eslint": "8.18.0",
     "eslint-config-next": "^14.2.14",
+    "jsdom": "^24.1.3",
     "prettier": "2.7.1",
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+    "vitest": "^1.6.1"
   }
 }

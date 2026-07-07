@@ -1,6 +1,6 @@
 import { getProduct } from '@catalogServices/ProductService';
 import { Rating } from 'modules/rating/models/Rating';
-import { getLatestRatings } from 'modules/rating/services/RatingService';
+import { getLatestRatings }  from '../../rating/services/RatingService';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';

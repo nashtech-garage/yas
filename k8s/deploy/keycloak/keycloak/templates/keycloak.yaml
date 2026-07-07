@@ -38,6 +38,21 @@ spec:
               name: yas-themes-configmap
         containers:
           - name: keycloak
+          # edit
+            livenessProbe:
+              httpGet:
+                path: /health/live
+                port: 9000
+              timeoutSeconds: 10
+              periodSeconds: 10
+              failureThreshold: 5
+            readinessProbe:
+              httpGet:
+                path: /health/ready
+                port: 9000
+              timeoutSeconds: 10
+              periodSeconds: 10
+              failureThreshold: 5
             volumeMounts:
               - name: yas-themes
                 mountPath: /opt/keycloak/providers
