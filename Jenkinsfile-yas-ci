@@ -1,0 +1,164 @@
+pipeline {
+    agent any
+
+    environment {
+        MAVEN_OPTS = '-Xmx384m -XX:+UseG1GC'
+        DOCKER_USERNAME = 'besukem'
+    }
+
+    parameters {
+        string(name: 'DIFF_BASE_BRANCH', defaultValue: 'main', description: 'Branch goc de diff khi quet multibranch.')
+    }
+
+    options {
+        skipDefaultCheckout()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                checkout scm
+                sh 'chmod +x mvnw || true'
+            }
+        }
+
+        stage('Detect Changed Services') {
+            steps {
+                script {
+                    def diffBaseBranch = env.CHANGE_TARGET?.trim()
+                    if (!diffBaseBranch) {
+                        diffBaseBranch = params?.DIFF_BASE_BRANCH?.toString()?.trim()
+                    }
+                    if (!diffBaseBranch || !(diffBaseBranch ==~ /^[A-Za-z0-9._\/\-]+$/)) {
+                        diffBaseBranch = 'main'
+                    }
+
+                    env.DIFF_BASE_BRANCH = diffBaseBranch
+                    echo "DIFF_BASE_BRANCH resolved to: ${env.DIFF_BASE_BRANCH}"
+
+                    def diffBaseRef = "origin/${diffBaseBranch}"
+                    sh "git fetch --no-tags --prune origin +refs/heads/${diffBaseBranch}:refs/remotes/origin/${diffBaseBranch} || true"
+
+                    def changedFiles = sh(
+                        script: """
+                            FILES=""
+                            if git rev-parse --verify ${diffBaseRef} >/dev/null 2>&1; then
+                                FILES=\$(git diff --name-only ${diffBaseRef}...HEAD)
+                            fi
+                            if [ -z "\$FILES" ]; then
+                                FILES=\$(git diff --name-only HEAD~1..HEAD || true)
+                            fi
+                            if [ -z "\$FILES" ]; then
+                                git ls-files
+                            else
+                                echo "\$FILES"
+                            fi
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed files:\n${changedFiles}"
+
+                    def services = [
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'backoffice-bff', 'storefront-bff',
+                        'sampledata', 'backoffice', 'storefront'
+                    ]
+
+                    def affected = services.findAll { svc ->
+                        changedFiles && (changedFiles =~ /(?m)^${java.util.regex.Pattern.quote(svc)}\//)
+                    }
+
+                    env.CHANGED_SERVICES = affected.isEmpty() ? 'none' : affected.join(',')
+                    echo "Services to process: ${env.CHANGED_SERVICES}"
+                }
+            }
+        }
+
+
+        stage('Build Phase') {
+            steps {
+                script {
+                    def fe = ['backoffice', 'storefront']
+                    def services = (env.CHANGED_SERVICES ?: '').split(',').findAll { it?.trim() }
+
+                    if (env.CHANGED_SERVICES == 'none') {
+                        echo 'No specific service changes detected. Skipping build.'
+                        return
+                    }
+
+                    services.each { svc ->
+                        if (fe.contains(svc)) {
+                            if (fileExists("${svc}/package.json")) {
+                                echo "Frontend ${svc} already built in test phase."
+                            }
+                        } else if (fileExists("${svc}/pom.xml")) {
+                            echo "Building backend service: ${svc}"
+                            sh "./mvnw clean package -DskipTests -f pom.xml -pl ${svc} -am -U -Drevision=1.0-SNAPSHOT"
+                        } else {
+                            echo "Skipping ${svc}: no recognized build file found."
+                        }
+                    }
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            when {
+                expression { env.CHANGED_SERVICES?.trim() && env.CHANGED_SERVICES != 'none' }
+            }
+            steps {
+                script {
+                    def commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    echo "Sử dụng tag commit ID cho Docker image: ${commitId}"
+                    def services = env.CHANGED_SERVICES.split(',').findAll { it?.trim() }
+
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+
+                        services.each { svc ->
+                            def buildDir = svc
+                            if (fileExists("${buildDir}/Dockerfile")) {
+                                echo "Building Docker image cho: ${svc}"
+                                def imageName = "${env.DOCKER_USERNAME}/${svc}:${commitId}"
+                                sh "docker build -t ${imageName} ./${buildDir}"
+
+                                echo "Pushing Docker image lên Docker Hub: ${imageName}"
+                                sh "docker push ${imageName}"
+
+                                sh "docker rmi ${imageName} || true"
+                            } else {
+                                echo "Bỏ qua ${svc}: Không tìm thấy Dockerfile."
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo 'yas_ci pipeline PASSED.'
+        }
+        failure {
+            echo 'yas_ci pipeline FAILED.'
+        }
+        always {
+            script {
+                try {
+                    cleanWs()
+                } catch (Throwable e) {
+                    echo "cleanWs skipped: ${e.class.simpleName}: ${e.message}"
+                }
+            }
+        }
+    }
+}
