@@ -33,9 +33,16 @@ helm upgrade --install storefront-ui ../charts/storefront-ui \
 
 sleep 60
 
+if [ "$NAMESPACE" = "staging" ]; then
+  SWAGGER_PORT="30192"
+else
+  SWAGGER_PORT="30082"
+fi
+
 helm upgrade --install swagger-ui ../charts/swagger-ui \
 --namespace "$NAMESPACE" --create-namespace \
---set ingress.host="api.$NAMESPACE.$DOMAIN"
+--set ingress.host="api.$NAMESPACE.$DOMAIN" \
+--set service.nodePort="$SWAGGER_PORT"
 
 sleep 20
 
