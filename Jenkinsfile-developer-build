@@ -127,14 +127,13 @@ pipeline {
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"    
                         } else {
-                            echo "🛠️ Tự động dọn dẹp bản cài cũ và ServiceAccount của ${svc}..."
+                            echo "🛠️ Tự động dọn dẹp các tài nguyên cũ của ${svc} (Deployment, Service, ServiceAccount, Ingress)..."
                             sh """
-                                export PATH=\$WORKSPACE/bin:\$PATH
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
-                                
-                                # Thêm '|| true' ở cuối hoặc bọc lỗi để nếu 'kubectl: not found' thì pipeline VẪN CHẠY TIẾP
-                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found 2>/dev/null || true
-                                
+                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete service ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete ingress ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
                                 sleep 5
                                 ${helmCmd}
                             """
@@ -156,14 +155,14 @@ pipeline {
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
                         } else {
-                            echo "🛠️ Tự động dọn dẹp bản cài cũ và ServiceAccount của ${svc}..."
+                            echo "🛠️ Tự động dọn dẹp các tài nguyên cũ của ${svc} (Deployment, Service, ServiceAccount, Ingress)..."
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
-                                
-                                # Tương tự như trên, đảm bảo thiếu lệnh kubectl không làm sập build
-                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found 2>/dev/null || true
-                                
+                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete service ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete ingress ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
                                 sleep 5
                                 ${helmCmd}
                             """
@@ -234,17 +233,14 @@ pipeline {
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
                         } else {
-                            echo "🛠️ Tự động dọn dẹp bản cài cũ của ${svc} để giải phóng selector..."
+                            echo "🛠️ Tự động dọn dẹp các tài nguyên cũ của ${svc} (Deployment, Service, ServiceAccount, Ingress)..."
                             sh """
-                                export PATH=\$WORKSPACE/bin:\$PATH
-                                
-                                # 1. Gỡ cài đặt bản cũ
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
-                                
-                                # 2. ⏳ NGỦ 10 GIÂY ĐỂ KUBERNETES KỊP XÓA SẠCH SERVICEACCOUNT CŨ TRÊN CLUSTER
-                                sleep 10
-                                
-                                # 3. Tiến hành cài đặt mới hoàn toàn
+                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete service ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete ingress ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                sleep 5
                                 ${helmCmd}
                             """
                         }
