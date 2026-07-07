@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+# Khong dung 'set -e' vi script co cac lenh du kien that bai (grep, wget 403...)
 
 NS="dev"
 
@@ -138,7 +138,7 @@ sleep 10
 echo -e "\e[33m  Buoc 4b: Gui 10 requests storefront-bff -> product...\e[0m"
 success=0
 fail=0
-for i in {1..10}; do
+for i in $(seq 1 10); do
     retryResult=$(kubectl exec -n $NS deployment/storefront-bff -c storefront-bff -- wget -S -O - --timeout=25 "http://product.$NS.svc.cluster.local/product/storefront/products/featured" 2>&1 || true)
     if echo "$retryResult" | grep -qE "200 OK|productList|totalPage|pageNumber"; then
         success=$((success + 1))
