@@ -120,11 +120,11 @@ pipeline {
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"    
                         } else {
-                            // SỬA TẠI ĐÂY: Chủ động xóa bản cũ trước khi cài mới
-                            echo "🛠️ Gỡ cài đặt cũ của ${svc} để tránh lỗi Immutable Selector..."
+                            echo "🛠️ Tự động dọn dẹp bản cài cũ và ServiceAccount của ${svc}..."
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
                                 sleep 5
                                 ${helmCmd}
                             """
@@ -146,11 +146,11 @@ pipeline {
                         if (params.DRY_RUN) {
                             echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
                         } else {
-                            // SỬA TẠI ĐÂY: Chủ động xóa bản cũ trước khi cài mới
-                            echo "🛠️ Gỡ cài đặt cũ của ${svc} để tránh lỗi Immutable Selector..."
+                            echo "🛠️ Tự động dọn dẹp bản cài cũ và ServiceAccount của ${svc}..."
                             sh """
                                 export PATH=\$WORKSPACE/bin:\$PATH
                                 helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
                                 sleep 5
                                 ${helmCmd}
                             """
