@@ -9,8 +9,14 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/luc1fe4/yas.git'
-    targetRevision: 'main'
+    targetRevision: 'gitops-dev'
     path: k8s/charts/tax
+    helm:
+      parameters:
+        - name: backend.image.tag
+          value: '5f4dd7ff'
+        - name: backend.image.repository
+          value: 'besukem/tax'
   destination:
     server: https://kubernetes.default.svc
     namespace: dev
