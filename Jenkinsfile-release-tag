@@ -116,6 +116,10 @@ pipeline {
                     echo "🔄 UPDATING GITOPS MANIFESTS FOR STAGING (RELEASE: ${releaseTag})"
                     echo "=========================================================="
 
+                    // Chuyển sang nhánh gitops-staging để cập nhật manifest và push lên nhánh này
+                    sh "git fetch origin gitops-staging"
+                    sh "git checkout gitops-staging"
+
                     // Update services with release tags
                     services.each { svc ->
                         def chartName = svc

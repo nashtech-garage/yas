@@ -141,6 +141,10 @@ pipeline {
                     echo "Services to update: ${env.CHANGED_SERVICES}"
                     echo "=========================================================="
 
+                    // Chuyển sang nhánh gitops-dev để cập nhật manifest và push lên nhánh này
+                    sh "git fetch origin gitops-dev"
+                    sh "git checkout gitops-dev"
+
                     services.each { svc ->
                         def chartName = svc
                         if (svc == 'storefront') {
