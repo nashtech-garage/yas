@@ -17,7 +17,7 @@ ingress:
   enabled: true
   hosts:
   - akhq.yas.local.com
-  ingressClassName: nginx
+  ingressClassName: traefik
   paths:
   - /
   tls: []

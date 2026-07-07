@@ -141,7 +141,7 @@ helm upgrade --install grafana-operator oci://ghcr.io/grafana-operator/helm-char
 # Add datasource and dashboard to grafana
 helm upgrade --install grafana ./observability/grafana \
 --create-namespace --namespace observability \
---set hotname="grafana.$DOMAIN" \
+--set hostname="grafana.$DOMAIN" \
 --set grafana.username="$GRAFANA_USERNAME" \
 --set grafana.password="$GRAFANA_PASSWORD" \
 --set postgresql.username="$POSTGRESQL_USERNAME" \

@@ -13,7 +13,7 @@ grafana:
     enabled: true
     hosts:
     - grafana.yas.local.com
-    ingressClassName: nginx
+    ingressClassName: traefik
   nodeSelector:
     type: heavy
 hostname: grafana.yas.local.com

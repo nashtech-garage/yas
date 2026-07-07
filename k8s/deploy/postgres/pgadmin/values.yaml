@@ -13,7 +13,7 @@ image:
 imagePullSecrets: []
 ingress:
   annotations: {}
-  className: nginx
+  className: traefik
   enabled: true
   hosts:
   - host: pgadmin.yas.local.com

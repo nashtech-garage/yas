@@ -2,5 +2,5 @@ elasticsearch:
   replicas: 1
 kibana:
   ingress:
-    className: nginx
+    className: traefik
     hostname: kibana.yas.local.com
