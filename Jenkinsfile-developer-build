@@ -38,13 +38,19 @@ pipeline {
                 checkout scm
                 script {
                     sh '''
+                        mkdir -p bin
                         if ! command -v helm >/dev/null 2>&1; then
                             echo "Helm chưa được cài đặt. Đang tải Helm..."
                             curl -sSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
                             tar -xzf helm.tar.gz
-                            mkdir -p bin
                             mv linux-amd64/helm bin/helm
                             chmod +x bin/helm
+                            rm -rf helm.tar.gz linux-amd64
+                        fi
+                        if ! command -v kubectl >/dev/null 2>&1; then
+                            echo "Kubectl chưa được cài đặt. Đang tải Kubectl..."
+                            curl -sSL -o bin/kubectl "https://dl.k8s.io/release/v1.28.2/bin/linux/amd64/kubectl"
+                            chmod +x bin/kubectl
                         fi
                     '''
                 }
