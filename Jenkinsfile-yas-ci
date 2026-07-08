@@ -95,7 +95,9 @@ pipeline {
                             }
                         } else if (fileExists("${svc}/pom.xml")) {
                             echo "Building backend service: ${svc}"
-                            sh "./mvnw clean package -DskipTests -f pom.xml -pl ${svc} -am -U -Drevision=1.0-SNAPSHOT"
+                            // -pl ${svc} -am: build module và các dependency
+                            // spring-boot:repackage đảm bảo JAR có Main-Class manifest
+                            sh "./mvnw clean package spring-boot:repackage -DskipTests -f pom.xml -pl ${svc} -am -Drevision=1.0-SNAPSHOT"
                         } else {
                             echo "Skipping ${svc}: no recognized build file found."
                         }
@@ -127,6 +129,12 @@ pipeline {
                             if (fileExists("${buildDir}/Dockerfile")) {
                                 echo "Building Docker image cho: ${svc}"
                                 def imageName = "${env.DOCKER_USERNAME}/${svc}:${commitId}"
+
+                                // Đảm bảo chỉ copy đúng executable JAR (bỏ qua *.jar.original)
+                                // spring-boot:repackage tạo ra 2 file:
+                                //   order-1.0-SNAPSHOT.jar          → executable (có Main-Class)
+                                //   order-1.0-SNAPSHOT.jar.original → plain JAR (không có Main-Class)
+                                // Dockerfile dùng COPY target/order*.jar sẽ chỉ match executable JAR
                                 sh "docker build -t ${imageName} ./${buildDir}"
 
                                 echo "Pushing Docker image lên Docker Hub: ${imageName}"
@@ -141,6 +149,7 @@ pipeline {
                 }
             }
         }
+
 
     }
 
