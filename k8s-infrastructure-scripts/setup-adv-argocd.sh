@@ -7,7 +7,7 @@ echo "=============================================="
 
 echo -e "\n[*] Installing ArgoCD..."
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side --force-conflicts
+kubectl apply -n argocd -f https://cdn.jsdelivr.net/gh/argoproj/argo-cd@stable/manifests/install.yaml --server-side --force-conflicts
 
 echo -e "\n[*] Waiting for ArgoCD Server to start (about 30s-1m)..."
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
