@@ -18,7 +18,7 @@
 #      subPath: .env.production
   extraEnvs:
     - name: API_BASE_PATH
-      value: http://storefront.dev.local.com/api
+      value: http://storefront-bff.dev.svc.cluster.local/api
   ingress:
     enabled: false
 
