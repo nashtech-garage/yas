@@ -21,7 +21,7 @@ ui:
 #      subPath: .env.production
   extraEnvs:
     - name: API_BASE_PATH
-      value: http://storefront.yas.local.com/api
+      value: http://storefront-bff/api
   ingress:
     enabled: false
 
