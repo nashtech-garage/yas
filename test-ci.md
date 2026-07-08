@@ -1,4 +1,5 @@
 # Kịch bản kiểm thử hệ thống CI/CD
+wsl -d Ubuntu bash /mnt/f/Devops/yas/scripts/restart-after-boot.sh
 
 ## Kịch bản 1: Kiểm thử luồng CI tự động (Mục II.3)
 
