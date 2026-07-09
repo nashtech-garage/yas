@@ -1,0 +1,59 @@
+name: cleanup_environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service cần cleanup"
+        required: true
+        type: choice
+        options:
+          - tax
+          - customer
+          - product
+          - cart
+          - inventory
+          - order
+          - payment
+          - payment-paypal
+          - promotion
+          - rating
+          - recommendation
+          - search
+          - media
+          - location
+          - webhook
+          - backoffice-bff
+          - storefront-bff
+
+jobs:
+  cleanup:
+    runs-on: self-hosted
+
+    env:
+      NAMESPACE: yas-dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rollback to latest image
+        run: |
+          helm upgrade --install \
+            ${{ github.event.inputs.service }} \
+            ./k8s/charts/${{ github.event.inputs.service }} \
+            --namespace ${NAMESPACE} \
+            --set backend.image.tag=latest
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/${{ github.event.inputs.service }} \
+            -n ${NAMESPACE} \
+            --timeout=300s
+
+      - name: Verify deployed image
+        run: |
+          kubectl get deployment \
+            ${{ github.event.inputs.service }} \
+            -n ${NAMESPACE} \
+            -o=jsonpath='{.spec.template.spec.containers[0].image}'
