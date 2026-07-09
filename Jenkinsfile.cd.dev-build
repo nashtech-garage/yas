@@ -8,10 +8,7 @@ pipeline {
         string(name: 'CART_BRANCH', defaultValue: 'main', description: 'cart')
         string(name: 'TAX_BRANCH', defaultValue: 'main', description: 'tax')
         string(name: 'ORDER_BRANCH', defaultValue: 'main', description: 'order')
-        string(name: 'LOCATION_BRANCH', defaultValue: 'main', description: 'location')
         string(name: 'INVENTORY_BRANCH', defaultValue: 'main', description: 'inventory')
-        string(name: 'PROMOTION_BRANCH', defaultValue: 'main', description: 'promotion')
-        string(name: 'PAYMENT_BRANCH', defaultValue: 'main', description: 'payment')
         string(name: 'SEARCH_BRANCH', defaultValue: 'main', description: 'search')
         string(name: 'SAMPLEDATA_BRANCH', defaultValue: 'main', description: 'sampledata')
         string(name: 'STOREFRONT_BRANCH', defaultValue: 'main', description: 'storefront (BFF)')
@@ -34,9 +31,8 @@ pipeline {
                         // Map ánh xạ: [Tên_Deployment_K8s : Hậu_tố_Image_Docker]
                         def serviceMap = [
                             'product': 'product', 'media': 'media', 'customer': 'customer',
-                            'cart': 'cart', 'tax': 'tax', 'order': 'order', 'rating': 'rating',
-                            'location': 'location', 'inventory': 'inventory', 'promotion': 'promotion',
-                            'payment': 'payment', 'search': 'search', 'sampledata': 'sampledata',
+                            'cart': 'cart', 'tax': 'tax', 'order': 'order',
+                            'inventory': 'inventory', 'search': 'search', 'sampledata': 'sampledata',
                             'storefront': 'storefront-bff',
                             'storefront-nextjs': 'storefront',
                             'backoffice': 'backoffice-bff',
