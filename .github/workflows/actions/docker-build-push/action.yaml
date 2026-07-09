@@ -15,6 +15,14 @@ inputs:
     description: Docker Hub access token
     required: true
 
+outputs:
+  image_repository:
+    description: Docker image repository without tag
+    value: ${{ steps.docker_tags.outputs.image_repository }}
+  image_tag:
+    description: Immutable Docker image tag used for GitOps deployment
+    value: ${{ steps.docker_tags.outputs.image_tag }}
+
 runs:
   using: composite
   steps:
@@ -38,10 +46,14 @@ runs:
         fi
 
         IMAGE="docker.io/${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
+        IMAGE_REPOSITORY="${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
+        IMAGE_TAG="${COMMIT_SHA}"
 
         {
+          echo "image_repository=${IMAGE_REPOSITORY}"
+          echo "image_tag=${IMAGE_TAG}"
           echo "tags<<EOF"
-          echo "${IMAGE}:${COMMIT_SHA}"
+          echo "${IMAGE}:${IMAGE_TAG}"
 
           if [ "$BRANCH_NAME" = "main" ]; then
             echo "${IMAGE}:main"
@@ -52,7 +64,7 @@ runs:
         } >> "$GITHUB_OUTPUT"
 
         echo "Generated tags:"
-        echo "${IMAGE}:${COMMIT_SHA}"
+        echo "${IMAGE}:${IMAGE_TAG}"
 
         if [ "$BRANCH_NAME" = "main" ]; then
           echo "${IMAGE}:main"
