@@ -158,6 +158,9 @@ jobs:
 
             echo "Deploy ${service}: ${image}:${tag}"
 
+            echo "Build Helm dependencies for ${service}"
+            helm dependency build "${chart}"
+
             helm upgrade --install "${service}" "${chart}" \
               --namespace "${NAMESPACE}" \
               --create-namespace \
