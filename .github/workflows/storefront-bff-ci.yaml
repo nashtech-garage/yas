@@ -145,9 +145,6 @@ jobs:
             -B --no-transfer-progress
 
   build:
-    concurrency:
-      group: gitops-update-main
-      cancel-in-progress: false
     needs: [detect-changes, security]
     if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -182,6 +179,6 @@ jobs:
           dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
           image-tag: ${{ steps.docker_build.outputs.image_tag }}
           source-branch: ${{ github.ref_name }}
-          gitops-repository: TrNhDuong/yas-gitops
+          gitops-repository: Duong-Dung/yas-gitops
           gitops-branch: main
           gitops-token: ${{ secrets.GITOPS_PAT }}

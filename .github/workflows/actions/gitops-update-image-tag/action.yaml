@@ -18,7 +18,7 @@ inputs:
   gitops-repository:
     description: GitOps repository in owner/repo format
     required: true
-    default: TrNhDuong/yas-gitops
+    default: Duong-Dung/yas-gitops
   gitops-branch:
     description: GitOps branch to update
     required: true
@@ -181,21 +181,5 @@ runs:
         fi
 
         git commit -m "chore(gitops): update ${IMAGE_NAME} image tag to ${IMAGE_TAG} from ${SOURCE_BRANCH}"
-
-        for attempt in 1 2 3 4 5; do
-          echo "GitOps push attempt ${attempt}/5"
-
-          git fetch origin "${GITOPS_BRANCH}:refs/remotes/origin/${GITOPS_BRANCH}"
-          git rebase "origin/${GITOPS_BRANCH}"
-
-          if git push origin "HEAD:${GITOPS_BRANCH}"; then
-            echo "Pushed GitOps update successfully."
-            exit 0
-          fi
-
-          echo "Remote GitOps branch changed before push. Retrying..."
-          sleep $((attempt * 5))
-        done
-
-        echo "Failed to push GitOps update after 5 attempts."
-        exit 1
+        git pull --rebase origin "${GITOPS_BRANCH}"
+        git push origin "HEAD:${GITOPS_BRANCH}"

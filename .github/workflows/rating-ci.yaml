@@ -162,6 +162,6 @@ jobs:
           dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
           image-tag: ${{ steps.docker_build.outputs.image_tag }}
           source-branch: ${{ github.ref_name }}
-          gitops-repository: TrNhDuong/yas-gitops
+          gitops-repository: Duong-Dung/yas-gitops
           gitops-branch: main
           gitops-token: ${{ secrets.GITOPS_PAT }}
