@@ -8,7 +8,6 @@ pipeline {
         string(name: 'CART_BRANCH', defaultValue: 'main', description: 'cart')
         string(name: 'TAX_BRANCH', defaultValue: 'main', description: 'tax')
         string(name: 'ORDER_BRANCH', defaultValue: 'main', description: 'order')
-        string(name: 'RATING_BRANCH', defaultValue: 'main', description: 'rating')
         string(name: 'LOCATION_BRANCH', defaultValue: 'main', description: 'location')
         string(name: 'INVENTORY_BRANCH', defaultValue: 'main', description: 'inventory')
         string(name: 'PROMOTION_BRANCH', defaultValue: 'main', description: 'promotion')
