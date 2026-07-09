@@ -1,4 +1,4 @@
-﻿name: backoffice service ci
+name: backoffice service ci
 
 on:
   push:
@@ -144,6 +144,9 @@ jobs:
 
 
   build:
+    concurrency:
+      group: gitops-update-main
+      cancel-in-progress: false
     needs:
       - detect-changes
       - security
@@ -174,6 +177,6 @@ jobs:
           dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
           image-tag: ${{ steps.docker_build.outputs.image_tag }}
           source-branch: ${{ github.ref_name }}
-          gitops-repository: Duong-Dung/yas-gitops
+          gitops-repository: TrNhDuong/yas-gitops
           gitops-branch: main
           gitops-token: ${{ secrets.GITOPS_PAT }}
