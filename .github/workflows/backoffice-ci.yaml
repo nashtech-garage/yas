@@ -157,9 +157,23 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build and push Docker image to Docker Hub
+        id: docker_build
         uses: ./.github/workflows/actions/docker-build-push
         with:
           context: ./backoffice
           image-name: yas-backoffice
           dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
           dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+      - name: Update image tag in GitOps repository
+        if: github.event_name != 'pull_request'
+        uses: ./.github/workflows/actions/gitops-update-image-tag
+        with:
+          image-name: yas-backoffice
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          image-tag: ${{ steps.docker_build.outputs.image_tag }}
+          source-branch: ${{ github.ref_name }}
+          gitops-repository: Duong-Dung/yas-gitops
+          gitops-branch: main
+          gitops-token: ${{ secrets.GITOPS_PAT }}

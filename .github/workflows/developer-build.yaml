@@ -46,7 +46,7 @@ jobs:
       - name: Get latest commit SHA
         id: vars
         run: |
-          echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "TAG=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Show image tag
         run: |
