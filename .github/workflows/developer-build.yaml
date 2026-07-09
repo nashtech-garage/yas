@@ -3,73 +3,215 @@ name: developer_build
 on:
   workflow_dispatch:
     inputs:
-      service:
-        description: "Service cần deploy"
+      tax_branch:
+        description: "Branch cho tax service"
         required: true
-        type: choice
-        options:
-          - tax
-          - customer
-          - product
-          - cart
-          - inventory
-          - order
-          - payment
-          - promotion
-          - rating
-          - search
-          - media
-          - location
-          - webhook
-
-      branch:
-        description: "Branch muốn deploy (VD: dev_tax_service)"
+        default: "main"
+      customer_branch:
+        description: "Branch cho customer service"
         required: true
-        default: main
+        default: "main"
+      product_branch:
+        description: "Branch cho product service"
+        required: true
+        default: "main"
+      cart_branch:
+        description: "Branch cho cart service"
+        required: true
+        default: "main"
+      inventory_branch:
+        description: "Branch cho inventory service"
+        required: true
+        default: "main"
+      order_branch:
+        description: "Branch cho order service"
+        required: true
+        default: "main"
+      payment_branch:
+        description: "Branch cho payment service"
+        required: true
+        default: "main"
+      promotion_branch:
+        description: "Branch cho promotion service"
+        required: true
+        default: "main"
+      rating_branch:
+        description: "Branch cho rating service"
+        required: true
+        default: "main"
+      search_branch:
+        description: "Branch cho search service"
+        required: true
+        default: "main"
+      media_branch:
+        description: "Branch cho media service"
+        required: true
+        default: "main"
+      location_branch:
+        description: "Branch cho location service"
+        required: true
+        default: "main"
+      webhook_branch:
+        description: "Branch cho webhook service"
+        required: true
+        default: "main"
 
 jobs:
   deploy:
-
+    name: Deploy developer environment
     runs-on: self-hosted
 
     env:
       NAMESPACE: yas-dev
+      DOCKERHUB_USERNAME: nguyenmanhha
 
     steps:
-
-      - name: Checkout selected branch
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}
-          fetch-depth: 1
+          ref: main
+          fetch-depth: 0
 
-      - name: Get latest commit SHA
-        id: vars
+      - name: Ensure namespace exists
         run: |
-          echo "TAG=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Show image tag
+      - name: Resolve image tags from selected branches
+        id: resolve_tags
+        shell: bash
         run: |
-          echo "Deploy image:"
-          echo "nguyenmanhha/yas-${{ github.event.inputs.service }}:${{ steps.vars.outputs.TAG }}"
+          set -euo pipefail
 
-      - name: Deploy Helm Chart
-        run: |
-          helm upgrade --install \
-            ${{ github.event.inputs.service }} \
-            ./k8s/charts/${{ github.event.inputs.service }} \
-            --namespace ${NAMESPACE} \
-            --set backend.image.tag=${{ steps.vars.outputs.TAG }}
+          git fetch --all --prune
 
-      - name: Wait rollout
-        run: |
-          kubectl rollout status deployment/${{ github.event.inputs.service }} \
-            -n ${NAMESPACE} \
-            --timeout=300s
+          resolve_tag() {
+            local branch="$1"
 
-      - name: Verify image
+            if [ "${branch}" = "main" ] || [ "${branch}" = "latest" ]; then
+              echo "main"
+              return 0
+            fi
+
+            git rev-parse "origin/${branch}"
+          }
+
+          TAX_TAG="$(resolve_tag '${{ github.event.inputs.tax_branch }}')"
+          CUSTOMER_TAG="$(resolve_tag '${{ github.event.inputs.customer_branch }}')"
+          PRODUCT_TAG="$(resolve_tag '${{ github.event.inputs.product_branch }}')"
+          CART_TAG="$(resolve_tag '${{ github.event.inputs.cart_branch }}')"
+          INVENTORY_TAG="$(resolve_tag '${{ github.event.inputs.inventory_branch }}')"
+          ORDER_TAG="$(resolve_tag '${{ github.event.inputs.order_branch }}')"
+          PAYMENT_TAG="$(resolve_tag '${{ github.event.inputs.payment_branch }}')"
+          PROMOTION_TAG="$(resolve_tag '${{ github.event.inputs.promotion_branch }}')"
+          RATING_TAG="$(resolve_tag '${{ github.event.inputs.rating_branch }}')"
+          SEARCH_TAG="$(resolve_tag '${{ github.event.inputs.search_branch }}')"
+          MEDIA_TAG="$(resolve_tag '${{ github.event.inputs.media_branch }}')"
+          LOCATION_TAG="$(resolve_tag '${{ github.event.inputs.location_branch }}')"
+          WEBHOOK_TAG="$(resolve_tag '${{ github.event.inputs.webhook_branch }}')"
+
+          {
+            echo "TAX_TAG=${TAX_TAG}"
+            echo "CUSTOMER_TAG=${CUSTOMER_TAG}"
+            echo "PRODUCT_TAG=${PRODUCT_TAG}"
+            echo "CART_TAG=${CART_TAG}"
+            echo "INVENTORY_TAG=${INVENTORY_TAG}"
+            echo "ORDER_TAG=${ORDER_TAG}"
+            echo "PAYMENT_TAG=${PAYMENT_TAG}"
+            echo "PROMOTION_TAG=${PROMOTION_TAG}"
+            echo "RATING_TAG=${RATING_TAG}"
+            echo "SEARCH_TAG=${SEARCH_TAG}"
+            echo "MEDIA_TAG=${MEDIA_TAG}"
+            echo "LOCATION_TAG=${LOCATION_TAG}"
+            echo "WEBHOOK_TAG=${WEBHOOK_TAG}"
+          } >> "${GITHUB_OUTPUT}"
+
+          echo "Resolved image tags:"
+          echo "tax=${TAX_TAG}"
+          echo "customer=${CUSTOMER_TAG}"
+          echo "product=${PRODUCT_TAG}"
+          echo "cart=${CART_TAG}"
+          echo "inventory=${INVENTORY_TAG}"
+          echo "order=${ORDER_TAG}"
+          echo "payment=${PAYMENT_TAG}"
+          echo "promotion=${PROMOTION_TAG}"
+          echo "rating=${RATING_TAG}"
+          echo "search=${SEARCH_TAG}"
+          echo "media=${MEDIA_TAG}"
+          echo "location=${LOCATION_TAG}"
+          echo "webhook=${WEBHOOK_TAG}"
+
+      - name: Deploy selected service tags
+        shell: bash
         run: |
-          kubectl get deployment \
-            ${{ github.event.inputs.service }} \
-            -n ${NAMESPACE} \
-            -o=jsonpath='{.spec.template.spec.containers[0].image}'
+          set -euo pipefail
+
+          deploy_service() {
+            local service="$1"
+            local tag="$2"
+            local chart="./k8s/charts/${service}"
+            local image="${DOCKERHUB_USERNAME}/yas-${service}"
+
+            if [ ! -d "${chart}" ]; then
+              echo "Skip ${service}: chart directory ${chart} not found"
+              return 0
+            fi
+
+            echo "Deploy ${service}: ${image}:${tag}"
+
+            helm upgrade --install "${service}" "${chart}" \
+              --namespace "${NAMESPACE}" \
+              --create-namespace \
+              --set "backend.image.repository=${image}" \
+              --set "backend.image.tag=${tag}" \
+              --set "image.repository=${image}" \
+              --set "image.tag=${tag}"
+          }
+
+          deploy_service tax "${{ steps.resolve_tags.outputs.TAX_TAG }}"
+          deploy_service customer "${{ steps.resolve_tags.outputs.CUSTOMER_TAG }}"
+          deploy_service product "${{ steps.resolve_tags.outputs.PRODUCT_TAG }}"
+          deploy_service cart "${{ steps.resolve_tags.outputs.CART_TAG }}"
+          deploy_service inventory "${{ steps.resolve_tags.outputs.INVENTORY_TAG }}"
+          deploy_service order "${{ steps.resolve_tags.outputs.ORDER_TAG }}"
+          deploy_service payment "${{ steps.resolve_tags.outputs.PAYMENT_TAG }}"
+          deploy_service promotion "${{ steps.resolve_tags.outputs.PROMOTION_TAG }}"
+          deploy_service rating "${{ steps.resolve_tags.outputs.RATING_TAG }}"
+          deploy_service search "${{ steps.resolve_tags.outputs.SEARCH_TAG }}"
+          deploy_service media "${{ steps.resolve_tags.outputs.MEDIA_TAG }}"
+          deploy_service location "${{ steps.resolve_tags.outputs.LOCATION_TAG }}"
+          deploy_service webhook "${{ steps.resolve_tags.outputs.WEBHOOK_TAG }}"
+
+      - name: Wait for rollouts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          wait_service() {
+            local service="$1"
+
+            if kubectl get deployment -n "${NAMESPACE}" -l "app.kubernetes.io/instance=${service}" --no-headers 2>/dev/null | grep -q .; then
+              echo "Wait rollout for ${service}"
+              kubectl rollout status deployment \
+                -n "${NAMESPACE}" \
+                -l "app.kubernetes.io/instance=${service}" \
+                --timeout=300s
+            else
+              echo "Skip rollout check for ${service}: no deployment found by Helm instance label"
+            fi
+          }
+
+          for service in tax customer product cart inventory order payment promotion rating search media location webhook; do
+            wait_service "${service}"
+          done
+
+      - name: Verify deployed images
+        shell: bash
+        run: |
+          kubectl get pods \
+            -n "${NAMESPACE}" \
+            -o=jsonpath='{range .items[*]}{.metadata.name}{" => "}{.spec.containers[*].image}{"\n"}{end}'
+
+      - name: Show NodePort services
+        shell: bash
+        run: |
+          kubectl get svc -n "${NAMESPACE}" -o wide
