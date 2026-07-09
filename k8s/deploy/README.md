@@ -1,5 +1,5 @@
-# YAS K8S Deployment
-## Resource cluster installation reference
+# Hướng dẫn Triển khai YAS trên Kubernetes
+## Các tài liệu tham khảo cài đặt tài nguyên Cluster
 - **Postgresql:** https://github.com/zalando/postgres-operator
 - **Elasticsearch:** https://github.com/elastic/cloud-on-k8s
 - **Kafka:** https://github.com/strimzi/strimzi-kafka-operator
@@ -13,40 +13,46 @@
 - **Tempo:** https://github.com/grafana/helm-charts/tree/main/charts/tempo
 - **Promtail:** https://github.com/grafana/helm-charts/tree/main/charts/promtail
 - **Opentelemetry:** https://github.com/open-telemetry/opentelemetry-operator
-## Local installation steps
-- Require a minikube node minimum 16G memory and 40G disk space and run on Ubuntu operator
+
+---
+
+## Các bước cài đặt trực tiếp trên Local
+- Yêu cầu cấu hình Minikube tối thiểu **16G Memory** và **40G Disk Space** chạy trên hệ điều hành Ubuntu hoặc WSL2:
 ```shell
 minikube start --disk-size='40000mb' --memory='16g'
 ```
-- Enable ingress addon
+- Kích hoạt add-on Ingress trên Minikube:
 ```shell
 minikube addons enable ingress
 ```
-- Install helm
+- Cài đặt công cụ quản lý Helm:
   https://helm.sh/
-- Install yq (the tool read, update yaml file)
+- Cài đặt công cụ `yq` (dùng để đọc và cập nhật file cấu hình YAML):
   https://github.com/mikefarah/yq
-- Goto `k8s-deployment` folder
-- Execute [setup-keycloak.sh](setup-cluster.sh) to set up keycloak as the Identity and Access Management server.
+- Di chuyển vào thư mục cài đặt `k8s/deploy/`.
+- Thực thi file [setup-keycloak.sh](setup-keycloak.sh) để cấu hình máy chủ quản lý định danh và phân quyền Keycloak:
 ```shell
 ./setup-keycloak.sh
 ```
-- Execute [setup-redis.sh](setup-cluster.sh) to set up Redis as the server to store sessions for backends.
+- Thực thi file [setup-redis.sh](setup-redis.sh) để cài đặt máy chủ Redis lưu trữ session cho backend:
 ```shell
 ./setup-redis.sh
 ```
-- Execute [setup-cluster.sh](setup-cluster.sh) to set up severs: `postgresql`, `elasticsearch`, `kafka`, `debezium connect`
+- Thực thi file [setup-cluster.sh](setup-cluster.sh) để cài đặt toàn bộ dịch vụ hạ tầng nền tảng: `postgresql`, `elasticsearch`, `kafka`, `debezium connect`.
 ```shell
 ./setup-cluster.sh
 ```
-- Verify all servers run successful on namespaces: `postgres`, `elasticsearch`, `kafka`, `keycloak`
-- After all above servers are running status, execute  [deploy-yas-applications.sh](deploy-yas-applications.sh) file to deploy all of yas applications to `yas` namespace
+- Kiểm tra và đảm bảo tất cả dịch vụ hạ tầng đã khởi chạy thành công trên các namespace: `postgres`, `elasticsearch`, `kafka`, `keycloak`.
+- Khi tất cả các dịch vụ trên ở trạng thái hoạt động bình thường, thực thi file [deploy-yas-applications.sh](deploy-yas-applications.sh) để triển khai các ứng dụng của YAS lên namespace `dev` (hoặc cấu hình tùy ý):
 ```shell
-./deploy-yas-applications
+./deploy-yas-applications.sh dev
 ```
-All of YAS microservice deployed in `yas` namespace
-- Setup hosts file
-edit host file `/etc/hots`
+Toàn bộ các microservices của YAS sẽ được triển khai lên namespace của bạn.
+
+---
+
+## Cấu hình file Hosts cục bộ
+Chỉnh sửa file `/etc/hosts` (trên Linux/WSL) hoặc `C:\Windows\System32\drivers\etc\hosts` (trên Windows) để phân giải tên miền:
 ```shell
 192.168.49.2 pgoperator.yas.local.com
 192.168.49.2 pgadmin.yas.local.com
@@ -56,42 +62,41 @@ edit host file `/etc/hots`
 192.168.49.2 backoffice.yas.local.com
 192.168.49.2 storefront.yas.local.com
 192.168.49.2 grafana.yas.local.com
-
 ```
-`192.168.49.2` is ip of minikbe node use this command line to get the ip of minikube
+*Lưu ý: Thay `192.168.49.2` bằng IP thực tế của máy ảo Minikube lấy bằng lệnh:*
 ```shell
 minikube ip
 ```
-## Keycloak bootstrap admin credentials
-The username and password of Keycloak admin user store in the `keycloak-credentials` secret, `keycloak` namespace
-use bellow command line to get the admin password
+
+---
+
+## Thông tin tài khoản Admin mặc định của Keycloak
+Tài khoản và mật khẩu admin của Keycloak được lưu trữ trong secret tên là `keycloak-credentials` thuộc namespace `keycloak`.
+Chạy lệnh sau để giải mã mật khẩu quản trị:
 ```shell
 kubectl get secret keycloak-credentials -n keycloak -o jsonpath="{.data.password}" | base64 --decode
 ```
-bootstrap admin is a temporary admin user. To harden security, create a permanent admin account and delete the temporary one.
-## Cluster configuration
-All configuration of cluster is setting on [cluster-config.yaml](cluster-config.yaml) in folder k8s-deploy
+*Đây là tài khoản admin khởi tạo ban đầu. Để đảm bảo an toàn bảo mật, bạn nên tạo một tài khoản admin cố định mới và xóa tài khoản mặc định này.*
 
-## Yas configuration 
-All configurations of YAS application putted in the yas-configuration helm chart.
+---
 
-Bellow is the values of [values.yaml](../charts/yas-configuration/values.yaml)
+## Cấu hình Cluster và Ứng dụng YAS
+- Mọi thiết lập của cluster được định nghĩa tại file [cluster-config.yaml](cluster-config.yaml) trong thư mục `k8s/deploy/`.
+- Mọi cấu hình chung của ứng dụng YAS được đặt trong Helm chart tên là `yas-configuration`. Tham khảo các giá trị cấu hình tại file [values.yaml](../charts/yas-configuration/values.yaml).
+- Tất cả các Helm charts của các microservices YAS được lưu trong thư mục `charts`.
+- Xem thêm về các phiên bản đóng gói Helm chart của dự án tại: [https://nashtech-garage.github.io/yas/](https://nashtech-garage.github.io/yas/)
 
-## Yas helm charts
-All charts of Yas application situated in `charts` folder
+---
 
-To Install the Yas helm charts access to [https://nashtech-garage.github.io/yas/](https://nashtech-garage.github.io/yas/)
+## Giám sát hệ thống (Observability)
+Dự án YAS áp dụng mô hình thu thập dữ liệu giám sát theo tiêu chuẩn Open Telemetry:
+- **Lưu trữ Logs**: Sử dụng Promtail thu thập log từ tất cả ứng dụng gửi về Open Telemetry Collector, sau đó lưu vào máy chủ Loki.
+- **Traces và Metrics**: Các ứng dụng gửi dữ liệu tracing và metrics về Open Telemetry Collector, sau đó collector phân phối dữ liệu tới máy chủ Tempo và Prometheus.
+- Xem chi tiết file cấu hình Open Telemetry Collector tại [opentelemetry](./observability/opentelemetry/values.yaml).
 
-## Observability
-The Yas observability follow by the standard of Open Telemetry recommendation.
-Promtail collect the log from all applications send to Open Telemetry Collector after that, Open Telemetry Collector distribute to Loki server.
-The Yas applications also send the metric data to Open Telemetry Collector, Open Telemetry collector send the metric data to Tempo server
+### Cách xem Logs trên giao diện Grafana
+Ở menu bên trái, chọn `Explore` -> chọn datasource là `Loki` -> cấu hình bộ lọc theo nhãn (Label filters):
+- `namespace`
+- `container` (Tên microservice cần xem)
 
-View details configuration of Open Telemetry Collector at [opentelemetry](./observability/opentelemetry/values.yaml)
-
-### How to view log on the Grafana
-On the left menu select `Expore` -> select `Loki` datasource -> select Label filters:
-- namespace
-- container (Application)
-
-On the Loki also support track by traceId, on The Tempo you can select the Node graph to view the tracing of request 
+Loki cũng hỗ trợ liên kết tìm kiếm theo mã `traceId` kết hợp với Tempo để xem biểu đồ luồng request (Node graph) giữa các dịch vụ cực kỳ trực quan.

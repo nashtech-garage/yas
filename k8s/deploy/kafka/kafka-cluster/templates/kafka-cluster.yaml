@@ -33,12 +33,46 @@ spec:
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
+    jvmOptions:
+      javaSystemProperties:
+        - name: sun.net.inetaddr.negative.ttl
+          value: "0"
+        - name: sun.net.inetaddr.ttl
+          value: "30"
+    template:
+      pod:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: type
+                      operator: In
+                      values:
+                        - heavy
   zookeeper:
     replicas: {{ .Values.zookeeper.replicas }}
     storage:
       type: persistent-claim
       size: {{ .Values.zookeeper.storeSize }}
       deleteClaim: false
+    jvmOptions:
+      javaSystemProperties:
+        - name: sun.net.inetaddr.negative.ttl
+          value: "0"
+        - name: sun.net.inetaddr.ttl
+          value: "30"
+    template:
+      pod:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: type
+                      operator: In
+                      values:
+                        - heavy
   entityOperator:
     topicOperator: {}
     userOperator: {}

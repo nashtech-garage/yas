@@ -4,6 +4,7 @@ metadata:
   name: opentelemetry
 spec:
   mode: deployment
+  image: otel/opentelemetry-collector-contrib:0.95.0
   ports:
     - name: loki
       port: 3500

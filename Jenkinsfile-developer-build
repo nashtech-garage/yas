@@ -1,0 +1,342 @@
+pipeline {
+    agent any
+
+    environment {
+        // Cấu hình thông tin kết nối và định danh
+        DOCKER_USERNAME = 'besukem'
+        DOMAIN = 'yas.local' // Tên miền base cho hệ thống (được ánh xạ qua file hosts của lập trình viên)
+        HELM_TIMEOUT = '5m'
+        PATH = "${WORKSPACE}/bin:${env.PATH}"
+    }
+
+    parameters {
+        string(name: 'NAMESPACE', defaultValue: 'dev', description: 'K8s Namespace triển khai (Ví dụ: dev, staging, qa)')
+        booleanParam(name: 'DRY_RUN', defaultValue: false, description: 'Chạy mô phỏng (Dry Run) trước. Bỏ check để deploy THỰC TẾ lên K8s.')
+        
+        // --- Danh sách tham số branch của Backend Services ---
+        string(name: 'BRANCH_cart', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ cart (Ví dụ: main, dev_tax_service)')
+        string(name: 'BRANCH_customer', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ customer')
+        string(name: 'BRANCH_inventory', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ inventory')
+        string(name: 'BRANCH_media', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ media')
+        string(name: 'BRANCH_order', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ order')
+        string(name: 'BRANCH_product', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ product')
+        string(name: 'BRANCH_search', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ search')
+        string(name: 'BRANCH_tax', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ tax')
+        string(name: 'BRANCH_sampledata', defaultValue: 'main', description: 'Nhánh git để deploy cho dịch vụ sampledata')
+
+        // --- Danh sách tham số branch của Frontend & BFF ---
+        string(name: 'BRANCH_backoffice_bff', defaultValue: 'main', description: 'Nhánh git để deploy cho backoffice-bff')
+        string(name: 'BRANCH_storefront_bff', defaultValue: 'main', description: 'Nhánh git để deploy cho storefront-bff')
+        string(name: 'BRANCH_backoffice_ui', defaultValue: 'main', description: 'Nhánh git để deploy cho backoffice-ui')
+        string(name: 'BRANCH_storefront_ui', defaultValue: 'main', description: 'Nhánh git để deploy cho storefront-ui')
+    }
+
+    stages {
+        stage('Khởi tạo & Checkout') {
+            steps {
+                echo "▶ Đang dọn dẹp thư mục làm việc và tải mã nguồn mới nhất..."
+                cleanWs()
+                checkout scm
+                script {
+                    sh '''
+                        mkdir -p bin
+                        if ! command -v helm >/dev/null 2>&1; then
+                            echo "Helm chưa được cài đặt. Đang tải Helm..."
+                            curl -sSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
+                            tar -xzf helm.tar.gz
+                            mv linux-amd64/helm bin/helm
+                            chmod +x bin/helm
+                            rm -rf helm.tar.gz linux-amd64
+                        fi
+                        if ! command -v kubectl >/dev/null 2>&1; then
+                            echo "Kubectl chưa được cài đặt. Đang tải Kubectl..."
+                            curl -sSL -o bin/kubectl "https://dl.k8s.io/release/v1.28.2/bin/linux/amd64/kubectl"
+                            chmod +x bin/kubectl
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Suspend ArgoCD AutoSync') {
+            when {
+                expression { !params.DRY_RUN }
+            }
+            steps {
+                script {
+                    echo "⏸️ Suspend ArgoCD automated sync cho namespace ${params.NAMESPACE}..."
+                    // Lấy danh sách ArgoCD Application đang quản lý namespace này
+                    def argoApps = sh(
+                        script: """kubectl get application -n argocd \
+                            -o jsonpath='{range .items[?(@.spec.destination.namespace=="${params.NAMESPACE}")]}{.metadata.name}{"\\n"}{end}' 2>/dev/null || true""",
+                        returnStdout: true
+                    ).trim()
+
+                    if (argoApps) {
+                        argoApps.split('\n').each { app ->
+                            echo "  ⏸️ Suspending ArgoCD app: ${app}"
+                            sh """kubectl patch application ${app} -n argocd --type merge \
+                                -p '{"spec":{"syncPolicy":{"automated":null}}}' || true"""
+                        }
+                        env.ARGO_SUSPENDED_APPS = argoApps.replace('\n', ',')
+                        echo "✅ Đã suspend: ${env.ARGO_SUSPENDED_APPS}"
+                    } else {
+                        echo "ℹ️ Không có ArgoCD app nào quản lý namespace ${params.NAMESPACE}."
+                        env.ARGO_SUSPENDED_APPS = ''
+                    }
+                }
+            }
+        }
+
+        stage('Cấu hình Helm & Kubernetes') {
+            steps {
+                script {
+                    echo "▶ Thiết lập Helm Repositories..."
+                    // Cần thiết cho các dependency chung (như stakater)
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo add stakater https://stakater.github.io/stakater-charts || true"
+                    sh "export PATH=\$WORKSPACE/bin:\$PATH; helm repo update"
+                }
+            }
+        }
+
+        stage('Triển khai (Frontend & BFF)') {
+            steps {
+                script {
+                    def bffServices = ['backoffice-bff', 'storefront-bff']
+                    def uiServices = ['backoffice-ui', 'storefront-ui']
+                    def dryRunFlag = params.DRY_RUN ? "--dry-run" : ""
+                    
+                    echo "=========================================================="
+                    echo "TIẾN HÀNH DEPLOY FRONTEND & BFF (NAMESPACE: ${params.NAMESPACE})"
+                    echo "CHẾ ĐỘ MÔ PHỎNG (DRY_RUN): ${params.DRY_RUN}"
+                    echo "=========================================================="
+
+                    // Deploy BFF
+                    bffServices.each { svc ->
+                        def paramName = "BRANCH_${svc.replace('-', '_')}"
+                        def branchValue = params."${paramName}"
+                        def tagValue = resolveBranchToTag(branchValue, svc)
+                        def imageRepository = "${env.DOCKER_USERNAME}/${svc}"
+                        def hostName = svc.replace('-bff', '')
+                        
+                        echo "----------------------------------------------------------"
+                        
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --force --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=${hostName}.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                        
+                        if (params.DRY_RUN) {
+                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"    
+                        } else {
+                            echo "🛠️ Tự động dọn dẹp các tài nguyên cũ của ${svc} (Deployment, Service, ServiceAccount, Ingress, ConfigMap, Secret)..."
+                            sh """
+                                helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete service ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete ingress ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete configmap ${svc}-configmap -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete secret ${svc}-secret -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete configmap,secret,ingress,serviceaccount,service,deployment -l "app.kubernetes.io/name=${svc}" -n ${params.NAMESPACE} --ignore-not-found || true
+                                sleep 5
+                                ${helmCmd}
+                            """
+                        }
+                    }
+
+                    // Deploy UI
+                    uiServices.each { svc ->
+                        def paramName = "BRANCH_${svc.replace('-', '_')}"
+                        def branchValue = params."${paramName}"
+                        def tagValue = resolveBranchToTag(branchValue, svc)
+                        def imageRepository = "${env.DOCKER_USERNAME}/${svc.replace('-ui', '')}"
+                        
+                        echo "----------------------------------------------------------"
+
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --force --set ui.image.repository=${imageRepository} --set ui.image.tag=${tagValue} --timeout ${env.HELM_TIMEOUT}"
+                        
+                        if (params.DRY_RUN) {
+                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
+                        } else {
+                            echo "🛠️ Tự động dọn dẹp các tài nguyên cũ của ${svc} (Deployment, Service, ServiceAccount, Ingress, ConfigMap, Secret)..."
+                            sh """
+                                helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete service ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete ingress ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete configmap ${svc}-configmap -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete secret ${svc}-secret -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete configmap,secret,ingress,serviceaccount,service,deployment -l "app.kubernetes.io/name=${svc}" -n ${params.NAMESPACE} --ignore-not-found || true
+                                sleep 5
+                                ${helmCmd}
+                            """
+                        }
+                    }
+                    
+                    if (!params.DRY_RUN) {
+                        echo "⏳ Tạm dừng 20s để Frontend ổn định..."
+                        sleep 20
+                    }
+                }
+            }
+        }
+
+        stage('Triển khai Swagger UI') {
+            steps {
+                script {
+                    echo "▶ Deploy Swagger-UI..."
+                    def dryRunFlag = params.DRY_RUN ? "--dry-run" : ""
+                    def helmCmd = "helm upgrade --install swagger-ui helm/swagger-ui --namespace ${params.NAMESPACE} --create-namespace --force --set ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT}"
+                    
+                    if (params.DRY_RUN) {
+                        echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
+                    } else {
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; ${helmCmd}"
+                    }
+                       
+                    if (!params.DRY_RUN) {
+                        echo "⏳ Tạm dừng 10s sau khi cài Swagger..."
+                        sleep 10
+                    }
+                }
+            }
+        }
+
+        stage('Triển khai Backend Services') {
+            steps {
+                script {
+                    def backendServices = [
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'sampledata'
+                    ]
+                    def dryRunFlag = params.DRY_RUN ? "--dry-run" : ""
+                    
+                    echo "=========================================================="
+                    echo "TIẾN HÀNH DEPLOY BACKEND MICROSERVICES"
+                    echo "=========================================================="
+                    
+                    backendServices.each { svc ->
+                        def paramName = "BRANCH_${svc.replace('-', '_')}"
+                        def branchValue = params."${paramName}"
+                        def tagValue = resolveBranchToTag(branchValue, svc)
+                        def imageRepository = "${env.DOCKER_USERNAME}/${svc}"
+                        
+                        echo "----------------------------------------------------------"
+                        if (branchValue == 'latest' || branchValue == 'main' || !branchValue) {
+                            echo "✅ [DEFAULT] ${svc}: Sử dụng nhánh mặc định '${branchValue}' -> Tag 'latest'"
+                        } else {
+                            echo "🚀 [CUSTOM] ${svc}: Sử dụng nhánh '${branchValue}' -> Tag phân giải được: '${tagValue}'"
+                        }
+                        
+                        // 1. Build dependencies như bình thường
+                        sh "export PATH=\$WORKSPACE/bin:\$PATH; helm dependency build helm/${svc}"
+                        
+                        // Định nghĩa lệnh helm upgrade động theo biến của hệ thống
+                        def helmCmd = "helm upgrade --install ${svc} helm/${svc} --namespace ${params.NAMESPACE} --create-namespace --force --set backend.image.repository=${imageRepository} --set backend.image.tag=${tagValue} --set backend.ingress.host=api.${params.NAMESPACE}.${env.DOMAIN} --timeout ${env.HELM_TIMEOUT} ${dryRunFlag}"
+                        
+                        if (params.DRY_RUN) {
+                            echo "⚙️ [DRY_RUN] Sẽ thực thi lệnh: ${helmCmd}"
+                        } else {
+                            echo "🛠️ Tự động dọn dẹp các tài nguyên cũ của ${svc} (Deployment, Service, ServiceAccount, Ingress, ConfigMap, Secret)..."
+                            sh """
+                                helm uninstall ${svc} -n ${params.NAMESPACE} || true
+                                kubectl delete deployment ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete service ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete serviceaccount ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete ingress ${svc} -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete configmap ${svc}-configmap -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete secret ${svc}-secret -n ${params.NAMESPACE} --ignore-not-found || true
+                                kubectl delete configmap,secret,ingress,serviceaccount,service,deployment -l "app.kubernetes.io/name=${svc}" -n ${params.NAMESPACE} --ignore-not-found || true
+                                sleep 5
+                                ${helmCmd}
+                            """
+                        }
+                    }
+                    
+                    echo "=========================================================="
+                    echo "🎉 HOÀN THÀNH QUÁ TRÌNH TRIỂN KHAI VÀO: ${params.NAMESPACE}"
+                    echo "=========================================================="
+                }
+            }
+        }
+
+        stage('Thông tin truy cập (NodePort)') {
+            when {
+                expression { !params.DRY_RUN }
+            }
+            steps {
+                script {
+                    echo "=========================================================="
+                    echo "🌐 THÔNG TIN TRUY CẬP CHO DEVELOPER"
+                    echo "=========================================================="
+                    echo "📌 Thêm dòng sau vào file hosts của máy bạn:"
+
+                    // Lấy IP của worker node đầu tiên
+                    def nodeIp = sh(
+                        script: "kubectl get nodes -l '!node-role.kubernetes.io/master,!node-role.kubernetes.io/control-plane' -o jsonpath='{.items[0].status.addresses[?(@.type==\"InternalIP\")].address}' 2>/dev/null || kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type==\"InternalIP\")].address}'",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "   ${nodeIp}  storefront.${params.NAMESPACE}.${env.DOMAIN}"
+                    echo "   ${nodeIp}  backoffice.${params.NAMESPACE}.${env.DOMAIN}"
+                    echo "   ${nodeIp}  api.${params.NAMESPACE}.${env.DOMAIN}"
+                    echo ""
+                    echo "🔗 URLs truy cập:"
+
+                    // Lấy NodePorts từ cluster
+                    def svcs = ['backoffice-ui', 'storefront-ui', 'backoffice-bff', 'storefront-bff', 'swagger-ui']
+                    svcs.each { svc ->
+                        def port = sh(
+                            script: "kubectl get svc ${svc} -n ${params.NAMESPACE} -o jsonpath='{.spec.ports[0].nodePort}' 2>/dev/null || echo 'N/A'",
+                            returnStdout: true
+                        ).trim()
+                        if (port != 'N/A' && port) {
+                            echo "   http://${nodeIp}:${port}  (${svc})"
+                        }
+                    }
+                    echo "=========================================================="
+                    echo "⚠️  Chạy job 'developer_cleanup' khi test xong để khôi phục ArgoCD."
+                    echo "=========================================================="
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                echo "▶ Hoàn tất Pipeline. Dọn dẹp Workspace."
+                cleanWs()
+            }
+        }
+        success {
+            echo "✅ DEVELOPER BUILD COMPLETED SUCCESSFULLY."
+        }
+        failure {
+            echo "❌ DEVELOPER BUILD FAILED. Vui lòng kiểm tra log ở trên để xem chi tiết lỗi Kubernetes/Helm."
+        }
+    }
+}
+
+def resolveBranchToTag(String branchName, String serviceName) {
+    if (!branchName || branchName == 'main' || branchName == 'latest') {
+        return 'latest'
+    }
+    try {
+        def remoteRef = sh(script: "git ls-remote origin refs/heads/${branchName}", returnStdout: true).trim()
+        if (remoteRef) {
+            def commitHash = remoteRef.split()[0]
+            if (commitHash && commitHash.length() >= 7) {
+                def shortHash = commitHash.substring(0, 7)
+                echo "Resolved branch '${branchName}' for service '${serviceName}' to commit tag: ${shortHash}"
+                return shortHash
+            }
+        }
+        echo "⚠️ Branch '${branchName}' for service '${serviceName}' not found or invalid remote ref. Falling back to 'latest'."
+        return 'latest'
+    } catch (Exception e) {
+        echo "⚠️ Error resolving branch '${branchName}' for service '${serviceName}': ${e.message}. Falling back to 'latest'."
+        return 'latest'
+    }
+}

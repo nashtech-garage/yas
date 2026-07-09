@@ -1,0 +1,35 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tax-vs
+  namespace: dev
+spec:
+  hosts:
+    - tax
+  http:
+    - route:
+        - destination:
+            host: tax
+      retries:
+        attempts: 2
+        perTryTimeout: 1s
+        retryOn: 5xx,connect-failure,refused-stream
+      timeout: 5s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: tax-vs
+  namespace: staging
+spec:
+  hosts:
+    - tax
+  http:
+    - route:
+        - destination:
+            host: tax
+      retries:
+        attempts: 2
+        perTryTimeout: 1s
+        retryOn: 5xx,connect-failure,refused-stream
+      timeout: 5s

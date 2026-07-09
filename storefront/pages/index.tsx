@@ -14,3 +14,5 @@ const Home: NextPage = () => {
   );
 };
 export default Home;
+
+// trigger: testing frontend pipeline

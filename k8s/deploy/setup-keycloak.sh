@@ -5,10 +5,15 @@ set -x
 read -rd '' DOMAIN POSTGRESQL_USERNAME POSTGRESQL_PASSWORD \
 BOOTSTRAP_ADMIN_USERNAME BOOTSTRAP_ADMIN_PASSWORD \
 KEYCLOAK_BACKOFFICE_REDIRECT_URL KEYCLOAK_STOREFRONT_REDIRECT_URL \
-< <(yq -r '.domain,
-  .postgresql.username, .postgresql.password,
-  .keycloak.bootstrapAdmin.username, .keycloak.bootstrapAdmin.password,
-  .keycloak.backofficeRedirectUrl, .keycloak.storefrontRedirectUrl' ./cluster-config.yaml)
+< <(python3 -c "import yaml; cfg = yaml.safe_load(open('./cluster-config.yaml')); print('\n'.join([
+    str(cfg.get('domain', '')),
+    str(cfg.get('postgresql', {}).get('username', '')),
+    str(cfg.get('postgresql', {}).get('password', '')),
+    str(cfg.get('keycloak', {}).get('bootstrapAdmin', {}).get('username', '')),
+    str(cfg.get('keycloak', {}).get('bootstrapAdmin', {}).get('password', '')),
+    str(cfg.get('keycloak', {}).get('backofficeRedirectUrl', '')),
+    str(cfg.get('keycloak', {}).get('storefrontRedirectUrl', ''))
+]))")
 
 #Install CRD keycloak
 kubectl create namespace keycloak

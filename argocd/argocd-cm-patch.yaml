@@ -1,0 +1,10 @@
+data:
+  resource.customizations.ignoreDifferences.apps_Deployment: |
+    jsonPointers:
+    - /spec/template/spec/containers/0/image
+    - /spec/template/metadata/annotations/kubectl.kubernetes.io~1restartedAt
+  resource.customizations.health.networking.k8s.io_Ingress: |
+    hs = {}
+    hs.status = "Healthy"
+    hs.message = "Ingress is healthy"
+    return hs

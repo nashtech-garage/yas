@@ -1,0 +1,286 @@
+# ==========================================
+# AUTHORIZATION POLICIES FOR 'DEV' NAMESPACE
+# ==========================================
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: order-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/backoffice-bff
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: cart-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cart
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/order
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: customer-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: customer
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/backoffice-bff
+              - cluster.local/ns/dev/sa/order
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: inventory-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: inventory
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/backoffice-bff
+              - cluster.local/ns/dev/sa/order
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: tax-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tax
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/order
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/backoffice-bff
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: media-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: media
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/product
+              - cluster.local/ns/dev/sa/cart
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/backoffice-bff
+              - cluster.local/ns/dev/sa/sampledata
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: search-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: search
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/backoffice-bff
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: product-authz
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: product
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/dev/sa/storefront-bff
+              - cluster.local/ns/dev/sa/backoffice-bff
+              - cluster.local/ns/dev/sa/cart
+              - cluster.local/ns/dev/sa/order
+              - cluster.local/ns/dev/sa/inventory
+              - cluster.local/ns/dev/sa/search
+              - cluster.local/ns/dev/sa/sampledata
+
+---
+# ==============================================
+# AUTHORIZATION POLICIES FOR 'STAGING' NAMESPACE
+# ==============================================
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: order-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/backoffice-bff
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: cart-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cart
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/order
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: customer-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: customer
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/backoffice-bff
+              - cluster.local/ns/staging/sa/order
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: inventory-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: inventory
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/backoffice-bff
+              - cluster.local/ns/staging/sa/order
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: tax-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tax
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/order
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/backoffice-bff
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: media-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: media
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/product
+              - cluster.local/ns/staging/sa/cart
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/backoffice-bff
+              - cluster.local/ns/staging/sa/sampledata
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: search-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: search
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/backoffice-bff
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: product-authz
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: product
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/storefront-bff
+              - cluster.local/ns/staging/sa/backoffice-bff
+              - cluster.local/ns/staging/sa/cart
+              - cluster.local/ns/staging/sa/order
+              - cluster.local/ns/staging/sa/inventory
+              - cluster.local/ns/staging/sa/search
+              - cluster.local/ns/staging/sa/sampledata

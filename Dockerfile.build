@@ -1,0 +1,22 @@
+# Stage 1: Build Java jar
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+WORKDIR /build
+# Copy maven wrapper and pom.xml files to cache dependencies
+COPY pom.xml /build/
+COPY common-library/pom.xml /build/common-library/
+COPY search/pom.xml /build/search/
+# Copy source code and config
+COPY common-library/src /build/common-library/src
+COPY search/src /build/search/src
+COPY search/wait-for-it.sh /build/search/
+# Build the search service and common-library dependency
+RUN mvn clean package -pl search -am -DskipTests
+
+# Stage 2: Create final runtime image
+FROM eclipse-temurin:21-jre-alpine
+RUN apk add --no-cache bash
+WORKDIR /
+COPY --from=builder /build/search/target/search-1.0-SNAPSHOT.jar app.jar
+COPY --from=builder /build/search/wait-for-it.sh wait-for-it.sh
+RUN chmod +x wait-for-it.sh
+ENTRYPOINT ["java", "-jar", "/app.jar"]

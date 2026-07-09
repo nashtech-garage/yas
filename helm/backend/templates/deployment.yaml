@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.deployment.annotations | nindent 4 }}
+    {{- if .Values.deployment.extraAnnotations }}
+      {{- toYaml .Values.deployment.extraAnnotations | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "backend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "backend.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: yas-configuration
+          configMap:
+            name: yas-configuration-configmap
+        {{- with .Values.extraVolumes}}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ include "backend.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: yas-postgresql-credentials-secret
+            {{- with .Values.extraEnvFroms }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          env:
+            - name: LOGGING_CONFIG
+              value: {{ .Values.logbackXmlPath }}
+            - name: SPRING_DATASOURCE_URL
+              value: {{ .Values.databaseConnectionUrl }}/{{ .Values.databaseName }}
+            {{- if .Values.extraApplicationConfigPaths }}
+            - name: SPRING_CONFIG_ADDITIONAL_LOCATION
+              value: /opt/yas/config/application.yaml,{{ join "," .Values.extraApplicationConfigPaths }}
+            {{- else }}
+            - name: SPRING_CONFIG_ADDITIONAL_LOCATION
+              value: /opt/yas/config/application.yaml
+            {{- end }}
+            {{- with .Values.extraEnvs }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - mountPath: /opt/yas/config
+              name: yas-configuration
+            {{- with .Values.extraVolumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.httpPort }}
+              protocol: TCP
+            - name: metric
+              containerPort: {{ .Values.metricPort }}
+          lifecycle:
+            {{ toYaml .Values.lifecycle | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

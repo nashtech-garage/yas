@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        // Lấy commit id (7 ký tự đầu)
+        COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout source code từ SCM (Git)
+                checkout scm
+            }
+        }
+
+        stage('Build Java (Maven)') {
+            steps {
+                // Đảm bảo file mvnw có quyền thực thi
+                sh 'chmod +x mvnw'
+                
+                // Build file jar cho service tax bằng Java 21
+                sh './mvnw clean package -pl tax -am -DskipTests'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo "Building Docker image for tax service with tag: ${COMMIT_ID}"
+                    
+                    // Build docker image
+                    sh "docker build -t yas-tax:${COMMIT_ID} ./tax"
+                }
+            }
+        }
+
+        stage('Log Result') {
+            steps {
+                script {
+                    echo "Successfully built image yas-tax with tag ${COMMIT_ID}"
+                    // In ra kết quả image vừa build
+                    sh "docker images yas-tax"
+                }
+            }
+        }
+    }
+}

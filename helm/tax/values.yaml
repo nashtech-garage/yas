@@ -1,0 +1,10 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-tax
+    tag: latest
+
+  nameOverride: tax
+  fullnameOverride: tax
+  databaseName: tax
+  ingress:
+    enabled: false
