@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_USER = 'lebaoo12'
+        KUBECONFIG_ID = 'k8s-kubeconfig'
+    }
+    stages {
+        stage('Rollback K8S to Main') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_ID}", variable: 'KUBECONFIG')]) {
+                    script {
+                        echo "🧹 Bắt đầu dọn dẹp: Reset toàn bộ code YAS về nhánh main..."
+                        echo "⚠️ Không dùng lệnh delete --all để tránh làm sập Postgres/Redis/Keycloak của A!"
+                        
+                        def serviceMap = [
+                            'product': 'product', 'media': 'media', 'customer': 'customer',
+                            'cart': 'cart', 'tax': 'tax', 'order': 'order', 'rating': 'rating',
+                            'location': 'location', 'inventory': 'inventory', 'promotion': 'promotion',
+                            'payment': 'payment', 'search': 'search', 'sampledata': 'sampledata',
+                            'storefront': 'storefront-bff', 'storefront-nextjs': 'storefront',
+                            'backoffice': 'backoffice-bff', 'backoffice-nextjs': 'backoffice'
+                        ]
+
+                        serviceMap.each { deploymentName, imageName ->
+                            sh "KUBECONFIG=\$KUBECONFIG kubectl set image deployment/${deploymentName} ${deploymentName}=${DOCKER_USER}/yas-${imageName}:main -n default"
+                        }
+                        
+                        echo "✅ Môi trường test đã được khôi phục về trạng thái gốc (main)!"
+                    }
+                }
+            }
+        }
+    }
+}
