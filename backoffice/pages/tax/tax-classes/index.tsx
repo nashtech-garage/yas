@@ -8,7 +8,7 @@ import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { handleDeletingResponse } from '@commonServices/ResponseStatusHandlingService';
 import type { TaxClass } from '@taxModels/TaxClass';
 import { deleteTaxClass, getPageableTaxClasses } from '@taxServices/TaxClassService';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, TAX_CLASS_URL } from 'constants/Common';
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, TAX_CLASS_URL } from '../../../constants/Common';
 
 const TaxClassList: NextPage = () => {
   const [taxClassIdWantToDelete, setTaxClassIdWantToDelete] = useState<number>(-1);

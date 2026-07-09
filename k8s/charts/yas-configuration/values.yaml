@@ -19,6 +19,7 @@ applicationConfig:
   server:
     shutdown: graceful
     port: 80
+    forward-headers-strategy: framework
 
   management:
     otlp:
@@ -97,109 +98,113 @@ gatewayRoutesConfig:
   spring:
     cloud:
       gateway:
-        routes:
-          - id: product_api
-            uri: http://product
-            predicates:
-              - Path=/api/product/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: location_api
-            uri: http://location
-            predicates:
-              - Path=/api/location/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: inventory_api
-            uri: http://inventory
-            predicates:
-              - Path=/api/inventory/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: cart_api
-            uri: http://cart
-            predicates:
-              - Path=/api/cart/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: customer_api
-            uri: http://customer
-            predicates:
-              - Path=/api/customer/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: media_api
-            uri: http://media
-            predicates:
-              - Path=/api/media/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: rating_api
-            uri: http://rating
-            predicates:
-              - Path=/api/rating/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: tax_api
-            uri: http://tax
-            predicates:
-              - Path=/api/tax/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: promotion_api
-            uri: http://protion
-            predicates:
-              - Path=/api/promotion/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: search_api
-            uri: http://search
-            predicates:
-              - Path=/api/search/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: order_api
-            uri: http://order
-            predicates:
-              - Path=/api/order/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: recommendation_api
-            uri: http://recommendation
-            predicates:
-              - Path=/api/recommendation/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: webhook_api
-            uri: http://webhook
-            predicates:
-              - Path=/api/webhook/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: sampledata_api
-            uri: http://sampledata
-            predicates:
-              - Path=/api/sampledata/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-              - TokenRelay=
-          - id: ui
-            uri: ${UI_HOST}
-            predicates:
-              - Path=/**
+        server:
+          webflux:
+            default-filters:
+              - SaveSession
+            routes:
+              - id: product_api
+                uri: http://product
+                predicates:
+                  - Path=/api/product/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: location_api
+                uri: http://location
+                predicates:
+                  - Path=/api/location/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: inventory_api
+                uri: http://inventory
+                predicates:
+                  - Path=/api/inventory/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: cart_api
+                uri: http://cart
+                predicates:
+                  - Path=/api/cart/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: customer_api
+                uri: http://customer
+                predicates:
+                  - Path=/api/customer/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: media_api
+                uri: http://media
+                predicates:
+                  - Path=/api/media/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: rating_api
+                uri: http://rating
+                predicates:
+                  - Path=/api/rating/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: tax_api
+                uri: http://tax
+                predicates:
+                  - Path=/api/tax/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: promotion_api
+                uri: http://promotion
+                predicates:
+                  - Path=/api/promotion/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: search_api
+                uri: http://search
+                predicates:
+                  - Path=/api/search/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: order_api
+                uri: http://order
+                predicates:
+                  - Path=/api/order/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: recommendation_api
+                uri: http://recommendation
+                predicates:
+                  - Path=/api/recommendation/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: webhook_api
+                uri: http://webhook
+                predicates:
+                  - Path=/api/webhook/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: sampledata_api
+                uri: http://sampledata
+                predicates:
+                  - Path=/api/sampledata/**
+                filters:
+                  - RewritePath=/api/(?<segment>.*), /$\{segment}
+                  - TokenRelay=
+              - id: nextjs
+                uri: ${UI_HOST}
+                predicates:
+                  - Path=/**
 
 backofficeBffExtraConfig:
   spring:
@@ -214,6 +219,11 @@ backofficeBffExtraConfig:
           provider:
             keycloak:
               issuer-uri: http://identity.yas.local.com/realms/Yas
+              authorization-uri: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/auth
+              token-uri: http://keycloak-service.dev.svc.cluster.local/realms/Yas/protocol/openid-connect/token
+              jwk-set-uri: http://keycloak-service.dev.svc.cluster.local/realms/Yas/protocol/openid-connect/certs
+              user-info-uri: http://keycloak-service.dev.svc.cluster.local/realms/Yas/protocol/openid-connect/userinfo
+              user-name-attribute: preferred_username
           registration:
             api-client:
               provider: keycloak
@@ -234,6 +244,11 @@ storefrontBffExtraConfig:
           provider:
             keycloak:
               issuer-uri: http://identity.yas.local.com/realms/Yas
+              authorization-uri: http://identity.yas.local.com/realms/Yas/protocol/openid-connect/auth
+              token-uri: http://keycloak-service.dev.svc.cluster.local/realms/Yas/protocol/openid-connect/token
+              jwk-set-uri: http://keycloak-service.dev.svc.cluster.local/realms/Yas/protocol/openid-connect/certs
+              user-info-uri: http://keycloak-service.dev.svc.cluster.local/realms/Yas/protocol/openid-connect/userinfo
+              user-name-attribute: preferred_username
           registration:
             api-client:
               provider: keycloak

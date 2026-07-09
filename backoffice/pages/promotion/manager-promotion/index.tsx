@@ -1,7 +1,7 @@
 import ModalDeleteCustom from '@commonItems/ModalDeleteCustom';
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { PromotionListRequest, PromotionPage } from 'modules/promotion/models/Promotion';
-import { deletePromotion, getPromotions } from 'modules/promotion/services/PromotionService';
+import { deletePromotion, getPromotions } from '../../../modules/promotion/services/PromotionService';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

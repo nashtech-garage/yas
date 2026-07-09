@@ -5,12 +5,12 @@ import ReactPaginate from 'react-paginate';
 import moment from 'moment';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import queryString from 'query-string';
-import { getOrders } from 'modules/order/services/OrderService';
+import { getOrders } from '../../../modules/order/services/OrderService';
 import { OrderSearchForm } from 'modules/order/models/OrderSearchForm';
 import { DEFAULT_PAGE_SIZE } from '@constants/Common';
 import { Order } from 'modules/order/models/Order';
-import OrderSearch from 'modules/order/components/OrderSearch';
-import { formatPriceUSD } from 'utils/formatPrice';
+import OrderSearch from '../../../modules/order/components/OrderSearch';
+import { formatPriceUSD } from '../../../utils/formatPrice';
 import Link from 'next/link';
 
 const Orders: NextPage = () => {

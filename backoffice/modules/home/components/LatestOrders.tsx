@@ -1,5 +1,5 @@
 import { Order } from 'modules/order/models/Order';
-import { getLatestOrders } from 'modules/order/services/OrderService';
+import { getLatestOrders } from '../../order/services/OrderService';
 import moment from 'moment';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
