@@ -1,0 +1,75 @@
+name: developer_build
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service cần deploy"
+        required: true
+        type: choice
+        options:
+          - tax
+          - customer
+          - product
+          - cart
+          - inventory
+          - order
+          - payment
+          - promotion
+          - rating
+          - search
+          - media
+          - location
+          - webhook
+
+      branch:
+        description: "Branch muốn deploy (VD: dev_tax_service)"
+        required: true
+        default: main
+
+jobs:
+  deploy:
+
+    runs-on: self-hosted
+
+    env:
+      NAMESPACE: yas-dev
+
+    steps:
+
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 1
+
+      - name: Get latest commit SHA
+        id: vars
+        run: |
+          echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Show image tag
+        run: |
+          echo "Deploy image:"
+          echo "nguyenmanhha/yas-${{ github.event.inputs.service }}:${{ steps.vars.outputs.TAG }}"
+
+      - name: Deploy Helm Chart
+        run: |
+          helm upgrade --install \
+            ${{ github.event.inputs.service }} \
+            ./k8s/charts/${{ github.event.inputs.service }} \
+            --namespace ${NAMESPACE} \
+            --set backend.image.tag=${{ steps.vars.outputs.TAG }}
+
+      - name: Wait rollout
+        run: |
+          kubectl rollout status deployment/${{ github.event.inputs.service }} \
+            -n ${NAMESPACE} \
+            --timeout=300s
+
+      - name: Verify image
+        run: |
+          kubectl get deployment \
+            ${{ github.event.inputs.service }} \
+            -n ${NAMESPACE} \
+            -o=jsonpath='{.spec.template.spec.containers[0].image}'
