@@ -9,7 +9,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: "${KUBECONFIG_ID}", variable: 'KUBECONFIG')]) {
                     script {
-                        def gitTag = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
+                        def gitTag = sh(script: "git describe --tags --abbrev=0 2>/dev/null || echo main", returnStdout: true).trim()
                         echo "🎁 Deploy phiên bản ${gitTag} vào namespace STAGING..."
                         
                         def serviceMap = [
