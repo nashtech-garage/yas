@@ -30,19 +30,25 @@ pipeline {
                     script {
                         // Map ánh xạ: [Tên_Deployment_K8s : Hậu_tố_Image_Docker]
                         def serviceMap = [
-                            'product': 'product', 'media': 'media', 'customer': 'customer',
-                            'cart': 'cart', 'tax': 'tax', 'order': 'order',
-                            'inventory': 'inventory', 'search': 'search', 'sampledata': 'sampledata',
-                            'storefront': 'storefront-bff',
-                            'storefront-nextjs': 'storefront',
-                            'backoffice': 'backoffice-bff',
-                            'backoffice-nextjs': 'backoffice'
+                            [deploymentName: 'product', imageName: 'product', paramKey: 'PRODUCT_BRANCH'],
+                            [deploymentName: 'media', imageName: 'media', paramKey: 'MEDIA_BRANCH'],
+                            [deploymentName: 'customer', imageName: 'customer', paramKey: 'CUSTOMER_BRANCH'],
+                            [deploymentName: 'cart', imageName: 'cart', paramKey: 'CART_BRANCH'],
+                            [deploymentName: 'tax', imageName: 'tax', paramKey: 'TAX_BRANCH'],
+                            [deploymentName: 'order', imageName: 'order', paramKey: 'ORDER_BRANCH'],
+                            [deploymentName: 'inventory', imageName: 'inventory', paramKey: 'INVENTORY_BRANCH'],
+                            [deploymentName: 'search', imageName: 'search', paramKey: 'SEARCH_BRANCH'],
+                            [deploymentName: 'sampledata', imageName: 'sampledata', paramKey: 'SAMPLEDATA_BRANCH'],
+                            [deploymentName: 'storefront-bff', imageName: 'storefront-bff', paramKey: 'STOREFRONT_BRANCH'],
+                            [deploymentName: 'storefront-ui', imageName: 'storefront', paramKey: 'STOREFRONT_NEXTJS_BRANCH'],
+                            [deploymentName: 'backoffice-bff', imageName: 'backoffice-bff', paramKey: 'BACKOFFICE_BRANCH'],
+                            [deploymentName: 'backoffice-ui', imageName: 'backoffice', paramKey: 'BACKOFFICE_NEXTJS_BRANCH']
                         ]
                         
-                        serviceMap.each { deploymentName, imageName ->
-                            // Biến đổi tên tham số, vd: storefront-nextjs -> STOREFRONT_NEXTJS_BRANCH
-                            def paramKey = "${deploymentName.toUpperCase().replace('-', '_')}_BRANCH"
-                            def branchName = params[paramKey]
+                        serviceMap.each { service ->
+                            def deploymentName = service.deploymentName
+                            def imageName = service.imageName
+                            def branchName = params[service.paramKey]
                             def imageTag = 'main'
                             
                             if (branchName != 'main') {
