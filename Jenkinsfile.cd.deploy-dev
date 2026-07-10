@@ -12,7 +12,7 @@ pipeline {
                         def serviceMap = [
                             'product': 'product', 'media': 'media', 'customer': 'customer',
                             'cart': 'cart', 'tax': 'tax', 'order': 'order',
-                            'inventory': 'inventory', 'search': 'search', 'sampledata': 'sampledata',
+                            'inventory': 'inventory', 'search': 'search',
                             'storefront-bff': 'storefront-bff', 'storefront-ui': 'storefront',
                             'backoffice-bff': 'backoffice-bff', 'backoffice-ui': 'backoffice'
                         ]
