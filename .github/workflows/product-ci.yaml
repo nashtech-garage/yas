@@ -2,7 +2,7 @@ name: product service ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
     paths:
       - "product/**"
       - ".github/workflows/actions/action.yaml"
@@ -18,34 +18,47 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
+  test:
+    name: Phase 1 - Test
     runs-on: ubuntu-latest
     env:
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl product -am
+
+      - name: Set up Java and Maven cache
+        uses: ./.github/workflows/actions
+
+      # Chỉ chạy unit test; không package/install ứng dụng trong phase này.
+      # jacoco:report tạo báo cáo coverage sau khi test hoàn tất.
+      - name: Run unit tests and generate coverage
+        run: mvn -B -ntp clean test jacoco:report -pl product -am
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl product -am -Dcheckstyle.output.file=product-checkstyle-result.xml
+        run: mvn -B -ntp checkstyle:checkstyle -pl product -am -Dcheckstyle.output.file=product-checkstyle-result.xml
+
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           path: "**/product-checkstyle-result.xml"
+
       - name: Upload Test and Coverage Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Product-Service-Reports
           path: |
-            **/target/surefire-reports/
-            **/target/site/jacoco/
+            product/target/surefire-reports/
+            product/target/site/jacoco/
+          if-no-files-found: warn
           retention-days: 7
+
       - name: Test Results
         uses: dorny/test-reporter@v1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
@@ -53,22 +66,49 @@ jobs:
           name: Product-Service-Unit-Test-Results
           path: "product/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
+
+      - name: Analyze with SonarCloud
         continue-on-error: true
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f product
+        run: mvn -B -ntp org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f product
+
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
-          paths: ${{github.workspace}}/product/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
+          paths: ${{ github.workspace }}/product/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 70
           min-coverage-changed-files: 60
           title: "Product Coverage Report"
           update-comment: true
+
+  build:
+    name: Phase 2 - Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Java and Maven cache
+        uses: ./.github/workflows/actions
+
+      # Chỉ package ứng dụng sau khi phase Test thành công; không chạy lại test.
+      - name: Build Product service
+        run: mvn -B -ntp clean package -pl product -am -DskipTests
+
+      - name: Upload built JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: Product-Service-JAR
+          path: product/target/*.jar
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -76,6 +116,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
