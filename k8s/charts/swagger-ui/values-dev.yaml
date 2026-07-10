@@ -12,11 +12,9 @@ urls: "[{ url: 'http://backoffice.dev.yas.local.com/product/v3/api-docs', name: 
 ingress:
   enabled: true
   className: "traefik"
-  host: api.dev.yas.local.com
+  host: backoffice.dev.yas.local.com
   hosts:
-    - host: api.dev.yas.local.com
+    - host: backoffice.dev.yas.local.com
       paths:
         - path: /swagger-ui
-          pathType: ImplementationSpecific
-        - path: /
           pathType: ImplementationSpecific
