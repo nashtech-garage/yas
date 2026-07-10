@@ -17,6 +17,16 @@ spec:
             principals:
               - cluster.local/ns/dev/sa/storefront-bff
               - cluster.local/ns/dev/sa/backoffice-bff
+    - to:
+        - operation:
+            paths:
+              - "/order/v3/api-docs"
+              - "/order/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+        - operation:
+            ports:
+              - "8090"
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -33,6 +43,16 @@ spec:
             principals:
               - cluster.local/ns/dev/sa/storefront-bff
               - cluster.local/ns/dev/sa/order
+    - to:
+        - operation:
+            paths:
+              - "/cart/v3/api-docs"
+              - "/cart/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+        - operation:
+            ports:
+              - "8090"
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -50,6 +70,16 @@ spec:
               - cluster.local/ns/dev/sa/storefront-bff
               - cluster.local/ns/dev/sa/backoffice-bff
               - cluster.local/ns/dev/sa/order
+    - to:
+        - operation:
+            paths:
+              - "/customer/v3/api-docs"
+              - "/customer/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+        - operation:
+            ports:
+              - "8090"
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -67,6 +97,16 @@ spec:
               - cluster.local/ns/dev/sa/storefront-bff
               - cluster.local/ns/dev/sa/backoffice-bff
               - cluster.local/ns/dev/sa/order
+    - to:
+        - operation:
+            paths:
+              - "/inventory/v3/api-docs"
+              - "/inventory/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+        - operation:
+            ports:
+              - "8090"
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -84,6 +124,16 @@ spec:
               - cluster.local/ns/dev/sa/order
               - cluster.local/ns/dev/sa/storefront-bff
               - cluster.local/ns/dev/sa/backoffice-bff
+    - to:
+        - operation:
+            paths:
+              - "/tax/v3/api-docs"
+              - "/tax/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+        - operation:
+            ports:
+              - "8090"
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -103,6 +153,22 @@ spec:
               - cluster.local/ns/dev/sa/storefront-bff
               - cluster.local/ns/dev/sa/backoffice-bff
               - cluster.local/ns/dev/sa/sampledata
+    - to:
+        - operation:
+            paths:
+              - "/media/v3/api-docs"
+              - "/media/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+              - "/media/medias/*"
+              - "/media/medias/*/*"
+              - "/media/medias/*/*/*"
+              - "/medias/*"
+              - "/medias/*/*"
+              - "/medias/*/*/*"
+        - operation:
+            ports:
+              - "8090"
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -119,6 +185,16 @@ spec:
             principals:
               - cluster.local/ns/dev/sa/storefront-bff
               - cluster.local/ns/dev/sa/backoffice-bff
+    - to:
+        - operation:
+            paths:
+              - "/search/v3/api-docs"
+              - "/search/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+        - operation:
+            ports:
+              - "8090"
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -140,6 +216,17 @@ spec:
               - cluster.local/ns/dev/sa/inventory
               - cluster.local/ns/dev/sa/search
               - cluster.local/ns/dev/sa/sampledata
+    - to:
+        - operation:
+            paths:
+              - "/product/v3/api-docs"
+              - "/product/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+        - operation:
+            ports:
+              - "8090"
+
 
 ---
 # ==============================================
@@ -247,6 +334,23 @@ spec:
               - cluster.local/ns/staging/sa/storefront-bff
               - cluster.local/ns/staging/sa/backoffice-bff
               - cluster.local/ns/staging/sa/sampledata
+    - to:
+        - operation:
+            paths:
+              - "/media/v3/api-docs"
+              - "/media/v3/api-docs/*"
+              - "/v3/api-docs"
+              - "/v3/api-docs/*"
+              - "/media/medias/*"
+              - "/media/medias/*/*"
+              - "/media/medias/*/*/*"
+              - "/medias/*"
+              - "/medias/*/*"
+              - "/medias/*/*/*"
+        - operation:
+            ports:
+              - "8090"
+
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
