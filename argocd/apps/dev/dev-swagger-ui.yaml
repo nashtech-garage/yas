@@ -12,9 +12,9 @@ spec:
     targetRevision: 'main'
     path: k8s/charts/swagger-ui
     helm:
-      parameters:
-        - name: ingress.host
-          value: 'api.dev.yas.local.com'
+      valueFiles:
+        - values.yaml
+        - values-dev.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: dev
