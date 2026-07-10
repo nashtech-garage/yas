@@ -39,10 +39,10 @@ pipeline {
                             [deploymentName: 'inventory', imageName: 'inventory', paramKey: 'INVENTORY_BRANCH'],
                             [deploymentName: 'search', imageName: 'search', paramKey: 'SEARCH_BRANCH'],
                             [deploymentName: 'sampledata', imageName: 'sampledata', paramKey: 'SAMPLEDATA_BRANCH'],
-                            [deploymentName: 'storefront-bff', imageName: 'storefront-bff', paramKey: 'STOREFRONT_BRANCH'],
-                            [deploymentName: 'storefront-ui', imageName: 'storefront', paramKey: 'STOREFRONT_NEXTJS_BRANCH'],
-                            [deploymentName: 'backoffice-bff', imageName: 'backoffice-bff', paramKey: 'BACKOFFICE_BRANCH'],
-                            [deploymentName: 'backoffice-ui', imageName: 'backoffice', paramKey: 'BACKOFFICE_NEXTJS_BRANCH']
+                            [deploymentName: 'storefront', imageName: 'storefront-bff', paramKey: 'STOREFRONT_BRANCH'],
+                            [deploymentName: 'storefront-nextjs', imageName: 'storefront', paramKey: 'STOREFRONT_NEXTJS_BRANCH'],
+                            [deploymentName: 'backoffice', imageName: 'backoffice-bff', paramKey: 'BACKOFFICE_BRANCH'],
+                            [deploymentName: 'backoffice-nextjs', imageName: 'backoffice', paramKey: 'BACKOFFICE_NEXTJS_BRANCH']
                         ]
                         
                         serviceMap.each { service ->
